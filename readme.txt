@@ -15,6 +15,23 @@ It is a plug-in with a lot of payment methods and all payment methods are SEPA p
 The Buckaroo (dutch: http://www.buckaroo.nl or english: http://www.buckaroo-payments.com) plug-in is a good working plug-in, is easy to install and takes all the troubles out of your hands.
 It is a plug-in with a lot of payment methods and all payment methods are SEPA proof. So install the plug-in and this plug-in will open your world.
 
+Payment method support list
+
+1. iDEAL
+2. Creditcards (Visa, MasterCard, American Express)
+3. Direct debit With/Without credit managment
+4. eMaestro
+5. Giftcards
+6. Giropay
+7. Bancontact / Mister Cash
+8. Payment Guarantee
+9. PayPal
+10. PaySafeCard
+11. Sofortbanking
+12. Transfer
+13. Ippies
+14. Afterpay
+
 == Installation ==
 
 Easy installation that get the plug-in work!
