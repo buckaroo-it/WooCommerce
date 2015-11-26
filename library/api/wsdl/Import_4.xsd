@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="https://checkout.buckaroo.nl/PaymentEngine/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="https://checkout.buckaroo.nl/PaymentEngine/">
+  <xs:import schemaLocation="Soap_1_2_3_4.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/TransactionRequest/Fault/"/>
+  <xs:import schemaLocation="Soap_1_2_3_4_5_6.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/TransactionRequestSpecification/Fault/"/>
+  <xs:import schemaLocation="Soap_1_2_3_4_5_6_7.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/TransactionStatus/Fault/"/>
+  <xs:import schemaLocation="Soap_1_2_3_4_5_6_7_8_9.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/RefundInfo/Fault/"/>
+  <xs:import schemaLocation="Soap_1_2_3_4_5_6_7_8_9_10_11.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/InvoiceInfo/Fault/"/>
+  <xs:element name="MessageControlBlock" type="tns:MessageControlBlock"/>
+  <xs:complexType name="MessageControlBlock">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="WebsiteKey" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Culture" type="xs:string"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="TimeStamp" type="xs:dateTime"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Channel" type="tns:Channels"/>
+    </xs:sequence>
+    <xs:attribute name="Id" type="xs:ID"/>
+  </xs:complexType>
+  <xs:simpleType name="Channels">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Web"/>
+      <xs:enumeration value="PointOfSale"/>
+      <xs:enumeration value="BatchFile"/>
+      <xs:enumeration value="Employee"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="TestPaymentDetailStatusCode" type="xs:string"/>
+  <xs:element name="TestStatusCode" type="xs:string"/>
+  <xs:element name="TransactionRequestFault" nillable="true" type="q1:TransactionRequestFault" xmlns:q1="https://checkout.buckaroo.nl/PaymentEngine/TransactionRequest/Fault/"/>
+  <xs:element name="TransactionRequestSpecificationFault" nillable="true" type="q2:TransactionRequestSpecificationFault" xmlns:q2="https://checkout.buckaroo.nl/PaymentEngine/TransactionRequestSpecification/Fault/"/>
+  <xs:element name="TransactionStatusFault" nillable="true" type="q3:TransactionStatusFault" xmlns:q3="https://checkout.buckaroo.nl/PaymentEngine/TransactionStatus/Fault/"/>
+  <xs:element name="RefundInfoFault" nillable="true" type="q4:RefundInfoFault" xmlns:q4="https://checkout.buckaroo.nl/PaymentEngine/RefundInfo/Fault/"/>
+  <xs:element name="InvoiceInfoFault" nillable="true" type="q5:InvoiceInfoFault" xmlns:q5="https://checkout.buckaroo.nl/PaymentEngine/InvoiceInfo/Fault/"/>
+</xs:schema>

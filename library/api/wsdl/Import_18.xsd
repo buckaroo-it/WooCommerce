@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="https://checkout.buckaroo.nl/PaymentEngine/2012/05/TransactionStatus/Request/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="https://checkout.buckaroo.nl/PaymentEngine/2012/05/TransactionStatus/Request/">
+  <xs:element name="TransactionStatus" type="tns:Body"/>
+  <xs:complexType name="Body">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Transaction" type="tns:Transaction"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Transaction">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="CustomParameter" type="tns:CustomParameter"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AdditionalParameter" type="tns:CustomParameter"/>
+    </xs:sequence>
+    <xs:attribute name="Key" type="xs:string"/>
+    <xs:attribute name="Invoice" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="CustomParameter">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Name" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:schema>

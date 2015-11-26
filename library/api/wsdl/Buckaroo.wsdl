@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="Soap" targetNamespace="https://checkout.buckaroo.nl/PaymentEngine/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="https://checkout.buckaroo.nl/PaymentEngine/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="https://checkout.buckaroo.nl/PaymentEngine/Imports">
+      <xsd:import schemaLocation="Import_1.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2011/10/TransactionRequest/Request/"/>
+      <xsd:import schemaLocation="Import_2.xsd" namespace="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"/>
+      <xsd:import schemaLocation="Import_4.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/"/>
+      <xsd:import schemaLocation="Import_14.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2011/10/TransactionRequest/Response/"/>
+      <xsd:import schemaLocation="Import_3.xsd" namespace="http://www.w3.org/2000/09/xmldsig#"/>
+      <xsd:import schemaLocation="Import_5.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/TransactionRequest/Fault/"/>
+      <xsd:import schemaLocation="Import_6.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2011/10/TransactionRequest/Fault/"/>
+      <xsd:import schemaLocation="Import_15.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2011/10/TransactionRequestSpecification/Request/"/>
+      <xsd:import schemaLocation="Import_16.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/TransactionRequestSpecification/Request/"/>
+      <xsd:import schemaLocation="Import_17.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2011/10/TransactionRequestSpecification/Response/"/>
+      <xsd:import schemaLocation="Import_7.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/TransactionRequestSpecification/Fault/"/>
+      <xsd:import schemaLocation="Import_18.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2012/05/TransactionStatus/Request/"/>
+      <xsd:import schemaLocation="Import_19.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2012/05/TransactionStatus/Response/"/>
+      <xsd:import schemaLocation="Import_8.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/TransactionStatus/Fault/"/>
+      <xsd:import schemaLocation="Import_9.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2012/05/TransactionStatus/Fault/"/>
+      <xsd:import schemaLocation="Import_20.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2012/05/TransactionStatus/Push/"/>
+      <xsd:import schemaLocation="Import_21.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2012/05/TransactionStatus/Push/Response/"/>
+      <xsd:import schemaLocation="Import_22.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2012/06/RefundInfo/Request/"/>
+      <xsd:import schemaLocation="Import_23.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2012/06/RefundInfo/Response/"/>
+      <xsd:import schemaLocation="Import_10.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/RefundInfo/Fault/"/>
+      <xsd:import schemaLocation="Import_11.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2012/06/RefundInfo/Fault/"/>
+      <xsd:import schemaLocation="Import_24.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2012/06/InvoiceInfo/Request/"/>
+      <xsd:import schemaLocation="Import_25.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2012/06/InvoiceInfo/Response/"/>
+      <xsd:import schemaLocation="Import_12.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/InvoiceInfo/Fault/"/>
+      <xsd:import schemaLocation="Import_13.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2012/06/InvoiceInfo/Fault/"/>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="Request">
+    <wsdl:part name="TransactionRequest" element="q1:TransactionRequest" xmlns:q1="https://checkout.buckaroo.nl/PaymentEngine/2011/10/TransactionRequest/Request/"/>
+  </wsdl:message>
+  <wsdl:message name="Request_Headers">
+    <wsdl:part name="Security" element="q2:Security" xmlns:q2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"/>
+    <wsdl:part name="MessageControlBlock" element="tns:MessageControlBlock"/>
+    <wsdl:part name="TestPaymentDetailStatusCode" element="tns:TestPaymentDetailStatusCode"/>
+    <wsdl:part name="TestStatusCode" element="tns:TestStatusCode"/>
+  </wsdl:message>
+  <wsdl:message name="Response">
+    <wsdl:part name="TransactionResponse" element="q3:TransactionResponse" xmlns:q3="https://checkout.buckaroo.nl/PaymentEngine/2011/10/TransactionRequest/Response/"/>
+  </wsdl:message>
+  <wsdl:message name="Response_Headers">
+    <wsdl:part name="Security" element="q4:Security" xmlns:q4="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"/>
+    <wsdl:part name="MessageControlBlock" element="tns:MessageControlBlock"/>
+  </wsdl:message>
+  <wsdl:message name="CentralSoapGateway_TransactionRequest_RequestErrorFault_FaultMessage">
+    <wsdl:part name="detail" element="tns:TransactionRequestFault"/>
+  </wsdl:message>
+  <wsdl:message name="Request1">
+    <wsdl:part name="TransactionRequestSpecification" element="q5:TransactionRequestSpecification" xmlns:q5="https://checkout.buckaroo.nl/PaymentEngine/2011/10/TransactionRequestSpecification/Request/"/>
+    <wsdl:part name="LatestVersionOnly" element="q6:LatestVersionOnly" xmlns:q6="https://checkout.buckaroo.nl/PaymentEngine/TransactionRequestSpecification/Request/"/>
+  </wsdl:message>
+  <wsdl:message name="Request1_Headers">
+    <wsdl:part name="Security" element="q7:Security" xmlns:q7="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"/>
+    <wsdl:part name="MessageControlBlock" element="tns:MessageControlBlock"/>
+  </wsdl:message>
+  <wsdl:message name="Response1">
+    <wsdl:part name="TransactionRequestSpecification" element="q8:TransactionRequestSpecification" xmlns:q8="https://checkout.buckaroo.nl/PaymentEngine/2011/10/TransactionRequestSpecification/Response/"/>
+  </wsdl:message>
+  <wsdl:message name="Response1_Headers">
+    <wsdl:part name="Security" element="q9:Security" xmlns:q9="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"/>
+    <wsdl:part name="MessageControlBlock" element="tns:MessageControlBlock"/>
+  </wsdl:message>
+  <wsdl:message name="CentralSoapGateway_TransactionRequestSpecification_RequestErrorFault_FaultMessage">
+    <wsdl:part name="detail" element="tns:TransactionRequestSpecificationFault"/>
+  </wsdl:message>
+  <wsdl:message name="Request2">
+    <wsdl:part name="TransactionStatus" element="q10:TransactionStatus" xmlns:q10="https://checkout.buckaroo.nl/PaymentEngine/2012/05/TransactionStatus/Request/"/>
+  </wsdl:message>
+  <wsdl:message name="Request2_Headers">
+    <wsdl:part name="Security" element="q11:Security" xmlns:q11="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"/>
+    <wsdl:part name="MessageControlBlock" element="tns:MessageControlBlock"/>
+  </wsdl:message>
+  <wsdl:message name="Response2">
+    <wsdl:part name="TransactionStatus" element="q12:TransactionStatus" xmlns:q12="https://checkout.buckaroo.nl/PaymentEngine/2012/05/TransactionStatus/Response/"/>
+  </wsdl:message>
+  <wsdl:message name="Response2_Headers">
+    <wsdl:part name="Security" element="q13:Security" xmlns:q13="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"/>
+    <wsdl:part name="MessageControlBlock" element="tns:MessageControlBlock"/>
+  </wsdl:message>
+  <wsdl:message name="CentralSoapGateway_TransactionStatus_RequestErrorFault_FaultMessage">
+    <wsdl:part name="detail" element="tns:TransactionStatusFault"/>
+  </wsdl:message>
+  <wsdl:message name="PushRequest">
+    <wsdl:part name="Transaction" element="q14:Transaction" xmlns:q14="https://checkout.buckaroo.nl/PaymentEngine/2012/05/TransactionStatus/Push/"/>
+  </wsdl:message>
+  <wsdl:message name="PushRequest_Headers">
+    <wsdl:part name="Security" element="q15:Security" xmlns:q15="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"/>
+    <wsdl:part name="MessageControlBlock" element="tns:MessageControlBlock"/>
+  </wsdl:message>
+  <wsdl:message name="PushResponse">
+    <wsdl:part name="Transaction" element="q16:Transaction" xmlns:q16="https://checkout.buckaroo.nl/PaymentEngine/2012/05/TransactionStatus/Push/Response/"/>
+  </wsdl:message>
+  <wsdl:message name="PushResponse_Headers">
+    <wsdl:part name="Security" element="q17:Security" xmlns:q17="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"/>
+    <wsdl:part name="MessageControlBlock" element="tns:MessageControlBlock"/>
+  </wsdl:message>
+  <wsdl:message name="CentralSoapGateway_TransactionStatusResponse_RequestErrorFault_FaultMessage">
+    <wsdl:part name="detail" element="tns:TransactionStatusFault"/>
+  </wsdl:message>
+  <wsdl:message name="Request3">
+    <wsdl:part name="RefundInfoRequest" element="q18:RefundInfoRequest" xmlns:q18="https://checkout.buckaroo.nl/PaymentEngine/2012/06/RefundInfo/Request/"/>
+  </wsdl:message>
+  <wsdl:message name="Request3_Headers">
+    <wsdl:part name="Security" element="q19:Security" xmlns:q19="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"/>
+    <wsdl:part name="MessageControlBlock" element="tns:MessageControlBlock"/>
+  </wsdl:message>
+  <wsdl:message name="Response3">
+    <wsdl:part name="RefundInfoResponse" element="q20:RefundInfoResponse" xmlns:q20="https://checkout.buckaroo.nl/PaymentEngine/2012/06/RefundInfo/Response/"/>
+  </wsdl:message>
+  <wsdl:message name="Response3_Headers">
+    <wsdl:part name="Security" element="q21:Security" xmlns:q21="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"/>
+    <wsdl:part name="MessageControlBlock" element="tns:MessageControlBlock"/>
+  </wsdl:message>
+  <wsdl:message name="CentralSoapGateway_RefundInfo_RequestErrorFault_FaultMessage">
+    <wsdl:part name="detail" element="tns:RefundInfoFault"/>
+  </wsdl:message>
+  <wsdl:message name="Request4">
+    <wsdl:part name="InvoiceInfoRequest" element="q22:InvoiceInfoRequest" xmlns:q22="https://checkout.buckaroo.nl/PaymentEngine/2012/06/InvoiceInfo/Request/"/>
+  </wsdl:message>
+  <wsdl:message name="Request4_Headers">
+    <wsdl:part name="Security" element="q23:Security" xmlns:q23="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"/>
+    <wsdl:part name="MessageControlBlock" element="tns:MessageControlBlock"/>
+  </wsdl:message>
+  <wsdl:message name="Response4">
+    <wsdl:part name="InvoiceInfoResponse" element="q24:InvoiceInfoResponse" xmlns:q24="https://checkout.buckaroo.nl/PaymentEngine/2012/06/InvoiceInfo/Response/"/>
+  </wsdl:message>
+  <wsdl:message name="Response4_Headers">
+    <wsdl:part name="Security" element="q25:Security" xmlns:q25="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"/>
+    <wsdl:part name="MessageControlBlock" element="tns:MessageControlBlock"/>
+  </wsdl:message>
+  <wsdl:message name="CentralSoapGateway_InvoiceInfo_RequestErrorFault_FaultMessage">
+    <wsdl:part name="detail" element="tns:InvoiceInfoFault"/>
+  </wsdl:message>
+  <wsdl:portType name="CentralSoapGateway">
+    <wsdl:operation name="TransactionRequest">
+      <wsdl:input wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionRequest" name="Request" message="tns:Request"/>
+      <wsdl:output wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionRequestResponse" name="Response" message="tns:Response"/>
+      <wsdl:fault wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionRequestRequestErrorFault" name="RequestErrorFault" message="tns:CentralSoapGateway_TransactionRequest_RequestErrorFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="TransactionRequestSpecification">
+      <wsdl:input wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionRequestSpecification" name="Request" message="tns:Request1"/>
+      <wsdl:output wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionRequestSpecificationResponse" name="Response" message="tns:Response1"/>
+      <wsdl:fault wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionRequestSpecificationRequestErrorFault" name="RequestErrorFault" message="tns:CentralSoapGateway_TransactionRequestSpecification_RequestErrorFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="TransactionStatus">
+      <wsdl:input wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionStatus" name="Request" message="tns:Request2"/>
+      <wsdl:output wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionStatusResponse" name="Response" message="tns:Response2"/>
+      <wsdl:fault wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionStatusRequestErrorFault" name="RequestErrorFault" message="tns:CentralSoapGateway_TransactionStatus_RequestErrorFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="TransactionStatusResponse">
+      <wsdl:input wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionStatusResponse" name="PushRequest" message="tns:PushRequest"/>
+      <wsdl:output wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionStatusResponseResponse" name="PushResponse" message="tns:PushResponse"/>
+      <wsdl:fault wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionStatusResponseRequestErrorFault" name="RequestErrorFault" message="tns:CentralSoapGateway_TransactionStatusResponse_RequestErrorFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="RefundInfo">
+      <wsdl:input wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/RefundInfo" name="Request" message="tns:Request3"/>
+      <wsdl:output wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/RefundInfoResponse" name="Response" message="tns:Response3"/>
+      <wsdl:fault wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/RefundInfoRequestErrorFault" name="RequestErrorFault" message="tns:CentralSoapGateway_RefundInfo_RequestErrorFault_FaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="InvoiceInfo">
+      <wsdl:input wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/InvoiceInfo" name="Request" message="tns:Request4"/>
+      <wsdl:output wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/InvoiceInfoResponse" name="Response" message="tns:Response4"/>
+      <wsdl:fault wsaw:Action="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/InvoiceInfoRequestErrorFault" name="RequestErrorFault" message="tns:CentralSoapGateway_InvoiceInfo_RequestErrorFault_FaultMessage"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_CentralSoapGateway" type="tns:CentralSoapGateway">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="TransactionRequest">
+      <soap:operation soapAction="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionRequest" style="document"/>
+      <wsdl:input name="Request">
+        <soap:header message="tns:Request_Headers" part="Security" use="literal"/>
+        <soap:header message="tns:Request_Headers" part="MessageControlBlock" use="literal"/>
+        <soap:header message="tns:Request_Headers" part="TestPaymentDetailStatusCode" use="literal"/>
+        <soap:header message="tns:Request_Headers" part="TestStatusCode" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="Response">
+        <soap:header message="tns:Response_Headers" part="Security" use="literal"/>
+        <soap:header message="tns:Response_Headers" part="MessageControlBlock" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="RequestErrorFault">
+        <soap:fault name="RequestErrorFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="TransactionRequestSpecification">
+      <soap:operation soapAction="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionRequestSpecification" style="document"/>
+      <wsdl:input name="Request">
+        <soap:header message="tns:Request1_Headers" part="Security" use="literal"/>
+        <soap:header message="tns:Request1_Headers" part="MessageControlBlock" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="Response">
+        <soap:header message="tns:Response1_Headers" part="Security" use="literal"/>
+        <soap:header message="tns:Response1_Headers" part="MessageControlBlock" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="RequestErrorFault">
+        <soap:fault name="RequestErrorFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="TransactionStatus">
+      <soap:operation soapAction="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionStatus" style="document"/>
+      <wsdl:input name="Request">
+        <soap:header message="tns:Request2_Headers" part="Security" use="literal"/>
+        <soap:header message="tns:Request2_Headers" part="MessageControlBlock" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="Response">
+        <soap:header message="tns:Response2_Headers" part="Security" use="literal"/>
+        <soap:header message="tns:Response2_Headers" part="MessageControlBlock" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="RequestErrorFault">
+        <soap:fault name="RequestErrorFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="TransactionStatusResponse">
+      <soap:operation soapAction="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/TransactionStatusResponse" style="document"/>
+      <wsdl:input name="PushRequest">
+        <soap:header message="tns:PushRequest_Headers" part="Security" use="literal"/>
+        <soap:header message="tns:PushRequest_Headers" part="MessageControlBlock" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="PushResponse">
+        <soap:header message="tns:PushResponse_Headers" part="Security" use="literal"/>
+        <soap:header message="tns:PushResponse_Headers" part="MessageControlBlock" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="RequestErrorFault">
+        <soap:fault name="RequestErrorFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="RefundInfo">
+      <soap:operation soapAction="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/RefundInfo" style="document"/>
+      <wsdl:input name="Request">
+        <soap:header message="tns:Request3_Headers" part="Security" use="literal"/>
+        <soap:header message="tns:Request3_Headers" part="MessageControlBlock" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="Response">
+        <soap:header message="tns:Response3_Headers" part="Security" use="literal"/>
+        <soap:header message="tns:Response3_Headers" part="MessageControlBlock" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="RequestErrorFault">
+        <soap:fault name="RequestErrorFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="InvoiceInfo">
+      <soap:operation soapAction="https://checkout.buckaroo.nl/PaymentEngine/CentralSoapGateway/InvoiceInfo" style="document"/>
+      <wsdl:input name="Request">
+        <soap:header message="tns:Request4_Headers" part="Security" use="literal"/>
+        <soap:header message="tns:Request4_Headers" part="MessageControlBlock" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="Response">
+        <soap:header message="tns:Response4_Headers" part="Security" use="literal"/>
+        <soap:header message="tns:Response4_Headers" part="MessageControlBlock" use="literal"/>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="RequestErrorFault">
+        <soap:fault name="RequestErrorFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Soap">
+    <wsdl:port name="BasicHttpBinding_CentralSoapGateway" binding="tns:BasicHttpBinding_CentralSoapGateway">
+      <soap:address location="http://checkout.buckaroo.nl/soap/Soap.svc"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

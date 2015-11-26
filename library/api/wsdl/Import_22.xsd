@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="https://checkout.buckaroo.nl/PaymentEngine/2012/06/RefundInfo/Request/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="https://checkout.buckaroo.nl/PaymentEngine/2012/06/RefundInfo/Request/">
+  <xs:element name="RefundInfoRequest" type="tns:Body"/>
+  <xs:complexType name="Body">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="RefundInfo" type="tns:RefundInfo"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RefundInfo">
+    <xs:attribute name="TransactionKey" type="xs:string"/>
+  </xs:complexType>
+</xs:schema>

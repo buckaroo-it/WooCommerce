@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="https://checkout.buckaroo.nl/PaymentEngine/RefundInfo/Fault/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="https://checkout.buckaroo.nl/PaymentEngine/RefundInfo/Fault/">
+  <xs:import schemaLocation="Soap_1_2_3_4_5_6_7_8_9_10.xsd" namespace="https://checkout.buckaroo.nl/PaymentEngine/2012/06/RefundInfo/Fault/"/>
+  <xs:complexType name="RefundInfoFault">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Headers" type="tns:ArrayOfHeaderError"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Errors" nillable="true" type="tns:NamespaceError"/>
+      <xs:element minOccurs="1" maxOccurs="1" ref="q1:Errors" xmlns:q1="https://checkout.buckaroo.nl/PaymentEngine/2012/06/RefundInfo/Fault/"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfHeaderError">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="HeaderError" nillable="true" type="tns:HeaderError"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="HeaderError">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Name" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="NamespaceError">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Type" type="tns:NamespaceErrorTypes" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:simpleType name="NamespaceErrorTypes">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NoBodies"/>
+      <xs:enumeration value="MultipleBodies"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

@@ -1,0 +1,24 @@
+$(document).ready(function(){
+  $("input:text[name=buckaroo_directdebit_customeraccountname]").closest("div").addClass("directdebit_div");
+  if(!$("input:radio[name=payment][value=buckaroo3DirectDebit]").is(':checked'))
+  {
+    $(".directdebit_div").hide();
+  }
+  $("input:radio[name=payment]").change(function(){
+     if($("input:radio[name=payment][value=buckaroo3DirectDebit]").is(':checked'))
+     {
+         $(".directdebit_div").show();
+     }else{
+         $(".directdebit_div").hide();
+     };
+  });
+  
+  $('.moduleRow').click(function(){
+     if($("input:radio[name=payment][value=buckaroo3DirectDebit]").is(':checked'))
+     {
+         $(".directdebit_div").show();
+     }else{
+         $(".directdebit_div").hide();
+     };
+  });
+});

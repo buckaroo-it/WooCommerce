@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="https://checkout.buckaroo.nl/PaymentEngine/2011/10/TransactionRequestSpecification/Response/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="https://checkout.buckaroo.nl/PaymentEngine/2011/10/TransactionRequestSpecification/Response/">
+  <xs:element name="TransactionRequestSpecification" type="tns:Body"/>
+  <xs:complexType name="Body">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="BasicFields" type="tns:ArrayOfFieldDescription"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Services" type="tns:ArrayOfServiceDescription"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="CustomParameters" type="tns:ArrayOfCustomParameterDefinition"/>
+    </xs:sequence>
+    <xs:attribute name="RequestNamespace" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfFieldDescription">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="FieldDescription" nillable="true" type="tns:FieldDescription"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="FieldDescription">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Attributes" type="tns:ArrayOfAttributeDescription"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ListItemDescription" type="tns:ListItemDescription"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string"/>
+    <xs:attribute name="DataType" type="tns:DataType" use="required"/>
+    <xs:attribute name="List" type="tns:ListType"/>
+    <xs:attribute name="MaxLength" type="xs:int"/>
+    <xs:attribute name="Required" type="xs:boolean" use="required"/>
+    <xs:attribute name="Description" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfAttributeDescription">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="AttributeDescription" nillable="true" type="tns:AttributeDescription"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="AttributeDescription">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ListItemDescription" type="tns:ListItemDescription"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string"/>
+    <xs:attribute name="DataType" type="tns:DataType" use="required"/>
+    <xs:attribute name="List" type="tns:ListType" use="required"/>
+    <xs:attribute name="MaxLength" type="xs:int"/>
+    <xs:attribute name="Required" type="xs:boolean" use="required"/>
+    <xs:attribute name="Description" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="ListItemDescription">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Description" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:simpleType name="DataType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="String"/>
+      <xs:enumeration value="Integer"/>
+      <xs:enumeration value="Decimal"/>
+      <xs:enumeration value="Date"/>
+      <xs:enumeration value="Datetime"/>
+      <xs:enumeration value="Boolean"/>
+      <xs:enumeration value="CardNumber"/>
+      <xs:enumeration value="ExpiryDate"/>
+      <xs:enumeration value="CardStartDate"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ListType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None"/>
+      <xs:enumeration value="Single"/>
+      <xs:enumeration value="Multi"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="ArrayOfServiceDescription">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ServiceDescription" nillable="true" type="tns:ServiceDescription"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ServiceDescription">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="SupportedCurrencies" type="tns:ArrayOfCurrency"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ActionDescription" type="tns:ActionDescription"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string"/>
+    <xs:attribute name="Version" type="xs:int" use="required"/>
+    <xs:attribute name="Description" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfCurrency">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Currency" nillable="true" type="tns:Currency"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Currency">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="IsoNumber" type="xs:int" use="required"/>
+        <xs:attribute name="Code" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="ActionDescription">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="RequestParameters" type="tns:ArrayOfParameterDescription"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="ResponseParameters" type="tns:ArrayOfParameterDescription"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string"/>
+    <xs:attribute name="Type" type="tns:ActionType" use="required"/>
+    <xs:attribute name="Default" type="xs:boolean" use="required"/>
+    <xs:attribute name="Description" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfParameterDescription">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ParameterDescription" nillable="true" type="tns:ParameterDescription"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ParameterDescription">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ListItemDescription" type="tns:ListItemDescription"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string"/>
+    <xs:attribute name="DataType" type="tns:DataType" use="required"/>
+    <xs:attribute name="List" type="tns:ListType"/>
+    <xs:attribute name="MaxLength" type="xs:int"/>
+    <xs:attribute name="MaxOccurs" type="xs:int" use="required"/>
+    <xs:attribute name="Required" type="xs:boolean" use="required"/>
+    <xs:attribute name="Global" type="xs:boolean"/>
+    <xs:attribute name="Group" type="xs:string"/>
+    <xs:attribute name="Description" type="xs:string"/>
+    <xs:attribute name="DisplayName" type="xs:string"/>
+  </xs:complexType>
+  <xs:simpleType name="ActionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Primary"/>
+      <xs:enumeration value="Supplementary"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="ArrayOfCustomParameterDefinition">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="CustomParameterDefinition" nillable="true" type="tns:CustomParameterDefinition"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CustomParameterDefinition">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Description" type="xs:string"/>
+        <xs:attribute name="DataType" type="tns:DataType" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:schema>

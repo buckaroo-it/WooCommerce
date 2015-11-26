@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="https://checkout.buckaroo.nl/PaymentEngine/2012/06/InvoiceInfo/Request/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="https://checkout.buckaroo.nl/PaymentEngine/2012/06/InvoiceInfo/Request/">
+  <xs:element name="InvoiceInfoRequest" type="tns:Body"/>
+  <xs:complexType name="Body">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Invoice" type="tns:Invoice"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Invoice">
+    <xs:attribute name="Key" type="xs:string"/>
+    <xs:attribute name="Number" type="xs:string"/>
+    <xs:attribute name="CustomerID" type="xs:string"/>
+  </xs:complexType>
+</xs:schema>
