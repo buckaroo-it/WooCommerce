@@ -1,0 +1,43 @@
+=== Plugin Name ===
+Name: WC Buckaroo BPE Gateway
+Contributors: buckaroo.nl
+Tags: WooCommerce, payments
+Requires at least: 3.0.0
+Tested up to: 3.4
+Stable tag: 4.3
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+
+It is a plug-in with a lot of payment methods and all payment methods are SEPA proof
+
+== Description ==
+
+The Buckaroo (dutch: http://www.buckaroo.nl or english: http://www.buckaroo-payments.com) plug-in is a good working plug-in, is easy to install and takes all the troubles out of your hands.
+It is a plug-in with a lot of payment methods and all payment methods are SEPA proof. So install the plug-in and this plug-in will open your world.
+
+== Installation ==
+
+Easy installation that get the plug-in work!
+Here are the six steps:
+- Contact Buckaroo by phone 030 711 5010, by mail sales@buckaroo.nl or proceed to step 2 below
+- Advise and selection of payment services
+- Agreement
+- Implementation
+- Support
+- Training (optional)
+
+== Screenshots ==
+
+1. http://images.buckaroo.nl/plugins/Wordpress_WooCommerce/2.1.2_marketplace/screenshots/1.png
+2. http://images.buckaroo.nl/plugins/Wordpress_WooCommerce/2.1.2_marketplace/screenshots/2.png
+
+== Changelog ==
+= 2.2.1 =
+Renamed methods to make it more unique
+Added NL translations
+
+= 2.2.0 =
+Added payment fees to payment method
+
+= 2.1.2 =
+Initial version
