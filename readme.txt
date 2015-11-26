@@ -4,7 +4,7 @@ Contributors: buckaroo.nl
 Tags: WooCommerce, payments
 Requires at least: 3.0.0
 Tested up to: 3.4
-Stable tag: 2.2.1
+Stable tag: 2.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,6 +49,10 @@ Here are the six steps:
 2. http://images.buckaroo.nl/plugins/Wordpress_WooCommerce/2.1.2_marketplace/screenshots/2.png
 
 == Changelog ==
+= 2.2.2 =
+Updated plugin name.
+Updated some translations.
+
 = 2.2.1 =
 Renamed methods to make it more unique
 Added NL translations
