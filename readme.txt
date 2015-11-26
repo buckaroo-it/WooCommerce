@@ -49,6 +49,9 @@ Here are the six steps:
 2. http://images.buckaroo.nl/plugins/Wordpress_WooCommerce/2.1.2_marketplace/screenshots/2.png
 
 == Changelog ==
+= 2.2.3 =
+Certificate directory updated to prevent delete PEM file on update
+
 = 2.2.2 =
 Updated plugin name.
 Updated some translations.

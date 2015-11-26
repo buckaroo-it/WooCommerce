@@ -5,7 +5,7 @@ class BuckarooConfig extends BuckarooConfigCore
 {
    const NAME = 'buckaroo3';
    const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-   const VERSION = '2.2.2';
+   const VERSION = '2.2.3';
    
    public static function get($key)
    {
@@ -17,7 +17,8 @@ class BuckarooConfig extends BuckarooConfigCore
                    $val = $options['culture'];
                    break;
                case 'BUCKAROO_CERTIFICATE_PATH':
-                   $val = dirname(__FILE__).'/certificate/'.BuckarooConfig::get('BUCKAROO_CERTIFICATE_FILE');
+                   $upload_dir = wp_upload_dir();
+                   $val = $upload_dir["basedir"].'/woocommerce_uploads/'.BuckarooConfig::get('BUCKAROO_CERTIFICATE_FILE');
                   break;
                case 'BUCKAROO_CERTIFICATE_FILE':
                    $val = $options['certificate'];

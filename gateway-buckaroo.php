@@ -176,6 +176,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     function init_form_fields()
     {
+        $upload_dir = wp_upload_dir();
         $charset = strtolower(ini_get('default_charset'));
         $addDescription = '';
         if ($charset != 'utf-8') {
@@ -234,9 +235,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 'title' => __('Certificate', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'text',
                 'description' => __(
-                    'Please enter certificate name. Certificate should be uploaded to "' . dirname(
-                        __FILE__
-                    ) . '/library/certificate" directory.',
+                    'Please enter certificate name. Certificate should be uploaded to "' . $upload_dir["basedir"] . '/woocommerce_uploads" directory.',
                     'wc-buckaroo-bpe-gateway'
                 ),
                 'default' => 'BuckarooPrivateKey.pem'
