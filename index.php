@@ -5,7 +5,7 @@ Plugin URI: http://www.buckaroo.nl
 Author: <plugins@buckaroo.nl>
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce version <strong><u>2.3.x-2.4.x</u></strong>.
-Version: 2.2.3
+Version: 2.2.4
 Text Domain: wc-buckaroo-bpe-gateway
 
 */
