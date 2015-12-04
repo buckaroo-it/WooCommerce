@@ -11,7 +11,7 @@ class BuckarooPayGarant extends BuckarooPaymentMethod
         $this->mode = BuckarooConfig::getMode('PAYGARANT');
     }
 
-    public function Pay()
+    public function Pay($customVars = Array())
     {
         return null;
     }

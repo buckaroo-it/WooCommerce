@@ -15,7 +15,7 @@ class BuckarooSepaDirectDebit extends BuckarooPaymentMethod
         $this->mode = BuckarooConfig::getMode('SEPADIRECTDEBIT');
     }
 
-    public function Pay()
+    public function Pay($customVars = Array())
     {
         return null;
     }

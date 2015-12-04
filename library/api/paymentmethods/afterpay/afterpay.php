@@ -49,8 +49,8 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
         $this->version = '1';
         $this->mode = BuckarooConfig::getMode('AFTERPAY');
     }
-    
-    public function Pay()
+
+    public function Pay($customVars = Array())
     {
         return null;
     }

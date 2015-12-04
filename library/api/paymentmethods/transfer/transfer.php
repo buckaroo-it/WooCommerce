@@ -9,8 +9,8 @@ class BuckarooTransfer extends BuckarooPaymentMethod
         $this->version = 1;
         $this->mode = BuckarooConfig::getMode($this->type);
     }
-    
-    public function Pay()
+
+    public function Pay($customVars = Array())
     {
         return null;
     }
