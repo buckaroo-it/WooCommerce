@@ -34,8 +34,14 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->transactiondescription = $this->settings['transactiondescription'];
         $this->culture = $this->settings['culture'];
         $this->currency = $this->settings['currency'];
-        $this->extrachargeamount = $this->settings['extrachargeamount'];
-        $this->extrachargetype = $this->settings['extrachargetype'];
+        $this->extrachargeamount = 0;
+        if (isset($this->settings['extrachargeamount'])) {
+            $this->extrachargeamount = $this->settings['extrachargeamount'];
+        }
+        $this->extrachargetype = 'static';
+        if (isset($this->settings['extrachargetype'])) {
+            $this->extrachargetype = $this->settings['extrachargetype'];
+        }
         //$this->debug		= $this->settings['debug'];
 
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '<')) {
