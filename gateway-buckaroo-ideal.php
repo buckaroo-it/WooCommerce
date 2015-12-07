@@ -21,12 +21,10 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         parent::__construct();
         if (!isset($this->settings['usenotification'])) {
             $this->usenotification = 'FALSE';
-            $this->notificationtype = 'PreNotification';
             $this->notificationdelay = '0';
 
         } else {
             $this->usenotification = $this->settings['usenotification'];
-            $this->notificationtype = $this->settings['notificationtype'];
             $this->notificationdelay = $this->settings['notificationdelay'];
         }
         $this->supports           = array(

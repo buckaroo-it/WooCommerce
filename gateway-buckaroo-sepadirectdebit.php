@@ -32,9 +32,11 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
         if (!isset($this->settings['usenotification'])) {
             $this->usenotification = 'FALSE';
             $this->notificationdelay = 0;
+            $this->notificationtype = 'PaymentComplete';
         } else {
             $this->usenotification = $this->settings['usenotification'];
             $this->notificationdelay = $this->settings['notificationdelay'];
+            $this->notificationtype = $this->settings['notificationtype'];
         }
 
         $this->datedue = $this->settings['datedue'];
