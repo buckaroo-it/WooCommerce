@@ -81,7 +81,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
             }
             $creditcard->currency = $this->currency;
             $creditcard->description = $this->transactiondescription;
-            $creditcard->invoiceId = (string)$order_id;
+            $creditcard->invoiceId = (string)getUniqInvoiceId($order_id);
             $creditcard->orderId = (string)$order_id;
             $creditcard->returnUrl = $this->notify_url;
             $customVars = Array();

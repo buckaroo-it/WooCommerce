@@ -1,5 +1,5 @@
 <?php
-
+require_once 'library/common.php';
 require_once 'library/config.php';
 require_once 'gateway-buckaroo.php';
 require_once(dirname(__FILE__) . '/library/api/paymentmethods/buckaroopaypal/buckaroopaypal.php');
@@ -68,21 +68,21 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
     }
     
     function process_payment($order_id) {
-		global $woocommerce;
+        global $woocommerce;
 
-		$GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-		$order = new WC_Order( $order_id );
-		$paypal = new BuckarooPayPal();
-		if (method_exists($order, 'get_order_total')) {
-			$paypal->amountDedit = $order->get_order_total();
-		} else {
-			$paypal->amountDedit = $order->get_total();
-		}
-		$paypal->currency = $this->currency;
-		$paypal->description = $this->transactiondescription;
-		$paypal->invoiceId = (string)$order_id;
-		$paypal->orderId = (string)$order_id;
-		$paypal->returnUrl = $this->notify_url;
+        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        $order = new WC_Order( $order_id );
+        $paypal = new BuckarooPayPal();
+        if (method_exists($order, 'get_order_total')) {
+                $paypal->amountDedit = $order->get_order_total();
+        } else {
+                $paypal->amountDedit = $order->get_total();
+        }
+        $paypal->currency = $this->currency;
+        $paypal->description = $this->transactiondescription;
+        $paypal->invoiceId = getUniqInvoiceId($order_id);
+        $paypal->orderId = (string)$order_id;
+        $paypal->returnUrl = $this->notify_url;
         $customVars = Array();
         if ($this->usenotification == 'TRUE') {
             $paypal->usenotification = 1;

@@ -3,9 +3,8 @@
 if (!class_exists('SoapClient')) {
     $logger = new BuckarooLogger(1);
     $logger->logForUser('SoapClient is not installed. Please ask your hosting provider to install SoapClient <a style="text-decoration: underline; color: #0000FF" href="http://php.net/manual/en/soap.installation.php">http://php.net/manual/en/soap.installation.php</a>');
-}
-
-final class BuckarooSoap extends BuckarooAbstract{
+} else { 
+    final class BuckarooSoap extends BuckarooAbstract{
     
     private $_vars;
     
@@ -340,8 +339,8 @@ final class BuckarooSoap extends BuckarooAbstract{
     }
 }
 
-class SoapClientWSSEC extends SoapClient
-{
+    class SoapClientWSSEC extends SoapClient
+    {
 	/**
 	 * Contains the request XML
 	 * @var DOMDocument
@@ -491,7 +490,7 @@ class SoapClientWSSEC extends SoapClient
     	return $domDocument;
 	}
 }
-
+}
 class Header
 {
 	public $MessageControlBlock;

@@ -84,7 +84,7 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo {
             }
             $giftcard->currency = $this->currency;
             $giftcard->description = $this->transactiondescription;
-            $giftcard->invoiceId = (string)$order_id;
+            $giftcard->invoiceId = (string)getUniqInvoiceId($order_id);
             $giftcard->orderId = (string)$order_id;
             $giftcard->returnUrl = $this->notify_url;
             $customVars = Array();

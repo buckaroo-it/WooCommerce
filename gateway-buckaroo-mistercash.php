@@ -82,7 +82,7 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo {
             }
             $mistercash->currency = $this->currency;
             $mistercash->description = $this->transactiondescription;
-            $mistercash->invoiceId = (string)$order_id;
+            $mistercash->invoiceId = (string)getUniqInvoiceId($order_id);
             $mistercash->orderId = (string)$order_id;
             $mistercash->returnUrl = $this->notify_url;
             $customVars = Array();

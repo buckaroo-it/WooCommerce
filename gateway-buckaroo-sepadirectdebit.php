@@ -83,7 +83,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
         $sepadirectdebit->description = $reason;
         $sepadirectdebit->invoiceId = $order_id;
         if ($this->mode=='test') {
-            $sepadirectdebit->invoiceId = 'buckaroowootest_'.(string)$order_id;
+            $sepadirectdebit->invoiceId = 'WP_'.(string)$order_id;
         }
         $sepadirectdebit->orderId = $order_id;
         $sepadirectdebit->OriginalTransactionKey = $order->get_transaction_id();
@@ -126,10 +126,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
             $sepadirectdebit->customeraccountname = $_POST['buckaroo-sepadirectdebit-accountname'];
             $sepadirectdebit->CustomerBIC = $_POST['buckaroo-sepadirectdebit-bic'];
             $sepadirectdebit->CustomerIBAN = $_POST['buckaroo-sepadirectdebit-iban'];
-            $sepadirectdebit->invoiceId = (string)$order_id;
-            if ($this->mode=='test') {
-                $sepadirectdebit->invoiceId = 'buckaroowootest_'.(string)$order_id;
-            }
+            $sepadirectdebit->invoiceId = getUniqInvoiceId((string)$order_id, $this->mode);
             $sepadirectdebit->orderId = (string)$order_id;
 
             $customVars = array();
@@ -211,8 +208,8 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
                 <?php if($this->usecreditmanagment == 'TRUE'):?>
                 <p class="form-row">
                         <label for="buckaroo-sepadirectdebit-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                        <input id="buckaroo-sepadirectdebit-genderm" name="buckaroo-sepadirectdebit-gender" class="" type="radio" value="1" checked /> Male &nbsp;
-                        <input id="buckaroo-sepadirectdebit-genderf" name="buckaroo-sepadirectdebit-gender" class="" type="radio" value="2"/> Female
+                        <input id="buckaroo-sepadirectdebit-genderm" name="buckaroo-sepadirectdebit-gender" class="" type="radio" value="1" checked /> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway')?> &nbsp;
+                        <input id="buckaroo-sepadirectdebit-genderf" name="buckaroo-sepadirectdebit-gender" class="" type="radio" value="2"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway')?>
                 </p>
                 <p class="form-row form-row-wide validate-required">
                         <label for="buckaroo-sepadirectdebit-birthdate"><?php echo _e('Birthdate:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
@@ -222,8 +219,8 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
                 <?php if($this->usenotification == 'TRUE' && $this->usecreditmanagment == 'FALSE'):?>
                     <p class="form-row">
                         <label for="buckaroo-sepadirectdebit-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                        <input id="buckaroo-sepadirectdebit-genderm" name="buckaroo-sepadirectdebit-gender" class="" type="radio" value="1" checked /> Male &nbsp;
-                        <input id="buckaroo-sepadirectdebit-genderf" name="buckaroo-sepadirectdebit-gender" class="" type="radio" value="2"/> Female
+                        <input id="buckaroo-sepadirectdebit-genderm" name="buckaroo-sepadirectdebit-gender" class="" type="radio" value="1" checked /> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway')?> &nbsp;
+                        <input id="buckaroo-sepadirectdebit-genderf" name="buckaroo-sepadirectdebit-gender" class="" type="radio" value="2"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway')?>
                     </p>
                 <?php endif;?>
                 <p class="form-row form-row-wide validate-required">

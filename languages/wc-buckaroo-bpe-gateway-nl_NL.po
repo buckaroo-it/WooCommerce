@@ -2,66 +2,204 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WC Buckaroo BPE 3.0 Gateway (2.4.X Compatible)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: Fri Sep 25 2015 15:50:53 GMT+0300 (FLE Daylight Time)\n"
-"PO-Revision-Date: Tue Nov 17 2015 15:49:30 GMT+0100 (W. Europe Standard "
-"Time)\n"
+"POT-Creation-Date: 2016-02-01 17:02+0200\n"
+"PO-Revision-Date: 2016-02-01 17:06+0200\n"
 "Last-Translator: admin <i.sutugins@intrum.com>\n"
 "Language-Team: \n"
-"Language: Dutch\n"
-"Plural-Forms: nplurals=2; plural=n != 1\n"
+"Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-Basepath: .\n"
-"X-Poedit-SearchPath-0: ..\n"
 "X-Poedit-KeywordsList: _:1;gettext:1;dgettext:2;ngettext:1,2;dngettext:2,3;"
 "__:1;_e:1;_c:1;_n:1,2;_n_noop:1,2;_nc:1,2;__ngettext:1,2;__ngettext_noop:1,2;"
 "_x:1,2c;_ex:1,2c;_nx:1,2,4c;_nx_noop:1,2,3c;_n_js:1,2;_nx_js:1,2,3c;"
 "esc_attr__:1;esc_html__:1;esc_attr_e:1;esc_html_e:1;esc_attr_x:1,2c;"
 "esc_html_x:1,2c;comments_number_link:2,3;t:1;st:1;trans:1;transChoice:1,2\n"
 "X-Loco-Target-Locale: nl_NL\n"
-"X-Generator: Loco - https://localise.biz/"
+"X-Generator: Poedit 1.8.6\n"
+"X-Poedit-SearchPath-0: ..\n"
 
-#: ../gateway-buckaroo-afterpay.php:277
-msgid "Shipping person birthdate:"
-msgstr "Geboortedatum persoon van verzendadres:"
-
-#: ../gateway-buckaroo-afterpay.php:303
-msgid "Fill required fields if bill in on the company:"
-msgstr "Vul verplichte velden in als u bestelt als bedrijf:"
-
-#. Author of the plugin
-msgid "<plugins@buckaroo.nl>"
+#: ../gateway-buckaroo-afterpay.php:79 ../gateway-buckaroo-creditcard.php:47
+#: ../gateway-buckaroo-emaestro.php:48 ../gateway-buckaroo-giftcard.php:49
+#: ../gateway-buckaroo-giropay.php:49 ../gateway-buckaroo-ideal.php:59
+#: ../gateway-buckaroo-mistercash.php:49 ../gateway-buckaroo-paygarant.php:60
+#: ../gateway-buckaroo-paygarantbyjuno.php:60 ../gateway-buckaroo-paypal.php:48
+#: ../gateway-buckaroo-paysafecard.php:49
+#: ../gateway-buckaroo-sepadirectdebit.php:74 ../gateway-buckaroo-sofort.php:49
+#: ../gateway-buckaroo-transfer.php:56
+msgid ""
+"Refund failed: Order not in ready state, Buckaroo transaction ID do not "
+"exists."
 msgstr ""
+"Refund mislukt: order is nog niet geslaagd. Buckaroo transactie ID bestaat "
+"niet."
 
-#: ../gateway-buckaroo-transfer.php:148
-msgid "Buckaroo sends an email to the customer with the payment procedures."
-msgstr "Buckaroo stuurt een e-mail naar de klant met de betaalstappen."
+#: ../gateway-buckaroo-afterpay.php:82
+msgid ""
+"Refund failed: Only full amount can be refunded for AfterPay. Partial amount "
+"can be refunded using Buckaroo Payment Plaza."
+msgstr ""
+"Refund mislukt: Alleen het hele bedrag kan gerefund worden voor AfterPay. "
+"Gedeeltelijke refunds kunnen gedaan worden via de Buckaroo Payment Plaza."
 
-#: ../gateway-buckaroo-transfer.php:152
-msgid "Show payment procedures"
-msgstr "Laat de betaalstappen zien"
+#: ../gateway-buckaroo-afterpay.php:131 ../gateway-buckaroo-paygarant.php:98
+#: ../gateway-buckaroo-paygarantbyjuno.php:98
+#: ../gateway-buckaroo-sepadirectdebit.php:137
+msgid "Please enter correct birthdate date"
+msgstr "Vul alstublieft een juiste geboortedatum in"
 
-#: ../gateway-buckaroo-transfer.php:154
-msgid "Show payment procedures on Thank You page after payment confirmation."
-msgstr "Laat de betaalstappen zien op de Bedankt pagina nadat de order is bevestigd."
+#: ../gateway-buckaroo-afterpay.php:135
+msgid "Please accept licence agreements"
+msgstr "Accepteer betalingsvoorwaarden:"
 
-#: ../gateway-buckaroo-afterpay.php:153
+#: ../gateway-buckaroo-afterpay.php:146
+msgid "Company registration number is required (KvK)"
+msgstr "Kamer van Koophandel nummer is verplicht (KvK)"
+
+#: ../gateway-buckaroo-afterpay.php:150
+msgid "Company name is required"
+msgstr "Bedrijfsnaam is verplicht"
+
+#: ../gateway-buckaroo-afterpay.php:154
 msgid "Cost center of the order is required"
 msgstr "Kostenplaats van de order is verplicht"
 
-#: ../gateway-buckaroo-afterpay.php:316
+#: ../gateway-buckaroo-afterpay.php:158
+msgid "VAT (BTW) number is required"
+msgstr "BTW nummer is verplicht"
+
+#: ../gateway-buckaroo-afterpay.php:190
+msgid "Please enter correct shipping person birthdate date"
+msgstr ""
+"Voer alstublieft een correcte geboortedatum in van de persoon van het "
+"verzendadres"
+
+#: ../gateway-buckaroo-afterpay.php:209
+msgid "IBAN is required"
+msgstr "IBAN is verplicht"
+
+#: ../gateway-buckaroo-afterpay.php:267 ../gateway-buckaroo-giropay.php:110
+#: ../gateway-buckaroo-ideal.php:115 ../gateway-buckaroo-paygarant.php:195
+#: ../gateway-buckaroo-paygarantbyjuno.php:192
+#: ../gateway-buckaroo-sepadirectdebit.php:204 ../gateway-buckaroo.php:311
+msgid "TEST MODE"
+msgstr "TEST MODUS"
+
+#: ../gateway-buckaroo-afterpay.php:272 ../gateway-buckaroo-paygarant.php:200
+#: ../gateway-buckaroo-paygarantbyjuno.php:197
+#: ../gateway-buckaroo-sepadirectdebit.php:210
+#: ../gateway-buckaroo-sepadirectdebit.php:221
+msgid "Gender:"
+msgstr "Geslacht:"
+
+#: ../gateway-buckaroo-afterpay.php:273 ../gateway-buckaroo-afterpay.php:283
+#: ../gateway-buckaroo-paygarantbyjuno.php:198
+#: ../gateway-buckaroo-sepadirectdebit.php:211
+#: ../gateway-buckaroo-sepadirectdebit.php:222
+msgid "Male"
+msgstr "Man"
+
+#: ../gateway-buckaroo-afterpay.php:274 ../gateway-buckaroo-afterpay.php:284
+#: ../gateway-buckaroo-paygarantbyjuno.php:199
+#: ../gateway-buckaroo-sepadirectdebit.php:212
+#: ../gateway-buckaroo-sepadirectdebit.php:223
+msgid "Female"
+msgstr "Vrouw"
+
+#: ../gateway-buckaroo-afterpay.php:277 ../gateway-buckaroo-paygarant.php:221
+#: ../gateway-buckaroo-paygarantbyjuno.php:218
+#: ../gateway-buckaroo-sepadirectdebit.php:215
+msgid "Birthdate:"
+msgstr "Geboortedatum:"
+
+#: ../gateway-buckaroo-afterpay.php:282
+msgid "Shipping person gender:"
+msgstr "Geslacht van persoon van verzendadres:"
+
+#: ../gateway-buckaroo-afterpay.php:288
+msgid "Shipping person birthdate:"
+msgstr "Geboortedatum persoon van verzendadres:"
+
+#: ../gateway-buckaroo-afterpay.php:294 ../gateway-buckaroo-paygarant.php:213
+#: ../gateway-buckaroo-paygarantbyjuno.php:210
+#: ../gateway-buckaroo-sepadirectdebit.php:231
+msgid "IBAN:"
+msgstr "IBAN:"
+
+#: ../gateway-buckaroo-afterpay.php:310
+msgid "Checkout for company"
+msgstr "Betalen als bedrijf"
+
+#: ../gateway-buckaroo-afterpay.php:314
+msgid "Fill required fields if bill in on the company:"
+msgstr "Vul verplichte velden in als u bestelt als bedrijf:"
+
+#: ../gateway-buckaroo-afterpay.php:317
+msgid "COC (KvK) number:"
+msgstr "KvK nummer:"
+
+#: ../gateway-buckaroo-afterpay.php:322
+msgid "Name of the organization:"
+msgstr "Naam van het bedrijf:"
+
+#: ../gateway-buckaroo-afterpay.php:327
 msgid "Cost center of the order (this will be visible on the invoice):"
 msgstr "Kostenplaats van de order (dit wordt getoond op de factuur):"
 
-#: ../gateway-buckaroo-sepadirectdebit.php:319 ../gateway-buckaroo-paygarant.php:
-#: 284 ../gateway-buckaroo-sofort.php:123 ../gateway-buckaroo-giropay.php:143 ..
-#: gateway-buckaroo-mistercash.php:123 ../gateway-buckaroo-paysafecard.php:123 ..
-#: gateway-buckaroo-ideal.php:163 ../gateway-buckaroo-afterpay.php:373 ..
-#: gateway-buckaroo-creditcard.php:124 ../gateway-buckaroo-emaestro.php:123 ..
-#: gateway-buckaroo-paypal.php:121 ../gateway-buckaroo-giftcard.php:125 ..
-#: gateway-buckaroo-transfer.php:161
+#: ../gateway-buckaroo-afterpay.php:332
+msgid "VAT (BTW) number:"
+msgstr "BTW nummer:"
+
+#: ../gateway-buckaroo-afterpay.php:338
+msgid "Accept licence agreement:"
+msgstr "Accepteer betalingsvoorwaarden:"
+
+#: ../gateway-buckaroo-afterpay.php:357
+msgid "Select afterpay service"
+msgstr "Kies AfterPay service"
+
+#: ../gateway-buckaroo-afterpay.php:359
+msgid "Please select the service"
+msgstr "Kies de gewenste AfterPay service"
+
+#: ../gateway-buckaroo-afterpay.php:364
+msgid "Enable B2B option for AfterPay"
+msgstr "Zet B2B aan voor AfterPay"
+
+#: ../gateway-buckaroo-afterpay.php:366
+msgid "Enables or disables possibility to pay using company credentials"
+msgstr ""
+"Laat klanten de mogelijkheid zien om met bedrijfsinformatie te betalen. Dit "
+"is een apart abonnement."
+
+#: ../gateway-buckaroo-afterpay.php:371
+msgid "Default product Vat type"
+msgstr "Standaard BTW type voor producten"
+
+#: ../gateway-buckaroo-afterpay.php:373
+msgid "Please select default vat type for your products"
+msgstr "Kies standaard BTW type voor uw producten"
+
+#: ../gateway-buckaroo-afterpay.php:382 ../gateway-buckaroo-creditcard.php:123
+#: ../gateway-buckaroo-emaestro.php:122 ../gateway-buckaroo-giftcard.php:124
+#: ../gateway-buckaroo-giropay.php:142 ../gateway-buckaroo-ideal.php:160
+#: ../gateway-buckaroo-mistercash.php:122 ../gateway-buckaroo-paygarant.php:283
+#: ../gateway-buckaroo-paypal.php:120 ../gateway-buckaroo-paysafecard.php:122
+#: ../gateway-buckaroo-sepadirectdebit.php:317
+#: ../gateway-buckaroo-sofort.php:122 ../gateway-buckaroo-transfer.php:160
+msgid "Use Notification Service"
+msgstr "Gebruik Notificatie Service"
+
+#: ../gateway-buckaroo-afterpay.php:384 ../gateway-buckaroo-creditcard.php:125
+#: ../gateway-buckaroo-emaestro.php:124 ../gateway-buckaroo-giftcard.php:126
+#: ../gateway-buckaroo-giropay.php:144 ../gateway-buckaroo-ideal.php:162
+#: ../gateway-buckaroo-mistercash.php:124 ../gateway-buckaroo-paygarant.php:285
+#: ../gateway-buckaroo-paypal.php:122 ../gateway-buckaroo-paysafecard.php:124
+#: ../gateway-buckaroo-sepadirectdebit.php:319
+#: ../gateway-buckaroo-sofort.php:124 ../gateway-buckaroo-transfer.php:162
 msgid ""
 "The notification service can be used to have the payment engine sent "
 "additional notifications at certain points. Different type of notifications "
@@ -71,21 +209,123 @@ msgstr ""
 "notificatie te laten sturen. Bij SEPA Direct Debit kan ook gekozen worden "
 "voor de pre-notificatie."
 
-#: ../gateway-buckaroo-sepadirectdebit.php:326
-msgid ""
-"PreNotification: A pre-notification that is sent some time before performing "
-"a scheduled action. PaymentComplete: A notification that is sent when a "
-"transaction has been completed with success."
-msgstr ""
-"Pre-Notificatie: een pre-notificatie die enige tijd voor de geplande actie "
-"gestuurd wordt. Betaling Compleet: een notificatie die verstuurd wordt als "
-"de transactie is geslaagd."
+#: ../gateway-buckaroo-afterpay.php:389 ../gateway-buckaroo-creditcard.php:130
+#: ../gateway-buckaroo-emaestro.php:129 ../gateway-buckaroo-giftcard.php:131
+#: ../gateway-buckaroo-giropay.php:149 ../gateway-buckaroo-ideal.php:167
+#: ../gateway-buckaroo-mistercash.php:129 ../gateway-buckaroo-paygarant.php:290
+#: ../gateway-buckaroo-paypal.php:127 ../gateway-buckaroo-paysafecard.php:129
+#: ../gateway-buckaroo-sepadirectdebit.php:331
+#: ../gateway-buckaroo-sofort.php:129 ../gateway-buckaroo-transfer.php:167
+msgid "Notification delay"
+msgstr "Uitstel van Notificatie"
 
-#: ../gateway-buckaroo-afterpay.php:355
-msgid "Enables or disables possibility to pay using company credentials"
+#: ../gateway-buckaroo-afterpay.php:391 ../gateway-buckaroo-creditcard.php:132
+#: ../gateway-buckaroo-emaestro.php:131 ../gateway-buckaroo-giftcard.php:133
+#: ../gateway-buckaroo-giropay.php:151 ../gateway-buckaroo-ideal.php:169
+#: ../gateway-buckaroo-mistercash.php:131 ../gateway-buckaroo-paygarant.php:292
+#: ../gateway-buckaroo-paypal.php:129 ../gateway-buckaroo-paysafecard.php:131
+#: ../gateway-buckaroo-sepadirectdebit.php:333
+#: ../gateway-buckaroo-sofort.php:131 ../gateway-buckaroo-transfer.php:169
+msgid ""
+"The time at which the notification should be sent. If this is not specified, "
+"the notification is sent immediately."
 msgstr ""
-"Laat klanten de mogelijkheid zien om met bedrijfsinformatie te betalen. Dit "
-"is een apart abonnement."
+"Na hoeveel dagen de Notificatie verstuurd moet worden. Als dit niet wordt "
+"ingevuld, wordt de Notificatie direct verstuurd."
+
+#: ../gateway-buckaroo-giropay.php:77
+msgid "Please provide correct BIC"
+msgstr "Geef alstublieft een correcte BIC op"
+
+#: ../gateway-buckaroo-giropay.php:114
+#: ../gateway-buckaroo-sepadirectdebit.php:235
+msgid "BIC:"
+msgstr "BIC:"
+
+#: ../gateway-buckaroo-paygarant.php:92
+#: ../gateway-buckaroo-paygarantbyjuno.php:92
+#: ../gateway-buckaroo-sepadirectdebit.php:108
+msgid "Please fill in all required fields"
+msgstr "Vul alstublieft alle verplichte velden in"
+
+#: ../gateway-buckaroo-paygarant.php:205
+#: ../gateway-buckaroo-paygarantbyjuno.php:202
+msgid "Firstname:"
+msgstr "Voornaam:"
+
+#: ../gateway-buckaroo-paygarant.php:209
+#: ../gateway-buckaroo-paygarantbyjuno.php:206
+msgid "Lastname:"
+msgstr "Achternaam:"
+
+#: ../gateway-buckaroo-paygarant.php:217
+#: ../gateway-buckaroo-paygarantbyjuno.php:214
+msgid "E-mail:"
+msgstr "E-mail:"
+
+#: ../gateway-buckaroo-paygarant.php:232
+#: ../gateway-buckaroo-paygarantbyjuno.php:229
+msgid "Number of days between order and invoice"
+msgstr "Aantal dagen tussen aanmaken van order en versturen van factuur"
+
+#: ../gateway-buckaroo-paygarant.php:234
+#: ../gateway-buckaroo-paygarantbyjuno.php:231
+msgid "Maximum days of delay 30."
+msgstr "Maximaal 30 dagen later"
+
+#: ../gateway-buckaroo-paygarant.php:237
+#: ../gateway-buckaroo-paygarantbyjuno.php:234
+#: ../gateway-buckaroo-transfer.php:147
+msgid "Send Email"
+msgstr "Verstuur Email"
+
+#: ../gateway-buckaroo-paygarant.php:239
+#: ../gateway-buckaroo-paygarantbyjuno.php:236
+msgid "Send Buckaroo Payment Plaza e-mail to customer."
+msgstr "Verstuurt Buckaroo Payment Plaza e-mail naar de klant."
+
+#: ../gateway-buckaroo-paygarant.php:243
+#: ../gateway-buckaroo-paygarantbyjuno.php:240
+#: ../gateway-buckaroo-sepadirectdebit.php:277
+msgid "Allowed payment methods"
+msgstr "Toegestane betaalmethoden"
+
+#: ../gateway-buckaroo-paygarant.php:246
+msgid ""
+"Select allowed payment methods for Payment Guarantee. (Ctrl+Click select "
+"multiple)"
+msgstr ""
+"Selecteer de toegestane betaalmethoden voor BetaalGarant (Ctrl + Klik om "
+"meerdere te selecteren)."
+
+#: ../gateway-buckaroo-paygarantbyjuno.php:243
+msgid ""
+"Select allowed payment methods for Payment Guarantee ByJuno. (Ctrl+Click "
+"select multiple)"
+msgstr ""
+"Selecteer toegestane betaalmethoden voor BetaalGarant ByJuno (Ctrl + Klik om "
+"meerdere te selecteren)."
+
+#: ../gateway-buckaroo-sepadirectdebit.php:114
+msgid "Wrong IBAN number"
+msgstr "Verkeerd IBAN nummer"
+
+#: ../gateway-buckaroo-sepadirectdebit.php:227
+msgid "Bank account holder:"
+msgstr "Rekeninghouder:"
+
+#: ../gateway-buckaroo-sepadirectdebit.php:255
+msgid "Use Credit Managment"
+msgstr "Gebruik Credit Management"
+
+#: ../gateway-buckaroo-sepadirectdebit.php:257
+msgid ""
+"Buckaroo sends payment reminders to the customer. (Contact Buckaroo before "
+"activating Credit Management. By default this is excluded in the contract.)"
+msgstr ""
+"Buckaroo verstuurt betalingsherinneringen naar de klant. (Neem contact op "
+"met Buckaroo alvorens Credit Management te activeren. Standaard is dit niet "
+"toegevoegd in het contact.)"
 
 #: ../gateway-buckaroo-sepadirectdebit.php:261
 msgid "Invoice delay (in days)"
@@ -119,85 +359,6 @@ msgstr "Max herinneringsniveau"
 msgid "Select the maximum reminder level buckaroo will use."
 msgstr "Kies het maximale herinneringsniveau dat Buckaroo moet gebruiken."
 
-#: ../gateway-buckaroo-paygarant.php:245
-msgid ""
-"Select allowed payment methods for Payment Guarantee. (Ctrl+Click select "
-"multiple)"
-msgstr ""
-"Selecteer de toegestane betaalmethoden voor BetaalGarant (Ctrl + Klik om "
-"meerdere te selecteren)."
-
-#: ../gateway-buckaroo-afterpay.php:82
-msgid ""
-"Refund failed: Only full amount can be refunded for AfterPay. Partial amount "
-"can be refunded using Buckaroo Payment Plaza."
-msgstr ""
-"Refund mislukt: Alleen het hele bedrag kan gerefund worden voor AfterPay. "
-"Gedeeltelijke refunds kunnen gedaan worden via de Buckaroo Payment Plaza."
-
-#. Name of the plugin
-msgid "WC Buckaroo BPE 3.0 Gateway (2.4.X Compatible)"
-msgstr "WC Buckaroo BPE 3.0 Gateway (2.4.X Compatible)"
-
-#. URI of the plugin
-msgid "http://www.buckaroo.nl"
-msgstr "http://www.buckaroo.nl"
-
-#. Description of the plugin
-msgid ""
-"Buckaroo payment system plugin for WooCommerce version <strong><u>2.3.x-2.4."
-"x</u></strong>."
-msgstr ""
-"Buckaroo payment system plugin for WooCommerce version <strong><u>2.3.x-2.4."
-"x</u></strong>."
-
-#: ../gateway-buckaroo.php:170
-msgid "Enable/Disable"
-msgstr "Zet aan/uit"
-
-#: ../gateway-buckaroo.php:180
-msgid "Title"
-msgstr "Titel"
-
-#: ../gateway-buckaroo.php:182
-msgid "This controls the title which the user sees during checkout."
-msgstr "Zet hier de titel die de klant ziet tijdens de checkout."
-
-#: ../gateway-buckaroo.php:190
-msgid "Description"
-msgstr "Omschrijving"
-
-#: ../gateway-buckaroo.php:192
-msgid "This controls the description which the user sees during checkout."
-msgstr "Zet hier de omschrijving die de klant ziet tijdens de checkout."
-
-#: ../gateway-buckaroo.php:199
-msgid "Merchant key"
-msgstr "Merchant key"
-
-#: ../gateway-buckaroo.php:201
-msgid "This is your Buckaroo payment plaza Website key."
-msgstr "Dit is uw Buckaroo payment plaza Website key (Profiel -> Websites -> Key)."
-
-#: ../gateway-buckaroo.php:207
-msgid "The Secret password to verify transactions"
-msgstr ""
-"Het geheime wachtwoord om transacties te verifiëren (Profiel -> Beveiliging -"
-"> Secret Key)."
-
-#: ../gateway-buckaroo.php:211
-msgid "Transaction Mode"
-msgstr "Transactie modus"
-
-#: ../gateway-buckaroo.php:213
-msgid "Transaction mode used for processing orders"
-msgstr "Transactie modus gebruikt om bestellingen te verwerken"
-
-#: ../library/common.php:35
-#, php-format
-msgid "Refunded %s - Refund transaction ID: %s"
-msgstr "Refunded %s - Refund transactie ID: %s"
-
 #: ../gateway-buckaroo-sepadirectdebit.php:280
 msgid ""
 "Select allowed payment methods for SEPA Direct Debit. (Ctrl+Click select "
@@ -206,313 +367,191 @@ msgstr ""
 "Kies de toegestane betaalmethoden voor SEPA Direct Debit (Ctrl + Klik om "
 "meerdere te selecteren)."
 
-#: ../gateway-buckaroo-sepadirectdebit.php:317 ../gateway-buckaroo-paygarant.php:
-#: 282 ../gateway-buckaroo-sofort.php:121 ../gateway-buckaroo-giropay.php:141 ..
-#: gateway-buckaroo-mistercash.php:121 ../gateway-buckaroo-paysafecard.php:121 ..
-#: gateway-buckaroo-ideal.php:161 ../gateway-buckaroo-afterpay.php:371 ..
-#: gateway-buckaroo-creditcard.php:122 ../gateway-buckaroo-emaestro.php:121 ..
-#: gateway-buckaroo-paypal.php:119 ../gateway-buckaroo-giftcard.php:123 ..
-#: gateway-buckaroo-transfer.php:159
-msgid "Use Notification Service"
-msgstr "Gebruik Notificatie Service"
-
 #: ../gateway-buckaroo-sepadirectdebit.php:324
 msgid "Notification Type"
 msgstr "Notificatie Type"
 
-#: ../gateway-buckaroo-sepadirectdebit.php:331 ../gateway-buckaroo-paygarant.php:
-#: 289 ../gateway-buckaroo-sofort.php:128 ../gateway-buckaroo-giropay.php:148 ..
-#: gateway-buckaroo-mistercash.php:128 ../gateway-buckaroo-paysafecard.php:128 ..
-#: gateway-buckaroo-ideal.php:168 ../gateway-buckaroo-afterpay.php:378 ..
-#: gateway-buckaroo-creditcard.php:129 ../gateway-buckaroo-emaestro.php:128 ..
-#: gateway-buckaroo-paypal.php:126 ../gateway-buckaroo-giftcard.php:130 ..
-#: gateway-buckaroo-transfer.php:166
-msgid "Notification delay"
-msgstr "Uitstel van Notificatie"
-
-#: ../gateway-buckaroo-sepadirectdebit.php:333 ../gateway-buckaroo-paygarant.php:
-#: 291 ../gateway-buckaroo-sofort.php:130 ../gateway-buckaroo-giropay.php:150 ..
-#: gateway-buckaroo-mistercash.php:130 ../gateway-buckaroo-paysafecard.php:130 ..
-#: gateway-buckaroo-ideal.php:170 ../gateway-buckaroo-afterpay.php:380 ..
-#: gateway-buckaroo-creditcard.php:131 ../gateway-buckaroo-emaestro.php:130 ..
-#: gateway-buckaroo-paypal.php:128 ../gateway-buckaroo-giftcard.php:132 ..
-#: gateway-buckaroo-transfer.php:168
+#: ../gateway-buckaroo-sepadirectdebit.php:326
 msgid ""
-"The time at which the notification should be sent. If this is not specified, "
-"the notification is sent immediately."
+"PreNotification: A pre-notification that is sent some time before performing "
+"a scheduled action. PaymentComplete: A notification that is sent when a "
+"transaction has been completed with success."
 msgstr ""
-"Na hoeveel dagen de Notificatie verstuurd moet worden. Als dit niet wordt "
-"ingevuld, wordt de Notificatie direct verstuurd."
+"Pre-Notificatie: een pre-notificatie die enige tijd voor de geplande actie "
+"gestuurd wordt. Betaling Compleet: een notificatie die verstuurd wordt als "
+"de transactie is geslaagd."
 
-#: ../gateway-buckaroo-giropay.php:76
-msgid "Please provide correct BIC"
-msgstr "Geef alstublieft een correcte BIC op"
-
-#: ../gateway-buckaroo-afterpay.php:135
-msgid "Please accept licence agreements"
-msgstr "Accepteer alstublieft de license agreements"
-
-#: ../gateway-buckaroo-afterpay.php:145
-msgid "Company registration number is required (KvK)"
-msgstr "Kamer van Koophandel nummer is verplicht (KvK)"
-
-#: ../gateway-buckaroo-afterpay.php:149
-msgid "Company name is required"
-msgstr "Bedrijfsnaam is verplicht"
-
-#: ../gateway-buckaroo-afterpay.php:157
-msgid "VAT (BTW) number is required"
-msgstr "BTW nummer is verplicht"
-
-#: ../gateway-buckaroo-afterpay.php:189
-msgid "Please enter correct shipping person birthdate date"
-msgstr ""
-"Voer alstublieft een correcte geboortedatum in van de persoon van het "
-"verzendadres"
-
-#: ../gateway-buckaroo-afterpay.php:208
-msgid "IBAN is required"
-msgstr "IBAN is verplicht"
-
-#: ../gateway-buckaroo-afterpay.php:271
-msgid "Shipping person gender:"
-msgstr "Geslacht van persoon van verzendadres:"
-
-#: ../gateway-buckaroo-afterpay.php:306
-msgid "COC (KvK) number:"
-msgstr "KvK nummer:"
-
-#: ../gateway-buckaroo-afterpay.php:311
-msgid "Name of the organization:"
-msgstr "Naam van het bedrijf:"
-
-#: ../gateway-buckaroo-afterpay.php:321
-msgid "VAT (BTW) number:"
-msgstr "BTW nummer:"
-
-#: ../gateway-buckaroo-afterpay.php:327
-msgid "Accept licence agreement:"
-msgstr "Accepteer license agreement:"
-
-#: ../gateway-buckaroo-afterpay.php:346
-msgid "Select afterpay service"
-msgstr "Kies AfterPay service"
-
-#: ../gateway-buckaroo-afterpay.php:348
-msgid "Please select the service"
-msgstr "Kies de gewenste AfterPay service"
-
-#: ../gateway-buckaroo-afterpay.php:353
-msgid "Enable B2B option for AfterPay"
-msgstr "Zet B2B aan voor AfterPay"
-
-#: ../gateway-buckaroo-afterpay.php:360
-msgid "Default product Vat type"
-msgstr "Standaard BTW type voor producten"
-
-#: ../gateway-buckaroo-afterpay.php:362
-msgid "Please select default vat type for your products"
-msgstr "Kies standaard BTW type voor uw producten"
-
-#: ../gateway-buckaroo.php:205
-msgid "Secret key"
-msgstr "Secret key"
-
-#: ../gateway-buckaroo.php:218
-msgid "Certificate"
-msgstr "Certificaat"
-
-#: ../gateway-buckaroo.php:229 ../gateway-buckaroo.php:231
-msgid "Certificate thumbprint"
-msgstr "Certificaat thumbprint"
-
-#: ../gateway-buckaroo.php:235 ../gateway-buckaroo.php:237
-msgid "Transaction description"
-msgstr "Omschrijving van transactie"
-
-#: ../gateway-buckaroo.php:241
-msgid "Language"
-msgstr "Taal"
-
-#: ../gateway-buckaroo.php:243
-msgid "Buckaroo Payment Engine culture"
-msgstr "Buckaroo Payment Engine cultuur"
-
-#: ../gateway-buckaroo.php:248 ../gateway-buckaroo.php:250
-msgid "Currency"
-msgstr "Valuta"
-
-#: ../gateway-buckaroo.php:255
-msgid "Extra charge amount"
-msgstr "Betaaltoeslag"
-
-#: ../gateway-buckaroo.php:257
-msgid "Specify static or percentage amount"
-msgstr "Specificeer vast bedrag of percentage"
-
-#: ../gateway-buckaroo.php:261
-msgid "Extra charge type"
-msgstr "Betaaltoeslag type"
-
-#: ../gateway-buckaroo.php:264
-msgid "Percentage or static"
-msgstr "Percentage of vast bedrag"
-
-#: ../gateway-buckaroo-transfer.php:141
+#: ../gateway-buckaroo-transfer.php:142
 msgid "Number of days till order expire"
 msgstr "Aantal dagen totdat de order verloopt"
 
-#: ../gateway-buckaroo-transfer.php:143
+#: ../gateway-buckaroo-transfer.php:144
 msgid "Number of days to the date that the order should be payed."
 msgstr "Aantal dagen voordat de order betaald moet zijn."
 
+#: ../gateway-buckaroo-transfer.php:149
+msgid "Buckaroo sends an email to the customer with the payment procedures."
+msgstr "Buckaroo stuurt een e-mail naar de klant met de betaalstappen."
+
+#: ../gateway-buckaroo-transfer.php:153
+msgid "Show payment procedures"
+msgstr "Laat de betaalstappen zien"
+
+#: ../gateway-buckaroo-transfer.php:155
+msgid "Show payment procedures on Thank You page after payment confirmation."
+msgstr ""
+"Laat de betaalstappen zien op de Bedankt pagina nadat de order is bevestigd."
+
+#: ../gateway-buckaroo.php:76
+msgid "Please provide valid payment fee"
+msgstr ""
+
+#: ../gateway-buckaroo.php:168
+msgid "Payment fee"
+msgstr "Betaaltoeslag"
+
+#: ../gateway-buckaroo.php:192
+msgid "Enable/Disable"
+msgstr "Zet aan/uit"
+
+#: ../gateway-buckaroo.php:194
+msgid "Enable "
+msgstr ""
+
+#: ../gateway-buckaroo.php:202
+msgid "Title"
+msgstr "Titel"
+
+#: ../gateway-buckaroo.php:205
+msgid "This controls the title which the user sees during checkout."
+msgstr "Zet hier de titel die de klant ziet tijdens de checkout."
+
+#: ../gateway-buckaroo.php:212
+msgid "Description"
+msgstr "Omschrijving"
+
+#: ../gateway-buckaroo.php:215
+msgid "This controls the description which the user sees during checkout."
+msgstr "Zet hier de omschrijving die de klant ziet tijdens de checkout."
+
+#: ../gateway-buckaroo.php:221
+msgid "Merchant key"
+msgstr "Merchant key"
+
+#: ../gateway-buckaroo.php:223
+msgid "This is your Buckaroo payment plaza Website key."
+msgstr ""
+"Dit is uw Buckaroo payment plaza Website key (Profiel -> Websites -> Key)."
+
+#: ../gateway-buckaroo.php:227
+msgid "Secret key"
+msgstr "Secret key"
+
+#: ../gateway-buckaroo.php:229
+msgid "The Secret password to verify transactions"
+msgstr ""
+"Het geheime wachtwoord om transacties te verifiëren (Profiel -> Beveiliging -"
+"> Secret Key)."
+
+#: ../gateway-buckaroo.php:233
+msgid "Transaction Mode"
+msgstr "Transactie modus"
+
+#: ../gateway-buckaroo.php:235
+msgid "Transaction mode used for processing orders"
+msgstr "Transactie modus gebruikt om bestellingen te verwerken"
+
+#: ../gateway-buckaroo.php:240
+msgid "Certificate"
+msgstr "Certificaat"
+
+#: ../gateway-buckaroo.php:243
+msgid "Please enter certificate name. Certificate should be uploaded to \""
+msgstr ""
+
+#: ../gateway-buckaroo.php:249 ../gateway-buckaroo.php:251
+msgid "Certificate thumbprint"
+msgstr "Certificaat thumbprint"
+
+#: ../gateway-buckaroo.php:255 ../gateway-buckaroo.php:257
+msgid "Transaction description"
+msgstr "Omschrijving van transactie"
+
+#: ../gateway-buckaroo.php:261
+msgid "Language"
+msgstr "Taal"
+
+#: ../gateway-buckaroo.php:263
+msgid "Buckaroo Payment Engine culture"
+msgstr "Buckaroo Payment Engine cultuur"
+
+#: ../gateway-buckaroo.php:268 ../gateway-buckaroo.php:270
+msgid "Currency"
+msgstr "Valuta"
+
+#: ../gateway-buckaroo.php:275
+msgid "Extra charge amount"
+msgstr "Betaaltoeslag"
+
+#: ../gateway-buckaroo.php:278
+msgid "Decimals must be seperated by a dot (.)"
+msgstr ""
+
+#: ../gateway-buckaroo.php:278
+msgid "Specify static or percentage amount. "
+msgstr ""
+
+#: ../gateway-buckaroo.php:282
+msgid "Extra charge type"
+msgstr "Betaaltoeslag type"
+
+#: ../gateway-buckaroo.php:285
+msgid "Percentage or static"
+msgstr "Percentage of vast bedrag"
+
 #: ../library/common.php:43
+#, php-format
+msgid "Refunded %s - Refund transaction ID: %s"
+msgstr "Refunded %s - Refund transactie ID: %s"
+
+#: ../library/common.php:56
+#, php-format
+msgid "Refund failed for transaction ID: %s \n"
+msgstr ""
+
+#: ../library/common.php:63
 msgid "Refund failed: "
 msgstr "Refund mislukt:"
 
-#: ../library/common.php:45
+#: ../library/common.php:67
 #, php-format
 msgid "Refund failed for transaction ID: %s"
 msgstr "Refund mislukt voor transactie ID: %s"
 
-#: ../gateway-buckaroo-paygarantbyjuno.php:60 ../gateway-buckaroo-sepadirectdebit.
-#: php:72 ../gateway-buckaroo-paygarant.php:60 ../gateway-buckaroo-sofort.php:49 .
-#: ./gateway-buckaroo-giropay.php:49 ../gateway-buckaroo-mistercash.php:49 ..
-#: gateway-buckaroo-paysafecard.php:49 ../gateway-buckaroo-ideal.php:61 ..
-#: gateway-buckaroo-afterpay.php:79 ../gateway-buckaroo-creditcard.php:47 ..
-#: gateway-buckaroo-emaestro.php:48 ../gateway-buckaroo-paypal.php:48 ../gateway-
-#: buckaroo-giftcard.php:49 ../gateway-buckaroo-transfer.php:56
-msgid ""
-"Refund failed: Order not in ready state, Buckaroo transaction ID do not "
-"exists."
-msgstr ""
-"Refund mislukt: order is nog niet geslaagd. Buckaroo transactie ID bestaat "
-"niet."
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:91 ../gateway-buckaroo-sepadirectdebit.
-#: php:105 ../gateway-buckaroo-paygarant.php:91
-msgid "Please fill in all required fields"
-msgstr "Vul alstublieft alle verplichte velden in"
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:97 ../gateway-buckaroo-sepadirectdebit.
-#: php:137 ../gateway-buckaroo-paygarant.php:97 ../gateway-buckaroo-afterpay.php:
-#: 131
-msgid "Please enter correct birthdate date"
-msgstr "Vul alstublieft een juiste geboortedatum in"
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:191 ../gateway-buckaroo-
-#: sepadirectdebit.php:204 ../gateway-buckaroo-paygarant.php:194 ../gateway-
-#: buckaroo-giropay.php:109 ../gateway-buckaroo-ideal.php:116 ../gateway-buckaroo-
-#: afterpay.php:256 ../gateway-buckaroo.php:289
-msgid "TEST MODE"
-msgstr "TEST MODUS"
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:196 ../gateway-buckaroo-
-#: sepadirectdebit.php:210 ../gateway-buckaroo-sepadirectdebit.php:221 ../gateway-
-#: buckaroo-paygarant.php:199 ../gateway-buckaroo-afterpay.php:261
-msgid "Gender:"
-msgstr "Geslacht:"
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:201 ../gateway-buckaroo-paygarant.php:
-#: 204
-msgid "Firstname:"
-msgstr "Voornaam:"
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:205 ../gateway-buckaroo-paygarant.php:
-#: 208
-msgid "Lastname:"
-msgstr "Achternaam:"
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:209 ../gateway-buckaroo-
-#: sepadirectdebit.php:231 ../gateway-buckaroo-paygarant.php:212 ../gateway-
-#: buckaroo-afterpay.php:283
-msgid "IBAN:"
-msgstr "IBAN:"
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:213 ../gateway-buckaroo-paygarant.php:
-#: 216
-msgid "E-mail:"
-msgstr "E-mail:"
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:217 ../gateway-buckaroo-
-#: sepadirectdebit.php:215 ../gateway-buckaroo-paygarant.php:220 ../gateway-
-#: buckaroo-afterpay.php:266
-msgid "Birthdate:"
-msgstr "Geboortedatum:"
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:228 ../gateway-buckaroo-paygarant.php:
-#: 231
-msgid "Number of days between order and invoice"
-msgstr "Aantal dagen tussen aanmaken van order en versturen van factuur"
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:230 ../gateway-buckaroo-paygarant.php:
-#: 233
-msgid "Maximum days of delay 30."
-msgstr "Maximaal 30 dagen later"
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:233 ../gateway-buckaroo-paygarant.php:
-#: 236 ../gateway-buckaroo-transfer.php:146
-msgid "Send Email"
-msgstr "Verstuur Email"
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:235 ../gateway-buckaroo-paygarant.php:
-#: 238
-msgid "Send Buckaroo Payment Plaza e-mail to customer."
-msgstr "Verstuurt Buckaroo Payment Plaza e-mail naar de klant."
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:239 ../gateway-buckaroo-
-#: sepadirectdebit.php:277 ../gateway-buckaroo-paygarant.php:242
-msgid "Allowed payment methods"
-msgstr "Toegestane betaalmethoden"
-
-#: ../gateway-buckaroo-paygarantbyjuno.php:242
-msgid ""
-"Select allowed payment methods for Payment Guarantee ByJuno. (Ctrl+Click "
-"select multiple)"
-msgstr ""
-"Selecteer toegestane betaalmethoden voor BetaalGarant ByJuno (Ctrl + Klik om "
-"meerdere te selecteren)."
-
-#: ../gateway-buckaroo-sepadirectdebit.php:111
-msgid "Wrong IBAN number"
-msgstr "Verkeerd IBAN nummer"
-
-#: ../gateway-buckaroo-sepadirectdebit.php:227
-msgid "Bank account holder:"
-msgstr "Rekeninghouder:"
-
-#: ../gateway-buckaroo-sepadirectdebit.php:235 ../gateway-buckaroo-giropay.php:113
-msgid "BIC:"
-msgstr "BIC:"
-
-#: ../gateway-buckaroo-sepadirectdebit.php:255
-msgid "Use Credit Managment"
-msgstr "Gebruik Credit Management"
-
-#: ../gateway-buckaroo-sepadirectdebit.php:257
-msgid ""
-"Buckaroo sends payment reminders to the customer. (Contact Buckaroo before "
-"activating Credit Management. By default this is excluded in the contract.)"
-msgstr ""
-"Buckaroo verstuurt betalingsherinneringen naar de klant. (Neem contact op "
-"met Buckaroo alvorens Credit Management te activeren. Standaard is dit niet "
-"toegevoegd in het contact.)"
-
-#: ../library/common.php:173 ../library/common.php:263
+#: ../library/common.php:218 ../library/common.php:325
 msgid "Payment cancelled by customer."
 msgstr "Betaling geannuleerd door de klant."
 
-#: ../library/common.php:175 ../library/common.php:182 ../library/common.php:265 .
-#: ./library/common.php:273
-msgid "Payment unsuccessful. Please try again or choose another payment method."
+#: ../library/common.php:222 ../library/common.php:235
+#: ../library/common.php:329 ../library/common.php:345
+msgid ""
+"Payment unsuccessful. Please try again or choose another payment method."
 msgstr ""
 "Betaling mislukt. Probeer het alstublieft opnieuw of kies een andere "
 "betaalmethode."
 
-#: ../gateway-buckaroo-afterpay.php:299
-msgid "Checkout for company"
-msgstr "Betalen als bedrijf"
+#~ msgid "WC Buckaroo BPE 3.0 Gateway (2.4.X Compatible)"
+#~ msgstr "WC Buckaroo BPE 3.0 Gateway (2.4.X Compatible)"
 
-#: ../gateway-buckaroo.php:147
-msgid "Payment fee"
-msgstr "Betaaltoeslag\n"
+#~ msgid "http://www.buckaroo.nl"
+#~ msgstr "http://www.buckaroo.nl"
+
+#~ msgid ""
+#~ "Buckaroo payment system plugin for WooCommerce version <strong><u>2.3."
+#~ "x-2.4.x</u></strong>."
+#~ msgstr ""
+#~ "Buckaroo payment system plugin for WooCommerce version <strong><u>2.3."
+#~ "x-2.4.x</u></strong>."
+
+#~ msgid "Specify static or percentage amount"
+#~ msgstr "Specificeer vast bedrag of percentage"

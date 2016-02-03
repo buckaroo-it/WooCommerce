@@ -82,7 +82,7 @@ class WC_Gateway_Buckaroo_EMaestro extends WC_Gateway_Buckaroo {
 		}
 		$emaestro->currency = $this->currency;
 		$emaestro->description = $this->transactiondescription;
-		$emaestro->invoiceId = (string)$order_id;
+		$emaestro->invoiceId = (string)getUniqInvoiceId($order_id);
 		$emaestro->orderId = (string)$order_id;
 		$emaestro->returnUrl = $this->notify_url;
         $customVars = Array();

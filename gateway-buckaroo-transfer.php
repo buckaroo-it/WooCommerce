@@ -90,7 +90,7 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo {
             }
             $transfer->currency = $this->currency;
             $transfer->description = $this->transactiondescription;
-            $transfer->invoiceId = (string)$order_id;
+            $transfer->invoiceId = (string)getUniqInvoiceId($order_id);
             $transfer->orderId = (string)$order_id;
 
             $customVars = array();

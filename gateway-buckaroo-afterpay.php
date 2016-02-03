@@ -90,7 +90,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         $afterpay->currency = $this->currency;
         $afterpay->description = $reason;
         if ($this->mode=='test') {
-            $afterpay->invoiceId = 'buckaroowootest_'.(string)$order_id;
+            $afterpay->invoiceId = 'WP_'.(string)$order_id;
         }
         $afterpay->orderId = $order_id;
         $afterpay->OriginalTransactionKey = $order->get_transaction_id();
@@ -118,17 +118,16 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
 
         $afterpay->currency = $this->currency;
         $afterpay->description = $this->transactiondescription;
-        $afterpay->invoiceId = (string)$order_id;
-        if ($this->mode=='test') {
-            $afterpay->invoiceId = 'buckaroowootest_'.(string)$order_id;
-        }
+        $afterpay->invoiceId = getUniqInvoiceId((string)$order_id, $this->mode);
         $afterpay->orderId = (string)$order_id;
-
+        
         $afterpay->BillingGender = $_POST['buckaroo-afterpay-gender'];
         $afterpay->BillingInitials = $this->getInitials($order->billing_first_name);
         $afterpay->BillingLastName = !empty($order->billing_last_name) ? $order->billing_last_name : '';
         $birthdate = $_POST['buckaroo-afterpay-birthdate'];
-        if (!$this->validateDate($birthdate,'Y-m-d')){
+        if ($this->validateDate($birthdate,'d-m-Y')){
+            $birthdate = date('Y-m-d', strtotime($birthdate));
+        } else {
             wc_add_notice( __("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error' );
             return;
         }
@@ -137,8 +136,9 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
             return;
         }
         $shippingCosts = $order->get_total_shipping();
+        $shippingCostsTax = $order->get_shipping_tax();
         if (floatval($shippingCosts) > 0) {
-            $afterpay->ShippingCosts = $shippingCosts;
+            $afterpay->ShippingCosts = number_format($shippingCosts, 2)+number_format($shippingCostsTax, 2);
         }
         if (!empty($_POST["buckaroo-afterpay-b2b"]) && $_POST["buckaroo-afterpay-b2b"] == 'ON')
         {
@@ -227,7 +227,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"] = $item['product_id'];
             $tmp["ArticleQuantity"] = $item["qty"];
-            $tmp["ArticleUnitprice"] = $item["line_total"]/$item["qty"];
+            $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"])/$item["qty"], 2);
             $tmp["ArticleVatcategory"] = $tax_class;
             $products[] = $tmp;
         }		
@@ -236,7 +236,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"] = $key;
             $tmp["ArticleQuantity"] = 1;
-            $tmp["ArticleUnitprice"] = $item["line_total"];
+            $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
             $tmp["ArticleVatcategory"] = '4';
             $products[] = $tmp;
         }
@@ -270,18 +270,18 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         <fieldset>
             <p class="form-row">
                 <label for="buckaroo-afterpay-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                <input id="buckaroo-afterpay-genderm" name="buckaroo-afterpay-gender" class="" type="radio" value="1" checked /> Male &nbsp;
-                <input id="buckaroo-afterpay-genderf" name="buckaroo-afterpay-gender" class="" type="radio" value="2"/> Female
+                <input id="buckaroo-afterpay-genderm" name="buckaroo-afterpay-gender" class="" type="radio" value="1" checked /> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway')?> &nbsp;
+                <input id="buckaroo-afterpay-genderf" name="buckaroo-afterpay-gender" class="" type="radio" value="2"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway')?>
             </p>
             <p class="form-row form-row-wide validate-required">
                 <label for="buckaroo-afterpay-birthdate"><?php echo _e('Birthdate:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                <input id="buckaroo-afterpay-birthdate" name="buckaroo-afterpay-birthdate" class="input-text" type="text" maxlength="250" autocomplete="off" value="" placeholder="YYYY-MM-DD" />
+                <input id="buckaroo-afterpay-birthdate" name="buckaroo-afterpay-birthdate" class="input-text" type="text" maxlength="250" autocomplete="off" value="" placeholder="DD-MM-YYYY" />
             </p>
         <?php if (!empty($post_data["ship_to_different_address"])) { ?>
             <p class="form-row">
                 <label for="buckaroo-afterpay-shipping-gender"><?php echo _e('Shipping person gender:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                <input id="buckaroo-afterpay-shipping-genderm" name="buckaroo-afterpay-shipping-gender" class="" type="radio" value="1" checked /> Male &nbsp;
-                <input id="buckaroo-afterpay-shipping-genderf" name="buckaroo-afterpay-shipping-gender" class="" type="radio" value="2"/> Female
+                <input id="buckaroo-afterpay-shipping-genderm" name="buckaroo-afterpay-shipping-gender" class="" type="radio" value="1" checked /> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway')?> &nbsp;
+                <input id="buckaroo-afterpay-shipping-genderf" name="buckaroo-afterpay-shipping-gender" class="" type="radio" value="2"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway')?>
                 <input id="buckaroo-afterpay-shipping-differ" name="buckaroo-afterpay-shipping-differ" class="" type="hidden" value="1"/>
             </p>
             <p class="form-row form-row-wide validate-required">
@@ -314,28 +314,28 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
                 <?php echo _e('Fill required fields if bill in on the company:', 'wc-buckaroo-bpe-gateway')?>
             </p>
             <p class="form-row form-row-wide validate-required">
-                <label for="buckaroo-afterpay-CompanyCOCRegistration"><?php echo _e('COC (KvK) number:', 'wc-buckaroo-bpe-gateway')?></label>
+                <label for="buckaroo-afterpay-CompanyCOCRegistration"><?php echo _e('COC (KvK) number:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
                 <input id="buckaroo-afterpay-CompanyCOCRegistration" name="buckaroo-afterpay-CompanyCOCRegistration" class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
             </p>
 
             <p class="form-row form-row-wide validate-required">
-                <label for="buckaroo-afterpay-CompanyName"><?php echo _e('Name of the organization:', 'wc-buckaroo-bpe-gateway')?></label>
+                <label for="buckaroo-afterpay-CompanyName"><?php echo _e('Name of the organization:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
                 <input id="buckaroo-afterpay-CompanyName" name="buckaroo-afterpay-CompanyName" class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
             </p>
 
             <p class="form-row form-row-wide validate-required">
-                <label for="buckaroo-afterpay-CostCentre"><?php echo _e('Cost center of the order (this will be visible on the invoice):', 'wc-buckaroo-bpe-gateway')?></label>
+                <label for="buckaroo-afterpay-CostCentre"><?php echo _e('Cost center of the order (this will be visible on the invoice):', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
                 <input id="buckaroo-afterpay-CostCentre" name="buckaroo-afterpay-CostCentre" class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
             </p>
 
             <p class="form-row form-row-wide validate-required">
-                <label for="buckaroo-afterpay-VatNumber"><?php echo _e('VAT (BTW) number:', 'wc-buckaroo-bpe-gateway')?></label>
+                <label for="buckaroo-afterpay-VatNumber"><?php echo _e('VAT (BTW) number:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
                 <input id="buckaroo-afterpay-VatNumber" name="buckaroo-afterpay-VatNumber" class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
             </p>
 			</span>
             <?php } ?>
             <p class="form-row form-row-wide validate-required">
-                <?php echo _e('Accept licence agreement:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span> <input id="buckaroo-afterpay-accept" name="buckaroo-afterpay-accept" type="checkbox" value="ON" />
+                <a href="https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden/" target="_blank"><?php echo _e('Accept licence agreement:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpay-accept" name="buckaroo-afterpay-accept" type="checkbox" value="ON" />
             </p>
         </fieldset>
     <?php

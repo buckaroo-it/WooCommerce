@@ -82,7 +82,7 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo {
             }
             $sofortbanking->currency = $this->currency;
             $sofortbanking->description = $this->transactiondescription;
-            $sofortbanking->invoiceId = (string)$order_id;
+            $sofortbanking->invoiceId = (string)getUniqInvoiceId($order_id);
             $sofortbanking->orderId = (string)$order_id;
             $sofortbanking->returnUrl = $this->notify_url;
             $customVars = Array();

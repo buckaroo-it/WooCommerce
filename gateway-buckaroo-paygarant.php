@@ -110,7 +110,7 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
             }
             $paygarant->currency = $this->currency;
             $paygarant->description = $this->transactiondescription;
-            $paygarant->invoiceId = (string)$order_id;
+            $paygarant->invoiceId = (string)getUniqInvoiceId($order_id);
             $paygarant->orderId = (string)$order_id;
 
             $customVars = array();

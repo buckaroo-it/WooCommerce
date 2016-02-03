@@ -110,7 +110,7 @@ class WC_Gateway_Buckaroo_PayGarantByJuno extends WC_Gateway_Buckaroo {
             }
             $paygarant->currency = $this->currency;
             $paygarant->description = $this->transactiondescription;
-            $paygarant->invoiceId = (string)$order_id;
+            $paygarant->invoiceId = (string)getUniqInvoiceId($order_id);
             $paygarant->orderId = (string)$order_id;
 
             $customVars = array();
@@ -195,8 +195,8 @@ class WC_Gateway_Buckaroo_PayGarantByJuno extends WC_Gateway_Buckaroo {
                 <fieldset>
                     <p class="form-row">
                             <label for="buckaroo-paygarantbyjuno-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                            <input id="buckaroo-paygarantbyjuno-genderm" name="buckaroo-paygarantbyjuno-gender" class="" type="radio" value="1" checked="checked"  /> Male &nbsp;
-                            <input id="buckaroo-paygarantbyjuno-genderf" name="buckaroo-paygarantbyjuno-gender" class="" type="radio" value="2"/> Female
+                            <input id="buckaroo-paygarantbyjuno-genderm" name="buckaroo-paygarantbyjuno-gender" class="" type="radio" value="1" checked="checked"  /> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway')?> &nbsp;
+                            <input id="buckaroo-paygarantbyjuno-genderf" name="buckaroo-paygarantbyjuno-gender" class="" type="radio" value="2"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway')?>
                     </p>
                     <p class="form-row form-row-wide validate-required">
                             <label for="buckaroo-paygarantbyjuno-firstname"><?php echo _e('Firstname:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>

@@ -79,6 +79,10 @@ class BuckarooIDeal extends BuckarooPaymentMethod
                 'name' => 'Knab',
                 'logo' => 'logo_knab_s.gif',
             ),
+            'BUNQ' => array(
+                'name' => 'Bunq',
+                'logo' => 'logo_bunq.png',
+            ),
         );
 
         return $issuerArray;
@@ -115,6 +119,9 @@ class BuckarooIDeal extends BuckarooPaymentMethod
                 break;
             case 'KNAB':
                 $issuerCode = 'KNABNL2H';
+                break;
+            case 'BUNQ':
+                $issuerCode = 'BUNQNL2A';
                 break;
         }
 

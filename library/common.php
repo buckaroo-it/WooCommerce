@@ -88,7 +88,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         $response = BuckarooResponseFactory::getResponse();
     };
     $logger->logInfo('Parse response:\n', $response);
-    $response->invoicenumber = str_replace("buckaroowootest_", "", $response->invoicenumber);
+    $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, 'test');
     $order_id = $response->invoicenumber;
     if ((int)$order_id > 0) {
         $order = new WC_Order($order_id);
@@ -257,9 +257,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         $response = BuckarooResponseFactory::getResponse();
     };
     $logger->logInfo('Parse response:\n', $response);
-    if ($mode == 'test') {
-        $response->invoicenumber = str_replace("buckaroowootest_", "", $response->invoicenumber);
-    }
+    $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, $mode);
     $order_id = $response->invoicenumber;
     if ((int)$order_id > 0) {
         $order = new WC_Order($order_id);
@@ -334,6 +332,9 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     'error'
                 );
             }
+            $newOrder = wc_create_order($order);
+            $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
+            WC()->session->order_awaiting_payment = $newOrder->id;
             return;
         }
     } else {
@@ -380,5 +381,41 @@ function fn_buckaroo_get_address_components($address)
     }
 
     return $result;
+}
+/**
+ * Generates uniq invocie ID
+ *
+ * @param string $orderID, string $mode
+ * @return string
+ */
+function getUniqInvoiceId($order_id, $mode = 'live')
+{
+    $paymentMethod = $_REQUEST['payment_method'];
+    $time = time();
+    if(!empty($paymentMethod) && $paymentMethod == 'buckaroo_afterpay') {
+        $time = substr($time, -5);
+    }
+    $postfix = ''; //_i'.$time;
+    $invoiceId = (string)$order_id.$postfix;
+    if ($mode == 'test') {
+        $invoiceId = 'WP_'.(string)$order_id.$postfix;
+    }
+
+    return $invoiceId;
+}
+/**
+ * Return Order ID from previously genereated Invoice ID
+ *
+ * @param string $orderID, string $mode
+ * @return string
+ */
+function getOrderIdFromInvoiceId($invoice_id, $mode = 'live')
+{
+    if ($mode == 'test') {
+        $invoice_id = str_replace("WP_", "", $invoice_id);
+    }
+    $order_id = preg_replace('/_i(.*)/','',$invoice_id);
+
+    return $order_id;
 }
     

@@ -87,7 +87,7 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo {
             }
             $giropay->currency = $this->currency;
             $giropay->description = $this->transactiondescription;
-            $giropay->invoiceId = (string)$order_id;
+            $giropay->invoiceId = (string)getUniqInvoiceId($order_id);
             $giropay->orderId = (string)$order_id;
             $giropay->bic = $_POST['buckaroo-giropay-bancaccount'];
             $giropay->returnUrl = $this->notify_url;
