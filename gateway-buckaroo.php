@@ -10,6 +10,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     var $notificationdelay;
     var $extrachargeamount;
     var $extrachargetype;
+    var $extrachargetaxtype;
     var $notificationtype;
 
 
@@ -41,6 +42,10 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->extrachargetype = 'static';
         if (isset($this->settings['extrachargetype'])) {
             $this->extrachargetype = $this->settings['extrachargetype'];
+        }
+        $this->extrachargetaxtype = 'included';
+        if (isset($this->settings['extrachargetaxtype'])) {
+            $this->extrachargetaxtype = $this->settings['extrachargetaxtype'];
         }
         //$this->debug		= $this->settings['debug'];
 
@@ -125,11 +130,15 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if (!empty($current_gateway->extrachargeamount) && !empty($current_gateway->extrachargeamount) && $current_gateway->extrachargeamount != 0) {
             $extra_charge_amount = $current_gateway->extrachargeamount;
             $extra_charge_type = $current_gateway->extrachargetype;
+            $extra_charge_tax_type = $current_gateway->extrachargetaxtype;
             if ($extra_charge_type == 'percentage') {
                 $extra_charge_amount = number_format($subtotal * $extra_charge_amount / 100, 2);
             }
-
-            $taxable = true;
+            if($extra_charge_tax_type == 'excluded') {
+                $taxable = true;
+            } else {
+                $taxable = false;
+            }
 
             $extra_charge_amount = apply_filters(
                 'woocommerce_wc_pf_' . $current_gateway->id . '_amount',
@@ -284,7 +293,14 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 'options' => array('static' => 'Static', 'percentage' => 'Percentage'),
                 'description' => __('Percentage or static', 'wc-buckaroo-bpe-gateway'),
                 'default' => 'static'
-            )
+            ),
+            'extrachargetaxtype' => array(
+                'title' => __('Extra charge tax type', 'wc-buckaroo-bpe-gateway'),
+                'type' => 'select',
+                'options' => array('included' => 'Included', 'excluded' => 'Excluded'),
+                'description' => __('Payment fee including or excluding tax', 'wc-buckaroo-bpe-gateway'),
+                'default' => 'included'
+            ),
             /*'debug' => array(
                         'title' => __( 'Debug', 'wc-buckaroo-bpe-gateway' ),
                         'type' => 'checkbox',
