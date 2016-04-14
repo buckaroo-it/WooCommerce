@@ -81,7 +81,11 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
     
     function process_payment($order_id) {
             global $woocommerce;
-
+            // Validation: Required fields
+            if ( !isset( $_POST['buckaroo-ideal-issuer'] ) || !$_POST['buckaroo-ideal-issuer'] || empty($_POST['buckaroo-ideal-issuer']) ) {
+                wc_add_notice( '<strong>iDEAL bank </strong> ' . __( 'is a required field.', 'woocommerce' ), 'error' );
+                return;
+            }
             $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
             $order = new WC_Order( $order_id );
             $ideal = new BuckarooIDeal();
@@ -121,7 +125,7 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         $first = true;
         foreach(BuckarooIDeal::getIssuerList() as $key => $issuer)
         {?>
-             <input type='radio' value='<?php echo $key; ?>' name='buckaroo-ideal-issuer' id='buckaroo-ideal-issuer' <?= (($first) ? 'checked' : '')?>/>
+             <input type='radio' value='<?php echo $key; ?>' name='buckaroo-ideal-issuer' id='buckaroo-ideal-issuer'/>
              <img src='<?php echo plugins_url('wc-buckaroo-bpe-gateway/library/buckaroo_images/ideal/' . $issuer["logo"], '', 'SSL')?>' style='height: 15px;'/>
              <?php echo _e($issuer["name"], 'wc-buckaroo-bpe-gateway')?><br/>
              <?php
