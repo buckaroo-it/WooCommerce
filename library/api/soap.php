@@ -246,7 +246,7 @@ if (!class_exists('SoapClient')) {
                         $requestParameter = new RequestParameter();
                         $requestParameter->Name = $fieldName;
                         $requestParameter->Group = $val['group'];
-                        $requestParameter->GroupID = $val['group'];
+                        $requestParameter->GroupID = $k+1;
                         $requestParameter->_ = $val['value'];
                         $requestParameters[] = $requestParameter;
                     }
