@@ -79,6 +79,21 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
     }
     
+    /**
+	 * Validate frontend fields.
+	 *
+	 * Validate payment fields on the frontend.
+	 *
+	 * @return bool
+	 */
+    public function validate_fields() { 
+        if ( !isset( $_POST['buckaroo-ideal-issuer'] ) || !$_POST['buckaroo-ideal-issuer'] || empty($_POST['buckaroo-ideal-issuer']) ) {
+            wc_add_notice( '<strong>iDEAL bank </strong> ' . __( 'is a required field.', 'woocommerce' ), 'error' );
+        }
+        resetOrder();
+        return;
+    }
+    
     function process_payment($order_id) {
             global $woocommerce;
             // Validation: Required fields

@@ -102,6 +102,33 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         }
         return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
     }
+    
+    public function validate_fields() { 
+        
+        if (empty($_POST["buckaroo-afterpay-accept"])) {
+            wc_add_notice( __("Please accept licence agreements", 'wc-buckaroo-bpe-gateway'), 'error' );
+        }
+        if (!empty($_POST["buckaroo-afterpay-b2b"]) && $_POST["buckaroo-afterpay-b2b"] == 'ON') {
+            if (empty($_POST["buckaroo-afterpay-CompanyCOCRegistration"])) {
+                wc_add_notice( __("Company registration number is required (KvK)", 'wc-buckaroo-bpe-gateway'), 'error' );
+            }
+            if (empty($_POST["buckaroo-afterpay-CompanyName"])) {
+                wc_add_notice( __("Company name is required", 'wc-buckaroo-bpe-gateway'), 'error' );
+            }
+        } else {
+            $birthdate = $_POST['buckaroo-afterpay-birthdate'];
+            if (!$this->validateDate($birthdate,'d-m-Y')){
+                wc_add_notice( __("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error' );
+            }
+        }
+        if ($this->type == 'afterpayacceptgiro') {
+            if (empty($_POST["buckaroo-afterpay-CustomerAccountNumber"])) {
+                wc_add_notice( __("IBAN is required", 'wc-buckaroo-bpe-gateway'), 'error' );
+            }
+        }
+        resetOrder();
+        return;
+    }
 
     function process_payment($order_id) {
         global $woocommerce;
@@ -125,6 +152,9 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         $afterpay->BillingInitials = $this->getInitials($order->billing_first_name);
         $afterpay->BillingLastName = !empty($order->billing_last_name) ? $order->billing_last_name : '';
         $birthdate = $_POST['buckaroo-afterpay-birthdate'];
+        if (!empty($_POST["buckaroo-afterpay-b2b"]) && $_POST["buckaroo-afterpay-b2b"] == 'ON') {
+            $birthdate = '01-01-1990';
+        }
         if ($this->validateDate($birthdate,'d-m-Y')){
             $birthdate = date('Y-m-d', strtotime($birthdate));
         } else {
@@ -142,7 +172,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         }
         if (!empty($_POST["buckaroo-afterpay-b2b"]) && $_POST["buckaroo-afterpay-b2b"] == 'ON')
         {
-			if (empty($_POST["buckaroo-afterpay-CompanyCOCRegistration"])) {
+            if (empty($_POST["buckaroo-afterpay-CompanyCOCRegistration"])) {
                 wc_add_notice( __("Company registration number is required (KvK)", 'wc-buckaroo-bpe-gateway'), 'error' );
                 return;
             }
@@ -150,19 +180,11 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
                 wc_add_notice( __("Company name is required", 'wc-buckaroo-bpe-gateway'), 'error' );
                 return;
             }
-            if (empty($_POST["buckaroo-afterpay-CostCentre"])) {
-                wc_add_notice( __("Cost center of the order is required", 'wc-buckaroo-bpe-gateway'), 'error' );
-                return;
-            }
-            if (empty($_POST["buckaroo-afterpay-VatNumber"])) {
-                wc_add_notice( __("VAT (BTW) number is required", 'wc-buckaroo-bpe-gateway'), 'error' );
-                return;
-            }
             $afterpay->B2B = 'TRUE';
             $afterpay->CompanyCOCRegistration = $_POST["buckaroo-afterpay-CompanyCOCRegistration"];
             $afterpay->CompanyName = $_POST["buckaroo-afterpay-CompanyName"];
-            $afterpay->CostCentre = $_POST["buckaroo-afterpay-CostCentre"];
-            $afterpay->VatNumber = $_POST["buckaroo-afterpay-VatNumber"];
+            // $afterpay->CostCentre = $_POST["buckaroo-afterpay-CostCentre"];
+            // $afterpay->VatNumber = $_POST["buckaroo-afterpay-VatNumber"];
         }
 
         $afterpay->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
@@ -182,15 +204,8 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         $afterpay->AddressesDiffer = 'FALSE';
         if (!empty($_POST["buckaroo-afterpay-shipping-differ"])) {
             $afterpay->AddressesDiffer = 'TRUE';
-            $afterpay->ShippingGender = $_POST['buckaroo-afterpay-shipping-gender'];
             $afterpay->ShippingInitials = $this->getInitials($order->shipping_first_name);
             $afterpay->ShippingLastName = !empty($order->shipping_last_name) ? $order->shipping_last_name : '';
-            $birthdateshipping = $_POST['buckaroo-afterpay-shipping-birthdate'];
-            if (!$this->validateDate($birthdateshipping,'Y-m-d')){
-                wc_add_notice( __("Please enter correct shipping person birthdate date", 'wc-buckaroo-bpe-gateway'), 'error' );
-                return;
-            }
-            $afterpay->ShippingBirthDate = date('Y-m-d', strtotime($birthdateshipping));
             $address_components = fn_buckaroo_get_address_components($order->shipping_address_1." ".$order->shipping_address_2);
             $afterpay->ShippingStreet = $address_components['street'];
             $afterpay->ShippingHouseNumber = $address_components['house_number'];
@@ -216,6 +231,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         $afterpay->Accept = 'TRUE';
         $products = Array();
         $items = $order->get_items();
+        $itemsTotalAmount = 0;
         foreach ( $items as $item ) {
             $product = new WC_Product($item['product_id']);
             $tax_class = $product->get_attribute("vat_category");
@@ -226,10 +242,13 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
             }
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"] = $item['product_id'];
-            $tmp["ArticleQuantity"] = $item["qty"];
-            $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"])/$item["qty"], 2);
+            $tmp["ArticleQuantity"] = 1;
+            $tmp["ArticleUnitprice"] = number_format(number_format($item["line_total"]+$item["line_tax"], 4)/$item["qty"], 2);
+            $itemsTotalAmount += $tmp["ArticleUnitprice"] * $item["qty"];
             $tmp["ArticleVatcategory"] = $tax_class;
-            $products[] = $tmp;
+            for($i = 0 ; $item["qty"] > $i ; $i++) {
+                $products[] = $tmp;
+            }
         }		
         $fees = $order->get_fees();
         foreach ( $fees as $key => $item ) {
@@ -237,8 +256,24 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
             $tmp["ArticleId"] = $key;
             $tmp["ArticleQuantity"] = 1;
             $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
+            $itemsTotalAmount += $tmp["ArticleUnitprice"];
             $tmp["ArticleVatcategory"] = '4';
             $products[] = $tmp;
+        }
+        if(!empty($afterpay->ShippingCosts)) {
+            $itemsTotalAmount += $afterpay->ShippingCosts;
+        }
+        for($i = 0; count($products) > $i; $i++) {
+            if($afterpay->amountDedit != $itemsTotalAmount) {
+                if(number_format($afterpay->amountDedit - $itemsTotalAmount,2) >= 0.01) {
+                    $products[$i]['ArticleUnitprice'] += 0.01; 
+                    $itemsTotalAmount += 0.01;
+                } elseif(number_format($itemsTotalAmount - $afterpay->amountDedit,2) >= 0.01) {
+                    $products[$i]['ArticleUnitprice'] -= 0.01; 
+                    $itemsTotalAmount -= 0.01;
+
+                }
+            }
         }
 		
         $afterpay->returnUrl = $this->notify_url;
@@ -268,6 +303,52 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         <?php if ($this->description) : ?><p><?php echo wpautop(wptexturize($this->description)); ?></p><?php endif; ?>
 
         <fieldset>
+            <p class="form-row form-row-wide validate-required">
+                <?php echo _e('Checkout for company', 'wc-buckaroo-bpe-gateway')?> <input id="buckaroo-afterpay-b2b" name="buckaroo-afterpay-b2b" onclick="CheckoutFields(this.checked)" type="checkbox" value="ON" />
+            </p>
+
+            <?php if ($this->b2b == 'enable' && $this->type== 'afterpaydigiaccept') { ?>
+            <script>
+                function CheckoutFields(showFiields) {
+                     if (showFiields) {
+                        document.getElementById('showB2BBuckaroo').style.display = 'block';
+                        document.getElementById('buckaroo-afterpay-birthdate').disabled = true;
+                        document.getElementById('buckaroo-afterpay-birthdate').value = '';
+                        document.getElementById('buckaroo-afterpay-birthdate').parentElement.style.display = 'none';
+                        document.getElementById('buckaroo-afterpay-birthdate').parentElement.classList.remove('woocommerce-invalid');
+                        document.getElementById('buckaroo-afterpay-birthdate').parentElement.classList.remove('validate-required');
+                        document.getElementById('buckaroo-afterpay-genderm').disabled = true;
+                        document.getElementById('buckaroo-afterpay-genderf').disabled = true;
+                        document.getElementById('buckaroo-afterpay-genderm').parentElement.style.display = 'none';
+                        document.getElementById('buckaroo-afterpay-genderm').parentElement.getElementsByTagName('span').item(0).style.display = 'none';
+                     } else {
+                        document.getElementById('showB2BBuckaroo').style.display = 'none';
+                        document.getElementById('buckaroo-afterpay-birthdate').disabled = false;
+                        document.getElementById('buckaroo-afterpay-birthdate').parentElement.style.display = 'block';
+                        document.getElementById('buckaroo-afterpay-birthdate').parentElement.classList.add('validate-required');
+                        document.getElementById('buckaroo-afterpay-genderm').disabled = false;
+                        document.getElementById('buckaroo-afterpay-genderf').disabled = false;
+                        document.getElementById('buckaroo-afterpay-genderf').parentElement.style.display = 'inline-block';
+                        document.getElementById('buckaroo-afterpay-genderf').parentElement.getElementsByTagName('span').item(0).style.display = 'inline-block';
+                    }
+                }
+            
+            </script>
+            <span id="showB2BBuckaroo" style="display:none">
+            <p class="form-row form-row-wide validate-required">
+                <?php echo _e('Fill required fields if bill in on the company:', 'wc-buckaroo-bpe-gateway')?>
+            </p>
+            <p class="form-row form-row-wide validate-required">
+                <label for="buckaroo-afterpay-CompanyCOCRegistration"><?php echo _e('COC (KvK) number:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
+                <input id="buckaroo-afterpay-CompanyCOCRegistration" name="buckaroo-afterpay-CompanyCOCRegistration" class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
+            </p>
+            <p class="form-row form-row-wide validate-required">
+                <label for="buckaroo-afterpay-CompanyName"><?php echo _e('Name of the organization:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
+                <input id="buckaroo-afterpay-CompanyName" name="buckaroo-afterpay-CompanyName" class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
+            </p>
+            </span>
+            <?php } ?>
+
             <p class="form-row">
                 <label for="buckaroo-afterpay-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
                 <input id="buckaroo-afterpay-genderm" name="buckaroo-afterpay-gender" class="" type="radio" value="1" checked /> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway')?> &nbsp;
@@ -278,16 +359,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
                 <input id="buckaroo-afterpay-birthdate" name="buckaroo-afterpay-birthdate" class="input-text" type="text" maxlength="250" autocomplete="off" value="" placeholder="DD-MM-YYYY" />
             </p>
         <?php if (!empty($post_data["ship_to_different_address"])) { ?>
-            <p class="form-row">
-                <label for="buckaroo-afterpay-shipping-gender"><?php echo _e('Shipping person gender:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                <input id="buckaroo-afterpay-shipping-genderm" name="buckaroo-afterpay-shipping-gender" class="" type="radio" value="1" checked /> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway')?> &nbsp;
-                <input id="buckaroo-afterpay-shipping-genderf" name="buckaroo-afterpay-shipping-gender" class="" type="radio" value="2"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway')?>
                 <input id="buckaroo-afterpay-shipping-differ" name="buckaroo-afterpay-shipping-differ" class="" type="hidden" value="1"/>
-            </p>
-            <p class="form-row form-row-wide validate-required">
-                <label for="buckaroo-afterpay-shipping-birthdate"><?php echo _e('Shipping person birthdate:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                <input id="buckaroo-afterpay-shipping-birthdate" name="buckaroo-afterpay-shipping-birthdate" class="input-text" type="text" maxlength="250" autocomplete="off" value="" placeholder="YYYY-MM-DD" />
-            </p>
         <?php } ?>
             <?php if ($this->type == 'afterpayacceptgiro')  { ?>
                 <p class="form-row form-row-wide validate-required">
@@ -295,45 +367,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
                     <input id="buckaroo-afterpay-CustomerAccountNumber" name="buckaroo-afterpay-CustomerAccountNumber" class="input-text" type="text" value="" />
                 </p>
             <?php } ?>
-            <?php if ($this->b2b == 'enable' && $this->type== 'afterpaydigiaccept') { ?>
-			<script>
-				function CheckoutFields(showFiields) {
-					 if (showFiields) {
-						document.getElementById('showB2BBuckaroo').style.display = 'block';					 
-					 } else {
-						document.getElementById('showB2BBuckaroo').style.display = 'none';
-					 }
-				}
-			
-			</script>
-			<p class="form-row form-row-wide validate-required">
-                <?php echo _e('Checkout for company', 'wc-buckaroo-bpe-gateway')?> <input id="buckaroo-afterpay-b2b" name="buckaroo-afterpay-b2b" onclick="CheckoutFields(this.checked)" type="checkbox" value="ON" />
-            </p>
-			<span id="showB2BBuckaroo" style="display:none">
-            <p class="form-row form-row-wide validate-required">
-                <?php echo _e('Fill required fields if bill in on the company:', 'wc-buckaroo-bpe-gateway')?>
-            </p>
-            <p class="form-row form-row-wide validate-required">
-                <label for="buckaroo-afterpay-CompanyCOCRegistration"><?php echo _e('COC (KvK) number:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                <input id="buckaroo-afterpay-CompanyCOCRegistration" name="buckaroo-afterpay-CompanyCOCRegistration" class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
-            </p>
 
-            <p class="form-row form-row-wide validate-required">
-                <label for="buckaroo-afterpay-CompanyName"><?php echo _e('Name of the organization:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                <input id="buckaroo-afterpay-CompanyName" name="buckaroo-afterpay-CompanyName" class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
-            </p>
-
-            <p class="form-row form-row-wide validate-required">
-                <label for="buckaroo-afterpay-CostCentre"><?php echo _e('Cost center of the order (this will be visible on the invoice):', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                <input id="buckaroo-afterpay-CostCentre" name="buckaroo-afterpay-CostCentre" class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
-            </p>
-
-            <p class="form-row form-row-wide validate-required">
-                <label for="buckaroo-afterpay-VatNumber"><?php echo _e('VAT (BTW) number:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                <input id="buckaroo-afterpay-VatNumber" name="buckaroo-afterpay-VatNumber" class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
-            </p>
-			</span>
-            <?php } ?>
             <p class="form-row form-row-wide validate-required">
                 <a href="https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden/" target="_blank"><?php echo _e('Accept licence agreement:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpay-accept" name="buckaroo-afterpay-accept" type="checkbox" value="ON" />
             </p>

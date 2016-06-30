@@ -68,6 +68,20 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo {
         }
         return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
     }
+    /**
+    * Validate frontend fields.
+    *
+    * Validate payment fields on the frontend.
+    *
+    * @return bool
+    */
+    public function validate_fields() { 
+        if (empty($_POST['buckaroo-giropay-bancaccount'])) {
+            wc_add_notice(__('Please provide correct BIC', 'wc-buckaroo-bpe-gateway'), 'error' );
+        }
+        resetOrder();
+        return;
+    }
     
     function process_payment($order_id) {
             global $woocommerce;

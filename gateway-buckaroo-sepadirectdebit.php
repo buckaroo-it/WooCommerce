@@ -97,6 +97,32 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
         return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
     }
     
+    /**
+    * Validate frontend fields.
+    *
+    * Validate payment fields on the frontend.
+    *
+    * @return bool
+    */
+    public function validate_fields() { 
+        if (empty($_POST['buckaroo-sepadirectdebit-accountname'])
+              ||empty($_POST['buckaroo-sepadirectdebit-iban'])) {
+            wc_add_notice( __("Please fill in all required fields", 'wc-buckaroo-bpe-gateway'), 'error' );
+        }
+        $sepadirectdebit = new BuckarooSepaDirectDebit();
+        if (!$sepadirectdebit->isIBAN($_POST['buckaroo-sepadirectdebit-iban'])){
+            wc_add_notice( __("Wrong IBAN number", 'wc-buckaroo-bpe-gateway'), 'error' );
+        }
+         if ($this->usecreditmanagment == 'TRUE') {
+            $birthdate = $_POST['buckaroo-sepadirectdebit-birthdate'];
+            if (!$this->validateDate($birthdate,'Y-m-d')){
+                wc_add_notice( __("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error' );
+            }
+        }
+        resetOrder();
+        return;
+    }
+    
     function process_payment($order_id) {
             global $woocommerce;
           

@@ -71,6 +71,11 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo {
         return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
     }
     
+    public function validate_fields() { 
+        resetOrder();
+        return;
+    }
+    
     function process_payment($order_id) {
             global $woocommerce;
 

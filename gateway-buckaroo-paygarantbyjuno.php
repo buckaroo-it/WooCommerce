@@ -80,6 +80,29 @@ class WC_Gateway_Buckaroo_PayGarantByJuno extends WC_Gateway_Buckaroo {
         return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
     }
     
+    /**
+    * Validate frontend fields.
+    *
+    * Validate payment fields on the frontend.
+    *
+    * @return bool
+    */
+    public function validate_fields() { 
+        if (empty($_POST['buckaroo-paygarantbyjuno-firstname'])
+            ||empty($_POST['buckaroo-paygarantbyjuno-lastname'])
+            ||empty($_POST['buckaroo-paygarantbyjuno-email'])
+            ||empty($_POST['buckaroo-paygarantbyjuno-bankaccount'])
+            ||empty($_POST['buckaroo-paygarantbyjuno-birthdate'])) {
+            wc_add_notice( __("Please fill in all required fields", 'wc-buckaroo-bpe-gateway'), 'error' );
+        }
+        $birthdate = $_POST['buckaroo-paygarantbyjuno-birthdate'];
+        if (!$this->validateDate($birthdate,'Y-m-d')){
+            wc_add_notice( __("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error' );
+        }
+        resetOrder();
+        return;
+    }
+    
     function process_payment($order_id) {
             global $woocommerce;
 

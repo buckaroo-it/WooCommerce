@@ -322,8 +322,10 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 $logger->logInfo('Order status cannot be changed.');
             }
             if ($response_status == 'cancelled') {
+                $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                 wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
             } else {
+                $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                 wc_add_notice(
                     __(
                         'Payment unsuccessful. Please try again or choose another payment method.',
@@ -332,9 +334,9 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     'error'
                 );
             }
-            $newOrder = wc_create_order($order);
-            $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
-            WC()->session->order_awaiting_payment = $newOrder->id;
+//            $newOrder = wc_create_order($order);
+//            $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
+//            WC()->session->order_awaiting_payment = $newOrder->id;
             return;
         }
     } else {
@@ -382,6 +384,24 @@ function fn_buckaroo_get_address_components($address)
 
     return $result;
 }
+
+/**
+ * Cancel order and create new if order_awaiting_payment exists
+ */
+function resetOrder() {
+    $order_id = WC()->session->order_awaiting_payment;
+    if($order_id) {
+        $order = wc_get_order( $order_id );
+        $status = $order->post_status;
+
+        if(($status == 'wc-failed' || $status == 'wc-cancelled') && wc_notice_count( 'error' ) == 0) {
+            $newOrder = wc_create_order($order);
+//            $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
+            WC()->session->order_awaiting_payment = $newOrder->id;
+        }
+    }
+}
+
 /**
  * Generates uniq invocie ID
  *

@@ -4,7 +4,7 @@ Contributors: buckaroo.nl
 Tags: WooCommerce, payments
 Requires at least: 3.0.0
 Tested up to: 3.4
-Stable tag: 2.2.9
+Stable tag: 2.2.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,7 +18,7 @@ It is a plug-in with a lot of payment methods and all payment methods are SEPA p
 Payment method support list
 
 1. iDEAL
-2. Creditcards (Visa, MasterCard, American Express)
+2. Creditcards (Visa, MasterCard, American Express, VPAY, Visa Electron, Carte Bleue, Carte Bancaire, Dankort)
 3. Direct debit With/Without credit managment
 4. eMaestro
 5. Giftcards
@@ -49,6 +49,12 @@ Here are the six steps:
 2. http://images.buckaroo.nl/plugins/Wordpress_WooCommerce/2.1.2_marketplace/screenshots/2.png
 
 == Changelog ==
+= 2.2.10 =
+Less AfterPay fields mandatory for B2B and different shipping address.
+No longer creates order when frontend validation fails.
+Fixed AfterPay issues in combination with discounts.
+Added Carte Bancaire, Carte Bleue, Dankort and Visa Electron to creditcards.
+
 = 2.2.9 =
 Changes on GroupID representation.
 

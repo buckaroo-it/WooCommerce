@@ -298,9 +298,9 @@ msgstr ""
 msgid "Name of the organization:"
 msgstr ""
 
-#: ../gateway-buckaroo-afterpay.php:316
-msgid "Cost center of the order (this will be visible on the invoice):"
-msgstr ""
+#: ../gateway-buckaroo-afterpay.php:345
+msgid "Cost center of the order (this will be visible on the invoice) - optional:"
+msgstr "Kostenplaats van de order (dit wordt getoond op de factuur) - optioneel"
 
 #: ../gateway-buckaroo-afterpay.php:321
 msgid "VAT (BTW) number:"
