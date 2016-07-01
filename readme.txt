@@ -39,6 +39,7 @@ You will need a Buckaroo account to be able to use this plug-in.
 Send an e-mail to sales@buckaroo.nl or call 030 711 50 10 to obtain an account.
 
 [Implementatiehandleiding NL](https://images.buckaroo.nl/plugins/Wordpress_WooCommerce/Wordpress_WooCommerce_2.3.x-2.5.x.EN.pdf "Implementatiehandleiding NL")
+
 [Implementation manual EN](https://images.buckaroo.nl/plugins/Wordpress_WooCommerce/Wordpress_WooCommerce_2.3.x-2.5.x.NL.pdf "Implementation manual EN")
 
 == Screenshots ==
