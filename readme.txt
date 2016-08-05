@@ -4,7 +4,7 @@ Contributors: buckaroo.nl
 Tags: WooCommerce, payments
 Requires at least: 3.0.0
 Tested up to: 3.4
-Stable tag: 2.2.10
+Stable tag: 2.2.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,13 +34,14 @@ Payment method support list
 
 == Installation ==
 
-The plug-in can be installed with the help of the implementation manual below. 
-You will need a Buckaroo account to be able to use this plug-in. 
-Send an e-mail to sales@buckaroo.nl or call 030 711 50 10 to obtain an account.
-
-[Implementatiehandleiding NL](https://images.buckaroo.nl/plugins/Wordpress_WooCommerce/Wordpress_WooCommerce_2.3.x-2.5.x.EN.pdf "Implementatiehandleiding NL")
-
-[Implementation manual EN](https://images.buckaroo.nl/plugins/Wordpress_WooCommerce/Wordpress_WooCommerce_2.3.x-2.5.x.NL.pdf "Implementation manual EN")
+Easy installation that get the plug-in work!
+Here are the six steps:
+- Contact Buckaroo by phone 030 711 5010, by mail sales@buckaroo.nl or proceed to step 2 below
+- Advise and selection of payment services
+- Agreement
+- Implementation
+- Support
+- Training (optional)
 
 == Screenshots ==
 
@@ -48,6 +49,11 @@ Send an e-mail to sales@buckaroo.nl or call 030 711 50 10 to obtain an account.
 2. http://images.buckaroo.nl/plugins/Wordpress_WooCommerce/2.1.2_marketplace/screenshots/2.png
 
 == Changelog ==
+
+= 2.2.11 =
+- Removed checkout as company if AfterPay B2B is disabled in backend
+- Added AfterPay error message in case of reject
+
 = 2.2.10 =
 Less AfterPay fields mandatory for B2B and different shipping address.
 No longer creates order when frontend validation fails.

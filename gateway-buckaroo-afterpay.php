@@ -303,15 +303,16 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         <?php if ($this->description) : ?><p><?php echo wpautop(wptexturize($this->description)); ?></p><?php endif; ?>
 
         <fieldset>
+            <?php if ($this->b2b == 'enable' && $this->type== 'afterpaydigiaccept') { ?>
             <p class="form-row form-row-wide validate-required">
                 <?php echo _e('Checkout for company', 'wc-buckaroo-bpe-gateway')?> <input id="buckaroo-afterpay-b2b" name="buckaroo-afterpay-b2b" onclick="CheckoutFields(this.checked)" type="checkbox" value="ON" />
             </p>
 
-            <?php if ($this->b2b == 'enable' && $this->type== 'afterpaydigiaccept') { ?>
             <script>
                 function CheckoutFields(showFiields) {
                      if (showFiields) {
                         document.getElementById('showB2BBuckaroo').style.display = 'block';
+                        document.getElementById('buckaroo-afterpay-CompanyName').value = document.getElementById('billing_company').value;
                         document.getElementById('buckaroo-afterpay-birthdate').disabled = true;
                         document.getElementById('buckaroo-afterpay-birthdate').value = '';
                         document.getElementById('buckaroo-afterpay-birthdate').parentElement.style.display = 'none';

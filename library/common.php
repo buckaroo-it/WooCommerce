@@ -219,7 +219,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
             } else {
                 wc_add_notice(
                     __(
-                        'Payment unsuccessful. Please try again or choose another payment method.',
+                        "We are sorry to inform you that the request to pay afterwards with AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of AfterPay. Or you can visit the website of AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
                         'wc-buckaroo-bpe-gateway'
                     ),
                     'error'
@@ -231,12 +231,12 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         $logger->logInfo('Response not valid!');
         $logger->logInfo('Parse response:\n', $response);
         wc_add_notice(
-            __(
-                'Payment unsuccessful. Please try again or choose another payment method.',
-                'wc-buckaroo-bpe-gateway'
-            ),
-            'error'
-        );
+                    __(
+                        "We are sorry to inform you that the request to pay afterwards with AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of AfterPay. Or you can visit the website of AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
+                        'wc-buckaroo-bpe-gateway'
+                    ),
+                    'error'
+                );
         return;
     }
 
@@ -328,7 +328,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                 wc_add_notice(
                     __(
-                        'Payment unsuccessful. Please try again or choose another payment method.',
+                        "We are sorry to inform you that the request to pay afterwards with AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of AfterPay. Or you can visit the website of AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
                         'wc-buckaroo-bpe-gateway'
                     ),
                     'error'
@@ -345,13 +345,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         );
         $logger->logInfo('Response not valid!');
         $logger->logInfo('Parse response:\n', $response);
-        wc_add_notice(
-            __(
-                'Payment unsuccessful. Please try again or choose another payment method.',
-                'wc-buckaroo-bpe-gateway'
-            ),
-            'error'
-        );
+
         return;
     }
 
