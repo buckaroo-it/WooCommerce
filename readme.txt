@@ -4,7 +4,7 @@ Contributors: buckaroo.nl
 Tags: WooCommerce, payments
 Requires at least: 3.0.0
 Tested up to: 3.4
-Stable tag: 2.2.11
+Stable tag: 2.2.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,9 +50,12 @@ Here are the six steps:
 
 == Changelog ==
 
+= 2.2.12 =
+Unintended result for error messages due to changes in 2.2.11. Fixed
+
 = 2.2.11 =
-- Removed checkout as company if AfterPay B2B is disabled in backend
-- Added AfterPay error message in case of reject
+Removed checkout as company if AfterPay B2B is disabled in backend
+Added AfterPay error message in case of reject
 
 = 2.2.10 =
 Less AfterPay fields mandatory for B2B and different shipping address.
