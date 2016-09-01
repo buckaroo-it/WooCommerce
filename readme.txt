@@ -51,6 +51,7 @@ Send an e-mail to sales@buckaroo.nl or call 030 711 50 10 to obtain an account.
 
 = 2.2.12 =
 Unintended result for error messages due to changes in 2.2.11. Fixed
+Added log folder
 
 = 2.2.11 =
 Removed checkout as company if AfterPay B2B is disabled in backend
