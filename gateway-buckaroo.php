@@ -12,7 +12,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     var $extrachargetype;
     var $extrachargetaxtype;
     var $notificationtype;
-
+    var $sellerprotection;
 
     function __construct()
     {
@@ -67,6 +67,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         $this->notificationtype = 'PaymentComplete';
 
+        if (!isset($this->settings['sellerprotection'])) {
+            $this->sellerprotection = 'TRUE';
+        } else {
+            $this->sellerprotection = $this->settings['sellerprotection'];
+        }
 
     }
 

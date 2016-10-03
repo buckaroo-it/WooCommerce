@@ -423,6 +423,11 @@ function resetOrder() {
         $status = $order->post_status;
 
         if(($status == 'wc-failed' || $status == 'wc-cancelled') && wc_notice_count( 'error' ) == 0) {
+            //Add generated hash to order for WooCommerce versions later than 2.5
+            if (isset(WC()->version) && !empty(WC()->version) && substr(WC()->version, 0, 1) === '2' && substr(WC()->version, 2, 1) > 5) {
+                $order->cart_hash = md5(json_encode(wc_clean(WC()->cart->get_cart_for_session())) . WC()->cart->total);
+            }
+
             $newOrder = wc_create_order($order);
 //            $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
             WC()->session->order_awaiting_payment = $newOrder->id;

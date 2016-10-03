@@ -45,7 +45,7 @@ class BuckarooPayGarant extends BuckarooPaymentMethod
         $this->data['mode'] = $this->mode;
 
         if (isset($customVars['CustomerCode'])) {
-            $this->data['customVars'][$this->type]['CustomerCode'] = $customVars['CustomerCode'];
+            $this->data['customVars'][$this->type]['CustomerCode'] = $this->invoiceId;
         }
         $this->data['customVars'][$this->type]['CustomerFirstName'] = $customVars['CustomerFirstName'];
         $this->data['customVars'][$this->type]['CustomerLastName'] = $customVars['CustomerLastName'];

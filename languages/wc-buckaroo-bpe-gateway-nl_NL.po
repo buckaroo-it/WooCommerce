@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WC Buckaroo BPE 3.0 Gateway (2.4.X Compatible)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-08 11:42+0200\n"
-"PO-Revision-Date: 2016-08-08 11:42+0200\n"
+"POT-Creation-Date: 2016-09-08 14:59+0200\n"
+"PO-Revision-Date: 2016-09-08 15:10+0200\n"
 "Last-Translator: admin <i.sutugins@intrum.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -46,7 +46,7 @@ msgstr "Geef alstublieft een correcte BIC op"
 #: ../gateway-buckaroo-paygarant.php:217
 #: ../gateway-buckaroo-paygarantbyjuno.php:215
 #: ../gateway-buckaroo-sepadirectdebit.php:230
-#: ../gateway-buckaroo-afterpay.php:302 ../gateway-buckaroo.php:327
+#: ../gateway-buckaroo-afterpay.php:302 ../gateway-buckaroo.php:332
 msgid "TEST MODE"
 msgstr "TEST MODUS"
 
@@ -58,7 +58,7 @@ msgstr "BIC:"
 #: ../gateway-buckaroo-giropay.php:156 ../gateway-buckaroo-giftcard.php:129
 #: ../gateway-buckaroo-ideal.php:179 ../gateway-buckaroo-paygarant.php:305
 #: ../gateway-buckaroo-sofort.php:127 ../gateway-buckaroo-creditcard.php:128
-#: ../gateway-buckaroo-paypal.php:125 ../gateway-buckaroo-paysafecard.php:127
+#: ../gateway-buckaroo-paypal.php:138 ../gateway-buckaroo-paysafecard.php:127
 #: ../gateway-buckaroo-sepadirectdebit.php:343
 #: ../gateway-buckaroo-emaestro.php:127 ../gateway-buckaroo-transfer.php:165
 #: ../gateway-buckaroo-afterpay.php:417 ../gateway-buckaroo-mistercash.php:127
@@ -68,7 +68,7 @@ msgstr "Gebruik Notificatie Service"
 #: ../gateway-buckaroo-giropay.php:158 ../gateway-buckaroo-giftcard.php:131
 #: ../gateway-buckaroo-ideal.php:181 ../gateway-buckaroo-paygarant.php:307
 #: ../gateway-buckaroo-sofort.php:129 ../gateway-buckaroo-creditcard.php:130
-#: ../gateway-buckaroo-paypal.php:127 ../gateway-buckaroo-paysafecard.php:129
+#: ../gateway-buckaroo-paypal.php:140 ../gateway-buckaroo-paysafecard.php:129
 #: ../gateway-buckaroo-sepadirectdebit.php:345
 #: ../gateway-buckaroo-emaestro.php:129 ../gateway-buckaroo-transfer.php:167
 #: ../gateway-buckaroo-afterpay.php:419 ../gateway-buckaroo-mistercash.php:129
@@ -84,7 +84,7 @@ msgstr ""
 #: ../gateway-buckaroo-giropay.php:163 ../gateway-buckaroo-giftcard.php:136
 #: ../gateway-buckaroo-ideal.php:186 ../gateway-buckaroo-paygarant.php:312
 #: ../gateway-buckaroo-sofort.php:134 ../gateway-buckaroo-creditcard.php:135
-#: ../gateway-buckaroo-paypal.php:132 ../gateway-buckaroo-paysafecard.php:134
+#: ../gateway-buckaroo-paypal.php:145 ../gateway-buckaroo-paysafecard.php:134
 #: ../gateway-buckaroo-sepadirectdebit.php:357
 #: ../gateway-buckaroo-emaestro.php:134 ../gateway-buckaroo-transfer.php:172
 #: ../gateway-buckaroo-afterpay.php:424 ../gateway-buckaroo-mistercash.php:134
@@ -94,7 +94,7 @@ msgstr "Uitstel van Notificatie"
 #: ../gateway-buckaroo-giropay.php:165 ../gateway-buckaroo-giftcard.php:138
 #: ../gateway-buckaroo-ideal.php:188 ../gateway-buckaroo-paygarant.php:314
 #: ../gateway-buckaroo-sofort.php:136 ../gateway-buckaroo-creditcard.php:137
-#: ../gateway-buckaroo-paypal.php:134 ../gateway-buckaroo-paysafecard.php:136
+#: ../gateway-buckaroo-paypal.php:147 ../gateway-buckaroo-paysafecard.php:136
 #: ../gateway-buckaroo-sepadirectdebit.php:359
 #: ../gateway-buckaroo-emaestro.php:136 ../gateway-buckaroo-transfer.php:174
 #: ../gateway-buckaroo-afterpay.php:426 ../gateway-buckaroo-mistercash.php:136
@@ -219,6 +219,18 @@ msgid ""
 msgstr ""
 "Selecteer toegestane betaalmethoden voor BetaalGarant ByJuno (Ctrl + Klik om "
 "meerdere te selecteren)."
+
+#: ../gateway-buckaroo-paypal.php:151
+msgid "Seller Protection"
+msgstr "Verkopersbescherming"
+
+#: ../gateway-buckaroo-paypal.php:153
+msgid ""
+"Sends customer address information to PayPal to enable PayPal seller "
+"protection."
+msgstr ""
+"Stuurt adresgegevens van de consument naar PayPal om gebruik te maken van "
+"PayPal verkopersbescherming."
 
 #: ../gateway-buckaroo-sepadirectdebit.php:114
 #: ../gateway-buckaroo-sepadirectdebit.php:140
@@ -387,118 +399,118 @@ msgstr "Standaard BTW type voor producten"
 msgid "Please select default vat type for your products"
 msgstr "Kies standaard BTW type voor uw producten"
 
-#: ../gateway-buckaroo.php:81
+#: ../gateway-buckaroo.php:86
 msgid "Please provide valid payment fee"
 msgstr ""
 
-#: ../gateway-buckaroo.php:177
+#: ../gateway-buckaroo.php:182
 msgid "Payment fee"
 msgstr "Betaaltoeslag"
 
-#: ../gateway-buckaroo.php:201
+#: ../gateway-buckaroo.php:206
 msgid "Enable/Disable"
 msgstr "Zet aan/uit"
 
-#: ../gateway-buckaroo.php:203
+#: ../gateway-buckaroo.php:208
 msgid "Enable "
 msgstr ""
 
-#: ../gateway-buckaroo.php:211
+#: ../gateway-buckaroo.php:216
 msgid "Title"
 msgstr "Titel"
 
-#: ../gateway-buckaroo.php:214
+#: ../gateway-buckaroo.php:219
 msgid "This controls the title which the user sees during checkout."
 msgstr "Zet hier de titel die de klant ziet tijdens de checkout."
 
-#: ../gateway-buckaroo.php:221
+#: ../gateway-buckaroo.php:226
 msgid "Description"
 msgstr "Omschrijving"
 
-#: ../gateway-buckaroo.php:224
+#: ../gateway-buckaroo.php:229
 msgid "This controls the description which the user sees during checkout."
 msgstr "Zet hier de omschrijving die de klant ziet tijdens de checkout."
 
-#: ../gateway-buckaroo.php:230
+#: ../gateway-buckaroo.php:235
 msgid "Merchant key"
 msgstr "Merchant key"
 
-#: ../gateway-buckaroo.php:232
+#: ../gateway-buckaroo.php:237
 msgid "This is your Buckaroo payment plaza Website key."
 msgstr ""
 "Dit is uw Buckaroo payment plaza Website key (Profiel -> Websites -> Key)."
 
-#: ../gateway-buckaroo.php:236
+#: ../gateway-buckaroo.php:241
 msgid "Secret key"
 msgstr "Secret key"
 
-#: ../gateway-buckaroo.php:238
+#: ../gateway-buckaroo.php:243
 msgid "The Secret password to verify transactions"
 msgstr ""
 "Het geheime wachtwoord om transacties te verifiëren (Profiel -> Beveiliging -"
 "> Secret Key)."
 
-#: ../gateway-buckaroo.php:242
+#: ../gateway-buckaroo.php:247
 msgid "Transaction Mode"
 msgstr "Transactie modus"
 
-#: ../gateway-buckaroo.php:244
+#: ../gateway-buckaroo.php:249
 msgid "Transaction mode used for processing orders"
 msgstr "Transactie modus gebruikt om bestellingen te verwerken"
 
-#: ../gateway-buckaroo.php:249
+#: ../gateway-buckaroo.php:254
 msgid "Certificate"
 msgstr "Certificaat"
 
-#: ../gateway-buckaroo.php:252
+#: ../gateway-buckaroo.php:257
 msgid "Please enter certificate name. Certificate should be uploaded to \""
 msgstr ""
 
-#: ../gateway-buckaroo.php:258 ../gateway-buckaroo.php:260
+#: ../gateway-buckaroo.php:263 ../gateway-buckaroo.php:265
 msgid "Certificate thumbprint"
 msgstr "Certificaat thumbprint"
 
-#: ../gateway-buckaroo.php:264 ../gateway-buckaroo.php:266
+#: ../gateway-buckaroo.php:269 ../gateway-buckaroo.php:271
 msgid "Transaction description"
 msgstr "Omschrijving van transactie"
 
-#: ../gateway-buckaroo.php:270
+#: ../gateway-buckaroo.php:275
 msgid "Language"
 msgstr "Taal"
 
-#: ../gateway-buckaroo.php:272
+#: ../gateway-buckaroo.php:277
 msgid "Buckaroo Payment Engine culture"
 msgstr "Buckaroo Payment Engine cultuur"
 
-#: ../gateway-buckaroo.php:277 ../gateway-buckaroo.php:279
+#: ../gateway-buckaroo.php:282 ../gateway-buckaroo.php:284
 msgid "Currency"
 msgstr "Valuta"
 
-#: ../gateway-buckaroo.php:284
+#: ../gateway-buckaroo.php:289
 msgid "Extra charge amount"
 msgstr "Betaaltoeslag"
 
-#: ../gateway-buckaroo.php:287
+#: ../gateway-buckaroo.php:292
 msgid "Decimals must be seperated by a dot (.)"
 msgstr ""
 
-#: ../gateway-buckaroo.php:287
+#: ../gateway-buckaroo.php:292
 msgid "Specify static or percentage amount. "
 msgstr ""
 
-#: ../gateway-buckaroo.php:291
+#: ../gateway-buckaroo.php:296
 msgid "Extra charge type"
 msgstr "Betaaltoeslag type"
 
-#: ../gateway-buckaroo.php:294
+#: ../gateway-buckaroo.php:299
 msgid "Percentage or static"
 msgstr "Percentage of vast bedrag"
 
-#: ../gateway-buckaroo.php:298
+#: ../gateway-buckaroo.php:303
 msgid "Extra charge tax type"
 msgstr ""
 
-#: ../gateway-buckaroo.php:301
+#: ../gateway-buckaroo.php:306
 msgid "Payment fee including or excluding tax"
 msgstr ""
 

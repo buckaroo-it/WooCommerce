@@ -37,6 +37,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     public $version;
     public $usecreditmanagment = 0;
     public $usenotification = 0;
+    public $sellerprotection = 0;
     protected $data = array();
 
     public function Pay($customVars = Array())

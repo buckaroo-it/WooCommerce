@@ -97,7 +97,20 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
             $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
             $customVars['Notificationtype'] = 'PaymentComplete';
             $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
+            
+            $customVars['ShippingPostalCode'] = !empty($order->shipping_postcode) ? $order->shipping_postcode : '';
+            $customVars['ShippingCity'] = !empty($order->shipping_city) ? $order->shipping_city : '';
+            $address_components = fn_buckaroo_get_address_components($order->billing_address_1." ".$order->billing_address_2);
+            $customVars['ShippingStreet'] = !empty($address_components['street']) ? $address_components['street'] : '';
+            $customVars['ShippingHouse'] = !empty($address_components['house_number']) ? $address_components['house_number'] : '';
+            $customVars['StateOrProvince'] = !empty($order->billing_state) ? $order->billing_state : '';
+            $customVars['Country'] = !empty($order->billing_country) ? $order->billing_country : '';
         }
+
+        if ($this->sellerprotection == 'TRUE') {
+            $paypal->sellerprotection = 1;
+        }
+
 		$response = $paypal->Pay($customVars);
         return fn_buckaroo_process_response($this, $response);
     }
@@ -133,6 +146,13 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
             'type' => 'text',
             'description' => __( 'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway' ),
             'default' => '0');
+
+        $this->form_fields['sellerprotection'] = array(
+            'title' => __( 'Seller Protection', 'wc-buckaroo-bpe-gateway' ),
+            'type' => 'select',
+            'description' => __( 'Sends customer address information to PayPal to enable PayPal seller protection.', 'wc-buckaroo-bpe-gateway' ),
+            'options' => array('TRUE'=>'Enabled', 'FALSE'=>'Disabled'),
+            'default' => 'TRUE');
     }
 
 }

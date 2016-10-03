@@ -87,10 +87,10 @@ if (!class_exists('SoapClient')) {
         if (isset($this->_vars['customParameters'])) {
         	$TransactionRequest = $this->_addCustomParameters($TransactionRequest);
         }
-        
+
         $TransactionRequest->Services = new Services();
         $this->_addServices($TransactionRequest);
-        
+
         /*
         $TransactionRequest->Services = new Services();
          
@@ -102,11 +102,21 @@ if (!class_exists('SoapClient')) {
         $TransactionRequest->ClientIP = new IPAddress();
         $TransactionRequest->ClientIP->Type = 'IPv4';
         $TransactionRequest->ClientIP->_ = $_SERVER['REMOTE_ADDR'];
-        
+
+        $sellerProtectionEnabled = false;
         foreach ($TransactionRequest->Services->Service as $key => $service) {
+            if($service->Action == 'extraInfo') {
+                $sellerProtectionEnabled = true;
+            }
+        }
+
+        foreach ($TransactionRequest->Services->Service as $key => $service) {
+            if($service->Action == 'Pay' && $service->Name == 'paypal' && $sellerProtectionEnabled == true) {
+                continue;
+            }
             $this->_addCustomFields($TransactionRequest, $key, $service->Name);
         }
-              
+
         $Header = new Header();
         $Header->MessageControlBlock = new MessageControlBlock();
         $Header->MessageControlBlock->Id = '_control';
@@ -203,7 +213,16 @@ if (!class_exists('SoapClient')) {
         	if (empty($value)) {
         		continue;
         	}
-        	
+
+            if(isset($value['action2']) && !empty($value['action2'])) {
+                $service          = new Service();
+                $service->Name    = $fieldName;
+                $service->Action  = $value['action2'];
+                $service->Version = $value['version2'];
+            
+                $services[] = $service;
+            }
+
             $service          = new Service();
             $service->Name    = $fieldName;
             $service->Action  = $value['action'];
