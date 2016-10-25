@@ -88,7 +88,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 }
             }
         }
-        return parent::validate_text_field($key);
+        return parent::validate_text_field($key, $text);
     }
 
     public function plugin_url()

@@ -4,7 +4,7 @@ Contributors: buckaroo.nl
 Tags: WooCommerce, payments
 Requires at least: 3.0.0
 Tested up to: 3.4
-Stable tag: 2.3.0
+Stable tag: 2.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,6 +49,10 @@ Here are the six steps:
 2. http://images.buckaroo.nl/plugins/Wordpress_WooCommerce/2.1.2_marketplace/screenshots/2.png
 
 == Changelog ==
+
+= 2.3.1 =
+Fixed an issue where saving the payment fee didn't work
+Fixed an issue with redirect after a Sofort transaction
 
 = 2.3.0 =
 Fixed an issue with double order creation in combination with WooCommerce 2.6, plug-in is now officially compatible with WooCommerce 2.6

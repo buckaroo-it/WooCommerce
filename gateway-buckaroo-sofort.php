@@ -4,8 +4,8 @@ require_once 'library/config.php';
 require_once 'gateway-buckaroo.php';
 require_once(dirname(__FILE__) . '/library/api/paymentmethods/sofortbanking/sofortbanking.php');
 class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo {
-    
-    function __construct() { 
+
+    function __construct() {
         global $woocommerce;
         $this->id = 'buckaroo_sofortbanking';
         $this->title = 'Sofortbanking';
@@ -13,22 +13,22 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo {
         $this->has_fields 	= false;
         $this->method_title = "Buckaroo Sofortbanking";
         $this->description = "Betaal met Sofortbanking";
-        
+
         parent::__construct();
 
         $this->supports           = array(
             'products',
             'refunds'
         );
-        
+
         $this->notify_url = home_url('/');
-        
+
         if ( version_compare( WOOCOMMERCE_VERSION, '2.0.0', '<' ) ) {
 
         } else {
-                add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-                add_action( 'woocommerce_api_wc_gateway_buckaroo_sofortbanking', array( $this, 'response_handler' ) );
-                $this->notify_url   = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_EMaestro', $this->notify_url);
+            add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+            add_action( 'woocommerce_api_wc_gateway_buckaroo_sofortbanking', array( $this, 'response_handler' ) );
+            $this->notify_url   = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_EMaestro', $this->notify_url);
         }
         //add_action( 'woocommerce_api_callback', 'response_handler' );           
     }
@@ -60,6 +60,7 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo {
         $sofortbanking->orderId = $order_id;
         $sofortbanking->OriginalTransactionKey = $order->get_transaction_id();
         $sofortbanking->returnUrl = $this->notify_url;
+
         $response = null;
         try {
             $response = $sofortbanking->Refund();
@@ -68,56 +69,58 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo {
         }
         return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
     }
-    
-    public function validate_fields() { 
+
+    public function validate_fields() {
         resetOrder();
         return;
     }
-    
-    function process_payment($order_id) {
-            global $woocommerce;
 
-            $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-            $order = new WC_Order( $order_id );
-            $sofortbanking = new BuckarooSofortbanking();
-            if (method_exists($order, 'get_order_total')) {
-                $sofortbanking->amountDedit = $order->get_order_total();
-            } else {
-                $sofortbanking->amountDedit = $order->get_total();
-            }
-            $sofortbanking->currency = $this->currency;
-            $sofortbanking->description = $this->transactiondescription;
-            $sofortbanking->invoiceId = (string)getUniqInvoiceId($order_id);
-            $sofortbanking->orderId = (string)$order_id;
-            $sofortbanking->returnUrl = $this->notify_url;
-            $customVars = Array();
-            if ($this->usenotification == 'TRUE') {
-                $sofortbanking->usenotification = 1;
-                $customVars['Customergender'] = 0;
-                $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
-                $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
-                $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
-                $customVars['Notificationtype'] = 'PaymentComplete';
-                $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
-            }
-            $response = $sofortbanking->Pay($customVars);
-            return fn_buckaroo_process_response($this, $response);
-    }
-    
-            /**
-	 * Check response data
-	 */
-    
-	public function response_handler() {
-            global $woocommerce;
-            $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-            $result = fn_buckaroo_process_response($this);
-            if (!is_null($result))
-               wp_safe_redirect($result['redirect']);
-            else
-                wp_safe_redirect($this->get_failed_url());
-            exit;
+    function process_payment($order_id) {
+        global $woocommerce;
+
+        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        $order = new WC_Order( $order_id );
+        $sofortbanking = new BuckarooSofortbanking();
+        if (method_exists($order, 'get_order_total')) {
+            $sofortbanking->amountDedit = $order->get_order_total();
+        } else {
+            $sofortbanking->amountDedit = $order->get_total();
         }
+        $sofortbanking->currency = $this->currency;
+        $sofortbanking->description = $this->transactiondescription;
+        $sofortbanking->invoiceId = (string)getUniqInvoiceId($order_id);
+        $sofortbanking->orderId = (string)$order_id;
+        $sofortbanking->returnUrl = home_url('/checkout/order-received/'. $order_id .'/?key=wc_'. $order->post->post_password .'');
+
+        $customVars = Array();
+        if ($this->usenotification == 'TRUE') {
+            $sofortbanking->usenotification = 1;
+            $customVars['Customergender'] = 0;
+            $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
+            $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
+            $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+            $customVars['Notificationtype'] = 'PaymentComplete';
+            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
+        }
+        $response = $sofortbanking->Pay($customVars);
+
+        return fn_buckaroo_process_response($this, $response);
+    }
+
+    /**
+     * Check response data
+     */
+
+    public function response_handler() {
+        global $woocommerce;
+        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        $result = fn_buckaroo_process_response($this);
+        if (!is_null($result))
+            wp_safe_redirect($result['redirect']);
+        else
+            wp_safe_redirect($this->get_failed_url());
+        exit;
+    }
 
     function init_form_fields() {
 
