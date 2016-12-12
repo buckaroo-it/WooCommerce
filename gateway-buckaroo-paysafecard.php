@@ -28,7 +28,7 @@ class WC_Gateway_Buckaroo_Paysafecard extends WC_Gateway_Buckaroo {
         } else {
                 add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
                 add_action( 'woocommerce_api_wc_gateway_buckaroo_paysafecard', array( $this, 'response_handler' ) );
-                $this->notify_url   = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_EMaestro', $this->notify_url);
+                $this->notify_url   = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Paysafecard', $this->notify_url);
         }
         //add_action( 'woocommerce_api_callback', 'response_handler' );           
     }

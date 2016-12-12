@@ -28,7 +28,7 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo {
         } else {
             add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
             add_action( 'woocommerce_api_wc_gateway_buckaroo_sofortbanking', array( $this, 'response_handler' ) );
-            $this->notify_url   = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_EMaestro', $this->notify_url);
+            $this->notify_url   = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Sofortbanking', $this->notify_url);
         }
         //add_action( 'woocommerce_api_callback', 'response_handler' );           
     }
@@ -90,7 +90,7 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo {
         $sofortbanking->description = $this->transactiondescription;
         $sofortbanking->invoiceId = (string)getUniqInvoiceId($order_id);
         $sofortbanking->orderId = (string)$order_id;
-        $sofortbanking->returnUrl = home_url('/checkout/order-received/'. $order_id .'/?key=wc_'. $order->post->post_password .'');
+        $sofortbanking->returnUrl = $this->notify_url;
 
         $customVars = Array();
         if ($this->usenotification == 'TRUE') {

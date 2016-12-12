@@ -39,7 +39,7 @@ class WC_Gateway_Buckaroo_PayGarantByJuno extends WC_Gateway_Buckaroo {
                 add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
                 add_action( 'woocommerce_api_wc_gateway_buckaroo_paygarant', array( $this, 'response_handler' ) );
                 if ($this->showpayproc) add_action( 'woocommerce_thankyou_buckaroo_paygarant' , array( $this, 'thankyou_description' ) );
-                $this->notify_url   = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_PayGarant', $this->notify_url);
+                $this->notify_url   = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_PayGarantByJuno', $this->notify_url);
         }
         //add_action( 'woocommerce_api_callback', 'response_handler' );           
     }
