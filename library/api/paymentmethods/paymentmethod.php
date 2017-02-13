@@ -45,7 +45,6 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         $this->data['services'][$this->type]['action'] = 'Pay';
         $this->data['services'][$this->type]['version'] = $this->version;
 
-
         if ($this->usenotification && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action'] = 'ExtraInfo';
             $this->data['services']['notification']['version'] = '1';

@@ -4,7 +4,7 @@ Contributors: buckaroo.nl
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 3.0.0
 Tested up to: 3.4
-Stable tag: 2.3.2
+Stable tag: 2.3.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,6 +45,11 @@ Implementation manual EN : https://images.buckaroo.nl/plugins/Wordpress_WooComme
 2. https://www.buckaroo.nl/content/image/WooCommerce_frontend1.PNG
 
 == Changelog ==
+
+= 2.3.3 =
+Added Ippies to Giftcard payment method.
+Fixed an issue with PayPal refund not sending an invoice number.
+Fixed an issue with PayPal Seller Protection not working when Notification was disabled.
 
 = 2.3.2 =
 Fixed redirect issues with certain payment methods.

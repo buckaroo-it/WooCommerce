@@ -60,7 +60,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if (!isset($this->settings['usenotification'])) {
             $this->usenotification = 'FALSE';
             $this->notificationdelay = '0';
-
         } else {
             $this->usenotification = $this->settings['usenotification'];
             $this->notificationdelay = $this->settings['notificationdelay'];

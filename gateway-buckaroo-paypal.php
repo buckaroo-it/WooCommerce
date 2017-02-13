@@ -58,6 +58,8 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
         $paypal->orderId = $order_id;
         $paypal->OriginalTransactionKey = $order->get_transaction_id();
         $paypal->returnUrl = $this->notify_url;
+        $paypal->invoiceId = $order_id;
+
         $response = null;
         try {
             $response = $paypal->Refund();
@@ -89,15 +91,19 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
         $paypal->orderId = (string)$order_id;
         $paypal->returnUrl = $this->notify_url;
         $customVars = Array();
+        $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
+
         if ($this->usenotification == 'TRUE') {
             $paypal->usenotification = 1;
             $customVars['Customergender'] = 0;
-            $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
-            $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
             $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+            $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
             $customVars['Notificationtype'] = 'PaymentComplete';
-            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
-            
+            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int)$this->notificationdelay . ' day'))));
+        }
+
+        if ($this->sellerprotection == 'TRUE'){
+            $paypal->sellerprotection = 1;
             $customVars['ShippingPostalCode'] = !empty($order->shipping_postcode) ? $order->shipping_postcode : '';
             $customVars['ShippingCity'] = !empty($order->shipping_city) ? $order->shipping_city : '';
             $address_components = fn_buckaroo_get_address_components($order->billing_address_1." ".$order->billing_address_2);
@@ -107,15 +113,12 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
             $customVars['Country'] = !empty($order->billing_country) ? $order->billing_country : '';
         }
 
-        if ($this->sellerprotection == 'TRUE') {
-            $paypal->sellerprotection = 1;
-        }
+        $response = $paypal->Pay($customVars);
 
-		$response = $paypal->Pay($customVars);
         return fn_buckaroo_process_response($this, $response);
     }
     
-            /**
+     /**
 	 * Check response data
 	 */
     
