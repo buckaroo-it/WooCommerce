@@ -3,7 +3,7 @@ Name: Buckaroo Payments WooCommerce
 Contributors: buckaroo.nl
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 3.0.0
-Tested up to: 3.4
+Tested up to: 4.7
 Stable tag: 2.3.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -36,8 +36,9 @@ Easy installation to get the plug-in up and running!
 1. Contact Buckaroo by phone 030 711 5010 or by mail sales@buckaroo.nl to request a Buckaroo account.
 2. Use one of the manuals below to configure the plug-in and connect it with your Buckaroo account.
 
-Implementatiehandleiding NL: https://images.buckaroo.nl/plugins/Wordpress_WooCommerce/Wordpress_WooCommerce_2.3.x-2.5.x.NL.pdf
-Implementation manual EN : https://images.buckaroo.nl/plugins/Wordpress_WooCommerce/Wordpress_WooCommerce_2.3.x-2.5.x.EN.pdf
+[Implementatiehandleiding NL](https://images.buckaroo.nl/plugins/Wordpress_WooCommerce/Wordpress_WooCommerce_2.3.x-2.5.x.NL.pdf)
+
+[Implementation manual EN](https://images.buckaroo.nl/plugins/Wordpress_WooCommerce/Wordpress_WooCommerce_2.3.x-2.5.x.EN.pdf)
 
 == Screenshots ==
 
