@@ -140,7 +140,7 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         $first = true;
         foreach(BuckarooIDeal::getIssuerList() as $key => $issuer)
         {?>
-             <input type='radio' value='<?php echo $key; ?>' name='buckaroo-ideal-issuer' id='buckaroo-ideal-issuer'/>
+             <input type='radio' value='<?php echo $key; ?>' name='buckaroo-ideal-issuer' id='buckaroo-ideal-issuer' style="display: inline-block !important;"/>
              <img src='<?php echo plugins_url('wc-buckaroo-bpe-gateway/library/buckaroo_images/ideal/' . $issuer["logo"], '', 'SSL')?>' style='height: 15px;'/>
              <?php echo _e($issuer["name"], 'wc-buckaroo-bpe-gateway')?><br/>
              <?php

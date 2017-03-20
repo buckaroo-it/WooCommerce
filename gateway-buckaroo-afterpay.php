@@ -356,7 +356,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
                 <input id="buckaroo-afterpay-genderf" name="buckaroo-afterpay-gender" class="" type="radio" value="2"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway')?>
             </p>
             <p class="form-row form-row-wide validate-required">
-                <label for="buckaroo-afterpay-birthdate"><?php echo _e('Birthdate:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
+                <label for="buckaroo-afterpay-birthdate"><?php echo _e('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
                 <input id="buckaroo-afterpay-birthdate" name="buckaroo-afterpay-birthdate" class="input-text" type="text" maxlength="250" autocomplete="off" value="" placeholder="DD-MM-YYYY" />
             </p>
         <?php if (!empty($post_data["ship_to_different_address"])) { ?>

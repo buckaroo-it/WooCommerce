@@ -34,10 +34,7 @@ class BuckarooResponseFactory {
 
         $paymentmethod = self::getPaymentMethod($data);
 
-        switch ($paymentmethod) {
-            case 'paypal':
-                return new BuckarooPayPalResponse($data);
-                break;
+        switch ($paymentmethod) { 
             case 'ideal':
                 return new BuckarooIdealResponse($data);
                 break;

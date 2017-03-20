@@ -59,7 +59,7 @@ class WC_Gateway_Buckaroo_EMaestro extends WC_Gateway_Buckaroo {
         $emaestro->orderId = $order_id;
         $emaestro->OriginalTransactionKey = $order->get_transaction_id();
         $emaestro->returnUrl = $this->notify_url;
-        $emaestro->setType(get_post_meta( $order->id, '_payment_method_transaction', true));
+        $emaestro->setType(get_post_meta( $order->get_order_number(), '_payment_method_transaction', true));
         $response = null;
         try {
             $response = $emaestro->Refund();

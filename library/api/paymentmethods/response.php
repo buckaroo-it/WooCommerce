@@ -79,6 +79,7 @@ abstract class BuckarooResponse extends BuckarooAbstract {
             $this->_parsePostResponseChild();
             $this->_received = true;
         } else if (!is_null($data) && $data[0] != false) { //if valid SOAP response
+
             $this->setResponse($data[0]);
             $this->setResponseXML($data[1]);
             $this->_parseSoapResponse();

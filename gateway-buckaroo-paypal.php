@@ -55,7 +55,7 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
         $paypal->amountCredit = $amount;
         $paypal->currency = $this->currency;
         $paypal->description = $reason;
-        $paypal->orderId = $order_id;
+        $paypal->orderId =  $order_id; // $order->get_order_number();
         $paypal->OriginalTransactionKey = $order->get_transaction_id();
         $paypal->returnUrl = $this->notify_url;
         $paypal->invoiceId = $order_id;
@@ -87,8 +87,8 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
         }
         $paypal->currency = $this->currency;
         $paypal->description = $this->transactiondescription;
-        $paypal->invoiceId = getUniqInvoiceId($order_id);
-        $paypal->orderId = (string)$order_id;
+        $paypal->invoiceId =  getUniqInvoiceId($order_id);
+        $paypal->orderId =   (string)$order_id;
         $paypal->returnUrl = $this->notify_url;
         $customVars = Array();
         $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';

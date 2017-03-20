@@ -60,7 +60,7 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo {
         $giftcard->orderId = $order_id;
         $giftcard->OriginalTransactionKey = $order->get_transaction_id();
         $giftcard->returnUrl = $this->notify_url;
-        $giftcard->setType(get_post_meta( $order->id, '_payment_method_transaction', true));
+        $giftcard->setType(get_post_meta( $order->get_order_number(), '_payment_method_transaction', true));
         $giftcard->version = 1;
         $response = null;
         try {

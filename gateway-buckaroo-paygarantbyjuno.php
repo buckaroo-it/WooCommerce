@@ -196,7 +196,7 @@ class WC_Gateway_Buckaroo_PayGarantByJuno extends WC_Gateway_Buckaroo {
             
             /*return array(
                     'result' 	=> 'error',
-                    //'redirect'	=> add_query_arg('order', $order->id, add_query_arg('key', $order->order_key, get_permalink(woocommerce_get_page_id('pay'))))
+                    //'redirect'	=> add_query_arg('order', $order->get_order_number(), add_query_arg('key', $order->order_key, get_permalink(woocommerce_get_page_id('pay'))))
             );*/
     }
     

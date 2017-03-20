@@ -45,8 +45,8 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
                 $response->transactions
             )
         );
-        add_post_meta($order->id, '_refundbuckaroo' . $response->transactions, 'ok', true);
-        update_post_meta($order->id, '_pushallowed', 'ok');
+        add_post_meta($order->get_order_number(), '_refundbuckaroo' . $response->transactions, 'ok', true);
+        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
         return true;
     }
     if (!empty($response->ChannelError)) {
@@ -59,7 +59,7 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
                 $order->get_transaction_id()
             )
         );
-        update_post_meta($order->id, '_pushallowed', 'ok');
+        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
         return new WP_Error('error_refund', __("Refund failed: ") . $response->ChannelError);
     } else {
         $order->add_order_note(
@@ -68,7 +68,7 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
                 $order->get_transaction_id()
             )
         );
-        update_post_meta($order->id, '_pushallowed', 'ok');
+        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
         return false;
     }
 }
@@ -112,16 +112,16 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         }
         if ($response->brq_relatedtransaction_refund != null) {
             $logger->logInfo('PUSH', "Refund payment PUSH received " . $response->status);
-            $allowedPush = get_post_meta($order->id, '_pushallowed', true);
+            $allowedPush = get_post_meta($order->get_order_number(), '_pushallowed', true);
             if ($response->hasSucceeded() && $allowedPush == 'ok') {
-                $tmp = get_post_meta($order->id, '_refundbuckaroo' . $response->transactions, true);
+                $tmp = get_post_meta($order->get_order_number(), '_refundbuckaroo' . $response->transactions, true);
                 if (empty($tmp)) {
-                    add_post_meta($order->id, '_refundbuckaroo' . $response->transactions, 'ok', true);
+                    add_post_meta($order->get_order_number(), '_refundbuckaroo' . $response->transactions, 'ok', true);
                     $refund = wc_create_refund(
                         array(
                             'amount' => $response->amount_credit,
                             'reason' => 'Push automatic refund from BPE; Please restock items manually',
-                            'order_id' => $order->id,
+                            'order_id' => $order->get_order_number(),
                             'line_items' => Array()
                         )
                     );
@@ -181,9 +181,9 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                             );
                         }
 
-                        add_post_meta($order->id, '_payment_method_transaction', $payment_methodname, true);
+                        add_post_meta($order->get_order_number(), '_payment_method_transaction', $payment_methodname, true);
                         $order->payment_complete($transaction);
-                        add_post_meta($order->id, '_pushallowed', 'ok', true);
+                        add_post_meta($order->get_order_number(), '_pushallowed', 'ok', true);
                         break;
                     default:
                         $order->update_status('on-hold', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
@@ -366,11 +366,12 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                         ),
                         'error'
                     );
+                    if($order->billing_country=='NL') {
+                        $error_description = substr($response->ChannelError , strrpos($response->ChannelError, ': ') + 1);
+                        wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
+                    }
                 }
             }
-//            $newOrder = wc_create_order($order);
-//            $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
-//            WC()->session->order_awaiting_payment = $newOrder->id;
             return;
         }
     } else {
@@ -430,7 +431,7 @@ function resetOrder() {
 
             $newOrder = wc_create_order($order);
 //            $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
-            WC()->session->order_awaiting_payment = $newOrder->id;
+            WC()->session->order_awaiting_payment = $newOrder->get_order_number();
         }
     }
 }

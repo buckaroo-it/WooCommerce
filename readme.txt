@@ -4,7 +4,7 @@ Contributors: buckaroo.nl
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 3.0.0
 Tested up to: 4.7
-Stable tag: 2.3.3
+Stable tag: 2.3.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,10 @@ Easy installation to get the plug-in up and running!
 2. https://www.buckaroo.nl/content/image/WooCommerce_frontend1.PNG
 
 == Changelog ==
+
+= 2.3.4 =
+Added AfterPay error messages in case consumer fills in incorrect personal information.
+Updated explanations for various fields in the backend.
 
 = 2.3.3 =
 Added Ippies to Giftcard payment method.

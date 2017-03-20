@@ -233,13 +233,13 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'merchantkey' => array(
                 'title' => __('Merchant key', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'text',
-                'description' => __('This is your Buckaroo payment plaza Website key.', 'wc-buckaroo-bpe-gateway'),
+                'description' => __('This is your Buckaroo payment plaza Website key (My Buckaroo -> Websites -> Choose website through Filter -> Key).', 'wc-buckaroo-bpe-gateway'),
                 'default' => ''
             ),
             'secretkey' => array(
                 'title' => __('Secret key', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'text',
-                'description' => __('The Secret password to verify transactions', 'wc-buckaroo-bpe-gateway'),
+                'description' => __('The Secret password to verify transactions (Configuration -> Security -> Secret key).', 'wc-buckaroo-bpe-gateway'),
                 'default' => ''
             ),
             'mode' => array(
@@ -252,16 +252,13 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'certificate' => array(
                 'title' => __('Certificate', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'text',
-                'description' => __(
-                    'Please enter certificate name. Certificate should be uploaded to "' . $upload_dir["basedir"] . '/woocommerce_uploads" directory.',
-                    'wc-buckaroo-bpe-gateway'
-                ),
+                'description' => __('Please enter certificate name. The certificate can be generated in the Buckaroo Plaza under Configuration -> Security -> Certificates. Certificate should be uploaded to directory "', 'wc-buckaroo-bpe-gateway') . $upload_dir["basedir"] . '/woocommerce_uploads".',
                 'default' => 'BuckarooPrivateKey.pem'
             ),
             'thumbprint' => array(
                 'title' => __('Certificate thumbprint', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'text',
-                'description' => __('Certificate thumbprint', 'wc-buckaroo-bpe-gateway'),
+                'description' => __('Certificate thumbprint (Configuration -> Security -> Certificates -> See "Fingerprint" after a certificate has been generated).', 'wc-buckaroo-bpe-gateway'),
                 'default' => ''
             ),
             'transactiondescription' => array(

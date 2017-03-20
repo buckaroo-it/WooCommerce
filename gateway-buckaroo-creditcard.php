@@ -58,7 +58,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         $creditcard->orderId = $order_id;
         $creditcard->OriginalTransactionKey = $order->get_transaction_id();
         $creditcard->returnUrl = $this->notify_url;
-        $creditcard->setType(get_post_meta( $order->id, '_payment_method_transaction', true));
+        $creditcard->setType(get_post_meta( $order->get_order_number(), '_payment_method_transaction', true));
         $response = null;
         try {
             $response = $creditcard->Refund();

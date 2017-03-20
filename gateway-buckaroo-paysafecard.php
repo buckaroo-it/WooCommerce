@@ -56,7 +56,7 @@ class WC_Gateway_Buckaroo_Paysafecard extends WC_Gateway_Buckaroo {
         $paysafecard->amountCredit = $amount;
         $paysafecard->currency = $this->currency;
         $paysafecard->description = $reason;
-        $paysafecard->invoiceId = $order_id;
+        $paysafecard->invoiceId = $order->get_order_number();
         $paysafecard->orderId = $order_id;
         $paysafecard->OriginalTransactionKey = $order->get_transaction_id();
         $paysafecard->returnUrl = $this->notify_url;
