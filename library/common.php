@@ -295,13 +295,13 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 'redirect' => $response->getRedirectUrl()
             );
         }
-        $logger->logInfo('Order status: ' . $order->status);
+        $logger->logInfo('Order status: ' . $order->get_status());
         $response_status = fn_buckaroo_resolve_status_code($response->status);
         $logger->logInfo('Response order status: ' . $response_status);
         $logger->logInfo('Status message: ' . $response->statusmessage);
         if ($response->hasSucceeded()) {
             $logger->logInfo(
-                'Order already in final state or  have the same status as response. Order status: ' . $order->status
+                'Order already in final state or  have the same status as response. Order status: ' . $order->get_status()
             );
 
             if ($response->payment_method == 'SepaDirectDebit') {
@@ -333,9 +333,9 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     return;
             }
         } else {
-            $logger->logInfo('Payment request failed/canceled. Order status: ' . $order->status);
+            $logger->logInfo('Payment request failed/canceled. Order status: ' . $order->get_status());
             if (!in_array(
-                $order->status,
+                $order->get_status(),
                 array('completed', 'processing', 'cancelled', 'failed', 'refund')
             )
             ) //We receive a valid response that the payment is canceled/failed.
@@ -366,9 +366,16 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                         ),
                         'error'
                     );
-                    if($order->billing_country=='NL') {
-                        $error_description = substr($response->ChannelError , strrpos($response->ChannelError, ': ') + 1);
-                        wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
+                    if(WooV3Plus()){
+                        if($order->get_billing_country()=='NL') {
+                            $error_description = str_replace(':', '', substr($response->ChannelError , strrpos($response->ChannelError, ': ')));
+                            wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
+                        }
+                    } else {
+                        if($order->billing_country=='NL') {
+                            $error_description = str_replace(':', '', substr($response->ChannelError , strrpos($response->ChannelError, ': ')));
+                            wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
+                        }
                     }
                 }
             }
@@ -413,7 +420,16 @@ function fn_buckaroo_get_address_components($address)
 
     return $result;
 }
-
+   
+function WooV3Plus()
+{
+    if (substr(WC()->version, 0, 1) >= 3 ) {
+        return true;
+    } else {
+        return false; 
+    }
+}
+   
 /**
  * Cancel order and create new if order_awaiting_payment exists
  */
@@ -421,12 +437,16 @@ function resetOrder() {
     $order_id = WC()->session->order_awaiting_payment;
     if($order_id) {
         $order = wc_get_order( $order_id );
-        $status = $order->post_status;
+
+        // $status = $order->post_status; 
+        $status = get_post_status($order_id);
 
         if(($status == 'wc-failed' || $status == 'wc-cancelled') && wc_notice_count( 'error' ) == 0) {
             //Add generated hash to order for WooCommerce versions later than 2.5
-            if (isset(WC()->version) && !empty(WC()->version) && substr(WC()->version, 0, 1) === '2' && substr(WC()->version, 2, 1) > 5) {
+            if (isset(WC()->version) && !empty(WC()->version) && ((substr(WC()->version, 0, 1) === '2' && substr(WC()->version, 2, 1) > 5) || substr(WC()->version, 0, 1) === '3') ) {
                 $order->cart_hash = md5(json_encode(wc_clean(WC()->cart->get_cart_for_session())) . WC()->cart->total);
+            } elseif (substr(WC()->version, 0, 1) > 3) {
+                wc_doing_it_wrong("resetOrder", "WC Version not supported", "4+");
             }
 
             $newOrder = wc_create_order($order);

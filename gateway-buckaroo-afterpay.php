@@ -188,34 +188,63 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         }
 
         $afterpay->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
-        $address_components = fn_buckaroo_get_address_components($order->billing_address_1." ".$order->billing_address_2);
-        $afterpay->BillingStreet = $address_components['street'];
-        $afterpay->BillingHouseNumber = $address_components['house_number'];
-        $afterpay->BillingHouseNumberSuffix = $address_components['number_addition'];
-        $afterpay->BillingPostalCode = $order->billing_postcode;
-        $afterpay->BillingCity = $order->billing_city;
-        $afterpay->BillingCountry = $order->billing_country;
-        $afterpay->BillingEmail = !empty($order->billing_email) ? $order->billing_email : '';
-        $afterpay->BillingLanguage = 'nl';
-        $number = $this->cleanup_phone($order->billing_phone);
+
+        if (WooV3Plus()) {
+            $address_components = fn_buckaroo_get_address_components($order->get_billing_address_1()." ".$order->get_billing_address_2());
+            $afterpay->BillingStreet = $address_components['street'];
+            $afterpay->BillingHouseNumber = $address_components['house_number'];
+            $afterpay->BillingHouseNumberSuffix = $address_components['number_addition'];
+            $afterpay->BillingPostalCode = $order->get_billing_postcode();
+            $afterpay->BillingCity = $order->get_billing_city();
+            $afterpay->BillingCountry = $order->get_billing_country();
+            $afterpay->BillingEmail = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
+            $afterpay->BillingLanguage = 'nl';
+            $number = $this->cleanup_phone($order->get_billing_phone());
+        } else {
+            $address_components = fn_buckaroo_get_address_components($order->billing_address_1." ".$order->billing_address_2);
+            $afterpay->BillingStreet = $address_components['street'];
+            $afterpay->BillingHouseNumber = $address_components['house_number'];
+            $afterpay->BillingHouseNumberSuffix = $address_components['number_addition'];
+            $afterpay->BillingPostalCode = $order->billing_postcode;
+            $afterpay->BillingCity = $order->billing_city;
+            $afterpay->BillingCountry = $order->billing_country;
+            $afterpay->BillingEmail = !empty($order->billing_email) ? $order->billing_email : '';
+            $afterpay->BillingLanguage = 'nl';
+            $number = $this->cleanup_phone($order->billing_phone);
+        }
         $afterpay->BillingPhoneNumber = $number['phone'];
 
 
         $afterpay->AddressesDiffer = 'FALSE';
         if (!empty($_POST["buckaroo-afterpay-shipping-differ"])) {
             $afterpay->AddressesDiffer = 'TRUE';
-            $afterpay->ShippingInitials = $this->getInitials($order->shipping_first_name);
-            $afterpay->ShippingLastName = !empty($order->shipping_last_name) ? $order->shipping_last_name : '';
-            $address_components = fn_buckaroo_get_address_components($order->shipping_address_1." ".$order->shipping_address_2);
-            $afterpay->ShippingStreet = $address_components['street'];
-            $afterpay->ShippingHouseNumber = $address_components['house_number'];
-            $afterpay->ShippingHouseNumberSuffix = $address_components['number_addition'];
-            $afterpay->ShippingPostalCode = $order->shipping_postcode;
-            $afterpay->ShippingCity = $order->shipping_city;
-            $afterpay->ShippingCountryCode = $order->shipping_country;
-            $afterpay->ShippingEmail = !empty($order->shipping_email) ? $order->shipping_email : '';
-            $afterpay->ShippingLanguage = 'nl';
-            $number = $this->cleanup_phone($order->shipping_phone);
+            if (WooV3Plus()) {
+                $afterpay->ShippingInitials = $this->getInitials($order->get_shipping_first_name());
+                $afterpay->ShippingLastName = !empty($order->get_shipping_last_name()) ? $order->get_shipping_last_name() : '';
+                $address_components = fn_buckaroo_get_address_components($order->get_shipping_address_1()." ".$order->get_shipping_address_2());
+                $afterpay->ShippingStreet = $address_components['street'];
+                $afterpay->ShippingHouseNumber = $address_components['house_number'];
+                $afterpay->ShippingHouseNumberSuffix = $address_components['number_addition'];
+                $afterpay->ShippingPostalCode = $order->get_shipping_postcode();
+                $afterpay->ShippingCity = $order->get_shipping_city();
+                $afterpay->ShippingCountryCode = $order->get_shipping_country();
+                $afterpay->ShippingEmail = !empty($order->get_shipping_email()) ? $order->get_shipping_email() : '';
+                $afterpay->ShippingLanguage = 'nl';
+                $number = $this->cleanup_phone($order->get_shipping_phone());
+            } else {
+                $afterpay->ShippingInitials = $this->getInitials($order->shipping_first_name);
+                $afterpay->ShippingLastName = !empty($order->shipping_last_name) ? $order->shipping_last_name : '';
+                $address_components = fn_buckaroo_get_address_components($order->shipping_address_1." ".$order->shipping_address_2);
+                $afterpay->ShippingStreet = $address_components['street'];
+                $afterpay->ShippingHouseNumber = $address_components['house_number'];
+                $afterpay->ShippingHouseNumberSuffix = $address_components['number_addition'];
+                $afterpay->ShippingPostalCode = $order->shipping_postcode;
+                $afterpay->ShippingCity = $order->shipping_city;
+                $afterpay->ShippingCountryCode = $order->shipping_country;
+                $afterpay->ShippingEmail = !empty($order->shipping_email) ? $order->shipping_email : '';
+                $afterpay->ShippingLanguage = 'nl';
+                $number = $this->cleanup_phone($order->shipping_phone);
+            }
             $afterpay->ShippingPhoneNumber = $number['phone'];
         }
         if ($this->type == 'afterpayacceptgiro') {
@@ -281,9 +310,16 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         if ($this->usenotification == 'TRUE') {
             $afterpay->usenotification = 1;
             $customVars['Customergender'] = $_POST['buckaroo-sepadirectdebit-gender'];
-            $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
-            $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
-            $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+
+            if (WooV3Plus()) { 
+                $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
+                $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
+                $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
+            } else {
+                $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
+                $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
+                $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+            }
             $customVars['Notificationtype'] = 'PaymentComplete';
             $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->invoicedelay . ' day')).' + '. (int)$this->notificationdelay.' day'));
         }
@@ -352,8 +388,8 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
 
             <p class="form-row">
                 <label for="buckaroo-afterpay-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                <input id="buckaroo-afterpay-genderm" name="buckaroo-afterpay-gender" class="" type="radio" value="1" checked /> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway')?> &nbsp;
-                <input id="buckaroo-afterpay-genderf" name="buckaroo-afterpay-gender" class="" type="radio" value="2"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway')?>
+                <input id="buckaroo-afterpay-genderm" name="buckaroo-afterpay-gender" class="" type="radio" value="1" checked style="float:none; display: inline !important;" /> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway')?> &nbsp;
+                <input id="buckaroo-afterpay-genderf" name="buckaroo-afterpay-gender" class="" type="radio" value="2" style="float:none; display: inline !important;" /> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway')?>
             </p>
             <p class="form-row form-row-wide validate-required">
                 <label for="buckaroo-afterpay-birthdate"><?php echo _e('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
@@ -372,6 +408,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
             <p class="form-row form-row-wide validate-required">
                 <a href="https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden/" target="_blank"><?php echo _e('Accept licence agreement:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpay-accept" name="buckaroo-afterpay-accept" type="checkbox" value="ON" />
             </p>
+            <p class="required" style="float:right;">* Verplicht</p>
         </fieldset>
     <?php
     }

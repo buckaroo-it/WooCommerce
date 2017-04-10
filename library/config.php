@@ -5,7 +5,7 @@ class BuckarooConfig extends BuckarooConfigCore
 {
    const NAME = 'buckaroo3';
    const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-   const VERSION = '2.3.4';
+   const VERSION = '2.4.0';
    
    public static function get($key)
    {
@@ -45,8 +45,8 @@ class BuckarooConfig extends BuckarooConfigCore
    
    public static function getMode($key = null)
    {
-       $options = get_option( $GLOBALS['plugin_id'], null );
-       return ($options['mode'] == "live" ? "live" : "test");;
+      $options = get_option( $GLOBALS['plugin_id'], null );
+      return ($options['mode'] == "live" ? "live" : "test");;
    }
    
    public static function getSoftware()

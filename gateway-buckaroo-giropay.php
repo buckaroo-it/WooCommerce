@@ -92,7 +92,11 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo {
                 return;
             }
             $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-            $order = new WC_Order( $order_id );
+            if (WooV3Plus()) {
+               $order = wc_get_order($order_id);
+            } else {
+               $order = new WC_Order($order_id);
+            }
             $giropay = new BuckarooGiropay();
             if (method_exists($order, 'get_order_total')) {
                 $giropay->amountDedit = $order->get_order_total();
@@ -109,9 +113,15 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo {
             if ($this->usenotification == 'TRUE') {
                 $giropay->usenotification = 1;
                 $customVars['Customergender'] = 0;
-                $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
-                $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
-                $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                if (WooV3Plus()) {
+                    $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
+                    $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
+                    $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
+                } else {
+                    $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
+                    $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
+                    $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                }
                 $customVars['Notificationtype'] = 'PaymentComplete';
                 $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
             }
@@ -128,6 +138,7 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo {
                     <label for="buckaroo-giropay-bancaccount"><?php echo _e('BIC:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
                     <input id="buckaroo-giropay-bancaccount" name="buckaroo-giropay-bancaccount" class="input-text card-number" type="text" maxlength="11" autocomplete="off" value="" />
             </p>
+            <p class="required" style="float:right;">* Verplicht</p>
         </fieldset>
                 <?php
     }     

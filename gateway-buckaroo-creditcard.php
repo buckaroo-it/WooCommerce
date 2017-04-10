@@ -74,49 +74,59 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
     }
     
     function process_payment($order_id) {
-            global $woocommerce;
+        global $woocommerce;
 
-            $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-            $order = new WC_Order( $order_id );
-            $creditcard = new BuckarooCreditCard();
-            if (method_exists($order, 'get_order_total')) {
-                $creditcard->amountDedit = $order->get_order_total();
+        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        if (WooV3Plus()) {
+           $order = wc_get_order($order_id);
+        } else {
+           $order = new WC_Order($order_id);
+        }
+        $creditcard = new BuckarooCreditCard();
+        if (method_exists($order, 'get_order_total')) {
+            $creditcard->amountDedit = $order->get_order_total();
+        } else {
+            $creditcard->amountDedit = $order->get_total();
+        }
+        $creditcard->currency = $this->currency;
+        $creditcard->description = $this->transactiondescription;
+        $creditcard->invoiceId = (string)getUniqInvoiceId($order_id);
+        $creditcard->orderId = (string)$order_id;
+        $creditcard->returnUrl = $this->notify_url;
+        $customVars = Array();
+        if ($this->usenotification == 'TRUE') {
+            $creditcard->usenotification = 1;
+            $customVars['Customergender'] = 0;
+            if (WooV3Plus()) {
+                $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
+                $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
+                $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
             } else {
-                $creditcard->amountDedit = $order->get_total();
-            }
-            $creditcard->currency = $this->currency;
-            $creditcard->description = $this->transactiondescription;
-            $creditcard->invoiceId = (string)getUniqInvoiceId($order_id);
-            $creditcard->orderId = (string)$order_id;
-            $creditcard->returnUrl = $this->notify_url;
-            $customVars = Array();
-            if ($this->usenotification == 'TRUE') {
-                $creditcard->usenotification = 1;
-                $customVars['Customergender'] = 0;
                 $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
                 $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
                 $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
-                $customVars['Notificationtype'] = 'PaymentComplete';
-                $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
             }
-            $response = $creditcard->Pay($customVars);
-            return fn_buckaroo_process_response($this, $response);
+            $customVars['Notificationtype'] = 'PaymentComplete';
+            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
+        }
+        $response = $creditcard->Pay($customVars);
+        return fn_buckaroo_process_response($this, $response);
     }
     
-            /**
+    /**
 	 * Check response data
-	 */
+	*/
     
 	public function response_handler() {
-            global $woocommerce;
-            $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-            $result = fn_buckaroo_process_response($this);
-            if (!is_null($result))
-               wp_safe_redirect($result['redirect']);
-            else
-                wp_safe_redirect($this->get_failed_url());
-            exit;
-        }
+        global $woocommerce;
+        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        $result = fn_buckaroo_process_response($this);
+        if (!is_null($result))
+           wp_safe_redirect($result['redirect']);
+        else
+            wp_safe_redirect($this->get_failed_url());
+        exit;
+    }
 
 
 

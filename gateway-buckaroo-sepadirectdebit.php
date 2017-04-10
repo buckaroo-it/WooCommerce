@@ -109,6 +109,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
               ||empty($_POST['buckaroo-sepadirectdebit-iban'])) {
             wc_add_notice( __("Please fill in all required fields", 'wc-buckaroo-bpe-gateway'), 'error' );
         }
+        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $sepadirectdebit = new BuckarooSepaDirectDebit();
         if (!$sepadirectdebit->isIBAN($_POST['buckaroo-sepadirectdebit-iban'])){
             wc_add_notice( __("Wrong IBAN number", 'wc-buckaroo-bpe-gateway'), 'error' );
@@ -141,7 +142,11 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
                 return;// array('result' 	=> 'error');
             }
             
-            $order = new WC_Order( $order_id );
+            if(WooV3Plus()){
+               $order = wc_get_order($order_id);
+            } else {
+               $order = new WC_Order($order_id);
+            }
             if (method_exists($order, 'get_order_total')) {
                 $sepadirectdebit->amountDedit = $order->get_order_total();
             } else {
@@ -165,16 +170,29 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
                 }
                 $sepadirectdebit->usecreditmanagment = 1;
                 $customVars['MaxReminderLevel'] = $this->maxreminderlevel;
+
                 $customVars['CustomerCode'] = $order->customer_user;
             
-                $customVars['CompanyName'] = !empty($order->billing_company) ? $order->billing_company : '';
-                $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
-                $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
-                $customVars['CustomerInitials'] = $this->getInitials($order->billing_first_name);
+                if (WooV3Plus()) {
+                    $customVars['CompanyName'] = !empty($order->get_billing_company()) ? $order->get_billing_company() : '';
+                    $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
+                    $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
+                    $customVars['CustomerInitials'] = $this->getInitials($order->get_billing_first_name());
+                } else {
+                    $customVars['CompanyName'] = !empty($order->billing_company) ? $order->billing_company : '';
+                    $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
+                    $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
+                    $customVars['CustomerInitials'] = $this->getInitials($order->billing_first_name);
+                }
                 $customVars['Customergender'] = $_POST['buckaroo-sepadirectdebit-gender'];
                 $customVars['CustomerBirthDate'] = date('Y-m-d', strtotime($birthdate)); //1983-09-28
-                $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
-                $number = $this->cleanup_phone($order->billing_phone);
+                if (WooV3Plus()) {
+                    $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
+                    $number = $this->cleanup_phone($order->get_billing_phone());
+                } else {
+                    $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                    $number = $this->cleanup_phone($order->billing_phone);
+                }
                 if ($number['type'] == 'mobile') {
                     $customVars['MobilePhoneNumber'] = $number['phone'];
                 } else {
@@ -183,19 +201,29 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
                 $customVars['InvoiceDate'] = date('Y-m-d', strtotime('now + ' . (int) $this->invoicedelay . ' day'));
                 $customVars['DateDue'] = date('Y-m-d', strtotime($customVars['InvoiceDate'].' + '. (int)$this->datedue.' day'));
 
-                $address_components = fn_buckaroo_get_address_components($order->billing_address_1." ".$order->billing_address_2);
-                $customVars['ADDRESS']['ZipCode'] = $order->billing_postcode;
-                $customVars['ADDRESS']['City'] = $order->billing_city;
+                if (WooV3Plus()) {
+                    $address_components = fn_buckaroo_get_address_components($order->get_billing_address_1()." ".$order->get_billing_address_2());
+                    $customVars['ADDRESS']['ZipCode'] = $order->get_billing_postcode();
+                    $customVars['ADDRESS']['City'] = $order->get_billing_city();
+                }else{
+                    $address_components = fn_buckaroo_get_address_components($order->billing_address_1." ".$order->billing_address_2);
+                    $customVars['ADDRESS']['ZipCode'] = $order->billing_postcode;
+                    $customVars['ADDRESS']['City'] = $order->billing_city;
+                }
                 if (!empty($address_components['street']))
                     $customVars['ADDRESS']['Street'] = $address_components['street'];
                 if (!empty($address_components['house_number']))
                     $customVars['ADDRESS']['HouseNumber'] = $address_components['house_number'];
                 if (!empty($address_components['number_addition']))
                     $customVars['ADDRESS']['HouseNumberSuffix'] = $address_components['number_addition'];
-                $customVars['ADDRESS']['Country'] = $order->billing_country;
-            
-                $customVars['AmountVat'] = $order->order_tax;
-
+                
+                if (WooV3Plus()) {
+                    $customVars['ADDRESS']['Country'] = $order->get_billing_country();
+                    $customVars['AmountVat'] = $order->get_total_tax();
+                } else {
+                    $customVars['ADDRESS']['Country'] = $order->billing_country;
+                    $customVars['AmountVat'] = $order->order_tax;
+                }
                 if (!empty($this->paymentmethodssdd)) {
                     $customVars['PaymentMethodsAllowed'] = implode(",", $this->paymentmethodssdd);
                 }
@@ -208,9 +236,15 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
 				}
                 $sepadirectdebit->usenotification = 1;
                 $customVars['Customergender'] = $_POST['buckaroo-sepadirectdebit-gender'];
-                $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
-                $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
-                $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                if (WooV3Plus()) {
+                    $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
+                    $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
+                    $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
+                } else {
+                    $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
+                    $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
+                    $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                }
                 $customVars['Notificationtype'] = $this->notificationtype;
                 $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->invoicedelay . ' day')).' + '. (int)$this->notificationdelay.' day'));
             }
@@ -261,6 +295,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
                         <label for="buckaroo-sepadirectdebit-bic"><?php echo _e('BIC:', 'wc-buckaroo-bpe-gateway')?></label>
                         <input id="buckaroo-sepadirectdebit-bic" name="buckaroo-sepadirectdebit-bic" class="input-text" type="text" maxlength="11" autocomplete="off" value="" />
                 </p>
+                <p class="required" style="float:right;">* Verplicht</p>
             </fieldset>
         <?php
      }     

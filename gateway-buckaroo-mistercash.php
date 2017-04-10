@@ -75,33 +75,43 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo {
     }
     
     function process_payment($order_id) {
-            global $woocommerce;
+        global $woocommerce;
 
-            $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-            $order = new WC_Order( $order_id );
-            $mistercash = new BuckarooMisterCash();
-            if (method_exists($order, 'get_order_total')) {
-                $mistercash->amountDedit = $order->get_order_total();
+        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        if (WooV3Plus()) {
+           $order = wc_get_order($order_id);
+        } else {
+           $order = new WC_Order($order_id);
+        }
+        $mistercash = new BuckarooMisterCash();
+        if (method_exists($order, 'get_order_total')) {
+            $mistercash->amountDedit = $order->get_order_total();
+        } else {
+            $mistercash->amountDedit = $order->get_total();
+        }
+        $mistercash->currency = $this->currency;
+        $mistercash->description = $this->transactiondescription;
+        $mistercash->invoiceId = (string)getUniqInvoiceId($order_id);
+        $mistercash->orderId = (string)$order_id;
+        $mistercash->returnUrl = $this->notify_url;
+        $customVars = Array();
+        if ($this->usenotification == 'TRUE') {
+            $mistercash->usenotification = 1;
+            $customVars['Customergender'] = 0;
+            if (WooV3Plus()) {
+                $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
+                $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
+                $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
             } else {
-                $mistercash->amountDedit = $order->get_total();
-            }
-            $mistercash->currency = $this->currency;
-            $mistercash->description = $this->transactiondescription;
-            $mistercash->invoiceId = (string)getUniqInvoiceId($order_id);
-            $mistercash->orderId = (string)$order_id;
-            $mistercash->returnUrl = $this->notify_url;
-            $customVars = Array();
-            if ($this->usenotification == 'TRUE') {
-                $mistercash->usenotification = 1;
-                $customVars['Customergender'] = 0;
                 $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
                 $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
                 $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
-                $customVars['Notificationtype'] = 'PaymentComplete';
-                $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
             }
-            $response = $mistercash->Pay($customVars);
-            return fn_buckaroo_process_response($this, $response);
+            $customVars['Notificationtype'] = 'PaymentComplete';
+            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
+        }
+        $response = $mistercash->Pay($customVars);
+        return fn_buckaroo_process_response($this, $response);
     }
     
             /**

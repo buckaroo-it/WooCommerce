@@ -78,7 +78,12 @@ class WC_Gateway_Buckaroo_Paysafecard extends WC_Gateway_Buckaroo {
             global $woocommerce;
 
             $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-            $order = new WC_Order( $order_id );
+            
+            if(WooV3Plus()){
+               $order = wc_get_order($order_id);
+            } else {
+               $order = new WC_Order($order_id);
+            }
             $paysafecard = new BuckarooPaySafeCard();
             if (method_exists($order, 'get_order_total')) {
                 $paysafecard->amountDedit = $order->get_order_total();
@@ -94,9 +99,15 @@ class WC_Gateway_Buckaroo_Paysafecard extends WC_Gateway_Buckaroo {
             if ($this->usenotification == 'TRUE') {
                 $paysafecard->usenotification = 1;
                 $customVars['Customergender'] = 0;
-                $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
-                $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
-                $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                if(WooV3Plus()){
+                    $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
+                    $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
+                    $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
+                } else {
+                    $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
+                    $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
+                    $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                }
                 $customVars['Notificationtype'] = 'PaymentComplete';
                 $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
             }

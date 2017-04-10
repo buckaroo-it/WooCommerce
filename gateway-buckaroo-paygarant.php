@@ -55,7 +55,11 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
     }
 
     public function process_refund( $order_id, $amount = null, $reason = '' ) {
-        $order = wc_get_order( $order_id );
+        if(WooV3Plus()){
+           $order = wc_get_order($order_id);
+        } else {
+           $order = new WC_Order($order_id);
+        }
         if ( ! $this->can_refund_order( $order ) ) {
             return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
         }
@@ -123,7 +127,11 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
             
             $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         
-            $order = new WC_Order( $order_id );
+            if (WooV3Plus()) {
+               $order = wc_get_order($order_id);
+            } else {
+               $order = new WC_Order($order_id);
+            }
             $paygarant = new BuckarooPayGarant();
             if (method_exists($order, 'get_order_total')) {
                 $paygarant->amountDedit = $order->get_order_total();
@@ -143,8 +151,11 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
             $customVars['CustomerBirthDate'] = date('Y-m-d', strtotime($birthdate)); //1983-09-28
             $customVars['CustomerGender'] = $_POST['buckaroo-paygarant-gender'];
             $customVars['CustomerEmail'] = $_POST['buckaroo-paygarant-email'];
-            
-            $number = $this->cleanup_phone($order->billing_phone);;
+            if (WooV3Plus()) { 
+                $number = $this->cleanup_phone($order->get_billing_phone());
+            } else {
+                $number = $this->cleanup_phone($order->billing_phone);
+            }
             if ($number['type'] == 'mobile') {
                 $customVars['MobilePhoneNumber'] = $number['phone'];
             } else {
@@ -152,29 +163,50 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
             }
             $customVars['CustomerAccountNumber'] = $_POST['buckaroo-paygarant-bankaccount'];
             
-            $address_components = fn_buckaroo_get_address_components($order->billing_address_1." ".$order->billing_address_2);
-            $customVars['ADDRESS'][0]['AddressType'] = 'INVOICE';
-            $customVars['ADDRESS'][0]['ZipCode'] = $order->billing_postcode;
-            $customVars['ADDRESS'][0]['City'] = $order->billing_city;
+            if (WooV3Plus()) { 
+                $address_components = fn_buckaroo_get_address_components($order->get_billing_address_1()." ".$order->get_billing_address_2());
+                $customVars['ADDRESS'][0]['AddressType'] = 'INVOICE';
+                $customVars['ADDRESS'][0]['ZipCode'] = $order->get_billing_postcode();
+                $customVars['ADDRESS'][0]['City'] = $order->get_billing_city();
+            } else {
+                $address_components = fn_buckaroo_get_address_components($order->billing_address_1." ".$order->billing_address_2);
+                $customVars['ADDRESS'][0]['AddressType'] = 'INVOICE';
+                $customVars['ADDRESS'][0]['ZipCode'] = $order->billing_postcode;
+                $customVars['ADDRESS'][0]['City'] = $order->billing_city;
+            }
             if (!empty($address_components['street']))
                 $customVars['ADDRESS'][0]['Street'] = $address_components['street'];
             if (!empty($address_components['house_number']))
                 $customVars['ADDRESS'][0]['HouseNumber'] = $address_components['house_number'];
             if (!empty($address_components['number_addition']))
                 $customVars['ADDRESS'][0]['HouseNumberSuffix'] = $address_components['number_addition'];
-            $customVars['ADDRESS'][0]['Country'] = $order->billing_country;
-
-            $address_components2 = fn_buckaroo_get_address_components($order->shipping_address_1." ".$order->shipping_address_2);
-            $customVars['ADDRESS'][1]['AddressType'] = 'SHIPPING';
-            $customVars['ADDRESS'][1]['ZipCode'] = $order->shipping_postcode;
-            $customVars['ADDRESS'][1]['City'] = $order->shipping_city;
-            if (!empty($address_components2['street']))
-                $customVars['ADDRESS'][1]['Street'] = $address_components2['street'];
-            if (!empty($address_components2['house_number']))
-                $customVars['ADDRESS'][1]['HouseNumber'] = $address_components2['house_number'];
-            if (!empty($address_components2['number_addition']))
-                $customVars['ADDRESS'][1]['HouseNumberSuffix'] = $address_components2['number_addition'];
-            $customVars['ADDRESS'][1]['Country'] = $order->shipping_country;
+            if (WooV3Plus()) { 
+                $customVars['ADDRESS'][0]['Country'] = $order->get_billing_country();
+                $address_components2 = fn_buckaroo_get_address_components($order->get_shipping_address_1()." ".$order->get_shipping_address_2());
+                $customVars['ADDRESS'][1]['AddressType'] = 'SHIPPING';
+                $customVars['ADDRESS'][1]['ZipCode'] = $order->get_shipping_postcode();
+                $customVars['ADDRESS'][1]['City'] = $order->get_shipping_city();
+                if (!empty($address_components2['street']))
+                    $customVars['ADDRESS'][1]['Street'] = $address_components2['street'];
+                if (!empty($address_components2['house_number']))
+                    $customVars['ADDRESS'][1]['HouseNumber'] = $address_components2['house_number'];
+                if (!empty($address_components2['number_addition']))
+                    $customVars['ADDRESS'][1]['HouseNumberSuffix'] = $address_components2['number_addition'];
+                $customVars['ADDRESS'][1]['Country'] = $order->get_shipping_country();
+            } else {
+                $customVars['ADDRESS'][0]['Country'] = $order->billing_country;
+                $address_components2 = fn_buckaroo_get_address_components($order->shipping_address_1." ".$order->shipping_address_2);
+                $customVars['ADDRESS'][1]['AddressType'] = 'SHIPPING';
+                $customVars['ADDRESS'][1]['ZipCode'] = $order->shipping_postcode;
+                $customVars['ADDRESS'][1]['City'] = $order->shipping_city;
+                if (!empty($address_components2['street']))
+                    $customVars['ADDRESS'][1]['Street'] = $address_components2['street'];
+                if (!empty($address_components2['house_number']))
+                    $customVars['ADDRESS'][1]['HouseNumber'] = $address_components2['house_number'];
+                if (!empty($address_components2['number_addition']))
+                    $customVars['ADDRESS'][1]['HouseNumberSuffix'] = $address_components2['number_addition'];
+                $customVars['ADDRESS'][1]['Country'] = $order->shipping_country;
+            }
 
             $customVars['SendMail'] = $this->sendemail;
             if ((int) $this->datedue > -1)
@@ -183,7 +215,11 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
                 $customVars['InvoiceDate'] = date('Y-m-d', strtotime('now + 14 day'));
 
             $customVars['DateDue'] = date('Y-m-d', strtotime($customVars['InvoiceDate'].' + 14 day'));
-            $customVars['AmountVat'] = $order->order_tax;
+            if (WooV3Plus()) { 
+                $customVars['AmountVat'] = $order->get_total_tax();
+            } else {
+                $customVars['AmountVat'] = $order->order_tax;
+            }
             if (!empty($this->paymentmethodspg)) {
                 $customVars['PaymentMethodsAllowed'] = implode(",", $this->paymentmethodspg);
             }
@@ -192,9 +228,15 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
             if ($this->usenotification == 'TRUE') {
                 $paygarant->usenotification = 1;
                 $customVars['Customergender'] = 0;
-                $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
-                $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
-                $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                if (WooV3Plus()) {
+                    $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
+                    $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
+                    $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
+                } else {
+                    $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
+                    $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
+                    $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                }
                 $customVars['Notificationtype'] = 'PaymentComplete';
                 $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
             }
@@ -203,7 +245,7 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
     }
     
             /**
-	 * Check response data
+     * Check response data
 	 */
     
 	public function response_handler() {
@@ -220,8 +262,8 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
                 <fieldset>
                     <p class="form-row">
                             <label for="buckaroo-paygarant-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                            <input id="buckaroo-paygarant-genderm" name="buckaroo-paygarant-gender" class="" type="radio" value="1" checked="checked" /> Male &nbsp;
-                            <input id="buckaroo-paygarant-genderf" name="buckaroo-paygarant-gender" class="" type="radio" value="2"/> Female
+                            <input id="buckaroo-paygarant-genderm" name="buckaroo-paygarant-gender" class="" type="radio" value="1" checked="checked"  style="float:none;" /> male&nbsp;
+                            <input id="buckaroo-paygarant-genderf" name="buckaroo-paygarant-gender" class="" type="radio" value="2" style="float:none;" /> female
                     </p>
                     <p class="form-row form-row-wide validate-required">
                             <label for="buckaroo-paygarant-firstname"><?php echo _e('Firstname:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
@@ -243,6 +285,7 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
                             <label for="buckaroo-paygarant-birthdate"><?php echo _e('Birthdate:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
                             <input id="buckaroo-paygarant-birthdate" name="buckaroo-paygarant-birthdate" class="input-text" type="text" maxlength="10" value="" placeholder="YYYY-MM-DD" />
                     </p>
+                    <p class="required" style="float:right;">* Verplicht</p>
                 </fieldset>
             <?php
          }      

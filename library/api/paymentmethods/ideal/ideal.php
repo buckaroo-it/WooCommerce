@@ -65,7 +65,7 @@ class BuckarooIDeal extends BuckarooPaymentMethod
             ),
             'SNSREGIO' => array(
                 'name' => 'RegioBank',
-                'logo' => 'logo_sns_s.gif',
+                'logo' => 'regiobanklogo.png',
             ),
             'TRIODOS' => array(
                 'name' => 'Triodos Bank',
@@ -80,7 +80,7 @@ class BuckarooIDeal extends BuckarooPaymentMethod
                 'logo' => 'logo_knab_s.gif',
             ),
             'BUNQ' => array(
-                'name' => 'Bunq',
+                'name' => 'bunq',
                 'logo' => 'logo_bunq.png',
             ),
         );

@@ -334,7 +334,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
     function get_failed_url()
     {
-        $thanks_page_id = woocommerce_get_page_id('checkout');
+        $thanks_page_id = wc_get_page_id('checkout');
         if ($thanks_page_id) :
             $return_url = get_permalink($thanks_page_id);
         else :

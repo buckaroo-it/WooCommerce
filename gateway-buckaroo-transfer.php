@@ -86,7 +86,11 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo {
 
             $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         
-            $order = new WC_Order( $order_id );
+            if(WooV3Plus()){
+                $order = wc_get_order($order_id);
+            } else {
+                $order = new WC_Order($order_id);
+            }
             $transfer = new BuckarooTransfer();
             if (method_exists($order, 'get_order_total')) {
                 $transfer->amountDedit = $order->get_order_total();
@@ -99,15 +103,26 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo {
             $transfer->orderId = (string)$order_id;
 
             $customVars = array();
-            $customVars['CustomerEmail'] = $order->billing_email;       
-            $customVars['CustomerFirstName'] = $order->billing_first_name;
-            $customVars['CustomerLastName'] = $order->billing_last_name; 
+            if (WooV3Plus()) {
+                $customVars['CustomerEmail'] = $order->get_billing_email();       
+                $customVars['CustomerFirstName'] = $order->get_billing_first_name();
+                $customVars['CustomerLastName'] = $order->get_billing_last_name(); 
+            } else {
+                $customVars['CustomerEmail'] = $order->billing_email;       
+                $customVars['CustomerFirstName'] = $order->billing_first_name;
+                $customVars['CustomerLastName'] = $order->billing_last_name; 
+            }
             $customVars['SendMail'] = $this->sendemail; 
-            if ((int) $this->datedue > -1)
+            if ((int) $this->datedue > -1) {
                 $customVars['DateDue'] = date('Y-m-d', strtotime('now + ' . (int) $this->datedue . ' day'));
-            else
-                $customVars['DateDue'] = date('Y-m-d', strtotime('now + 14 day'));;
-            $customVars['CustomerCountry'] = $order->billing_country;
+            } else {
+                $customVars['DateDue'] = date('Y-m-d', strtotime('now + 14 day'));
+            }
+            if (WooV3Plus()) {
+                $customVars['CustomerCountry'] = $order->get_billing_country();
+            } else {
+                $customVars['CustomerCountry'] = $order->billing_country;
+            }
 
             $transfer->returnUrl = $this->notify_url;
 
@@ -115,9 +130,15 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo {
             if ($this->usenotification == 'TRUE') {
                 $transfer->usenotification = 1;
                 $customVars['Customergender'] = 0;
-                $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
-                $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
-                $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                if (WooV3Plus()) {
+                    $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
+                    $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
+                    $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
+                } else {
+                    $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
+                    $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
+                    $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                }
                 $customVars['Notificationtype'] = 'PaymentComplete';
                 $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
             }
