@@ -1,6 +1,6 @@
 === Plugin Name ===
 Name: Buckaroo Payments WooCommerce
-Contributors: buckaroo.nl
+Contributors: buckaroosupport
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 3.0.0
 Tested up to: 4.7
