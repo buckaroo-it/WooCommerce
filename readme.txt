@@ -1,5 +1,5 @@
 === Plugin Name ===
-Name: Buckaroo Payments WooCommerce
+Plugin Name: Buckaroo Payments WooCommerce
 Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
@@ -48,7 +48,7 @@ Easy installation to get the plug-in up and running!
 
 == Changelog ==
 = 2.4.1 =
-Compability update with php 5.4 & below.
+Compatibility update with php 5.4 & below.
 
 = 2.4.0 =
 Update plugin to work with WooCommerce 3.0. This includes the following changes:
