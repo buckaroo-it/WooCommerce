@@ -1,5 +1,5 @@
 === Plugin Name ===
-Plugin Name: Buckaroo Payments WooCommerce
+WC Buckaroo BPE Gateway
 Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo

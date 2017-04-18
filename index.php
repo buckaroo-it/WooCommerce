@@ -2,12 +2,13 @@
 /*
 Plugin Name: WC Buckaroo BPE Gateway
 Plugin URI: http://www.buckaroo.nl
-Author: <plugins@buckaroo.nl>
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce version <strong><u>2.3.x-2.4.x</u></strong>.
 Version: 2.4.1
+Author: Buckaroo
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: wc-buckaroo-bpe-gateway
-
 */
 add_action('plugins_loaded', 'buckaroo_init_gateway', 0);
 add_action('admin_menu', 'buckaroo_menu_report');
