@@ -99,13 +99,17 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo {
             $mistercash->usenotification = 1;
             $customVars['Customergender'] = 0;
             if (WooV3Plus()) {
-                $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
-                $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
-                $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
+                $get_billing_first_name = $order->get_billing_first_name();
+                $get_billing_last_name = $order->get_billing_last_name();
+                $get_billing_email = $order->get_billing_email();
+
+                $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $order->get_billing_first_name() : '';
+                $customVars['CustomerLastName'] = !empty($get_billing_last_name) ? $order->get_billing_last_name() : '';
+                $customVars['CustomerEmail'] = !empty($get_billing_email) ? $order->get_billing_email() : '';
             } else {
                 $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
                 $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
-                $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                $customVars['CustomerEmail'] = !empty($order->billing_email) ? $order->billing_email : '';
             }
             $customVars['Notificationtype'] = 'PaymentComplete';
             $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));

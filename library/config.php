@@ -5,7 +5,7 @@ class BuckarooConfig extends BuckarooConfigCore
 {
    const NAME = 'buckaroo3';
    const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-   const VERSION = '2.4.0';
+   const VERSION = '2.4.1';
    
    public static function get($key)
    {

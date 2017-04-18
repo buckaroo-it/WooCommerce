@@ -1,10 +1,11 @@
 === Plugin Name ===
 Name: Buckaroo Payments WooCommerce
 Contributors: buckaroosupport
+Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 3.0.0
 Tested up to: 4.7
-Stable tag: 2.4.0
+Stable tag: 2.4.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +47,9 @@ Easy installation to get the plug-in up and running!
 2. https://www.buckaroo.nl/content/image/WooCommerce_frontend1.PNG
 
 == Changelog ==
+= 2.4.1 =
+Compability update with php 5.4 & below.
+
 = 2.4.0 =
 Update plugin to work with WooCommerce 3.0. This includes the following changes:
 - Fixed issue where duplicate orders were created. This happened when a payment method was chosen, then canceled and another was chosen to complete payment.
@@ -54,6 +58,7 @@ Update plugin to work with WooCommerce 3.0. This includes the following changes:
 - Fixed an issue with errors being thrown in the debug log, even with successful payments. Problem involved changing several functions across most payment methods.
 - Updated calls to meet latest WooCommerce standards.
 Removed pay guarantee by Juno from payment methods.
+
 
 = 2.3.4 =
 Added AfterPay error messages in case consumer fills in incorrect personal information.

@@ -152,7 +152,8 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
             $customVars['CustomerGender'] = $_POST['buckaroo-paygarant-gender'];
             $customVars['CustomerEmail'] = $_POST['buckaroo-paygarant-email'];
             if (WooV3Plus()) { 
-                $number = $this->cleanup_phone($order->get_billing_phone());
+                $get_billing_phone = $order->get_billing_phone();
+                $number = $this->cleanup_phone($get_billing_phone);
             } else {
                 $number = $this->cleanup_phone($order->billing_phone);
             }
@@ -164,7 +165,10 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
             $customVars['CustomerAccountNumber'] = $_POST['buckaroo-paygarant-bankaccount'];
             
             if (WooV3Plus()) { 
-                $address_components = fn_buckaroo_get_address_components($order->get_billing_address_1()." ".$order->get_billing_address_2());
+                $get_billing_address_1 = $order->get_billing_address_1();
+                $get_billing_address_2 = $order->get_billing_address_2();
+
+                $address_components = fn_buckaroo_get_address_components($get_billing_address_1." ".$get_billing_address_2);
                 $customVars['ADDRESS'][0]['AddressType'] = 'INVOICE';
                 $customVars['ADDRESS'][0]['ZipCode'] = $order->get_billing_postcode();
                 $customVars['ADDRESS'][0]['City'] = $order->get_billing_city();
@@ -182,7 +186,10 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
                 $customVars['ADDRESS'][0]['HouseNumberSuffix'] = $address_components['number_addition'];
             if (WooV3Plus()) { 
                 $customVars['ADDRESS'][0]['Country'] = $order->get_billing_country();
-                $address_components2 = fn_buckaroo_get_address_components($order->get_shipping_address_1()." ".$order->get_shipping_address_2());
+                $get_shipping_address_1 = $order->get_shipping_address_1();
+                $get_shipping_address_2 = $order->get_shipping_address_2();
+
+                $address_components2 = fn_buckaroo_get_address_components($get_shipping_address_1." ".$get_shipping_address_2);
                 $customVars['ADDRESS'][1]['AddressType'] = 'SHIPPING';
                 $customVars['ADDRESS'][1]['ZipCode'] = $order->get_shipping_postcode();
                 $customVars['ADDRESS'][1]['City'] = $order->get_shipping_city();
@@ -229,13 +236,18 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
                 $paygarant->usenotification = 1;
                 $customVars['Customergender'] = 0;
                 if (WooV3Plus()) {
-                    $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
-                    $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
-                    $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
+
+                    $get_billing_first_name = $order->get_billing_first_name();
+                    $get_billing_last_name = $order->get_billing_last_name();
+                    $get_billing_email = $order->get_billing_email();
+
+                    $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $order->get_billing_first_name() : '';
+                    $customVars['CustomerLastName'] = !empty($get_billing_last_name) ? $order->get_billing_last_name() : '';
+                    $customVars['CustomerEmail'] = !empty($get_billing_email) ? $order->get_billing_email() : '';
                 } else {
                     $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
                     $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
-                    $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                    $customVars['CustomerEmail'] = !empty($order->billing_email) ? $order->billing_email : '';
                 }
                 $customVars['Notificationtype'] = 'PaymentComplete';
                 $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));

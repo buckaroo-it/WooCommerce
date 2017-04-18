@@ -190,16 +190,20 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         $afterpay->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
 
         if (WooV3Plus()) {
-            $address_components = fn_buckaroo_get_address_components($order->get_billing_address_1()." ".$order->get_billing_address_2());
+            $get_billing_address_1 = $order->get_billing_address_1();
+            $get_billing_address_2 = $order->get_billing_address_2();
+            $address_components = fn_buckaroo_get_address_components($get_billing_address_1." ".$get_billing_address_2);
             $afterpay->BillingStreet = $address_components['street'];
             $afterpay->BillingHouseNumber = $address_components['house_number'];
             $afterpay->BillingHouseNumberSuffix = $address_components['number_addition'];
             $afterpay->BillingPostalCode = $order->get_billing_postcode();
             $afterpay->BillingCity = $order->get_billing_city();
             $afterpay->BillingCountry = $order->get_billing_country();
-            $afterpay->BillingEmail = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
+            $get_billing_email = $order->get_billing_email();
+            $afterpay->BillingEmail = !empty($get_billing_email) ? $order->get_billing_email() : '';
             $afterpay->BillingLanguage = 'nl';
-            $number = $this->cleanup_phone($order->get_billing_phone());
+            $get_billing_phone = $order->get_billing_phone();
+            $number = $this->cleanup_phone($get_billing_phone);
         } else {
             $address_components = fn_buckaroo_get_address_components($order->billing_address_1." ".$order->billing_address_2);
             $afterpay->BillingStreet = $address_components['street'];
@@ -219,18 +223,25 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         if (!empty($_POST["buckaroo-afterpay-shipping-differ"])) {
             $afterpay->AddressesDiffer = 'TRUE';
             if (WooV3Plus()) {
-                $afterpay->ShippingInitials = $this->getInitials($order->get_shipping_first_name());
-                $afterpay->ShippingLastName = !empty($order->get_shipping_last_name()) ? $order->get_shipping_last_name() : '';
-                $address_components = fn_buckaroo_get_address_components($order->get_shipping_address_1()." ".$order->get_shipping_address_2());
+                $get_shipping_first_name = $order->get_shipping_first_name();
+                $afterpay->ShippingInitials = $this->getInitials($get_shipping_first_name);
+                $get_shipping_last_name = $order->get_shipping_last_name();
+                $afterpay->ShippingLastName = !empty($get_shipping_last_name) ? $order->get_shipping_last_name() : '';
+                $get_shipping_address_1 = $order->get_shipping_address_1();
+                $get_shipping_address_2 = $order->get_shipping_address_2();
+
+                $address_components = fn_buckaroo_get_address_components($get_shipping_address_1." ".$get_shipping_address_2);
                 $afterpay->ShippingStreet = $address_components['street'];
                 $afterpay->ShippingHouseNumber = $address_components['house_number'];
                 $afterpay->ShippingHouseNumberSuffix = $address_components['number_addition'];
                 $afterpay->ShippingPostalCode = $order->get_shipping_postcode();
                 $afterpay->ShippingCity = $order->get_shipping_city();
                 $afterpay->ShippingCountryCode = $order->get_shipping_country();
-                $afterpay->ShippingEmail = !empty($order->get_shipping_email()) ? $order->get_shipping_email() : '';
+                $get_shipping_email = $order->get_shipping_email();
+                $afterpay->ShippingEmail = !empty($get_shipping_email) ? $order->get_shipping_email() : '';
                 $afterpay->ShippingLanguage = 'nl';
-                $number = $this->cleanup_phone($order->get_shipping_phone());
+                $get_shipping_phone = $order->get_shipping_phone();
+                $number = $this->cleanup_phone($get_shipping_phone);
             } else {
                 $afterpay->ShippingInitials = $this->getInitials($order->shipping_first_name);
                 $afterpay->ShippingLastName = !empty($order->shipping_last_name) ? $order->shipping_last_name : '';
@@ -312,13 +323,17 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
             $customVars['Customergender'] = $_POST['buckaroo-sepadirectdebit-gender'];
 
             if (WooV3Plus()) { 
-                $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
-                $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
-                $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
+                $get_billing_first_name = $order->get_billing_first_name();
+                $get_billing_last_name = $order->get_billing_last_name();
+                $get_billing_email = $order->get_billing_email();
+
+                $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $order->get_billing_first_name() : '';
+                $customVars['CustomerLastName'] = !empty($get_billing_last_name) ? $order->get_billing_last_name() : '';
+                $customVars['CustomerEmail'] = !empty($get_billing_email) ? $order->get_billing_email() : '';
             } else {
                 $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
                 $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
-                $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                $customVars['CustomerEmail'] = !empty($order->billing_email) ? $order->billing_email : '';
             }
             $customVars['Notificationtype'] = 'PaymentComplete';
             $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->invoicedelay . ' day')).' + '. (int)$this->notificationdelay.' day'));

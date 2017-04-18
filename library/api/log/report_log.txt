@@ -1,0 +1,19 @@
+2017-03-27 03:12:47|||Response not valid for order. Signature calculation failed. Order id: order not created
+2017-03-28 01:34:03||| do not exists
+2017-03-28 01:34:03|||Unable to read certificate.
+2017-03-28 01:34:03|||Response not valid for order. Signature calculation failed. Order id: order not created
+2017-03-28 01:36:14||| do not exists
+2017-03-28 01:36:14|||Unable to read certificate.
+2017-03-28 01:36:14|||Response not valid for order. Signature calculation failed. Order id: order not created
+2017-03-28 01:37:02||| do not exists
+2017-03-28 01:37:02|||Unable to read certificate.
+2017-03-28 01:37:02|||Response not valid for order. Signature calculation failed. Order id: order not created
+2017-03-28 01:37:37||| do not exists
+2017-03-28 01:37:37|||Unable to read certificate.
+2017-03-28 01:37:37|||Response not valid for order. Signature calculation failed. Order id: order not created
+2017-03-28 01:41:06||| do not exists
+2017-03-28 01:41:06|||Unable to read certificate.
+2017-03-28 01:41:06|||Response not valid for order. Signature calculation failed. Order id: order not created
+2017-03-28 01:44:12||| do not exists
+2017-03-28 01:44:12|||Unable to read certificate.
+2017-03-28 01:44:12|||Response not valid for order. Signature calculation failed. Order id: order not created

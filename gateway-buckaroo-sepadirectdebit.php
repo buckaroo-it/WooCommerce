@@ -22,7 +22,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
         
         parent::__construct();
 
-        $this->supports           = array(
+        $this->supports = array(
             'products',
             'refunds'
         );
@@ -174,10 +174,13 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
                 $customVars['CustomerCode'] = $order->customer_user;
             
                 if (WooV3Plus()) {
-                    $customVars['CompanyName'] = !empty($order->get_billing_company()) ? $order->get_billing_company() : '';
-                    $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
-                    $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
-                    $customVars['CustomerInitials'] = $this->getInitials($order->get_billing_first_name());
+                    $get_billing_company = $order->get_billing_company();
+                    $get_billing_first_name = $order->get_billing_first_name();
+                    $get_billing_last_name = $order->get_billing_last_name();
+                    $customVars['CompanyName'] = !empty($get_billing_company) ? $order->get_billing_company() : '';
+                    $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $order->get_billing_first_name() : '';
+                    $customVars['CustomerLastName'] = !empty($get_billing_last_name) ? $order->get_billing_last_name() : '';
+                    $customVars['CustomerInitials'] = $this->getInitials($get_billing_first_name);
                 } else {
                     $customVars['CompanyName'] = !empty($order->billing_company) ? $order->billing_company : '';
                     $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
@@ -187,10 +190,12 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
                 $customVars['Customergender'] = $_POST['buckaroo-sepadirectdebit-gender'];
                 $customVars['CustomerBirthDate'] = date('Y-m-d', strtotime($birthdate)); //1983-09-28
                 if (WooV3Plus()) {
-                    $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
-                    $number = $this->cleanup_phone($order->get_billing_phone());
+                    $get_billing_email = $order->get_billing_email();
+                    $get_billing_phone = $order->get_billing_phone();
+                    $customVars['CustomerEmail'] = !empty($get_billing_email) ? $order->get_billing_email() : '';
+                    $number = $this->cleanup_phone($get_billing_phone);
                 } else {
-                    $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                    $customVars['CustomerEmail'] = !empty($order->billing_email) ? $order->billing_email : '';
                     $number = $this->cleanup_phone($order->billing_phone);
                 }
                 if ($number['type'] == 'mobile') {
@@ -202,7 +207,9 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
                 $customVars['DateDue'] = date('Y-m-d', strtotime($customVars['InvoiceDate'].' + '. (int)$this->datedue.' day'));
 
                 if (WooV3Plus()) {
-                    $address_components = fn_buckaroo_get_address_components($order->get_billing_address_1()." ".$order->get_billing_address_2());
+                    $get_billing_address_1 = $order->get_billing_address_1();
+                    $get_billing_address_2 = $order->get_billing_address_2();
+                    $address_components = fn_buckaroo_get_address_components($get_billing_address_1." ".$get_billing_address_2);
                     $customVars['ADDRESS']['ZipCode'] = $order->get_billing_postcode();
                     $customVars['ADDRESS']['City'] = $order->get_billing_city();
                 }else{
@@ -237,13 +244,17 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
                 $sepadirectdebit->usenotification = 1;
                 $customVars['Customergender'] = $_POST['buckaroo-sepadirectdebit-gender'];
                 if (WooV3Plus()) {
-                    $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
-                    $customVars['CustomerLastName'] = !empty($order->get_billing_last_name()) ? $order->get_billing_last_name() : '';
-                    $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
+                    $get_billing_first_name = $order->get_billing_first_name();
+                    $get_billing_last_name = $order->get_billing_last_name();
+                    $get_billing_email = $order->get_billing_email();
+
+                    $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $order->get_billing_first_name() : '';
+                    $customVars['CustomerLastName'] = !empty($get_billing_last_name) ? $order->get_billing_last_name() : '';
+                    $customVars['CustomerEmail'] = !empty($get_billing_email) ? $order->get_billing_email() : '';
                 } else {
                     $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
                     $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
-                    $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                    $customVars['CustomerEmail'] = !empty($order->billing_email) ? $order->billing_email : '';
                 }
                 $customVars['Notificationtype'] = $this->notificationtype;
                 $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->invoicedelay . ' day')).' + '. (int)$this->notificationdelay.' day'));

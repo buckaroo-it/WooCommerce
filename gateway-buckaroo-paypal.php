@@ -97,7 +97,8 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
         $paypal->returnUrl = $this->notify_url;
         $customVars = Array();
         if(WooV3Plus()) {
-            $customVars['CustomerLastName'] = ($order->get_billing_last_name() != NULL) ? $order->get_billing_last_name() : '';
+            $get_billing_last_name = $order->get_billing_last_name();
+            $customVars['CustomerLastName'] = ($get_billing_last_name != NULL) ? $order->get_billing_last_name() : '';
         } else {
             $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
         }
@@ -106,10 +107,12 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
             $paypal->usenotification = 1;
             $customVars['Customergender'] = 0;
             if (WooV3Plus()) {
-                $customVars['Customeremail'] = !empty($order->get_billing_email()) ? $order->get_billing_email() : '';
-                $customVars['CustomerFirstName'] = !empty($order->get_billing_first_name()) ? $order->get_billing_first_name() : '';
+                $get_billing_email = $order->get_billing_email();
+                $customVars['CustomerEmail'] = !empty($get_billing_email) ? $order->get_billing_email() : '';
+                $get_billing_first_name = $order->get_billing_first_name();
+                $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $order->get_billing_first_name() : '';
             } else {
-                $customVars['Customeremail'] = !empty($order->billing_email) ? $order->billing_email : '';
+                $customVars['CustomerEmail'] = !empty($order->billing_email) ? $order->billing_email : '';
                 $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
             }
             $customVars['Notificationtype'] = 'PaymentComplete';
@@ -118,13 +121,23 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
         if ($this->sellerprotection == 'TRUE'){
             $paypal->sellerprotection = 1;
             if (WooV3Plus()) { 
-                $customVars['ShippingPostalCode'] = !empty($order->get_shipping_postcode()) ? $order->get_shipping_postcode() : '';
-                $customVars['ShippingCity'] = !empty($order->get_shipping_city()) ? $order->get_shipping_city() : '';
-                $address_components = fn_buckaroo_get_address_components($order->get_billing_address_1()." ".$order->get_billing_address_2());
+                $get_shipping_postcode = $order->get_shipping_postcode();
+                $get_shipping_city = $order->get_shipping_city();
+                $get_billing_address_1 = $order->get_billing_address_1();
+                $get_billing_address_2 = $order->get_billing_address_2();
+
+                $customVars['ShippingPostalCode'] = !empty($get_shipping_postcode) ? $order->get_shipping_postcode() : '';
+                $customVars['ShippingCity'] = !empty($get_shipping_city) ? $order->get_shipping_city() : '';
+                $address_components = fn_buckaroo_get_address_components($get_billing_address_1." ".$get_billing_address_2);
+               
                 $customVars['ShippingStreet'] = !empty($address_components['street']) ? $address_components['street'] : '';
                 $customVars['ShippingHouse'] = !empty($address_components['house_number']) ? $address_components['house_number'] : '';
-                $customVars['StateOrProvince'] = !empty($order->get_billing_state()) ? $order->get_billing_state() : '';
-                $customVars['Country'] = !empty($order->get_billing_country()) ? $order->get_billing_country() : '';
+
+                $get_billing_state = $order->get_billing_state();
+                $get_billing_country = $order->get_billing_country();
+
+                $customVars['StateOrProvince'] = !empty($get_billing_state) ? $order->get_billing_state() : '';
+                $customVars['Country'] = !empty($get_billing_country) ? $order->get_billing_country() : '';
             } else{
                 $customVars['ShippingPostalCode'] = !empty($order->shipping_postcode) ? $order->shipping_postcode : '';
                 $customVars['ShippingCity'] = !empty($order->shipping_city) ? $order->shipping_city : '';
