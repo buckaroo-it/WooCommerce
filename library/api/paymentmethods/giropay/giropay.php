@@ -1,19 +1,27 @@
 <?php
 require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
-class BuckarooGiropay extends BuckarooPaymentMethod
-{
+/**
+ * @package Buckaroo
+ */
+class BuckarooGiropay extends BuckarooPaymentMethod {
     public $bic = '';
 
-    public function __construct()
-    {
+    /**
+     * @access public
+     */
+    public function __construct() {
         $this->type = "giropay";
         $this->version = 2;
         $this->mode = BuckarooConfig::getMode($this->type);
     }
 
-    public function Pay($customVars = Array())
-    {
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::Pay()
+     */
+    public function Pay($customVars = Array()) {
         $this->data['customVars'][$this->type]['bic'] = $this->bic;
 
         if ($this->usenotification && !empty($customVars['Customeremail'])) {

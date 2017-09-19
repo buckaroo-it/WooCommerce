@@ -2,22 +2,34 @@
 
 require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
-class BuckarooPayGarant extends BuckarooPaymentMethod
-{
-    public function __construct()
-    {
+/**
+ * @package Buckaroo
+ */
+class BuckarooPayGarant extends BuckarooPaymentMethod {
+
+    /**
+     * @access public
+     */
+    public function __construct() {
         $this->type = "paymentguarantee";
         $this->version = '1';
         $this->mode = BuckarooConfig::getMode('PAYGARANT');
     }
-
-    public function Pay($customVars = Array())
-    {
+    
+    /**
+     * @access public
+     * @return void
+     */
+    public function Pay($customVars = Array()) {
         return null;
     }
 
-    public function PaymentInvitation($customVars)
-    {
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable BuckarooResponseFactory::getResponse($soap->transactionRequest());
+     */
+    public function PaymentInvitation($customVars) {
         $this->data['services'][$this->type]['action'] = 'Paymentinvitation';
         $this->data['services'][$this->type]['version'] = $this->version;
 
@@ -36,6 +48,7 @@ class BuckarooPayGarant extends BuckarooPaymentMethod
         }
 
         $this->data['currency'] = $this->currency;
+        $this->data['channel'] = $this->channel;
         $this->data['amountDebit'] = $this->amountDedit;
         $this->data['amountCredit'] = $this->amountCredit;
         $this->data['invoice'] = $this->invoiceId;
@@ -54,7 +67,7 @@ class BuckarooPayGarant extends BuckarooPaymentMethod
         if (isset($customVars['CustomerGender'])) {
             $this->data['customVars'][$this->type]['CustomerGender'] = $customVars['CustomerGender'];
         }
-        $this->data['customVars'][$this->type]['CustomerEmail'] = $customVars['CustomerEmail'];
+        $this->data['customVars'][$this->type]['Customeremail'] = $customVars['Customeremail'];
 
         foreach ($customVars['ADDRESS'] as $key => $adress) {
             foreach ($adress as $key2 => $value) {
@@ -86,8 +99,10 @@ class BuckarooPayGarant extends BuckarooPaymentMethod
 
     }
 
-    public function CreditNote()
-    {
+    /**
+     * @access public
+     */
+    public function CreditNote() {
 
     }
 }

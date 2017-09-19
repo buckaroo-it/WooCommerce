@@ -3,8 +3,10 @@
 include_once(dirname(__FILE__) . '/functions.php');
 
 
-class BuckarooPaymentRequestFactory
-{
+/**
+ * @package Buckaroo
+ */
+class BuckarooPaymentRequestFactory {
 
     const REQUEST_TYPE_PAYPAL = 'buckaroopaypal';
     const REQUEST_TYPE_EMPAYMENT = 'empayment';
@@ -40,8 +42,7 @@ class BuckarooPaymentRequestFactory
         BuckarooPaymentRequestFactory::REQUEST_TYPE_TRANSFER => 'Transfer',
     );
 
-    final public static function Create($request_type_id, $data = array())
-    {
+    final public static function Create($request_type_id, $data = array()) {
 
         $class_name = self::$valid_request_types[$request_type_id];
         buckaroo_autoload($class_name);

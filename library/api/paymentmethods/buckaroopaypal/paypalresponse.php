@@ -7,8 +7,10 @@
 
 require_once(dirname(__FILE__) . '/../response.php');
 
-class BuckarooPayPalResponse extends BuckarooResponse
-{
+/**
+ * @package Buckaroo
+ */
+class BuckarooPayPalResponse extends BuckarooResponse {
     public $payerEmail;
     public $payerCountry;
     public $payerStatus;
@@ -16,8 +18,10 @@ class BuckarooPayPalResponse extends BuckarooResponse
     public $payerLastname;
     public $paypalTransactionID;
 
-    protected function _parseSoapResponseChild()
-    {
+    /**
+     * @access protected
+     */
+    protected function _parseSoapResponseChild() {
         $this->payerEmail = '';
         $this->payerCountry = '';
         $this->payerStatus = '';
@@ -26,8 +30,10 @@ class BuckarooPayPalResponse extends BuckarooResponse
         $this->paypalTransactionID = '';
     }
 
-    protected function _parsePostResponseChild()
-    {
+    /**
+     * @access protected
+     */
+    protected function _parsePostResponseChild() {
         if (isset($_POST['brq_service_paypal_payerEmail'])) {
             $this->payerEmail = $_POST['brq_service_paypal_payerEmail'];
         }

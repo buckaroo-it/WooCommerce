@@ -2,20 +2,28 @@
 
 require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
-class BuckarooIDeal extends BuckarooPaymentMethod
-{
+/**
+ * @package Buckaroo
+ */
+class BuckarooIDeal extends BuckarooPaymentMethod {
     public $issuer;
     protected $data;
 
-    public function __construct()
-    {
+    /**
+     * @access public
+     */
+    public function __construct() {
         $this->type = "ideal";
         $this->version = 2;
         $this->mode = BuckarooConfig::getMode($this->type);
     }
 
-    public function Pay($customVars = Array())
-    {
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::Pay();
+     */
+    public function Pay($customVars = Array()) {
         $this->data['customVars'][$this->type]['issuer'] = $this->_getIssuer($this->issuer);
 
         if ($this->usenotification && !empty($customVars['Customeremail'])) {
@@ -35,13 +43,19 @@ class BuckarooIDeal extends BuckarooPaymentMethod
         return parent::Pay();
     }
 
-    public function Refund()
-    {
+    /**
+     * @access public
+     * @return callable parent::Refund();
+     */
+    public function Refund() {
         return parent::Refund();
     }
 
-    public static function getIssuerList()
-    {
+    /**
+     * @access public
+     * @return array $issuerArray
+     */
+    public static function getIssuerList() {
         $issuerArray = array(
             'ABNAMRO' => array(
                 'name' => 'ABN AMRO',
@@ -84,13 +98,15 @@ class BuckarooIDeal extends BuckarooPaymentMethod
                 'logo' => 'logo_bunq.png',
             ),
         );
-
         return $issuerArray;
     }
 
-    protected function _getIssuer($issuer)
-    {
-
+    /**
+     * @access public
+     * @param string $issuer
+     * @return array $issuerCode
+     */
+    protected function _getIssuer($issuer) {
         $issuerCode = '';
         switch ($issuer) {
             case 'ABNAMRO':

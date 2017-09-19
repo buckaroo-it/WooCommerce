@@ -4,24 +4,24 @@ require_once(dirname(__FILE__) . '/../abstract.php');
 require_once(dirname(__FILE__) . '/../soap.php');
 require_once(dirname(__FILE__) . '/responsefactory.php');
 
-abstract class BuckarooPaymentMethod extends BuckarooAbstract
-{
+/**
+* @package Buckaroo
+*/
+abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 
     protected $type;
 
     /**
      * @param mixed $type
      */
-    public function setType($type)
-    {
+    public function setType($type) {
         $this->type = $type;
     }
 
     /**
      * @return mixed
      */
-    public function getType()
-    {
+    public function getType() {
         return $this->type;
     }
 
@@ -40,8 +40,14 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     public $sellerprotection = 0;
     protected $data = array();
 
-    public function Pay($customVars = Array())
-    {
+    /**
+     * Populate generic fields in $customVars() array 
+     * 
+     * @access public
+     * @param array $customeVars defaults to empty array
+     * @return callable $this->PayGlobal()
+     */
+    public function Pay($customVars = Array()) {
         $this->data['services'][$this->type]['action'] = 'Pay';
         $this->data['services'][$this->type]['version'] = $this->version;
 
@@ -62,16 +68,26 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         return $this->PayGlobal();
     }
 
-    public function Refund()
-    {
+    /**
+     * Populate generic fields for a refund 
+     * 
+     * @access public
+     * @return callable $this->RefundGlobal()
+     */
+    public function Refund() {
         $this->data['services'][$this->type]['action'] = 'Refund';
         $this->data['services'][$this->type]['version'] = $this->version;
 
         return $this->RefundGlobal();
     }
 
-    public function PayGlobal()
-    {
+    /**
+     * Build soap request for payment and get response
+     * 
+     * @access public
+     * @return callable BuckarooResponseFactory::getResponse($soap->transactionRequest())
+     */
+    public function PayGlobal() {
         $this->data['currency'] = $this->currency;
         $this->data['amountDebit'] = $this->amountDedit;
         $this->data['amountCredit'] = $this->amountCredit;
@@ -80,12 +96,18 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         $this->data['description'] = $this->description;
         $this->data['returnUrl'] = $this->returnUrl;
         $this->data['mode'] = $this->mode;
+        $this->data['channel'] = $this->channel;
         $soap = new BuckarooSoap($this->data);
         return BuckarooResponseFactory::getResponse($soap->transactionRequest());
     }
 
-    public function RefundGlobal()
-    {
+    /**
+     * Build soap request for refund and get response
+     * 
+     * @access public
+     * @return callable BuckarooResponseFactory::getResponse($soap->transactionRequest())
+     */
+    public function RefundGlobal() {
         $this->data['currency'] = $this->currency;
         $this->data['amountDebit'] = $this->amountDedit;
         $this->data['amountCredit'] = $this->amountCredit;
@@ -95,13 +117,19 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         $this->data['OriginalTransactionKey'] = $this->OriginalTransactionKey;
         $this->data['returnUrl'] = $this->returnUrl;
         $this->data['mode'] = $this->mode;
+        $this->data['channel'] = $this->channel;
         $soap = new BuckarooSoap($this->data);
         return BuckarooResponseFactory::getResponse($soap->transactionRequest());
     }
 
-    public static function isIBAN($iban)
-    {
-
+    /**
+     * Calculate checksum from iban and confirm validity of iban
+     * 
+     * @access public
+     * @param string $iban
+     * @return boolean
+     */
+    public static function isIBAN($iban) {
         // Normalize input (remove spaces and make upcase)
         $iban = strtoupper(str_replace(' ', '', $iban));
 

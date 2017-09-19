@@ -2,8 +2,10 @@
 
 require_once(dirname(__FILE__) . '/../response.php');
 
-class BuckarooTransferResponse extends BuckarooResponse
-{
+/**
+ * @package Buckaroo
+ */
+class BuckarooTransferResponse extends BuckarooResponse {
     public $BIC = '';
     public $IBAN = '';
     public $accountHolderName = '';
@@ -17,8 +19,10 @@ class BuckarooTransferResponse extends BuckarooResponse
         'HtmlText' => ''
     );
 
-    protected function _parseSoapResponseChild()
-    {
+    /**
+     * @access protected
+     */
+    protected function _parseSoapResponseChild() {
         if (isset($this->_response->Services->Service->ResponseParameter) && isset($this->_response->Services->Service->Name)) {
             if ($this->_response->Services->Service->Name == 'transfer' && $this->_response->Services->Service->ResponseParameter[5]->Name == 'PaymentReference') {
                 $this->BIC = $this->_response->Services->Service->ResponseParameter[0]->_;
@@ -48,8 +52,10 @@ class BuckarooTransferResponse extends BuckarooResponse
         }
     }
 
-    protected function _parsePostResponseChild()
-    {
+    /**
+     * @access protected
+     */
+    protected function _parsePostResponseChild() {
 
     }
 

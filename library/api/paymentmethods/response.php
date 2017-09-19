@@ -3,9 +3,11 @@
 require_once(dirname(__FILE__) . '/../../logger.php');
 require_once(dirname(__FILE__) . '/../abstract.php');
 
+/**
+ * @package Buckaroo
+ */
 abstract class BuckarooResponse extends BuckarooAbstract {
 
-    
     //false if not received response       
     private $_received = false;
     //true if validated and securety checked
@@ -90,9 +92,13 @@ abstract class BuckarooResponse extends BuckarooAbstract {
         }
     }
     
-    //Determine if response is HTTP or SOAP
-    private function isHttpRequest()
-    {
+    /**
+     * Determine if response is HTTP or SOAP
+     * 
+     * @access private
+     * @return boolean
+     */
+    private function isHttpRequest() {
         if (isset($_POST['brq_statuscode']) ) //HTTP request
         {
             return true;
@@ -149,6 +155,8 @@ abstract class BuckarooResponse extends BuckarooAbstract {
 
     private function setResponseXML($xml) {
         $this->_responseXML = $xml;
+        //Record requests in debug mode
+        writeToDebug($xml, 'Response');
     }
 
     private function getResponseXML() {
@@ -267,6 +275,7 @@ abstract class BuckarooResponse extends BuckarooAbstract {
 
         //save response XML to string
         $responseDomDoc = $this->_responseXML;
+
         $responseString = $responseDomDoc->saveXML();
 
         //retrieve the signature value
@@ -288,6 +297,9 @@ abstract class BuckarooResponse extends BuckarooAbstract {
         //Get the SignedInfo nodeset
         $SignedInfoQuery = '//wsse:Security/sig:Signature/sig:SignedInfo';
         $SignedInfoQueryNodeSet = $xPath->query($SignedInfoQuery);
+
+        //Record requests in debug mode
+
         $SignedInfoNodeSet = $SignedInfoQueryNodeSet->item(0);
 
         //Canonicalize nodeset

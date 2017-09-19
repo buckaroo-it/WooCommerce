@@ -1,11 +1,10 @@
 === Plugin Name ===
-WC Buckaroo BPE Gateway
+Name: Buckaroo Payments WooCommerce
 Contributors: buckaroosupport
-Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 3.0.0
 Tested up to: 4.7
-Stable tag: 2.4.1
+Stable tag: 2.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,6 +14,7 @@ This is a plug-in with countless payment methods, all of which are SEPA proof.
 
 The Buckaroo (Dutch: https://www.buckaroo.nl/integratie/plugins/woocommerce/ or English: https://www.buckaroo-payments.com/integration/plugins/woocommerce/) plug-in is convenient and works like a charm, it's easy to install and takes all the trouble out of your hands.
 It is a plug-in with many different payment methods, all of which are SEPA proof. This plug-in is completely free to download. WooCommerce is an excellent platform for a webshop to look professional, comes with built-in tools to analyze sales and it's also fully customizable. WoocCommerce is used by 30% of all webshops worldwide, download this plugin now and find out more!
+
 Payment method support list:
 
 1. iDEAL
@@ -30,6 +30,8 @@ Payment method support list:
 11. SEPA Credit Transfer (Bank transfer)
 12. SEPA Direct Debit (With or without Credit management)
 13. Paysafecard
+
+Please go to the signup page to create a Buckaroo account (https://www.buckaroo-payments.com/integration/buckaroo-payment-plaza/). Contact info@buckaroo.nl if you have any questions.
 
 == Installation ==
 
@@ -47,8 +49,34 @@ Easy installation to get the plug-in up and running!
 2. https://www.buckaroo.nl/content/image/WooCommerce_frontend1.PNG
 
 == Changelog ==
+
+= 2.5.0 =
+Admin modernised/improved
+- Option to use single certificate across all payment methods added
+- Certificates now added via 'upload Certificate' button
+- Certificates now stored in database, rather than as network file
+- Master settings page added, allows centralised setting of
+- Language
+- Transaction Description
+- Use notification
+- Notification Delay
+- Merchant Key
+- Secret Key
+- Thumbrint
+- Certificate
+- Currency
+- Transaction Mode
+- Debug Mode added (records requests to & responses from buckaroo)
+- Code modernised/imporved
+- Docblocks added
+- Old commented code removed
+- Calls to WooCommerce & Buckaroo centralised in wrapper functions
+- Include/require function centralised
+-Push Notifications Fixed
+-Missing translations added
+
 = 2.4.1 =
-Compatibility update with php 5.4 & below.
+Calls to functions within empty() statements removed. Due to crashes with php 5.4 & below.
 
 = 2.4.0 =
 Update plugin to work with WooCommerce 3.0. This includes the following changes:
@@ -58,7 +86,6 @@ Update plugin to work with WooCommerce 3.0. This includes the following changes:
 - Fixed an issue with errors being thrown in the debug log, even with successful payments. Problem involved changing several functions across most payment methods.
 - Updated calls to meet latest WooCommerce standards.
 Removed pay guarantee by Juno from payment methods.
-
 
 = 2.3.4 =
 Added AfterPay error messages in case consumer fills in incorrect personal information.

@@ -1,8 +1,10 @@
 <?php
-
 require_once(dirname(__FILE__).'/../paymentmethod.php');
-class BuckarooAfterPay extends BuckarooPaymentMethod
-{
+
+/**
+ * @package Buckaroo
+ */
+class BuckarooAfterPay extends BuckarooPaymentMethod {
     public $BillingGender;
     public $BillingInitials;
     public $BillingLastName;
@@ -41,22 +43,31 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
     public $CostCentre;
     public $VatNumber;
 
-
-
-    public function __construct($type = 'afterpaydigiaccept')
-    {
+    /**
+     * @access public
+     * @param string $type
+     */
+    public function __construct($type = 'afterpaydigiaccept') {
         $this->type = $type;
         $this->version = '1';
         $this->mode = BuckarooConfig::getMode('AFTERPAY');
     }
 
-    public function Pay($customVars = Array())
-    {
+    /**
+     * @access public
+     * @param array $customVars
+     * @return void
+     */
+    public function Pay($customVars = Array()) {
         return null;
     }
     
-    public function PayAfterpay($products = Array())
-    {
+    /**
+     * @access public
+     * @param array $products
+     * @return callable parent::Pay();
+     */
+    public function PayAfterpay($products = Array()) {
         $this->data['customVars'][$this->type]['BillingGender'] = $this->BillingGender;
         $this->data['customVars'][$this->type]['BillingInitials'] = $this->BillingInitials;
         $this->data['customVars'][$this->type]['BillingLastName'] = $this->BillingLastName;
@@ -131,9 +142,7 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
         $this->data['customVars'][$this->type]['ShippingPhoneNumber'] = $this->ShippingPhoneNumber;
         $this->data['customVars'][$this->type]['ShippingLanguage'] = $this->ShippingLanguage;
 
-
-
-        if ($this->usenotification && !empty($customVars['Customeremail'])){
+        if ($this->usenotification && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action'] = 'ExtraInfo';
             $this->data['services']['notification']['version'] = '1';
             $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
@@ -147,7 +156,7 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
             }
         }
 
-        return parent::Pay();        
+        return parent::Pay();
     }
 }
 

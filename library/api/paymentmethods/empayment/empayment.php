@@ -1,23 +1,35 @@
 <?php
 require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
-class BuckarooEmpayment extends BuckarooPaymentMethod
-{
+/**
+ * @package Buckaroo
+ */
+class BuckarooEmpayment extends BuckarooPaymentMethod {
 
-    public function __construct()
-    {
+    /**
+     * @access public
+     * @return void
+     */
+    public function __construct() {
         $this->type = "empayment";
         $this->version = 1;
         $this->mode = BuckarooConfig::getMode('EMPAYMENT');
     }
 
-    public function Pay()
-    {
+    /**
+     * @access public
+     * @return void
+     */
+    public function Pay() {
         return null;
     }
 
-    public function EmPay($customVars)
-    {
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::Pay()
+     */
+    public function EmPay($customVars) {
         $this->data['customVars'][$this->type]['reference'] = $this->invoiceId;
         $this->data['customVars'][$this->type]['emailAddress'] = $customVars['emailAddress'];
         $this->data['customVars'][$this->type]['FirstName']['value'] = $customVars['FirstName'];
@@ -28,7 +40,6 @@ class BuckarooEmpayment extends BuckarooPaymentMethod
         $this->data['customVars'][$this->type]['Initials']['group'] = 'person';
         $this->data['customVars'][$this->type]['browserAgent']['value'] = $_SERVER['HTTP_USER_AGENT'];
         $this->data['customVars'][$this->type]['browserAgent']['group'] = 'clientInfo';
-
         $this->data['customVars'][$this->type]['Type']['value'] = 'DOM';
         $this->data['customVars'][$this->type]['Type']['group'] = 'bankaccount';
         $this->data['customVars'][$this->type]['DomesticCountry']['value'] = '528';
@@ -42,8 +53,6 @@ class BuckarooEmpayment extends BuckarooPaymentMethod
                 $this->data['customVars'][$this->type][$key2][$key]['group'] = 'address';
             }
         }
-
         return parent::Pay();
     }
-
 }

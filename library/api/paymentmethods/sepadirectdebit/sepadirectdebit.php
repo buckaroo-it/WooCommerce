@@ -2,26 +2,38 @@
 
 require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
-class BuckarooSepaDirectDebit extends BuckarooPaymentMethod
-{
+/**
+ * @package Buckaroo
+ */
+class BuckarooSepaDirectDebit extends BuckarooPaymentMethod {
     public $customeraccountname;
     public $CustomerBIC;
     public $CustomerIBAN;
 
-    public function __construct()
-    {
+    /**
+     * @access public
+     */
+    public function __construct() {
         $this->type = "sepadirectdebit";
         $this->version = '1';
         $this->mode = BuckarooConfig::getMode('SEPADIRECTDEBIT');
     }
 
-    public function Pay($customVars = Array())
-    {
+    /**
+     * @access public
+     * @param array $customVars
+     * @return void
+     */
+    public function Pay($customVars = Array()) {
         return null;
     }
 
-    public function PayDirectDebit($customVars)
-    {
+    /**
+     * @access public
+     * @param array $customVars
+     * @return parent::Pay()
+     */
+    public function PayDirectDebit($customVars) {
 
         $this->data['customVars'][$this->type]['customeraccountname'] = $this->customeraccountname;
         $this->data['customVars'][$this->type]['CustomerBIC'] = $this->CustomerBIC;

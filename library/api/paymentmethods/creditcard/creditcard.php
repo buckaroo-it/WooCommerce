@@ -1,23 +1,31 @@
 <?php
 require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
-class BuckarooCreditCard extends BuckarooPaymentMethod
-{
+/**
+ * @package Buckaroo
+ */
+class BuckarooCreditCard extends BuckarooPaymentMethod {
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->version = 1;
         $this->mode = BuckarooConfig::getMode('CREDITCARD');
 
     }
 
-    public function Refund()
-    {
+    /**
+     * @access public
+     * @return callable parent::Refund()
+     */
+    public function Refund() {
         return parent::Refund();
     }
 
-    public function Pay($customVars = Array())
-    {
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::PayGlobal()
+     */
+    public function Pay($customVars = Array()) {
         $this->data['customVars']['servicesSelectableByClient'] = BuckarooConfig::get(
             'BUCKAROO_CREDITCARD_ALLOWED_CARDS'
         );

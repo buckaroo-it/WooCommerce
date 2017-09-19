@@ -7,18 +7,23 @@
 
 require_once(dirname(__FILE__) . '/../response.php');
 
-class BuckarooCreditCardResponse extends BuckarooResponse
-{
+/**
+ * @package Buckaroo
+ */
+class BuckarooCreditCardResponse extends BuckarooResponse {
     public $cardNumberEnding = '';
-
-    protected function _parseSoapResponseChild()
-    {
+    
+    /**
+     * @access protected
+     */
+    protected function _parseSoapResponseChild() {
 
     }
 
-
-    protected function _parsePostResponseChild()
-    {
+    /**
+     * @access protected
+     */
+    protected function _parsePostResponseChild() {
         if (isset($_POST['brq_service_' . $this->payment_method . '_CardNumberEnding'])) {
             $this->cardNumberEnding = $_POST['brq_service_' . $this->payment_method . '_CardNumberEnding'];
         }

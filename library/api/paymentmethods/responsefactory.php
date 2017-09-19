@@ -8,6 +8,9 @@ require_once(dirname(__FILE__) . '/creditcard/creditcardresponse.php');
 require_once(dirname(__FILE__) . '/giftcard/giftcardresponse.php');
 require_once(dirname(__FILE__) . '/responsedefault.php');
 
+/**
+ * @package Buckaroo
+ */
 class BuckarooResponseFactory {
     
     final private static function getPaymentMethod($data = null) {

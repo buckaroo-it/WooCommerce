@@ -1,8 +1,10 @@
 <?php
 require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
-class BuckarooPayPal extends BuckarooPaymentMethod
-{
+/**
+ * @package Buckaroo
+ */
+class BuckarooPayPal extends BuckarooPaymentMethod {
     public function __construct()
     {
         $this->type = "paypal";
@@ -10,8 +12,12 @@ class BuckarooPayPal extends BuckarooPaymentMethod
         $this->mode = BuckarooConfig::getMode($this->type);
     }
 
-    public function Pay($customVars = Array())
-    {
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::Pay()
+     */
+    public function Pay($customVars = Array()) {
         if ($this->usenotification  && !empty($customVars['Customeremail']) ){
             $this->data['services']['notification']['action'] = 'ExtraInfo';
             $this->data['services']['notification']['version'] = '1';

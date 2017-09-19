@@ -1,7 +1,12 @@
 <?php
 
-function fn_buckaroo_resolve_status_code($status_code)
-{
+/**
+ * Make status codes reader friendly 
+ *
+ * @param  String $status_code
+ * @return String 
+ */
+function fn_buckaroo_resolve_status_code($status_code) {
     require_once(dirname(__FILE__) . '/api/abstract.php');
     switch ($status_code) {
 
@@ -23,20 +28,22 @@ function fn_buckaroo_resolve_status_code($status_code)
         case BuckarooAbstract::BUCKAROO_FAILED:
         case BuckarooAbstract::BUCKAROO_INCORRECT_PAYMENT:
         default:
-            {
+        {
             return 'failed';
-            }
+        }
     }
 }
 
 /**
- * Can the order be refunded
- * @param  WC_Order $order
- * @param  Response $response
- * @return bool
+ * Can the order be refunded.
+ *
+ * @param  Object $response
+ * @param  Object $order WC_Order
+ * @param  String $amount
+ * @param  String $currency
+ * @return String|Boolean 
  */
-function fn_buckaroo_process_refund($response, $order, $amount, $currency)
-{
+function fn_buckaroo_process_refund($response, $order, $amount, $currency) {
     if ($response && $response->isValid() && $response->hasSucceeded()) {
         $order->add_order_note(
             sprintf(
@@ -73,10 +80,10 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
     }
 }
 
-function fn_buckaroo_process_response_push($payment_method = null, $response = '')
-{
+function fn_buckaroo_process_response_push($payment_method = null, $response = '') {
 
-    global $woocommerce, $wpdb;
+    $woocommerce = getWooCommerceObject();
+    $wpdb = getWpdbObject();
     require_once(dirname(__FILE__) . '/logger.php');
     require_once(dirname(__FILE__) . '/api/paymentmethods/responsefactory.php');
     if (!session_id()) {
@@ -180,8 +187,8 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                                 )
                             );
                         }
-
-                        add_post_meta($order->get_order_number(), '_payment_method_transaction', $payment_methodname, true);
+                        $clean_order_no = (int) str_replace('#', '', $order->get_order_number());
+                        add_post_meta($clean_order_no, '_payment_method_transaction', $payment_methodname, true);
                         $order->payment_complete($transaction);
                         add_post_meta($order->get_order_number(), '_pushallowed', 'ok', true);
                         break;
@@ -264,9 +271,17 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 
 }
 
-function fn_buckaroo_process_response($payment_method = null, $response = '', $mode = '')
-{
-    global $woocommerce, $wpdb;
+/**
+* Process response from buckaroo
+* 
+* @param object $payment_method defaults to NULL
+* @param string $response 
+* @param string $mode  
+* @return void|array
+*/
+function fn_buckaroo_process_response($payment_method = null, $response = '', $mode = '') {
+    $woocommerce = getWooCommerceObject();
+    $wpdb = getWpdbObject();
     require_once(dirname(__FILE__) . '/logger.php');
     require_once(dirname(__FILE__) . '/api/paymentmethods/responsefactory.php');
     if (!session_id()) {
@@ -315,7 +330,6 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     }
                 }
             }
-
             switch ($response_status) {
                 case 'completed':
                 case 'processing':
@@ -334,12 +348,8 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             }
         } else {
             $logger->logInfo('Payment request failed/canceled. Order status: ' . $order->get_status());
-            if (!in_array(
-                $order->get_status(),
-                array('completed', 'processing', 'cancelled', 'failed', 'refund')
-            )
-            ) //We receive a valid response that the payment is canceled/failed.
-            {
+            if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
+                //We receive a valid response that the payment is canceled/failed.
                 $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
             } else {
                 $logger->logInfo('Order status cannot be changed.');
@@ -349,7 +359,6 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
             } else {
                 $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
-
                 if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == 690) {
                     wc_add_notice(
                         __(
@@ -366,7 +375,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                         ),
                         'error'
                     );
-                    if(WooV3Plus()){
+                    if (WooV3Plus()) {
                         if($order->get_billing_country()=='NL') {
                             $error_description = str_replace(':', '', substr($response->ChannelError , strrpos($response->ChannelError, ': ')));
                             wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
@@ -399,8 +408,8 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
  * @param string $address
  * @return array
  */
-function fn_buckaroo_get_address_components($address)
-{
+function fn_buckaroo_get_address_components($address) {
+
     $result = array();
     $result['house_number'] = '';
     $result['number_addition'] = '';
@@ -420,16 +429,7 @@ function fn_buckaroo_get_address_components($address)
 
     return $result;
 }
-   
-function WooV3Plus()
-{
-    if (substr(WC()->version, 0, 1) >= 3 ) {
-        return true;
-    } else {
-        return false; 
-    }
-}
-   
+
 /**
  * Cancel order and create new if order_awaiting_payment exists
  */
@@ -459,11 +459,11 @@ function resetOrder() {
 /**
  * Generates uniq invocie ID
  *
- * @param string $orderID, string $mode
+ * @param string $orderID
+ * @param string $mode
  * @return string
  */
-function getUniqInvoiceId($order_id, $mode = 'live')
-{
+function getUniqInvoiceId($order_id, $mode = 'live') {
     $paymentMethod = $_REQUEST['payment_method'];
     $time = time();
     if(!empty($paymentMethod) && $paymentMethod == 'buckaroo_afterpay') {
@@ -477,19 +477,189 @@ function getUniqInvoiceId($order_id, $mode = 'live')
 
     return $invoiceId;
 }
+
 /**
  * Return Order ID from previously genereated Invoice ID
  *
- * @param string $orderID, string $mode
+ * @param string $orderID
+ * @param string $mode
  * @return string
  */
-function getOrderIdFromInvoiceId($invoice_id, $mode = 'live')
-{
+function getOrderIdFromInvoiceId($invoice_id, $mode = 'live') {
     if ($mode == 'test') {
         $invoice_id = str_replace("WP_", "", $invoice_id);
     }
     $order_id = preg_replace('/_i(.*)/','',$invoice_id);
-
     return $order_id;
 }
-    
+
+//[9Yards][JW][2017-04-07] - New Functions added by 9Yards start here
+
+/**
+ * Checks if WooCommerce Version 3 or greater is installed
+ *
+ * @return boolean
+ */
+function WooV3Plus() {
+    if (substr(WC()->version, 0, 1) >= 3 ) {
+        return true;
+    } else {
+        return false; 
+    }
+}
+
+/**
+ * Replaces multiple calls throughout plugin to "global $woocommerce"
+ *
+ * @return object
+ */   
+function getWooCommerceObject() {
+    global $woocommerce;
+    return $woocommerce;
+}
+
+/**
+ * Replaces multiple calls throughout plugin to "global $wpdb"
+ *
+ * @return object
+ */   
+function getWpdbObject() {
+    global $wpdb;
+    return $wpdb;
+}
+
+/**
+ * Write a message to the buckaroo debug log
+ *
+ * @param string $message, string $file, int $line
+ * @return void
+ */
+function writeToDebug($request, $type){
+    if (BuckarooConfig::get('BUCKAROO_DEBUG') == 'on') {
+        if (!file_exists(dirname(__FILE__)."/../traffic-debug/")) {
+            mkdir(dirname(__FILE__)."/../traffic-debug/", 0777);
+        }
+        $file = dirname(__FILE__)."/../traffic-debug/".time()."-$type.log";
+        $request->save($file);
+
+        //Begin - Reduce sensitivity
+        $content = file_get_contents($file);
+
+        $sensative_content[] = BuckarooConfig::get('BUCKAROO_MERCHANT_KEY');
+        $sensative_content[] = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
+        $sensative_content[] = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
+        foreach ($sensative_content as $s) {
+            $content = str_replace($s, "************", $content);
+        }
+        file_put_contents($file, $content);
+        //End - Reduce sensitivity
+    }
+    return;
+}
+
+/**
+ * Write a message to the buckaroo debug log
+ *
+ * @param string $message, string $file, int $line
+ * @return void
+ */
+function writeToTestscriptsLog($method, $type, $event, $json){
+    $time = date('Y-m-d@H:i:s', time());
+    $log = fopen('/var/log/buckaroo/testscripts.log', "a") or die("Unable to open testscripts.log!");
+    $wcv = WC()->version;
+    $wpv = get_bloginfo('version');
+    if($json != 'no json'){
+        fwrite($log, "$time, WC: $wcv, WP: $wpv - $event from $type - $method: $json"."\n");
+    } else {
+        fwrite($log, "$time, WC: $wcv, WP: $wpv - $event of type $type - $method"."\n");
+    }
+    fclose($log);
+    return;
+}
+
+function getWCOrderDetails($order_id, $field) {
+    $order = (WooV3Plus()) ? wc_get_order($order_id) : new WC_Order($order_id);
+    $shipping_arr = array(
+        'shipping_phone', 
+        'shipping_email', 
+        'shipping_country', 
+        'shipping_city', 
+        'shipping_postcode', 
+        'shipping_address_1', 
+        'shipping_address_2', 
+        'shipping_first_name', 
+        'shipping_last_name'
+    );
+    if (in_array($field, $shipping_arr)) {
+        $pickAddress = pickAddress($order);
+        $offset = str_replace('shipping_', '', $field);
+        return $pickAddress[$offset];
+    } elseif(WooV3Plus()) {
+       return $order->{"get_".$field}(); 
+    } else {
+       return $order->{$field};
+    }
+}
+
+function getWCOrder($order_id) {
+    if(WooV3Plus()){
+       $order = wc_get_order($order_id);
+       return $order; 
+    } else {
+       $order = new WC_Order($order_id);
+       return $order;
+    }
+}
+
+/**
+ * Checks if there is a shipping address & Returns
+ *
+ * @param object $order
+ * @return array $result
+ */
+function pickAddress($order) {
+    //There is no shipping phone
+    $get_billing_phone = (WooV3Plus()) ? $order->get_billing_phone() : $order->billing_phone;
+    $result['phone'] = (!empty($get_billing_phone)) ? $get_billing_phone : '';
+
+    //There is no shipping email
+    $get_billing_email = (WooV3Plus()) ? $order->get_billing_email() : $order->billing_email;
+    $result['email'] = (!empty($get_billing_email)) ? $get_billing_email : '';
+
+    $get_shipping_country = (WooV3Plus()) ? $order->get_shipping_country() : $order->shipping_country;
+    $get_billing_country = (WooV3Plus()) ? $order->get_billing_country() : $order->billing_country;
+    $country = (!empty($get_shipping_country)) ? $get_shipping_country : $get_billing_country;
+    $result['country'] = (!empty($country) && $country != '') ? $country : '';
+
+    $get_shipping_city = (WooV3Plus()) ? $order->get_shipping_city() : $order->shipping_city;
+    $get_billing_city = (WooV3Plus()) ? $order->get_billing_city() : $order->billing_city;
+    $city = (!empty($get_shipping_city)) ? $get_shipping_city : $get_billing_city;
+    $result['city'] = (!empty($city) && $city != '') ? $city : '';
+
+    $get_shipping_postcode = (WooV3Plus()) ? $order->get_shipping_postcode(): $order->shipping_postcode;
+    $get_billing_postcode = (WooV3Plus()) ? $order->get_billing_postcode(): $order->billing_postcode;
+    $postcode = (!empty($get_shipping_postcode)) ? $get_shipping_postcode : $get_billing_postcode;
+    $result['postcode'] = (!empty($postcode) && $postcode != '') ? $postcode : '';
+
+    $get_shipping_address_1 = (WooV3Plus()) ? $order->get_shipping_address_1(): $order->shipping_address_1;
+    $get_billing_address_1 = (WooV3Plus()) ? $order->get_billing_address_1(): $order->billing_address_1;
+    $address_1 = (!empty($get_shipping_address_1)) ? $get_shipping_address_1 : $get_billing_address_1;
+    $result['address_1'] = (!empty($address_1) && $address_1 != '') ? $address_1 : '';
+
+    $get_shipping_address_2 = (WooV3Plus()) ? $order->get_shipping_address_2(): $order->shipping_address_2;
+    $get_billing_address_2 = (WooV3Plus()) ? $order->get_billing_address_2(): $order->billing_address_2;
+    $address_2 = (!empty($get_shipping_address_2)) ? $get_shipping_address_2 : $get_billing_address_2;
+    $result['address_2'] = (!empty($address_2) && $address_2 != '') ? $address_2 : '';
+
+    $get_shipping_first_name = (WooV3Plus()) ? $order->get_shipping_first_name(): $order->shipping_first_name;
+    $get_billing_first_name = (WooV3Plus()) ? $order->get_billing_first_name(): $order->billing_first_name;
+    $first_name = (!empty($get_shipping_first_name)) ? $get_shipping_first_name : $get_billing_first_name;
+    $result['first_name'] = (!empty($first_name) && $first_name != '') ? $first_name : '';
+
+    $get_shipping_last_name = (WooV3Plus()) ? $order->get_shipping_last_name(): $order->shipping_last_name;
+    $get_billing_last_name = (WooV3Plus()) ? $order->get_billing_last_name(): $order->billing_last_name;
+    $last_name = (!empty($get_shipping_last_name)) ? $get_shipping_last_name : $get_billing_last_name;
+    $result['last_name'] = (!empty($last_name) && $last_name != '') ? $last_name : '';
+
+    return $result;
+} 

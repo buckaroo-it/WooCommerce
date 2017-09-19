@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @package Buckaroo
+ */
 abstract class BuckarooConfigCore {
     const WSDL_URL = 'https://checkout.buckaroo.nl/soap/soap.svc?wsdl';
     const WSDL_FILE = '/wsdl/Buckaroo.wsdl';
@@ -10,11 +13,9 @@ abstract class BuckarooConfigCore {
     const LOG_DIR = '/log/';
     const CERTIFICATE_PATH = 'certificate/';
    
-    public static function get($key)
-    {
+    public static function get($key) {
         $value = '';
-        switch ($key)
-        {
+        switch ($key) {
             case 'BUCKAROO_TEST':
                 $value = '1';
                 break;
@@ -49,8 +50,7 @@ abstract class BuckarooConfigCore {
         return $value;
     }
     
-    public static function getSoftware()
-    {
+    public static function getSoftware() {
         $Software = new Software();
         $Software->PlatformName = 'API';
         $Software->PlatformVersion = '1';
@@ -59,6 +59,5 @@ abstract class BuckarooConfigCore {
         $Software->ModuleVersion = '0.8';
         return $Software;
     }
-
-}    
+}
 ?>

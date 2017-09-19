@@ -1,4 +1,7 @@
 <?php
+/**
+ * @package Buckaroo
+ */
 class BuckarooResponseDefault extends BuckarooResponse{
 
     protected function _parseSoapResponseChild() {

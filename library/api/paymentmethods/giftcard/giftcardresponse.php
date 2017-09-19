@@ -1,18 +1,23 @@
 <?php
+    require_once(dirname(__FILE__) . '/../response.php');
 
-require_once(dirname(__FILE__) . '/../response.php');
+    /**
+     * @package Buckaroo
+     */
+    class BuckarooGiftCardResponse extends BuckarooResponse {
 
-class BuckarooGiftCardResponse extends BuckarooResponse
-{
-    protected function _parseSoapResponseChild()
-    {
+        /**
+         * @access protected
+         */
+        protected function _parseSoapResponseChild() {
 
+        }
+        
+        /**
+         * @access protected
+         */
+        protected function _parsePostResponseChild() {
+
+        }
     }
-
-    protected function _parsePostResponseChild()
-    {
-
-    }
-}
-
 ?>

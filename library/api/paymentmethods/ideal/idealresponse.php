@@ -7,21 +7,23 @@
 
 require_once(dirname(__FILE__) . '/../response.php');
 
-class BuckarooIDealResponse extends BuckarooResponse
-{
+class BuckarooIDealResponse extends BuckarooResponse {
     public $consumerIssuer;
     public $consumerName;
     public $consumerAccountNumber;
     public $consumerCity;
 
-    protected function _parseSoapResponseChild()
-    {
+    /**
+     * @access protected
+     */
+    protected function _parseSoapResponseChild() {
 
     }
 
-
-    protected function _parsePostResponseChild()
-    {
+    /**
+     * @access protected
+     */
+    protected function _parsePostResponseChild() {
         if (isset($_POST['brq_service_ideal_consumerIssuer'])) {
             $this->consumerIssuer = $_POST['brq_service_ideal_consumerIssuer'];
         }

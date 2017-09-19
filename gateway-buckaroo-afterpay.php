@@ -1,8 +1,6 @@
 <?php
 
-require_once 'library/config.php';
-require_once 'library/common.php';
-require_once 'gateway-buckaroo.php';
+require_once 'library/include.php';
 require_once(dirname(__FILE__) . '/library/api/paymentmethods/afterpay/afterpay.php');
 
 function getClientIpBuckaroo() {
@@ -26,20 +24,33 @@ function getClientIpBuckaroo() {
     return trim($ex[0]);
 }
 
+/**
+* @package Buckaroo
+*/
 class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
     var $type;
     var $b2b;
     var $showpayproc;
     var $vattype;
     function __construct() {
-        global $woocommerce;
+        $woocommerce = getWooCommerceObject();
 
         $this->id = 'buckaroo_afterpay';
         $this->title = 'AfterPay';//$this->settings['title_paypal'];
-        $this->icon 		= apply_filters('woocommerce_buckaroo_paypal_icon', plugins_url('library/buckaroo_images/24x24/afterpay.jpg', __FILE__));
+        $this->icon 		= apply_filters('woocommerce_buckaroo_afterpay_icon', plugins_url('library/buckaroo_images/24x24/afterpay.jpg', __FILE__));
         $this->has_fields 	= false;
         $this->method_title = 'Buckaroo AfterPay';
         $this->description = "Betaal met AfterPay";
+        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        $this->currency = BuckarooConfig::get('BUCKAROO_CURRENCY');
+        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
+
+        $this->secretkey = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
+        $this->mode = BuckarooConfig::getMode();
+        $this->thumbprint = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
+        $this->culture = BuckarooConfig::get('CULTURE');
+        $this->usenotification = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
+        $this->notificationdelay = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
 
         parent::__construct();
 
@@ -65,15 +76,22 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
 
     /**
      * Can the order be refunded
-     * @param  WC_Order $order
-     * @return bool
+     * @access public
+     * @param object $order WC_Order
+     * @return object & string
      */
     public function can_refund_order( $order ) {
         return $order && $order->get_transaction_id();
     }
 
+    /**
+     * Can the order be refunded
+     * @param integer $order_id
+     * @param integer $amount defaults to null
+     * @param string $reason
+     * @return callable|string function or error
+     */
     public function process_refund( $order_id, $amount = null, $reason = '' ) {
-        /* @var $order WC_Order */
         $order = wc_get_order( $order_id );
         if ( ! $this->can_refund_order( $order ) ) {
             return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
@@ -95,6 +113,8 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         $afterpay->orderId = $order_id;
         $afterpay->OriginalTransactionKey = $order->get_transaction_id();
         $afterpay->returnUrl = $this->notify_url;
+        $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
+        $afterpay->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
         try {
             $response = $afterpay->Refund();
         } catch (exception $e) {
@@ -102,7 +122,13 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         }
         return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
     }
-    
+
+    /**
+     * Validate payment fields on the frontend.
+     * 
+     * @access public
+     * @return void
+     */
     public function validate_fields() { 
         
         if (empty($_POST["buckaroo-afterpay-accept"])) {
@@ -130,8 +156,14 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         return;
     }
 
+    /**
+     * Process payment
+     * 
+     * @param integer $order_id
+     * @return callable|void fn_buckaroo_process_response() or void
+     */
     function process_payment($order_id) {
-        global $woocommerce;
+        $woocommerce = getWooCommerceObject();
 
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
 
@@ -141,16 +173,22 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
             $afterpay->amountDedit = $order->get_order_total();
         } else {
             $afterpay->amountDedit = $order->get_total();
-        }		
-
+        }
+        $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
+        $afterpay->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
         $afterpay->currency = $this->currency;
         $afterpay->description = $this->transactiondescription;
         $afterpay->invoiceId = getUniqInvoiceId((string)$order_id, $this->mode);
         $afterpay->orderId = (string)$order_id;
         
         $afterpay->BillingGender = $_POST['buckaroo-afterpay-gender'];
-        $afterpay->BillingInitials = $this->getInitials($order->billing_first_name);
-        $afterpay->BillingLastName = !empty($order->billing_last_name) ? $order->billing_last_name : '';
+
+        $get_billing_first_name = getWCOrderDetails($order_id, "billing_first_name");
+        $get_billing_last_name = getWCOrderDetails($order_id, "billing_last_name");
+        $get_billing_email = getWCOrderDetails($order_id, "billing_email");
+
+        $afterpay->BillingInitials = $this->getInitials($get_billing_first_name);
+        $afterpay->BillingLastName = $get_billing_last_name;
         $birthdate = $_POST['buckaroo-afterpay-birthdate'];
         if (!empty($_POST["buckaroo-afterpay-b2b"]) && $_POST["buckaroo-afterpay-b2b"] == 'ON') {
             $birthdate = '01-01-1990';
@@ -170,8 +208,8 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         if (floatval($shippingCosts) > 0) {
             $afterpay->ShippingCosts = number_format($shippingCosts, 2)+number_format($shippingCostsTax, 2);
         }
-        if (!empty($_POST["buckaroo-afterpay-b2b"]) && $_POST["buckaroo-afterpay-b2b"] == 'ON')
-        {
+        if (!empty($_POST["buckaroo-afterpay-b2b"]) && $_POST["buckaroo-afterpay-b2b"] == 'ON') {
+
             if (empty($_POST["buckaroo-afterpay-CompanyCOCRegistration"])) {
                 wc_add_notice( __("Company registration number is required (KvK)", 'wc-buckaroo-bpe-gateway'), 'error' );
                 return;
@@ -186,76 +224,51 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
             // $afterpay->CostCentre = $_POST["buckaroo-afterpay-CostCentre"];
             // $afterpay->VatNumber = $_POST["buckaroo-afterpay-VatNumber"];
         }
-
         $afterpay->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
 
-        if (WooV3Plus()) {
-            $get_billing_address_1 = $order->get_billing_address_1();
-            $get_billing_address_2 = $order->get_billing_address_2();
-            $address_components = fn_buckaroo_get_address_components($get_billing_address_1." ".$get_billing_address_2);
-            $afterpay->BillingStreet = $address_components['street'];
-            $afterpay->BillingHouseNumber = $address_components['house_number'];
-            $afterpay->BillingHouseNumberSuffix = $address_components['number_addition'];
-            $afterpay->BillingPostalCode = $order->get_billing_postcode();
-            $afterpay->BillingCity = $order->get_billing_city();
-            $afterpay->BillingCountry = $order->get_billing_country();
-            $get_billing_email = $order->get_billing_email();
-            $afterpay->BillingEmail = !empty($get_billing_email) ? $order->get_billing_email() : '';
-            $afterpay->BillingLanguage = 'nl';
-            $get_billing_phone = $order->get_billing_phone();
-            $number = $this->cleanup_phone($get_billing_phone);
-        } else {
-            $address_components = fn_buckaroo_get_address_components($order->billing_address_1." ".$order->billing_address_2);
-            $afterpay->BillingStreet = $address_components['street'];
-            $afterpay->BillingHouseNumber = $address_components['house_number'];
-            $afterpay->BillingHouseNumberSuffix = $address_components['number_addition'];
-            $afterpay->BillingPostalCode = $order->billing_postcode;
-            $afterpay->BillingCity = $order->billing_city;
-            $afterpay->BillingCountry = $order->billing_country;
-            $afterpay->BillingEmail = !empty($order->billing_email) ? $order->billing_email : '';
-            $afterpay->BillingLanguage = 'nl';
-            $number = $this->cleanup_phone($order->billing_phone);
-        }
+        $get_billing_address_1 = getWCOrderDetails($order_id, 'billing_address_1');
+        $get_billing_address_2 = getWCOrderDetails($order_id, 'billing_address_2');
+        $address_components = fn_buckaroo_get_address_components($get_billing_address_1." ".$get_billing_address_2);
+        $afterpay->BillingStreet = $address_components['street'];
+        $afterpay->BillingHouseNumber = $address_components['house_number'];
+        $afterpay->BillingHouseNumberSuffix = $address_components['number_addition'];
+        $afterpay->BillingPostalCode = getWCOrderDetails($order_id, 'billing_postcode');
+        $afterpay->BillingCity = getWCOrderDetails($order_id, 'billing_city');
+        $afterpay->BillingCountry = getWCOrderDetails($order_id, 'billing_country');
+        $get_billing_email = getWCOrderDetails($order_id, 'billing_email');
+        $afterpay->BillingEmail = !empty($get_billing_email) ? $get_billing_email : '';
+        $afterpay->BillingLanguage = 'nl';
+        $get_billing_phone = getWCOrderDetails($order_id, 'billing_phone');
+        $number = $this->cleanup_phone($get_billing_phone);
         $afterpay->BillingPhoneNumber = $number['phone'];
 
 
         $afterpay->AddressesDiffer = 'FALSE';
-        if (!empty($_POST["buckaroo-afterpay-shipping-differ"])) {
+        if (isset($_POST["buckaroo-afterpay-shipping-differ"])) {
+        // if (!empty($_POST["buckaroo-afterpay-shipping-differ"])) {
             $afterpay->AddressesDiffer = 'TRUE';
-            if (WooV3Plus()) {
-                $get_shipping_first_name = $order->get_shipping_first_name();
-                $afterpay->ShippingInitials = $this->getInitials($get_shipping_first_name);
-                $get_shipping_last_name = $order->get_shipping_last_name();
-                $afterpay->ShippingLastName = !empty($get_shipping_last_name) ? $order->get_shipping_last_name() : '';
-                $get_shipping_address_1 = $order->get_shipping_address_1();
-                $get_shipping_address_2 = $order->get_shipping_address_2();
 
-                $address_components = fn_buckaroo_get_address_components($get_shipping_address_1." ".$get_shipping_address_2);
-                $afterpay->ShippingStreet = $address_components['street'];
-                $afterpay->ShippingHouseNumber = $address_components['house_number'];
-                $afterpay->ShippingHouseNumberSuffix = $address_components['number_addition'];
-                $afterpay->ShippingPostalCode = $order->get_shipping_postcode();
-                $afterpay->ShippingCity = $order->get_shipping_city();
-                $afterpay->ShippingCountryCode = $order->get_shipping_country();
-                $get_shipping_email = $order->get_shipping_email();
-                $afterpay->ShippingEmail = !empty($get_shipping_email) ? $order->get_shipping_email() : '';
-                $afterpay->ShippingLanguage = 'nl';
-                $get_shipping_phone = $order->get_shipping_phone();
-                $number = $this->cleanup_phone($get_shipping_phone);
-            } else {
-                $afterpay->ShippingInitials = $this->getInitials($order->shipping_first_name);
-                $afterpay->ShippingLastName = !empty($order->shipping_last_name) ? $order->shipping_last_name : '';
-                $address_components = fn_buckaroo_get_address_components($order->shipping_address_1." ".$order->shipping_address_2);
-                $afterpay->ShippingStreet = $address_components['street'];
-                $afterpay->ShippingHouseNumber = $address_components['house_number'];
-                $afterpay->ShippingHouseNumberSuffix = $address_components['number_addition'];
-                $afterpay->ShippingPostalCode = $order->shipping_postcode;
-                $afterpay->ShippingCity = $order->shipping_city;
-                $afterpay->ShippingCountryCode = $order->shipping_country;
-                $afterpay->ShippingEmail = !empty($order->shipping_email) ? $order->shipping_email : '';
-                $afterpay->ShippingLanguage = 'nl';
-                $number = $this->cleanup_phone($order->shipping_phone);
-            }
+            $get_shipping_first_name = getWCOrderDetails($order_id, 'shipping_first_name');
+            $afterpay->ShippingInitials = $this->getInitials($get_shipping_first_name);
+            $get_shipping_last_name = getWCOrderDetails($order_id, 'shipping_last_name');
+            $afterpay->ShippingLastName = $get_shipping_last_name;
+            $get_shipping_address_1 = getWCOrderDetails($order_id, 'shipping_address_1');
+            $get_shipping_address_2 = getWCOrderDetails($order_id, 'shipping_address_2');
+            $address_components = fn_buckaroo_get_address_components($get_shipping_address_1." ".$get_shipping_address_2);
+            $afterpay->ShippingStreet = $address_components['street'];
+            $afterpay->ShippingHouseNumber = $address_components['house_number'];
+            $afterpay->ShippingHouseNumberSuffix = $address_components['number_addition'];
+
+            $afterpay->ShippingPostalCode = getWCOrderDetails($order_id, 'shipping_postcode');
+            $afterpay->ShippingCity = getWCOrderDetails($order_id, 'shipping_city');
+            $afterpay->ShippingCountryCode = getWCOrderDetails($order_id, 'shipping_country');
+
+
+            $get_shipping_email = getWCOrderDetails($order_id, 'billing_email');
+            $afterpay->ShippingEmail = !empty($get_shipping_email) ? $get_shipping_email : '';
+            $afterpay->ShippingLanguage = 'nl';
+            $get_shipping_phone = getWCOrderDetails($order_id, 'billing_phone');
+            $number = $this->cleanup_phone($get_shipping_phone);
             $afterpay->ShippingPhoneNumber = $number['phone'];
         }
         if ($this->type == 'afterpayacceptgiro') {
@@ -289,7 +302,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
             for($i = 0 ; $item["qty"] > $i ; $i++) {
                 $products[] = $tmp;
             }
-        }		
+        }       
         $fees = $order->get_fees();
         foreach ( $fees as $key => $item ) {
             $tmp["ArticleDescription"] = $item['name'];
@@ -315,26 +328,19 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
                 }
             }
         }
-		
+        
         $afterpay->returnUrl = $this->notify_url;
 
         if ($this->usenotification == 'TRUE') {
             $afterpay->usenotification = 1;
             $customVars['Customergender'] = $_POST['buckaroo-sepadirectdebit-gender'];
 
-            if (WooV3Plus()) { 
-                $get_billing_first_name = $order->get_billing_first_name();
-                $get_billing_last_name = $order->get_billing_last_name();
-                $get_billing_email = $order->get_billing_email();
-
-                $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $order->get_billing_first_name() : '';
-                $customVars['CustomerLastName'] = !empty($get_billing_last_name) ? $order->get_billing_last_name() : '';
-                $customVars['CustomerEmail'] = !empty($get_billing_email) ? $order->get_billing_email() : '';
-            } else {
-                $customVars['CustomerFirstName'] = !empty($order->billing_first_name) ? $order->billing_first_name : '';
-                $customVars['CustomerLastName'] = !empty($order->billing_last_name) ? $order->billing_last_name : '';
-                $customVars['CustomerEmail'] = !empty($order->billing_email) ? $order->billing_email : '';
-            }
+            $get_billing_first_name = getWCOrderDetails($order_id, 'billing_first_name');
+            $get_billing_last_name = getWCOrderDetails($order_id, 'billing_last_name');
+            $get_billing_email = getWCOrderDetails($order_id, 'billing_email');
+            $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
+            $customVars['CustomerLastName'] = !empty($get_billing_last_name) ? $get_billing_last_name : '';
+            $customVars['Customeremail'] = !empty($get_billing_email) ? $get_billing_email : '';
             $customVars['Notificationtype'] = 'PaymentComplete';
             $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->invoicedelay . ' day')).' + '. (int)$this->notificationdelay.' day'));
         }
@@ -342,7 +348,10 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         $response = $afterpay->PayAfterpay($products);
         return fn_buckaroo_process_response($this, $response, $this->mode);
     }
-
+        
+    /**
+     * Payment form on checkout page
+     */
     function payment_fields() {
         $accountname = get_user_meta( $GLOBALS["current_user"]->ID, 'billing_first_name', true )." ".get_user_meta( $GLOBALS["current_user"]->ID, 'billing_last_name', true );
         $post_data = Array();
@@ -384,8 +393,8 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
                         document.getElementById('buckaroo-afterpay-genderf').parentElement.getElementsByTagName('span').item(0).style.display = 'inline-block';
                     }
                 }
-            
             </script>
+            
             <span id="showB2BBuckaroo" style="display:none">
             <p class="form-row form-row-wide validate-required">
                 <?php echo _e('Fill required fields if bill in on the company:', 'wc-buckaroo-bpe-gateway')?>
@@ -413,7 +422,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         <?php if (!empty($post_data["ship_to_different_address"])) { ?>
                 <input id="buckaroo-afterpay-shipping-differ" name="buckaroo-afterpay-shipping-differ" class="" type="hidden" value="1"/>
         <?php } ?>
-            <?php if ($this->type == 'afterpayacceptgiro')  { ?>
+            <?php if ($this->type == 'afterpayacceptgiro') { ?>
                 <p class="form-row form-row-wide validate-required">
                     <label for="buckaroo-afterpay-CustomerAccountNumber"><?php echo _e('IBAN:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
                     <input id="buckaroo-afterpay-CustomerAccountNumber" name="buckaroo-afterpay-CustomerAccountNumber" class="input-text" type="text" value="" />
@@ -427,19 +436,97 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         </fieldset>
     <?php
     }
+    
     /**
      * Check response data
+     *
+     * @access public
      */
-
     public function response_handler() {
-        global $woocommerce;
+        $woocommerce = getWooCommerceObject();
         fn_buckaroo_process_response($this);
         exit;
     }
 
-    function init_form_fields() {
-
+    /**
+     * Add fields to the form_fields() array, specific to this page.
+     * 
+     * @access public
+     */
+    public function init_form_fields() {
         parent::init_form_fields();
+        
+        add_filter('woocommerce_settings_api_form_fields_' . $this->id, array($this, 'enqueue_script_certificate'));
+        
+        add_filter('woocommerce_settings_api_form_fields_' . $this->id, array($this, 'enqueue_script_hide_local'));
+      
+        //Start Dynamic Rendering of Hidden Fields
+        $options = get_option("woocommerce_".$this->id."_settings", null );
+        $ccontent_arr = array();
+        $keybase = 'certificatecontents';
+        $keycount = 1;
+        if (!empty($options["$keybase$keycount"])) {
+            while(!empty($options["$keybase$keycount"])){
+                $ccontent_arr[] = "$keybase$keycount";
+                $keycount++;
+            }
+        }
+        $while_key = 1;
+        $selectcertificate_options = array('none' => 'None selected');
+        while($while_key != $keycount) {
+            $this->form_fields["certificatecontents$while_key"] = array(
+                'title' => '',
+                'type' => 'hidden', 
+                'description' => '',
+                'default' => ''
+            );
+            $this->form_fields["certificateuploadtime$while_key"] = array(
+                'title' => '',
+                'type' => 'hidden', 
+                'description' => '',
+                'default' => '');
+            $this->form_fields["certificatename$while_key"] = array(
+                'title' => '',
+                'type' => 'hidden', 
+                'description' => '',
+                'default' => '');
+            $selectcertificate_options["$while_key"] = $options["certificatename$while_key"];
+
+            $while_key++;
+        }
+        $final_ccontent = $keycount;
+        $this->form_fields["certificatecontents$final_ccontent"] = array(
+            'title' => '',
+            'type' => 'hidden', 
+            'description' => '',
+            'default' => '');
+        $this->form_fields["certificateuploadtime$final_ccontent"] = array(
+            'title' => '',
+            'type' => 'hidden', 
+            'description' => '',
+            'default' => '');
+        $this->form_fields["certificatename$final_ccontent"] = array(
+            'title' => '',
+            'type' => 'hidden', 
+            'description' => '',
+            'default' => '');
+        
+        $this->form_fields['selectcertificate'] = array(
+            'title' => __('Select Certificate', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'select', 
+            'description' => __('Select your certificate by name.', 'wc-buckaroo-bpe-gateway'),
+            'options' => $selectcertificate_options,
+            'default' => 'none'
+        );
+        $this->form_fields['choosecertificate'] = array(
+            'title' => __( '', 'wc-buckaroo-bpe-gateway' ),
+            'type' => 'file',
+            'description' => __(''),
+            'default' => '');
+
+
+
+
         $this->form_fields['service'] = array(
             'title' => __( 'Select afterpay service', 'wc-buckaroo-bpe-gateway' ),
             'type' => 'select',
@@ -458,24 +545,25 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
             'title' => __( 'Default product Vat type', 'wc-buckaroo-bpe-gateway' ),
             'type' => 'select',
             'description' => __( 'Please select default vat type for your products', 'wc-buckaroo-bpe-gateway' ),
-            'options' => array('1'=>'1 = High rate',
-                               '2'=>'2 = Low rate',
-                                '3'=>'3 = Zero rate',
-                                '4'=>'4 = Null rate',
-                                '5'=>'5 = middle rate'),
+            'options' => array(
+                '1'=>'1 = High rate',
+                '2'=>'2 = Low rate',
+                '3'=>'3 = Zero rate',
+                '4'=>'4 = Null rate',
+                '5'=>'5 = middle rate'),
             'default' => '1');
 
         $this->form_fields['usenotification'] = array(
             'title' => __( 'Use Notification Service', 'wc-buckaroo-bpe-gateway' ),
             'type' => 'select',
-            'description' => __( 'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them.)', 'wc-buckaroo-bpe-gateway' ),
+            'description' => __( 'The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway' ),
             'options' => array('TRUE'=>'Yes', 'FALSE'=>'No'),
             'default' => 'FALSE');
 
         $this->form_fields['notificationdelay'] = array(
-            'title' => __( 'Notification delay', 'wc-buckaroo-bpe-gateway' ),
+            'title' => __('Notification delay', 'wc-buckaroo-bpe-gateway'),
             'type' => 'text',
-            'description' => __( 'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway' ),
+            'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
             'default' => '0');
     }
 }

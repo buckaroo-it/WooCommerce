@@ -1,17 +1,26 @@
 <?php
 require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
-class BuckarooGiftCard extends BuckarooPaymentMethod
-{
+/**
+ * @package Buckaroo
+ */
+class BuckarooGiftCard extends BuckarooPaymentMethod {
     public $cardtype = '';
 
-    public function __construct()
-    {
+    /**
+     * @access public
+     * @return void
+     */
+    public function __construct() {
         $this->mode = BuckarooConfig::getMode('GIFTCARD');
     }
 
-    public function Pay($customVars = Array())
-    {
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::Pay()
+     */
+    public function Pay($customVars = Array()) {
         $this->data['customVars']['servicesSelectableByClient'] = BuckarooConfig::get(
             'BUCKAROO_GIFTCARD_ALLOWED_CARDS'
         );
@@ -31,7 +40,6 @@ class BuckarooGiftCard extends BuckarooPaymentMethod
                 $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
             }
         }
-
         return parent::PayGlobal();
     }
 }

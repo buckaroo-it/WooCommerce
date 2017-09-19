@@ -5,15 +5,17 @@
  * and open the template in the editor.
  */
 
+require_once dirname(__FILE__).'/../config.php';
+
 /**
  * Description of Logger
  *
+ * @package Buckaroo
  * @author s.cigankovs
  */
-require_once dirname(__FILE__).'/../config.php';
 class BuckarooCoreLogger {
     //put your code here
-    
+
     
     const DEBUG = '0';
     const INFO = '1';
@@ -37,7 +39,7 @@ class BuckarooCoreLogger {
 
     private function logEvent($info, $level, $descr = null) {
 
-        if (BuckarooConfig::LOG && $level >= $this->level) {
+        if (BuckarooConfig::LOG && $level >= $this->level && BuckarooConfig::get('BUCKAROO_DEBUG') == 'on') {
 
             $file = fopen(dirname(__FILE__) . '/../api'.BuckarooConfig::LOG_DIR . $this->logtype.'-'.$this->filename.'-log-' . date('Y-m-d') . '.txt', 'a');
             $prefix = self::$log_level[$level] . ' ' . date('Y-m-d h:i:s') . ' ';
@@ -55,11 +57,12 @@ class BuckarooCoreLogger {
     }
 
     private function logUserEvent($info) {
-
-        $file = fopen(dirname(__FILE__) . '/../api'.BuckarooConfig::LOG_DIR .'report_log.txt', 'a');
-        $prefix = date('Y-m-d h:i:s') . '|||';
-        fwrite($file, $prefix . $info."\n");
-        fclose($file);
+        if (BuckarooConfig::get('BUCKAROO_DEBUG') == 'on') {
+            $file = fopen(dirname(__FILE__) . '/../api'.BuckarooConfig::LOG_DIR .'report_log.txt', 'a');
+            $prefix = date('Y-m-d h:i:s') . '|||';
+            fwrite($file, $prefix . $info."\n");
+            fclose($file);
+        }
     }
 
     

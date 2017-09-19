@@ -2,13 +2,12 @@
 /*
 Plugin Name: WC Buckaroo BPE Gateway
 Plugin URI: http://www.buckaroo.nl
+Author: <plugins@buckaroo.nl>
 Author URI: http://www.buckaroo.nl
-Description: Buckaroo payment system plugin for WooCommerce version <strong><u>2.3.x-2.4.x</u></strong>.
-Version: 2.4.1
-Author: Buckaroo
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Description: Buckaroo payment system plugin for WooCommerce.
+Version: 2.5.0
 Text Domain: wc-buckaroo-bpe-gateway
+
 */
 add_action('plugins_loaded', 'buckaroo_init_gateway', 0);
 add_action('admin_menu', 'buckaroo_menu_report');
@@ -16,19 +15,16 @@ add_action('woocommerce_api_wc_push_buckaroo', 'buckaroo_push_class_init');
 include_once('install/class-wcb-install.php');
 register_activation_hook(__FILE__, array('WC_Buckaroo_Install', 'install'));
 
-function buckaroo_push_class_init()
-{
+function buckaroo_push_class_init() {
     new WC_Push_Buckaroo();
     exit();
 }
 
-function buckaroo_menu_report()
-{
+function buckaroo_menu_report() {
     add_menu_page('Buckaroo plugin report', 'Buckaroo report', 'manage_options', 'buckaroo-report', 'buckaroo_reports');
 }
 
-function buckaroo_reports()
-{
+function buckaroo_reports() {
     echo '<h1>Error report for Buckaroo WooCommerce plugin</h1>';
     echo '<table class="wp-list-table widefat fixed posts">
     <tr>
@@ -80,7 +76,9 @@ function buckaroo_reports()
     echo '</table>';
 }
 
-$buckaroo_enabled_payment_methods = array(
+$buckaroo_enabled_payment_methods_pre = array(
+    //Master Settings page should be left enabled
+    'Master Settings' => array('filename' => 'gateway-buckaroo-mastersettings.php', 'classname' => 'WC_Gateway_Buckaroo_MasterSettings',),
     //comment payment methods you do not want to use
     'PayPal' => array('filename' => 'gateway-buckaroo-paypal.php', 'classname' => 'WC_Gateway_Buckaroo_Paypal',),
     'iDeal' => array('filename' => 'gateway-buckaroo-ideal.php', 'classname' => 'WC_Gateway_Buckaroo_Ideal',),
@@ -117,9 +115,18 @@ $buckaroo_enabled_payment_methods = array(
         'classname' => 'WC_Gateway_Buckaroo_PayGarant',
     ),
 );
+$buckaroo_enabled_payment_methods = array();
+if (file_exists(dirname(__FILE__).'/gateway-buckaroo-testscripts.php')){
+    $buckaroo_enabled_payment_methods['Test Scripts'] = array('filename' => 'gateway-buckaroo-testscripts.php', 'classname' => 'WC_Gateway_Buckaroo_TestScripts',);
+}
+if (file_exists(dirname(__FILE__).'/buckaroo-exodus.php')){
+    $buckaroo_enabled_payment_methods['Exodus Script'] = array('filename' => 'buckaroo-exodus.php', 'classname' => 'WC_Gateway_Buckaroo_Exodus',);
+}
+foreach ($buckaroo_enabled_payment_methods_pre as $key => $value) {
+    $buckaroo_enabled_payment_methods[$key] = $value;
+}
 
-function buckaroo_init_gateway()
-{
+function buckaroo_init_gateway() {
     load_plugin_textdomain('wc-buckaroo-bpe-gateway', false, dirname(plugin_basename(__FILE__)) . '/languages/');
     global $buckaroo_enabled_payment_methods;
     if (!class_exists('WC_Payment_Gateway')) {
@@ -134,8 +141,7 @@ function buckaroo_init_gateway()
     /**
      * Add the Gateway to WooCommerce
      **/
-    function add_buckaroo_gateway($methods)
-    {
+    function add_buckaroo_gateway($methods) {
         global $buckaroo_enabled_payment_methods;
         foreach ($buckaroo_enabled_payment_methods as $method) {
             $methods[] = $method['classname'];
@@ -145,4 +151,4 @@ function buckaroo_init_gateway()
     add_filter('woocommerce_payment_gateways', 'add_buckaroo_gateway');
     new WC_Gateway_Buckaroo();
 
-} 
+}

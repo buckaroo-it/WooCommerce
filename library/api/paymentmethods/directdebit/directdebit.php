@@ -2,25 +2,33 @@
 
 require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
-class BuckarooDirectDebit extends BuckarooPaymentMethod
-{
+/**
+ * @package Buckaroo
+ */
+class BuckarooDirectDebit extends BuckarooPaymentMethod {
     public $customeraccountname;
     public $customeraccountnumber;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->type = "directdebit";
         $this->version = '1';
         $this->mode = BuckarooConfig::getMode('DD');
     }
 
-    public function Pay()
-    {
+    /**
+     * @access public
+     * @return void
+     */
+    public function Pay() {
         return null;
     }
 
-    public function PayDirectDebit($customVars)
-    {
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::Pay()
+     */
+    public function PayDirectDebit($customVars) {
 
         $this->data['customVars'][$this->type]['customeraccountname'] = $this->customeraccountname;
         $this->data['customVars'][$this->type]['customeraccountnumber'] = $this->customeraccountnumber;
