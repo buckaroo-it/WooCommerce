@@ -1,6 +1,7 @@
 === Plugin Name ===
-Name: Buckaroo Payments WooCommerce
+WC Buckaroo BPE Gateway
 Contributors: buckaroosupport
+Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 3.0.0
 Tested up to: 4.7
@@ -14,7 +15,6 @@ This is a plug-in with countless payment methods, all of which are SEPA proof.
 
 The Buckaroo (Dutch: https://www.buckaroo.nl/integratie/plugins/woocommerce/ or English: https://www.buckaroo-payments.com/integration/plugins/woocommerce/) plug-in is convenient and works like a charm, it's easy to install and takes all the trouble out of your hands.
 It is a plug-in with many different payment methods, all of which are SEPA proof. This plug-in is completely free to download. WooCommerce is an excellent platform for a webshop to look professional, comes with built-in tools to analyze sales and it's also fully customizable. WoocCommerce is used by 30% of all webshops worldwide, download this plugin now and find out more!
-
 Payment method support list:
 
 1. iDEAL
