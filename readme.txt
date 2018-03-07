@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 4.8
-Stable tag: 2.6.1
+Stable tag: 2.6.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,6 +85,9 @@ Probably the return fields are not yet in lowercase letters in our plaza under M
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.6.2 =
+- Fixed issue with the reading mastersettings in the configuration
 
 = 2.6.1 =
 - Use currency set in WooCommerce, rather than setting it seperately in the Plugin.

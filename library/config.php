@@ -22,7 +22,10 @@ class BuckarooConfig extends BuckarooConfigCore {
             $options = get_option( $GLOBALS['plugin_id'], null );
             if ((empty($options['usemaster']) || $options['usemaster'] != 'no') && !get_option('woocommerce_buckaroo_mastersettings_settings') != TRUE) {
                 $masterOptions = get_option('woocommerce_buckaroo_mastersettings_settings', null );
-                $options = array_replace($options, $masterOptions);
+
+                if (is_array($masterOptions)) {
+                    $options = array_replace($options, $masterOptions);
+                }
             }
             switch ($key) {
                 case 'CULTURE':

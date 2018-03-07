@@ -71,7 +71,10 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway {
         if (isset($this->settings['usemaster']) && $this->settings['usemaster'] == 'yes') {
             // merge with master settings
             $options = get_option('woocommerce_buckaroo_mastersettings_settings', null );
-            $this->settings = array_replace($this->settings, $options);
+
+            if (is_array($options)) {
+                $this->settings = array_replace($this->settings, $options);
+            }
         }
     }    
     
