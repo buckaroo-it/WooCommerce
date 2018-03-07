@@ -19,7 +19,7 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo {
         $this->method_title = 'Buckaroo Bank Transfer';
         $this->description  = "Betaal met Bank Transfer";
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $this->currency = BuckarooConfig::get('BUCKAROO_CURRENCY');
+        $this->currency = get_woocommerce_currency();
         $this->secretkey = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
         $this->mode = BuckarooConfig::getMode();
         $this->thumbprint = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
@@ -27,7 +27,7 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo {
         $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
         $this->usenotification = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
         $this->notificationdelay = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
-        
+
         parent::__construct();
 
         $this->supports = array(
@@ -74,6 +74,9 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo {
         update_post_meta($order_id, '_pushallowed', 'busy');
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $order = wc_get_order( $order_id );
+        if (checkForSequentialNumbersPlugin()) {
+            $order_id = $order->get_order_number(); //Use sequential id
+        }
         $transfer = new BuckarooTransfer();
         $transfer->amountDedit = 0;
         $transfer->amountCredit = $amount;
@@ -116,6 +119,9 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo {
     
         $order = getWCOrder($order_id);
         $transfer = new BuckarooTransfer();
+        if (checkForSequentialNumbersPlugin()) {
+            $order_id = $order->get_order_number(); //Use sequential id
+        }
         if (method_exists($order, 'get_order_total')) {
             $transfer->amountDedit = $order->get_order_total();
         } else {

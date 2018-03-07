@@ -16,7 +16,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         $this->method_title = "Buckaroo Creditcards";
         $this->description = "Betaal met Creditcards";
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $this->currency = BuckarooConfig::get('BUCKAROO_CURRENCY');
+        $this->currency = get_woocommerce_currency();
         $this->secretkey = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
         $this->mode = BuckarooConfig::getMode();
         $this->thumbprint = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
@@ -27,7 +27,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
 
         parent::__construct();
 
-        $this->supports           = array(
+        $this->supports = array(
             'products',
             'refunds'
         );
@@ -66,6 +66,9 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         update_post_meta($order_id, '_pushallowed', 'busy');
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $order = wc_get_order( $order_id );
+        if (checkForSequentialNumbersPlugin()) {
+            $order_id = $order->get_order_number(); //Use sequential id
+        }
         $creditcard = new BuckarooCreditCard();
         $creditcard->amountDedit = 0;
         $creditcard->amountCredit = $amount;
@@ -109,6 +112,9 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $order = getWCOrder($order_id);
         $creditcard = new BuckarooCreditCard();
+        if (checkForSequentialNumbersPlugin()) {
+            $order_id = $order->get_order_number(); //Use sequential id
+        }
         if (method_exists($order, 'get_order_total')) {
             $creditcard->amountDedit = $order->get_order_total();
         } else {

@@ -42,7 +42,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         $this->method_title = 'Buckaroo AfterPay';
         $this->description = "Betaal met AfterPay";
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $this->currency = BuckarooConfig::get('BUCKAROO_CURRENCY');
+        $this->currency = get_woocommerce_currency();
         $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
 
         $this->secretkey = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
@@ -102,6 +102,9 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         update_post_meta($order_id, '_pushallowed', 'busy');
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $order = wc_get_order( $order_id );
+        if (checkForSequentialNumbersPlugin()) {
+            $order_id = $order->get_order_number(); //Use sequential id
+        }
         $afterpay = new BuckarooAfterPay($this->type);
         $afterpay->amountDedit = 0;
         $afterpay->amountCredit = $amount;
@@ -166,9 +169,11 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
         $woocommerce = getWooCommerceObject();
 
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-
-        $afterpay = new BuckarooAfterPay($this->type);
         $order = new WC_Order( $order_id );
+        $afterpay = new BuckarooAfterPay($this->type);
+        if (checkForSequentialNumbersPlugin()) {
+            $order_id = $order->get_order_number(); //Use sequential id
+        }
         if (method_exists($order, 'get_order_total')) {
             $afterpay->amountDedit = $order->get_order_total();
         } else {

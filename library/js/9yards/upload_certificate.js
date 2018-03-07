@@ -2,117 +2,122 @@
 // and management of Buckaroo certificates, for the 
 // master settings page & all buckaroo payment methods.
 jQuery(document).ready(function() {
-
-    //Get Location
-    var label = jQuery('label').first().attr("for");
-    var label = label.substring(0, label.lastIndexOf('_'));
-    var ifbuck = label.substring(0, label.lastIndexOf('_'));
-    var locationName = label.substring(label.lastIndexOf('_'), label.length);
-    if (ifbuck == 'woocommerce_buckaroo' && locationName != '_testscripts'){
-
-
-        //Setup listeners for both buttons
-        document.getElementById("woocommerce_buckaroo"+locationName+"_upload").addEventListener("click", imitateChoose);
-        document.getElementById("woocommerce_buckaroo"+locationName+"_choosecertificate").addEventListener("change", fileuploaded);
-
-        //Work out the next id for _certificateuploadtime,_certificatecontents & _certificatename
-        var key = 1;
-        var next_key = 1;
-        while(document.getElementById("woocommerce_buckaroo"+locationName+"_certificatecontents"+key) != null) {
-            next_key = key;
-            key++;
+    if (jQuery('label').first().attr("for") && jQuery('label').first().attr("for").lastIndexOf('_')) {
+        //Get Location
+        var label = jQuery('label').first().attr("for");
+        var label = label.substring(0, label.lastIndexOf('_'));
+        var ifbuck = label.substring(0, label.lastIndexOf('_'));
+        var locationName = label.substring(label.lastIndexOf('_'), label.length);
+        if (ifbuck == 'woocommerce_buckaroo'){
+            jQuery("select").each(function() {
+                this.style.padding = "2px";
+            });
         }
-        //Dynamically hide some dynamic fields
-        var hide_key = next_key;
-        while(hide_key > 0){
-            var certificateuploadtimeTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_certificateuploadtime"+hide_key).closest('tr');
-                certificateuploadtimeTR.style.display = "none";
-            var certificatecontentsTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_certificatecontents"+hide_key).closest('tr');
-                certificatecontentsTR.style.display = "none";
-            var certificatenameTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_certificatename"+hide_key).closest('tr');
-                certificatenameTR.style.display = "none";
-            hide_key--;
-        }
+        if (ifbuck == 'woocommerce_buckaroo' && locationName != '_testscripts'){
 
-        //Hide the vanilla upload button & add styles to our one
-        var uploadCertificate = document.getElementById("woocommerce_buckaroo"+locationName+"_upload");
-            uploadCertificate.className += "button-primary";
-            uploadCertificate.value = "Upload";
-        var choosecertificateTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_choosecertificate").closest('tr');
-            choosecertificateTR.style.display = "none";
+            //Setup listeners for both buttons
+            document.getElementById("woocommerce_buckaroo"+locationName+"_upload").addEventListener("click", imitateChoose);
+            document.getElementById("woocommerce_buckaroo"+locationName+"_choosecertificate").addEventListener("change", fileuploaded);
 
-        //If a certificate has been uploaded, print upload time below button 
-        var last_upload_time = jQuery("#woocommerce_buckaroo"+locationName+"_certificateuploadtime"+(next_key-1));
-        var appended = "<p> No certificate uploaded</p>";
-        if (last_upload_time.val()) {
-            var appended = "<p>"+last_upload_time.val()+"</p>";
-        }
-        jQuery(appended).insertAfter(uploadCertificate);
-
-        //Prototype a nicely formatted date in local time (YYYY-MM-DD @ HH:mi:ss)
-        Date.prototype.localdatetime = function() {
-            var mm = this.getMonth() + 1; // getMonth() is zero-based
-            var dd = this.getDate();
-            var hh = this.getHours();
-            var mi = this.getMinutes();
-            var ss = this.getSeconds();
-            return [this.getUTCFullYear(),'-',
-                (mm>9 ? '' : '0') + mm,'-',
-                (dd>9 ? '' : '0') + dd,' @ ',
-                (hh>9 ? '' : '0') + hh,':',
-                (mi>9 ? '' : '0') + mi,':',
-                (ss>9 ? '' : '0') + ss,
-            ].join('');
-        };
-
-        //Imitate vanilla upload button and trigger "choose file" popup
-        function imitateChoose() {
-            var chooseCertificate = document.querySelector("#woocommerce_buckaroo"+locationName+"_choosecertificate");
-            chooseCertificate.click();
-        }
-
-        //Upload: Step 1 - Grab file and check it exists
-        function fileuploaded(e) {
-            var fileInput = jQuery('#woocommerce_buckaroo'+locationName+'_choosecertificate');
-            var input = fileInput.get(0);
-            
-            // Create a reader object
-            var reader = new FileReader();
-            // var fileName = '';
-            if (input.files.length) {
-                var textFile = input.files[0];
-
-
-                //Record upload date
-                var new_upload_time = jQuery("#woocommerce_buckaroo"+locationName+"_certificateuploadtime"+next_key);
-                var date = new Date();
-                new_upload_time.val(date.localdatetime());
-
-                //Record Filename
-                var certificate_name = jQuery("#woocommerce_buckaroo"+locationName+"_certificatename"+next_key);
-                certificate_name.val(date.localdatetime()+": "+textFile.name);
-
-                reader.readAsText(textFile);
-                jQuery(reader).on('load', processFile);
+            //Work out the next id for _certificateuploadtime,_certificatecontents & _certificatename
+            var key = 1;
+            var next_key = 1;
+            while(document.getElementById("woocommerce_buckaroo"+locationName+"_certificatecontents"+key) != null) {
+                next_key = key;
+                key++;
             }
-        }
+            //Dynamically hide some dynamic fields
+            var hide_key = next_key;
+            while(hide_key > 0){
+                var certificateuploadtimeTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_certificateuploadtime"+hide_key).closest('tr');
+                    certificateuploadtimeTR.style.display = "none";
+                var certificatecontentsTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_certificatecontents"+hide_key).closest('tr');
+                    certificatecontentsTR.style.display = "none";
+                var certificatenameTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_certificatename"+hide_key).closest('tr');
+                    certificatenameTR.style.display = "none";
+                hide_key--;
+            }
+            //Hide the vanilla upload button & add styles to our one
+            var uploadCertificate = document.getElementById("woocommerce_buckaroo"+locationName+"_upload");
+                uploadCertificate.className += "button-primary";
+                uploadCertificate.value = "Upload";
+                uploadCertificate.style.padding = "1px 10px";
+            var choosecertificateTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_choosecertificate").closest('tr');
+                choosecertificateTR.style.display = "none";
 
-        //Upload: Step 2 - Get file contents and pass it to ajax
-        function processFile(e) {
-            var file = e.target.result;
-            if (file && file.length) {
-                //Record file contents
-                var destination = jQuery("#woocommerce_buckaroo"+locationName+"_certificatecontents"+next_key);
-                destination.val(file);
+            //If a certificate has been uploaded, print upload time below button 
+            var last_upload_time = jQuery("#woocommerce_buckaroo"+locationName+"_certificateuploadtime"+(next_key-1));
+            var appended = "<p> No certificate uploaded</p>";
+            if (last_upload_time.val()) {
+                var appended = "<p>"+last_upload_time.val()+"</p>";
+            }
+            jQuery(appended).insertAfter(uploadCertificate);
 
-                // //Record upload date
-                // var new_upload_time = jQuery("#woocommerce_buckaroo"+locationName+"_certificateuploadtime"+next_key);
-                // var date = new Date();
-                // new_upload_time.val(date.localdatetime());
+            //Prototype a nicely formatted date in local time (YYYY-MM-DD @ HH:mi:ss)
+            Date.prototype.localdatetime = function() {
+                var mm = this.getMonth() + 1; // getMonth() is zero-based
+                var dd = this.getDate();
+                var hh = this.getHours();
+                var mi = this.getMinutes();
+                var ss = this.getSeconds();
+                return [this.getUTCFullYear(),'-',
+                    (mm>9 ? '' : '0') + mm,'-',
+                    (dd>9 ? '' : '0') + dd,' @ ',
+                    (hh>9 ? '' : '0') + hh,':',
+                    (mi>9 ? '' : '0') + mi,':',
+                    (ss>9 ? '' : '0') + ss,
+                ].join('');
+            };
 
-                alert("Success");
-            } else {
-                alert("Error");
+            //Imitate vanilla upload button and trigger "choose file" popup
+            function imitateChoose() {
+                var chooseCertificate = document.querySelector("#woocommerce_buckaroo"+locationName+"_choosecertificate");
+                chooseCertificate.click();
+            }
+
+            //Upload: Step 1 - Grab file and check it exists
+            function fileuploaded(e) {
+                var fileInput = jQuery('#woocommerce_buckaroo'+locationName+'_choosecertificate');
+                var input = fileInput.get(0);
+                
+                // Create a reader object
+                var reader = new FileReader();
+                // var fileName = '';
+                if (input.files.length) {
+                    var textFile = input.files[0];
+
+
+                    //Record upload date
+                    var new_upload_time = jQuery("#woocommerce_buckaroo"+locationName+"_certificateuploadtime"+next_key);
+                    var date = new Date();
+                    new_upload_time.val(date.localdatetime());
+
+                    //Record Filename
+                    var certificate_name = jQuery("#woocommerce_buckaroo"+locationName+"_certificatename"+next_key);
+                    certificate_name.val(date.localdatetime()+": "+textFile.name);
+
+                    reader.readAsText(textFile);
+                    jQuery(reader).on('load', processFile);
+                }
+            }
+
+            //Upload: Step 2 - Get file contents and pass it to ajax
+            function processFile(e) {
+                var file = e.target.result;
+                if (file && file.length) {
+                    //Record file contents
+                    var destination = jQuery("#woocommerce_buckaroo"+locationName+"_certificatecontents"+next_key);
+                    destination.val(file);
+
+                    // //Record upload date
+                    // var new_upload_time = jQuery("#woocommerce_buckaroo"+locationName+"_certificateuploadtime"+next_key);
+                    // var date = new Date();
+                    // new_upload_time.val(date.localdatetime());
+
+                    alert("Success");
+                } else {
+                    alert("Error");
+                }
             }
         }
     }

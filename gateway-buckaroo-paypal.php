@@ -10,13 +10,13 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
     function __construct() { 
         $woocommerce = getWooCommerceObject();
         $this->id = 'buckaroo_paypal';
-        $this->title = 'PayPal';
+        $this->title = 'Buckaroo PayPal';
         $this->icon         = apply_filters('woocommerce_buckaroo_paypal_icon', plugins_url('library/buckaroo_images/24x24/paypal.gif', __FILE__));
         $this->has_fields   = false;
         $this->method_title = "Buckaroo PayPal";
         $this->description = "Betaal met PayPal";
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $this->currency = BuckarooConfig::get('BUCKAROO_CURRENCY');
+        $this->currency = get_woocommerce_currency();
         $this->secretkey = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
         $this->mode = BuckarooConfig::getMode();
         $this->thumbprint = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
@@ -32,7 +32,6 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
         //     $this->usenotification = $this->settings['usenotification'];
         //     $this->notificationdelay = $this->settings['notificationdelay'];
         // }
-        
         parent::__construct();
 
         $this->supports           = array(
@@ -76,6 +75,9 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
         update_post_meta($order_id, '_pushallowed', 'busy');
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $order = wc_get_order( $order_id );
+        if (checkForSequentialNumbersPlugin()) {
+            $order_id = $order->get_order_number(); //Use sequential id
+        }
         $paypal = new BuckarooPayPal();
         $paypal->amountDedit = 0;
         $paypal->amountCredit = $amount;
@@ -126,8 +128,11 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
         $paypal->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
         $paypal->currency = $this->currency;
         $paypal->description = $this->transactiondescription;
+        if (checkForSequentialNumbersPlugin()) {
+            $order_id = $order->get_order_number(); //Use sequential id
+        }
         $paypal->invoiceId =  getUniqInvoiceId($order_id);
-        $paypal->orderId =   (string)$order_id;
+        $paypal->orderId = (string)$order_id;
         $paypal->returnUrl = $this->notify_url;
         $customVars = Array();
         $customVars['CustomerLastName'] = getWCOrderDetails($order_id, 'billing_last_name');

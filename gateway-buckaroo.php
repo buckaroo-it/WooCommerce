@@ -18,7 +18,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway {
 
     function __construct() {
         $woocommerce = getWooCommerceObject();
-
+        if ( (!is_admin() && !checkCurrencySupported($this->id)) || (defined( 'DOING_AJAX' ) && !checkCurrencySupported($this->id)) ) { 
+            unset($this->id);
+            unset($this->title);
+        }
+        $woocommerce = getWooCommerceObject();
         // Load the form fields
         $this->init_form_fields();
         // Load the settings.
@@ -60,6 +64,16 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway {
         
         add_action( 'wp_enqueue_scripts', array($this, 'loadCss') );
     }
+
+    function init_settings() {
+        parent::init_settings();
+        
+        if (isset($this->settings['usemaster']) && $this->settings['usemaster'] == 'yes') {
+            // merge with master settings
+            $options = get_option('woocommerce_buckaroo_mastersettings_settings', null );
+            $this->settings = array_replace($this->settings, $options);
+        }
+    }    
     
     public function loadCss() {
         //Load Custom CSS
@@ -194,7 +208,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway {
      */
     public function enqueue_script_certificate($settings) {
         wp_enqueue_script('initiate_jquery_if_not_loaded', plugin_dir_url( __FILE__ ) . 'library/js/loadjquery.js', array('jquery'), '1.0.0', true );
-        wp_enqueue_script('buckaroo_certificate_management_js', plugin_dir_url( __FILE__ ) . 'library/js/9yards/upload_certificate.js', array('jquery'), '1.0.0', true );
+        if(is_admin()){
+            wp_enqueue_script('buckaroo_certificate_management_js', plugin_dir_url( __FILE__ ) . 'library/js/9yards/upload_certificate.js', array('jquery'), '1.0.0', true );
+        }
         return $settings;
     }
 
@@ -206,7 +222,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway {
      * @return array $settings
      */
     public function enqueue_script_hide_local($settings) {
-        wp_enqueue_script('buckaroo_display_local_settings', plugin_dir_url( __FILE__ ) . 'library/js/9yards/display_local.js', array('jquery'), '1.0.0', true );
+        if(is_admin()){
+            wp_enqueue_script('buckaroo_display_local_settings', plugin_dir_url( __FILE__ ) . 'library/js/9yards/display_local.js', array('jquery'), '1.0.0', true );
+        }
         return $settings;
     }
 
@@ -216,12 +234,21 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway {
      * @access public
      */
     public function init_form_fields() {
+
         $upload_dir = wp_upload_dir();
         $charset = strtolower(ini_get('default_charset'));
         $addDescription = '';
         if ($charset != 'utf-8') {
             $addDescription = '<fieldset style="border: 1px solid #ffac0e; padding: 10px;"><legend><b style="color: #ffac0e">Warning!</b></legend>default_charset is not set.<br>This might cause a problems on receiving push message.<br>Please set default_charset="UTF-8" in your php.ini and add AddDefaultCharset UTF-8 to .htaccess file.</fieldset>';
         }
+        //Add Warning, if currency set in Buckaroo is unsupported
+        if(isset($_GET['section']) && $this->id == $_GET['section'] && !checkCurrencySupported($this->id) && is_admin()): ?>
+          <div class="error notice">
+              <p><?php echo __('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway'). '(' .get_woocommerce_currency().')'; ?></p>
+          </div>
+        <?php endif;
+        $this->title = (!isset($this->title)? '' : $this->title); 
+        $this->id = (!isset($this->id)? '' : $this->id); 
         $this->form_fields = array(
             'enabled' => array(
                 'title' => __('Enable/Disable', 'wc-buckaroo-bpe-gateway'),
@@ -307,13 +334,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway {
                 'description' => __('Buckaroo payment engine culture', 'wc-buckaroo-bpe-gateway'),
                 'options' => array('en-US' => 'English', 'nl-NL' => 'Dutch', 'fr-FR' => 'French', 'de-DE' => 'German'),
                 'default' => 'nl-NL'
-            ),
-            'currency' => array(
-                'title' => __('Currency', 'wc-buckaroo-bpe-gateway'),
-                'type' => 'select',
-                'description' => __('Currency', 'wc-buckaroo-bpe-gateway'),
-                'options' => array('EUR' => 'Euro', 'USD' => 'USD', 'GBP' => 'GBP'),
-                'default' => 'EUR'
             ),
             'extrachargeamount' => array(
                 'title' => __('Extra charge amount', 'wc-buckaroo-bpe-gateway'),

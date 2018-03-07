@@ -13,14 +13,15 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
 
     function __construct() {
         $woocommerce = getWooCommerceObject();
+            // return false;   
         $this->id = 'buckaroo_ideal';
         $this->title = 'iDEAL';//$this->settings['title_ideal'];
-        $this->icon 		= apply_filters('woocommerce_buckaroo_ideal_icon', plugins_url('library/buckaroo_images/24x24/ideal.png', __FILE__));
-        $this->has_fields 	= true;
+        $this->icon         = apply_filters('woocommerce_buckaroo_ideal_icon', plugins_url('library/buckaroo_images/24x24/ideal.png', __FILE__));
+        $this->has_fields   = true;
         $this->method_title = "Buckaroo iDEAL";
         $this->description = "Betaal met iDEAL";
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $this->currency = BuckarooConfig::get('BUCKAROO_CURRENCY');
+        $this->currency = get_woocommerce_currency();
         $this->secretkey = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
         $this->mode = BuckarooConfig::getMode();
         $this->thumbprint = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
@@ -28,6 +29,10 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
         $this->usenotification = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
         $this->notificationdelay = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
+        // if(!checkCurrencySupported($this->id) && !is_admin()){ 
+        //     unset($this->id);
+        //     unset($this->title);
+        // }
         
         parent::__construct();
         if (!isset($this->settings['usenotification'])) {
@@ -79,6 +84,9 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
 		update_post_meta($order_id, '_pushallowed', 'busy');
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $order = wc_get_order( $order_id );
+        if (checkForSequentialNumbersPlugin()) {
+            $order_id = $order->get_order_number(); //Use sequential id
+        }
         $ideal = new BuckarooIDeal();
         $ideal->amountDedit = 0;
         $ideal->amountCredit = $amount;
@@ -130,6 +138,9 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $order = getWCOrder($order_id);
         $ideal = new BuckarooIDeal();
+        if (checkForSequentialNumbersPlugin()) {
+            $order_id = $order->get_order_number(); //Use sequential id
+        }
         if (method_exists($order, 'get_order_total')) {
             $ideal->amountDedit = $order->get_order_total();
         } else {
@@ -215,6 +226,7 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
      * @access public
      */
     public function init_form_fields() {
+
         parent::init_form_fields();
 
         add_filter('woocommerce_settings_api_form_fields_' . $this->id, array($this, 'enqueue_script_certificate'));

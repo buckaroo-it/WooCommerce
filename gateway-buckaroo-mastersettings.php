@@ -39,7 +39,9 @@
 
        
         public function enqueue_script_exodus($settings) {
-            wp_enqueue_script('buckaroo_exodus', plugin_dir_url( __FILE__ ) . 'library/js/9yards/exodus.js', array('jquery'), '1.0.0', true );
+            if(is_admin()){
+                wp_enqueue_script('buckaroo_exodus', plugin_dir_url( __FILE__ ) . 'library/js/9yards/exodus.js', array('jquery'), '1.0.0', true );
+            }
             return $settings;
         }
 
@@ -49,7 +51,14 @@
          * @access public
          */
         public function init_form_fields() {
-            // parent::init_form_fields();            
+            // $this->form_fields['currency'] = array(
+            //     'title' => __('Currency', 'wc-buckaroo-bpe-gateway'),
+            //     'type' => 'select', 
+            //     'description' => __('Currency', 'wc-buckaroo-bpe-gateway'),
+            //     'options' => array('EUR' => 'Euro', 'USD' => 'USD', 'GBP' => 'GBP'),
+            //     'default' => 'EUR');
+            // parent::init_form_fields();           
+            $this->id = (!isset($this->id)? '' : $this->id);            
             add_filter('woocommerce_settings_api_form_fields_' . $this->id, array($this, 'enqueue_script_certificate'));
 
 
@@ -170,12 +179,6 @@
                 'description' => __( 'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway' ),
                 'default' => '0');
 
-            $this->form_fields['currency'] = array(
-                'title' => __('Currency', 'wc-buckaroo-bpe-gateway'),
-                'type' => 'select', 
-                'description' => __('Currency', 'wc-buckaroo-bpe-gateway'),
-                'options' => array('EUR' => 'Euro', 'USD' => 'USD', 'GBP' => 'GBP'),
-                'default' => 'EUR');
             $this->form_fields['culture'] = array(
                 'title' => __('Language', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'select', 

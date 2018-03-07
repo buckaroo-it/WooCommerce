@@ -7,7 +7,7 @@ require_once dirname(__FILE__).'/api/config/configcore.php';
 class BuckarooConfig extends BuckarooConfigCore {
     const NAME = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-    const VERSION = '2.5.0';
+    const VERSION = '2.6.1';
    
     /**
      * Check if mode is test or live
@@ -21,7 +21,8 @@ class BuckarooConfig extends BuckarooConfigCore {
         if (!empty($GLOBALS['plugin_id'])) {
             $options = get_option( $GLOBALS['plugin_id'], null );
             if ((empty($options['usemaster']) || $options['usemaster'] != 'no') && !get_option('woocommerce_buckaroo_mastersettings_settings') != TRUE) {
-                $options = get_option('woocommerce_buckaroo_mastersettings_settings', null );
+                $masterOptions = get_option('woocommerce_buckaroo_mastersettings_settings', null );
+                $options = array_replace($options, $masterOptions);
             }
             switch ($key) {
                 case 'CULTURE':
@@ -64,9 +65,6 @@ class BuckarooConfig extends BuckarooConfigCore {
                     break;
                 case 'BUCKAROO_CERTIFICATE_THUMBPRINT':
                     $val = $options['thumbprint'];
-                    break;
-                case 'BUCKAROO_CURRENCY':
-                    $val = $options['currency'];
                     break;
                 case 'BUCKAROO_DEBUG':
                     $options = get_option('woocommerce_buckaroo_mastersettings_settings', null );//Debug switch only in mastersettings

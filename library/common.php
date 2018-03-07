@@ -99,6 +99,9 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
     $logger->logInfo('Parse response:\n', $response);
     $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, 'test');
     $order_id = $response->invoicenumber;
+    if (checkForSequentialNumbersPlugin()){
+		$order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
+    }
     if ((int)$order_id > 0) {
         $order = new WC_Order($order_id);
         if (!isset($GLOBALS['plugin_id'])) {
@@ -296,7 +299,12 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 
     $logger->logInfo('Parse response:\n', $response);
     $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, $mode);
+    
     $order_id = $response->invoicenumber;
+    if (checkForSequentialNumbersPlugin()){
+		$order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
+    }
+
     if ((int)$order_id > 0) {
         $order = new WC_Order($order_id);
         if (!isset($GLOBALS['plugin_id'])) {
@@ -577,7 +585,15 @@ function writeToTestscriptsLog($method, $type, $event, $json){
     return;
 }
 
+function checkForSequentialNumbersPlugin() {
+    include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+    return is_plugin_active('woocommerce-sequential-order-numbers/woocommerce-sequential-order-numbers.php');
+}
+
 function getWCOrderDetails($order_id, $field) {
+    if (checkForSequentialNumbersPlugin()){
+        $order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
+    }
     $order = (WooV3Plus()) ? wc_get_order($order_id) : new WC_Order($order_id);
     $shipping_arr = array(
         'shipping_phone', 
@@ -595,7 +611,7 @@ function getWCOrderDetails($order_id, $field) {
         $offset = str_replace('shipping_', '', $field);
         return $pickAddress[$offset];
     } elseif(WooV3Plus()) {
-       return $order->{"get_".$field}(); 
+       return $order->{"get_".$field}();
     } else {
        return $order->{$field};
     }
@@ -663,3 +679,34 @@ function pickAddress($order) {
 
     return $result;
 } 
+
+function checkCurrencySupported($payment_method = ''){
+    switch ($payment_method) {
+        case 'buckaroo_creditcard':
+            $supported_currencies = array(
+                'ARS','AUD','BRL','CAD','CHF','CNY',
+                'CZK','DKK','EUR','GBP','HRK','ISK',
+                'JPY','LTL','LVL','MXN','NOK','NZD',
+                'PLN','RUB','SEK','TRY','USD','ZAR'
+            );
+            break;
+        case 'buckaroo_paypal':
+            $supported_currencies = array(
+                'AUD','BRL','CAD','CHF','DKK','EUR',
+                'GBP','HKD','HUF','ILS','JPY','MYR',
+                'NOK','NZD','PHP','PLN','SEK','SGD',
+                'THB','TRL','TWD','USD'
+            );
+            break;
+        case 'buckaroo_transfer':
+            $supported_currencies = array(
+                'EUR','GBP','PLN'
+            );
+            break;
+        default:
+            $supported_currencies = array('EUR');
+            break;
+    }
+    $is_selected_currency_supported = (!in_array(get_woocommerce_currency(), $supported_currencies))? false : true;
+    return $is_selected_currency_supported;
+}

@@ -6,7 +6,7 @@
 	width: 24px!important;
 }
 
-/*Hide Exodus Method */
+/* Hide Exodus Method */
 .wc_payment_method.payment_method_ {
 	display: none;
 }

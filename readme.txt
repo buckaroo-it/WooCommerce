@@ -1,11 +1,10 @@
-=== Plugin Name ===
-WC Buckaroo BPE Gateway
+=== Buckaroo Woocommerce Payments Plugin ===
 Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
-Requires at least: 3.0.0
-Tested up to: 4.7
-Stable tag: 2.5.0
+Requires at least: 4.4.10
+Tested up to: 4.8
+Stable tag: 2.6.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,10 +12,11 @@ This is a plug-in with countless payment methods, all of which are SEPA proof.
 
 == Description ==
 
-The Buckaroo (Dutch: https://www.buckaroo.nl/integratie/plugins/woocommerce/ or English: https://www.buckaroo-payments.com/integration/plugins/woocommerce/) plug-in is convenient and works like a charm, it's easy to install and takes all the trouble out of your hands.
-It is a plug-in with many different payment methods, all of which are SEPA proof. This plug-in is completely free to download. WooCommerce is an excellent platform for a webshop to look professional, comes with built-in tools to analyze sales and it's also fully customizable. WoocCommerce is used by 30% of all webshops worldwide, download this plugin now and find out more!
+The Buckaroo ([Dutch](https://www.buckaroo.nl/integratie/plugins/woocommerce/) or [English](https://www.buckaroo-payments.com/integration/plugins/woocommerce/)) plug-in is convenient and works like a charm, it's easy to install and takes all the trouble out of your hands.
+It is a plug-in with many different payment methods, all of which are SEPA proof. This plug-in is completely free to download. WooCommerce is an excellent platform for a webshop to look professional, comes with built-in tools to analyze sales and it’s also fully customizable. WooCommerce is used by 30% of all webshops worldwide, [download](https://www.buckaroo.nl/integratie/plugins/woocommerce/) this plugin now and find out more!
 Payment method support list:
 
+= Payment method support list by Buckaroo WooCommerce payments plugin =
 1. iDEAL
 2. PayPal
 3. Creditcards (Visa, MasterCard, American Express, VPAY, Visa Electron, Carte Bleue, Carte Bancaire, Dankort)
@@ -31,24 +31,72 @@ Payment method support list:
 12. SEPA Direct Debit (With or without Credit management)
 13. Paysafecard
 
-Please go to the signup page to create a Buckaroo account (https://www.buckaroo-payments.com/integration/buckaroo-payment-plaza/). Contact info@buckaroo.nl if you have any questions.
-
 == Installation ==
 
 Easy installation to get the plug-in up and running!
 1. Contact Buckaroo by phone 030 711 5010 or by mail sales@buckaroo.nl to request a Buckaroo account.
 2. Use one of the manuals below to configure the plug-in and connect it with your Buckaroo account.
 
-[Implementatiehandleiding NL](https://images.buckaroo.nl/plugins/Wordpress_WooCommerce/Wordpress_WooCommerce_2.3.x-2.5.x.NL.pdf)
+[Implementatiehandleiding NL](http://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_2.3.x-3.1.x.NL.pdf)
 
-[Implementation manual EN](https://images.buckaroo.nl/plugins/Wordpress_WooCommerce/Wordpress_WooCommerce_2.3.x-2.5.x.EN.pdf)
+[Implementation manual EN](http://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_2.3.x-3.1.x.EN.pdf)
+
+Please go to the [signup page](https://www.buckaroo-payments.com/integration/buckaroo-payment-plaza/) (demo account) to ask for a Buckaroo account. Also you can contact info@buckaroo.nl or +31 (0)30 711 50 00
 
 == Screenshots ==
 
-1. https://www.buckaroo.nl/content/image/WooCommerce_backend1.PNG
-2. https://www.buckaroo.nl/content/image/WooCommerce_frontend1.PNG
+1. Centrally manage your payment methods, with our Master Settings feature
+2. Safely try out any payment method in TEST MODE.
+ 
+== Frequently Asked Questions ==
+
+= Minimum Requirements =
+- WordPress 4.4 
+- WooCommerce 2.2
+
+= How do I automatically install the plugin? =
+1. Install the plugin through the plugins menu in wp-admin
+2. Activate the 'Buckaroo WooCommerce' plugin through the 'Plugins' menu in WordPress
+3. Set your API key at WooCommerce -> Settings -> Checkout
+4. Activate the payment methods you want in  WooCommerce -> Settings -> Checkout
+5. You're done, the active payment methods should now be visible in your webshop's progress screen.
+
+= I want to manually install the plugin, how can I do this? =
+1. Download a .zip of the plugin from [WordPress](https://wordpress.org/plugins/wc-buckaroo-bpe-gateway/)
+2. Unzip the downloaded .zip package
+3. Upload the directory to the /wp-content/plugins/ directory
+4. Activate the 'Buckaroo WooCommerce' plugin through the 'Plugins' menu in WordPress
+5. Set your API key at WooCommerce -> Settings -> Checkout
+6. Activate the payment methods you want in  WooCommerce -> Settings -> Checkout
+7. You're done, the active payment methods should now be visible in your webshop's progress screen.
+
+= I have installed the plugin, but the transactions are not working. What's wrong? =
+Verify that all data is entered correctly. This is the website site, the secret key, the thumbprint and the certificate that must be uploaded. Also check the Buckaroo report in the left-hand menu of your Wordpress environment. If you are creating test transactions, please go to plaza.buckaroo.nl. Then, under My Buckaroo -> Websites -> Choose your website through the filter at the top right -> 3.0 Settings, choose "Accept Test Transactions".
+ 
+= The transactions are good and work in the Buckaroo Plaza, but the status in my WooCommerce environment does not change. Why is this? =
+Very likely, push settings are not setup correctly. The push is used to update the status of the order in WooCommerce. Please refer to the manual and check your push settings at plaza.buckaroo.nl under My Buckaroo -> Websites -> Choose your website through the filter at the top right -> Push settings. Two issues:
+- If your website is secure (URL starts with https instead of http), then the push URL must also start with https
+- Check that the return fields in our Plaza are in "lowercase letters".
+
+= The customer does not see the thank you page, after a successful order, how can I fix this? =
+Probably the return fields are not yet in lowercase letters in our plaza under My Buckaroo -> Websites -> Choose your website through the filter at the top right -> Push settings. Also check whether the push settings are filled in (see the manual for information on how to set this). Additionally, you can check that the Secret Key in the Buckaroo Plaza corresponds to the Secret Key that was filled in during the configuration of the Buckaroo plugin in WooCommerce. Also, verify that the Secret Key contains only alphanumeric characters.
+
+== Additional Info ==
+Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.6.1 =
+- Use currency set in WooCommerce, rather than setting it seperately in the Plugin.
+- Compatibility with WP-CLI
+- Fixed an issue with the notification setting following the individual settings instead of the master settings
+- Fixed an issue with Exodus sometimes being shown as payment method 
+- Added Westlandbon to available Giftcards
+
+= 2.6.0 =
+- Added support for WooCommerce Sequential Order Numbers plugin by SkyVerge
+- Only load JS files in wp-admin
+- WooCommerce 3.2 support
 
 = 2.5.0 =
 Admin modernised/improved
@@ -133,7 +181,6 @@ Added Parfum Cadeaukaart Giftcard to the existing list of giftcards.
 Fixed compatibility issue with WooCommerce 2.3.
 Added possibility to choose payment fee tax mode(include/exclude).
 
-
 = 2.2.6 =
 iDeal choice of bank is mandatory.
 Fixed crashes if sopa extension not installed.
@@ -141,7 +188,6 @@ Invoice number change on transaction failure.
 Added Bunq bank on iDeal list.
 Problem with total amount fixed.
 Unitprice with 2 decimals and it did count VAT in the order.
-
 
 = 2.2.5 =
 Notification type fix.
