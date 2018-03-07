@@ -84,6 +84,7 @@ Probably the return fields are not yet in lowercase letters in our plaza under M
 == Additional Info ==
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
+
 == Changelog ==
 
 = 2.6.2 =
