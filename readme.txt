@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 4.8
-Stable tag: 2.6.3
+Stable tag: 2.6.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,6 +85,9 @@ Probably the return fields are not yet in lowercase letters in our plaza under M
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.6.4 =
+- Fixed issue with the reading secretkey in push notifications
 
 = 2.6.3 =
 - Fixed issue with the reading mastersettings in the configuration when settings are not set

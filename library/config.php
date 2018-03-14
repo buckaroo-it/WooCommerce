@@ -7,7 +7,7 @@ require_once dirname(__FILE__).'/api/config/configcore.php';
 class BuckarooConfig extends BuckarooConfigCore {
     const NAME = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-    const VERSION = '2.6.3';
+    const VERSION = '2.6.4';
    
     /**
      * Check if mode is test or live
@@ -25,6 +25,10 @@ class BuckarooConfig extends BuckarooConfigCore {
 
                 if (is_array($options) && is_array($masterOptions)) {
                     $options = array_replace($options, $masterOptions);
+                }
+          
+                if(!is_array($options) && is_array($masterOptions)) {
+                    $options = $masterOptions;
                 }
             }
             switch ($key) {
