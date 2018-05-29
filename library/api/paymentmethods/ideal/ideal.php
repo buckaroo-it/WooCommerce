@@ -69,6 +69,10 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
                 'name' => 'ING',
                 'logo' => 'logo_ing_s.gif',
             ),
+            'MONEYOU' => array(
+                'name' => 'Moneyou',
+                'logo' => 'logo_moneyou.png',
+            ),            
             'RABOBANK' => array(
                 'name' => 'Rabobank',
                 'logo' => 'logo_rabo_s.gif',
@@ -117,6 +121,9 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
                 break;
             case 'INGBANK':
                 $issuerCode = 'INGBNL2A';
+                break;
+            case 'MONEYOU':
+                $issuerCode = 'MOYONL21';
                 break;
             case 'RABOBANK':
                 $issuerCode = 'RABONL2U';
