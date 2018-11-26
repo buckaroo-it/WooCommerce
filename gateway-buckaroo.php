@@ -76,8 +76,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway {
                 $this->settings = array_replace($this->settings, $options);
             }
         }
-    }    
-    
+    }
+
     public function loadCss() {
         //Load Custom CSS
         wp_enqueue_style('buckaroo-custom-styles', plugins_url('wc-buckaroo-bpe-gateway/library/css/buckaroo-custom.css'));        

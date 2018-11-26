@@ -45,6 +45,7 @@
       $options_tocheck = array(
         "woocommerce_buckaroo_ideal_settings",
         "woocommerce_buckaroo_creditcard_settings",
+        "woocommerce_buckaroo_payconiq_settings",
         "woocommerce_buckaroo_paypal_settings",
         "woocommerce_buckaroo_afterpay_settings",
         "woocommerce_buckaroo_mistercash_settings", 

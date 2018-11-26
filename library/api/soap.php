@@ -57,6 +57,14 @@
                 $TransactionRequest = new Body();
                 $TransactionRequest->Currency = $this->_vars['currency'];
 
+                if (!empty($this->_vars['OriginalInvoiceNumber'])) {
+                    $TransactionRequest->OriginalInvoiceNumber = $this->_vars['OriginalInvoiceNumber'];
+                }
+
+                if (!empty($this->_vars['AmountVat'])) {
+                    $TransactionRequest->AmountVat = $this->_vars['AmountVat'];
+                }
+
                 $debit = round($this->_vars['amountDebit'], 2);
                 $credit = round($this->_vars['amountCredit'], 2);
                 $TransactionRequest->AmountDebit = str_replace($search, $replace, $debit);
@@ -85,6 +93,8 @@
 
                 $TransactionRequest->Services = new Services();
                 $this->_addServices($TransactionRequest);
+
+                file_put_contents('/var/www/sites/buggish.txt', json_encode($TransactionRequest));
 
                 /*
                 $TransactionRequest->Services = new Services();
@@ -166,7 +176,7 @@
                 }
                 
                 $client->__SetLocation($location);
-                
+
                 try {
                     $response = $client->TransactionRequest($TransactionRequest);
                 } catch (SoapFault $e) {
@@ -222,9 +232,27 @@
                     $service->Action  = $value['action'];
                     $service->Version = $value['version'];
                     
+                    if (isset($this->_vars['OriginalInvoiceNumber']) && !empty($this->_vars['OriginalInvoiceNumber']) && isset($this->_vars['AmountVat']) && (!empty($this->_vars['AmountVat']) || $this->_vars['AmountVat'] == 0 ) ) {
+
+                        $service->RequestParameter[0] = new RequestParameter();
+
+                        $service->RequestParameter[0]->Name = "OriginalInvoiceNumber";
+                        $service->RequestParameter[0]->Group = "";
+                        $service->RequestParameter[0]->GroupID = "";
+                        $service->RequestParameter[0]->_ = $this->_vars['OriginalInvoiceNumber'];
+
+
+                        $service->RequestParameter[1] = new RequestParameter();
+
+                        $service->RequestParameter[1]->Name = "AmountVat";
+                        $service->RequestParameter[1]->Group = "";
+                        $service->RequestParameter[1]->GroupID = "";
+                        $service->RequestParameter[1]->_ = $this->_vars['AmountVat'];
+                    }                    
+                    
                     $services[] = $service;
                 }
-                
+
                 $TransactionRequest->Services->Service = $services;
             }
             
@@ -571,6 +599,8 @@
         public $OriginalTransactionKey;
         public $StartRecurrent;
         public $Services;
+        public $OriginalInvoiceNumber;
+        public $AmountVat;
     }
 
     class Services {

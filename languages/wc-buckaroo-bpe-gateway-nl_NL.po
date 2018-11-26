@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WC Buckaroo BPE 3.0 Gateway (2.4.X Compatible)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-03-17 09:16+0200\n"
-"PO-Revision-Date: 2017-11-28 15:27+0100\n"
+"PO-Revision-Date: 2018-09-27 13:50+0200\n"
 "Last-Translator: admin <i.sutugins@intrum.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -17,7 +17,7 @@ msgstr ""
 "__ngettext:1,2;__ngettext_noop:1,2;_x:1,2c;_ex:1,2c;_nx:1,2,4c;_nx_noop:1,2,3c;_n_js:1,2;_nx_js:1,2,3c;esc_attr__:1;esc_html__:1;"
 "esc_attr_e:1;esc_html_e:1;esc_attr_x:1,2c;esc_html_x:1,2c;comments_number_link:2,3;t:1;st:1;trans:1;transChoice:1,2\n"
 "X-Loco-Target-Locale: nl_NL\n"
-"X-Generator: Poedit 2.0.4\n"
+"X-Generator: Poedit 2.1.1\n"
 "X-Poedit-SearchPath-0: ..\n"
 
 #: ../gateway-buckaroo-afterpay.php:79 ../gateway-buckaroo-creditcard.php:47 ../gateway-buckaroo-emaestro.php:48
@@ -601,3 +601,15 @@ msgstr "Buckaroo Globale instellingen"
 
 msgid "This payment method is not supported for the selected currency "
 msgstr "Deze betaalmethode is niet beschikbaar voor ingestelde valuta "
+
+msgid "Open your Payconiq app. "
+msgstr "Open de Payconiq app. "
+
+msgid "Point your camera at this QR code. "
+msgstr "Scan de QR code met de camera"
+
+msgid "Confirm payment with your PIN or fingerprint. "
+msgstr "Bevestig de betaling met uw pincode of vingerafdruk"
+
+msgid "Cancel Payment"
+msgstr "Betaling annuleren"

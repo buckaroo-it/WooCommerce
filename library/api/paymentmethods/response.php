@@ -193,6 +193,9 @@ abstract class BuckarooResponse extends BuckarooAbstract {
             $this->amount_credit = $this->_response->AmountCredit;
 
         }
+        if (isset($this->_response->Key)) {
+            $this->transactionId = $this->_response->Key;
+        }
         $this->currency = $this->_response->Currency;
         $this->_test = ($this->_response->IsTest == 1) ? true : false;
         $this->timestamp = $this->_response->Status->DateTime;
@@ -437,6 +440,16 @@ abstract class BuckarooResponse extends BuckarooAbstract {
      */
     protected function _calculateSignature() {
         $origArray = $_POST;
+
+        $url_decode = true;
+        if (isset($origArray['brq_transaction_method']) && $origArray['brq_transaction_method'] == 'Payconiq') {
+            $url_decode = false;
+        }
+        
+        if (isset($origArray['brq_payment_method']) && $origArray['brq_payment_method'] == 'Payconiq') {
+            $url_decode = false;
+        }        
+
         unset($origArray['brq_signature']);
         foreach($origArray as $key => $val) {
             $origArray[$key] = stripslashes($val);
@@ -447,7 +460,9 @@ abstract class BuckarooResponse extends BuckarooAbstract {
         //turn into string and add the secret key to the end
         $signatureString = '';
         foreach ($sortableArray as $key => $value) {
-            $value = urldecode($value);
+            if ($url_decode) {
+                $value = urldecode($value);
+            }
             $signatureString .= $key . '=' . $value;
         }
         $signatureString .= BuckarooConfig::get('BUCKAROO_SECRET_KEY');

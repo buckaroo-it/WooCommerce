@@ -116,7 +116,9 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
             );
         }
 
-        if ($response->brq_relatedtransaction_partialpayment != null) {
+        $giftCardPartialPayment = ($response->statuscode == 792 && $response->brq_transaction_type == 'I150');
+
+        if ($response->brq_relatedtransaction_partialpayment != null || $giftCardPartialPayment) {
             $logger->logInfo('PUSH', "Partial payment PUSH received " . $response->status);
             exit();
         }
@@ -162,6 +164,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                         return;
                 }
             } else {
+            
                 switch ($response_status) {
                     case 'completed':
 
@@ -192,8 +195,50 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                         }
                         $clean_order_no = (int) str_replace('#', '', $order->get_order_number());
                         add_post_meta($clean_order_no, '_payment_method_transaction', $payment_methodname, true);
-                        $order->payment_complete($transaction);
+                        
+                        // Calc total received amount 
+                        
+                        $prefix = "buckaroo_settlement_";
+                        $settlement = $prefix . $response->payment;
+                        
+                        $orderAmount = (float)$order->total;
+                        $paidAmount = (float)$response->amount;
+
+                        $alreadyPaidSettlements = 0;
+                        $isNewPayment = true;
+                        foreach (get_post_meta($order->get_order_number()) as $key => $meta) {
+                            if (strstr($key, $prefix) !== false && strstr($key, $response->payment) === false) {
+                                $alreadyPaidSettlements+= (float)$meta[0];
+                            }
+                            
+                            // check if push is a new payment
+                            if (strstr($key, $prefix) !== false && strstr($key, $response->payment) !== false) {
+                                $isNewPayment = false;
+                            }                           
+                            
+                        }
+
+                        $totalPaid = $paidAmount + $alreadyPaidSettlements;
+                        
+                        add_post_meta($order->get_order_number(), $settlement, $paidAmount, true);
+
+                        // order is completely paid 
+                        if ($totalPaid >= $orderAmount) {
+                            $order->payment_complete($transaction);
+                        }
+
+                        $message = 'Received Buckaroo payment push notification.<br>';
+                        $message .= 'Paid amount: ' . wc_price($paidAmount);
+                        $message .= '<br>Total amount paid (incl previous payments): ' . wc_price(($totalPaid));
+                        $message .= '<br>Order total: ' . wc_price($orderAmount);
+                        $message .= '<br>Open amount: ' . wc_price(($orderAmount - $totalPaid));
+
+                        if ($paidAmount > 0 && $isNewPayment) {
+                            $order->add_order_note($message);
+                        }
+
                         add_post_meta($order->get_order_number(), '_pushallowed', 'ok', true);
+                        
                         break;
                     default:
                         $order->update_status('on-hold', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
@@ -216,17 +261,14 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 
         } else {
             $logger->logInfo('Payment request failed/canceled. Order status: ' . $order->status);
-            if (!in_array(
-                $order->status,
-                array('completed', 'processing')
-            )
-            ) //We receive a valid response that the payment is canceled/failed.
-            {
+            if (!in_array($order->status, array('completed', 'processing', 'cancelled'))) {
+                //We receive a valid response that the payment is canceled/failed.
                 $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
             } else {
                 $logger->logInfo('Push message. Order status cannot be changed.');
             }
             if ($response_status == 'cancelled') {
+                $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                 wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
             } else {
                 if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == 690) {
@@ -313,10 +355,34 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     }
     if ($response->isValid()) {
         if ($response->isRedirectRequired()) {
-            return array(
-                'result' => 'success',
-                'redirect' => $response->getRedirectUrl()
-            );
+            if($payment_method->id == 'buckaroo_payconiq'){
+                $shortcut = pages_with_shortcode('buckaroo_payconiq');
+                $path = $shortcut[0]->guid;
+                $key = $response->transactionId;
+                $invoiceNumber = $response->invoicenumber;
+                $amount = $response->amount;
+                $currency = get_woocommerce_currency();
+
+                $urlParts = parse_url($path);                
+                $url = $urlParts['scheme'] . "://" . $urlParts['host'] . $urlParts['path'];
+                $query = '?' . (!empty($urlParts['query']) ? $urlParts['query'] . "&" : "" );
+
+                return array(
+                    'result' => 'success',
+                    'redirect' => $url . $query .
+                        "transactionKey=" . $key .
+                        "&invoicenumber=" . $invoiceNumber .
+                        "&amount=" . $amount .
+                        "&returnUrl=" . $payment_method->notify_url .
+                        "&order_id=" . (int)$order_id .
+                        "&currency=" . $currency,
+                );
+            } else {
+                return array(
+                    'result' => 'success',
+                    'redirect' => $response->getRedirectUrl()
+                );
+            }
         }
         $logger->logInfo('Order status: ' . $order->get_status());
         $response_status = fn_buckaroo_resolve_status_code($response->status);
@@ -710,3 +776,61 @@ function checkCurrencySupported($payment_method = ''){
     $is_selected_currency_supported = (!in_array(get_woocommerce_currency(), $supported_currencies))? false : true;
     return $is_selected_currency_supported;
 }
+
+function createPayConicPage(){
+    $new_page_title = 'Payconiq';
+    $new_page_content = '[buckaroo_payconiq]';
+    $new_page_template = '';
+    $page_check = get_page_by_title($new_page_title);
+    $new_page = array(
+        'post_type' => 'page',
+        'post_title' => $new_page_title,
+        'post_content' => $new_page_content,
+        'post_status' => 'publish',
+        'post_author' => 1,
+    );
+    if(!isset($page_check->ID)){
+        $new_page_id = wp_insert_post($new_page);
+        if(!empty($new_page_template)){
+            update_post_meta($new_page_id, '_wp_page_template', $new_page_template);
+        }
+    }
+}
+
+function pages_with_shortcode($shortcode, $args = array()) {
+    if(!shortcode_exists($shortcode)) {
+        // shortcode was not registered (yet?)
+        return null;
+    }
+
+    // replace get_pages with get_posts
+    // if you want to search in posts
+    $pages = get_pages($args);
+    $list = array();
+
+    foreach($pages as $page) {
+        if(has_shortcode($page->post_content, $shortcode)) {
+            $list[] = $page;
+            break;
+        }
+    }
+
+    if (count($list) == 0) {
+        // Page doesn't exist. create new
+        createPayConicPage();
+        return pages_with_shortcode($shortcode, $args);
+    }
+
+
+
+    return $list;
+}
+
+// quick usage guide
+// adding filter with low priority
+//add_filter("init", "_my_init_test", 0, 1000);
+//function _my_init_test() {
+//    foreach(pages_with_shortcode("buckaroo_payconiq") as $p) {
+//        echo $p->post_title." <br/>";
+//    }
+//}

@@ -86,8 +86,10 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
         $paygarant->amountDedit = 0;
         $paygarant->amountCredit = $amount;
         $paygarant->currency = $this->currency;
+        $paygarant->OriginalInvoiceNumber = $order_id;
+        $paygarant->AmountVat = '0';
         $paygarant->description = $reason;
-        $paygarant->invoiceId = $order_id;
+        $paygarant->invoiceId = $order_id . '-' . time();
         $paygarant->orderId = $order_id;
         $paygarant->OriginalTransactionKey = $order->get_transaction_id();
         $paygarant->returnUrl = $this->notify_url;
@@ -95,7 +97,7 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
         $paygarant->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
         $response = null;
         try {
-            $response = $paygarant->Refund();
+            $response = $paygarant->guaranteeRefund();
         } catch (exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');
         }

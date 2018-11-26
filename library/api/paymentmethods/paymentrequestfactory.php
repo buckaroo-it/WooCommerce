@@ -12,6 +12,7 @@ class BuckarooPaymentRequestFactory {
     const REQUEST_TYPE_EMPAYMENT = 'empayment';
     const REQUEST_TYPE_IDEAL = 'ideal';
     const REQUEST_TYPE_PAYGUARANT = 'paygarant';
+    const REQUEST_TYPE_PAYCONIQ = 'payconiq';
     const REQUEST_TYPE_PAYGARANTBYJUNO = 'paygarantbyjuno';
     const REQUEST_TYPE_GIROPAY = 'giropay';
     const REQUEST_TYPE_DIRECTDEBIT = 'directdebit';
@@ -32,6 +33,7 @@ class BuckarooPaymentRequestFactory {
         BuckarooPaymentRequestFactory::REQUEST_TYPE_SEPADIRECTDEBIT => 'SepaDirectDebit',
         BuckarooPaymentRequestFactory::REQUEST_TYPE_PAYGARANTBYJUNO => 'PayGarantByJuno',
         BuckarooPaymentRequestFactory::REQUEST_TYPE_PAYGUARANT => 'PayGarant',
+        BuckarooPaymentRequestFactory::REQUEST_TYPE_PAYCONIQ => 'Payconiq',
         BuckarooPaymentRequestFactory::REQUEST_TYPE_GIROPAY => 'Giropay',
         BuckarooPaymentRequestFactory::REQUEST_TYPE_PAYSAFECARD => 'PaySafeCard',
         BuckarooPaymentRequestFactory::REQUEST_TYPE_MISTERCASH => 'MisterCash',

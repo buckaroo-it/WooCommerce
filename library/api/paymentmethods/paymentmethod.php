@@ -32,6 +32,8 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
     public $invoiceId;
     public $description;
     public $OriginalTransactionKey;
+    public $OriginalInvoiceNumber;
+    public $AmountVat;
     public $returnUrl;
     public $mode;
     public $version;
@@ -77,6 +79,22 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
     public function Refund() {
         $this->data['services'][$this->type]['action'] = 'Refund';
         $this->data['services'][$this->type]['version'] = $this->version;
+
+        return $this->RefundGlobal();
+    }
+
+    /**
+     * Populate generic fields for a refund
+     *
+     * @access public
+     * @return callable $this->RefundGlobal()
+     */
+    public function guaranteeRefund() {
+        $this->data['services'][$this->type]['action'] = 'CreditNote';
+        $this->data['services'][$this->type]['version'] = $this->version;
+
+        $this->data['OriginalInvoiceNumber'] = $this->OriginalInvoiceNumber;
+        $this->data['AmountVat'] = $this->AmountVat;
 
         return $this->RefundGlobal();
     }

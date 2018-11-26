@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 4.8
-Stable tag: 2.6.5
+Tested up to: 4.9.8
+Stable tag: 2.8.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,6 +30,7 @@ Payment method support list:
 11. SEPA Credit Transfer (Bank transfer)
 12. SEPA Direct Debit (With or without Credit management)
 13. Paysafecard
+14. Payconiq
 
 == Installation ==
 
@@ -85,6 +86,15 @@ Probably the return fields are not yet in lowercase letters in our plaza under M
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.8.1 =
+- Enabled Payment Guarantee refund, fixed success redirect page for Payconiq and several small improvements
+
+= 2.8.0 =
+- Added functionality to handle payment settlements for payment method Bank Transfer. 
+
+= 2.7.0 =
+- Added Payment Method Payconiq
 
 = 2.6.5 =
 - Added Moneyou iDeal issuer
