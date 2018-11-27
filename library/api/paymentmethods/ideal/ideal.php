@@ -101,6 +101,10 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
                 'name' => 'bunq',
                 'logo' => 'logo_bunq.png',
             ),
+            'HANDELS' => array(
+                'name' => 'Handelsbanken',
+                'logo' => 'logo_handelsbanken.png',
+            ),
         );
         return $issuerArray;
     }
@@ -145,6 +149,9 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
                 break;
             case 'BUNQ':
                 $issuerCode = 'BUNQNL2A';
+                break;
+            case 'HANDELS':
+                $issuerCode = 'HANDNL2A';
                 break;
         }
 
