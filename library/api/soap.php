@@ -94,8 +94,6 @@
                 $TransactionRequest->Services = new Services();
                 $this->_addServices($TransactionRequest);
 
-                file_put_contents('/var/www/sites/buggish.txt', json_encode($TransactionRequest));
-
                 /*
                 $TransactionRequest->Services = new Services();
                  
