@@ -229,7 +229,15 @@
                     $service->Name    = $fieldName;
                     $service->Action  = $value['action'];
                     $service->Version = $value['version'];
-                    
+
+
+                    if (isset($this->_vars['customerEmail']) && !empty($this->_vars['customerEmail']) ) {
+                        $service->RequestParameter[0] = new RequestParameter();
+
+                        $service->RequestParameter[0]->Name = "CustomerEmail";
+                        $service->RequestParameter[0]->_ = $this->_vars['customerEmail'];
+                    }
+
                     if (isset($this->_vars['OriginalInvoiceNumber']) && !empty($this->_vars['OriginalInvoiceNumber']) && isset($this->_vars['AmountVat']) && (!empty($this->_vars['AmountVat']) || $this->_vars['AmountVat'] == 0 ) ) {
 
                         $service->RequestParameter[0] = new RequestParameter();
@@ -246,6 +254,7 @@
                         $service->RequestParameter[1]->Group = "";
                         $service->RequestParameter[1]->GroupID = "";
                         $service->RequestParameter[1]->_ = $this->_vars['AmountVat'];
+
                     }                    
                     
                     $services[] = $service;
@@ -343,7 +352,7 @@
                 } else {
                     $TransactionRequest->AdditionalParameters = $requestParameters;
                 }
-                
+
                 return $TransactionRequest;
             }
             

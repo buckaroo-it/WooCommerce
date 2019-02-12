@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 4.9.8
-Stable tag: 2.8.3
+Stable tag: 2.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,8 @@ Payment method support list:
 12. SEPA Direct Debit (With or without Credit management)
 13. Paysafecard
 14. Payconiq
+15. Nexi
+16. P24
 
 == Installation ==
 
@@ -86,6 +88,9 @@ Probably the return fields are not yet in lowercase letters in our plaza under M
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.9.0 =
+- Adds new payment methods (Nexi, P24), improves iDeal banks display, updates documentation with PayPal Seller Protection information
 
 = 2.8.3 =
 - Fixing PHP warning with debug logfile

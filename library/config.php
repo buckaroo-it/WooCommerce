@@ -7,7 +7,7 @@ require_once dirname(__FILE__).'/api/config/configcore.php';
 class BuckarooConfig extends BuckarooConfigCore {
     const NAME = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-    const VERSION = '2.8.3';
+    const VERSION = '2.9.0';
    
     /**
      * Check if mode is test or live
@@ -125,9 +125,11 @@ class BuckarooConfig extends BuckarooConfigCore {
                 'paypal' => array('process_payment' => '', 'process_refund' => ''), 
                 'paysafecard' => array('process_payment' => '', 'process_refund' => ''), 
                 'sepadirectdebit' => array('process_payment' => '', 'process_refund' => 'BackOffice'), 
-                'sofortbanking' => array('process_payment' => '',  'process_refund' => ''), 
+                'sofortbanking' => array('process_payment' => '',  'process_refund' => ''),
                 'transfer' => array('process_payment' => '', 'process_refund' => ''),
                 'payconiq' => array('process_payment' => '', 'process_refund' => ''),
+                'nexi' => array('process_payment' => '', 'process_refund' => ''),
+                'p24' => array('process_payment' => '', 'process_refund' => ''),
             );
             //'' defaults to Web, set by BuckarooConfig::CHANNEL (see library/api/config/coreconfig.php);
             $channel = ($overrides[$payment_type][$method] != '') ? $overrides[$payment_type][$method] : $channel;

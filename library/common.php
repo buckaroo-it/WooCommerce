@@ -769,6 +769,11 @@ function checkCurrencySupported($payment_method = ''){
                 'EUR','GBP','PLN'
             );
             break;
+        case 'buckaroo_p24':
+            $supported_currencies = array(
+                'PLN'
+            );
+            break;
         default:
             $supported_currencies = array('EUR');
             break;

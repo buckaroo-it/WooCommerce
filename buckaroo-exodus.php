@@ -51,6 +51,7 @@
         "woocommerce_buckaroo_mistercash_settings", 
         "woocommerce_buckaroo_transfer_settings",
         "woocommerce_buckaroo_emaestro_settings",
+        "woocommerce_buckaroo_nexi_settings",
         "woocommerce_buckaroo_giftcard_settings",
         "woocommerce_buckaroo_sofortbanking_settings", 
         "woocommerce_buckaroo_giropay_settings",
@@ -58,7 +59,7 @@
         "woocommerce_buckaroo_paygarant_settings",
         "woocommerce_buckaroo_paysafecard_settings" 
       );
-      // var_dump('1');exit();
+
       $n = $break = 0;
       $key_options = $certificate_contents = $certificate_name = '';
       while(!empty($options_tocheck[$n]) && $key_options == '') {

@@ -613,3 +613,7 @@ msgstr "Bevestig de betaling met uw pincode of vingerafdruk"
 
 msgid "Cancel Payment"
 msgstr "Betaling annuleren"
+
+#: ../gateway-buckaroo-ideal.php:154
+msgid "Select your bank"
+msgstr "Selecteer uw bank"
