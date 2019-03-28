@@ -6,7 +6,9 @@ require_once(dirname(__FILE__) . '/library/api/paymentmethods/giftcard/giftcard.
 * @package Buckaroo
 */
 class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo {
-    
+
+    var $giftcards;
+
     function __construct() { 
         $woocommerce = getWooCommerceObject();
         $this->id = 'buckaroo_giftcard';
@@ -26,6 +28,7 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo {
         $this->notificationdelay = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
 
         parent::__construct();
+        $this->giftcards = $this->settings['giftcards'];
 
         $this->supports           = array(
             'products'
@@ -132,6 +135,9 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo {
         $giftcard->orderId = (string)$order_id;
         $giftcard->returnUrl = $this->notify_url;
         $customVars = Array();
+
+        $customVars['servicesSelectableByClient'] = $this->giftcards;
+
         if ($this->usenotification == 'TRUE') {
             $giftcard->usenotification = 1;
             $customVars['Customergender'] = 0;
@@ -242,7 +248,11 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo {
             'description' => __(''),
             'default' => '');
 
-
+        $this->form_fields['giftcards'] = array(
+            'title' => __( 'List of authorized giftcards', 'wc-buckaroo-bpe-gateway' ),
+            'type' => 'text',
+            'description' => __( 'Giftcards must be comma separated', 'wc-buckaroo-bpe-gateway' ),
+            'default' => 'westlandbon,ideal,ippies,babygiftcard,babyparkgiftcard,beautywellness,boekenbon,boekenvoordeel,designshopsgiftcard,fashioncheque,fashionucadeaukaart,fijncadeau,koffiecadeau,kokenzo,kookcadeau,nationaleentertainmentcard,naturesgift,podiumcadeaukaart,shoesaccessories,webshopgiftcard,wijncadeau,wonenzo,yourgift,vvvgiftcard,parfumcadeaukaart');
 
         $this->form_fields['usenotification'] = array(
             'title' => __( 'Use Notification Service', 'wc-buckaroo-bpe-gateway' ),

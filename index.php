@@ -5,7 +5,7 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
-Version: 2.9.0
+Version: 2.10.0
 Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -157,6 +157,10 @@ function generateGateways()
         'AfterPay' => array(
             'filename' => 'gateway-buckaroo-afterpay.php',
             'classname' => 'WC_Gateway_Buckaroo_AfterPay',
+        ),
+        'AfterPayNew' => array(
+            'filename' => 'gateway-buckaroo-afterpaynew.php',
+            'classname' => 'WC_Gateway_Buckaroo_AfterPaynew',
         ),
         'Payconiq' => array(
             'filename' => 'gateway-buckaroo-payconiq.php',

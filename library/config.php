@@ -7,7 +7,7 @@ require_once dirname(__FILE__).'/api/config/configcore.php';
 class BuckarooConfig extends BuckarooConfigCore {
     const NAME = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-    const VERSION = '2.9.0';
+    const VERSION = '2.10.0';
    
     /**
      * Check if mode is test or live
@@ -16,10 +16,17 @@ class BuckarooConfig extends BuckarooConfigCore {
      * @param string $key 
      * @return string $val
      */
-    public static function get($key) {
+    public static function get($key, $paymentId = null) {
         $val = null;
-        if (!empty($GLOBALS['plugin_id'])) {
-            $options = get_option( $GLOBALS['plugin_id'], null );
+
+        if (is_null($paymentId)){
+            $paymentId = $GLOBALS['plugin_id'];
+        } else {
+            $paymentId = 'woocommerce_buckaroo_' . $paymentId . '_settings';
+        }
+
+        if (!empty($paymentId)) {
+            $options = get_option( $paymentId, null );
             if ((empty($options['usemaster']) || $options['usemaster'] != 'no') && !get_option('woocommerce_buckaroo_mastersettings_settings') != TRUE) {
                 $masterOptions = get_option('woocommerce_buckaroo_mastersettings_settings', null );
 
@@ -56,7 +63,7 @@ class BuckarooConfig extends BuckarooConfigCore {
                     }
                     //Start - Support old version of certificate storage
                     if ($val == "" && (empty($options["certificatecontents1"]) || $options["certificatecontents1"] == "")) {
-                        $tmp_options = get_option($GLOBALS['plugin_id'], null);
+                        $tmp_options = get_option($paymentId, null);
                         $certificate_name = !empty($tmp_options['certificate']) ?  $tmp_options['certificate'] : 'BuckarooPrivateKey.pem';
                         $upload_dir = wp_upload_dir();
                         $val = file_get_contents($upload_dir["basedir"]."/woocommerce_uploads/".$certificate_name);
@@ -115,7 +122,8 @@ class BuckarooConfig extends BuckarooConfigCore {
         if ($payment_type != null && $method != null) {
             $overrides = array(
                 'afterpay' => array('process_payment' => '', 'process_refund' => 'BackOffice'), 
-                'creditcard' => array('process_payment' => '', 'process_refund' => ''), 
+                'afterpaynew' => array('process_payment' => '', 'process_refund' => ''),
+                'creditcard' => array('process_payment' => '', 'process_refund' => ''),
                 'emaestro' => array('process_payment' => '', 'process_refund' => ''), 
                 'giftcard' => array('process_payment' => '', 'process_refund' => ''), 
                 'giropay' => array('process_payment' => '', 'process_refund' => ''), 

@@ -465,7 +465,7 @@ abstract class BuckarooResponse extends BuckarooAbstract {
             }
             $signatureString .= $key . '=' . $value;
         }
-        $signatureString .= BuckarooConfig::get('BUCKAROO_SECRET_KEY');
+        $signatureString .= BuckarooConfig::get('BUCKAROO_SECRET_KEY', $origArray['brq_transaction_method']);
         //return the SHA1 encoded string for comparison
         $signature = SHA1($signatureString);
 

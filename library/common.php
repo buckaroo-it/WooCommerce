@@ -421,6 +421,8 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     return;
             }
         } else {
+
+
             $logger->logInfo('Payment request failed/canceled. Order status: ' . $order->get_status());
             if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                 //We receive a valid response that the payment is canceled/failed.
@@ -441,7 +443,16 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                         ),
                         'error'
                     );
-                } else {
+                } elseif(($response->payment_method == "afterpay") && ($response->statuscode == 690)){
+                    wc_add_notice(
+                        __(
+                            $response->ChannelError,
+                            'wc-buckaroo-bpe-gateway'
+                        ),
+                        'error'
+                    );
+
+                }else{
                      wc_add_notice(
                         __(
                             'Payment unsuccessful. Please try again or choose another payment method.',

@@ -129,7 +129,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         $this->data['currency'] = $this->currency;
         $this->data['amountDebit'] = $this->amountDedit;
         $this->data['amountCredit'] = $this->amountCredit;
-        $this->data['invoice'] = $this->invoiceId;
+        $this->data['invoice'] = $this->invoiceId . '-R';
         $this->data['order'] = $this->orderId;
         $this->data['description'] = $this->description;
         $this->data['OriginalTransactionKey'] = $this->OriginalTransactionKey;

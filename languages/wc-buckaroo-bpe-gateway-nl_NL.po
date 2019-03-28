@@ -28,6 +28,14 @@ msgstr ""
 msgid "Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."
 msgstr "Refund mislukt: order is nog niet geslaagd. Buckaroo transactie ID bestaat niet."
 
+#: ../gateway-buckaroo-giftcard.php:392
+msgid "List of authorized giftcards"
+msgstr "List of authorized giftcards"
+
+#: ../gateway-buckaroo-giftcard.php:392
+msgid "Giftcards must be comma separated"
+msgstr "Giftcards must be comma separated"
+
 #: ../gateway-buckaroo-afterpay.php:82
 msgid "Refund failed: Only full amount can be refunded for AfterPay. Partial amount can be refunded using Buckaroo Payment Plaza."
 msgstr ""
@@ -83,6 +91,14 @@ msgstr "Naam van het bedrijf:"
 msgid "Gender:"
 msgstr "Geslacht:"
 
+#: ../gateway-buckaroo-afterpaynew.php:354 ../gateway-buckaroo-paygarant.php:222 ../gateway-buckaroo-paygarantbyjuno.php:220
+msgid "Customer Identification Number is required for Finland"
+msgstr "Klant identificatienummer is vereist voor Finland"
+
+#: ../gateway-buckaroo-afterpaynew.php:354 ../gateway-buckaroo-paygarant.php:222 ../gateway-buckaroo-paygarantbyjuno.php:220
+msgid "Identification Number"
+msgstr "Identificatie Nummer"
+
 #: ../gateway-buckaroo-afterpay.php:355 ../gateway-buckaroo-paygarantbyjuno.php:221 ../gateway-buckaroo-sepadirectdebit.php:237
 #: ../gateway-buckaroo-sepadirectdebit.php:248
 msgid "Male"
@@ -105,6 +121,22 @@ msgstr "IBAN:"
 #: ../gateway-buckaroo-afterpay.php:373
 msgid "Accept licence agreement:"
 msgstr "Accepteer betalingsvoorwaarden:"
+
+#: ../gateway-buckaroo-afterpay.php:373
+msgid "Accept Afterpay conditions:"
+msgstr "Accepteer Afterpay voorwaarden:"
+
+#: ../gateway-buckaroo-afterpay.php:373
+msgid "Accept:"
+msgstr "Accepteer:"
+
+#: ../gateway-buckaroo-afterpay.php:373
+msgid "Afterpay conditions (Dutch)"
+msgstr "Afterpay voorwaarden (Nederlands)"
+
+#: ../gateway-buckaroo-afterpay.php:373
+msgid "Afterpay conditions (French)"
+msgstr "Afterpay voorwaarden (Frans)"
 
 #: ../gateway-buckaroo-afterpay.php:392
 msgid "Select afterpay service"
