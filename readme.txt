@@ -41,9 +41,9 @@ Easy installation to get the plug-in up and running!
 1. Contact Buckaroo by phone 030 711 5010 or by mail sales@buckaroo.nl to request a Buckaroo account.
 2. Use one of the manuals below to configure the plug-in and connect it with your Buckaroo account.
 
-[Implementatiehandleiding NL](http://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_2.3.x-3.1.x.NL.pdf)
+[Implementatiehandleiding NL](https://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_3.9.x.NL.pdf)
 
-[Implementation manual EN](http://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_2.3.x-3.1.x.EN.pdf)
+[Implementation manual EN](https://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_3.9.x.EN.pdf)
 
 Please go to the [signup page](https://www.buckaroo-payments.com/integration/buckaroo-payment-plaza/) (demo account) to ask for a Buckaroo account. Also you can contact info@buckaroo.nl or +31 (0)30 711 50 00
 
