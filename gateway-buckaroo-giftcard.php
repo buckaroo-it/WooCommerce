@@ -103,7 +103,9 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo {
      * @return bool
      */
     public function validate_fields() { 
-        resetOrder();
+        if (version_compare(WC()->version, '3.6', '<')) {
+            resetOrder();
+        }
         return;
     }
     

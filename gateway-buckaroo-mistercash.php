@@ -97,7 +97,9 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo {
      * @return void;
      */
     public function validate_fields() { 
-        resetOrder();
+        if (version_compare(WC()->version, '3.6', '<')) {
+            resetOrder();
+        }
         return;
     }
     

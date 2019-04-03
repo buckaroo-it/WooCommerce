@@ -63,7 +63,16 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway {
         }
         
         add_action( 'wp_enqueue_scripts', array($this, 'loadCss') );
+
+        // [JM] Compatibility with WC3.6+
+        add_action( 'woocommerce_checkout_process', array($this, 'action_woocommerce_checkout_process') ); 
     }
+
+    function action_woocommerce_checkout_process() {
+        if (version_compare(WC()->version, '3.6', '>=')) {
+            resetOrder();
+        }
+    }    
 
     function init_settings() {
         parent::init_settings();

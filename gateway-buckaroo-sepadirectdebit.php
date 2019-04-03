@@ -141,7 +141,9 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
                 wc_add_notice( __("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error' );
             }
         }
-        resetOrder();
+        if (version_compare(WC()->version, '3.6', '<')) {
+            resetOrder();
+        }
         return;
     }
     
