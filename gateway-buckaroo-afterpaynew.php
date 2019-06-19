@@ -551,7 +551,10 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             }
         }
 
-        resetOrder();
+        if (version_compare(WC()->version, '3.6', '<')) {
+            resetOrder();
+        }
+        
         return;
     }
 

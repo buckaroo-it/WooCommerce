@@ -622,16 +622,18 @@ function resetOrder() {
         $status = get_post_status($order_id);
 
         if(($status == 'wc-failed' || $status == 'wc-cancelled') && wc_notice_count( 'error' ) == 0) {
+
             //Add generated hash to order for WooCommerce versions later than 2.5
-            if (isset(WC()->version) && !empty(WC()->version) && ((substr(WC()->version, 0, 1) === '2' && substr(WC()->version, 2, 1) > 5) || substr(WC()->version, 0, 1) === '3') ) {
+            if (version_compare(WC()->version, '2.5', '>')) {
                 $order->cart_hash = md5(json_encode(wc_clean(WC()->cart->get_cart_for_session())) . WC()->cart->total);
-            } elseif (substr(WC()->version, 0, 1) > 3) {
-                wc_doing_it_wrong("resetOrder", "WC Version not supported", "4+");
             }
 
-            $newOrder = wc_create_order($order);
-//            $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
-            WC()->session->order_awaiting_payment = $newOrder->get_order_number();
+            if (version_compare(WC()->version, '3.6', '>=')) {
+                $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
+            } else {
+                $newOrder = wc_create_order($order);
+                WC()->session->order_awaiting_payment = $newOrder->get_order_number();
+            }
         }
     }
 }

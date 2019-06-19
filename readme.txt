@@ -3,7 +3,7 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 5.1.0
+Tested up to: 5.1.1
 Stable tag: 2.12.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -42,9 +42,9 @@ Easy installation to get the plug-in up and running!
 1. Contact Buckaroo by phone 030 711 5010 or by mail sales@buckaroo.nl to request a Buckaroo account.
 2. Use one of the manuals below to configure the plug-in and connect it with your Buckaroo account.
 
-[Implementatiehandleiding NL](http://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_2.3.x-3.1.x.NL.pdf)
+[Implementatiehandleiding NL](https://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_3.9.x.NL.pdf)
 
-[Implementation manual EN](http://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_2.3.x-3.1.x.EN.pdf)
+[Implementation manual EN](https://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_3.9.x.EN.pdf)
 
 Please go to the [signup page](https://www.buckaroo-payments.com/integration/buckaroo-payment-plaza/) (demo account) to ask for a Buckaroo account. Also you can contact info@buckaroo.nl or +31 (0)30 711 50 00
 
@@ -99,6 +99,12 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
  - Implemented authorise and capture for creditcards
  - Implemented Partial capture for creditcards
  - Implemented Partial refund for all applicable payment methods
+
+= 2.10.2 =
+- Compatibility with WooCommerce 3.6
+
+= 2.10.1 =
+- Updated manual with explanation about new AfterPay payment method. (Section 4.2.4)
 
 = 2.10.0 =
 - Users can edit the giftcards available in the payment method configuration.

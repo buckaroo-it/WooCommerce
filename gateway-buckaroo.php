@@ -70,6 +70,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         
         add_action('wp_enqueue_scripts', [$this, 'loadCss']);
+
+        // [JM] Compatibility with WC3.6+
+        add_action( 'woocommerce_checkout_process', array($this, 'action_woocommerce_checkout_process') ); 
     }
 
     public function payment_gateway_disable($available_gateways)
@@ -80,6 +83,12 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         return $available_gateways;
     }
+
+    function action_woocommerce_checkout_process() {
+        if (version_compare(WC()->version, '3.6', '>=')) {
+            resetOrder();
+        }
+    }   
 
     public function init_settings()
     {
