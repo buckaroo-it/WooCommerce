@@ -67,7 +67,7 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
      * @param array $products
      * @return callable parent::Pay();
      */
-    public function PayAfterpay($products = Array()) {
+    public function PayOrAuthorizeAfterpay($products = Array(), $action) {
 
         // $this->data['customVars'][$this->type]["Category"]["value"] = ($this->B2B == 'TRUE') ? 'Company' : 'Person';
         $this->data['customVars'][$this->type]["Category"][0]["value"] = 'Person';
@@ -168,6 +168,19 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
         //     $this->data['customVars'][$this->type]['VatNumber'] = $this->VatNumber;
         // }
 
+        // Merge products with same SKU 
+
+        $mergedProducts = array();
+        foreach ($products as $product) {
+            if (! isset($mergedProducts[$product['ArticleId']])) {
+                $mergedProducts[$product['ArticleId']] = $product;
+            } else {
+                $mergedProducts[$product['ArticleId']]["ArticleQuantity"] += 1;
+            }
+        }     
+        
+        $products = $mergedProducts;
+
         $i = 1;
         foreach($products as $p) {
             $this->data['customVars'][$this->type]["Description"][$i - 1]["value"] = $p["ArticleDescription"];
@@ -212,8 +225,110 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
             }
         }
 
-        return parent::Pay();
+        return parent::$action();
     }
+
+    /**
+     * Populate generic fields for a refund 
+     * 
+     * @access public
+     * * @param array $products
+     * @return callable $this->RefundGlobal()
+     */
+    public function AfterPayRefund($products, $issuer) {
+
+        $this->type = $issuer;
+        $this->version = 1;
+        $this->mode = BuckarooConfig::getMode($this->type);        
+
+        $this->data['services'][$this->type]['action'] = 'Refund';
+        $this->data['services'][$this->type]['version'] = $this->version;
+        //$this->OriginalTransactionKey = "3BA045CBA9FD44C09F05113CB4B9CBA3";
+
+        $i = 1;
+        foreach($products as $p) {
+            $this->data['customVars'][$this->type]["Description"][$i - 1]["value"] = $p["ArticleDescription"];
+            $this->data['customVars'][$this->type]["Description"][$i - 1]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["value"] = $p["ArticleId"];
+            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["value"] = $p["ArticleQuantity"];
+            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["value"] = $p["ArticleUnitprice"];
+            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["group"] = 'Article';
+//            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] = $p["ArticleVatcategory"];
+            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] = !empty($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0;
+            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["RefundType"][$i - 1]["value"] = ($p["ArticleId"] == BuckarooConfig::SHIPPING_SKU ? "Refund" : "Return");
+            $this->data['customVars'][$this->type]["RefundType"][$i - 1]["group"] = 'Article';            
+            $i++;
+        }  
+
+        if ($this->usenotification && !empty($customVars['Customeremail'])) {
+            $this->data['services']['notification']['action'] = 'ExtraInfo';
+            $this->data['services']['notification']['version'] = '1';
+            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
+            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
+            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
+            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
+            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
+            $this->data['customVars']['notification']['RecipientGender'] = $customVars['Customergender'];
+            if (!empty($customVars['Notificationdelay'])) {
+                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
+            }
+        }        
+
+        return $this->RefundGlobal();
+    }
+
+    /**
+     * @access public
+     * @param array $customVars
+     * * @param array $products
+     * @return callable parent::PayGlobal()
+     */
+    public function Capture($customVars = Array(), $products = Array()) {
+
+        $this->type = $customVars['payment_issuer'];
+        $this->version = 1;
+        $this->mode = BuckarooConfig::getMode($this->type);
+
+        $this->data['services'][$this->type]['action'] = 'Capture';
+        $this->data['services'][$this->type]['version'] = $this->version;
+
+        $i = 1;
+        foreach($products as $p) {
+            $this->data['customVars'][$this->type]["Description"][$i - 1]["value"] = $p["ArticleDescription"];
+            $this->data['customVars'][$this->type]["Description"][$i - 1]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["value"] = $p["ArticleId"];
+            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["value"] = $p["ArticleQuantity"];
+            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["value"] = $p["ArticleUnitprice"];
+            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["group"] = 'Article';
+//            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] = $p["ArticleVatcategory"];
+            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] = !empty($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0;
+            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"] = 'Article';
+     
+            $i++;
+        }
+
+        if ($this->usenotification && !empty($customVars['Customeremail'])) {
+            $this->data['services']['notification']['action'] = 'ExtraInfo';
+            $this->data['services']['notification']['version'] = '1';
+            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
+            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
+            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
+            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
+            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
+            $this->data['customVars']['notification']['RecipientGender'] = $customVars['Customergender'];
+            if (!empty($customVars['Notificationdelay'])) {
+                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
+            }
+        }
+
+        return $this->CaptureGlobal();
+    }
+    
 }
 
 ?>

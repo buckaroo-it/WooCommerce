@@ -122,9 +122,7 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
         if (!$this->validateDate($birthdate,'Y-m-d')){
             wc_add_notice( __("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error' );
         }
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
+        resetOrder();
         return;
     }
     

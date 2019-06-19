@@ -103,9 +103,7 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
      * @return void;
      */
     public function validate_fields() { 
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
+        resetOrder();
         return;
     }
     
@@ -203,7 +201,7 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo {
         add_filter('woocommerce_settings_api_form_fields_' . $this->id, array($this, 'enqueue_script_hide_local'));
 
         //Start Dynamic Rendering of Hidden Fields
-        $options = get_option("woocommerce_".$this->id."_settings", null );
+        $options = get_option("woocommerce_".$this->id."_settings", null );        
         $ccontent_arr = array();
         $keybase = 'certificatecontents';
         $keycount = 1;

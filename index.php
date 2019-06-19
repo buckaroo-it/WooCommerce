@@ -5,15 +5,48 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
-Version: 2.10.2
+Version: 2.12.0
 Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
+wp_enqueue_style('buckaroo-custom-styles', plugin_dir_url( __FILE__ ) . 'library/css/buckaroo-custom.css');        
+
+
 add_action('plugins_loaded', 'buckaroo_init_gateway', 0);
 add_action('admin_menu', 'buckaroo_menu_report');
 add_action('woocommerce_api_wc_push_buckaroo', 'buckaroo_push_class_init');
+
+add_action( 'woocommerce_admin_order_actions_end', 'my_custom_checkout_field_display_admin_order_meta', 10, 1 );
+add_action( 'wp_ajax_order_capture', 'orderCapture' );
+
+wp_enqueue_script('creditcard_capture', plugin_dir_url( __FILE__ ) . 'library/js/9yards/creditcard-capture-form.js', array('jquery'), '1.0.0', true );
+
+include( plugin_dir_path(__FILE__) . 'includes/admin/meta-boxes/class-wc-meta-box-order-capture.php');
+
+// Define BK_PLUGIN_FILE.
+if ( ! defined( 'BK_PLUGIN_FILE' ) ) {
+	define( 'BK_PLUGIN_FILE', __FILE__ );
+}
+
 include_once('install/class-wcb-install.php');
+
+// Include the main Buckaroo class.
+if ( ! class_exists( 'Buckaroo' ) ) {
+	include_once dirname( __FILE__ ) . '/includes/class-buckaroo.php';
+}
+
+/**
+ * Returns the main instance of WC.
+ *
+ * @return Buckaroo
+ */
+function BK() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	return Buckaroo::instance();
+}
+
+// Global for backwards compatibility.
+$GLOBALS['buckaroo'] = BK();
 
 register_activation_hook(__FILE__, array('WC_Buckaroo_Install', 'install'));
 add_shortcode('buckaroo_payconiq', 'fw_reserve_page_template');
@@ -170,6 +203,10 @@ function generateGateways()
             'filename' => 'gateway-buckaroo-paygarant.php',
             'classname' => 'WC_Gateway_Buckaroo_PayGarant',
         ),
+        'Applepay' => array(
+            'filename' => 'gateway-buckaroo-applepay.php',
+            'classname' => 'WC_Gateway_Buckaroo_Applepay',
+        ),    
     );
     $buckaroo_enabled_payment_methods = array();
     if (file_exists(dirname(__FILE__) . '/gateway-buckaroo-testscripts.php')) {
@@ -218,8 +255,48 @@ function buckaroo_init_gateway()
         return $methods;
     }
 
+    require_once __DIR__ . '/library/wp-actions/ApplePayButtons.php';
+    (new ApplePayButtons)->loadActions();   
+    
     add_filter('woocommerce_payment_gateways', 'add_buckaroo_gateway');
     new WC_Gateway_Buckaroo();
 
+    if (!file_exists(__DIR__.'/../../../.well-known/apple-developer-merchantid-domain-association')) {
+        if (!file_exists(__DIR__.'/../../../.well-known')) {
+            mkdir(__DIR__.'/../../../.well-known', 0775, true);
+        }
+        
+        copy(__DIR__.'/assets/apple-developer-merchantid-domain-association', __DIR__.'/../../../.well-known/apple-developer-merchantid-domain-association');
+    }
 }
 
+function my_custom_checkout_field_display_admin_order_meta($order){
+
+}
+
+function orderCapture(){
+
+    $paymentMethod = get_post_meta( $_POST['order_id'], '_wc_order_selected_payment_method', true);
+
+    switch ($paymentMethod) {
+        case "Afterpay":
+            require_once(dirname(__FILE__) . '/gateway-buckaroo-afterpay.php');
+            $gateway = new WC_Gateway_Buckaroo_Afterpay();            
+            break;
+        case "Afterpaynew":
+            require_once(dirname(__FILE__) . '/gateway-buckaroo-afterpaynew.php');
+            $gateway = new WC_Gateway_Buckaroo_Afterpaynew();            
+            break;
+        case "Creditcard":
+            require_once(dirname(__FILE__) . '/gateway-buckaroo-creditcard.php');
+            $gateway = new WC_Gateway_Buckaroo_Creditcard();
+            break;                                
+    }
+   
+    if (isset($gateway)) {
+        $response = $gateway->process_capture($_POST);
+        echo json_encode($response);
+    }
+    exit;
+}
+ 

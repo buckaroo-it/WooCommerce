@@ -649,3 +649,58 @@ msgstr "Betaling annuleren"
 #: ../gateway-buckaroo-ideal.php:154
 msgid "Select your bank"
 msgstr "Selecteer uw bank"
+
+#: ../gateway-buckaroo-creditcard.php:137
+msgid "Select your credit card:"
+msgstr "Selecteer uw creditcard:"
+
+msgid "Cardholder Name:"
+msgstr "Naam:"
+
+msgid "Card Number:"
+msgstr "Kaartnummer:"
+
+msgid "Expiration Year:"
+msgstr "Vervaljaar:"
+
+msgid "Expiration Month:"
+msgstr "Vervalmaand:"
+
+msgid "Obligatory fields"
+msgstr "Verplicht"
+
+msgid "Credit card method"
+msgstr "Credit card method"
+
+msgid "Redirect user or Encrypt form data"
+msgstr "Doorverwijzing van gebruiker of formuliergegevens versleutelen"
+
+msgid "Credit card Pay or Capture"
+msgstr "Credit card Pay or Capture"
+
+msgid "Choose to execute Pay or Capture call"
+msgstr "Kies om Pay of Capture call uit te voeren"
+
+msgid "Button on product page"
+msgstr "Button op de product pagina"
+
+msgid "Show the Apple pay button on the product page"
+msgstr "Toon de Apple pay button op de product pagina"
+
+msgid "Button on cart page"
+msgstr "Button op de cart pagina"
+
+msgid "Show the Apple pay button on the cart page"
+msgstr "Toon de Apple pay button op de cart pagina"
+
+msgid "Button on checkout page"
+msgstr "Button op de checkout pagina"
+
+msgid "Show the Apple pay button on the checkout page"
+msgstr "Toon de Apple pay button op de checkout pagina"
+
+msgid "Hide"
+msgstr "Verbergen"
+
+msgid "Show"
+msgstr "Tonen"

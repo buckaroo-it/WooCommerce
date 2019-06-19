@@ -32,10 +32,20 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $this->usenotification = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
         $this->notificationdelay = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
 
-        $country = get_user_meta( $woocommerce->customer->ID, 'shipping_country', true );
+        $country = null;
+        if (! empty($woocommerce->customer)) {
+            $country = get_user_meta($woocommerce->customer->ID, 'shipping_country', true);
+        } 
+
         $this->country = $country;
 
         parent::__construct();
+
+        if (isset($this->settings['afterpaynewpayauthorize'])) {
+            $this->afterpaynewpayauthorize = $this->settings['afterpaynewpayauthorize'];
+        } else {
+            $this->afterpaynewpayauthorize = null;
+        }
 
         $this->supports           = array(
             'products',
@@ -43,7 +53,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         );
         $this->type = 'afterpay';
         // $this->b2b = $this->settings['enable_bb'];
-        $this->vattype = $this->settings['vattype'];
+        $this->vattype = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
         $this->notify_url = home_url('/');
 
         if ( version_compare( WOOCOMMERCE_VERSION, '2.0.0', '<' ) ) {
@@ -75,41 +85,445 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
      * @param string $reason
      * @return callable|string function or error
      */
-    public function process_refund( $order_id, $amount = null, $reason = '' ) {
+    public function process_refund($order_id, $amount = null, $reason = '')
+    {
+        $action = ucfirst(isset($this->afterpaynewpayauthorize) ? $this->afterpaynewpayauthorize : 'pay');
 
-        $order = wc_get_order( $order_id );
-        if ( ! $this->can_refund_order( $order ) ) {
+        if ($action == 'Authorize') {  
+            // check if order is captured
+            
+            $captures = get_post_meta($order_id, 'buckaroo_capture', false);
+            $previous_refunds = get_post_meta($order_id, 'buckaroo_refund', false);
+
+            if ($captures == false || count($captures) < 1) {
+                return new WP_Error('error_refund_trid', __("Order is not captured yet, you can only refund captured orders"));
+            }
+
+            // Merge previous refunds with captures
+            foreach ($captures as &$captureJson) {
+                $capture = json_decode($captureJson, true);
+                foreach ($previous_refunds as &$refundJson) {
+                    $refund = json_decode($refundJson, true);
+
+                    if (isset($refund['OriginalCaptureTransactionKey']) && $capture['OriginalTransactionKey'] == $refund['OriginalCaptureTransactionKey']) {
+                        
+                        foreach ($capture['products'] as &$capture_product) {
+                            foreach ($refund['products'] as &$refund_product) {
+                                if ($capture_product['ArticleId'] != BuckarooConfig::SHIPPING_SKU && $capture_product['ArticleId'] == $refund_product['ArticleId'] && $refund_product['ArticleQuantity'] > 0) {
+                                    if ($capture_product['ArticleQuantity'] >= $refund_product['ArticleQuantity']) {
+                                        $capture_product['ArticleQuantity'] -= $refund_product['ArticleQuantity'];
+                                        $refund_product['ArticleQuantity'] = 0;
+                                    } else {
+                                        $refund_product['ArticleQuantity'] -= $capture_product['ArticleQuantity'];
+                                        $capture_product['ArticleQuantity'] = 0;
+                                    }
+                                } else if ($capture_product['ArticleId'] == BuckarooConfig::SHIPPING_SKU && $capture_product['ArticleId'] == $refund_product['ArticleId'] && $refund_product['ArticleUnitprice'] > 0) {
+                                    if ($capture_product['ArticleUnitprice'] >= $refund_product['ArticleUnitprice']) {
+                                        $capture_product['ArticleUnitprice'] -= $refund_product['ArticleUnitprice'];
+                                        $refund_product['ArticleUnitprice'] = 0;
+                                    } else {
+                                        $refund_product['ArticleUnitprice'] -= $capture_product['ArticleUnitprice'];
+                                        $capture_product['ArticleUnitprice'] = 0;
+                                    }
+                                }
+ 
+                            }
+                        }
+                    }
+                    $refundJson = json_encode($refund);
+                }  
+                $captureJson = json_encode($capture);
+            }
+
+            $captures = json_decode(json_encode($captures), true);
+
+            $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
+            $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true);
+            $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
+
+            $line_item_qtys_new = array();
+            $line_item_totals_new = array();
+            $line_item_tax_totals_new = array();
+            $originalTransactionKey_new = array();
+            $shippingOriginalTransactionKey_new = array();
+            
+            $order = wc_get_order($order_id);
+            $items = $order->get_items();
+
+            // Items to products
+            $item_ids = array();
+
+            foreach ($items as $item) {
+                $item_ids[$item->get_id()] = $item->get_product_id();
+            }
+
+            $counter = 0;
+
+            $totalQtyToRefund = 0;
+
+            // Loop through products
+            if (is_array($line_item_qtys)) {
+                foreach ($line_item_qtys as $id_to_refund => $qty_to_refund) {
+                    // Find free `slots` in captures
+                    foreach ($captures as $captureJson) {
+                        $capture = json_decode($captureJson, true);
+                        foreach ($capture['products'] as $product) {
+                            if ($product['ArticleId'] == $item_ids[$id_to_refund]) {
+                                // Found the product in the capture.
+                                // See if qty is sufficent.
+                                if ($qty_to_refund > 0) {
+                                    if ($qty_to_refund <= $product['ArticleQuantity']) {
+                                        $line_item_qtys_new[$counter][$id_to_refund] = $qty_to_refund;
+                                        $qty_to_refund = 0;
+                                    } else {
+                                        $line_item_qtys_new[$counter][$id_to_refund] = $product['ArticleQuantity'];
+                                        $qty_to_refund -= $product['ArticleQuantity'];                                        
+                                    }
+                                    $originalTransactionKey_new[$counter] = $capture['OriginalTransactionKey'];
+                                    $counter++;
+                                }
+
+                            }
+                        }
+                    }
+                    $totalQtyToRefund+= $qty_to_refund;
+                }
+            }
+
+            $counter = 0;
+
+            // loop for shipping costs
+            $shipping_item = $order->get_items('shipping');
+
+            $shippingCostsToRefund = 0;
+            foreach ($shipping_item as $item) {
+                if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
+                    $shippingCostsToRefund = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
+                    $shippingIdToRefund = $item->get_id();
+                }
+            }
+
+            // Find free `slots` in captures
+            foreach ($captures as $captureJson) {                                
+                $capture = json_decode($captureJson, true);
+                foreach ($capture['products'] as $product) {
+                    if ($product['ArticleId'] == BuckarooConfig::SHIPPING_SKU) {
+                        // Found the shipping in the capture.
+                        // See if amount is sufficent.
+                        if ($shippingCostsToRefund > 0) {
+                            if ($shippingCostsToRefund <= $product['ArticleUnitprice']) {
+                                $line_item_totals_new[$counter][$shippingIdToRefund] = $shippingCostsToRefund;
+                                $line_item_tax_totals_new[$counter][$shippingIdToRefund] = array(1 => 0);
+                                $shippingCostsToRefund = 0;
+                            } else {
+                                $line_item_totals_new[$counter][$shippingIdToRefund] = $product['ArticleUnitprice'];
+                                $line_item_tax_totals_new[$counter][$shippingIdToRefund] = array(1 => 0);
+                                $shippingCostsToRefund -= $product['ArticleUnitprice'];                                        
+                            }
+                            $shippingOriginalTransactionKey_new[$counter] = $capture['OriginalTransactionKey'];
+                            $counter++;
+                        }
+
+                    }
+                }
+
+            }
+
+            // Check if something cannot be refunded
+            $NotRefundable = false;
+
+            if ($shippingCostsToRefund > 0 || $totalQtyToRefund > 0) {
+                $NotRefundable = true;
+            }
+
+            if ($NotRefundable) {
+                return new WP_Error('error_refund_trid', __("Selected items or amount is not fully captured, you can only refund captured items"));
+            }
+
+            // Process all refund items
+            $refund_result = array();
+            for ($i=0; $i<count($line_item_qtys_new); $i++) {
+                if ($amount > 0) {
+                    $refund_result[] = $this->process_partial_refunds(
+                    $order_id,
+                    $amount,
+                    $reason,
+                    $line_item_qtys_new[$i],
+                    [],
+                    [],
+                    $originalTransactionKey_new[$i]
+                );
+                }
+            }
+
+            // Process all refund shipping
+            for ($i=0; $i<count($line_item_totals_new); $i++) {
+                if ($amount > 0) {
+                    $refund_result[] = $this->process_partial_refunds(
+                    $order_id,
+                    $amount,
+                    $reason,
+                    [],
+                    $line_item_totals_new[$i],
+                    $line_item_tax_totals_new[$i],
+                    $shippingOriginalTransactionKey_new[$i]
+                );
+                }
+            }            
+
+            foreach ($refund_result as $result) {
+                if ($result !== true) {
+                    if (isset($result->errors['error_refund'][0])) {
+                        return new WP_Error('error_refund_trid', __($result->errors['error_refund'][0]));
+                    } else {
+                        return new WP_Error('error_refund_trid', __("Unexpected error occured while processing refund, please check your transactions in the Buckaroo plaza."));
+                    }
+                }
+            }
+
+            return true;
+
+        } else {
+            return $this->process_partial_refunds($order_id, $amount, $reason);
+        }
+    }
+
+    /**
+     * Can the order be refunded
+     * @param integer $order_id
+     * @param integer $amount defaults to null
+     * @param string $reason
+     * @return callable|string function or error
+     */
+    public function process_partial_refunds($order_id, $amount = null, $reason = '', $line_item_qtys = null, $line_item_totals = null, $line_item_tax_totals = null, $originalTransactionKey = null)
+    {
+        $order = wc_get_order($order_id);
+
+        if (! $this->can_refund_order($order)) {
             return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
         }
-        if ($order->get_total() != $amount) {
-            return new WP_Error('error_refund_full_amount', __("Refund failed: Only full amount can be refunded for AfterPay. Partial amount can be refunded using Buckaroo Payment Plaza."));
-        }
+
         update_post_meta($order_id, '_pushallowed', 'busy');
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order = wc_get_order( $order_id );
+        $order = wc_get_order($order_id);
         if (checkForSequentialNumbersPlugin()) {
             $order_id = $order->get_order_number(); //Use sequential id
         }
         $afterpay = new BuckarooAfterPayNew($this->type);
         $afterpay->amountDedit = 0;
-        $afterpay->amountCredit = $amount;
         $afterpay->currency = $this->currency;
         $afterpay->description = $reason;
         if ($this->mode=='test') {
             $afterpay->invoiceId = 'WP_'.(string)$order_id;
         }
         $afterpay->orderId = $order_id;
-        $afterpay->OriginalTransactionKey = $order->get_transaction_id();
+        if ($originalTransactionKey === null) {
+            $afterpay->OriginalTransactionKey = $order->get_transaction_id();
+        } else {
+            $afterpay->OriginalTransactionKey = $originalTransactionKey;
+        }
         $afterpay->returnUrl = $this->notify_url;
         $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
-        $afterpay->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
+        $afterpay->channel = BuckarooConfig::getChannel($payment_type, 'process_refund');
+
+        // add items to refund call for afterpay
+        $issuer = get_post_meta($order_id, '_wc_order_payment_issuer', true);
+
+        $products = array();
+        $items = $order->get_items();
+        $itemsTotalAmount = 0;
+
+        if ($line_item_qtys === null) {
+            $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
+        }
+
+        if ($line_item_totals === null) {
+            $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true);
+        }
+
+        if ($line_item_tax_totals === null) {
+            $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
+        }
+
+        foreach ($items as $item) {
+            if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
+                $product = new WC_Product($item['product_id']);
+                $tax_class = $product->get_attribute("vat_category");
+                if (empty($tax_class)) {
+                    $tax_class = $this->vattype;
+                    //wc_add_notice( __("Vat category (vat_category) do not exist for product ", 'wc-buckaroo-bpe-gateway').$item['name'], 'error' );
+                    // return;
+                }
+                $tmp["ArticleDescription"] = $item['name'];
+                $tmp["ArticleId"] = $item['product_id'];
+                $tmp["ArticleQuantity"] = $line_item_qtys[$item->get_id()];
+                $tmp["ArticleUnitprice"] = number_format(number_format($item["line_total"]+$item["line_tax"], 4)/$item["qty"], 2);
+                $itemsTotalAmount += $tmp["ArticleUnitprice"] * $line_item_qtys[$item->get_id()];
+                $tmp["ArticleVatcategory"] = $tax_class;
+                $products[] = $tmp;
+            }
+        }
+        $fees = $order->get_fees();
+        foreach ($fees as $key => $item) {
+            $tmp["ArticleDescription"] = $item['name'];
+            $tmp["ArticleId"] = $key;
+            $tmp["ArticleQuantity"] = 1;
+            $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
+            $itemsTotalAmount += $tmp["ArticleUnitprice"];
+            $tmp["ArticleVatcategory"] = '4';
+            $products[] = $tmp;
+        }
+
+        // Add shippingCosts
+        $shipping_item = $order->get_items('shipping');
+
+        $shippingCosts = 0;
+        foreach ($shipping_item as $item) {
+            if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
+                $shippingCosts = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
+            }
+        }
+
+        if ($shippingCosts > 0) {
+            // Add virtual shipping cost product
+            $tmp["ArticleDescription"] = "Shipping";
+            $tmp["ArticleId"] = BuckarooConfig::SHIPPING_SKU;
+            $tmp["ArticleQuantity"] = 1;
+            $tmp["ArticleUnitprice"] = $shippingCosts;
+            $tmp["ArticleVatcategory"] = 1;
+            $products[] = $tmp;
+            $itemsTotalAmount += $shippingCosts;
+        }
+
+        // end add items
+
+        if( isset($_POST['refund_amount']) && $itemsTotalAmount == 0 ){
+            $afterpay->amountCredit = $_POST['refund_amount'];
+        }
+        else{
+            $amount = $itemsTotalAmount;
+            $afterpay->amountCredit = $amount;
+        }
+
+        if(!(count($products) > 0)){
+            return true;
+        }
+
         try {
-            $response = $afterpay->Refund();
+            $response = $afterpay->AfterPayRefund($products, $issuer);
         } catch (exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');
         }
-        return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
+
+        $final_response = fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
+
+        if ($final_response === true) {
+            // Store the transaction_key together with refunded products, we need this for later refunding actions
+            $refund_data = json_encode(['OriginalTransactionKey' => $response->transactions, 'OriginalCaptureTransactionKey' => $afterpay->OriginalTransactionKey, 'products' => $products]);
+            add_post_meta($order_id, 'buckaroo_refund', $refund_data, false);                 
+        }
+
+        return $final_response;
     }
+
+    function process_capture(){
+        $order_id = $_POST['order_id'];
+
+        $previous_captures = get_post_meta($order_id, '_wc_order_captures') ? get_post_meta($order_id, '_wc_order_captures') : false;
+
+        $woocommerce = getWooCommerceObject();
+        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        $afterpay = new BuckarooAfterPayNew();
+        if (checkForSequentialNumbersPlugin()) {
+            $order_id = $order->get_order_number(); //Use sequential id
+        }
+
+        $order = getWCOrder($order_id);
+
+        $afterpay->amountDedit = $_POST['capture_amount'];
+        $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
+        $afterpay->OriginalTransactionKey = $order->get_transaction_id();
+        $afterpay->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
+        $afterpay->currency = $this->currency;
+        $afterpay->description = $this->transactiondescription;
+        $afterpay->invoiceId = (string)getUniqInvoiceId($order_id)  . (is_array($previous_captures) ? '-' . count($previous_captures) : "");
+        $afterpay->orderId = (string)$order_id;
+        $afterpay->returnUrl = $this->notify_url;
+
+        // add items to capture call for afterpay
+        $customVars['payment_issuer'] = get_post_meta($order_id, '_wc_order_payment_issuer', true);
+
+        $products = Array();
+        $items = $order->get_items();
+        $itemsTotalAmount = 0;
+
+        $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
+        $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true);
+        $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
+
+        foreach ( $items as $item ) {
+
+            if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
+                $product = new WC_Product($item['product_id']);
+                $tax_class = $product->get_attribute("vat_category");
+                if (empty($tax_class)) {
+                    $tax_class = $this->vattype;
+                    //wc_add_notice( __("Vat category (vat_category) do not exist for product ", 'wc-buckaroo-bpe-gateway').$item['name'], 'error' );
+            // return;
+                }
+                $tmp["ArticleDescription"] = $item['name'];
+                $tmp["ArticleId"] = $item['product_id'];
+                $tmp["ArticleQuantity"] = $line_item_qtys[$item->get_id()];
+                $tmp["ArticleUnitprice"] = number_format(number_format($item["line_total"]+$item["line_tax"], 4)/$item["qty"], 2);
+                $itemsTotalAmount += $tmp["ArticleUnitprice"] * $item["qty"];
+                $tmp["ArticleVatcategory"] = $tax_class;
+                /*
+                for ($i = 0 ; $item["qty"] > $i && $line_item_qtys[$item->get_id()] > $i ; $i++) {
+                    $products[] = $tmp;
+                }
+                */
+                $products[] = $tmp;
+            }
+        }       
+        $fees = $order->get_fees();
+        foreach ( $fees as $key => $item ) {
+            $tmp["ArticleDescription"] = $item['name'];
+            $tmp["ArticleId"] = $key;
+            $tmp["ArticleQuantity"] = 1;
+            $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
+            $itemsTotalAmount += $tmp["ArticleUnitprice"];
+            $tmp["ArticleVatcategory"] = '4';
+            $products[] = $tmp;
+        }
+
+        // Add shippingCosts
+        $shipping_item = $order->get_items( 'shipping' );
+
+        $shippingCosts = 0;
+        foreach ($shipping_item as $item) {
+            if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
+                $shippingCosts = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
+            }
+        }
+
+        if ($shippingCosts > 0) {
+            // Add virtual shipping cost product
+            $tmp["ArticleDescription"] = "Shipping";
+            $tmp["ArticleId"] = BuckarooConfig::SHIPPING_SKU;
+            $tmp["ArticleQuantity"] = 1;
+            $tmp["ArticleUnitprice"] = $shippingCosts;
+            $tmp["ArticleVatcategory"] = 1;       
+            $products[] = $tmp;
+        }
+
+        // end add items
+
+        $response = $afterpay->Capture($customVars, $products);
+        $process_response = fn_buckaroo_process_capture($response, $order, $this->currency, $products);
+
+        return $process_response;
+
+    }       
 
     /**
      * Validate payment fields on the frontend.
@@ -137,10 +551,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             }
         }
 
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
-        
+        resetOrder();
         return;
     }
 
@@ -151,6 +562,11 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
      * @return callable|void fn_buckaroo_process_response() or void
      */
     function process_payment($order_id) {
+
+        // Save this meta that is used later for the Capture call
+        update_post_meta( $order_id, '_wc_order_selected_payment_method', 'Afterpaynew' );
+        update_post_meta( $order_id, '_wc_order_payment_issuer', $this->type);
+
         $woocommerce = getWooCommerceObject();
 
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
@@ -336,7 +752,13 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->invoicedelay . ' day')).' + '. (int)$this->notificationdelay.' day'));
         }
 
-        $response = $afterpay->PayAfterpay($products);
+        $action = ucfirst(isset($this->afterpaynewpayauthorize) ? $this->afterpaynewpayauthorize : 'pay');
+
+        if ($action == 'Authorize') {
+            update_post_meta($order_id, '_wc_order_authorized', 'yes' );        
+        }
+
+        $response = $afterpay->PayOrAuthorizeAfterpay($products, $action);
         return fn_buckaroo_process_response($this, $response, $this->mode);
     }
 
@@ -602,5 +1024,12 @@ $country = isset($_POST['s_country']) ? $_POST['s_country'] : $this->country;
             'type' => 'text',
             'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
             'default' => '0');
+
+            $this->form_fields['afterpaynewpayauthorize'] = array(
+                'title' => __( 'AfterPay Pay or Capture', 'wc-buckaroo-bpe-gateway' ),
+                'type' => 'select',
+                'description' => __( 'Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway' ),
+                'options' => array('pay' => 'Pay', 'authorize' => 'Authorize'),
+                'default' => 'pay');             
     }
 }

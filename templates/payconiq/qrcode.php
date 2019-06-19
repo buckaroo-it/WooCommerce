@@ -1,6 +1,3 @@
-<?php
-
-?>
 <style>
 
     .pop-up-effect{

@@ -96,9 +96,7 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo {
      * @return void;
      */
     public function validate_fields() {
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
+        resetOrder();
         return;
     }
 
@@ -172,7 +170,7 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo {
                         ),
                         'error'
                     );
-                    wp_safe_redirect($order->get_cancel_order_url());
+                    wp_safe_redirect($this->get_return_url($order));
                 }
             }
         exit;

@@ -80,6 +80,101 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency) {
     }
 }
 
+/**
+ * Can the order be captured.
+ *
+ * @param  Object $response
+ * @param  Object $order WC_Order
+ * @param  String $amount
+ * @param  String $currency
+ * @return String|Boolean 
+ */
+function fn_buckaroo_process_capture($response, $order, $currency, $products = null) {
+
+    if ($response && $response->isValid() && $response->hasSucceeded()) {
+
+        // SET the flags
+        // check if order has already been captured
+        if (get_post_meta( $order->id, '_wc_order_is_captured', true)){
+
+            // Order already captured
+            // Add the other values of the capture so we have the full value captured
+            $previousCaptures = (float) get_post_meta( $order->id, '_wc_order_amount_captured', true);
+            $total = $previousCaptures + (float) $_POST['capture_amount'];
+            update_post_meta( $order->id, '_wc_order_amount_captured', $total );
+
+        } else {
+
+            // Order not captured yet
+            // Set first amout_captured and is_captured flag 
+            update_post_meta( $order->id, '_wc_order_is_captured', true );
+            update_post_meta( $order->id, '_wc_order_amount_captured', $_POST['capture_amount'] );
+        }
+
+        $str = "";
+	    $characters = range('0','9');
+	    $max = count($characters) - 1;
+	    for ($i = 0; $i < 2; $i++) {
+		    $rand = mt_rand(0, $max);
+		    $str .= $characters[$rand];
+	    }
+
+        // Set the flag that contains all the items and taxes that have been captured
+        add_post_meta( $order->id, '_wc_order_captures', array(
+            'currency' => $currency,
+            'id' => $order->id . $str,
+            'amount' => $_POST['capture_amount'],
+            'line_item_qtys' => $_POST['line_item_qtys'],
+            'line_item_totals' => $_POST['line_item_totals'],
+            'line_item_tax_totals' => $_POST['line_item_tax_totals'],
+        ));
+
+        add_post_meta($order->get_order_number(), '_capturebuckaroo' . $response->transactions, 'ok', true);
+        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+
+
+        $order->add_order_note(
+            sprintf(
+                __('Captured %s - Capture transaction ID: %s', 'wc-buckaroo-bpe-gateway'),
+                $_POST['capture_amount'] . ' ' . $currency,
+                $response->transactions
+            )
+        );
+
+        $response->status = 'fully_captured';
+
+        // Store the transaction_key together with captured products, we need this for refunding
+        if ($products != null) {
+            $capture_data = json_encode(['OriginalTransactionKey' => $response->transactions, 'products' => $products]);
+            add_post_meta($order->id, 'buckaroo_capture', $capture_data, false);
+        }
+        wp_send_json_success( $response );
+
+    }
+    if (!empty($response->ChannelError)) {
+        $order->add_order_note(
+            sprintf(
+                __(
+                    'Capture failed for transaction ID: %s ' . "\n" . $response->ChannelError,
+                    'wc-buckaroo-bpe-gateway'
+                ),
+                $order->get_transaction_id()
+            )
+        );
+        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        return new WP_Error('error_capture', __("Capture failed: ") . $response->ChannelError);
+    } else {
+        $order->add_order_note(
+            sprintf(
+                __('Capture failed for transaction ID: %s', 'wc-buckaroo-bpe-gateway'),
+                $order->get_transaction_id()
+            )
+        );
+        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        return false;
+    }
+}
+
 function fn_buckaroo_process_response_push($payment_method = null, $response = '') {
 
     $woocommerce = getWooCommerceObject();
@@ -527,18 +622,16 @@ function resetOrder() {
         $status = get_post_status($order_id);
 
         if(($status == 'wc-failed' || $status == 'wc-cancelled') && wc_notice_count( 'error' ) == 0) {
-
             //Add generated hash to order for WooCommerce versions later than 2.5
-            if (version_compare(WC()->version, '2.5', '>')) {
+            if (isset(WC()->version) && !empty(WC()->version) && ((substr(WC()->version, 0, 1) === '2' && substr(WC()->version, 2, 1) > 5) || substr(WC()->version, 0, 1) === '3') ) {
                 $order->cart_hash = md5(json_encode(wc_clean(WC()->cart->get_cart_for_session())) . WC()->cart->total);
+            } elseif (substr(WC()->version, 0, 1) > 3) {
+                wc_doing_it_wrong("resetOrder", "WC Version not supported", "4+");
             }
 
-            if (version_compare(WC()->version, '3.6', '>=')) {
-                $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
-            } else {
-                $newOrder = wc_create_order($order);
-                WC()->session->order_awaiting_payment = $newOrder->get_order_number();
-            }
+            $newOrder = wc_create_order($order);
+//            $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
+            WC()->session->order_awaiting_payment = $newOrder->get_order_number();
         }
     }
 }
@@ -551,7 +644,9 @@ function resetOrder() {
  * @return string
  */
 function getUniqInvoiceId($order_id, $mode = 'live') {
-    $paymentMethod = $_REQUEST['payment_method'];
+    if (isset($_REQUEST['payment_method'])) {
+        $paymentMethod = $_REQUEST['payment_method'];
+    } 
     $time = time();
     if(!empty($paymentMethod) && $paymentMethod == 'buckaroo_afterpay') {
         $time = substr($time, -5);
@@ -577,6 +672,9 @@ function getOrderIdFromInvoiceId($invoice_id, $mode = 'live') {
         $invoice_id = str_replace("WP_", "", $invoice_id);
     }
     $order_id = preg_replace('/_i(.*)/','',$invoice_id);
+
+    $order_id = preg_replace('/(\-[0-9]{1,3})$/','',$invoice_id);
+
     return $order_id;
 }
 

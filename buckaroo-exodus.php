@@ -49,6 +49,7 @@
         "woocommerce_buckaroo_paypal_settings",
         "woocommerce_buckaroo_afterpay_settings",
         "woocommerce_buckaroo_afterpaynew_settings",
+        "woocommerce_buckaroo_applepay_settings",
         "woocommerce_buckaroo_mistercash_settings",
         "woocommerce_buckaroo_transfer_settings",
         "woocommerce_buckaroo_emaestro_settings",

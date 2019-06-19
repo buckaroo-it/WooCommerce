@@ -10,3 +10,100 @@
 .wc_payment_method.payment_method_ {
 	display: none;
 }
+
+input[type="text"].error{
+	border-color: red;
+}
+
+input[type="text"].validated{
+	border-color: green;
+}
+
+.capture-form{
+	background: white;
+	background-color: #e4e4e4;
+	/* width: fit-content; */
+	position: absolute;
+	margin: 0 auto;
+	right: 342px;
+	display:none;
+}
+
+.capture input {
+
+	width: 70px;
+    vertical-align: middle;
+    text-align: right;
+
+}
+
+.capture .capture_order_item_qty {
+    text-align: center !important;
+    width: 50px!important;
+}
+
+.woocommerce_order_items_wrapper table.woocommerce_order_items thead th {
+    text-align: left;
+    padding: 1em;
+    font-weight: 400;
+    color: #999;
+    background: #f8f8f8;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* .thumbs div::before {
+    font-family: WooCommerce;
+    speak: none;
+    font-weight: 400;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    margin: 0;
+    text-indent: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    content: "";
+    color: #ccc;
+} */
+
+#woocommerce-order-items .woocommerce_order_items_wrapper table.woocommerce_order_items tbody tr:first-child td {
+    border-top: 8px solid #f8f8f8;
+}
+
+tbody {
+    display: table-row-group;
+    vertical-align: middle;
+	border-color: inherit;
+}
+
+table {
+    display: table;
+    border-collapse: separate;
+    border-spacing: 2px;
+    border-color: grey;
+}
+
+table.woocommerce_order_items tbody tr:first-child td {
+    border-bottom: 1px solid #dfdfdf;
+}
+
+.wc-order-capture-totals-items .wc-order-totals {
+    float: right;
+    width: 50%;
+    margin: 0;
+    padding: 0;
+    text-align: right;
+}
+
+.applepay-button-container {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}

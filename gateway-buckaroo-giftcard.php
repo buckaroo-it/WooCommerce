@@ -28,7 +28,11 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo {
         $this->notificationdelay = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
 
         parent::__construct();
-        $this->giftcards = $this->settings['giftcards'];
+        if (isset($this->settings['giftcards'])) {
+            $this->giftcards = $this->settings['giftcards'];
+        } else {
+            $this->giftcards = null;
+        }
 
         $this->supports           = array(
             'products'
@@ -103,9 +107,7 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo {
      * @return bool
      */
     public function validate_fields() { 
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
+        resetOrder();
         return;
     }
     

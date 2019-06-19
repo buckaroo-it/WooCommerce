@@ -7,7 +7,9 @@ require_once dirname(__FILE__).'/api/config/configcore.php';
 class BuckarooConfig extends BuckarooConfigCore {
     const NAME = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-    const VERSION = '2.10.2';
+    const VERSION = '2.12.0';
+
+    const SHIPPING_SKU = "WC8888";
    
     /**
      * Check if mode is test or live
@@ -121,23 +123,24 @@ class BuckarooConfig extends BuckarooConfigCore {
         $channel = BuckarooConfig::CHANNEL;
         if ($payment_type != null && $method != null) {
             $overrides = array(
-                'afterpay' => array('process_payment' => '', 'process_refund' => 'BackOffice'), 
-                'afterpaynew' => array('process_payment' => '', 'process_refund' => ''),
-                'creditcard' => array('process_payment' => '', 'process_refund' => ''),
-                'emaestro' => array('process_payment' => '', 'process_refund' => ''), 
-                'giftcard' => array('process_payment' => '', 'process_refund' => ''), 
-                'giropay' => array('process_payment' => '', 'process_refund' => ''), 
-                'ideal' => array('process_payment' => '', 'process_refund' => ''),
-                'mistercash' => array('process_payment' => '', 'process_refund' => ''), 
-                'paygarant' => array('process_payment' => '', 'process_refund' => ''), 
-                'paypal' => array('process_payment' => '', 'process_refund' => ''), 
-                'paysafecard' => array('process_payment' => '', 'process_refund' => ''), 
-                'sepadirectdebit' => array('process_payment' => '', 'process_refund' => 'BackOffice'), 
-                'sofortbanking' => array('process_payment' => '',  'process_refund' => ''),
-                'transfer' => array('process_payment' => '', 'process_refund' => ''),
-                'payconiq' => array('process_payment' => '', 'process_refund' => ''),
-                'nexi' => array('process_payment' => '', 'process_refund' => ''),
-                'p24' => array('process_payment' => '', 'process_refund' => ''),
+                'afterpay' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => 'BackOffice'), 
+                'afterpaynew' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'creditcard' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => '', 'process_capture' => 'BackOffice'),
+                'emaestro' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''), 
+                'giftcard' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''), 
+                'giropay' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''), 
+                'ideal' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'mistercash' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''), 
+                'paygarant' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''), 
+                'paypal' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''), 
+                'paysafecard' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''), 
+                'sepadirectdebit' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => 'BackOffice'), 
+                'sofortbanking' => array('process_payment' => '', 'process_capture' => '',  'process_refund' => ''),
+                'transfer' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'payconiq' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'nexi' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'p24' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+		'applepay' => array('process_payment' => '', 'process_refund' => ''),
             );
             //'' defaults to Web, set by BuckarooConfig::CHANNEL (see library/api/config/coreconfig.php);
             $channel = ($overrides[$payment_type][$method] != '') ? $overrides[$payment_type][$method] : $channel;

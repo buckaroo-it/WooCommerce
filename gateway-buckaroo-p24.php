@@ -96,9 +96,7 @@ class WC_Gateway_Buckaroo_P24 extends WC_Gateway_Buckaroo {
      * @return void;
      */
     public function validate_fields() {
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
+        resetOrder();
         return;
     }
 
