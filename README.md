@@ -1,2 +1,2 @@
 # Woocommerce-plugin
-Repository containing the woocommerce plugin by Buckaroo
+Repository containing the Woocommerce plugin by Buckaroo
