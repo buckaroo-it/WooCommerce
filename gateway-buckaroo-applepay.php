@@ -8,7 +8,7 @@ require_once(dirname(__FILE__) . '/library/api/paymentmethods/applepay/applepay.
 */
 class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo {
     
-    function __construct() { 
+    function __construct() {
         $woocommerce = getWooCommerceObject();
         $this->id = 'buckaroo_applepay';
         $this->title = 'Applepay';
@@ -25,9 +25,10 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo {
         $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
         $this->usenotification = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
         $this->notificationdelay = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
-             
+        $this->CustomerCardName;
+
         parent::__construct();
-        
+
         if (!isset($this->settings['usenotification'])) {
             $this->usenotification = 'FALSE';
             $this->notificationdelay = '0';
@@ -126,10 +127,12 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo {
     
     function createTransaction() {
         $this->paymentData = $_POST['paymentData'];
+        $this->CustomerCardName = $this->paymentData['billingContact']['givenName'] .' '. $this->paymentData['billingContact']['familyName'];
+
         $this->amount = $_POST['amount'];
         $items = $_POST['items'];
         $selected_method_id = $_POST['selected_shipping_method'];
-        
+
         if (empty($this->amount) || ! $this->paymentData || empty($items)) {
             throw new \Exception('ApplePay data is invalid.');
         }
@@ -153,13 +156,10 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo {
      * @return callable fn_buckaroo_process_response()
      */
     function process_payment($order_id) {
-
         $woocommerce = getWooCommerceObject();
 
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $order = getWCOrder($order_id);
-
-
         $applepay = new BuckarooApplepay();
 
         if (checkForSequentialNumbersPlugin()) {
@@ -171,7 +171,6 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo {
             $applepay->amountDedit = $order->get_total();
         }
 
-
         $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
         
         $applepay->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
@@ -180,10 +179,11 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo {
         $applepay->invoiceId = $order_id;
         $applepay->orderId = $order_id;
         $applepay->returnUrl = $this->notify_url;
+        $applepay->CustomerCardName = $this->CustomerCardName;
 
         $customVars = Array();
-
         $customVars['PaymentData'] = base64_encode(json_encode($this->paymentData['token']));
+        $customVars['CustomerCardName'] = $this->CustomerCardName;
 
         if ($this->usenotification == 'TRUE') {
             $applepay->usenotification = 1;
@@ -195,7 +195,8 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo {
             $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
             $customVars['CustomerLastName'] = !empty($get_billing_last_name) ? $get_billing_last_name : '';
             $customVars['Customeremail'] = !empty($get_billing_email) ? $get_billing_email : '';
-          
+
+
             $customVars['Notificationtype'] = 'PaymentComplete';
             $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
         }

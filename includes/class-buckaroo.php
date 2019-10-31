@@ -88,6 +88,7 @@ final class Buckaroo {
 	 * @return bool
 	 */
 	private function is_request( $type ) {
+
 		switch ( $type ) {
 			case 'admin':
 				return is_admin();

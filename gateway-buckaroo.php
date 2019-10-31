@@ -282,6 +282,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     </p>
 </div>
 <?php endif;
+
         $this->title = (! isset($this->title)? '' : $this->title);
         $this->id = (! isset($this->id)? '' : $this->id);
         $this->form_fields = [
@@ -383,14 +384,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 'options' => ['static' => 'Static', 'percentage' => 'Percentage'],
                 'description' => __('Percentage or static', 'wc-buckaroo-bpe-gateway'),
                 'default' => 'static'
-            ],
-            'extrachargetaxtype' => [
-                'title' => __('Extra charge tax type', 'wc-buckaroo-bpe-gateway'),
-                'type' => 'select',
-                'options' => ['included' => 'Included', 'excluded' => 'Excluded'],
-                'description' => __('Payment fee including or excluding tax', 'wc-buckaroo-bpe-gateway'),
-                'default' => 'included'
-            ],
+            ]
         ];
     }
 

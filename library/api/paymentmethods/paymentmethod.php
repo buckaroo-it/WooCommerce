@@ -43,6 +43,8 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
     public $CreditCardDataEncrypted;
     protected $data = array();
 
+    public $CustomerCardName;
+
     /**
      * Populate generic fields in $customVars() array 
      * 
@@ -145,6 +147,8 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         $this->data['returnUrl'] = $this->returnUrl;
         $this->data['mode'] = $this->mode;
         $this->data['channel'] = $this->channel;
+        $this->data['CustomerCardName'] = $this->customercardname;
+
         $soap = new BuckarooSoap($this->data);
         return BuckarooResponseFactory::getResponse($soap->transactionRequest());
     }

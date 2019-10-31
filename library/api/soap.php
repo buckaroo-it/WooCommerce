@@ -93,7 +93,6 @@
 
                 $TransactionRequest->Services = new Services();
                 $this->_addServices($TransactionRequest);
-
                 /*
                 $TransactionRequest->Services = new Services();
                  

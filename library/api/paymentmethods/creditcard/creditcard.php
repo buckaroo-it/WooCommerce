@@ -32,7 +32,6 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
 
         $this->data['services'][$this->type]['action'] = 'Pay';
         $this->data['services'][$this->type]['version'] = $this->version;
-
         if ($this->usenotification && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action'] = 'ExtraInfo';
             $this->data['services']['notification']['version'] = '1';
@@ -46,7 +45,6 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
                 $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
             }
         }
-
         // add the flag
         update_post_meta( $order->id, '_wc_order_authorized', 'yes' );
 

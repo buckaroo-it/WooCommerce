@@ -39,7 +39,6 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
                 $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
             }
         }
-
         return parent::Pay();
     }
 

@@ -34,7 +34,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
 
         $country = null;
         if (! empty($woocommerce->customer)) {
-            $country = get_user_meta($woocommerce->customer->ID, 'shipping_country', true);
+            $country = get_user_meta($woocommerce->customer->get_id(), 'shipping_country', true);
         } 
 
         $this->country = $country;

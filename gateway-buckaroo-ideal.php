@@ -116,7 +116,7 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
 	 */
     public function validate_fields() { 
         if ( !isset( $_POST['buckaroo-ideal-issuer'] ) || !$_POST['buckaroo-ideal-issuer'] || empty($_POST['buckaroo-ideal-issuer']) ) {
-            wc_add_notice( '<strong>iDEAL bank </strong> ' . __( 'is a required field.', 'woocommerce' ), 'error' );
+            wc_add_notice( __("<strong>iDEAL bank </strong> is a required field.", 'wc-buckaroo-bpe-gateway'), 'error' );
         }
         if (version_compare(WC()->version, '3.6', '<')) {
             resetOrder();
@@ -134,7 +134,7 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         $woocommerce = getWooCommerceObject();
         // Validation: Required fields
         if ( !isset( $_POST['buckaroo-ideal-issuer'] ) || !$_POST['buckaroo-ideal-issuer'] || empty($_POST['buckaroo-ideal-issuer']) ) {
-            wc_add_notice( '<strong>iDEAL bank </strong> ' . __( 'is a required field.', 'woocommerce' ), 'error' );
+            wc_add_notice( __("<strong>iDEAL bank </strong> is a required field.", 'wc-buckaroo-bpe-gateway'), 'error' );
             return;
         }
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';

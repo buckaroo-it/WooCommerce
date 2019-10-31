@@ -23,11 +23,10 @@ class BuckarooApplepay extends BuckarooPaymentMethod {
      * @return callable parent::Pay();
      */
     public function Pay($customVars = Array()) {
-
         $this->data['services'][$this->type]['action'] = 'Pay';
         $this->data['services'][$this->type]['version'] = $this->version;
-
-        $this->data['customVars'][$this->type]['PaymentData'] = $customVars['PaymentData'];        
+        $this->data['customVars'][$this->type]['PaymentData'] = $customVars['PaymentData'];
+        $this->data['customVars'][$this->type]['CustomerCardName'] = $customVars['CustomerCardName'];
 
         if ($this->usenotification && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action'] = 'ExtraInfo';

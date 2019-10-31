@@ -107,3 +107,11 @@ table.woocommerce_order_items tbody tr:first-child td {
 	margin-top: 20px;
 	margin-bottom: 20px;
 }
+#woocommerce_buckaroo_creditcard_AllowedProvider{
+    width: 400px;
+    margin: 0;
+    box-sizing: border-box;
+    height: 170px;
+    line-height: 32px;
+    vertical-align: top;
+}
