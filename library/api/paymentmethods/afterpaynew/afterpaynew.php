@@ -236,7 +236,6 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
      * @return callable $this->RefundGlobal()
      */
     public function AfterPayRefund($products, $issuer) {
-
         $this->type = $issuer;
         $this->version = 1;
         $this->mode = BuckarooConfig::getMode($this->type);        

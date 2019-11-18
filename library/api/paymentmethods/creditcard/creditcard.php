@@ -17,6 +17,7 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
      * @return callable parent::Refund()
      */
     public function Refund() {
+        $this->type = get_post_meta($this->orderId, '_wc_order_payment_issuer', true);
         return parent::Refund();
     }
 

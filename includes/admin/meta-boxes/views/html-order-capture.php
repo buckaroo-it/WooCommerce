@@ -154,7 +154,8 @@ if ( wc_tax_enabled() ) {
 		</thead>
 		<tbody id="order_line_items">
 			<?php
-			$captures = get_post_meta( $order->id, '_wc_order_captures') ? get_post_meta( $order->id, '_wc_order_captures') : false;
+            
+			$captures = get_post_meta( $order->get_id(), '_wc_order_captures') ? get_post_meta( $order->get_id(), '_wc_order_captures') : false;
 
 				foreach ( $line_items as $item_id => $item ) {
 					do_action( 'woocommerce_before_order_item_' . $item->get_type() . '_html', $item_id, $item, $order );
@@ -364,7 +365,7 @@ if ( wc_tax_enabled() ) {
 </div>
 <?php 
 
-$amountAlreadyCaptured = get_post_meta( $order->id, '_wc_order_amount_captured', true ) ? (float) get_post_meta( $order->id, '_wc_order_amount_captured', true ) : 0;
+$amountAlreadyCaptured = get_post_meta( $order->get_id(), '_wc_order_amount_captured', true ) ? (float) get_post_meta( $order->get_id(), '_wc_order_amount_captured', true ) : 0;
 
 if ( $order->get_total() - $amountAlreadyCaptured  > 0) : 
 

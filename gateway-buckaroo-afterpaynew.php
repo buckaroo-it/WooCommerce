@@ -89,7 +89,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
     {
         $action = ucfirst(isset($this->afterpaynewpayauthorize) ? $this->afterpaynewpayauthorize : 'pay');
 
-        if ($action == 'Authorize') {  
+        if ($action == 'Authorize') {
             // check if order is captured
             
             $captures = get_post_meta($order_id, 'buckaroo_capture', false);
@@ -410,7 +410,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         }
 
         try {
+
             $response = $afterpay->AfterPayRefund($products, $issuer);
+
         } catch (exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');
         }
@@ -435,7 +437,8 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $afterpay = new BuckarooAfterPayNew();
         if (checkForSequentialNumbersPlugin()) {
-            $order_id = $order->get_order_number(); //Use sequential id
+            $order_id = $woocommerce->order->get_order_number();
+            //$order_id = $order->get_order_number(); //Use sequential id
         }
 
         $order = getWCOrder($order_id);

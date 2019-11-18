@@ -99,8 +99,8 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
         $ideal->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
         $response = null;
-		try {				
-			$response = $ideal->Refund();
+		try {
+                $response = $ideal->Refund();
 		} catch (exception $e) {			
 			update_post_meta($order_id, '_pushallowed', 'ok');
 		}
