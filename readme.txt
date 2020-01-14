@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 5.1.1
-Stable tag: 2.13.1
+Stable tag: 2.13.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -90,15 +90,21 @@ Probably the return fields are not yet in lowercase letters in our plaza under M
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.13.2 =
+ - Compatibility with WooCommerce 3.9 
+
 = 2.13.1 =
  - Fix for warning: Order ID was called incorrectly.
  - Fix for error while processing creditcard refund.
+ - Compatibility with WooCommerce 3.8
 
 = 2.13.0 =
  - Apple Pay: Add CustomerCardName parameter to API call based on SDK response.
  - Admin has availability to select which creditCard provider will be available in frontend by default all selected.
  - Ideal: change translation domain from woocommerce to wc-buckaroo-bpe-gateway for error message in case ideal issuer not selected.
  - Fix for warning: Customer ID was called incorrectly
+ - Compatibility with WooCommerce 3.7
 
 = 2.12.1 =
 - Updated readme.txt
