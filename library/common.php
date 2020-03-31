@@ -95,20 +95,20 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
 
         // SET the flags
         // check if order has already been captured
-        if (get_post_meta( $order->id, '_wc_order_is_captured', true)){
+        if (get_post_meta( $order->get_id(), '_wc_order_is_captured', true)){
 
             // Order already captured
             // Add the other values of the capture so we have the full value captured
-            $previousCaptures = (float) get_post_meta( $order->id, '_wc_order_amount_captured', true);
+            $previousCaptures = (float) get_post_meta( $order->get_id(), '_wc_order_amount_captured', true);
             $total = $previousCaptures + (float) $_POST['capture_amount'];
-            update_post_meta( $order->id, '_wc_order_amount_captured', $total );
+            update_post_meta( $order->get_id(), '_wc_order_amount_captured', $total );
 
         } else {
 
             // Order not captured yet
             // Set first amout_captured and is_captured flag 
-            update_post_meta( $order->id, '_wc_order_is_captured', true );
-            update_post_meta( $order->id, '_wc_order_amount_captured', $_POST['capture_amount'] );
+            update_post_meta( $order->get_id(), '_wc_order_is_captured', true );
+            update_post_meta( $order->get_id(), '_wc_order_amount_captured', $_POST['capture_amount'] );
         }
 
         $str = "";
@@ -120,9 +120,9 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
 	    }
 
         // Set the flag that contains all the items and taxes that have been captured
-        add_post_meta( $order->id, '_wc_order_captures', array(
+        add_post_meta( $order->get_id(), '_wc_order_captures', array(
             'currency' => $currency,
-            'id' => $order->id . $str,
+            'id' => $order->get_id() . $str,
             'amount' => $_POST['capture_amount'],
             'line_item_qtys' => $_POST['line_item_qtys'],
             'line_item_totals' => $_POST['line_item_totals'],
@@ -146,7 +146,7 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
         // Store the transaction_key together with captured products, we need this for refunding
         if ($products != null) {
             $capture_data = json_encode(['OriginalTransactionKey' => $response->transactions, 'products' => $products]);
-            add_post_meta($order->id, 'buckaroo_capture', $capture_data, false);
+            add_post_meta($order->get_id(), 'buckaroo_capture', $capture_data, false);
         }
         wp_send_json_success( $response );
 

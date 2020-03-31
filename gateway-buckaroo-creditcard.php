@@ -269,8 +269,8 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
             $customVars['CreditCardIssuer'] = null;
         }
         // Save this meta that is used later for the Capture call
-        update_post_meta( $order->id, '_wc_order_payment_issuer', $_POST["buckaroo-creditcard-issuer"] );
-        update_post_meta( $order->id, '_wc_order_selected_payment_method', 'Creditcard' );
+        update_post_meta( $order->get_id(), '_wc_order_payment_issuer', $_POST["buckaroo-creditcard-issuer"] );
+        update_post_meta( $order->get_id(), '_wc_order_selected_payment_method', 'Creditcard' );
 
         if ($creditCardMethod == 'encrypt' && $this->isSecure()) {
             // In this case we only send the encrypted card data.
@@ -338,7 +338,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
 
         $order = getWCOrder($order_id);
 
-        $customVars['CreditCardIssuer'] = get_post_meta( $order->id, '_wc_order_payment_issuer', true);
+        $customVars['CreditCardIssuer'] = get_post_meta( $order->get_id(), '_wc_order_payment_issuer', true);
 
         $creditcard->amountDedit = $_POST['capture_amount'];
         $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
@@ -472,7 +472,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         $cards = array();
         $cardsDesc = array("amex" => "American Express",
                            "cartebancaire" => "Carte Bancaire",
-                           "cartebleue" => "Carte Bleue",
+                           "cartebleuevisa" => "Carte Bleue",
                            "dankort" => "Dankort",
                            "mastercard" => "Mastercard",
                            "visa" => "Visa",
@@ -597,7 +597,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
             'options' => array(
                 'amex' => 'American Express',
                 'cartebancaire' => 'Carte Bancaire',
-                'cartebleue' => 'Carte Bleue',
+                'cartebleuevisa' => 'Carte Bleue',
                 'dankort' => 'Dankort',
                 'mastercard' => 'Mastercard',
                 'visa' => 'Visa',
@@ -606,7 +606,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
                 'maestro' => "Maestro",
             ),
             'description' => __('select which Creditecard providers  will be appear to customer', 'wc-buckaroo-bpe-gateway'),
-            'default' => array('amex', 'cartebancaire', 'cartebleue', 'dankort', 'mastercard','visa', 'visaelectron', 'vpay', 'maestro')
+            'default' => array('amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard','visa', 'visaelectron', 'vpay', 'maestro')
         );
 
 }

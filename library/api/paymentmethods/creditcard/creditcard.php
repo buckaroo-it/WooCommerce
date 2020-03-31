@@ -47,7 +47,7 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
             }
         }
         // add the flag
-        update_post_meta( $order->id, '_wc_order_authorized', 'yes' );
+        update_post_meta( $this->orderId, '_wc_order_authorized', 'yes' );
 
         return $this->PayGlobal();
     }
@@ -81,7 +81,7 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
         }
 
         // add the flag
-        update_post_meta( $order->id, '_wc_order_authorized', 'yes' );
+        update_post_meta( $order->get_id(), '_wc_order_authorized', 'yes' );
 
         return $this->PayGlobal();
     }
@@ -181,7 +181,7 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
         }
 
         // add the flag
-        update_post_meta( $order->id, '_wc_order_authorized', 'yes' );
+        update_post_meta( $order->get_id(), '_wc_order_authorized', 'yes' );
 
         return $this->PayGlobal();
     }

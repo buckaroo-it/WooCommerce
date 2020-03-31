@@ -2,9 +2,9 @@
 // and management of Buckaroo certificates, for the 
 // master settings page & all buckaroo payment methods.
 jQuery(document).ready(function() {
-    if (jQuery('label').first().attr("for") && jQuery('label').first().attr("for").lastIndexOf('_')) {
+    if (jQuery('.wrap.woocommerce label').first().attr("for") && jQuery('.wrap.woocommerce label').first().attr("for").lastIndexOf('_')) {
         //Get Location
-        var label = jQuery('label').first().attr("for");
+        var label = jQuery('.wrap.woocommerce label').first().attr("for");
         var label = label.substring(0, label.lastIndexOf('_'));
         var ifbuck = label.substring(0, label.lastIndexOf('_'));
         var locationName = label.substring(label.lastIndexOf('_'), label.length);

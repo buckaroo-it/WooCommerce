@@ -406,7 +406,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         }
 
         if(!(count($products) > 0)){
-            return true;
+            return new WP_Error('error_refund_afterpay_no_products', __("To refund an AfterPay transaction you need to refund atleast one product."));
         }
 
         try {

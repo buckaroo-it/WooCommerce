@@ -791,7 +791,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
         // Save the original tranaction ID from the authorize or capture, we need it to do the refund
         // JM REMOVE???
-        //update_post_meta( $order->id, '_wc_order_payment_original_transaction_key', $this->type);
+        //update_post_meta( $order->get_id(), '_wc_order_payment_original_transaction_key', $this->type);
 
         return fn_buckaroo_process_response($this, $response, $this->mode);
     }

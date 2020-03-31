@@ -1,22 +1,22 @@
 /*!
-    * Buckaroo Client Side Encryption v1.0.0
-    *
-    * Copyright Buckaroo
-    * Released under the MIT license
-    * https://buckaroo.nl
-    *
-    * Date: 2018-10-18 09:26
+ * Buckaroo Client Side Encryption v1.0.0
+ *
+ * Copyright Buckaroo
+ * Released under the MIT license
+ * https://buckaroo.nl
+ *
+ * Date: 2018-10-18 09:26
  */
 var BuckarooClientSideEncryption;
-(function (BuckarooClientSideEncryption) {
+(function(BuckarooClientSideEncryption) {
     var V001;
-    (function (V001) {
-        var isNullOrWhitespace = function (input) {
+    (function(V001) {
+        var isNullOrWhitespace = function(input) {
             if (typeof input === "undefined" || input === null)
                 return true;
             return input.replace(/\s/g, "").length < 1;
         };
-        V001.validateCardNumber = function (cardNumberString, cardService) {
+        V001.validateCardNumber = function(cardNumberString, cardService) {
             if (typeof cardNumberString === "undefined" || cardNumberString === null)
                 return false;
             // Accept only digits.
@@ -42,14 +42,12 @@ var BuckarooClientSideEncryption;
             if (typeof cardService === "undefined" || cardService === null) {
                 // We could not determine the card service, so we don't know how the card number should be formatted, so return true.
                 return true;
-            }
-            else {
+            } else {
                 switch (cardService.toLowerCase()) {
                     case "visa":
                     case "visaelectron":
                     case "vpay":
                     case "cartebleuevisa":
-                    case "cartebleue":
                     case "dankort":
                         return /^4[0-9]{12}(?:[0-9]{3})?$/.test(cardNumberString);
                     case "mastercard":
@@ -71,7 +69,7 @@ var BuckarooClientSideEncryption;
                 }
             }
         };
-        V001.validateCvc = function (cvcString, cardService) {
+        V001.validateCvc = function(cvcString, cardService) {
             if (typeof cvcString === "undefined" || cvcString === null)
                 return false;
             // Determine if the cvc has the correct length.
@@ -81,8 +79,7 @@ var BuckarooClientSideEncryption;
                     return true;
                 if (cvcString.length !== 3 && cvcString.length !== 4)
                     return false;
-            }
-            else {
+            } else {
                 switch (cardService.toLowerCase()) {
                     case "bancontactmrcash":
                     case "bancontact":
@@ -107,7 +104,7 @@ var BuckarooClientSideEncryption;
                 return false;
             return true;
         };
-        V001.validateYear = function (yearString) {
+        V001.validateYear = function(yearString) {
             if (typeof yearString === "undefined" || yearString === null)
                 return false;
             // Accept only digits.
@@ -118,7 +115,7 @@ var BuckarooClientSideEncryption;
                 return false;
             return true;
         };
-        V001.validateMonth = function (monthString) {
+        V001.validateMonth = function(monthString) {
             if (typeof monthString === "undefined" || monthString === null)
                 return false;
             // Accept only digits.
@@ -133,7 +130,7 @@ var BuckarooClientSideEncryption;
                 return false;
             return true;
         };
-        V001.validateCardholderName = function (nameString) {
+        V001.validateCardholderName = function(nameString) {
             if (typeof nameString === "undefined" || nameString === null)
                 return false;
             // Cardholder name should be filled.
@@ -141,7 +138,7 @@ var BuckarooClientSideEncryption;
         };
         // Values to use in the encryption process.
         var Variables;
-        (function (Variables) {
+        (function(Variables) {
             Variables.algorithm = "RSA-OAEP";
             Variables.hashName = "SHA-1";
             Variables.exponent = "AQAB";
@@ -163,11 +160,11 @@ var BuckarooClientSideEncryption;
             };
         })(Variables || (Variables = {}));
         // Encodes an Uint8 array to a Base64 string.
-        var base64EncodeUint8Array = function (uint8Array) { return btoa(String.fromCharCode.apply(null, uint8Array)); };
+        var base64EncodeUint8Array = function(uint8Array) { return btoa(String.fromCharCode.apply(null, uint8Array)); };
         // Decodes a Base64 string to an Uint8 array.
-        var base64Decode = function (base64String) { return atob(base64String).split("").map(function (c) { return c.charCodeAt(0); }); };
+        var base64Decode = function(base64String) { return atob(base64String).split("").map(function(c) { return c.charCodeAt(0); }); };
         // Creates an Uint8Array of the given card data
-        var cardDataToUint8Array = function (cardNumber, year, month, cvc, cardholder) {
+        var cardDataToUint8Array = function(cardNumber, year, month, cvc, cardholder) {
             var encryptableString = cardNumber + "," + year + "," + month + "," + cvc + "," + cardholder;
             var encryptableUtf8String = unescape(encodeURIComponent(encryptableString));
             var encryptableArray = [];
@@ -177,7 +174,7 @@ var BuckarooClientSideEncryption;
             return new Uint8Array(encryptableArray);
         };
         // Is the current browser Internet Explorer?
-        var isBrowserInternetExplorer = function () {
+        var isBrowserInternetExplorer = function() {
             var ua = window.navigator.userAgent;
             var msie = ua.indexOf("MSIE ");
             return msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./);
@@ -191,21 +188,21 @@ var BuckarooClientSideEncryption;
         //		.then(function (encryptedCardData) {
         //			// Create transaction request to Buckaroo with as EncryptedCardData: encryptedCardData
         //		}, function (error) { console.log(error); }); // catches the error and logs it to the console
-        V001.encryptCardDataOther = function (cardNumber, year, month, cvc, cardholder) {
+        V001.encryptCardDataOther = function(cardNumber, year, month, cvc, cardholder) {
             // Create an encryptable Uint8 array from the input, which will be encrypted.
             var encryptableUint8Array = cardDataToUint8Array(cardNumber, year, month, cvc, cardholder);
             // First, import the key
             return window.crypto.subtle.importKey(Variables.keyFormat, Variables.publicKeyData, Variables.algorithmParams, true, Variables.keyOperations)
                 // Then, encrypt the input data
-                .then(function (publicKey) {
-                return window.crypto.subtle.encrypt(Variables.algorithmParams, publicKey, encryptableUint8Array.buffer)
-                    // Then, encode the encrypted data to Base64 and prepend the encryption version
-                    .then(function (encryptedBuffer) {
-                    var encryptedUint8Array = new Uint8Array(encryptedBuffer);
-                    var encryptedBase64String = base64EncodeUint8Array(encryptedUint8Array);
-                    return Variables.version + encryptedBase64String;
-                }, function (error) { console.log(error); });
-            }, function (error) { console.log(error); });
+                .then(function(publicKey) {
+                    return window.crypto.subtle.encrypt(Variables.algorithmParams, publicKey, encryptableUint8Array.buffer)
+                        // Then, encode the encrypted data to Base64 and prepend the encryption version
+                        .then(function(encryptedBuffer) {
+                            var encryptedUint8Array = new Uint8Array(encryptedBuffer);
+                            var encryptedBase64String = base64EncodeUint8Array(encryptedUint8Array);
+                            return Variables.version + encryptedBase64String;
+                        }, function(error) { console.log(error); });
+                }, function(error) { console.log(error); });
         };
         // Because Internet Explorer does not support JavaScript Promises, an Internet Explorer specific encrypt card data function is provided.
         // 
@@ -215,7 +212,7 @@ var BuckarooClientSideEncryption;
         //	BuckarooClientSideEncryption.V001.encryptCardDataIE(cardNumber, expirationYear, expirationMonth, cvc, cardholder, function (encryptedCardData) {
         //			// Create transaction request to Buckaroo with as EncryptedCardData: encryptedCardData
         //	});
-        V001.encryptCardDataIE = function (cardNumber, year, month, cvc, cardholder, callback) {
+        V001.encryptCardDataIE = function(cardNumber, year, month, cvc, cardholder, callback) {
             var crypto = window.crypto || window["msCrypto"];
             var cryptoSubtle = crypto.subtle;
             // Create an encryptable Uint8 array from the input, which will be encrypted.
@@ -236,18 +233,18 @@ var BuckarooClientSideEncryption;
             }
             // Import the public key
             var importOperation = cryptoSubtle.importKey(Variables.keyFormat, keyArray, Variables.algorithmParams, true, Variables.keyOperations);
-            importOperation.onerror = function (error) {
+            importOperation.onerror = function(error) {
                 console.error(error);
             };
             // When the public key is successfully imported, encrypt the card data
-            importOperation.oncomplete = function (event) {
+            importOperation.oncomplete = function(event) {
                 var publicKey = event.target.result;
                 var encryptOperation = cryptoSubtle.encrypt(Variables.algorithmParams, publicKey, encryptableUint8Array.buffer);
-                encryptOperation.onerror = function (error) {
+                encryptOperation.onerror = function(error) {
                     console.error(error);
                 };
                 // When the card data is successfully encrypted, perform the callback function with the encrypted card data
-                encryptOperation.oncomplete = function (e) {
+                encryptOperation.oncomplete = function(e) {
                     var encryptedUint8Array = new Uint8Array(e.target.result);
                     var encryptedBase64String = base64EncodeUint8Array(encryptedUint8Array);
                     var encryptedCardData = Variables.version + encryptedBase64String;
@@ -261,15 +258,14 @@ var BuckarooClientSideEncryption;
         //	BuckarooClientSideEncryption.V001.encryptCardData(cardNumber, expirationYear, expirationMonth, cvc, cardholder, function (encryptedCardData) {
         //			// Create transaction request to Buckaroo with as EncryptedCardData: encryptedCardData
         //	});
-        V001.encryptCardData = function (cardNumber, year, month, cvc, cardholder, callback) {
+        V001.encryptCardData = function(cardNumber, year, month, cvc, cardholder, callback) {
             if (isBrowserInternetExplorer()) {
                 V001.encryptCardDataIE(cardNumber, year, month, cvc, cardholder, callback);
-            }
-            else {
+            } else {
                 V001.encryptCardDataOther(cardNumber, year, month, cvc, cardholder)
-                    .then(function (encryptedCardData) {
-                    callback(encryptedCardData);
-                }, function (error) { console.log(error); });
+                    .then(function(encryptedCardData) {
+                        callback(encryptedCardData);
+                    }, function(error) { console.log(error); });
             }
         };
     })(V001 = BuckarooClientSideEncryption.V001 || (BuckarooClientSideEncryption.V001 = {}));

@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 5.1.1
-Stable tag: 2.13.2
+Tested up to: 5.3.2
+Stable tag: 2.14.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -90,6 +90,10 @@ Probably the return fields are not yet in lowercase letters in our plaza under M
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.14.0 =
+ - Compatibility with WooCommerce 4.0.1 and WordPress 5.3.2
+ - Solved issue with servicename for Carte Bleue payments
 
 = 2.13.2 =
  - Compatibility with WooCommerce 3.9 
