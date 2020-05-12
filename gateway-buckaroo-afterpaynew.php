@@ -370,7 +370,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $tmp["ArticleQuantity"] = 1;
             $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
             $itemsTotalAmount += $tmp["ArticleUnitprice"];
-            $tmp["ArticleVatcategory"] = '4';
+//            $tmp["ArticleVatcategory"] = '4';
             $products[] = $tmp;
         }
 
@@ -709,7 +709,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $tmp["ArticleQuantity"] = $item["qty"];
             $tmp["ArticleUnitprice"] = number_format(number_format($item["line_total"]+$item["line_tax"], 4)/$item["qty"], 2);
             $itemsTotalAmount += number_format($tmp["ArticleUnitprice"] * $item["qty"], 2);
-            $tmp["ArticleVatcategory"] = number_format(($item["line_tax"] * 100) / $item["line_total"],2);
+            $tmp["ArticleVatcategory"] = number_format(($item["line_tax"] * 100) / $item["line_total"], 2);
             $tmp["ProductUrl"] = get_permalink($item['product_id']);
             $tmp["ImageUrl"] = $src;
             $products[] = $tmp;
