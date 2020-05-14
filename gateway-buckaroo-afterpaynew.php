@@ -349,28 +349,53 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
                 $product = new WC_Product($item['product_id']);
                 $tax_class = $product->get_attribute("vat_category");
-                if (empty($tax_class)) {
-                    $tax_class = $this->vattype;
-                    //wc_add_notice( __("Vat category (vat_category) do not exist for product ", 'wc-buckaroo-bpe-gateway').$item['name'], 'error' );
-                    // return;
-                }
+
+                $tax = new WC_Tax();
+                $taxes = $tax->get_rates($product->get_tax_class());
+                $rates = array_shift($taxes);
+                $itemRate = number_format(array_shift($rates),2);
+
+//                if (empty($tax_class)) {
+//                    $tax_class = $this->vattype;
+//                    //wc_add_notice( __("Vat category (vat_category) do not exist for product ", 'wc-buckaroo-bpe-gateway').$item['name'], 'error' );
+//                    // return;
+//                }
                 $tmp["ArticleDescription"] = $item['name'];
                 $tmp["ArticleId"] = $item['product_id'];
                 $tmp["ArticleQuantity"] = $line_item_qtys[$item->get_id()];
                 $tmp["ArticleUnitprice"] = number_format(number_format($item["line_total"]+$item["line_tax"], 4)/$item["qty"], 2);
                 $itemsTotalAmount += $tmp["ArticleUnitprice"] * $line_item_qtys[$item->get_id()];
-                $tmp["ArticleVatcategory"] = $tax_class;
+//                $tmp["ArticleVatcategory"] = $tax_class;
+                $tmp["ArticleVatcategory"] = $itemRate;
                 $products[] = $tmp;
             }
         }
+
         $fees = $order->get_fees();
+
         foreach ($fees as $key => $item) {
+
+            //fee refunded count
+            $feeRefund = $order->get_item_count_refunded('fee');
+
+            //If fee refund have been already created
+            if ($feeRefund > 1) {
+                return new WP_Error('error_refund_afterpay_fee', __("Payment fee already refunded."));
+            }
+            if ((float)$line_item_totals[$key] !== (float)$item["line_total"]) {
+               if ( $line_item_totals[$key] !== 0){
+                   return new WP_Error('error_refund_afterpay_fee_incorrect_price', __("Incorrect payment fee price for refund"));
+               } else {
+                   continue;
+               }
+            }
+
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"] = $key;
             $tmp["ArticleQuantity"] = 1;
             $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
             $itemsTotalAmount += $tmp["ArticleUnitprice"];
-//            $tmp["ArticleVatcategory"] = '4';
+//          $tmp["ArticleVatcategory"] = '4';
             $products[] = $tmp;
         }
 
@@ -390,7 +415,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $tmp["ArticleId"] = BuckarooConfig::SHIPPING_SKU;
             $tmp["ArticleQuantity"] = 1;
             $tmp["ArticleUnitprice"] = $shippingCosts;
-            $tmp["ArticleVatcategory"] = 1;
+//            $tmp["ArticleVatcategory"] = 1;
             $products[] = $tmp;
             $itemsTotalAmount += $shippingCosts;
         }
@@ -468,18 +493,24 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
 
             if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
                 $product = new WC_Product($item['product_id']);
-                $tax_class = $product->get_attribute("vat_category");
-                if (empty($tax_class)) {
-                    $tax_class = $this->vattype;
-                    //wc_add_notice( __("Vat category (vat_category) do not exist for product ", 'wc-buckaroo-bpe-gateway').$item['name'], 'error' );
-            // return;
-                }
+
+                $tax = new WC_Tax();
+                $taxes = $tax->get_rates($product->get_tax_class());
+                $rates = array_shift($taxes);
+                $itemRate = number_format(array_shift($rates),2);
+//                $tax_class = $product->get_attribute("vat_category");
+//                if (empty($tax_class)) {
+//                    $tax_class = $this->vattype;
+//                    //wc_add_notice( __("Vat category (vat_category) do not exist for product ", 'wc-buckaroo-bpe-gateway').$item['name'], 'error' );
+//            // return;
+//                }
                 $tmp["ArticleDescription"] = $item['name'];
                 $tmp["ArticleId"] = $item['product_id'];
                 $tmp["ArticleQuantity"] = $line_item_qtys[$item->get_id()];
                 $tmp["ArticleUnitprice"] = (float) number_format(number_format($item["line_total"]+$item["line_tax"], 4)/$item["qty"], 2);
                 $itemsTotalAmount += $tmp["ArticleUnitprice"] * $item["qty"];
-                $tmp["ArticleVatcategory"] = $tax_class;
+                $tmp["ArticleVatcategory"] = $itemRate;
+//                $tmp["ArticleVatcategory"] = $tax_class;
                 /*
                 for ($i = 0 ; $item["qty"] > $i && $line_item_qtys[$item->get_id()] > $i ; $i++) {
                     $products[] = $tmp;
@@ -495,7 +526,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $tmp["ArticleQuantity"] = 1;
             $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
             $itemsTotalAmount += $tmp["ArticleUnitprice"];
-            $tmp["ArticleVatcategory"] = '4';
+//            $tmp["ArticleVatcategory"] = '4';
             $products[] = $tmp;
         }
 
@@ -515,7 +546,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $tmp["ArticleId"] = BuckarooConfig::SHIPPING_SKU;
             $tmp["ArticleQuantity"] = 1;
             $tmp["ArticleUnitprice"] = $shippingCosts;
-            $tmp["ArticleVatcategory"] = 1;       
+//            $tmp["ArticleVatcategory"] = 1;
             $products[] = $tmp;
         }
 
@@ -697,6 +728,10 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $xpath = new DOMXPath(@DOMDocument::loadHTML($imgTag));
             $src = $xpath->evaluate("string(//img/@src)");
 
+            $tax = new WC_Tax();
+            $taxes = $tax->get_rates($product->get_tax_class());
+            $rates = array_shift($taxes);
+            $itemRate = number_format(array_shift($rates),2);
             // $tax_class = $product->get_attribute("vat_category");
             // if (empty($tax_class)){
             //     $tax_class = $this->vattype;
@@ -709,15 +744,16 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $tmp["ArticleQuantity"] = $item["qty"];
             $tmp["ArticleUnitprice"] = number_format(number_format($item["line_total"]+$item["line_tax"], 4)/$item["qty"], 2);
             $itemsTotalAmount += number_format($tmp["ArticleUnitprice"] * $item["qty"], 2);
-            $tmp["ArticleVatcategory"] = number_format(($item["line_tax"] * 100) / $item["line_total"], 2);
+//            $tmp["ArticleVatcategory"] = number_format(($item["line_tax"] * 100) / $item["line_total"], 2);
+            $tmp["ArticleVatcategory"] = $itemRate;
             $tmp["ProductUrl"] = get_permalink($item['product_id']);
             $tmp["ImageUrl"] = $src;
             $products[] = $tmp;
-
         }
 
         $fees = $order->get_fees();
         foreach ( $fees as $key => $item ) {
+//            $tmp = [];
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"] = $key;
             $tmp["ArticleQuantity"] = 1;
