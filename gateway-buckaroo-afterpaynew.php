@@ -759,7 +759,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $tmp["ArticleQuantity"] = 1;
             $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
             $itemsTotalAmount += $tmp["ArticleUnitprice"];
-//            $tmp["ArticleVatcategory"] = '4';
+            $tmp["ArticleVatcategory"] = '0';
             $products[] = $tmp;
         }
         if(!empty($afterpay->ShippingCosts)) {
