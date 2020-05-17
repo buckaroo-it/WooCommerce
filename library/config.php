@@ -141,6 +141,7 @@ class BuckarooConfig extends BuckarooConfigCore {
                 'nexi' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'p24' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
 		'applepay' => array('process_payment' => '', 'process_refund' => ''),
+                'kbc' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
             );
             //'' defaults to Web, set by BuckarooConfig::CHANNEL (see library/api/config/coreconfig.php);
             $channel = ($overrides[$payment_type][$method] != '') ? $overrides[$payment_type][$method] : $channel;
