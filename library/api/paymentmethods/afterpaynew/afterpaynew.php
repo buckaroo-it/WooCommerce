@@ -191,7 +191,7 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
             $this->data['customVars'][$this->type]["Quantity"][$i - 1]["group"] = 'Article';
             $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["value"] = $p["ArticleUnitprice"];
             $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] = $p["ArticleVatcategory"];
+            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] = isset($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0;
             $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"] = 'Article';
             $this->data['customVars'][$this->type]["Url"][$i - 1]["value"] = $p["ProductUrl"];
             $this->data['customVars'][$this->type]["Url"][$i - 1]["group"] = 'Article';
