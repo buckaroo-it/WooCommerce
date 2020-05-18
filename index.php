@@ -206,7 +206,11 @@ function generateGateways()
         'Applepay' => array(
             'filename' => 'gateway-buckaroo-applepay.php',
             'classname' => 'WC_Gateway_Buckaroo_Applepay',
-        ),    
+        ),
+        'KBC' => array(
+            'filename' => 'gateway-buckaroo-kbc.php',
+            'classname' => 'WC_Gateway_Buckaroo_KBC',
+        ),
     );
     $buckaroo_enabled_payment_methods = array();
     if (file_exists(dirname(__FILE__) . '/gateway-buckaroo-testscripts.php')) {
