@@ -441,26 +441,23 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
 
 //        $orderRefundedPrice = $order->get_total_refunded();
 
-
-        for($i = 0; count($products) > $i; $i++) {
-            if($orderRefundData['totalRefund'] != $itemsTotalAmount) {
-                if(number_format($orderRefundData['totalRefund'] - $itemsTotalAmount,2) >= 0.01) {
-                    $tmp["ArticleDescription"] = 'Remaining Price';
-                    $tmp["ArticleId"] = count($products);
-                    $tmp["ArticleQuantity"] = 1;
-                    $tmp["ArticleUnitprice"] = number_format($orderRefundData['totalRefund'] - $itemsTotalAmount,2);
-                    $tmp["ArticleVatcategory"] = 0;
-                    $products[] = $tmp;
-                    $itemsTotalAmount += 0.01;
-                } elseif(number_format($itemsTotalAmount - $orderRefundData['totalRefund'],2) >= 0.01) {
-                    $tmp["ArticleDescription"] = 'Remaining Price';
-                    $tmp["ArticleId"] = count($products);
-                    $tmp["ArticleQuantity"] = 1;
-                    $tmp["ArticleUnitprice"] = number_format($orderRefundData['totalRefund'] - $itemsTotalAmount,2);
-                    $tmp["ArticleVatcategory"] = 0;
-                    $products[] = $tmp;
-                    $itemsTotalAmount -= 0.01;
-                }
+        if($orderRefundData['totalRefund'] != $itemsTotalAmount) {
+            if(number_format($orderRefundData['totalRefund'] - $itemsTotalAmount,2) >= 0.01) {
+                $tmp["ArticleDescription"] = 'Remaining Price';
+                $tmp["ArticleId"] = count($products);
+                $tmp["ArticleQuantity"] = 1;
+                $tmp["ArticleUnitprice"] = number_format($orderRefundData['totalRefund'] - $itemsTotalAmount,2);
+                $tmp["ArticleVatcategory"] = 0;
+                $products[] = $tmp;
+                $itemsTotalAmount += 0.01;
+            } elseif(number_format($itemsTotalAmount - $orderRefundData['totalRefund'],2) >= 0.01) {
+                $tmp["ArticleDescription"] = 'Remaining Price';
+                $tmp["ArticleId"] = count($products);
+                $tmp["ArticleQuantity"] = 1;
+                $tmp["ArticleUnitprice"] = number_format($orderRefundData['totalRefund'] - $itemsTotalAmount,2);
+                $tmp["ArticleVatcategory"] = 0;
+                $products[] = $tmp;
+                $itemsTotalAmount -= 0.01;
             }
         }
         // end add items
@@ -807,33 +804,59 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         if(!empty($afterpay->ShippingCosts)) {
             $itemsTotalAmount += $afterpay->ShippingCosts;
         }
-        for($i = 0; count($products) > $i; $i++) {
-            if($afterpay->amountDedit != $itemsTotalAmount) {
-                if(number_format($afterpay->amountDedit - $itemsTotalAmount,2) >= 0.01) {
-                    $tmp["ArticleDescription"] = 'Remaining Price';
-                    $tmp["ArticleId"] = count($products);
-                    $tmp["ArticleQuantity"] = 1;
-                    $tmp["ArticleUnitprice"] = number_format($afterpay->amountDedit - $itemsTotalAmount,2);
-                    $tmp["ArticleVatcategory"] = 0;
-                    $tmp["ProductUrl"] = get_permalink($item['product_id']);
-                    $tmp["ImageUrl"] = $src;
-                    $products[] = $tmp;
+
+        if($afterpay->amountDedit != $itemsTotalAmount) {
+            if(number_format($afterpay->amountDedit - $itemsTotalAmount,2) >= 0.01) {
+                $tmp["ArticleDescription"] = 'Remaining Price';
+                $tmp["ArticleId"] = count($products);
+                $tmp["ArticleQuantity"] = 1;
+                $tmp["ArticleUnitprice"] = number_format($afterpay->amountDedit - $itemsTotalAmount,2);
+                $tmp["ArticleVatcategory"] = 0;
+                $tmp["ProductUrl"] = get_permalink($item['product_id']);
+                $tmp["ImageUrl"] = $src;
+                $products[] = $tmp;
 //                    $products[$i]['ArticleUnitprice'] += 0.01;
-                    $itemsTotalAmount += 0.01;
-                } elseif(number_format($itemsTotalAmount - $afterpay->amountDedit,2) >= 0.01) {
-                    $tmp["ArticleDescription"] = 'Remaining Price';
-                    $tmp["ArticleId"] = count($products);
-                    $tmp["ArticleQuantity"] = 1;
-                    $tmp["ArticleUnitprice"] = number_format($afterpay->amountDedit - $itemsTotalAmount,2);
-                    $tmp["ArticleVatcategory"] = 0;
-                    $tmp["ProductUrl"] = get_permalink($item['product_id']);
-                    $tmp["ImageUrl"] = $src;
-                    $products[] = $tmp;
+                $itemsTotalAmount += 0.01;
+            } elseif(number_format($itemsTotalAmount - $afterpay->amountDedit,2) >= 0.01) {
+                $tmp["ArticleDescription"] = 'Remaining Price';
+                $tmp["ArticleId"] = count($products);
+                $tmp["ArticleQuantity"] = 1;
+                $tmp["ArticleUnitprice"] = number_format($afterpay->amountDedit - $itemsTotalAmount,2);
+                $tmp["ArticleVatcategory"] = 0;
+                $tmp["ProductUrl"] = get_permalink($item['product_id']);
+                $tmp["ImageUrl"] = $src;
+                $products[] = $tmp;
 //                    $products[$i]['ArticleUnitprice'] -= 0.01;
-                    $itemsTotalAmount -= 0.01;
-                }
+                $itemsTotalAmount -= 0.01;
             }
         }
+//        for($i = 0; count($products) > $i; $i++) {
+//            if($afterpay->amountDedit != $itemsTotalAmount) {
+//                if(number_format($afterpay->amountDedit - $itemsTotalAmount,2) >= 0.01) {
+//                    $tmp["ArticleDescription"] = 'Remaining Price';
+//                    $tmp["ArticleId"] = count($products);
+//                    $tmp["ArticleQuantity"] = 1;
+//                    $tmp["ArticleUnitprice"] = number_format($afterpay->amountDedit - $itemsTotalAmount,2);
+//                    $tmp["ArticleVatcategory"] = 0;
+//                    $tmp["ProductUrl"] = get_permalink($item['product_id']);
+//                    $tmp["ImageUrl"] = $src;
+//                    $products[] = $tmp;
+////                    $products[$i]['ArticleUnitprice'] += 0.01;
+//                    $itemsTotalAmount += 0.01;
+//                } elseif(number_format($itemsTotalAmount - $afterpay->amountDedit,2) >= 0.01) {
+//                    $tmp["ArticleDescription"] = 'Remaining Price';
+//                    $tmp["ArticleId"] = count($products);
+//                    $tmp["ArticleQuantity"] = 1;
+//                    $tmp["ArticleUnitprice"] = number_format($afterpay->amountDedit - $itemsTotalAmount,2);
+//                    $tmp["ArticleVatcategory"] = 0;
+//                    $tmp["ProductUrl"] = get_permalink($item['product_id']);
+//                    $tmp["ImageUrl"] = $src;
+//                    $products[] = $tmp;
+////                    $products[$i]['ArticleUnitprice'] -= 0.01;
+//                    $itemsTotalAmount -= 0.01;
+//                }
+//            }
+//        }
 
         $afterpay->returnUrl = $this->notify_url;
 
