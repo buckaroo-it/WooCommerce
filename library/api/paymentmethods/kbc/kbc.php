@@ -64,13 +64,19 @@ class BuckarooKBC extends BuckarooPaymentMethod {
         foreach ($items as $item_id => $item_data) {
 
             if ($items[$item_id] instanceof WC_Order_Item_Product) {
-                $itemQuantity = $item_data->get_quantity();
-                if ($itemQuantity === $productRefund - $data[$item_id]['qty']) {
-                    throw new Exception('Product already refunded');
-                } elseif ($itemQuantity < $productRefund ) {
-                    $availableRefundQty = $itemQuantity - ($productRefund - $data[$item_id]['qty']);
-                    $message = $availableRefundQty . ' item(s) can be refund';
-                    throw new Exception( $message );
+                if ($productRefund === 0 && (!empty($data[$item_id]['total']) || !empty($data[$item_id]['tax']))) {
+                    throw new Exception('Product quantity doesn`t choose');
+                }
+                if (!empty($data[$item_id]['qty'])) {
+                    $itemQuantity = $item_data->get_quantity();
+                    $item_refunded = $order->get_qty_refunded_for_item($item_id);
+                    if ($itemQuantity === abs($item_refunded) - $data[$item_id]['qty']) {
+                        throw new Exception('Product already refunded');
+                    } elseif ($itemQuantity < abs($item_refunded) ) {
+                        $availableRefundQty = $itemQuantity - (abs($item_refunded) - $data[$item_id]['qty']);
+                        $message = $availableRefundQty . ' item(s) can be refund';
+                        throw new Exception( $message );
+                    }
                 }
             }
         }
@@ -79,11 +85,13 @@ class BuckarooKBC extends BuckarooPaymentMethod {
             if ($orderFeeRefund > 1) {
                 throw new Exception('Payment fee already refunded');
             }
-            if (round($data[$item_id]['total']+$data[$item_id]['tax'],2) > $feeCost) {
-                throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()) );
-            } elseif(round($data[$item_id]['total']+$data[$item_id]['tax']) < $feeCost) {
-                $balance = $feeCost - round($data[$item_id]['total']+$data[$item_id]['tax']);
-                throw new Exception('Add ' . $balance . ' ' . esc_attr(get_woocommerce_currency()) . ' to payment fee cost' );
+            if (!empty($data[$item_id]['total'])) {
+                if (round($data[$item_id]['total']+$data[$item_id]['tax'],2) > $feeCost) {
+                    throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()) );
+                } elseif(round($data[$item_id]['total']+$data[$item_id]['tax']) < $feeCost) {
+                    $balance = $feeCost - round($data[$item_id]['total']+$data[$item_id]['tax']);
+                    throw new Exception('Add ' . $balance . ' ' . esc_attr(get_woocommerce_currency()) . ' to payment fee cost' );
+                }
             }
         }
 
