@@ -538,7 +538,21 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                         ),
                         'error'
                     );
-                } elseif(($response->payment_method == "afterpay") && ($response->statuscode == 690)){
+                }
+                elseif ($payment_method instanceof WC_Gateway_Buckaroo_Giftcard && $response->statuscode == 490) {
+                    if ($response->statusmessage == 'Failed') {
+                        wc_add_notice(
+                            __('Card info is incorrect for '.$response->payment_method, 'wc-buckaroo-bpe-gateway'),
+                            'error'
+                        );
+                    } else {
+                        wc_add_notice(
+                            __($response->message, 'wc-buckaroo-bpe-gateway'),
+                            'error'
+                        );
+                    }
+                }
+                elseif(($response->payment_method == "afterpay") && ($response->statuscode == 690)){
                     wc_add_notice(
                         __(
                             $response->ChannelError,
