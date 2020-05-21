@@ -211,6 +211,10 @@ function generateGateways()
             'filename' => 'gateway-buckaroo-kbc.php',
             'classname' => 'WC_Gateway_Buckaroo_KBC',
         ),
+        'RequestToPay' => array(
+            'filename' => 'gateway-buckaroo-requesttopay.php',
+            'classname' => 'WC_Gateway_Buckaroo_RequestToPay',
+        ),
     );
     $buckaroo_enabled_payment_methods = array();
     if (file_exists(dirname(__FILE__) . '/gateway-buckaroo-testscripts.php')) {
@@ -303,5 +307,6 @@ function orderCapture(){
     }
     exit;
 }
+
 //test
  
