@@ -138,9 +138,8 @@ export default class Woocommerce {
   }
 
   canOrderAmount() {
-    const current_amount = parseInt($(".cart .quantity input").val());
-    const max_amount = parseInt($(".cart .quantity input").attr('max'));
-  
+    const current_amount = parseInt($(".cart .quantity input.qty").val());
+    const max_amount = parseInt($(".cart .quantity input.qty").attr('max'));
     if (isNaN(max_amount)) {
       return current_amount > 0;
     }
