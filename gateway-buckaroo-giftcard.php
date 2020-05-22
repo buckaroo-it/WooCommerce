@@ -35,7 +35,8 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo {
         }
 
         $this->supports           = array(
-            'products'
+            'products',
+            'refunds'
         );
         
         $this->notify_url = home_url('/');
