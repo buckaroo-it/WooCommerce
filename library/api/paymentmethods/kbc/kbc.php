@@ -45,6 +45,10 @@ class BuckarooKBC extends BuckarooPaymentMethod {
         return parent::Refund();
     }
 
+    /**
+     * @param $data
+     * @throws Exception
+     */
     public function checkRefundData($data){
 
         //Check if order is refundable
@@ -54,7 +58,6 @@ class BuckarooKBC extends BuckarooPaymentMethod {
 
         $feeCost = $order->get_total_fees();
 
-        $productRefund = $order->get_item_count_refunded();
         $orderFeeRefund = $order->get_item_count_refunded('fee');
 
         $shippingCosts = round(floatval($order->get_shipping_total()) + floatval($order->get_shipping_tax()), 2);
@@ -64,9 +67,28 @@ class BuckarooKBC extends BuckarooPaymentMethod {
         foreach ($items as $item_id => $item_data) {
 
             if ($items[$item_id] instanceof WC_Order_Item_Product) {
-                if ($productRefund === 0 && (!empty($data[$item_id]['total']) || !empty($data[$item_id]['tax']))) {
+
+                $tax = $items[$item_id]->get_taxes();
+                $taxId = 3;
+
+                if (!empty($tax['total'])) {
+                    foreach ($tax['total'] as $key => $value) {
+                        $taxId = $key;
+                    }
+                }
+
+                $itemTax = $items[$item_id]->get_total_tax();
+
+                $itemRefundedTax = $order->get_tax_refunded_for_item($item_id, $taxId);
+
+                if ( empty($data[$item_id]['qty']) && !empty($data[$item_id]['total']) ) {
                     throw new Exception('Product quantity doesn`t choose');
                 }
+
+                if ($itemRefundedTax > $itemTax) {
+                    throw new Exception('Incorrect refund tax price');
+                }
+
                 if (!empty($data[$item_id]['qty'])) {
                     $itemQuantity = $item_data->get_quantity();
                     $item_refunded = $order->get_qty_refunded_for_item($item_id);
