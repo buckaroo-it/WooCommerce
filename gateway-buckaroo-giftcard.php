@@ -196,6 +196,13 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo {
         $ccontent_arr = array();
         $keybase = 'certificatecontents';
         $keycount = 1;
+        if (isset($_GET['section']) && $_GET['section'] == 'buckaroo_giftcard' ): ?>
+            <div class="notice notice-info">
+                <p>
+                    <?php echo __("<b>Important:</b> Group giftcards can only be refunded from the Buckaroo Plaza.", 'wc-buckaroo-bpe-gateway'); ?>
+                </p>
+            </div>
+        <?php endif;
         if (!empty($options["$keybase$keycount"])) {
             while(!empty($options["$keybase$keycount"])){
                 $ccontent_arr[] = "$keybase$keycount";
@@ -204,6 +211,7 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo {
         }
         $while_key = 1;
         $selectcertificate_options = array('none' => 'None selected');
+
         while($while_key != $keycount) {
             $this->form_fields["certificatecontents$while_key"] = array(
                 'title' => '',
