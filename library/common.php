@@ -535,15 +535,19 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             }
             if ($response_status == 'cancelled') {
                 $logger->logInfo('Update status 5. Order status: cancelled');
-                if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled'))) {
+                if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                     $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                 } else {
                     $logger->logInfo('Response. Order status cannot be changed.');
                 }
                 wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
             } else {
-                $logger->logInfo('Update status 6. Order status: failed');
-                $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
+                if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
+                    $logger->logInfo('Update status 6. Order status: failed');
+                    $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
+                } else {
+                    $logger->logInfo('Order status cannot be changed.');
+                }
                 if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == 690) {
                     wc_add_notice(
                         __(
