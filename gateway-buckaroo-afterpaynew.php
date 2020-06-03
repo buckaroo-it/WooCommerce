@@ -35,7 +35,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $country = null;
         if (! empty($woocommerce->customer)) {
             $country = get_user_meta($woocommerce->customer->get_id(), 'shipping_country', true);
-        } 
+        }
 
         $this->country = $country;
 
@@ -91,7 +91,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
 
         if ($action == 'Authorize') {
             // check if order is captured
-            
+
             $captures = get_post_meta($order_id, 'buckaroo_capture', false);
             $previous_refunds = get_post_meta($order_id, 'buckaroo_refund', false);
 
@@ -106,7 +106,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                     $refund = json_decode($refundJson, true);
 
                     if (isset($refund['OriginalCaptureTransactionKey']) && $capture['OriginalTransactionKey'] == $refund['OriginalCaptureTransactionKey']) {
-                        
+
                         foreach ($capture['products'] as &$capture_product) {
                             foreach ($refund['products'] as &$refund_product) {
                                 if ($capture_product['ArticleId'] != BuckarooConfig::SHIPPING_SKU && $capture_product['ArticleId'] == $refund_product['ArticleId'] && $refund_product['ArticleQuantity'] > 0) {
@@ -126,12 +126,12 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                                         $capture_product['ArticleUnitprice'] = 0;
                                     }
                                 }
- 
+
                             }
                         }
                     }
                     $refundJson = json_encode($refund);
-                }  
+                }
                 $captureJson = json_encode($capture);
             }
 
@@ -146,7 +146,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $line_item_tax_totals_new = array();
             $originalTransactionKey_new = array();
             $shippingOriginalTransactionKey_new = array();
-            
+
             $order = wc_get_order($order_id);
             $items = $order->get_items();
 
@@ -177,7 +177,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                                         $qty_to_refund = 0;
                                     } else {
                                         $line_item_qtys_new[$counter][$id_to_refund] = $product['ArticleQuantity'];
-                                        $qty_to_refund -= $product['ArticleQuantity'];                                        
+                                        $qty_to_refund -= $product['ArticleQuantity'];
                                     }
                                     $originalTransactionKey_new[$counter] = $capture['OriginalTransactionKey'];
                                     $counter++;
@@ -204,7 +204,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             }
 
             // Find free `slots` in captures
-            foreach ($captures as $captureJson) {                                
+            foreach ($captures as $captureJson) {
                 $capture = json_decode($captureJson, true);
                 foreach ($capture['products'] as $product) {
                     if ($product['ArticleId'] == BuckarooConfig::SHIPPING_SKU) {
@@ -218,7 +218,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                             } else {
                                 $line_item_totals_new[$counter][$shippingIdToRefund] = $product['ArticleUnitprice'];
                                 $line_item_tax_totals_new[$counter][$shippingIdToRefund] = array(1 => 0);
-                                $shippingCostsToRefund -= $product['ArticleUnitprice'];                                        
+                                $shippingCostsToRefund -= $product['ArticleUnitprice'];
                             }
                             $shippingOriginalTransactionKey_new[$counter] = $capture['OriginalTransactionKey'];
                             $counter++;
@@ -245,14 +245,14 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             for ($i=0; $i<count($line_item_qtys_new); $i++) {
                 if ($amount > 0) {
                     $refund_result[] = $this->process_partial_refunds(
-                    $order_id,
-                    $amount,
-                    $reason,
-                    $line_item_qtys_new[$i],
-                    [],
-                    [],
-                    $originalTransactionKey_new[$i]
-                );
+                        $order_id,
+                        $amount,
+                        $reason,
+                        $line_item_qtys_new[$i],
+                        [],
+                        [],
+                        $originalTransactionKey_new[$i]
+                    );
                 }
             }
 
@@ -260,16 +260,16 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             for ($i=0; $i<count($line_item_totals_new); $i++) {
                 if ($amount > 0) {
                     $refund_result[] = $this->process_partial_refunds(
-                    $order_id,
-                    $amount,
-                    $reason,
-                    [],
-                    $line_item_totals_new[$i],
-                    $line_item_tax_totals_new[$i],
-                    $shippingOriginalTransactionKey_new[$i]
-                );
+                        $order_id,
+                        $amount,
+                        $reason,
+                        [],
+                        $line_item_totals_new[$i],
+                        $line_item_tax_totals_new[$i],
+                        $shippingOriginalTransactionKey_new[$i]
+                    );
                 }
-            }            
+            }
 
             foreach ($refund_result as $result) {
                 if ($result !== true) {
@@ -350,8 +350,12 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         foreach ($line_item_totals as $key => $value) {
             $orderRefundData[$key]['total'] = $value;
         }
-        foreach ($line_item_tax_totals as $key => $value) {
-            $orderRefundData[$key]['tax'] = array_shift($value);
+        foreach ($line_item_tax_totals as $key => $keyItem) {
+            foreach ($keyItem as $taxItem => $taxItemValue) {
+                if (!empty($taxItemValue)) {
+                    $orderRefundData[$key]['tax'] = $taxItemValue;
+                }
+            }
         }
         if (!empty($line_item_qtys)){
             foreach ($line_item_qtys as $key => $value) {
@@ -402,11 +406,11 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                 return new WP_Error('error_refund_afterpay_fee', __("Payment fee already refunded."));
             }
             if ((float)$line_item_totals[$key] !== (float)$item["line_total"]) {
-               if ( $line_item_totals[$key] !== 0){
-                   return new WP_Error('error_refund_afterpay_fee_incorrect_price', __("Incorrect payment fee price for refund"));
-               } else {
-                   continue;
-               }
+                if ( $line_item_totals[$key] !== 0){
+                    return new WP_Error('error_refund_afterpay_fee_incorrect_price', __("Incorrect payment fee price for refund"));
+                } else {
+                    continue;
+                }
             }
 
             $tmp["ArticleDescription"] = $item['name'];
@@ -485,7 +489,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         if ($final_response === true) {
             // Store the transaction_key together with refunded products, we need this for later refunding actions
             $refund_data = json_encode(['OriginalTransactionKey' => $response->transactions, 'OriginalCaptureTransactionKey' => $afterpay->OriginalTransactionKey, 'products' => $products]);
-            add_post_meta($order_id, 'buckaroo_refund', $refund_data, false);                 
+            add_post_meta($order_id, 'buckaroo_refund', $refund_data, false);
         }
 
         return $final_response;
@@ -556,7 +560,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                 */
                 $products[] = $tmp;
             }
-        }       
+        }
         $fees = $order->get_fees();
         foreach ( $fees as $key => $item ) {
             $tmp["ArticleDescription"] = $item['name'];
@@ -595,7 +599,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
 
         return $process_response;
 
-    }       
+    }
 
     /**
      * Validate payment fields on the frontend.
@@ -626,7 +630,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         if (version_compare(WC()->version, '3.6', '<')) {
             resetOrder();
         }
-        
+
         return;
     }
 
@@ -760,7 +764,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $articlesLooped = [];
 
         foreach ( $items as $item ) {
-            
+
             $product = new WC_Product($item['product_id']);
             $imgTag = $product->get_image();
             $xpath = new DOMXPath(@DOMDocument::loadHTML($imgTag));
@@ -871,7 +875,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $action = ucfirst(isset($this->afterpaynewpayauthorize) ? $this->afterpaynewpayauthorize : 'pay');
 
         if ($action == 'Authorize') {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes' );        
+            update_post_meta($order_id, '_wc_order_authorized', 'yes' );
         }
 
         $response = $afterpay->PayOrAuthorizeAfterpay($products, $action);
@@ -939,7 +943,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                 <input id="buckaroo-afterpaynew-CompanyName" name="buckaroo-afterpaynew-CompanyName" class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
             </p>
             </span>
-            <!-- END::: This is never displayed because this version of Afterpay does not support company yet -->
+                <!-- END::: This is never displayed because this version of Afterpay does not support company yet -->
             <?php } ?>
 
 
@@ -950,26 +954,26 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                     });
                 });
             </script> -->
-<?php 
-$country = isset($_POST['s_country']) ? $_POST['s_country'] : $this->country;
-?>
+            <?php
+            $country = isset($_POST['s_country']) ? $_POST['s_country'] : $this->country;
+            ?>
             <?php if ($country == "FI") { ?>
-            <p class="form-row form-row-wide validate-required">
-                <label for="buckaroo-afterpaynew-IdentificationNumber"><?php echo _e('Identification Number', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                <input id="buckaroo-afterpaynew-IdentificationNumber" name="buckaroo-afterpaynew-IdentificationNumber" class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
-            </p>
+                <p class="form-row form-row-wide validate-required">
+                    <label for="buckaroo-afterpaynew-IdentificationNumber"><?php echo _e('Identification Number', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
+                    <input id="buckaroo-afterpaynew-IdentificationNumber" name="buckaroo-afterpaynew-IdentificationNumber" class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
+                </p>
             <?php } ?>
 
             <?php if (in_array($country, ["BE", "NL"])) { ?>
-            <p class="form-row">
-                <label for="buckaroo-afterpaynew-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                <input id="buckaroo-afterpaynew-genderm" name="buckaroo-afterpaynew-gender" class="" type="radio" value="1" checked style="float:none; display: inline !important;" /> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway')?> &nbsp;
-                <input id="buckaroo-afterpaynew-genderf" name="buckaroo-afterpaynew-gender" class="" type="radio" value="2" style="float:none; display: inline !important;" /> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway')?>
-            </p>
-            <p class="form-row form-row-wide validate-required">
-                <label for="buckaroo-afterpaynew-birthdate"><?php echo _e('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-                <input id="buckaroo-afterpaynew-birthdate" name="buckaroo-afterpaynew-birthdate" class="input-text" type="text" maxlength="250" autocomplete="off" value="" placeholder="DD-MM-YYYY" />
-            </p>
+                <p class="form-row">
+                    <label for="buckaroo-afterpaynew-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
+                    <input id="buckaroo-afterpaynew-genderm" name="buckaroo-afterpaynew-gender" class="" type="radio" value="1" checked style="float:none; display: inline !important;" /> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway')?> &nbsp;
+                    <input id="buckaroo-afterpaynew-genderf" name="buckaroo-afterpaynew-gender" class="" type="radio" value="2" style="float:none; display: inline !important;" /> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway')?>
+                </p>
+                <p class="form-row form-row-wide validate-required">
+                    <label for="buckaroo-afterpaynew-birthdate"><?php echo _e('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
+                    <input id="buckaroo-afterpaynew-birthdate" name="buckaroo-afterpaynew-birthdate" class="input-text" type="text" maxlength="250" autocomplete="off" value="" placeholder="DD-MM-YYYY" />
+                </p>
             <?php } ?>
 
             <?php if (!empty($post_data["ship_to_different_address"])) { ?>
@@ -977,43 +981,43 @@ $country = isset($_POST['s_country']) ? $_POST['s_country'] : $this->country;
             <?php } ?>
 
             <?php if ($country == "NL") { ?>
-            <p class="form-row form-row-wide validate-required">
-                <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_nl/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
-            </p>
+                <p class="form-row form-row-wide validate-required">
+                    <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_nl/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+                </p>
             <?php } elseif ($country == "BE") { ?>
 
-            <p class="form-row form-row-wide validate-required">
+                <p class="form-row form-row-wide validate-required">
 
-                <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" /> 
-                <?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?>
-                <span class="required">*</span>
-<br>
-                <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_be/" target="_blank">
-                <?php echo _e('Afterpay conditions (Dutch)', 'wc-buckaroo-bpe-gateway')?>
-                </a> 
-                <br>
-                <a href="https://documents.myafterpay.com/consumer-terms-conditions/fr_be/" target="_blank">
-                <?php echo _e('Afterpay conditions (French)', 'wc-buckaroo-bpe-gateway')?>
-                </a>
-            
-            </p>
+                    <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+                    <?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?>
+                    <span class="required">*</span>
+                    <br>
+                    <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_be/" target="_blank">
+                        <?php echo _e('Afterpay conditions (Dutch)', 'wc-buckaroo-bpe-gateway')?>
+                    </a>
+                    <br>
+                    <a href="https://documents.myafterpay.com/consumer-terms-conditions/fr_be/" target="_blank">
+                        <?php echo _e('Afterpay conditions (French)', 'wc-buckaroo-bpe-gateway')?>
+                    </a>
+
+                </p>
 
             <?php } elseif ($country == "DE") { ?>
-            <p class="form-row form-row-wide validate-required">
-                <a href="https://documents.myafterpay.com/consumer-terms-conditions/de_de/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
-            </p>
+                <p class="form-row form-row-wide validate-required">
+                    <a href="https://documents.myafterpay.com/consumer-terms-conditions/de_de/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+                </p>
             <?php } elseif ($country == "AT") { ?>
-            <p class="form-row form-row-wide validate-required">
-                <a href="https://documents.myafterpay.com/consumer-terms-conditions/de_at/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
-            </p>
+                <p class="form-row form-row-wide validate-required">
+                    <a href="https://documents.myafterpay.com/consumer-terms-conditions/de_at/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+                </p>
             <?php } elseif ($country == "FI") { ?>
-            <p class="form-row form-row-wide validate-required">
-                <a href="https://documents.myafterpay.com/consumer-terms-conditions/fi_fi/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
-            </p>
+                <p class="form-row form-row-wide validate-required">
+                    <a href="https://documents.myafterpay.com/consumer-terms-conditions/fi_fi/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+                </p>
             <?php } else { ?>
-            <p class="form-row form-row-wide validate-required">
-                <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_nl/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
-            </p>
+                <p class="form-row form-row-wide validate-required">
+                    <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_nl/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+                </p>
             <?php } ?>
 
             <p class="required" style="float:right;">* Verplicht</p>
@@ -1141,11 +1145,11 @@ $country = isset($_POST['s_country']) ? $_POST['s_country'] : $this->country;
             'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
             'default' => '0');
 
-            $this->form_fields['afterpaynewpayauthorize'] = array(
-                'title' => __( 'AfterPay Pay or Capture', 'wc-buckaroo-bpe-gateway' ),
-                'type' => 'select',
-                'description' => __( 'Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway' ),
-                'options' => array('pay' => 'Pay', 'authorize' => 'Authorize'),
-                'default' => 'pay');             
+        $this->form_fields['afterpaynewpayauthorize'] = array(
+            'title' => __( 'AfterPay Pay or Capture', 'wc-buckaroo-bpe-gateway' ),
+            'type' => 'select',
+            'description' => __( 'Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway' ),
+            'options' => array('pay' => 'Pay', 'authorize' => 'Authorize'),
+            'default' => 'pay');
     }
 }
