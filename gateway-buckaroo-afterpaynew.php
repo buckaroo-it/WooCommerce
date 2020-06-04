@@ -395,15 +395,18 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                 $products[] = $tmp;
             } else if (!empty($orderRefundData[$item->get_id()]['tax'])) {
                 $product = new WC_Product($item['product_id']);
-//                $tax_class = $product->get_attribute("vat_category");
-
                 $tax = new WC_Tax();
                 $taxes = $tax->get_rates($product->get_tax_class());
+                $taxId = 3; // Standard tax
+                foreach ($taxes as $taxIdItem => $taxItem) {
+                    $taxId = $taxIdItem;
+                }
+
                 $rates = array_shift($taxes);
                 $itemRate = number_format(array_shift($rates),2);
 
                 $tmp["ArticleDescription"] = $rates['label'];
-                $tmp["ArticleId"] = 3;
+                $tmp["ArticleId"] = $taxId;
                 $tmp["ArticleQuantity"] = 1;
                 $tmp["ArticleUnitprice"] = number_format($orderRefundData[$item->get_id()]['tax'], 2);
 
