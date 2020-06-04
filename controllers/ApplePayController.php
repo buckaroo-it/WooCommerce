@@ -162,7 +162,7 @@ Class ApplePayController
                 'identifier' => $wc_method->get_id(),
                 'detail'     => "",
                 'label'      => $wc_method->get_label(),                
-                'amount'     => number_format((float) $wc_method->get_cost() + $wc_method->get_shipping_tax(), 2)
+                'amount'     => (float) number_format($wc_method->get_cost() + $wc_method->get_shipping_tax(), 2)
             ];
         }, $wc_methods);
         
