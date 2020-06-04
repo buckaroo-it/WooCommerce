@@ -29,18 +29,23 @@ Class ApplePayController
                 'quantity'     => (int) $_GET['quantity'],
             ];
 
-            $wc_product = $woocommerce->product_factory
-                ->get_product($current_shown_product['variation_id'])
-            ;
+            $products = array_map(function ($product) {
+                //var_dump($product);
+                $id = $product['variation_id'] !== 0
+                    ? $product['variation_id']
+                    : $product['product_id'];
 
-            $product = [
-                'type'       => 'product',
-                'id'         => $current_shown_product['variation_id'],
-                'name'       => $wc_product->get_data()['name'],
-                'price'      => $wc_product->get_data()['price'],
-                'quantity'   => $current_shown_product['quantity'],
-                'attributes' => []
-            ];
+                return [
+                    'type'       => 'product',
+                    'id'         => $id,
+                    'name'       => wc_get_product($id)->get_name(),
+                    'price'      => $product['line_total'] + $product['line_tax'],
+                    'quantity'   => $product['quantity'],
+                    'attributes' => []
+                ];
+            }, $cart->get_cart_contents());
+
+            $product = reset($products);
 
             $coupons = array_map(function ($coupon) use ($cart) {
                 $price = $cart->get_coupon_discount_amount($coupon->get_code(), $cart->display_cart_ex_tax);
@@ -67,13 +72,10 @@ Class ApplePayController
                 ]];
             } 
 
-            return [
-                'total' => $cart->total,
-                'items' => array_values(array_merge([$product], $coupons, $extra_charge))
-            ];
+            return array_merge([$product], $coupons, $extra_charge);
         });
         
-        echo json_encode($items, JSON_PRETTY_PRINT);
+        echo json_encode(array_values($items), JSON_PRETTY_PRINT);
         exit;
     }
 
@@ -83,16 +85,16 @@ Class ApplePayController
 
         $cart = $woocommerce->cart;
     
-        $products = array_map(function ($product) {    
+        $products = array_map(function ($product) {
+            //var_dump($product);
             $id = $product['variation_id'] !== 0 
                 ? $product['variation_id']
                 : $product['product_id'];
-
             return [
                 'type'       => 'product',
                 'id'         => $id,
                 'name'       => wc_get_product($id)->get_name(),
-                'price'      => $product['data']->get_price(),
+                'price'      => $product['line_total'] + $product['line_tax'],
                 'quantity'   => $product['quantity'],
                 'attributes' => []
             ];
@@ -123,12 +125,9 @@ Class ApplePayController
             ]];
         } 
 
-        $items = [
-            'total' => $cart->total,
-            'items' => array_values(array_merge($products, $coupons, $extra_charge))
-        ];
+        $items = array_merge($products, $coupons, $extra_charge);
 
-        echo json_encode($items, JSON_PRETTY_PRINT);
+        echo json_encode(array_values($items), JSON_PRETTY_PRINT);
         exit;
     }
 
