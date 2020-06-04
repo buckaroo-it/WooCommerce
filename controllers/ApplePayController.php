@@ -67,10 +67,13 @@ Class ApplePayController
                 ]];
             } 
 
-            return array_merge([$product], $coupons, $extra_charge);
+            return [
+                'total' => $cart->total,
+                'items' => array_values(array_merge([$product], $coupons, $extra_charge))
+            ];
         });
         
-        echo json_encode(array_values($items), JSON_PRETTY_PRINT); 
+        echo json_encode($items, JSON_PRETTY_PRINT);
         exit;
     }
 
@@ -120,9 +123,12 @@ Class ApplePayController
             ]];
         } 
 
-        $items = array_merge($products, $coupons, $extra_charge);
+        $items = [
+            'total' => $cart->total,
+            'items' => array_values(array_merge($products, $coupons, $extra_charge))
+        ];
 
-        echo json_encode(array_values($items), JSON_PRETTY_PRINT); 
+        echo json_encode($items, JSON_PRETTY_PRINT);
         exit;
     }
 

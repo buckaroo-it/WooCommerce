@@ -18,6 +18,7 @@ export default class Woocommerce {
       }
       
       var all_items = [];
+      var total = 0;
       $.ajax({
         url: "/",
         data: send_data,
@@ -25,7 +26,7 @@ export default class Woocommerce {
         dataType: "json"
       })
       .done((items) => { 
-        all_items = items.map((item) => {
+        all_items = items.items.map((item) => {
           return {
             id: item.id,
             name: item.name,
@@ -34,13 +35,15 @@ export default class Woocommerce {
             type: item.type,
             attributes: item.attributes
           }
-        }); 
+        });
+        total = items.total;
       });                
-      return all_items;
+      return { total: total, items: all_items };
     }
 
     else {
       var cart_items = [];
+      var total = 0;
       $.ajax({
         url: "/",
         data: { 'wc-api': `${this.api_namespace}-get-items-from-cart` },
@@ -48,7 +51,7 @@ export default class Woocommerce {
         dataType: "json"
       })
       .done((items) => { 
-        cart_items = items.map((item) => {
+        cart_items = items.items.map((item) => {
           return {
             id: item.id,
             name: item.name,
@@ -57,9 +60,10 @@ export default class Woocommerce {
             type: item.type,
             attributes: item.attributes
           }
-        }); 
-      });                
-      return cart_items;
+        });
+        total = items.total;
+      });
+      return { total: total, items: cart_items };
     }
   }
 

@@ -23,7 +23,8 @@ export default class ApplePay {
       .checkApplePaySupport(this.store_info.merchant_id)
       .then((is_applepay_supported) => {
         if (is_applepay_supported) {
-          const cart_items = this.getItems();
+          const result_items = this.getItems();
+          const cart_items = result_items.items;
           const shipping_methods = this.woocommerce.getShippingMethods(this.country_code);
           const first_shipping_item = this.getFirstShippingItem(shipping_methods);
 
@@ -31,7 +32,7 @@ export default class ApplePay {
             ? [].concat(cart_items, first_shipping_item) 
             : cart_items;
 
-          const total_to_pay = this.sumTotalAmount(all_items);
+          const total_to_pay = convert.toDecimal(result_items.total);
           
           const total_item = {
             label: "Totaal",
@@ -57,7 +58,8 @@ export default class ApplePay {
   processChangeContactInfoCallback(contact_info) {
     this.country_code = contact_info.countryCode
 
-    const cart_items = this.getItems();
+    const result_items = this.getItems();
+    const cart_items = result_items.items;
     const shipping_methods = this.woocommerce.getShippingMethods(this.country_code);
     const first_shipping_item = this.getFirstShippingItem(shipping_methods);
     
@@ -65,7 +67,7 @@ export default class ApplePay {
       ? [].concat(cart_items, first_shipping_item) 
       : cart_items;
 
-    const total_to_pay = this.sumTotalAmount(all_items);
+    const total_to_pay = convert.toDecimal(result_items.total);
     
     const total_item = {
       label: "Totaal",
@@ -96,7 +98,8 @@ export default class ApplePay {
   }
 
   processShippingMethodsCallback(selected_method) {
-    const cart_items = this.getItems();
+    const result_items = this.getItems();
+    const cart_items = result_items.items;
     const shipping_item = {
       type: 'final',
       label: selected_method.label,
@@ -105,7 +108,7 @@ export default class ApplePay {
     };
 
     const all_items = [].concat(cart_items, shipping_item);
-    const total_to_pay = this.sumTotalAmount(all_items);
+    const total_to_pay = convert.toDecimal(result_items.total);
     
     const total_item = {
       label: "Totaal",
@@ -131,7 +134,7 @@ export default class ApplePay {
     }
 
     if (authorization_result.status === ApplePaySession.STATUS_SUCCESS) {
-      this.buckaroo.createTransaction(payment, this.total_price, this.selected_shipping_method, this.woocommerce.getItems(this.country_code));
+      this.buckaroo.createTransaction(payment, this.total_price, this.selected_shipping_method, this.woocommerce.getItems(this.country_code).items);
     }
     else {
       const errors = authorization_result.errors.map((error) => { 
@@ -167,8 +170,11 @@ export default class ApplePay {
   }
 
   getItems() {
-    return this.woocommerce.getItems(this.country_code)
-      .map((item) => {
+
+    var items = this.woocommerce.getItems(this.country_code);
+    return {
+      total: items.total,
+      items: items.items.map((item) => {
         const label = `${item.quantity} x ${item.name}`;
         return {
           type: 'final',
@@ -177,7 +183,7 @@ export default class ApplePay {
           qty: item.quantity
         };
       })
-    ;
+    }
   }
 
   shippingCountryError(contact_info) {
