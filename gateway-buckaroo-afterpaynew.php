@@ -348,7 +348,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $orderRefundData = [];
 
         foreach ($line_item_totals as $key => $value) {
-            $orderRefundData[$key]['total'] = $value;
+            if (!empty($value)) {
+                $orderRefundData[$key]['total'] = $value;
+            }
         }
         foreach ($line_item_tax_totals as $key => $keyItem) {
             foreach ($keyItem as $taxItem => $taxItemValue) {
@@ -371,7 +373,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         foreach ($items as $item) {
             if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
                 $product = new WC_Product($item['product_id']);
-                $tax_class = $product->get_attribute("vat_category");
+//                $tax_class = $product->get_attribute("vat_category");
 
                 $tax = new WC_Tax();
                 $taxes = $tax->get_rates($product->get_tax_class());
@@ -389,6 +391,24 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                 $tmp["ArticleUnitprice"] = number_format(number_format($item["line_total"]+$item["line_tax"], 4)/$item["qty"], 2);
                 $itemsTotalAmount += $tmp["ArticleUnitprice"] * $line_item_qtys[$item->get_id()];
 //                $tmp["ArticleVatcategory"] = $tax_class;
+                $tmp["ArticleVatcategory"] = $itemRate;
+                $products[] = $tmp;
+            } else if (!empty($orderRefundData[$item->get_id()]['tax'])) {
+                $product = new WC_Product($item['product_id']);
+//                $tax_class = $product->get_attribute("vat_category");
+
+                $tax = new WC_Tax();
+                $taxes = $tax->get_rates($product->get_tax_class());
+                $rates = array_shift($taxes);
+                $itemRate = number_format(array_shift($rates),2);
+
+                $tmp["ArticleDescription"] = $rates['label'];
+                $tmp["ArticleId"] = 3;
+                $tmp["ArticleQuantity"] = 1;
+                $tmp["ArticleUnitprice"] = number_format($orderRefundData[$item->get_id()]['tax'], 2);
+
+                $itemsTotalAmount += $tmp["ArticleUnitprice"];
+
                 $tmp["ArticleVatcategory"] = $itemRate;
                 $products[] = $tmp;
             }
@@ -477,11 +497,12 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         }
 
         try {
-
+            $afterpay->checkRefundData($orderRefundData);
             $response = $afterpay->AfterPayRefund($products, $issuer);
 
         } catch (exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');
+            return new WP_Error('refund_error', __($e->getMessage()));
         }
 
         $final_response = fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
