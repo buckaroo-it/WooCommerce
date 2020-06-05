@@ -336,19 +336,21 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
 
         //Check if order is refundable
         $order = wc_get_order( $this->orderId );
-
         $items = $order->get_items();
         $feeItems = $order->get_items('fee');
+
         $feeCost = $order->get_total_fees();
 
         $orderFeeRefund = $order->get_item_count_refunded('fee');
 
         $shippingCosts = round(floatval($order->get_shipping_total()) + floatval($order->get_shipping_tax()), 2);
+
         $shippingRefundedCosts = $order->get_total_shipping_refunded();
 
         foreach ($items as $item_id => $item_data) {
 
             if ($items[$item_id] instanceof WC_Order_Item_Product && isset($data[$item_id])) {
+
                 $tax = $items[$item_id]->get_taxes();
                 $taxId = 3;
 
@@ -362,8 +364,12 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
 
                 $itemRefundedTax = $order->get_tax_refunded_for_item($item_id, $taxId);
 
-                if ( empty($data[$item_id]['qty']) ) {
+                if ( empty($data[$item_id]['qty']) && !empty($data[$item_id]['total']) ) {
                     throw new Exception('Product quantity doesn`t choose');
+                }
+
+                if ($itemRefundedTax > $itemTax) {
+                    throw new Exception('Incorrect refund tax price');
                 }
 
                 if (!empty($data[$item_id]['qty'])) {
@@ -376,10 +382,6 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
                         $message = $availableRefundQty . ' item(s) can be refund';
                         throw new Exception( $message );
                     }
-                }
-
-                if ($itemRefundedTax > $itemTax) {
-                    throw new Exception('Incorrect refund tax price');
                 }
             }
         }
