@@ -373,7 +373,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         foreach ($items as $item) {
             if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
                 $product = new WC_Product($item['product_id']);
-//                $tax_class = $product->get_attribute("vat_category");
 
                 $tax = new WC_Tax();
                 $taxes = $tax->get_rates($product->get_tax_class());
@@ -391,27 +390,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                 $tmp["ArticleUnitprice"] = number_format(number_format($item["line_total"]+$item["line_tax"], 4)/$item["qty"], 2);
                 $itemsTotalAmount += $tmp["ArticleUnitprice"] * $line_item_qtys[$item->get_id()];
 //                $tmp["ArticleVatcategory"] = $tax_class;
-                $tmp["ArticleVatcategory"] = $itemRate;
-                $products[] = $tmp;
-            } else if (!empty($orderRefundData[$item->get_id()]['tax'])) {
-                $product = new WC_Product($item['product_id']);
-                $tax = new WC_Tax();
-                $taxes = $tax->get_rates($product->get_tax_class());
-                $taxId = 3; // Standard tax
-                foreach ($taxes as $taxIdItem => $taxItem) {
-                    $taxId = $taxIdItem;
-                }
-
-                $rates = array_shift($taxes);
-                $itemRate = number_format(array_shift($rates),2);
-
-                $tmp["ArticleDescription"] = $rates['label'];
-                $tmp["ArticleId"] = $taxId;
-                $tmp["ArticleQuantity"] = 1;
-                $tmp["ArticleUnitprice"] = number_format($orderRefundData[$item->get_id()]['tax'], 2);
-
-                $itemsTotalAmount += $tmp["ArticleUnitprice"];
-
                 $tmp["ArticleVatcategory"] = $itemRate;
                 $products[] = $tmp;
             }

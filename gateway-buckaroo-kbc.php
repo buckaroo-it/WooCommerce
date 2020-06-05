@@ -93,10 +93,16 @@ class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo {
         $orderRefundData = [];
 
         foreach ($line_item_totals as $key => $value) {
-            $orderRefundData[$key]['total'] = $value;
+            if (!empty($value)) {
+                $orderRefundData[$key]['total'] = $value;
+            }
         }
-        foreach ($line_item_tax_totals as $key => $value) {
-            $orderRefundData[$key]['tax'] = array_shift($value);
+        foreach ($line_item_tax_totals as $key => $keyItem) {
+            foreach ($keyItem as $taxItem => $taxItemValue) {
+                if (!empty($taxItemValue)) {
+                    $orderRefundData[$key]['tax'] = $taxItemValue;
+                }
+            }
         }
         if (!empty($line_item_qtys)){
             foreach ($line_item_qtys as $key => $value) {
