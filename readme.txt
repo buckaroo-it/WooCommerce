@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 5.3.2
-Stable tag: 2.14.0
+Tested up to: 5.4.1
+Stable tag: 2.15.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,8 +12,8 @@ This is a plug-in with countless payment methods, all of which are SEPA proof.
 
 == Description ==
 
-The Buckaroo ([Dutch](https://www.buckaroo.nl/integratie/plugins/woocommerce/) or [English](https://www.buckaroo-payments.com/integration/plugins/woocommerce/)) plug-in is convenient and works like a charm, it's easy to install and takes all the trouble out of your hands.
-It is a plug-in with many different payment methods, all of which are SEPA proof. This plug-in is completely free to download. WooCommerce is an excellent platform for a webshop to look professional, comes with built-in tools to analyze sales and it’s also fully customizable. WooCommerce is used by 30% of all webshops worldwide, [download](https://www.buckaroo.nl/integratie/plugins/woocommerce/) this plugin now and find out more!
+The Buckaroo ([Dutch](https://www.buckaroo.nl/resources/integratie/woocommerce) or [English](https://www.buckaroo.eu/resources/integration/woocommerce) plug-in is convenient and works like a charm, it's easy to install and takes all the trouble out of your hands.
+It is a plug-in with many different payment methods, all of which are SEPA proof. This plug-in is completely free to download. WooCommerce is an excellent platform for a webshop to look professional, comes with built-in tools to analyze sales and itâ€™s also fully customizable. WooCommerce is used by 30% of all webshops worldwide, [download](https://www.buckaroo.nl/integratie/plugins/woocommerce/) this plugin now and find out more!
 Payment method support list:
 
 = Payment method support list by Buckaroo WooCommerce payments plugin =
@@ -35,6 +35,7 @@ Payment method support list:
 16. P24
 17. AfterPay 2.0
 18. Apple Pay
+19. KBC
 
 == Installation ==
 
@@ -46,17 +47,17 @@ Easy installation to get the plug-in up and running!
 
 [Implementation manual EN](https://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_3.9.x.EN.pdf)
 
-Please go to the [signup page](https://www.buckaroo-payments.com/integration/buckaroo-payment-plaza/) (demo account) to ask for a Buckaroo account. Also you can contact info@buckaroo.nl or +31 (0)30 711 50 00
+Please go to the [signup page](https://www.buckaroo.eu/solutions/request-form) (demo account) to ask for a Buckaroo account. Also you can contact info@buckaroo.nl or +31 (0)30 711 50 00
 
 == Screenshots ==
 
 1. Centrally manage your payment methods, with our Master Settings feature
 2. Safely try out any payment method in TEST MODE.
- 
+
 == Frequently Asked Questions ==
 
 = Minimum Requirements =
-- WordPress 4.4 
+- WordPress 4.4
 - WooCommerce 2.2
 
 = How do I automatically install the plugin? =
@@ -77,7 +78,7 @@ Please go to the [signup page](https://www.buckaroo-payments.com/integration/buc
 
 = I have installed the plugin, but the transactions are not working. What's wrong? =
 Verify that all data is entered correctly. This is the website site, the secret key, the thumbprint and the certificate that must be uploaded. Also check the Buckaroo report in the left-hand menu of your Wordpress environment. If you are creating test transactions, please go to plaza.buckaroo.nl. Then, under My Buckaroo -> Websites -> Choose your website through the filter at the top right -> 3.0 Settings, choose "Accept Test Transactions".
- 
+
 = The transactions are good and work in the Buckaroo Plaza, but the status in my WooCommerce environment does not change. Why is this? =
 Very likely, push settings are not setup correctly. The push is used to update the status of the order in WooCommerce. Please refer to the manual and check your push settings at plaza.buckaroo.nl under My Buckaroo -> Websites -> Choose your website through the filter at the top right -> Push settings. Two issues:
 - If your website is secure (URL starts with https instead of http), then the push URL must also start with https
@@ -86,17 +87,39 @@ Very likely, push settings are not setup correctly. The push is used to update t
 = The customer does not see the thank you page, after a successful order, how can I fix this? =
 Probably the return fields are not yet in lowercase letters in our plaza under My Buckaroo -> Websites -> Choose your website through the filter at the top right -> Push settings. Also check whether the push settings are filled in (see the manual for information on how to set this). Additionally, you can check that the Secret Key in the Buckaroo Plaza corresponds to the Secret Key that was filled in during the configuration of the Buckaroo plugin in WooCommerce. Also, verify that the Secret Key contains only alphanumeric characters.
 
+== Release notes ==
+for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%ABn/plugins/woocommerce/release-notes
+
 == Additional Info ==
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.15.0 =
+ - Incorrect VAT number BP-220
+ - Fix Afterpay refund BP-220
+ - Fix payment fee autorefund [BP-220]
+ - Add changes for VAT fee price [BP-220]
+ - KBC payment method [BP-219]
+ - Place order fails [BP-225]
+ - Request a change for an error message with custom gift cards (invalid retailer) [BP-236]
+ - Added payment method Request To Pay [BP-147]
+ - Apple pay button is not shown [BP-231]
+ - Fixed giftcards refunds error BP-170
+ - Added giftcards group refunds message notification
+ - Trx Status updates [BP-167]
+ - Fix for Afterpay refund connected with reduced tax
+ - Fixed Afterpay taxes refund
+ - Afterpay Tax Refunds - added taxId value
+ - ApplePay - error request wit tax presence [BP-277]
+ - Fix applepay's customer card name error notification
 
 = 2.14.0 =
  - Compatibility with WooCommerce 4.0.1 and WordPress 5.3.2
  - Solved issue with servicename for Carte Bleue payments
 
 = 2.13.2 =
- - Compatibility with WooCommerce 3.9 
+ - Compatibility with WooCommerce 3.9
 
 = 2.13.1 =
  - Fix for warning: Order ID was called incorrectly.
@@ -146,7 +169,7 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 - Enabled Payment Guarantee refund, fixed success redirect page for Payconiq and several small improvements
 
 = 2.8.0 =
-- Added functionality to handle payment settlements for payment method Bank Transfer. 
+- Added functionality to handle payment settlements for payment method Bank Transfer.
 
 = 2.7.0 =
 - Added Payment Method Payconiq
@@ -167,7 +190,7 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 - Use currency set in WooCommerce, rather than setting it seperately in the Plugin.
 - Compatibility with WP-CLI
 - Fixed an issue with the notification setting following the individual settings instead of the master settings
-- Fixed an issue with Exodus sometimes being shown as payment method 
+- Fixed an issue with Exodus sometimes being shown as payment method
 - Added Westlandbon to available Giftcards
 
 = 2.6.0 =
