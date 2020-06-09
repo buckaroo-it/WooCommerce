@@ -186,6 +186,17 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
         return $this->PayGlobal();
     }
 
+    /**
+     * @access public
+     * @return callable parent::checkRefundData($data);
+     * @param $data array
+     * @throws Exception
+     */
+    public function checkRefundData($data) {
+        return parent::checkRefundData($data);
+    }
 }
+
+
 
 ?>

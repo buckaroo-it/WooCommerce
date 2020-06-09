@@ -181,6 +181,15 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
      * @return callable BuckarooResponseFactory::getResponse($soap->transactionRequest())
      */
     public function RefundGlobal() {
+
+//        $orderRefundData = $this->getOrderRefundData();
+//
+//        try{
+//            $this->checkRefundData($orderRefundData);
+//        } catch(Exception $e) {
+//
+//        }
+
         $this->data['currency'] = $this->currency;
         $this->data['amountDebit'] = $this->amountDedit;
         $this->data['amountCredit'] = $this->amountCredit;
@@ -230,5 +239,128 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         } else {
             return false;
         }
+    }
+
+    /**
+     * @param $data
+     * @throws Exception
+     */
+    public function checkRefundData($data){
+        //Check if order is refundable
+        $order = wc_get_order( $this->orderId );
+        $items = $order->get_items();
+        $feeItems = $order->get_items('fee');
+
+        $feeCost = $order->get_total_fees();
+
+        $orderFeeRefund = $order->get_item_count_refunded('fee');
+
+        $shippingCosts = round(floatval($order->get_shipping_total()) + floatval($order->get_shipping_tax()), 2);
+
+        $shippingRefundedCosts = $order->get_total_shipping_refunded();
+
+        foreach ($items as $item_id => $item_data) {
+
+            if ($items[$item_id] instanceof WC_Order_Item_Product && isset($data[$item_id])) {
+
+                $tax = $items[$item_id]->get_taxes();
+                $taxId = 3;
+
+                if (!empty($tax['total'])) {
+                    foreach ($tax['total'] as $key => $value) {
+                        $taxId = $key;
+                    }
+                }
+
+                $itemTax = $items[$item_id]->get_total_tax();
+
+                $itemRefundedTax = $order->get_tax_refunded_for_item($item_id, $taxId);
+
+                if ( empty($data[$item_id]['qty']) ) {
+                    throw new Exception('Product quantity doesn`t choose');
+                }
+
+                if (!empty($data[$item_id]['qty'])) {
+                    $itemQuantity = $item_data->get_quantity();
+                    $item_refunded = $order->get_qty_refunded_for_item($item_id);
+                    if ($itemQuantity === abs($item_refunded) - $data[$item_id]['qty']) {
+                        throw new Exception('Product already refunded');
+                    } elseif ($itemQuantity < abs($item_refunded) ) {
+                        $availableRefundQty = $itemQuantity - (abs($item_refunded) - $data[$item_id]['qty']);
+                        $message = $availableRefundQty . ' item(s) can be refund';
+                        throw new Exception( $message );
+                    }
+                }
+
+                if ($itemRefundedTax > $itemTax) {
+                    throw new Exception('Incorrect refund tax price');
+                }
+            }
+        }
+
+        foreach ($feeItems as $item_id => $item_data) {
+            if ($orderFeeRefund > 1) {
+                throw new Exception('Payment fee already refunded');
+            }
+            if (!empty($data[$item_id]['total'])) {
+                $totalFeePrice = round($data[$item_id]['total']+$data[$item_id]['tax'],2);
+                if ($totalFeePrice > $feeCost) {
+                    throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()) );
+                } elseif($totalFeePrice < $feeCost) {
+                    $balance = $feeCost - $totalFeePrice;
+                    throw new Exception('Please add ' . $balance . ' ' . esc_attr(get_woocommerce_currency()) . ' to full refund payment fee cost' );
+                }
+            }
+        }
+
+        if ($shippingCosts < $shippingRefundedCosts) {
+            throw new Exception('Incorrect refund shipping price');
+        }
+    }
+
+    /**
+     *
+     */
+    public function getOrderRefundData( $line_item_totals = null, $line_item_tax_totals = null, $line_item_qtys = null ){
+
+        $orderRefundData = [];
+
+        if ($line_item_qtys === null) {
+            $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
+        }
+
+        if ($line_item_totals === null) {
+            $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true);
+        }
+
+        if ($line_item_tax_totals === null) {
+            $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
+        }
+
+        foreach ($line_item_totals as $key => $value) {
+            if (!empty($value)) {
+                $orderRefundData[$key]['total'] = $value;
+            }
+        }
+
+        foreach ($line_item_tax_totals as $key => $keyItem) {
+            foreach ($keyItem as $taxItem => $taxItemValue) {
+                if (!empty($taxItemValue)) {
+                    $orderRefundData[$key]['tax'] = $taxItemValue;
+                }
+            }
+        }
+        if (!empty($line_item_qtys)){
+            foreach ($line_item_qtys as $key => $value) {
+                $orderRefundData[$key]['qty'] = $value;
+            }
+        }
+
+        $orderRefundData['totalRefund'] = 0;
+        foreach ($orderRefundData as $key => $item) {
+            $orderRefundData['totalRefund'] += $orderRefundData[$key]['total'] + $orderRefundData[$key]['tax'];
+        }
+
+        return $orderRefundData;
     }
 }

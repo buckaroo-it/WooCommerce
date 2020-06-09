@@ -86,26 +86,14 @@ class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo {
         $kbc->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
         $response = null;
 
-        $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
-        $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true);
-        $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
-
-        $orderRefundData = [];
-
-        foreach ($line_item_totals as $key => $value) {
-            $orderRefundData[$key]['total'] = $value;
-        }
-        foreach ($line_item_tax_totals as $key => $value) {
-            $orderRefundData[$key]['tax'] = array_shift($value);
-        }
-        if (!empty($line_item_qtys)){
-            foreach ($line_item_qtys as $key => $value) {
-                $orderRefundData[$key]['qty'] = $value;
-            }
-        }
+        $orderDataForChecking = $kbc->getOrderRefundData();
+//        $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
+//        $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true);
+//        $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
+//
 
         try {
-            $kbc->checkRefundData($orderRefundData);
+            $kbc->checkRefundData($orderDataForChecking);
             $response = $kbc->Refund();
         } catch (Exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');

@@ -345,31 +345,8 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
         }
 
-        $orderRefundData = [];
-
-        foreach ($line_item_totals as $key => $value) {
-            if (!empty($value)) {
-                $orderRefundData[$key]['total'] = $value;
-            }
-        }
-        foreach ($line_item_tax_totals as $key => $keyItem) {
-            foreach ($keyItem as $taxItem => $taxItemValue) {
-                if (!empty($taxItemValue)) {
-                    $orderRefundData[$key]['tax'] = $taxItemValue;
-                }
-            }
-        }
-        if (!empty($line_item_qtys)){
-            foreach ($line_item_qtys as $key => $value) {
-                $orderRefundData[$key]['qty'] = $value;
-            }
-        }
-
-        $orderRefundData['totalRefund'] = 0;
-        foreach ($orderRefundData as $key => $item) {
-            $orderRefundData['totalRefund'] += $orderRefundData[$key]['total'] + $orderRefundData[$key]['tax'];
-        }
-
+        $orderDataForChecking = $afterpay->getOrderRefundData();
+        
         foreach ($items as $item) {
             if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
                 $product = new WC_Product($item['product_id']);
@@ -393,7 +370,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
 //                $tmp["ArticleVatcategory"] = $tax_class;
                 $tmp["ArticleVatcategory"] = $itemRate;
                 $products[] = $tmp;
-            } else if (!empty($orderRefundData[$item->get_id()]['tax'])) {
+            } else if (!empty($orderDataForChecking[$item->get_id()]['tax'])) {
                 $product = new WC_Product($item['product_id']);
                 $tax = new WC_Tax();
                 $taxes = $tax->get_rates($product->get_tax_class());
@@ -408,7 +385,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                 $tmp["ArticleDescription"] = $rates['label'];
                 $tmp["ArticleId"] = $taxId;
                 $tmp["ArticleQuantity"] = 1;
-                $tmp["ArticleUnitprice"] = number_format($orderRefundData[$item->get_id()]['tax'], 2);
+                $tmp["ArticleUnitprice"] = number_format($orderDataForChecking[$item->get_id()]['tax'], 2);
 
                 $itemsTotalAmount += $tmp["ArticleUnitprice"];
 
@@ -466,20 +443,20 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $itemsTotalAmount += $shippingCosts;
         }
 
-        if($orderRefundData['totalRefund'] != $itemsTotalAmount) {
-            if(number_format($orderRefundData['totalRefund'] - $itemsTotalAmount,2) >= 0.01) {
+        if($orderDataForChecking['totalRefund'] != $itemsTotalAmount) {
+            if(number_format($orderDataForChecking['totalRefund'] - $itemsTotalAmount,2) >= 0.01) {
                 $tmp["ArticleDescription"] = 'Remaining Price';
                 $tmp["ArticleId"] = 'remaining_price';
                 $tmp["ArticleQuantity"] = 1;
-                $tmp["ArticleUnitprice"] = number_format($orderRefundData['totalRefund'] - $itemsTotalAmount,2);
+                $tmp["ArticleUnitprice"] = number_format($orderDataForChecking['totalRefund'] - $itemsTotalAmount,2);
                 $tmp["ArticleVatcategory"] = 0;
                 $products[] = $tmp;
                 $itemsTotalAmount += 0.01;
-            } elseif(number_format($itemsTotalAmount - $orderRefundData['totalRefund'],2) >= 0.01) {
+            } elseif(number_format($itemsTotalAmount - $orderDataForChecking['totalRefund'],2) >= 0.01) {
                 $tmp["ArticleDescription"] = 'Remaining Price';
                 $tmp["ArticleId"] = 'remaining_price';
                 $tmp["ArticleQuantity"] = 1;
-                $tmp["ArticleUnitprice"] = number_format($orderRefundData['totalRefund'] - $itemsTotalAmount,2);
+                $tmp["ArticleUnitprice"] = number_format($orderDataForChecking['totalRefund'] - $itemsTotalAmount,2);
                 $tmp["ArticleVatcategory"] = 0;
                 $products[] = $tmp;
                 $itemsTotalAmount -= 0.01;
@@ -500,10 +477,10 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         }
 
         try {
-            $afterpay->checkRefundData($orderRefundData);
+            $afterpay->checkRefundData($orderDataForChecking);
             $response = $afterpay->AfterPayRefund($products, $issuer);
 
-        } catch (exception $e) {
+        } catch (Exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');
             return new WP_Error('refund_error', __($e->getMessage()));
         }

@@ -357,6 +357,8 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
         }
 
+        $orderDataForChecking = $afterpay->getOrderRefundData();
+
         foreach ($items as $item) {
             if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
                 $product = new WC_Product($item['product_id']);
@@ -421,8 +423,8 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             return true;
         }
 
-
         try {
+            $afterpay->checkRefundData($orderDataForChecking);
             $response = $afterpay->AfterPayRefund($products, $issuer);
         } catch (exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');

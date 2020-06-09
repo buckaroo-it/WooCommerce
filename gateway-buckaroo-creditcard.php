@@ -101,10 +101,9 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
 
             $captures = json_decode(json_encode($captures), true);
 
-            $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
-            $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true);
-            $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
-                        
+//            $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
+//            $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true);
+//            $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
 
             $refundQueue = array();
 
@@ -165,17 +164,58 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
      * @param string $reason
      * @return callable|string function or error
      */
-    public function process_partial_refunds( $order_id, $amount = null, $reason = '', $OriginalTransactionKey = null) {
+    public function process_partial_refunds( $order_id, $amount = null, $reason = '', $OriginalTransactionKey = null,
+                                             $line_item_totals = null, $line_item_tax_totals = null, $line_item_qtys = null)
+    {
         $order = wc_get_order( $order_id );
         if ( ! $this->can_refund_order( $order ) ) {
             return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
         }
         update_post_meta($order_id, '_pushallowed', 'busy');
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order = wc_get_order( $order_id );
+//        $order = wc_get_order( $order_id );
         if (checkForSequentialNumbersPlugin()) {
             $order_id = $order->get_order_number(); //Use sequential id
         }
+
+        $orderRefundData = [];
+
+        if ($line_item_qtys === null) {
+            $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
+        }
+
+        if ($line_item_totals === null) {
+            $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true);
+        }
+
+        if ($line_item_tax_totals === null) {
+            $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
+        }
+
+//        foreach ($line_item_totals as $key => $value) {
+//            if (!empty($value)) {
+//                $orderRefundData[$key]['total'] = $value;
+//            }
+//        }
+//
+//        foreach ($line_item_tax_totals as $key => $keyItem) {
+//            foreach ($keyItem as $taxItem => $taxItemValue) {
+//                if (!empty($taxItemValue)) {
+//                    $orderRefundData[$key]['tax'] = $taxItemValue;
+//                }
+//            }
+//        }
+//        if (!empty($line_item_qtys)){
+//            foreach ($line_item_qtys as $key => $value) {
+//                $orderRefundData[$key]['qty'] = $value;
+//            }
+//        }
+//
+//        $orderRefundData['totalRefund'] = 0;
+//        foreach ($orderRefundData as $key => $item) {
+//            $orderRefundData['totalRefund'] += $orderRefundData[$key]['total'] + $orderRefundData[$key]['tax'];
+//        }
+
         $creditcard = new BuckarooCreditCard();
         $creditcard->amountDedit = 0;
         $creditcard->amountCredit = $amount;
@@ -195,10 +235,15 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
         $creditcard->channel = BuckarooConfig::getChannel($payment_type, 'process_refund');
         $response = null;
+
+        $orderDataForChecking = $creditcard->getOrderRefundData();
+
         try {
+            $creditcard->checkRefundData($orderDataForChecking);
             $response = $creditcard->Refund();
         } catch (exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');
+            return new WP_Error('refund_error', __($e->getMessage()));
         }
 
         $final_response = fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
@@ -609,7 +654,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
             'default' => array('amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard','visa', 'visaelectron', 'vpay', 'maestro')
         );
 
-}
+    }
 
 
     /**
@@ -619,6 +664,6 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         return
           (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
           || $_SERVER['SERVER_PORT'] == 443;
-      }
+    }
 
 }

@@ -84,10 +84,15 @@ class WC_Gateway_Buckaroo_Nexi extends WC_Gateway_Buckaroo {
         $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
         $nexi->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
         $response = null;
+
+        $orderDataForChecking = $nexi->getOrderRefundData();
+
         try {
+            $nexi->checkRefundData($orderDataForChecking);
             $response = $nexi->Refund();
         } catch (exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');
+            return new WP_Error('refund_error', __($e->getMessage()));
         }
         return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
     }

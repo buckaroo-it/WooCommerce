@@ -46,79 +46,12 @@ class BuckarooKBC extends BuckarooPaymentMethod {
     }
 
     /**
-     * @param $data
+     * @access public
+     * @return callable parent::checkRefundData($data);
+     * @param $data array
      * @throws Exception
      */
-    public function checkRefundData($data){
-
-        //Check if order is refundable
-        $order = wc_get_order( $this->orderId );
-        $items = $order->get_items();
-        $feeItems = $order->get_items('fee');
-
-        $feeCost = $order->get_total_fees();
-
-        $orderFeeRefund = $order->get_item_count_refunded('fee');
-
-        $shippingCosts = round(floatval($order->get_shipping_total()) + floatval($order->get_shipping_tax()), 2);
-
-        $shippingRefundedCosts = $order->get_total_shipping_refunded();
-
-        foreach ($items as $item_id => $item_data) {
-
-            if ($items[$item_id] instanceof WC_Order_Item_Product) {
-
-                $tax = $items[$item_id]->get_taxes();
-                $taxId = 3;
-
-                if (!empty($tax['total'])) {
-                    foreach ($tax['total'] as $key => $value) {
-                        $taxId = $key;
-                    }
-                }
-
-                $itemTax = $items[$item_id]->get_total_tax();
-
-                $itemRefundedTax = $order->get_tax_refunded_for_item($item_id, $taxId);
-
-                if ( empty($data[$item_id]['qty']) && !empty($data[$item_id]['total']) ) {
-                    throw new Exception('Product quantity doesn`t choose');
-                }
-
-                if ($itemRefundedTax > $itemTax) {
-                    throw new Exception('Incorrect refund tax price');
-                }
-
-                if (!empty($data[$item_id]['qty'])) {
-                    $itemQuantity = $item_data->get_quantity();
-                    $item_refunded = $order->get_qty_refunded_for_item($item_id);
-                    if ($itemQuantity === abs($item_refunded) - $data[$item_id]['qty']) {
-                        throw new Exception('Product already refunded');
-                    } elseif ($itemQuantity < abs($item_refunded) ) {
-                        $availableRefundQty = $itemQuantity - (abs($item_refunded) - $data[$item_id]['qty']);
-                        $message = $availableRefundQty . ' item(s) can be refund';
-                        throw new Exception( $message );
-                    }
-                }
-            }
-        }
-
-        foreach ($feeItems as $item_id => $item_data) {
-            if ($orderFeeRefund > 1) {
-                throw new Exception('Payment fee already refunded');
-            }
-            if (!empty($data[$item_id]['total'])) {
-                if (round($data[$item_id]['total']+$data[$item_id]['tax'],2) > $feeCost) {
-                    throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()) );
-                } elseif(round($data[$item_id]['total']+$data[$item_id]['tax']) < $feeCost) {
-                    $balance = $feeCost - round($data[$item_id]['total']+$data[$item_id]['tax']);
-                    throw new Exception('Add ' . $balance . ' ' . esc_attr(get_woocommerce_currency()) . ' to payment fee cost' );
-                }
-            }
-        }
-
-        if ($shippingCosts < $shippingRefundedCosts) {
-            throw new Exception('Incorrect refund shipping price');
-        }
+    public function checkRefundData($data) {
+        return parent::checkRefundData($data);
     }
 }
