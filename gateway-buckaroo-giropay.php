@@ -83,10 +83,15 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo {
         $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
         $giropay->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
         $response = null;
+
+        $orderDataForChecking = $giropay->getOrderRefundData();
+
         try {
+            $giropay->checkRefundData($orderDataForChecking);
             $response = $giropay->Refund();
         } catch (exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');
+            return new WP_Error('refund_error', __($e->getMessage()));
         }
         return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
     }
