@@ -25,7 +25,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo {
         $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
         $this->usenotification = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
         $this->notificationdelay = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
-        $this->CustomerCardName;
+        $this->CustomerCardName = '';
 
         parent::__construct();
 
