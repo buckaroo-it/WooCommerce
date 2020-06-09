@@ -83,10 +83,15 @@ class WC_Gateway_Buckaroo_P24 extends WC_Gateway_Buckaroo {
         $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
         $p24->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
         $response = null;
+
+        $orderDataForChecking = $p24->getOrderRefundData();
+
         try {
+            $p24->checkRefundData($orderDataForChecking);
             $response = $p24->Refund();
         } catch (exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');
+            return new WP_Error('refund_error', __($e->getMessage()));
         }
         return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
     }
@@ -139,7 +144,7 @@ class WC_Gateway_Buckaroo_P24 extends WC_Gateway_Buckaroo {
             $get_billing_email = getWCOrderDetails($order_id, 'billing_email');
             $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
             $customVars['CustomerLastName'] = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-            $customVars['Customeremail'] = !empty($get_billing_email) ? $get_billing_email : '';
+            $customVars['customerEmail'] = !empty($get_billing_email) ? $get_billing_email : '';
 
             $customVars['Notificationtype'] = 'PaymentComplete';
             $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));

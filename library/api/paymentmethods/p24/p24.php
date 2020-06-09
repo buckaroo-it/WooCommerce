@@ -23,9 +23,9 @@ class BuckarooP24 extends BuckarooPaymentMethod {
         $this->data['services'][$this->type]['action'] = 'Pay';
         $this->data['services'][$this->type]['version'] = $this->version;
 
-        $this->data['customerEmail'] = $customVars['customerEmail'];
-        $this->data['CustomerFirstName'] = $customVars['CustomerFirstName'];
-        $this->data['CustomerLastName'] = $customVars['CustomerLastName'];
+        $this->data['customVars'][$this->type]['CustomerEmail']['value'] = $customVars['customerEmail'];
+        $this->data['customVars'][$this->type]['CustomerFirstName']['value'] = $customVars['CustomerFirstName'];
+        $this->data['customVars'][$this->type]['CustomerLastName']['value'] = $customVars['CustomerLastName'];
 
         if ($this->usenotification && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action'] = 'ExtraInfo';
