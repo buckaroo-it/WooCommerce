@@ -263,6 +263,12 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 
             if ($items[$item_id] instanceof WC_Order_Item_Product && isset($data[$item_id])) {
 
+                $itemPrice = 0;
+
+                $itemTotal = $items[$item_id]->get_total();
+                $itemQuantity = $items[$item_id]->get_quantity();
+                $itemPrice = $itemTotal / $itemQuantity;
+
                 $tax = $items[$item_id]->get_taxes();
                 $taxId = 3;
 
@@ -272,6 +278,8 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
                     }
                 }
 
+                $i = $itemPrice;
+
                 $itemTax = $items[$item_id]->get_total_tax();
 
                 $itemRefundedTax = $order->get_tax_refunded_for_item($item_id, $taxId);
@@ -280,8 +288,12 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
                     throw new Exception('Product quantity doesn`t choose');
                 }
 
+                if ((float)$itemPrice * $data[$item_id]['qty'] !== (float)$data[$item_id]['total']) {
+                    throw new Exception('Incorrect entered product price. Please check refund product price and tax amounts');
+                }
+
                 if (!empty($data[$item_id]['qty'])) {
-                    $itemQuantity = $item_data->get_quantity();
+//                    $itemQuantity = $item_data->get_quantity();
                     $item_refunded = $order->get_qty_refunded_for_item($item_id);
                     if ($itemQuantity === abs($item_refunded) - $data[$item_id]['qty']) {
                         throw new Exception('Product already refunded');
@@ -313,8 +325,8 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
             }
         }
 
-        if ($shippingCosts < $shippingRefundedCosts) {
-            throw new Exception('Incorrect refund shipping price');
+        if ((float)$shippingCosts !== (float)$shippingRefundedCosts && !empty($shippingRefundedCosts)) {
+            throw new Exception('Incorrect refund shipping price. Please check refund shipping price and tax amounts');
         }
     }
 
