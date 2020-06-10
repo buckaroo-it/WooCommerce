@@ -88,7 +88,7 @@ class BuckarooAfterPay extends BuckarooPaymentMethod {
             $this->data['customVars'][$this->type]['ShippingLastName'] = $this->ShippingLastName;
             $this->data['customVars'][$this->type]['ShippingBirthDate'] = $this->ShippingBirthDate;
             $this->data['customVars'][$this->type]['ShippingStreet'] = $this->ShippingStreet;
-            $this->data['customVars'][$this->type]['ShippingHouseNumber'] = $this->ShippingHouseNumber;
+            $this->data['customVars'][$this->type]['ShippingHouseNumber'] = $this->ShippingHouseNumber . ' ';
             $this->data['customVars'][$this->type]['ShippingHouseNumberSuffix'] = $this->ShippingHouseNumberSuffix;
             $this->data['customVars'][$this->type]['ShippingPostalCode'] = $this->ShippingPostalCode;
             $this->data['customVars'][$this->type]['ShippingCity'] = $this->ShippingCity;
@@ -147,7 +147,7 @@ class BuckarooAfterPay extends BuckarooPaymentMethod {
         $this->data['customVars'][$this->type]['ShippingLastName'] = $this->ShippingLastName;
         $this->data['customVars'][$this->type]['ShippingBirthDate'] = $this->ShippingBirthDate;
         $this->data['customVars'][$this->type]['ShippingStreet'] = $this->ShippingStreet;
-        $this->data['customVars'][$this->type]['ShippingHouseNumber'] = $this->ShippingHouseNumber;
+        $this->data['customVars'][$this->type]['ShippingHouseNumber'] = $this->ShippingHouseNumber . ' ';
         $this->data['customVars'][$this->type]['ShippingHouseNumberSuffix'] = $this->ShippingHouseNumberSuffix;
         $this->data['customVars'][$this->type]['ShippingPostalCode'] = $this->ShippingPostalCode;
         $this->data['customVars'][$this->type]['ShippingCity'] = $this->ShippingCity;
