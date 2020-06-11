@@ -811,3 +811,5 @@ msgstr "Helaas is het tijdelijk niet mogelijk om achteraf te betalen met AfterPa
 #: gateway-buckaroo.php:484
 msgid "Please provide valid payment fee"
 msgstr "Geef een geldige betaaltoeslag op"
+
+
