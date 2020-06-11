@@ -247,6 +247,13 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
      */
     public function checkRefundData($data){
         //Check if order is refundable
+
+        foreach ($data as $itemKey) {
+            if (empty($itemKey['total']) && !empty($itemKey['tax'])) {
+                throw new Exception( 'Tax only cannot be refund' );
+            }
+        }
+
         $order = wc_get_order( $this->orderId );
         $items = $order->get_items();
         $feeItems = $order->get_items('fee');
@@ -255,9 +262,13 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 
         $orderFeeRefund = $order->get_item_count_refunded('fee');
 
-        $shippingCosts = round(floatval($order->get_shipping_total()) + floatval($order->get_shipping_tax()), 2);
+        $shippingCostWithoutTax = (float) $order->get_shipping_total();
+        $shippingTax = (float)$order->get_shipping_tax();
+        $shippingCosts = round($shippingCostWithoutTax + $shippingTax, 2);
 
         $shippingRefundedCosts = $order->get_total_shipping_refunded();
+
+        $shippingMethods = $order->get_items('shipping');
 
         foreach ($items as $item_id => $item_data) {
 
@@ -277,8 +288,6 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
                         $taxId = $key;
                     }
                 }
-
-                $i = $itemPrice;
 
                 $itemTax = $items[$item_id]->get_total_tax();
 
