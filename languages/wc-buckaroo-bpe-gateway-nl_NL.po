@@ -2,101 +2,101 @@
 # This file is distributed under the same license as the Plugins - Buckaroo Woocommerce Payments Plugin - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-14 15:58+0000\n"
+"PO-Revision-Date: 2020-06-14 17:02+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Loco https://localise.biz/\n"
-"Language: nl_NL\n"
+"Language: nl-NL\n"
 "Project-Id-Version: Plugins - Buckaroo Woocommerce Payments Plugin - Stable "
 "(latest release)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-06-14 15:57+0000\n"
 "Last-Translator: \n"
-"Language-Team: Nederlands\n"
+"Language-Team: Dutch\n"
 "X-Loco-Version: 2.4.0; wp-5.4.2"
 
-#: gateway-buckaroo-p24.php:244 gateway-buckaroo-mistercash.php:238
-#: gateway-buckaroo-transfer.php:262 gateway-buckaroo-requesttopay.php:264
-#: gateway-buckaroo-kbc.php:261 gateway-buckaroo-emaestro.php:239
-#: gateway-buckaroo-giftcard.php:259 gateway-buckaroo-payconiq.php:250
-#: gateway-buckaroo-afterpay.php:998 gateway-buckaroo-applepay.php:398
-#: gateway-buckaroo-sepadirectdebit.php:394 gateway-buckaroo-nexi.php:239
-#: gateway-buckaroo-ideal.php:302 gateway-buckaroo-afterpaynew.php:1104
-#: gateway-buckaroo-giropay.php:270 gateway-buckaroo-paygarant.php:397
-#: gateway-buckaroo-paysafecard.php:236 gateway-buckaroo-creditcard.php:599
+#: gateway-buckaroo-p24.php:244 gateway-buckaroo-mistercash.php:238 
+#: gateway-buckaroo-transfer.php:262 gateway-buckaroo-requesttopay.php:264 
+#: gateway-buckaroo-kbc.php:261 gateway-buckaroo-emaestro.php:239 
+#: gateway-buckaroo-giftcard.php:259 gateway-buckaroo-payconiq.php:250 
+#: gateway-buckaroo-afterpay.php:998 gateway-buckaroo-applepay.php:398 
+#: gateway-buckaroo-sepadirectdebit.php:394 gateway-buckaroo-nexi.php:239 
+#: gateway-buckaroo-ideal.php:302 gateway-buckaroo-afterpaynew.php:1104 
+#: gateway-buckaroo-giropay.php:270 gateway-buckaroo-paygarant.php:397 
+#: gateway-buckaroo-paysafecard.php:236 gateway-buckaroo-creditcard.php:599 
 #: gateway-buckaroo-sofort.php:238 gateway-buckaroo-paypal.php:262
 msgid "Select Certificate"
 msgstr "Kies certificaat"
 
-#: gateway-buckaroo-p24.php:246 gateway-buckaroo-mistercash.php:240
-#: gateway-buckaroo-transfer.php:264 gateway-buckaroo-requesttopay.php:266
-#: gateway-buckaroo-kbc.php:263 gateway-buckaroo-emaestro.php:241
-#: gateway-buckaroo-giftcard.php:261 gateway-buckaroo-payconiq.php:252
-#: gateway-buckaroo-mastersettings.php:157 gateway-buckaroo-afterpay.php:1000
-#: gateway-buckaroo-applepay.php:400 gateway-buckaroo-sepadirectdebit.php:396
-#: gateway-buckaroo-nexi.php:241 gateway-buckaroo-ideal.php:304
-#: gateway-buckaroo-afterpaynew.php:1106 gateway-buckaroo-giropay.php:272
-#: gateway-buckaroo-paygarant.php:399 gateway-buckaroo-paysafecard.php:238
-#: gateway-buckaroo-creditcard.php:601 gateway-buckaroo-sofort.php:240
+#: gateway-buckaroo-p24.php:246 gateway-buckaroo-mistercash.php:240 
+#: gateway-buckaroo-transfer.php:264 gateway-buckaroo-requesttopay.php:266 
+#: gateway-buckaroo-kbc.php:263 gateway-buckaroo-emaestro.php:241 
+#: gateway-buckaroo-giftcard.php:261 gateway-buckaroo-payconiq.php:252 
+#: gateway-buckaroo-mastersettings.php:157 gateway-buckaroo-afterpay.php:1000 
+#: gateway-buckaroo-applepay.php:400 gateway-buckaroo-sepadirectdebit.php:396 
+#: gateway-buckaroo-nexi.php:241 gateway-buckaroo-ideal.php:304 
+#: gateway-buckaroo-afterpaynew.php:1106 gateway-buckaroo-giropay.php:272 
+#: gateway-buckaroo-paygarant.php:399 gateway-buckaroo-paysafecard.php:238 
+#: gateway-buckaroo-creditcard.php:601 gateway-buckaroo-sofort.php:240 
 #: gateway-buckaroo-paypal.php:264
 msgid "Select your certificate by name."
 msgstr ""
 
-#: gateway-buckaroo-p24.php:260 gateway-buckaroo-mistercash.php:253
-#: gateway-buckaroo-transfer.php:295 gateway-buckaroo-requesttopay.php:277
-#: gateway-buckaroo-kbc.php:274 gateway-buckaroo-emaestro.php:255
-#: gateway-buckaroo-giftcard.php:278 gateway-buckaroo-payconiq.php:262
-#: gateway-buckaroo-afterpay.php:1036 gateway-buckaroo-applepay.php:411
-#: gateway-buckaroo-sepadirectdebit.php:471 gateway-buckaroo-nexi.php:255
-#: gateway-buckaroo-ideal.php:318 gateway-buckaroo-afterpaynew.php:1137
-#: gateway-buckaroo-giropay.php:286 gateway-buckaroo-paygarant.php:464
-#: gateway-buckaroo-paysafecard.php:252 gateway-buckaroo-creditcard.php:626
+#: gateway-buckaroo-p24.php:260 gateway-buckaroo-mistercash.php:253 
+#: gateway-buckaroo-transfer.php:295 gateway-buckaroo-requesttopay.php:277 
+#: gateway-buckaroo-kbc.php:274 gateway-buckaroo-emaestro.php:255 
+#: gateway-buckaroo-giftcard.php:278 gateway-buckaroo-payconiq.php:262 
+#: gateway-buckaroo-afterpay.php:1036 gateway-buckaroo-applepay.php:411 
+#: gateway-buckaroo-sepadirectdebit.php:471 gateway-buckaroo-nexi.php:255 
+#: gateway-buckaroo-ideal.php:318 gateway-buckaroo-afterpaynew.php:1137 
+#: gateway-buckaroo-giropay.php:286 gateway-buckaroo-paygarant.php:464 
+#: gateway-buckaroo-paysafecard.php:252 gateway-buckaroo-creditcard.php:626 
 #: gateway-buckaroo-sofort.php:254 gateway-buckaroo-paypal.php:280
 msgid "Use Notification Service"
 msgstr "Gebruik Notificatie Service"
 
-#: gateway-buckaroo-p24.php:262 gateway-buckaroo-mistercash.php:255
-#: gateway-buckaroo-transfer.php:297 gateway-buckaroo-requesttopay.php:279
-#: gateway-buckaroo-kbc.php:276 gateway-buckaroo-emaestro.php:257
-#: gateway-buckaroo-giftcard.php:280 gateway-buckaroo-payconiq.php:264
-#: gateway-buckaroo-mastersettings.php:172 gateway-buckaroo-afterpay.php:1038
-#: gateway-buckaroo-applepay.php:413 gateway-buckaroo-sepadirectdebit.php:473
-#: gateway-buckaroo-nexi.php:257 gateway-buckaroo-ideal.php:320
-#: gateway-buckaroo-afterpaynew.php:1139 gateway-buckaroo-giropay.php:288
-#: gateway-buckaroo-paygarant.php:466 gateway-buckaroo-paysafecard.php:254
-#: gateway-buckaroo-creditcard.php:628 gateway-buckaroo-sofort.php:256
+#: gateway-buckaroo-p24.php:262 gateway-buckaroo-mistercash.php:255 
+#: gateway-buckaroo-transfer.php:297 gateway-buckaroo-requesttopay.php:279 
+#: gateway-buckaroo-kbc.php:276 gateway-buckaroo-emaestro.php:257 
+#: gateway-buckaroo-giftcard.php:280 gateway-buckaroo-payconiq.php:264 
+#: gateway-buckaroo-mastersettings.php:172 gateway-buckaroo-afterpay.php:1038 
+#: gateway-buckaroo-applepay.php:413 gateway-buckaroo-sepadirectdebit.php:473 
+#: gateway-buckaroo-nexi.php:257 gateway-buckaroo-ideal.php:320 
+#: gateway-buckaroo-afterpaynew.php:1139 gateway-buckaroo-giropay.php:288 
+#: gateway-buckaroo-paygarant.php:466 gateway-buckaroo-paysafecard.php:254 
+#: gateway-buckaroo-creditcard.php:628 gateway-buckaroo-sofort.php:256 
 #: gateway-buckaroo-paypal.php:282
 msgid ""
 "The notification service can be used to have the payment engine sent "
 "additional notifications."
 msgstr ""
 
-#: gateway-buckaroo-p24.php:267 gateway-buckaroo-mistercash.php:260
-#: gateway-buckaroo-transfer.php:301 gateway-buckaroo-requesttopay.php:284
-#: gateway-buckaroo-kbc.php:281 gateway-buckaroo-emaestro.php:262
-#: gateway-buckaroo-giftcard.php:285 gateway-buckaroo-payconiq.php:268
-#: gateway-buckaroo-mastersettings.php:177 gateway-buckaroo-afterpay.php:1043
-#: gateway-buckaroo-applepay.php:418 gateway-buckaroo-sepadirectdebit.php:483
-#: gateway-buckaroo-nexi.php:262 gateway-buckaroo-ideal.php:325
-#: gateway-buckaroo-afterpaynew.php:1144 gateway-buckaroo-giropay.php:293
-#: gateway-buckaroo-paygarant.php:471 gateway-buckaroo-paysafecard.php:259
-#: gateway-buckaroo-creditcard.php:633 gateway-buckaroo-sofort.php:261
+#: gateway-buckaroo-p24.php:267 gateway-buckaroo-mistercash.php:260 
+#: gateway-buckaroo-transfer.php:301 gateway-buckaroo-requesttopay.php:284 
+#: gateway-buckaroo-kbc.php:281 gateway-buckaroo-emaestro.php:262 
+#: gateway-buckaroo-giftcard.php:285 gateway-buckaroo-payconiq.php:268 
+#: gateway-buckaroo-mastersettings.php:177 gateway-buckaroo-afterpay.php:1043 
+#: gateway-buckaroo-applepay.php:418 gateway-buckaroo-sepadirectdebit.php:483 
+#: gateway-buckaroo-nexi.php:262 gateway-buckaroo-ideal.php:325 
+#: gateway-buckaroo-afterpaynew.php:1144 gateway-buckaroo-giropay.php:293 
+#: gateway-buckaroo-paygarant.php:471 gateway-buckaroo-paysafecard.php:259 
+#: gateway-buckaroo-creditcard.php:633 gateway-buckaroo-sofort.php:261 
 #: gateway-buckaroo-paypal.php:287
 msgid "Notification delay"
 msgstr "Uitstel van Notificatie"
 
-#: gateway-buckaroo-p24.php:269 gateway-buckaroo-mistercash.php:262
-#: gateway-buckaroo-transfer.php:303 gateway-buckaroo-requesttopay.php:286
-#: gateway-buckaroo-kbc.php:283 gateway-buckaroo-emaestro.php:264
-#: gateway-buckaroo-giftcard.php:287 gateway-buckaroo-payconiq.php:270
-#: gateway-buckaroo-mastersettings.php:179 gateway-buckaroo-afterpay.php:1045
-#: gateway-buckaroo-applepay.php:420 gateway-buckaroo-sepadirectdebit.php:485
-#: gateway-buckaroo-nexi.php:264 gateway-buckaroo-ideal.php:327
-#: gateway-buckaroo-afterpaynew.php:1146 gateway-buckaroo-giropay.php:295
-#: gateway-buckaroo-paygarant.php:473 gateway-buckaroo-paysafecard.php:261
-#: gateway-buckaroo-creditcard.php:635 gateway-buckaroo-sofort.php:263
+#: gateway-buckaroo-p24.php:269 gateway-buckaroo-mistercash.php:262 
+#: gateway-buckaroo-transfer.php:303 gateway-buckaroo-requesttopay.php:286 
+#: gateway-buckaroo-kbc.php:283 gateway-buckaroo-emaestro.php:264 
+#: gateway-buckaroo-giftcard.php:287 gateway-buckaroo-payconiq.php:270 
+#: gateway-buckaroo-mastersettings.php:179 gateway-buckaroo-afterpay.php:1045 
+#: gateway-buckaroo-applepay.php:420 gateway-buckaroo-sepadirectdebit.php:485 
+#: gateway-buckaroo-nexi.php:264 gateway-buckaroo-ideal.php:327 
+#: gateway-buckaroo-afterpaynew.php:1146 gateway-buckaroo-giropay.php:295 
+#: gateway-buckaroo-paygarant.php:473 gateway-buckaroo-paysafecard.php:261 
+#: gateway-buckaroo-creditcard.php:635 gateway-buckaroo-sofort.php:263 
 #: gateway-buckaroo-paypal.php:289
 msgid ""
 "The time at which the notification should be sent. If this is not specified, "
@@ -232,31 +232,31 @@ msgstr ""
 msgid "Toggle debug mode on/off"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:202
-#: gateway-buckaroo-mastersettings.php:204 gateway-buckaroo.php:362
+#: gateway-buckaroo-mastersettings.php:202 
+#: gateway-buckaroo-mastersettings.php:204 gateway-buckaroo.php:362 
 #: gateway-buckaroo.php:364
 msgid "Transaction description"
 msgstr "Omschrijving van transactie"
 
-#: gateway-buckaroo-afterpay.php:563 gateway-buckaroo-afterpay.php:643
+#: gateway-buckaroo-afterpay.php:563 gateway-buckaroo-afterpay.php:643 
 #: gateway-buckaroo-afterpaynew.php:615 gateway-buckaroo-afterpaynew.php:690
 msgid "Please accept licence agreements"
 msgstr "Accepteer alstublieft de license agreements"
 
-#: gateway-buckaroo-afterpay.php:567 gateway-buckaroo-afterpay.php:653
+#: gateway-buckaroo-afterpay.php:567 gateway-buckaroo-afterpay.php:653 
 #: gateway-buckaroo-afterpaynew.php:619
 msgid "Company registration number is required (KvK)"
 msgstr "Kamer van Koophandel nummer is verplicht (KvK)"
 
-#: gateway-buckaroo-afterpay.php:570 gateway-buckaroo-afterpay.php:657
+#: gateway-buckaroo-afterpay.php:570 gateway-buckaroo-afterpay.php:657 
 #: gateway-buckaroo-afterpaynew.php:622
 msgid "Company name is required"
 msgstr "Bedrijfsnaam is verplicht"
 
-#: gateway-buckaroo-afterpay.php:575 gateway-buckaroo-afterpay.php:639
-#: gateway-buckaroo-sepadirectdebit.php:146
-#: gateway-buckaroo-sepadirectdebit.php:201
-#: gateway-buckaroo-afterpaynew.php:627 gateway-buckaroo-afterpaynew.php:686
+#: gateway-buckaroo-afterpay.php:575 gateway-buckaroo-afterpay.php:639 
+#: gateway-buckaroo-sepadirectdebit.php:146 
+#: gateway-buckaroo-sepadirectdebit.php:201 
+#: gateway-buckaroo-afterpaynew.php:627 gateway-buckaroo-afterpaynew.php:686 
 #: gateway-buckaroo-paygarant.php:128 gateway-buckaroo-paygarant.php:157
 msgid "Please enter correct birthdate date"
 msgstr "Vul alstublieft een juiste geboortedatum in"
@@ -265,9 +265,9 @@ msgstr "Vul alstublieft een juiste geboortedatum in"
 msgid "IBAN is required"
 msgstr "IBAN is verplicht"
 
-#: gateway-buckaroo-afterpay.php:812 gateway-buckaroo-sepadirectdebit.php:279
-#: gateway-buckaroo-ideal.php:189 gateway-buckaroo-afterpaynew.php:896
-#: gateway-buckaroo-giropay.php:169 gateway-buckaroo-paygarant.php:281
+#: gateway-buckaroo-afterpay.php:812 gateway-buckaroo-sepadirectdebit.php:279 
+#: gateway-buckaroo-ideal.php:189 gateway-buckaroo-afterpaynew.php:896 
+#: gateway-buckaroo-giropay.php:169 gateway-buckaroo-paygarant.php:281 
 #: gateway-buckaroo-creditcard.php:423 gateway-buckaroo.php:410
 msgid "TEST MODE"
 msgstr "TEST MODUS"
@@ -288,20 +288,20 @@ msgstr "KvK nummer:"
 msgid "Name of the organization:"
 msgstr "Naam van het bedrijf:"
 
-#: gateway-buckaroo-afterpay.php:880 gateway-buckaroo-sepadirectdebit.php:285
-#: gateway-buckaroo-sepadirectdebit.php:296
+#: gateway-buckaroo-afterpay.php:880 gateway-buckaroo-sepadirectdebit.php:285 
+#: gateway-buckaroo-sepadirectdebit.php:296 
 #: gateway-buckaroo-afterpaynew.php:970 gateway-buckaroo-paygarant.php:287
 msgid "Gender:"
 msgstr "Geslacht:"
 
-#: gateway-buckaroo-afterpay.php:883 gateway-buckaroo-sepadirectdebit.php:286
-#: gateway-buckaroo-sepadirectdebit.php:297
+#: gateway-buckaroo-afterpay.php:883 gateway-buckaroo-sepadirectdebit.php:286 
+#: gateway-buckaroo-sepadirectdebit.php:297 
 #: gateway-buckaroo-afterpaynew.php:971 gateway-buckaroo-paygarant.php:290
 msgid "Male"
 msgstr "Man"
 
-#: gateway-buckaroo-afterpay.php:886 gateway-buckaroo-sepadirectdebit.php:287
-#: gateway-buckaroo-sepadirectdebit.php:298
+#: gateway-buckaroo-afterpay.php:886 gateway-buckaroo-sepadirectdebit.php:287 
+#: gateway-buckaroo-sepadirectdebit.php:298 
 #: gateway-buckaroo-afterpaynew.php:972 gateway-buckaroo-paygarant.php:291
 msgid "Female"
 msgstr "Vrouw"
@@ -310,7 +310,7 @@ msgstr "Vrouw"
 msgid "Birthdate (format DD-MM-YYYY):"
 msgstr "Geboortedatum (formaat DD-MM-YYYY)"
 
-#: gateway-buckaroo-afterpay.php:903 gateway-buckaroo-sepadirectdebit.php:306
+#: gateway-buckaroo-afterpay.php:903 gateway-buckaroo-sepadirectdebit.php:306 
 #: gateway-buckaroo-paygarant.php:309
 msgid "IBAN:"
 msgstr "IBAN:"
@@ -349,7 +349,7 @@ msgstr "Kies standaard BTW type voor uw producten"
 msgid "AfterPay Pay or Capture"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1051 gateway-buckaroo-afterpaynew.php:1152
+#: gateway-buckaroo-afterpay.php:1051 gateway-buckaroo-afterpaynew.php:1152 
 #: gateway-buckaroo-creditcard.php:621
 msgid "Choose to execute Pay or Capture call"
 msgstr ""
@@ -387,13 +387,13 @@ msgid ""
 "Your merchant ID as supplied by Buckaroo, can be found in the Buckaroo plaza."
 msgstr ""
 
-#: gateway-buckaroo-sepadirectdebit.php:136
-#: gateway-buckaroo-sepadirectdebit.php:168 gateway-buckaroo-paygarant.php:124
+#: gateway-buckaroo-sepadirectdebit.php:136 
+#: gateway-buckaroo-sepadirectdebit.php:168 gateway-buckaroo-paygarant.php:124 
 #: gateway-buckaroo-paygarant.php:151
 msgid "Please fill in all required fields"
 msgstr "Vul alstublieft alle verplichte velden in"
 
-#: gateway-buckaroo-sepadirectdebit.php:141
+#: gateway-buckaroo-sepadirectdebit.php:141 
 #: gateway-buckaroo-sepadirectdebit.php:174
 msgid "Wrong IBAN number"
 msgstr "Verkeerd IBAN nummer"
@@ -497,8 +497,8 @@ msgstr ""
 msgid "Identification Number"
 msgstr "Identificatienummer"
 
-#: gateway-buckaroo-afterpaynew.php:986 gateway-buckaroo-afterpaynew.php:993
-#: gateway-buckaroo-afterpaynew.php:1008 gateway-buckaroo-afterpaynew.php:1012
+#: gateway-buckaroo-afterpaynew.php:986 gateway-buckaroo-afterpaynew.php:993 
+#: gateway-buckaroo-afterpaynew.php:1008 gateway-buckaroo-afterpaynew.php:1012 
 #: gateway-buckaroo-afterpaynew.php:1016 gateway-buckaroo-afterpaynew.php:1020
 msgid "Accept Afterpay conditions:"
 msgstr "AfterPay voorwaarden accepteren:"
@@ -605,7 +605,7 @@ msgstr ""
 msgid "select which Creditecard providers  will be appear to customer"
 msgstr ""
 
-#: gateway-buckaroo.php:223 controllers/ApplePayController.php:68
+#: gateway-buckaroo.php:223 controllers/ApplePayController.php:68 
 #: controllers/ApplePayController.php:121
 msgid "Payment fee"
 msgstr "Betaaltoeslag"
@@ -744,3 +744,78 @@ msgstr "http://www.buckaroo.nl"
 #. Author of the plugin
 msgid "Buckaroo"
 msgstr ""
+
+#: includes/class-wc-ajax.php:2077
+msgid "Dismiss this notice."
+msgstr "Verberg deze melding."
+
+#: includes/class-wc-ajax.php:236
+msgid "Sorry, your session has expired."
+msgstr "Sorry, je sessie is verlopen."
+
+#: includes/class-wc-ajax.php:188
+msgid "Coupon has been removed."
+msgstr "Kortingscode is verwijderd."
+
+#: includes/class-wc-ajax.php:185
+msgid "Sorry there was a problem removing this coupon."
+msgstr "Helaas, er was een probleem met het verwijderen van deze kortingscode."
+
+#: includes/admin/meta-boxes/views/html-order-capture.php:431
+msgid "Quantity"
+msgstr "Aantal"
+
+#: includes/admin/meta-boxes/views/html-order-capture.php:449 
+#: includes/admin/meta-boxes/views/html-order-capture.php:506
+msgid "Add"
+msgstr "Toevoegen"
+
+#: includes/admin/meta-boxes/views/html-order-capture.php:430
+msgid "Product"
+msgstr "Product"
+
+#: includes/admin/meta-boxes/views/html-order-capture.php:420
+msgid "Add products"
+msgstr "Toevoegen producten"
+
+#: includes/admin/meta-boxes/views/html-order-capture.php:403
+msgid "Payment gateway"
+msgstr "Betaalmethode"
+
+#: includes/admin/meta-boxes/views/html-order-capture.php:363 
+#: includes/admin/meta-boxes/views/html-order-capture.php:407
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: includes/admin/meta-boxes/views/html-order-capture.php:364
+msgid "Save"
+msgstr "Opslaan"
+
+#: includes/class-wc-ajax.php:236
+msgid "Return to shop"
+msgstr "Verder winkelen"
+
+#: includes/admin/meta-boxes/views/html-order-capture.php:357 
+#: includes/admin/meta-boxes/views/html-order-capture.php:463
+msgid "Add tax"
+msgstr "Belasting toevoegen"
+
+#: includes/admin/meta-boxes/views/html-order-capture.php:355
+msgid "Add shipping"
+msgstr "Voeg verzendkosten toe"
+
+#: includes/admin/meta-boxes/views/html-order-capture.php:354
+msgid "Add fee"
+msgstr "Voeg kosten toe"
+
+#: includes/admin/meta-boxes/views/html-order-capture.php:353
+msgid "Add product(s)"
+msgstr "Voeg product (en) toe"
+
+#: index.php:58
+msgid "Checkout is not available whilst your cart is empty."
+msgstr "Afrekenen is niet mogelijk als je winkelmand leeg is."
+
+#: gateway-buckaroo.php:484
+msgid "Please provide valid payment fee"
+msgstr "Geef een geldige betaaltoeslag op"
