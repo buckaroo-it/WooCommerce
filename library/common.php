@@ -560,7 +560,11 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 elseif ($payment_method instanceof WC_Gateway_Buckaroo_Giftcard && $response->statuscode == 490) {
                     if ($response->statusmessage == 'Failed') {
                         wc_add_notice(
-                            __('Card number or pin is incorrect for '.$response->payment_method, 'wc-buckaroo-bpe-gateway'),
+                            sprintf(
+                                __('Card number or pin is incorrect for %s', 'wc-buckaroo-bpe-gateway'),
+                                $response->payment_method
+                            ),
+//                            __('Card number or pin is incorrect for '.$response->payment_method, 'wc-buckaroo-bpe-gateway'),
                             'error'
                         );
                     } else {
