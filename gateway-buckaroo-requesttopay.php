@@ -77,7 +77,6 @@ class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo {
         $rtp->amountDedit = 0;
         $rtp->amountCredit = $amount;
         $rtp->currency = $this->currency;
-        $rtp->description = $reason;
         $rtp->invoiceId = $order_id;
         $rtp->orderId = $order_id;
         $rtp->OriginalTransactionKey = $order->get_transaction_id();
@@ -134,9 +133,6 @@ class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo {
         $rtp->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
         $rtp->currency = $this->currency;
 
-        $this->transactiondescription = 'Payment for order #' . $order_id;
-
-        $rtp->description = $this->transactiondescription;
         if (checkForSequentialNumbersPlugin()) {
             $order_id = $order->get_order_number(); //Use sequential id
         }
