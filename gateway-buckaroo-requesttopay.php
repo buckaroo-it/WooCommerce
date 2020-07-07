@@ -77,6 +77,7 @@ class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo {
         $rtp->amountDedit = 0;
         $rtp->amountCredit = $amount;
         $rtp->currency = $this->currency;
+        $rtp->description = $reason;
         $rtp->invoiceId = $order_id;
         $rtp->orderId = $order_id;
         $rtp->OriginalTransactionKey = $order->get_transaction_id();
