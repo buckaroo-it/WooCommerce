@@ -265,9 +265,9 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 
         $shippingCostWithoutTax = (float) $order->get_shipping_total();
         $shippingTax = (float)$order->get_shipping_tax();
-        $shippingCosts = round($shippingCostWithoutTax + $shippingTax, 2);
+        $shippingCosts = $shippingCostWithoutTax + $shippingTax;
 
-        $shippingRefundedCosts = 0;
+        $shippingRefundedCosts = 0.00;
 //        $shippingRefundedCosts = $order->get_total_shipping_refunded();
 
         foreach ($items as $item_id => $item_data) {
@@ -345,7 +345,9 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
             }
         }
 
-        if ((float)$shippingCosts !== (float)$shippingRefundedCosts && !empty($shippingRefundedCosts)) {
+        if (((float)$shippingCosts !== (float)$shippingRefundedCosts || abs($shippingCosts - $shippingRefundedCosts) > 0.01) && !empty($shippingRefundedCosts)) {
+            $r = abs($shippingCosts - $shippingRefundedCosts) > 0.01;
+            $t = (float)$shippingCosts !== (float)$shippingRefundedCosts;
             throw new Exception('Incorrect refund shipping price. Please check refund shipping price and tax amounts');
         }
     }
