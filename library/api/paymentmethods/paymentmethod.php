@@ -256,6 +256,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 
         $order = wc_get_order( $this->orderId );
         $items = $order->get_items();
+        $shippingItems = $order->get_items('shipping');
         $feeItems = $order->get_items('fee');
 
         $feeCost = $order->get_total_fees();
@@ -266,9 +267,8 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         $shippingTax = (float)$order->get_shipping_tax();
         $shippingCosts = round($shippingCostWithoutTax + $shippingTax, 2);
 
-        $shippingRefundedCosts = $order->get_total_shipping_refunded();
-
-        $shippingMethods = $order->get_items('shipping');
+        $shippingRefundedCosts = 0;
+//        $shippingRefundedCosts = $order->get_total_shipping_refunded();
 
         foreach ($items as $item_id => $item_data) {
 
@@ -315,6 +315,17 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 
                 if ($itemRefundedTax > $itemTax) {
                     throw new Exception('Incorrect refund tax price');
+                }
+            }
+        }
+
+        foreach ($shippingItems as $shipping_item_id => $item_data) {
+            if ($shippingItems[$shipping_item_id] instanceof WC_Order_Item_Shipping && isset($data[$shipping_item_id])) {
+                if (array_key_exists('total', $data[$shipping_item_id])) {
+                    $shippingRefundedCosts  += $data[$shipping_item_id]['total'];
+                }
+                if (array_key_exists('tax', $data[$shipping_item_id])) {
+                    $shippingRefundedCosts  += $data[$shipping_item_id]['tax'];
                 }
             }
         }
