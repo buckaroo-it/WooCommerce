@@ -54,11 +54,14 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             add_action('woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
             add_action('wp_enqueue_scripts', [$this, 'refresh_frontend']);
 
-            wp_enqueue_script('initiate_jquery_if_not_loaded', plugin_dir_url(__FILE__) . 'library/js/loadjquery.js', ['jquery'], '1.0.0', true);
+            add_action('wp_enqueue_scripts', function (){
+                wp_enqueue_script('initiate_jquery_if_not_loaded', plugin_dir_url(__FILE__) . 'library/js/loadjquery.js', ['jquery'], '1.0.0', true);
 
-            wp_enqueue_script('creditcard_encryption_sdk', plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-encryption-sdk.js', ['jquery'], '1.0.0', true);
-            wp_enqueue_script('creditcard_call_encryption', plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-call-encryption.js', ['jquery'], '1.0.0', true);
-    
+                wp_enqueue_script('creditcard_encryption_sdk', plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-encryption-sdk.js', ['jquery'], '1.0.0', true);
+                wp_enqueue_script('creditcard_call_encryption', plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-call-encryption.js', ['jquery'], '1.0.0', true);
+
+            });
+
             add_filter('woocommerce_available_payment_gateways', array($this, 'payment_gateway_disable'));
         }
         $this->notificationtype = 'PaymentComplete';

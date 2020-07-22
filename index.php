@@ -10,8 +10,10 @@ Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
-wp_enqueue_style('buckaroo-custom-styles', plugin_dir_url( __FILE__ ) . 'library/css/buckaroo-custom.css');        
-
+add_action('wp_enqueue_scripts', function (){
+    wp_enqueue_style('buckaroo-custom-styles', plugin_dir_url( __FILE__ ) . 'library/css/buckaroo-custom.css');
+    wp_enqueue_script('creditcard_capture', plugin_dir_url( __FILE__ ) . 'library/js/9yards/creditcard-capture-form.js', array('jquery'), '1.0.0', true );
+});
 
 add_action('plugins_loaded', 'buckaroo_init_gateway', 0);
 add_action('admin_menu', 'buckaroo_menu_report');
@@ -19,8 +21,6 @@ add_action('woocommerce_api_wc_push_buckaroo', 'buckaroo_push_class_init');
 
 add_action( 'woocommerce_admin_order_actions_end', 'my_custom_checkout_field_display_admin_order_meta', 10, 1 );
 add_action( 'wp_ajax_order_capture', 'orderCapture' );
-
-wp_enqueue_script('creditcard_capture', plugin_dir_url( __FILE__ ) . 'library/js/9yards/creditcard-capture-form.js', array('jquery'), '1.0.0', true );
 
 include( plugin_dir_path(__FILE__) . 'includes/admin/meta-boxes/class-wc-meta-box-order-capture.php');
 
