@@ -73,7 +73,7 @@ class BuckarooAfterPay extends BuckarooPaymentMethod {
         $this->data['customVars'][$this->type]['BillingLastName'] = $this->BillingLastName;
         $this->data['customVars'][$this->type]['BillingBirthDate'] = $this->BillingBirthDate;
         $this->data['customVars'][$this->type]['BillingStreet'] = $this->BillingStreet;
-        $this->data['customVars'][$this->type]['BillingHouseNumber'] = $this->BillingHouseNumber . ' ';
+        $this->data['customVars'][$this->type]['BillingHouseNumber'] = isset($this->BillingHouseNumber) ? $this->BillingHouseNumber . ' ' : $this->BillingHouseNumber;
         $this->data['customVars'][$this->type]['BillingHouseNumberSuffix'] = $this->BillingHouseNumberSuffix;
         $this->data['customVars'][$this->type]['BillingPostalCode'] = $this->BillingPostalCode;
         $this->data['customVars'][$this->type]['BillingCity'] = $this->BillingCity;
@@ -88,7 +88,7 @@ class BuckarooAfterPay extends BuckarooPaymentMethod {
             $this->data['customVars'][$this->type]['ShippingLastName'] = $this->ShippingLastName;
             $this->data['customVars'][$this->type]['ShippingBirthDate'] = $this->ShippingBirthDate;
             $this->data['customVars'][$this->type]['ShippingStreet'] = $this->ShippingStreet;
-            $this->data['customVars'][$this->type]['ShippingHouseNumber'] = $this->ShippingHouseNumber . ' ';
+            $this->data['customVars'][$this->type]['ShippingHouseNumber'] = isset($this->ShippingHouseNumber) ? $this->ShippingHouseNumber . ' ' : $this->ShippingHouseNumber;
             $this->data['customVars'][$this->type]['ShippingHouseNumberSuffix'] = $this->ShippingHouseNumberSuffix;
             $this->data['customVars'][$this->type]['ShippingPostalCode'] = $this->ShippingPostalCode;
             $this->data['customVars'][$this->type]['ShippingCity'] = $this->ShippingCity;
@@ -147,7 +147,7 @@ class BuckarooAfterPay extends BuckarooPaymentMethod {
         $this->data['customVars'][$this->type]['ShippingLastName'] = $this->ShippingLastName;
         $this->data['customVars'][$this->type]['ShippingBirthDate'] = $this->ShippingBirthDate;
         $this->data['customVars'][$this->type]['ShippingStreet'] = $this->ShippingStreet;
-        $this->data['customVars'][$this->type]['ShippingHouseNumber'] = $this->ShippingHouseNumber . ' ';
+        $this->data['customVars'][$this->type]['ShippingHouseNumber'] = isset($this->ShippingHouseNumber) ? $this->ShippingHouseNumber . ' ' : $this->ShippingHouseNumber;
         $this->data['customVars'][$this->type]['ShippingHouseNumberSuffix'] = $this->ShippingHouseNumberSuffix;
         $this->data['customVars'][$this->type]['ShippingPostalCode'] = $this->ShippingPostalCode;
         $this->data['customVars'][$this->type]['ShippingCity'] = $this->ShippingCity;
