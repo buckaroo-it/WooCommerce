@@ -253,8 +253,16 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
                 throw new Exception( 'Tax only cannot be refund' );
             }
         }
+        $order_id = null;
 
-        $order = wc_get_order( $this->orderId );
+
+        if (checkForSequentialNumbersPlugin()){
+            $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $this->orderId );
+            $order = wc_get_order($order_id);
+//		$order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
+        } else {
+            $order = wc_get_order( $this->orderId );
+        }
         $items = $order->get_items();
         $shippingItems = $order->get_items('shipping');
         $feeItems = $order->get_items('fee');
@@ -346,8 +354,8 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         }
 
         if (((float)$shippingCosts !== (float)$shippingRefundedCosts || abs($shippingCosts - $shippingRefundedCosts) > 0.01) && !empty($shippingRefundedCosts)) {
-            $r = abs($shippingCosts - $shippingRefundedCosts) > 0.01;
-            $t = (float)$shippingCosts !== (float)$shippingRefundedCosts;
+//            $r = abs($shippingCosts - $shippingRefundedCosts) > 0.01;
+//            $t = (float)$shippingCosts !== (float)$shippingRefundedCosts;
             throw new Exception('Incorrect refund shipping price. Please check refund shipping price and tax amounts');
         }
     }
@@ -396,5 +404,26 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         }
 
         return $orderRefundData;
+    }
+
+    public function PayInInstallments($customVars = Array()) {
+        $this->data['services'][$this->type]['action'] = 'PayInInstallments';
+        $this->data['services'][$this->type]['version'] = $this->version;
+
+        if ($this->usenotification && !empty($customVars['Customeremail'])) {
+            $this->data['services']['notification']['action'] = 'ExtraInfo';
+            $this->data['services']['notification']['version'] = '1';
+            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
+            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
+            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
+            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
+            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
+            $this->data['customVars']['notification']['RecipientGender'] = $customVars['Customergender'];
+            if (!empty($customVars['Notificationdelay'])) {
+                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
+            }
+        }
+
+        return $this->PayGlobal();
     }
 }

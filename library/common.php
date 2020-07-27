@@ -195,7 +195,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
     $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, 'test');
     $order_id = $response->invoicenumber;
     if (checkForSequentialNumbersPlugin()){
-		$order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
+		$order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
     }
     if ((int)$order_id > 0) {
         $order = new WC_Order($order_id);
@@ -446,15 +446,22 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     
     $order_id = $response->invoicenumber;
     if (checkForSequentialNumbersPlugin()){
-		$order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
+		$order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
+//		$order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
     }
 
+    $order = new WC_Order($order_id);
     if ((int)$order_id > 0) {
-        $order = new WC_Order($order_id);
+//        $order = new WC_Order($order_id);
         if (!isset($GLOBALS['plugin_id'])) {
             $GLOBALS['plugin_id'] = $payment_method->plugin_id . $order->payment_method . "_settings";
         }
     }
+
+    if (!isset($GLOBALS['plugin_id'])) {
+        $GLOBALS['plugin_id'] = $payment_method->plugin_id . $order->payment_method . "_settings";
+    }
+
     if ($response->isValid()) {
         if ($response->isRedirectRequired()) {
             if($payment_method->id == 'buckaroo_payconiq'){
@@ -802,12 +809,13 @@ function writeToTestscriptsLog($method, $type, $event, $json){
 
 function checkForSequentialNumbersPlugin() {
     include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-    return is_plugin_active('woocommerce-sequential-order-numbers/woocommerce-sequential-order-numbers.php');
+    return is_plugin_active('woocommerce-sequential-order-numbers-pro/woocommerce-sequential-order-numbers-pro.php');
 }
 
 function getWCOrderDetails($order_id, $field) {
     if (checkForSequentialNumbersPlugin()){
-        $order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
+        $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
+//        $order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
     }
     $order = (WooV3Plus()) ? wc_get_order($order_id) : new WC_Order($order_id);
     $shipping_arr = array(
