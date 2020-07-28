@@ -307,7 +307,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $order = wc_get_order($order_id);
         if (checkForSequentialNumbersPlugin()) {
-            $order_id = $order->get_order_number(); //Use sequential id
+            $order_sequential_id = $order->get_order_number();
+//            $order_sequential_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
+//            $order_sequential_id = preg_replace('/\./g', '-', $order_sequential_id); //Use sequential id
         }
         $afterpay = new BuckarooAfterPayNew($this->type);
         $afterpay->amountDedit = 0;
@@ -316,7 +318,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         if ($this->mode=='test') {
             $afterpay->invoiceId = 'WP_'.(string)$order_id;
         }
-        $afterpay->orderId = $order_id;
+
+        $afterpay->invoiceId = !empty($order_sequential_id) ? $order_sequential_id : $order_id;
+        $afterpay->orderId = !empty($order_sequential_id) ? $order_sequential_id : $order_id;
         if ($originalTransactionKey === null) {
             $afterpay->OriginalTransactionKey = $order->get_transaction_id();
         } else {
@@ -346,7 +350,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         }
 
         $orderDataForChecking = $afterpay->getOrderRefundData();
-        
+
         foreach ($items as $item) {
             if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
                 $product = new WC_Product($item['product_id']);
@@ -653,7 +657,8 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $order = new WC_Order( $order_id );
         $afterpay = new BuckarooAfterPayNew($this->type);
         if (checkForSequentialNumbersPlugin()) {
-            $order_id = $order->get_order_number(); //Use sequential id
+//            $order_id = $order->get_order_number(); //Use sequential id
+            $order_sequential_id = preg_replace('/\./', '-', $order->get_order_number());
         }
         if (method_exists($order, 'get_order_total')) {
             $afterpay->amountDedit = $order->get_order_total();
@@ -664,8 +669,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $afterpay->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
         $afterpay->currency = $this->currency;
         $afterpay->description = $this->transactiondescription;
-        $afterpay->invoiceId = getUniqInvoiceId((string)$order_id, $this->mode);
-        $afterpay->orderId = (string)$order_id;
+        $afterpay->invoiceId = getUniqInvoiceId(!empty($order_sequential_id) ? $order_sequential_id : (string)$order_id, $this->mode);
+//        $afterpay->orderId = (string)$order_id;
+        $afterpay->orderId = !empty($order_sequential_id) ? $order_sequential_id : (string)$order_id;
 
         $afterpay->BillingGender = $_POST['buckaroo-afterpaynew-gender'];
 

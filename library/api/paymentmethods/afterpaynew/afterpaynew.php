@@ -61,7 +61,7 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
     public function Pay($customVars = Array()) {
         return null;
     }
-    
+
     /**
      * @access public
      * @param array $products
@@ -177,8 +177,8 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
             } else {
                 $mergedProducts[$product['ArticleId']]["ArticleQuantity"] += 1;
             }
-        }     
-        
+        }
+
         $products = $mergedProducts;
 
         $i = 1;
@@ -200,16 +200,16 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
             $i++;
         }
 
-            $this->data['customVars'][$this->type]["Description"][$i]["value"] = 'Shipping Cost';
-            $this->data['customVars'][$this->type]["Description"][$i]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["Identifier"][$i]["value"] = 'shipping';
-            $this->data['customVars'][$this->type]["Identifier"][$i]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["Quantity"][$i]["value"] = '1';
-            $this->data['customVars'][$this->type]["Quantity"][$i]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["value"] = (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0');
-            $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] = (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0');
-            $this->data['customVars'][$this->type]["VatPercentage"][$i]["group"] = 'Article';
+        $this->data['customVars'][$this->type]["Description"][$i]["value"] = 'Shipping Cost';
+        $this->data['customVars'][$this->type]["Description"][$i]["group"] = 'Article';
+        $this->data['customVars'][$this->type]["Identifier"][$i]["value"] = 'shipping';
+        $this->data['customVars'][$this->type]["Identifier"][$i]["group"] = 'Article';
+        $this->data['customVars'][$this->type]["Quantity"][$i]["value"] = '1';
+        $this->data['customVars'][$this->type]["Quantity"][$i]["group"] = 'Article';
+        $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["value"] = (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0');
+        $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["group"] = 'Article';
+        $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] = (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0');
+        $this->data['customVars'][$this->type]["VatPercentage"][$i]["group"] = 'Article';
 
         if ($this->usenotification && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action'] = 'ExtraInfo';
@@ -229,8 +229,8 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
     }
 
     /**
-     * Populate generic fields for a refund 
-     * 
+     * Populate generic fields for a refund
+     *
      * @access public
      * * @param array $products
      * @throws Exception
@@ -239,7 +239,7 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
     public function AfterPayRefund($products, $issuer) {
         $this->type = $issuer;
         $this->version = 1;
-        $this->mode = BuckarooConfig::getMode($this->type);        
+        $this->mode = BuckarooConfig::getMode($this->type);
 
         $this->data['services'][$this->type]['action'] = 'Refund';
         $this->data['services'][$this->type]['version'] = $this->version;
@@ -259,9 +259,9 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
             $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] = !empty($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0;
             $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"] = 'Article';
             $this->data['customVars'][$this->type]["RefundType"][$i - 1]["value"] = ($p["ArticleId"] == BuckarooConfig::SHIPPING_SKU ? "Refund" : "Return");
-            $this->data['customVars'][$this->type]["RefundType"][$i - 1]["group"] = 'Article';            
+            $this->data['customVars'][$this->type]["RefundType"][$i - 1]["group"] = 'Article';
             $i++;
-        }  
+        }
 
         if ($this->usenotification && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action'] = 'ExtraInfo';
@@ -275,7 +275,7 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
             if (!empty($customVars['Notificationdelay'])) {
                 $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
             }
-        }        
+        }
 
         return $this->RefundGlobal();
     }
@@ -308,7 +308,7 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
 //            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] = $p["ArticleVatcategory"];
             $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] = !empty($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0;
             $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"] = 'Article';
-     
+
             $i++;
         }
 

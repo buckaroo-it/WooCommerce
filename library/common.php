@@ -1,25 +1,25 @@
 <?php
 
 /**
- * Make status codes reader friendly 
+ * Make status codes reader friendly
  *
  * @param  String $status_code
- * @return String 
+ * @return String
  */
 function fn_buckaroo_resolve_status_code($status_code) {
     require_once(dirname(__FILE__) . '/api/abstract.php');
     switch ($status_code) {
 
         case BuckarooAbstract::BUCKAROO_SUCCESS:
-        {
-            return 'completed';
-        }
+            {
+                return 'completed';
+            }
             break;
 
         case BuckarooAbstract::BUCKAROO_PENDING_PAYMENT:
-        {
-            return 'on-hold';
-        }
+            {
+                return 'on-hold';
+            }
             break;
         case BuckarooAbstract::BUCKAROO_CANCELED:
             return 'cancelled';
@@ -41,7 +41,7 @@ function fn_buckaroo_resolve_status_code($status_code) {
  * @param  Object $order WC_Order
  * @param  String $amount
  * @param  String $currency
- * @return String|Boolean 
+ * @return String|Boolean
  */
 function fn_buckaroo_process_refund($response, $order, $amount, $currency) {
     if ($response && $response->isValid() && $response->hasSucceeded()) {
@@ -87,7 +87,7 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency) {
  * @param  Object $order WC_Order
  * @param  String $amount
  * @param  String $currency
- * @return String|Boolean 
+ * @return String|Boolean
  */
 function fn_buckaroo_process_capture($response, $order, $currency, $products = null) {
 
@@ -112,12 +112,12 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
         }
 
         $str = "";
-	    $characters = range('0','9');
-	    $max = count($characters) - 1;
-	    for ($i = 0; $i < 2; $i++) {
-		    $rand = mt_rand(0, $max);
-		    $str .= $characters[$rand];
-	    }
+        $characters = range('0','9');
+        $max = count($characters) - 1;
+        for ($i = 0; $i < 2; $i++) {
+            $rand = mt_rand(0, $max);
+            $str .= $characters[$rand];
+        }
 
         // Set the flag that contains all the items and taxes that have been captured
         add_post_meta( $order->get_id(), '_wc_order_captures', array(
@@ -195,7 +195,10 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
     $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, 'test');
     $order_id = $response->invoicenumber;
     if (checkForSequentialNumbersPlugin()){
-		$order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
+        if ($response->payment_method == 'afterpay') {
+            $order_id = preg_replace('/-/', '.', $order_id);
+        }
+        $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
     }
     if ((int)$order_id > 0) {
         $order = new WC_Order($order_id);
@@ -259,7 +262,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                         return;
                 }
             } else {
-            
+
                 switch ($response_status) {
                     case 'completed':
 
@@ -290,12 +293,12 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                         }
                         $clean_order_no = (int) str_replace('#', '', $order->get_order_number());
                         add_post_meta($clean_order_no, '_payment_method_transaction', $payment_methodname, true);
-                        
+
                         // Calc total received amount 
-                        
+
                         $prefix = "buckaroo_settlement_";
                         $settlement = $prefix . $response->payment;
-                        
+
                         $orderAmount = (float)$order->total;
                         $paidAmount = (float)$response->amount;
 
@@ -305,16 +308,16 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                             if (strstr($key, $prefix) !== false && strstr($key, $response->payment) === false) {
                                 $alreadyPaidSettlements+= (float)$meta[0];
                             }
-                            
+
                             // check if push is a new payment
                             if (strstr($key, $prefix) !== false && strstr($key, $response->payment) !== false) {
                                 $isNewPayment = false;
-                            }                           
-                            
+                            }
+
                         }
 
                         $totalPaid = $paidAmount + $alreadyPaidSettlements;
-                        
+
                         add_post_meta($order->get_order_number(), $settlement, $paidAmount, true);
 
                         // order is completely paid 
@@ -333,7 +336,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                         }
 
                         add_post_meta($order->get_order_number(), '_pushallowed', 'ok', true);
-                        
+
                         break;
                     default:
                         $logger->logInfo('Update status 1. Order status: on-hold');
@@ -382,7 +385,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                         'error'
                     );
                 } else {
-                     wc_add_notice(
+                    wc_add_notice(
                         __(
                             'Payment unsuccessful. Please try again or choose another payment method.',
                             'wc-buckaroo-bpe-gateway'
@@ -405,7 +408,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                 'error'
             );
         } else {
-             wc_add_notice(
+            wc_add_notice(
                 __(
                     'Payment unsuccessful. Please try again or choose another payment method.',
                     'wc-buckaroo-bpe-gateway'
@@ -419,13 +422,13 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 }
 
 /**
-* Process response from buckaroo
-* 
-* @param object $payment_method defaults to NULL
-* @param string $response 
-* @param string $mode  
-* @return void|array
-*/
+ * Process response from buckaroo
+ *
+ * @param object $payment_method defaults to NULL
+ * @param string $response
+ * @param string $mode
+ * @return void|array
+ */
 function fn_buckaroo_process_response($payment_method = null, $response = '', $mode = '') {
     $woocommerce = getWooCommerceObject();
     $wpdb = getWpdbObject();
@@ -443,10 +446,17 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 
     $logger->logInfo('Parse response:\n', $response);
     $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, $mode);
-    
+
     $order_id = $response->invoicenumber;
     if (checkForSequentialNumbersPlugin()){
-		$order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
+        if ($response->payment_method == 'afterpay') {
+            $order_seq_id = preg_replace('/-/', '.', $order_id);
+            $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_seq_id );
+        }
+        else {
+            $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
+        }
+
 //		$order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
     }
 
@@ -472,7 +482,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 $amount = $response->amount;
                 $currency = get_woocommerce_currency();
 
-                $urlParts = parse_url($path);                
+                $urlParts = parse_url($path);
                 $url = $urlParts['scheme'] . "://" . $urlParts['host'] . $urlParts['path'];
                 $query = '?' . (!empty($urlParts['query']) ? $urlParts['query'] . "&" : "" );
 
@@ -591,7 +601,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     );
 
                 }else{
-                     wc_add_notice(
+                    wc_add_notice(
                         __(
                             'Payment unsuccessful. Please try again or choose another payment method.',
                             'wc-buckaroo-bpe-gateway'
@@ -693,7 +703,7 @@ function resetOrder() {
 function getUniqInvoiceId($order_id, $mode = 'live') {
     if (isset($_REQUEST['payment_method'])) {
         $paymentMethod = $_REQUEST['payment_method'];
-    } 
+    }
     $time = time();
     if(!empty($paymentMethod) && $paymentMethod == 'buckaroo_afterpay') {
         $time = substr($time, -5);
@@ -701,7 +711,7 @@ function getUniqInvoiceId($order_id, $mode = 'live') {
     $postfix = ''; //_i'.$time;
     $invoiceId = (string)$order_id.$postfix;
     if ($mode == 'test') {
-        $invoiceId = 'WP_'.(string)$order_id.$postfix;
+//        $invoiceId = 'WP_'.(string)$order_id.$postfix;
     }
 
     return $invoiceId;
@@ -734,7 +744,7 @@ function WooV3Plus() {
     if (substr(WC()->version, 0, 1) >= 3 ) {
         return true;
     } else {
-        return false; 
+        return false;
     }
 }
 
@@ -742,7 +752,7 @@ function WooV3Plus() {
  * Replaces multiple calls throughout plugin to "global $woocommerce"
  *
  * @return object
- */   
+ */
 function getWooCommerceObject() {
     global $woocommerce;
     return $woocommerce;
@@ -752,7 +762,7 @@ function getWooCommerceObject() {
  * Replaces multiple calls throughout plugin to "global $wpdb"
  *
  * @return object
- */   
+ */
 function getWpdbObject() {
     global $wpdb;
     return $wpdb;
@@ -819,14 +829,14 @@ function getWCOrderDetails($order_id, $field) {
     }
     $order = (WooV3Plus()) ? wc_get_order($order_id) : new WC_Order($order_id);
     $shipping_arr = array(
-        'shipping_phone', 
-        'shipping_email', 
-        'shipping_country', 
-        'shipping_city', 
-        'shipping_postcode', 
-        'shipping_address_1', 
-        'shipping_address_2', 
-        'shipping_first_name', 
+        'shipping_phone',
+        'shipping_email',
+        'shipping_country',
+        'shipping_city',
+        'shipping_postcode',
+        'shipping_address_1',
+        'shipping_address_2',
+        'shipping_first_name',
         'shipping_last_name'
     );
     if (in_array($field, $shipping_arr)) {
@@ -834,19 +844,19 @@ function getWCOrderDetails($order_id, $field) {
         $offset = str_replace('shipping_', '', $field);
         return $pickAddress[$offset];
     } elseif(WooV3Plus()) {
-       return $order->{"get_".$field}();
+        return $order->{"get_".$field}();
     } else {
-       return $order->{$field};
+        return $order->{$field};
     }
 }
 
 function getWCOrder($order_id) {
     if(WooV3Plus()){
-       $order = wc_get_order($order_id);
-       return $order; 
+        $order = wc_get_order($order_id);
+        return $order;
     } else {
-       $order = new WC_Order($order_id);
-       return $order;
+        $order = new WC_Order($order_id);
+        return $order;
     }
 }
 
@@ -901,7 +911,7 @@ function pickAddress($order) {
     $result['last_name'] = (!empty($last_name) && $last_name != '') ? $last_name : '';
 
     return $result;
-} 
+}
 
 function checkCurrencySupported($payment_method = ''){
     switch ($payment_method) {

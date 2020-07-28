@@ -175,7 +175,8 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
 //        $order = wc_get_order( $order_id );
         if (checkForSequentialNumbersPlugin()) {
-            $order_id = $order->get_order_number(); //Use sequential id
+            $order_seq_id = $order->get_order_number(); //Use sequential id
+//            $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
         }
 
         $orderRefundData = [];
@@ -221,7 +222,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         $creditcard->amountCredit = $amount;
         $creditcard->currency = $this->currency;
         $creditcard->description = $reason;
-        $creditcard->invoiceId = $order_id;
+        $creditcard->invoiceId = !empty($order_seq_id) ? $order_seq_id : $order_id;
         $creditcard->orderId = $order_id;
 
         if ($OriginalTransactionKey !== null) {
