@@ -196,7 +196,9 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
     $order_id = $response->invoicenumber;
     if (checkForSequentialNumbersPlugin()){
         if ($response->payment_method == 'afterpay') {
-            $order_id = preg_replace('/-/', '.', $order_id);
+            if (preg_match('/\./i', $order_id)) {
+                $order_id = preg_replace('/-/', '.', $order_id);
+            }
         }
         $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
     }
@@ -450,7 +452,10 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     $order_id = $response->invoicenumber;
     if (checkForSequentialNumbersPlugin()){
         if ($response->payment_method == 'afterpay') {
-            $order_seq_id = preg_replace('/-/', '.', $order_id);
+            $order_seq_id = '';
+            if (preg_match('/\./i', $order_id)) {
+                $order_seq_id = preg_replace('/-/', '.', $order_id);
+            }
             $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_seq_id );
         }
         else {

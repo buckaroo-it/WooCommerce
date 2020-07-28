@@ -657,8 +657,13 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $order = new WC_Order( $order_id );
         $afterpay = new BuckarooAfterPayNew($this->type);
         if (checkForSequentialNumbersPlugin()) {
+            if (preg_match('/\./i', $order->get_order_number())) {
+                $order_sequential_id = preg_replace('/\./', '-', $order->get_order_number());
+            } else {
+                $order_sequential_id = $order->get_order_number(); //Use sequential id
+            }
 //            $order_id = $order->get_order_number(); //Use sequential id
-            $order_sequential_id = preg_replace('/\./', '-', $order->get_order_number());
+
         }
         if (method_exists($order, 'get_order_total')) {
             $afterpay->amountDedit = $order->get_order_total();
