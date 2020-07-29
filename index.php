@@ -215,6 +215,10 @@ function generateGateways()
             'filename' => 'gateway-buckaroo-requesttopay.php',
             'classname' => 'WC_Gateway_Buckaroo_RequestToPay',
         ),
+        'In3' => array(
+            'filename' => 'gateway-buckaroo-in3.php',
+            'classname' => 'WC_Gateway_Buckaroo_In3',
+        ),
     );
     $buckaroo_enabled_payment_methods = array();
     if (file_exists(dirname(__FILE__) . '/gateway-buckaroo-testscripts.php')) {

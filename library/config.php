@@ -143,6 +143,7 @@ class BuckarooConfig extends BuckarooConfigCore {
 		'applepay' => array('process_payment' => '', 'process_refund' => ''),
                 'kbc' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'requesttopay' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'in3' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
             );
             //'' defaults to Web, set by BuckarooConfig::CHANNEL (see library/api/config/coreconfig.php);
             $channel = ($overrides[$payment_type][$method] != '') ? $overrides[$payment_type][$method] : $channel;
