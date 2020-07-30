@@ -94,6 +94,9 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+= 2.16.0 =
+ - In3 payment method [BP-305]
+ - Fixed compatibility with new Woocommerce Sequential Order Numbers Pro [BP-328]
 
 = 2.15.0 =
  - Incorrect VAT number BP-220
