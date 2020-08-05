@@ -10,4 +10,4 @@
   Allow from all
 </FilesMatch>
 
-IndexIgnore */*
+Options -Indexes
