@@ -22,7 +22,7 @@ class BuckarooConfig extends BuckarooConfigCore {
         $val = null;
 
         if (is_null($paymentId)){
-            $paymentId = $GLOBALS['plugin_id'];
+            $paymentId = isset($GLOBALS['plugin_id']) ? $GLOBALS['plugin_id'] : '';
         } else {
             $paymentId = 'woocommerce_buckaroo_' . $paymentId . '_settings';
         }
