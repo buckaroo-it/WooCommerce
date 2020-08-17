@@ -55,7 +55,7 @@ Class ApplePayButtons
 
     private function isHttpsConnection()
     {
-        return $_SERVER['HTTPS'] === 'on'  ? true : false;
+        return isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'  ? true : false;
     }
 
     private function buttonIsEnabled($page)

@@ -775,6 +775,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
 
         $articlesLooped = [];
 
+        $feeItemRate = 0;
         foreach ( $items as $item ) {
 
             $product = new WC_Product($item['product_id']);
@@ -786,23 +787,18 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $taxes = $tax->get_rates($product->get_tax_class());
             $rates = array_shift($taxes);
             $itemRate = number_format(array_shift($rates),2);
-            // $tax_class = $product->get_attribute("vat_category");
-            // if (empty($tax_class)){
-            //     $tax_class = $this->vattype;
-            //     //wc_add_notice( __("Vat category (vat_category) do not exist for product ", 'wc-buckaroo-bpe-gateway').$item['name'], 'error' );
-            //     // return;
-            // }
 
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"] = $item['product_id'];
             $tmp["ArticleQuantity"] = $item["qty"];
             $tmp["ArticleUnitprice"] = number_format(number_format($item["line_total"]+$item["line_tax"], 4)/$item["qty"], 2);
             $itemsTotalAmount += number_format($tmp["ArticleUnitprice"] * $item["qty"], 2);
-//            $tmp["ArticleVatcategory"] = number_format(($item["line_tax"] * 100) / $item["line_total"], 2);
+
             $tmp["ArticleVatcategory"] = $itemRate;
             $tmp["ProductUrl"] = get_permalink($item['product_id']);
             $tmp["ImageUrl"] = $src;
             $products[] = $tmp;
+            $feeItemRate = $feeItemRate > $itemRate ? $feeItemRate : $itemRate;
         }
 
         $fees = $order->get_fees();
@@ -812,7 +808,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $tmp["ArticleQuantity"] = 1;
             $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
             $itemsTotalAmount += $tmp["ArticleUnitprice"];
-            $tmp["ArticleVatcategory"] = '0';
+            $tmp["ArticleVatcategory"] = $feeItemRate;
             $products[] = $tmp;
         }
         if(!empty($afterpay->ShippingCosts)) {
@@ -835,38 +831,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                 $tmp["ArticleUnitprice"] = number_format($afterpay->amountDedit - $itemsTotalAmount, 2);
                 $tmp["ArticleVatcategory"] = 0;
                 $products[] = $tmp;
-//                    $products[$i]['ArticleUnitprice'] -= 0.01;
                 $itemsTotalAmount -= 0.01;
             }
         }
-
-//        for($i = 0; count($products) > $i; $i++) {
-//            if($afterpay->amountDedit != $itemsTotalAmount) {
-//                if(number_format($afterpay->amountDedit - $itemsTotalAmount,2) >= 0.01) {
-//                    $tmp["ArticleDescription"] = 'Remaining Price';
-//                    $tmp["ArticleId"] = count($products);
-//                    $tmp["ArticleQuantity"] = 1;
-//                    $tmp["ArticleUnitprice"] = number_format($afterpay->amountDedit - $itemsTotalAmount,2);
-//                    $tmp["ArticleVatcategory"] = 0;
-//                    $tmp["ProductUrl"] = get_permalink($item['product_id']);
-//                    $tmp["ImageUrl"] = $src;
-//                    $products[] = $tmp;
-////                    $products[$i]['ArticleUnitprice'] += 0.01;
-//                    $itemsTotalAmount += 0.01;
-//                } elseif(number_format($itemsTotalAmount - $afterpay->amountDedit,2) >= 0.01) {
-//                    $tmp["ArticleDescription"] = 'Remaining Price';
-//                    $tmp["ArticleId"] = count($products);
-//                    $tmp["ArticleQuantity"] = 1;
-//                    $tmp["ArticleUnitprice"] = number_format($afterpay->amountDedit - $itemsTotalAmount,2);
-//                    $tmp["ArticleVatcategory"] = 0;
-//                    $tmp["ProductUrl"] = get_permalink($item['product_id']);
-//                    $tmp["ImageUrl"] = $src;
-//                    $products[] = $tmp;
-////                    $products[$i]['ArticleUnitprice'] -= 0.01;
-//                    $itemsTotalAmount -= 0.01;
-//                }
-//            }
-//        }
 
         $afterpay->returnUrl = $this->notify_url;
 
