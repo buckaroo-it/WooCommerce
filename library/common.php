@@ -457,17 +457,13 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 $order_seq_id = preg_replace('/-/', '.', $order_id);
             }
             $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_seq_id );
-        }
-        else {
+        } else {
             $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
         }
-
-//		$order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
     }
 
     $order = new WC_Order($order_id);
     if ((int)$order_id > 0) {
-//        $order = new WC_Order($order_id);
         if (!isset($GLOBALS['plugin_id'])) {
             $GLOBALS['plugin_id'] = $payment_method->plugin_id . $order->payment_method . "_settings";
         }
@@ -480,20 +476,13 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     if ($response->isValid()) {
         if ($response->isRedirectRequired()) {
             if($payment_method->id == 'buckaroo_payconiq'){
-                $shortcut = pages_with_shortcode('buckaroo_payconiq');
-                $path = $shortcut[0]->guid;
                 $key = $response->transactionId;
                 $invoiceNumber = $response->invoicenumber;
                 $amount = $response->amount;
                 $currency = get_woocommerce_currency();
-
-                $urlParts = parse_url($path);
-                $url = $urlParts['scheme'] . "://" . $urlParts['host'] . $urlParts['path'];
-                $query = '?' . (!empty($urlParts['query']) ? $urlParts['query'] . "&" : "" );
-
                 return array(
                     'result' => 'success',
-                    'redirect' => $url . $query .
+                    'redirect' => home_url('/') . 'payconiqQrcode?' .
                         "transactionKey=" . $key .
                         "&invoicenumber=" . $invoiceNumber .
                         "&amount=" . $amount .

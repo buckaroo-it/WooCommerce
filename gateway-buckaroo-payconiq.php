@@ -162,12 +162,13 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo {
         $woocommerce = getWooCommerceObject();
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $result = fn_buckaroo_process_response($this);
-        if (!is_null($result))
+        $order_id = isset($_GET["order_id"]) ? $_GET["order_id"] : false;
+        if (!is_null($result)){
             wp_safe_redirect($result['redirect']);
-        else if ($_GET["order_id"]) {
+        } elseif ($order_id) {
             // if we are here we are the redirect from the "cancel payment" link
                 // So we have to cancel the payment.
-                $order = new WC_Order($_GET ["order_id"]);
+                $order = new WC_Order($order_id);
                 if (isset($order)) {
                     $order->update_status('cancelled', __('890', 'wc-buckaroo-bpe-gateway'));
                     wc_add_notice(
@@ -272,3 +273,27 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo {
     }
 
 }
+
+function payconiqQrcode() {
+    $page = esc_url($_SERVER['REQUEST_URI']);
+    if (strpos($page, 'payconiqQrcode') !== false) {
+        if (!isset($_GET["invoicenumber"]) && !isset($_GET["transactionKey"]) && !isset($_GET["currency"]) && !isset($_GET["amount"])){
+            // When no parameters, redirect to cart page.
+            wc_add_notice( __( 'Checkout is not available whilst your cart is empty.', 'woocommerce' ), 'notice' );
+            wp_safe_redirect( wc_get_page_permalink( 'cart' ) );
+            exit;
+        }
+
+        ob_start();
+        get_template_part('header');
+        include 'templates/payconiq/qrcode.php';
+        get_template_part('footer');
+        
+        $content = ob_get_clean();
+        $content = preg_replace('#<title>(.*?)<\/title>#', '<title>Payconiq</title>', $content);
+        echo $content;
+
+        die();
+    }
+}
+add_action('template_redirect', 'payconiqQrcode');
