@@ -788,6 +788,10 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $rates = array_shift($taxes);
             $itemRate = number_format(array_shift($rates),2);
 
+            if($product->get_tax_status() != 'taxable'){
+                $itemRate = 0;
+            }
+
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"] = $item['product_id'];
             $tmp["ArticleQuantity"] = $item["qty"];
