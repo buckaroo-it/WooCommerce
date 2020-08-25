@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 5.4.1
-Stable tag: 2.16.1
+Stable tag: 2.16.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -94,6 +94,12 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+= 2.16.2 =
+ - Fix Payconiq transaction redirects to unknown page [BP-386]
+ - Fix payment fee Afterpay has wrong VAT percentage [BP-390]
+ - Fixed Notice: Undefined index:plugin_id
+ - Added translations for creditcard inline mode
+
 = 2.16.1 =
  - Changed .htaccess file
 
