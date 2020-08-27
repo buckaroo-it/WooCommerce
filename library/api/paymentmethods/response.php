@@ -239,12 +239,12 @@ abstract class BuckarooResponse extends BuckarooAbstract {
         $this->brq_relatedtransaction_partialpayment = $this->_setPostVariable('brq_relatedtransaction_partialpayment');
         $this->brq_transaction_type = $this->_setPostVariable('brq_transaction_type');
         $this->brq_relatedtransaction_refund = $this->_setPostVariable('brq_relatedtransaction_refund');
+
         $this->invoice = $this->_setPostVariable('brq_invoicenumber');
         $this->invoicenumber = $this->_setPostVariable('brq_invoicenumber');
         $this->amount = $this->_setPostVariable('brq_amount');
         if (isset($_POST['brq_amount_credit']))
             $this->amount_credit = $_POST['brq_amount_credit'];
-
         $this->currency = $this->_setPostVariable('brq_currency');
         $this->_test = $this->_setPostVariable('brq_test');
         $this->timestamp = $this->_setPostVariable('brq_timestamp');
@@ -256,6 +256,11 @@ abstract class BuckarooResponse extends BuckarooAbstract {
             $this->status = $responseArray['status'];
             $this->message = $responseArray['message'];
         }
+    }
+
+    function checkForSequentialNumbersPlugin() {
+        include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+        return is_plugin_active('woocommerce-sequential-order-numbers-pro/woocommerce-sequential-order-numbers-pro.php');
     }
 
     abstract protected function _parsePostResponseChild();

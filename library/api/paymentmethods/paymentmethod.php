@@ -257,7 +257,12 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 
 
         if (checkForSequentialNumbersPlugin()){
-            $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $this->orderId );
+            if (function_exists('wc_seq_order_number_pro')) {
+                $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
+            } elseif (function_exists('wc_sequential_order_numbers')) {
+                $order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
+            }
+//            $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $this->orderId );
             $order = wc_get_order($order_id);
 //		$order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
         } else {
