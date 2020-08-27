@@ -202,6 +202,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         }
         $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
     }
+    $order = new WC_Order($order_id);
     if ((int)$order_id > 0) {
         $order = new WC_Order($order_id);
         if (!isset($GLOBALS['plugin_id'])) {
@@ -224,16 +225,16 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         }
         if ($response->brq_relatedtransaction_refund != null) {
             $logger->logInfo('PUSH', "Refund payment PUSH received " . $response->status);
-            $allowedPush = get_post_meta($order->get_order_number(), '_pushallowed', true);
+            $allowedPush = get_post_meta($order_id, '_pushallowed', true);
             if ($response->hasSucceeded() && $allowedPush == 'ok') {
-                $tmp = get_post_meta($order->get_order_number(), '_refundbuckaroo' . $response->transactions, true);
+                $tmp = get_post_meta($order_id, '_refundbuckaroo' . $response->transactions, true);
                 if (empty($tmp)) {
-                    add_post_meta($order->get_order_number(), '_refundbuckaroo' . $response->transactions, 'ok', true);
+                    add_post_meta($order_id, '_refundbuckaroo' . $response->transactions, 'ok', true);
                     $refund = wc_create_refund(
                         array(
                             'amount' => $response->amount_credit,
                             'reason' => 'Push automatic refund from BPE; Please restock items manually',
-                            'order_id' => $order->get_order_number(),
+                            'order_id' => $order_id,
                             'line_items' => Array()
                         )
                     );
@@ -293,7 +294,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                                 )
                             );
                         }
-                        $clean_order_no = (int) str_replace('#', '', $order->get_order_number());
+                        $clean_order_no = (int) str_replace('#', '', $order_id);
                         add_post_meta($clean_order_no, '_payment_method_transaction', $payment_methodname, true);
 
                         // Calc total received amount 
@@ -303,10 +304,9 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 
                         $orderAmount = (float)$order->total;
                         $paidAmount = (float)$response->amount;
-
                         $alreadyPaidSettlements = 0;
                         $isNewPayment = true;
-                        foreach (get_post_meta($order->get_order_number()) as $key => $meta) {
+                        foreach (get_post_meta($order_id) as $key => $meta) {
                             if (strstr($key, $prefix) !== false && strstr($key, $response->payment) === false) {
                                 $alreadyPaidSettlements+= (float)$meta[0];
                             }
@@ -320,7 +320,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 
                         $totalPaid = $paidAmount + $alreadyPaidSettlements;
 
-                        add_post_meta($order->get_order_number(), $settlement, $paidAmount, true);
+                        add_post_meta($order_id, $settlement, $paidAmount, true);
 
                         // order is completely paid 
                         if ($totalPaid >= $orderAmount) {
@@ -337,7 +337,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                             $order->add_order_note($message);
                         }
 
-                        add_post_meta($order->get_order_number(), '_pushallowed', 'ok', true);
+                        add_post_meta($order_id, '_pushallowed', 'ok', true);
 
                         break;
                     default:
@@ -452,7 +452,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     $order_id = $response->invoicenumber;
     if (checkForSequentialNumbersPlugin()){
         if ($response->payment_method == 'afterpay') {
-            $order_seq_id = '';
+            $order_seq_id = $order_id;
             if (preg_match('/\./i', $order_id)) {
                 $order_seq_id = preg_replace('/-/', '.', $order_id);
             }
@@ -467,10 +467,6 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         if (!isset($GLOBALS['plugin_id'])) {
             $GLOBALS['plugin_id'] = $payment_method->plugin_id . $order->payment_method . "_settings";
         }
-    }
-
-    if (!isset($GLOBALS['plugin_id'])) {
-        $GLOBALS['plugin_id'] = $payment_method->plugin_id . $order->payment_method . "_settings";
     }
 
     if ($response->isValid()) {
