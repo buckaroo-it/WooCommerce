@@ -292,7 +292,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 
                 $itemTotal = $items[$item_id]->get_total();
                 $itemQuantity = $items[$item_id]->get_quantity();
-                $itemPrice = $itemTotal / $itemQuantity;
+                $itemPrice = round($itemTotal / $itemQuantity, 2);
 
                 $tax = $items[$item_id]->get_taxes();
                 $taxId = 3;
@@ -311,7 +311,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
                     throw new Exception('Product quantity doesn`t choose');
                 }
 
-                if ((float)$itemPrice * $data[$item_id]['qty'] !== (float)$data[$item_id]['total']) {
+                if ((float)$itemPrice * $data[$item_id]['qty'] !== (float)round($data[$item_id]['total'], 2)) {
                     throw new Exception('Incorrect entered product price. Please check refund product price and tax amounts');
                 }
 
