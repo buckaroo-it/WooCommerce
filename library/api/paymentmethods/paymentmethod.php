@@ -280,8 +280,8 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         $shippingTax = (float)$order->get_shipping_tax();
         $shippingCosts = $shippingCostWithoutTax + $shippingTax;
 
-        $shippingRefundedCosts = 0.00;
-//        $shippingRefundedCosts = $order->get_total_shipping_refunded();
+//        $shippingRefundedCosts = 0.00;
+        $shippingRefundedCosts = $order->get_total_shipping_refunded() + $shippingTax;
 
         foreach ($items as $item_id => $item_data) {
 
@@ -332,16 +332,16 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
             }
         }
 
-        foreach ($shippingItems as $shipping_item_id => $item_data) {
-            if ($shippingItems[$shipping_item_id] instanceof WC_Order_Item_Shipping && isset($data[$shipping_item_id])) {
-                if (array_key_exists('total', $data[$shipping_item_id])) {
-                    $shippingRefundedCosts  += $data[$shipping_item_id]['total'];
-                }
-                if (array_key_exists('tax', $data[$shipping_item_id])) {
-                    $shippingRefundedCosts  += $data[$shipping_item_id]['tax'];
-                }
-            }
-        }
+//        foreach ($shippingItems as $shipping_item_id => $item_data) {
+//            if ($shippingItems[$shipping_item_id] instanceof WC_Order_Item_Shipping && isset($data[$shipping_item_id])) {
+//                if (array_key_exists('total', $data[$shipping_item_id])) {
+//                    $shippingRefundedCosts  += $data[$shipping_item_id]['total'];
+//                }
+//                if (array_key_exists('tax', $data[$shipping_item_id])) {
+//                    $shippingRefundedCosts  += $data[$shipping_item_id]['tax'];
+//                }
+//            }
+//        }
 
         foreach ($feeItems as $item_id => $item_data) {
             if ($orderFeeRefund > 1) {
@@ -357,7 +357,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
                 }
             }
         }
-
+        $r = (float)$shippingCosts !== (float)$shippingRefundedCosts;
         if (((float)$shippingCosts !== (float)$shippingRefundedCosts || abs($shippingCosts - $shippingRefundedCosts) > 0.01) && !empty($shippingRefundedCosts)) {
 //            $r = abs($shippingCosts - $shippingRefundedCosts) > 0.01;
 //            $t = (float)$shippingCosts !== (float)$shippingRefundedCosts;
