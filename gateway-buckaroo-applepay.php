@@ -126,6 +126,10 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo {
     }
     
     function createTransaction() {
+        require_once(dirname(__FILE__) . '/library/logger.php');
+        $logger = new BuckarooLogger(BuckarooLogger::INFO, 'applepay');
+        $logger->logInfo(__METHOD__ . "|1|", $_POST);
+
         $this->paymentData = $_POST['paymentData'];
         $this->CustomerCardName = $this->paymentData['billingContact']['givenName'] .' '. $this->paymentData['billingContact']['familyName'];
 
@@ -219,7 +223,11 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo {
 
 
     public function createOrder($billing_addresses, $shipping_addresses, $items, $selected_method_id)
-    {            
+    {
+        require_once(dirname(__FILE__) . '/library/logger.php');
+        $logger = new BuckarooLogger(BuckarooLogger::INFO, 'applepay');
+        $logger->logInfo(__METHOD__ . "|1|");
+
         $order = wc_create_order();
 
         $wc_methods = self::createFakeCart(function () {
@@ -270,7 +278,34 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo {
             
             $order->set_address(self::orderAddresses($billing_addresses), 'billing');
             $order->set_address(self::orderAddresses($shipping_addresses), 'shipping');
-            
+
+            ////set email
+            $billingEmail = '';
+            if (!empty($shipping_addresses['emailAddress'])) {
+                $billingEmail = $shipping_addresses['emailAddress'];
+            }
+            if (!empty($billing_addresses['emailAddress'])) {
+                $billingEmail = $billing_addresses['emailAddress'];
+            }
+            if ($billingEmail) {
+                $order->set_billing_email($billingEmail);
+            }
+            ////
+
+            ////set phone
+            $billingPhone = '';
+            if (!empty($shipping_addresses['phoneNumber'])) {
+                $billingPhone = $shipping_addresses['phoneNumber'];
+            }
+            if (!empty($billing_addresses['phoneNumber'])) {
+                $billingPhone = $billing_addresses['phoneNumber'];
+            }
+            if ($billingPhone) {
+                $order->set_billing_phone($billingPhone);
+            }
+            ////
+
+
             if (! empty($selected_method_id) && ! preg_match('/free/', $selected_method_id)) {                
                 $order->add_shipping($wc_methods[$selected_method_id]);
             }

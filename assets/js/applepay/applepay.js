@@ -45,7 +45,8 @@ export default class ApplePay {
           }
           this.total_price = total_to_pay;
 
-          const applepay_options = new BuckarooSdk.ApplePay.ApplePayOptions(this.store_info.store_name, this.store_info.country_code, this.store_info.currency_code, this.store_info.culture_code, this.store_info.merchant_id, all_items, total_item, 'shipping', shipping_methods, this.processApplepayCallback.bind(this), this.processShippingMethodsCallback.bind(this), this.processChangeContactInfoCallback.bind(this))
+          const requiredContactFields = ["name", "email", "postalAddress", "phone"];
+          const applepay_options = new BuckarooSdk.ApplePay.ApplePayOptions(this.store_info.store_name, this.store_info.country_code, this.store_info.currency_code, this.store_info.culture_code, this.store_info.merchant_id, all_items, total_item, 'shipping', shipping_methods, this.processApplepayCallback.bind(this), this.processShippingMethodsCallback.bind(this), this.processChangeContactInfoCallback.bind(this), requiredContactFields, requiredContactFields)
           const applepay_payment = new BuckarooSdk.ApplePay.ApplePayPayment(".applepay-button-container div", applepay_options);
          
           applepay_payment.showPayButton("black");
