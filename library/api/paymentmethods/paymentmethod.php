@@ -278,7 +278,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 
         $shippingCostWithoutTax = (float) $order->get_shipping_total();
         $shippingTax = (float)$order->get_shipping_tax();
-        $shippingCosts = $shippingCostWithoutTax + $shippingTax;
+        $shippingCosts = round($shippingCostWithoutTax, 2) + round($shippingTax, 2);
 
         $shippingRefundedCosts = 0.00;
         $sippingAlreadyRefunded = $order->get_total_shipping_refunded();
