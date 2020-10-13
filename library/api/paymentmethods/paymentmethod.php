@@ -255,7 +255,6 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         }
         $order_id = null;
 
-
         if (checkForSequentialNumbersPlugin()){
             if (function_exists('wc_seq_order_number_pro')) {
                 $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
@@ -268,6 +267,10 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         } else {
             $order = wc_get_order( $this->orderId );
         }
+
+        $wooRoundingOption = get_option('woocommerce_tax_round_at_subtotal');
+        $wooPriceNumDecimals = (int)get_option('woocommerce_price_num_decimals');
+
         $items = $order->get_items();
         $shippingItems = $order->get_items('shipping');
         $feeItems = $order->get_items('fee');
@@ -278,8 +281,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 
         $shippingCostWithoutTax = (float) $order->get_shipping_total();
         $shippingTax = (float)$order->get_shipping_tax();
-        $shippingCosts = round($shippingCostWithoutTax, 2) + round($shippingTax, 2);
-
+        $shippingCosts = round($shippingCostWithoutTax, $wooPriceNumDecimals) + round($shippingTax, $wooPriceNumDecimals);
         $shippingRefundedCosts = 0.00;
         $sippingAlreadyRefunded = $order->get_total_shipping_refunded();
 //        $shippingRefundedCosts = $order->get_total_shipping_refunded();
@@ -292,7 +294,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 
                 $itemTotal = $items[$item_id]->get_total();
                 $itemQuantity = $items[$item_id]->get_quantity();
-                $itemPrice = round($itemTotal / $itemQuantity, 2);
+                $itemPrice = round($itemTotal / $itemQuantity, $wooPriceNumDecimals);
 
                 $tax = $items[$item_id]->get_taxes();
                 $taxId = 3;
@@ -311,7 +313,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
                     throw new Exception('Product quantity doesn`t choose');
                 }
 
-                if ((float)$itemPrice * $data[$item_id]['qty'] !== (float)round($data[$item_id]['total'], 2)) {
+                if ((float)$itemPrice * $data[$item_id]['qty'] !== (float)round($data[$item_id]['total'], $wooPriceNumDecimals)) {
                     throw new Exception('Incorrect entered product price. Please check refund product price and tax amounts');
                 }
 
