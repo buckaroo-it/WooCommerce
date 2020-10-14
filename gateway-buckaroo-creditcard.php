@@ -267,6 +267,9 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         if (version_compare(WC()->version, '3.6', '<')) {
             resetOrder();
         }
+        if (!empty($_POST['buckaroo-creditcard-issuer'])) {
+            wc_add_notice( __("Select a credit card.", 'wc-buckaroo-bpe-gateway'), 'error' );
+        }
         return;
     }
     
