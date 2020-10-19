@@ -96,7 +96,15 @@
                 'type' => 'button',
                 'description' => __('Click to select and upload your certificate. Note: Please save after uploading.', 'wc-buckaroo-bpe-gateway'),
                 'default' => '');
-            
+
+            $taxes = $this->getTaxClasses();
+            $this->form_fields['feetax'] = [
+                'title' => __('Select tax class for fee', 'wc-buckaroo-bpe-gateway'),
+                'type' => 'select',
+                'options' => $taxes,
+                'description' => __('Fee tax class', 'wc-buckaroo-bpe-gateway'),
+                'default' => ''
+            ];
 
 
 
@@ -206,6 +214,27 @@
 
 
 
+        }
+
+        protected function getTaxClasses()
+        {
+            $allTaxRates = [];
+            $taxClasses = WC_Tax::get_tax_classes(); // Retrieve all tax classes.
+            if ( !in_array( '', $taxClasses ) ) { // Make sure "Standard rate" (empty class name) is present.
+                array_unshift( $taxClasses, '' );
+            }
+            foreach ( $taxClasses as $taxClass ) { // For each tax class, get all rates.
+                $taxes = WC_Tax::get_rates_for_tax_class( $taxClass );
+                foreach ($taxes as $tax) {
+                    $allTaxRates[$tax->{'tax_rate_class'}] = $tax->{'tax_rate_name'};
+                    if (empty($allTaxRates[$tax->{'tax_rate_class'}])) {
+                        $allTaxRates[$tax->{'tax_rate_class'}] = 'Standard Rate';
+                    }
+                }
+            }
+//            $allTaxRates['none'] = 'No tax class';
+
+            return $allTaxRates;
         }
     }
 ?>

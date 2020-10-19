@@ -48,6 +48,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $this->extrachargetaxtype = $this->settings['extrachargetaxtype'];
         }
 
+
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '<')) {
         } else {
             add_action('woocommerce_api_wc_gateway_buckaroo', [$this, 'response_handler']);
@@ -211,7 +212,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 $subtotal,
                 $current_gateway
             );
-
+            $taxFeeClass = $this->settings['feetax'];
             if ($do_apply) {
                 $already_exists = false;
                 $fees = $cart->get_fees();
@@ -223,7 +224,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 }
 
                 if (! $already_exists) {
-                    $cart->add_fee(__("Payment fee", 'wc-buckaroo-bpe-gateway'), $extra_charge_amount, $taxable);
+                    $cart->add_fee(__("Payment fee", 'wc-buckaroo-bpe-gateway'), $extra_charge_amount, true, $taxFeeClass);
+//                    $cart->add_fee(__("Payment fee", 'wc-buckaroo-bpe-gateway'), $extra_charge_amount, $taxable, $taxFeeClass);
                 } else {
                     $fees[$fee_id]->amount = $extra_charge_amount;
                 }
@@ -231,6 +233,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
             $this->current_extra_charge_amount = $extra_charge_amount;
             $this->current_extra_charge_type = $taxable;
+            $this->current_extra_charge_tax = $taxFeeClass;
         }
     }
    
@@ -335,7 +338,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 'description' => __('Click to select and upload your certificate. Note: Please save after uploading.', 'wc-buckaroo-bpe-gateway'),
                 'default' => ''
             ],
-
             'merchantkey' => [
                 'title' => __('Merchant key', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'text',

@@ -417,32 +417,43 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                 }
             }
 
+            $feeTaxRate = $this->getFeeTax($fees[$key]);
+
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"] = $key;
             $tmp["ArticleQuantity"] = 1;
             $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
             $itemsTotalAmount += $tmp["ArticleUnitprice"];
-            $tmp["ArticleVatcategory"] = 0;
+            $tmp["ArticleVatcategory"] = $feeTaxRate;
             $products[] = $tmp;
         }
 
         // Add shippingCosts
         $shipping_item = $order->get_items('shipping');
-
+        $shippingTaxClassKey = 0;
         $shippingCosts = 0;
         foreach ($shipping_item as $item) {
             if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                $shippingCosts = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
+                $shippingTaxInfo = $item->get_taxes();
+                if (isset($line_item_tax_totals[$item->get_id()])) {
+                    foreach ($shippingTaxInfo['total'] as $shippingTaxClass => $shippingTaxClassValue) {
+                        $shippingTaxClassKey = $shippingTaxClass;
+                        $shippingCosts = $line_item_totals[$item->get_id()] + $shippingTaxClassValue;
+                    }
+                }
+//                $shippingTax = isset($line_item_tax_totals[$item->get_id()]) ? $line_item_tax_totals[$item->get_id()] : 0;
+//                $shippingCosts = $line_item_totals[$item->get_id()] + $shippingTax;
+//                $shippingCosts = $line_item_totals[$item->get_id()] + ((isset($line_item_tax_totals[$item->get_id()])) ? current($line_item_tax_totals[$item->get_id()]) : 0);
             }
         }
-
+//        $r = WC_Tax::_get_tax_rate($shippingTaxClassKey);
         if ($shippingCosts > 0) {
             // Add virtual shipping cost product
             $tmp["ArticleDescription"] = "Shipping";
             $tmp["ArticleId"] = BuckarooConfig::SHIPPING_SKU;
             $tmp["ArticleQuantity"] = 1;
             $tmp["ArticleUnitprice"] = $shippingCosts;
-//            $tmp["ArticleVatcategory"] = 1;
+            $tmp["ArticleVatcategory"] = WC_Tax::_get_tax_rate($shippingTaxClassKey)['tax_rate'] ?? 0;
             $products[] = $tmp;
             $itemsTotalAmount += $shippingCosts;
         }
@@ -808,12 +819,15 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
 
         $fees = $order->get_fees();
         foreach ( $fees as $key => $item ) {
+
+            $feeTaxRate = $this->getFeeTax($fees[$key]);
+
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"] = $key;
             $tmp["ArticleQuantity"] = 1;
             $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
             $itemsTotalAmount += $tmp["ArticleUnitprice"];
-            $tmp["ArticleVatcategory"] = $feeItemRate;
+            $tmp["ArticleVatcategory"] = $feeTaxRate;
             $products[] = $tmp;
         }
         if(!empty($afterpay->ShippingCosts)) {
@@ -866,6 +880,13 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         return fn_buckaroo_process_response($this, $response, $this->mode);
     }
 
+    private function getFeeTax($fee) {
+        $feeInfo = WC_Tax::get_rates($fee->get_tax_class());
+        $feeInfo = array_shift($feeInfo);
+        $feeTaxRate = $feeInfo['rate'] ?? 0;
+
+        return $feeTaxRate;
+    }
     /**
      * Payment form on checkout page
      */
