@@ -434,19 +434,16 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $shippingCosts = 0;
         foreach ($shipping_item as $item) {
             if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
+                $shippingCosts = $line_item_totals[$item->get_id()];
                 $shippingTaxInfo = $item->get_taxes();
                 if (isset($line_item_tax_totals[$item->get_id()])) {
                     foreach ($shippingTaxInfo['total'] as $shippingTaxClass => $shippingTaxClassValue) {
                         $shippingTaxClassKey = $shippingTaxClass;
-                        $shippingCosts = $line_item_totals[$item->get_id()] + $shippingTaxClassValue;
+                        $shippingCosts += $shippingTaxClassValue;
                     }
                 }
-//                $shippingTax = isset($line_item_tax_totals[$item->get_id()]) ? $line_item_tax_totals[$item->get_id()] : 0;
-//                $shippingCosts = $line_item_totals[$item->get_id()] + $shippingTax;
-//                $shippingCosts = $line_item_totals[$item->get_id()] + ((isset($line_item_tax_totals[$item->get_id()])) ? current($line_item_tax_totals[$item->get_id()]) : 0);
             }
         }
-//        $r = WC_Tax::_get_tax_rate($shippingTaxClassKey);
         if ($shippingCosts > 0) {
             // Add virtual shipping cost product
             $tmp["ArticleDescription"] = "Shipping";
