@@ -417,6 +417,12 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         $creditCardMethod = isset($this->creditcardmethod) ? $this->creditcardmethod : 'redirect';
         $creditCardPayAuthorize = isset($this->creditcardpayauthorize) ? $this->creditcardpayauthorize : 'pay';
 
+        $customerName = '';
+        $customerId = get_current_user_id();
+        if (!empty($customerId)) {
+            $customerName = get_user_meta( $customerId, 'billing_first_name', true ) . ' ' . get_user_meta( $customerId, 'billing_last_name', true );
+        }
+
         $post_data = Array();
         if (!empty($_POST["post_data"])) {
             parse_str($_POST["post_data"], $post_data);
@@ -449,46 +455,59 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
 
                 <?php if ($creditCardMethod == 'encrypt' && $this->isSecure()) { ?>
 
-                <p class="form-row">
-                <label class="buckaroo-label" for="buckaroo-creditcard-cardname">
-                <?php echo _e('Cardholder Name:', 'wc-buckaroo-bpe-gateway')?>
-                <span class="required">*</span>
-                </label>
-                <input type="text" name="buckaroo-creditcard-cardname" id="buckaroo-creditcard-cardname" placeholder="<?php echo __('Cardholder Name:', 'wc-buckaroo-bpe-gateway')?>" class="cardHolderName input-text" maxlength="250" autocomplete="off" value="">
-                </p>
+                    <p class="form-row">
+                        <label class="buckaroo-label" for="buckaroo-creditcard-cardname">
+                            <?php echo _e('Cardholder Name:', 'wc-buckaroo-bpe-gateway') ?>
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" name="buckaroo-creditcard-cardname" id="buckaroo-creditcard-cardname"
+                               placeholder="<?php echo __('Cardholder Name:', 'wc-buckaroo-bpe-gateway') ?>"
+                               class="cardHolderName input-text" maxlength="250" autocomplete="off" value="<?php echo $customerName ?? '' ?>">
+                    </p>
 
-                <p class="form-row">
-                <label class="buckaroo-label" for="buckaroo-creditcard-cardnumber">
-                <?php echo _e('Card Number:', 'wc-buckaroo-bpe-gateway')?>
-                <span class="required">*</span>
-                </label>
-                <input type="text" name="buckaroo-creditcard-cardnumber" id="buckaroo-creditcard-cardnumber" placeholder="<?php echo __('Card Number:', 'wc-buckaroo-bpe-gateway')?>" class="cardNumber input-text" maxlength="250" autocomplete="off" value="">
-                </p>
+                    <p class="form-row">
+                        <label class="buckaroo-label" for="buckaroo-creditcard-cardnumber">
+                            <?php echo _e('Card Number:', 'wc-buckaroo-bpe-gateway') ?>
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" name="buckaroo-creditcard-cardnumber" id="buckaroo-creditcard-cardnumber"
+                               placeholder="<?php echo __('Card Number:', 'wc-buckaroo-bpe-gateway') ?>"
+                               class="cardNumber input-text" maxlength="250" autocomplete="off" value="">
+                    </p>
 
-                <p class="form-row">
-                <label class="buckaroo-label" for="buckaroo-creditcard-cardcvc">
-                <?php echo _e('CVC:', 'wc-buckaroo-bpe-gateway')?>
-                <span class="required">*</span>
-                </label>
-                <input type="text" maxlength="4" name="buckaroo-creditcard-cardcvc" id="buckaroo-creditcard-cardcvc" placeholder="<?php echo __('CVC:', 'wc-buckaroo-bpe-gateway')?>" class="cvc input-text" maxlength="250" autocomplete="off" value="">
-                </p>
+                    <p class="form-row">
+                        <label class="buckaroo-label" for="buckaroo-creditcard-cardmonth">
+                            <?php echo _e('Expiration Month:', 'wc-buckaroo-bpe-gateway') ?>
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" maxlength="2" name="buckaroo-creditcard-cardmonth"
+                               id="buckaroo-creditcard-cardmonth"
+                               placeholder="<?php echo __('Expiration Month:', 'wc-buckaroo-bpe-gateway') ?>"
+                               class="expirationMonth input-text" maxlength="250" autocomplete="off" value="">
+                    </p>
 
-                <p class="form-row">
-                <label class="buckaroo-label" for="buckaroo-creditcard-cardyear">
-                <?php echo _e('Expiration Year:', 'wc-buckaroo-bpe-gateway')?>
-                <span class="required">*</span>
-                </label>
-                <input type="text" maxlength="4"  name="buckaroo-creditcard-cardyear" id="buckaroo-creditcard-cardyear" placeholder="<?php echo __('Expiration Year:', 'wc-buckaroo-bpe-gateway')?>" class="expirationYear input-text" maxlength="250" autocomplete="off" value="">
-                </p>
+                    <p class="form-row">
+                        <label class="buckaroo-label" for="buckaroo-creditcard-cardyear">
+                            <?php echo _e('Expiration Year:', 'wc-buckaroo-bpe-gateway') ?>
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" maxlength="4" name="buckaroo-creditcard-cardyear"
+                               id="buckaroo-creditcard-cardyear"
+                               placeholder="<?php echo __('Expiration Year:', 'wc-buckaroo-bpe-gateway') ?>"
+                               class="expirationYear input-text" maxlength="250" autocomplete="off" value="">
+                    </p>
 
-                <p class="form-row">
-                <label class="buckaroo-label" for="buckaroo-creditcard-cardmonth">
-                <?php echo _e('Expiration Month:', 'wc-buckaroo-bpe-gateway')?>
-                <span class="required">*</span>
-                </label>
-                <input type="text" maxlength="2" name="buckaroo-creditcard-cardmonth" id="buckaroo-creditcard-cardmonth" placeholder="<?php echo __('Expiration Month:', 'wc-buckaroo-bpe-gateway')?>" class="expirationMonth input-text" maxlength="250" autocomplete="off" value="">
-                </p>
-                
+                    <p class="form-row">
+                        <label class="buckaroo-label" for="buckaroo-creditcard-cardcvc">
+                            <?php echo _e('CVC:', 'wc-buckaroo-bpe-gateway') ?>
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" maxlength="4" name="buckaroo-creditcard-cardcvc"
+                               id="buckaroo-creditcard-cardcvc"
+                               placeholder="<?php echo __('CVC:', 'wc-buckaroo-bpe-gateway') ?>" class="cvc input-text"
+                               maxlength="250" autocomplete="off" value="">
+                    </p>
+
                 <p class="form-row form-row-wide validate-required"></p>
                 <p class="required" style="float:right;">* <?php echo _e('Obligatory fields', 'wc-buckaroo-bpe-gateway')?></p>
 
