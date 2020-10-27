@@ -252,7 +252,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         $logger->logInfo('Response order status: ' . $response_status);
         $logger->logInfo('Status message: ' . $response->statusmessage);
         if ($response->hasSucceeded()) {
-            if (in_array($order->status, array('completed', 'processing'))) {
+            if (in_array($order->status, array('completed', 'processing', 'shipping'))) {
                 $logger->logInfo(
                     'Push message. Order already in final state or have the same status as response. Order status: ' . $order->status
                 );
@@ -366,7 +366,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 
         } else {
             $logger->logInfo('Payment request failed/canceled. Order status: ' . $order->status);
-            if (!in_array($order->status, array('completed', 'processing', 'cancelled'))) {
+            if (!in_array($order->status, array('completed', 'processing', 'cancelled', 'shipping'))) {
                 //We receive a valid response that the payment is canceled/failed.
                 $logger->logInfo('Update status 2. Order status: failed');
                 $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
@@ -375,7 +375,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
             }
             if ($response_status == 'cancelled') {
                 $logger->logInfo('Update status 3. Order status: cancelled');
-                if (!in_array($order->status, array('completed', 'processing', 'cancelled'))) {
+                if (!in_array($order->status, array('completed', 'processing', 'cancelled', 'shipping'))) {
                     $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                 } else {
                     $logger->logInfo('Push message. Order status cannot be changed.');
@@ -530,6 +530,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 case 'processing':
                 case 'pending':
                 case 'on-hold':
+                case 'shipping':
                     if (!is_null($payment_method)) {
                         $woocommerce->cart->empty_cart();
                         return array(
@@ -545,7 +546,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 
 
             $logger->logInfo('Payment request failed/canceled. Order status: ' . $order->get_status());
-            if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
+            if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund', 'shipping'))) {
                 //We receive a valid response that the payment is canceled/failed.
                 $logger->logInfo('Update status 4. Order status: failed');
                 $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
@@ -554,14 +555,14 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             }
             if ($response_status == 'cancelled') {
                 $logger->logInfo('Update status 5. Order status: cancelled');
-                if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
+                if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund', 'shipping'))) {
                     $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                 } else {
                     $logger->logInfo('Response. Order status cannot be changed.');
                 }
                 wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
             } else {
-                if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
+                if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund', 'shipping'))) {
                     $logger->logInfo('Update status 6. Order status: failed');
                     $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                 } else {
