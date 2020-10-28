@@ -355,18 +355,18 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         foreach ($feeItems as $item_id => $item_data) {
             $feeTax = $feeItems[$item_id]->get_taxes();
             if (!empty($feeTax['total'])) {
-                foreach ($feeTax['total'] as $tax) {
-                    $feeCost = round($feeCost, $wooPriceNumDecimals) + round($tax, $wooPriceNumDecimals);
+                foreach ($feeTax['total'] as $taxFee) {
+                    $feeCost += round((float)$taxFee, 2);
                 }
             }
             if ($orderFeeRefund > 1) {
                 throw new Exception('Payment fee already refunded');
             }
             if (!empty($data[$item_id]['total'])) {
-                $totalFeePrice = round($data[$item_id]['total']+$data[$item_id]['tax'],$wooPriceNumDecimals);
+                $totalFeePrice = round((float)$data[$item_id]['total'] + (float)$data[$item_id]['tax'],2);
                 if ($totalFeePrice > $feeCost) {
                     throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()) );
-                } elseif($totalFeePrice < $feeCost) {
+                } elseif( abs(($feeCost - $totalFeePrice)/$totalFeePrice) > 0.00001 ) { //$totalFeePrice < $feeCost
                     $balance = $feeCost - $totalFeePrice;
                     throw new Exception('Please add ' . $balance . ' ' . esc_attr(get_woocommerce_currency()) . ' to full refund payment fee cost' );
                 }
