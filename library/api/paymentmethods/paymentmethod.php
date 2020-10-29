@@ -271,25 +271,15 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         $wooRoundingOption = get_option('woocommerce_tax_round_at_subtotal');
         $wooPriceNumDecimals = (int)get_option('woocommerce_price_num_decimals');
 
-//        $orderTotal = round($order->get_total(), $wooPriceNumDecimals);
-//        $orderRefunded = round($order->get_total_refunded(), $wooPriceNumDecimals);
-//        if ($wooRoundingOption == 'yes' && ($orderTotal - $orderRefunded) < 0.01) {
-//            $this->amountCredit = $orderTotal;
-//        }
-
         $items = $order->get_items();
         $shippingItems = $order->get_items('shipping');
         $feeItems = $order->get_items('fee');
-
-        $feeCost = $order->get_total_fees();
-
-        $orderFeeRefund = $order->get_item_count_refunded('fee');
 
         $shippingCostWithoutTax = (float) $order->get_shipping_total();
         $shippingTax = (float)$order->get_shipping_tax();
         $shippingCosts = round($shippingCostWithoutTax, $wooPriceNumDecimals) + round($shippingTax, $wooPriceNumDecimals);
         $shippingRefundedCosts = 0.00;
-        $sippingAlreadyRefunded = $order->get_total_shipping_refunded();
+        $shippingAlreadyRefunded = $order->get_total_shipping_refunded();
 //        $shippingRefundedCosts = $order->get_total_shipping_refunded();
 
         foreach ($items as $item_id => $item_data) {
@@ -353,18 +343,20 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         }
 
         foreach ($feeItems as $item_id => $item_data) {
+            $feeRefunded = $order->get_qty_refunded_for_item($item_id, 'fee');
+            $feeCost = $feeItems[$item_id]->get_total();
             $feeTax = $feeItems[$item_id]->get_taxes();
             if (!empty($feeTax['total'])) {
                 foreach ($feeTax['total'] as $taxFee) {
                     $feeCost += round((float)$taxFee, 2);
                 }
             }
-            if ($orderFeeRefund > 1) {
+            if ($feeRefunded > 1) {
                 throw new Exception('Payment fee already refunded');
             }
             if (!empty($data[$item_id]['total'])) {
                 $totalFeePrice = round((float)$data[$item_id]['total'] + (float)$data[$item_id]['tax'],2);
-                if ($totalFeePrice > $feeCost) {
+                if ( abs(($totalFeePrice - $feeCost)/$feeCost) > 0.00001 ) { //$totalFeePrice > $feeCost
                     throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()) );
                 } elseif( abs(($feeCost - $totalFeePrice)/$totalFeePrice) > 0.00001 ) { //$totalFeePrice < $feeCost
                     $balance = $feeCost - $totalFeePrice;
@@ -372,7 +364,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
                 }
             }
         }
-        if ($sippingAlreadyRefunded > $shippingCosts) {
+        if ($shippingAlreadyRefunded > $shippingCosts) {
             throw new Exception('Shipping price already refunded');
         }
         if (((float)$shippingCosts !== (float)$shippingRefundedCosts || abs($shippingCosts - $shippingRefundedCosts) > 0.01) && !empty($shippingRefundedCosts)) {
