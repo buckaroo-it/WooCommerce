@@ -12,7 +12,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         $this->id = 'buckaroo_creditcard';
         $this->title = 'Creditcards';
         $this->icon         = apply_filters('woocommerce_buckaroo_creditcard_icon', plugins_url('library/buckaroo_images/24x24/cc.gif', __FILE__));
-        $this->has_fields   = false;
+        $this->has_fields   = true;
         $this->method_title = "Buckaroo Creditcards";
         $this->description = "Betaal met Creditcards";
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
@@ -431,7 +431,11 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         ?>
 
         <?php if ($this->mode=='test') : ?><p><?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway'); ?></p><?php endif; ?>
-        <?php if ($this->description) : ?><p><?php echo wpautop(wptexturize($this->description)); ?></p><?php endif; ?>
+        <?php if (!empty($this->description)) : ?>
+            <p>
+                <?php echo wpautop(wptexturize($this->description)); ?>
+            </p>
+        <?php endif; ?>
 
                 <fieldset>
                 <div class="method--bankdata">
@@ -453,7 +457,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
                 </select>
                 </p>
 
-                <?php if ($creditCardMethod == 'encrypt' && $this->isSecure()) { ?>
+                <?php if ($creditCardMethod == 'encrypt' && $this->isSecure()) : ?>
 
                     <p class="form-row">
                         <label class="buckaroo-label" for="buckaroo-creditcard-cardname">
@@ -512,7 +516,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
                 <p class="required" style="float:right;">* <?php echo _e('Obligatory fields', 'wc-buckaroo-bpe-gateway')?></p>
 
                 <input type="hidden" id="buckaroo-encrypted-data" name="buckaroo-encrypted-data" class="encryptedCardData input-text">
-            <?php } ?>
+            <?php endif; ?>
 
                 </div>
                 </fieldset>
