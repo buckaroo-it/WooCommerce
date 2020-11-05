@@ -575,6 +575,9 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                 wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
+        if (empty($_POST['buckaroo-afterpaynew-phone']) && empty($_POST['billing_phone'])) {
+            wc_add_notice( __("Please enter phone number", 'wc-buckaroo-bpe-gateway'), 'error' );
+        }
         if ($this->type == 'afterpayacceptgiro') {
             if (empty($_POST["buckaroo-afterpay-CustomerAccountNumber"])) {
                 wc_add_notice(__("IBAN is required", 'wc-buckaroo-bpe-gateway'), 'error');
@@ -679,7 +682,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $afterpay->BillingLanguage = 'nl';
         $get_billing_phone = getWCOrderDetails($order_id, 'billing_phone');
         $number = $this->cleanup_phone($get_billing_phone);
-        $afterpay->BillingPhoneNumber = $number['phone'];
+        $afterpay->BillingPhoneNumber = !empty($number['phone']) ? $number['phone'] : $_POST["buckaroo-afterpaynew-phone"];
 
 
         $afterpay->AddressesDiffer = 'FALSE';
@@ -891,6 +894,16 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         <input id="buckaroo-afterpay-birthdate" name="buckaroo-afterpay-birthdate" class="input-text" type="text"
             maxlength="250" autocomplete="off" value="" placeholder="DD-MM-YYYY" />
     </p>
+    <p class="form-row validate-required">
+        <label for="buckaroo-afterpaynew-phone"><?php echo _e('Phone:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
+        <input id="buckaroo-afterpaynew-phone" name="buckaroo-afterpaynew-phone" class="input-tel" type="tel" autocomplete="off" value="<?php echo $customerPhone ?? '' ?>">
+    </p>
+
+    <script>
+        if (document.querySelector('input[name=billing_phone]')) {
+            document.getElementById('buckaroo-afterpaynew-phone').parentElement.style.display = 'none';
+        }
+    </script>
     <?php if (! empty($post_data["ship_to_different_address"])) {
             ?>
     <input id="buckaroo-afterpay-shipping-differ" name="buckaroo-afterpay-shipping-differ" class="" type="hidden"
