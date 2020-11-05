@@ -641,6 +641,10 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             }
         }
 
+        if (empty($_POST['buckaroo-afterpaynew-phone']) && empty($_POST['billing_phone'])) {
+            wc_add_notice( __("Please enter phone number", 'wc-buckaroo-bpe-gateway'), 'error' );
+        }
+
         if (version_compare(WC()->version, '3.6', '<')) {
             resetOrder();
         }
@@ -720,14 +724,14 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $afterpay->ShippingCostsTax = number_format(($shippingCostsTax * 100) / $shippingCosts);
         }
 
-        if (getWCOrderDetails($order_id, 'shipping_country') == "FI") {
-
-            if (empty($_POST["buckaroo-afterpaynew-IdentificationNumber"])) {
-                wc_add_notice( __("Customer Identification Number is required for Finland", 'wc-buckaroo-bpe-gateway'), 'error' );
-                return;
-            }
-            $afterpay->IdentificationNumber = $_POST["buckaroo-afterpaynew-IdentificationNumber"];
-        }
+//        if (getWCOrderDetails($order_id, 'shipping_country') == "FI") {
+//
+//            if (empty($_POST["buckaroo-afterpaynew-IdentificationNumber"])) {
+//                wc_add_notice( __("Customer Identification Number is required for Finland", 'wc-buckaroo-bpe-gateway'), 'error' );
+//                return;
+//            }
+//            $afterpay->IdentificationNumber = $_POST["buckaroo-afterpaynew-IdentificationNumber"];
+//        }
 
         // Set birthday if it's NL or BE
         $afterpay->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
@@ -746,7 +750,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $afterpay->BillingLanguage = 'nl';
         $get_billing_phone = getWCOrderDetails($order_id, 'billing_phone');
         $number = $this->cleanup_phone($get_billing_phone);
-        $afterpay->BillingPhoneNumber = $number['phone'];
+        $afterpay->BillingPhoneNumber = !empty($number['phone']) ? $number['phone'] : $_POST["buckaroo-afterpaynew-phone"];
 
         $afterpay->AddressesDiffer = 'FALSE';
         if (isset($_POST["buckaroo-afterpaynew-shipping-differ"])) {
@@ -891,6 +895,14 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
     function payment_fields() {
         $accountname = get_user_meta( $GLOBALS["current_user"]->ID, 'billing_first_name', true )." ".get_user_meta( $GLOBALS["current_user"]->ID, 'billing_last_name', true );
         $post_data = Array();
+
+        $customerId = get_current_user_id();
+        $customerPhone = '';
+        if (!empty($customerId)) {
+            $customerInfo = get_user_meta( $customerId);
+            $customerPhone = get_user_meta( $customerId, 'billing_phone', true );
+        }
+
         if (!empty($_POST["post_data"])) {
             parse_str($_POST["post_data"], $post_data);
         }
@@ -949,14 +961,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                 <!-- END::: This is never displayed because this version of Afterpay does not support company yet -->
             <?php } ?>
 
-
-            <!-- <script>
-                jQuery(function ($) {
-                    $(document.body).on('update_checkout',  function () {
-                        alert('update_checkout');
-                    });
-                });
-            </script> -->
             <?php
             $country = isset($_POST['s_country']) ? $_POST['s_country'] : $this->country;
             ?>
@@ -977,6 +981,16 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                     <label for="buckaroo-afterpaynew-birthdate"><?php echo _e('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
                     <input id="buckaroo-afterpaynew-birthdate" name="buckaroo-afterpaynew-birthdate" class="input-text" type="text" maxlength="250" autocomplete="off" value="" placeholder="DD-MM-YYYY" />
                 </p>
+                <p class="form-row validate-required">
+                    <label for="buckaroo-afterpaynew-phone"><?php echo _e('Phone:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
+                    <input id="buckaroo-afterpaynew-phone" name="buckaroo-afterpaynew-phone" class="input-tel" type="tel" autocomplete="off" value="<?php echo $customerPhone ?? '' ?>">
+                </p>
+
+                <script>
+                    if (document.querySelector('input[name=billing_phone]')) {
+                        document.getElementById('buckaroo-afterpaynew-phone').parentElement.style.display = 'none';
+                    }
+                </script>
             <?php } ?>
 
             <?php if (!empty($post_data["ship_to_different_address"])) { ?>
