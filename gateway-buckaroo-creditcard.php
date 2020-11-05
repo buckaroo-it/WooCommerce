@@ -220,7 +220,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
         $creditcard = new BuckarooCreditCard();
         $creditcard->amountDedit = 0;
         $creditcard->amountCredit = $amount;
-        $creditcard->currency = $this->currency;
+        $creditcard->currency = $order->get_currency();
         $creditcard->description = $reason;
         $creditcard->invoiceId = !empty($order_seq_id) ? $order_seq_id : $order_id;
         $creditcard->orderId = $order_id;

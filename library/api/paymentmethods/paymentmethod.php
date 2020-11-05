@@ -147,7 +147,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         $this->data['returnUrl'] = $this->returnUrl;
         $this->data['mode'] = $this->mode;
         $this->data['channel'] = $this->channel;
-        $this->data['CustomerCardName'] = $this->customercardname;
+        $this->data['CustomerCardName'] = $this->customercardname ?? '';
 
         $soap = new BuckarooSoap($this->data);
         return BuckarooResponseFactory::getResponse($soap->transactionRequest());
@@ -181,15 +181,6 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
      * @return callable BuckarooResponseFactory::getResponse($soap->transactionRequest())
      */
     public function RefundGlobal() {
-
-//        $orderRefundData = $this->getOrderRefundData();
-//
-//        try{
-//            $this->checkRefundData($orderRefundData);
-//        } catch(Exception $e) {
-//
-//        }
-
         $this->data['currency'] = $this->currency;
         $this->data['amountDebit'] = $this->amountDedit;
         $this->data['amountCredit'] = $this->amountCredit;
@@ -247,12 +238,12 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
      */
     public function checkRefundData($data){
         //Check if order is refundable
-
-        foreach ($data as $itemKey) {
-            if (empty($itemKey['total']) && !empty($itemKey['tax'])) {
-                throw new Exception( 'Tax only cannot be refund' );
-            }
-        }
+        //AFTERPAY
+//        foreach ($data as $itemKey) {
+//            if (empty($itemKey['total']) && !empty($itemKey['tax'])) {
+//                throw new Exception( 'Tax only cannot be refund' );
+//            }
+//        }
         $order_id = null;
 
         if (checkForSequentialNumbersPlugin()){
@@ -280,14 +271,12 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         $shippingCosts = round($shippingCostWithoutTax, $wooPriceNumDecimals) + round($shippingTax, $wooPriceNumDecimals);
         $shippingRefundedCosts = 0.00;
         $shippingAlreadyRefunded = $order->get_total_shipping_refunded();
-//        $shippingRefundedCosts = $order->get_total_shipping_refunded();
 
         foreach ($items as $item_id => $item_data) {
-
             if ($items[$item_id] instanceof WC_Order_Item_Product && isset($data[$item_id])) {
 
                 $itemPrice = 0;
-
+                $orderItemRefunded = $order->get_total_refunded_for_item( $item_id );
                 $itemTotal = $items[$item_id]->get_total();
                 $itemQuantity = $items[$item_id]->get_quantity();
                 $itemPrice = round($itemTotal / $itemQuantity, $wooPriceNumDecimals);
@@ -302,16 +291,28 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
                 }
 
                 $itemTax = $items[$item_id]->get_total_tax();
-
                 $itemRefundedTax = $order->get_tax_refunded_for_item($item_id, $taxId);
+                // FOR AFTERPAY
+//                if ( empty($data[$item_id]['qty']) ) {
+//                    throw new Exception('Product quantity doesn`t choose');
+//                }
 
-                if ( empty($data[$item_id]['qty']) ) {
-                    throw new Exception('Product quantity doesn`t choose');
+                // FOR AFTERPAY
+//                if ((float)$itemPrice * $data[$item_id]['qty'] !== (float)round($data[$item_id]['total'], $wooPriceNumDecimals)) {
+//                    throw new Exception('Incorrect entered product price. Please check refund product price and tax amounts');
+//                }
+                if ($itemTotal < $orderItemRefunded) {
+                    throw new Exception('Incorrect entered product price. Please check refund product price');
                 }
 
-                if ((float)$itemPrice * $data[$item_id]['qty'] !== (float)round($data[$item_id]['total'], $wooPriceNumDecimals)) {
-                    throw new Exception('Incorrect entered product price. Please check refund product price and tax amounts');
+                if ($itemTax < $itemRefundedTax) {
+                    throw new Exception('Incorrect entered product price. Please check refund tax amount');
                 }
+
+                if ( empty($itemRefundedTax) && !empty($data[$item_id]['tax']) ) {
+                    throw new Exception('Incorrect entered product price. Please check refund tax amount');
+                }
+
 
                 if (!empty($data[$item_id]['qty'])) {
 //                    $itemQuantity = $item_data->get_quantity();
@@ -400,6 +401,13 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         foreach ($line_item_tax_totals as $key => $keyItem) {
             foreach ($keyItem as $taxItem => $taxItemValue) {
                 if (!empty($taxItemValue)) {
+                    $order = wc_get_order($this->orderId);
+                    $item = $order->get_item($key);
+                    $taxItemFromOrder = $item->get_taxes();
+
+                    if (!isset($taxItemFromOrder['total'][$taxItem])) {
+                        throw new Exception('Incorrect entered product price. Please check refund tax amount');
+                    }
                     $orderRefundData[$key]['tax'] = $taxItemValue;
                 }
             }
