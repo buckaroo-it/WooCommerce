@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 5.4.1
-Stable tag: 2.16.2
+Tested up to: 5.5.1
+Stable tag: 2.16.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -94,6 +94,20 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+= 2.16.3 =
+- Fixed partial refund is not working with USD currency [BP-525]
+- Afterpay phone number is not asked when there is no phone number field in the checkout [BP-497]
+- Fixed Creditcard empty fields  issue
+- Changed the order of inline Credit card (CSE) fields + fill name [BP-494]
+- Fixed incorrect VAT for products with reduced VAT rate. [BP-472]
+- Fixed Afterpay fee tax value [BP-472]
+- Added error text for unselected creditcard [BP-453]
+- Fixed incorrect refund shipping price error message [BP-411]
+- .htaccess file changes [BP-422]
+- Fixed not all information is send with Apple Pay (adress, phone#) [BP-387]
+- Fix for Woocommerce Sequensial Order Number plugin compatibility
+- Fixed error with refunds from Plaza to wordpress site using Woocommerce Sequential Order Number Pro plugin [BP-328]
+
 = 2.16.2 =
  - Fix Payconiq transaction redirects to unknown page [BP-386]
  - Fix payment fee Afterpay has wrong VAT percentage [BP-390]
