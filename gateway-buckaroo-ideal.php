@@ -16,7 +16,7 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
             // return false;   
         $this->id = 'buckaroo_ideal';
         $this->title = 'iDEAL';//$this->settings['title_ideal'];
-        $this->icon         = apply_filters('woocommerce_buckaroo_ideal_icon', plugins_url('library/buckaroo_images/24x24/ideal.png', __FILE__));
+        $this->icon         = apply_filters('woocommerce_buckaroo_ideal_icon', plugins_url('library/buckaroo_images/ideal.png', __FILE__));
         $this->has_fields   = true;
         $this->method_title = "Buckaroo iDEAL";
         $this->description = "Betaal met iDEAL";
