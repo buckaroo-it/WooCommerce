@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 5.5.1
-Stable tag: 2.16.3
+Stable tag: 2.16.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -94,6 +94,9 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+= 2.16.4 =
+- WooCommerce - new iDEAL logo not scaling correctly [BP-536]
+
 = 2.16.3 =
 - Fixed partial refund is not working with USD currency [BP-525]
 - Afterpay phone number is not asked when there is no phone number field in the checkout [BP-497]
