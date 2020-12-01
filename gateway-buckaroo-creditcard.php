@@ -275,8 +275,8 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
                 $fullYear = date('Y');
                 $year = date('y');
 
-                if ($_POST['buckaroo-creditcard-cardyear'] <= $fullYear) {
-                    if ($_POST['buckaroo-creditcard-cardyear'] <= $year) {
+                if ($_POST['buckaroo-creditcard-cardyear'] < $fullYear) {
+                    if ($_POST['buckaroo-creditcard-cardyear'] < $year) {
                         wc_add_notice( __("Enter valid year", 'wc-buckaroo-bpe-gateway'), 'error' );
                     }
                 }
