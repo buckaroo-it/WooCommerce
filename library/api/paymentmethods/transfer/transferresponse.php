@@ -74,6 +74,10 @@ class BuckarooTransferResponse extends BuckarooResponse {
                 update_post_meta($order_id, 'buckaroo_accountHolderName', $_POST['brq_service_transfer_accountholdername']);
             }
 
+            if (isset($_POST['brq_service_transfer_bankaccount'])) {
+                update_post_meta($order_id, 'buckaroo_bankAccount', $_POST['brq_service_transfer_bankaccount']);
+            }
+
             if (isset($_POST['brq_service_transfer_accountholdercity'])) {
                 update_post_meta($order_id, 'buckaroo_accountHolderCity', $_POST['brq_service_transfer_accountholdercity']);
             }
