@@ -25,6 +25,7 @@ class BuckarooTransferResponse extends BuckarooResponse {
     protected function _parseSoapResponseChild() {
         if (isset($this->_response->Services->Service->ResponseParameter) && isset($this->_response->Services->Service->Name)) {
             if ($this->_response->Services->Service->Name == 'transfer' && $this->_response->Services->Service->ResponseParameter[5]->Name == 'PaymentReference') {
+
                 $this->BIC = $this->_response->Services->Service->ResponseParameter[0]->_;
                 $this->IBAN = $this->_response->Services->Service->ResponseParameter[1]->_;
                 $this->accountHolderName = $this->_response->Services->Service->ResponseParameter[2]->_;
@@ -33,6 +34,7 @@ class BuckarooTransferResponse extends BuckarooResponse {
                 $this->paymentReference = $this->_response->Services->Service->ResponseParameter[5]->_;
             }
         }
+
         if (isset($this->_response->ConsumerMessage)) {
             if (isset($this->_response->ConsumerMessage->MustRead)) {
                 $this->consumerMessage['MustRead'] = $this->_response->ConsumerMessage->MustRead;
@@ -56,7 +58,34 @@ class BuckarooTransferResponse extends BuckarooResponse {
      * @access protected
      */
     protected function _parsePostResponseChild() {
+        
+        if (isset($_POST['brq_ordernumber'])) {
+            $order_id = $_POST['brq_ordernumber'];
 
+            if (isset($_POST['brq_service_transfer_bic'])) {
+                update_post_meta($order_id, 'buckaroo_BIC', $_POST['brq_service_transfer_bic']);
+            }
+
+            if (isset($_POST['brq_service_transfer_iban'])) {
+                update_post_meta($order_id, 'buckaroo_IBAN', $_POST['brq_service_transfer_iban']);
+            }
+
+            if (isset($_POST['brq_service_transfer_accountholdername'])) {
+                update_post_meta($order_id, 'buckaroo_accountHolderName', $_POST['brq_service_transfer_accountholdername']);
+            }
+
+            if (isset($_POST['brq_service_transfer_accountholdercity'])) {
+                update_post_meta($order_id, 'buckaroo_accountHolderCity', $_POST['brq_service_transfer_accountholdercity']);
+            }
+
+            if (isset($_POST['brq_service_transfer_accountholdercountry'])) {
+                update_post_meta($order_id, 'buckaroo_accountHolderCountry', $_POST['brq_service_transfer_accountholdercountry']);
+            }
+
+            if (isset($_POST['brq_service_transfer_paymentreference'])) {
+                update_post_meta($order_id, 'buckaroo_paymentReference', $_POST['brq_service_transfer_paymentreference']);
+            }
+        }
     }
 
 }
