@@ -77,12 +77,12 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
 
         $this->data['customVars'][$this->type]["FirstName"][0]["value"] = $this->BillingInitials;
         $this->data['customVars'][$this->type]["FirstName"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['FirstName'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingInitials : $this->BillingInitials;
+        $this->data['customVars'][$this->type]['FirstName'][1]["value"] = ($this->AddressesDiffer == 'TRUE' && !empty($this->ShippingInitials)) ? $this->ShippingInitials : $this->BillingInitials;
         $this->data['customVars'][$this->type]["FirstName"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]["LastName"][0]["value"] = $this->BillingLastName;
         $this->data['customVars'][$this->type]["LastName"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['LastName'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingLastName : $this->BillingLastName;
+        $this->data['customVars'][$this->type]['LastName'][1]["value"] = ($this->AddressesDiffer == 'TRUE' && !empty($this->ShippingLastName)) ? $this->ShippingLastName : $this->BillingLastName;
         $this->data['customVars'][$this->type]["LastName"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]["Street"][0]["value"] = $this->BillingStreet;

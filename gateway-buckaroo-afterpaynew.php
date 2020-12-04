@@ -781,6 +781,19 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $afterpay->ShippingPhoneNumber = $number['phone'];
         }
 
+        if ($_POST['shipping_method'][0] == 'dhlpwc-parcelshop') {
+            $dhlConnectorData = $order->get_meta('_dhlpwc_order_connectors_data');
+            $requestPart = $this->country . '/' . $dhlConnectorData['id'];
+            $dhlParcelShopAddressData = $this->getDHLParcelShopLocation($requestPart);
+            $afterpay->AddressesDiffer = 'TRUE';
+            $afterpay->ShippingStreet = $dhlParcelShopAddressData->street;
+            $afterpay->ShippingHouseNumber = $dhlParcelShopAddressData->number;
+            $afterpay->ShippingPostalCode = $dhlParcelShopAddressData->postalCode;
+            $afterpay->ShippingHouseNumberSuffix = '';
+            $afterpay->ShippingCity = $dhlParcelShopAddressData->city;
+            $afterpay->ShippingCountryCode = $dhlParcelShopAddressData->countryCode;
+        }
+
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept = 'TRUE';
         $products = Array();
@@ -888,6 +901,23 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $feeTaxRate = $feeInfo['rate'] ?? 0;
 
         return $feeTaxRate;
+    }
+
+    private function getDHLParcelShopLocation($parcelShopUrl) {
+        $url = "https://api-gw.dhlparcel.nl/parcel-shop-locations/" . $parcelShopUrl;
+        $data = wp_remote_request($url);
+
+        if ($data['response']['code'] !== 200) {
+            throw new Exception(__('Parcel Shop not found'));
+        }
+
+        $data = json_decode($data['body']);
+
+        if (empty($data->address)) {
+            throw new Exception(__('Parcel Shop address is incorrect'));
+        }
+
+        return $data->address;
     }
     /**
      * Payment form on checkout page

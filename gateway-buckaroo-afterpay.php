@@ -684,6 +684,10 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $number = $this->cleanup_phone($get_billing_phone);
         $afterpay->BillingPhoneNumber = !empty($number['phone']) ? $number['phone'] : $_POST["buckaroo-afterpaynew-phone"];
 
+        $country = null;
+        if (! empty($woocommerce->customer)) {
+            $country = get_user_meta($woocommerce->customer->get_id(), 'shipping_country', true);
+        }
 
         $afterpay->AddressesDiffer = 'FALSE';
         if (isset($_POST["buckaroo-afterpay-shipping-differ"])) {
@@ -719,6 +723,18 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                 return;
             }
             $afterpay->CustomerAccountNumber = $_POST["buckaroo-afterpay-CustomerAccountNumber"];
+        }
+        if ($_POST['shipping_method'][0] == 'dhlpwc-parcelshop') {
+            $dhlConnectorData = $order->get_meta('_dhlpwc_order_connectors_data');
+            $requestPart = $country . '/' . $dhlConnectorData['id'];
+            $dhlParcelShopAddressData = $this->getDHLParcelShopLocation($requestPart);
+            $afterpay->AddressesDiffer = 'TRUE';
+            $afterpay->ShippingStreet = $dhlParcelShopAddressData->street;
+            $afterpay->ShippingHouseNumber = $dhlParcelShopAddressData->number;
+            $afterpay->ShippingPostalCode = $dhlParcelShopAddressData->postalCode;
+            $afterpay->ShippingHouseNumberSuffix = '';
+            $afterpay->ShippingCity = $dhlParcelShopAddressData->city;
+            $afterpay->ShippingCountryCode = $dhlParcelShopAddressData->countryCode;
         }
 
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
@@ -799,6 +815,23 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         //update_post_meta( $order->get_id(), '_wc_order_payment_original_transaction_key', $this->type);
 
         return fn_buckaroo_process_response($this, $response, $this->mode);
+    }
+
+    private function getDHLParcelShopLocation($parcelShopUrl) {
+        $url = "https://api-gw.dhlparcel.nl/parcel-shop-locations/" . $parcelShopUrl;
+        $data = wp_remote_request($url);
+
+        if ($data['response']['code'] !== 200) {
+            throw new Exception(__('Parcel Shop not found'));
+        }
+
+        $data = json_decode($data['body']);
+
+        if (empty($data->address)) {
+            throw new Exception(__('Parcel Shop address is incorrect'));
+        }
+
+        return $data->address;
     }
         
     /**

@@ -143,8 +143,8 @@ class BuckarooAfterPay extends BuckarooPaymentMethod {
         }
 
         $this->data['customVars'][$this->type]['ShippingGender'] = $this->ShippingGender;
-        $this->data['customVars'][$this->type]['ShippingInitials'] = $this->ShippingInitials;
-        $this->data['customVars'][$this->type]['ShippingLastName'] = $this->ShippingLastName;
+        $this->data['customVars'][$this->type]['ShippingInitials'] = $this->ShippingInitials ?? $this->BillingInitials;
+        $this->data['customVars'][$this->type]['ShippingLastName'] = $this->ShippingLastName ?? $this->BillingLastName;
         $this->data['customVars'][$this->type]['ShippingBirthDate'] = $this->ShippingBirthDate;
         $this->data['customVars'][$this->type]['ShippingStreet'] = $this->ShippingStreet;
         $this->data['customVars'][$this->type]['ShippingHouseNumber'] = isset($this->ShippingHouseNumber) ? $this->ShippingHouseNumber . ' ' : $this->ShippingHouseNumber;
