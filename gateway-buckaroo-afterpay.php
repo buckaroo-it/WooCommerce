@@ -737,6 +737,17 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             $afterpay->ShippingCountryCode = $dhlParcelShopAddressData->countryCode;
         }
 
+        if (!empty($_POST['post-deliver-or-pickup']) && $_POST['post-deliver-or-pickup'] == 'post-pickup') {
+            $postNL = $order->get_meta('_postnl_delivery_options');
+            $afterpay->AddressesDiffer = 'TRUE';
+            $afterpay->ShippingStreet = $postNL['street'];
+            $afterpay->ShippingHouseNumber = $postNL['number'];
+            $afterpay->ShippingPostalCode = $postNL['postal_code'];
+            $afterpay->ShippingHouseNumberSuffix = $postNL['number_suffix'];
+            $afterpay->ShippingCity = $postNL['city'];
+            $afterpay->ShippingCountryCode = $postNL['cc'];
+        }
+
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept = 'TRUE';
         $products = array();
