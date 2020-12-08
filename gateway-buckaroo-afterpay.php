@@ -743,7 +743,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             $afterpay->ShippingStreet = $postNL['street'];
             $afterpay->ShippingHouseNumber = $postNL['number'];
             $afterpay->ShippingPostalCode = $postNL['postal_code'];
-            $afterpay->ShippingHouseNumberSuffix = $postNL['number_suffix'];
+            $afterpay->ShippingHouseNumberSuffix = trim(str_replace('-',' ', $postNL['number_suffix']));
             $afterpay->ShippingCity = $postNL['city'];
             $afterpay->ShippingCountryCode = $postNL['cc'];
         }

@@ -741,7 +741,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $address_components = fn_buckaroo_get_address_components($get_billing_address_1." ".$get_billing_address_2);
         $afterpay->BillingStreet = $address_components['street'];
         $afterpay->BillingHouseNumber = $address_components['house_number'];
-        $afterpay->BillingHouseNumberSuffix = $address_components['number_addition'];
+        $afterpay->BillingHouseNumberSuffix = $address_components['number_addition'] ?? null;
         $afterpay->BillingPostalCode = getWCOrderDetails($order_id, 'billing_postcode');
         $afterpay->BillingCity = getWCOrderDetails($order_id, 'billing_city');
         $afterpay->BillingCountry = getWCOrderDetails($order_id, 'billing_country');
@@ -800,7 +800,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $afterpay->ShippingStreet = $postNL['street'];
             $afterpay->ShippingHouseNumber = $postNL['number'];
             $afterpay->ShippingPostalCode = $postNL['postal_code'];
-            $afterpay->ShippingHouseNumberSuffix = $postNL['number_suffix'];
+            $afterpay->ShippingHouseNumberSuffix = trim(str_replace('-',' ', $postNL['number_suffix']));
             $afterpay->ShippingCity = $postNL['city'];
             $afterpay->ShippingCountryCode = $postNL['cc'];
         }
