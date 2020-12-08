@@ -301,6 +301,13 @@
                             $requestParameter->Name = $fieldName;
                             $requestParameter->Group = $value['group'];
                             $requestParameter->_ = $value['value'];
+                            if (empty($requestParameter->_) && $fieldName == 'StreetNumberAdditional') {
+                                foreach ($value as $fieldKey => $val) {
+                                    $requestParameter->Group = $val['group'];
+                                    $requestParameter->GroupID = $fieldKey+1;
+                                    $requestParameter->_ = $val['value'];
+                                }
+                            }
                             $requestParameters[] = $requestParameter;
                         };
                     } else {
