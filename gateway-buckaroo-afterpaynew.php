@@ -805,6 +805,20 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
             $afterpay->ShippingCountryCode = $postNL['cc'];
         }
 
+        if (!empty($_POST['sendcloudshipping_service_point_selected'])) {
+            $afterpay->AddressesDiffer = 'TRUE';
+            $sendcloudPointAddress = $order->get_meta('sendcloudshipping_service_point_meta');
+            $addressData =  $this->parseSendCloudPointAddress($sendcloudPointAddress['extra']);
+
+            $afterpay->ShippingStreet = $addressData['street']['name'];
+            $afterpay->ShippingHouseNumber = $addressData['street']['house_number'];
+            $afterpay->ShippingPostalCode = $addressData['postal_code'];
+            $afterpay->ShippingHouseNumberSuffix = $addressData['street']['number_addition'];
+            $afterpay->ShippingCity = $addressData['city'];
+            $afterpay->ShippingCountryCode = $afterpay->BillingCountry;
+
+        }
+
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept = 'TRUE';
         $products = Array();
@@ -929,6 +943,54 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         }
 
         return $data->address;
+    }
+
+    private function parseSendCloudPointAddress( $addressData ) {
+        $formattedAddress = [];
+        $addressData = explode('|', $addressData);
+
+        $streetData = $addressData[1];
+        $cityData = $addressData[2];
+
+        $formattedCityData = $this->parseSendcloudCityData($cityData);
+        $formattedStreet = $this->formatStreet( $streetData );
+
+        $formattedAddress['street'] = $formattedStreet;
+        $formattedAddress['postal_code'] = $formattedCityData[0];
+        $formattedAddress['city'] = $formattedCityData[1];
+
+        return $formattedAddress;
+    }
+
+    private function parseSendcloudCityData($cityData) {
+        $cityData = preg_split('/\s/', $cityData, 2);
+
+        return $cityData;
+    }
+
+    public function formatStreet($street)
+    {
+        $format = [
+            'house_number'    => '',
+            'number_addition' => '',
+            'name'          => $street
+        ];
+
+        if (preg_match('#^(.*?)([0-9\-]+)(.*)#s', $street, $matches)) {
+            // Check if the number is at the beginning of streetname
+            if ('' == $matches[1]) {
+                $format['house_number'] = trim($matches[2]);
+                $format['name']       = trim($matches[3]);
+            } else {
+                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
+                    $format['name']          = trim($matches[1]);
+                    $format['house_number']    = trim($matches[2]);
+                    $format['number_addition'] = trim($matches[3]);
+                }
+            }
+        }
+
+        return $format;
     }
     /**
      * Payment form on checkout page

@@ -98,6 +98,8 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
         if(!empty($this->BillingHouseNumberSuffix)){
             $this->data['customVars'][$this->type]["StreetNumberAdditional"][0]["value"] = $this->BillingHouseNumberSuffix;
             $this->data['customVars'][$this->type]["StreetNumberAdditional"][0]["group"] = 'BillingCustomer';
+        } else {
+            unset($this->BillingHouseNumberSuffix);
         }
 
         if(!empty($this->BillingHouseNumberSuffix) || !empty($this->ShippingHouseNumberSuffix)){
