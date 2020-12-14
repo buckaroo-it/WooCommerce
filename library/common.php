@@ -509,6 +509,36 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         $response_status = fn_buckaroo_resolve_status_code($response->status);
         $logger->logInfo('Response order status: ' . $response_status);
         $logger->logInfo('Status message: ' . $response->statusmessage);
+
+        if ($payment_method->id == 'buckaroo_payperemail') {
+            if ( is_admin() ) {
+                if ($response->hasSucceeded()) {
+                    if(!isset($response->getResponse()->ConsumerMessage)){
+                        $buckaroo_admin_notice = array(
+                            'type' => 'success',
+                            'message' => 'Your paylink: <a target="_blank" href="'. $response->getPayLink().'">'. $response->getPayLink().'</a>'
+                        );
+                    }
+                } else {
+                    $parameterError = '';
+                    if(isset($response->getResponse()->RequestErrors->ParameterError)){
+                        $parameterErrorArray = $response->getResponse()->RequestErrors->ParameterError;
+                        if(is_array($parameterErrorArray)){
+                            foreach ($parameterErrorArray as $key => $value) {
+                                $parameterError .= '<br/>' . $value->_;
+                            }
+                        }
+                    }
+                     $buckaroo_admin_notice = array(
+                        'type' => 'error',
+                        'message' => $response->statusmessage . ' ' .$parameterError
+                    );
+                }
+                set_transient( get_current_user_id().'buckarooAdminNotice', $buckaroo_admin_notice );
+                return;
+            }
+        }
+
         if ($response->hasSucceeded()) {
             $logger->logInfo(
                 'Order already in final state or  have the same status as response. Order status: ' . $order->get_status()
@@ -542,7 +572,6 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     return;
             }
         } else {
-
 
             $logger->logInfo('Payment request failed/canceled. Order status: ' . $order->get_status());
             $logger->logInfo('||| infoLog ' . $response_status);
@@ -1001,8 +1030,6 @@ function pages_with_shortcode($shortcode, $args = array()) {
         createPayConicPage();
         return pages_with_shortcode($shortcode, $args);
     }
-
-
 
     return $list;
 }

@@ -32,12 +32,17 @@ class BuckarooConfig extends BuckarooConfigCore {
             if ((empty($options['usemaster']) || $options['usemaster'] != 'no') && !get_option('woocommerce_buckaroo_mastersettings_settings') != TRUE) {
                 $masterOptions = get_option('woocommerce_buckaroo_mastersettings_settings', null );
 
+                $enabled = isset($options['enabled'])?$options['enabled']:false;
                 if (is_array($options) && is_array($masterOptions)) {
                     $options = array_replace($options, $masterOptions);
                 }
           
                 if(!is_array($options) && is_array($masterOptions)) {
                     $options = $masterOptions;
+                }
+
+                if(is_array($options) && $enabled){
+                    $options['enabled'] = $enabled;
                 }
             }
             switch ($key) {
@@ -86,6 +91,10 @@ class BuckarooConfig extends BuckarooConfigCore {
                     $options = get_option('woocommerce_buckaroo_mastersettings_settings', null );//Debug switch only in mastersettings
                     $val = $options['debugmode'];
                     break;
+                default:
+                if(isset($options[$key]) && !empty($options[$key])){
+                    $val = $options[$key];
+                }
             }
         }
         if (is_null($val) || $val === false) {
@@ -143,7 +152,8 @@ class BuckarooConfig extends BuckarooConfigCore {
 		        'applepay' => array('process_payment' => '', 'process_refund' => ''),
                 'kbc' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'requesttopay' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
-                'in3' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => '')
+                'in3' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'payperemail' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => '')
             );
             //'' defaults to Web, set by BuckarooConfig::CHANNEL (see library/api/config/coreconfig.php);
             $channel = ($overrides[$payment_type][$method] != '') ? $overrides[$payment_type][$method] : $channel;

@@ -218,6 +218,10 @@ function generateGateways()
         'In3' => array(
             'filename' => 'gateway-buckaroo-in3.php',
             'classname' => 'WC_Gateway_Buckaroo_In3',
+        ),
+        'PayPerEmail' => array(
+            'filename' => 'gateway-buckaroo-payperemail.php',
+            'classname' => 'WC_Gateway_Buckaroo_PayPerEmail',
         )
     );
     $buckaroo_enabled_payment_methods = array();
@@ -280,6 +284,44 @@ function buckaroo_init_gateway()
         
         copy(__DIR__.'/assets/apple-developer-merchantid-domain-association', __DIR__.'/../../../.well-known/apple-developer-merchantid-domain-association');
     }
+
+    function add_buckaroo_send_admin_payperemail( $actions ) {
+        global $theorder;
+        if(BuckarooConfig::get('enabled','payperemail') == 'yes'){
+            if (in_array($theorder->get_status(), array('auto-draft', 'pending', 'on-hold'))) {
+                if(BuckarooConfig::get('show_PayPerEmail','payperemail') == 'TRUE'){
+                    $actions['buckaroo_send_admin_payperemail'] = __( 'Send a PayPerEmail', 'woocommerce' );
+                }
+            }
+            if (in_array($theorder->get_status(), array('pending', 'pending', 'on-hold', 'failed'))) {
+                if(BuckarooConfig::get('show_PayLink','payperemail') == 'TRUE'){
+                    $actions['buckaroo_create_paylink'] = __( 'Create PayLink', 'woocommerce' );
+                }
+            }
+        }
+        return $actions;
+    }
+    add_filter( 'woocommerce_order_actions', 'add_buckaroo_send_admin_payperemail', 10, 1 );
+
+    require_once(dirname(__FILE__) . '/gateway-buckaroo-payperemail.php');
+    function buckaroo_send_admin_payperemail( $order ) {
+        $gateway = new WC_Gateway_Buckaroo_PayPerEmail();
+        if (isset($gateway)) {
+            $response = $gateway->process_payment($order->get_id());
+            echo json_encode($response);
+        }
+    }
+    add_action( 'woocommerce_order_action_buckaroo_send_admin_payperemail', 'buckaroo_send_admin_payperemail', 10, 1 );
+
+    function buckaroo_create_paylink( $order ) {
+        $gateway = new WC_Gateway_Buckaroo_PayPerEmail();
+        if (isset($gateway)) {
+            $response = $gateway->process_payment($order->get_id(),1);
+        }
+    }
+
+    add_action( 'woocommerce_order_action_buckaroo_create_paylink', 'buckaroo_create_paylink', 10, 1 );
+
 }
 
 function my_custom_checkout_field_display_admin_order_meta($order){
@@ -311,6 +353,18 @@ function orderCapture(){
     }
     exit;
 }
+
+/**
+ * Admin notice
+ * types: error,warning,success,info
+ */
+function buckaroo_admin_notice() {
+    if($message = get_transient( get_current_user_id().'buckarooAdminNotice' ) ) {
+        delete_transient( get_current_user_id().'buckarooAdminNotice' );
+        echo '<div class="notice notice-'.$message['type'].' is-dismissible"><p>'.$message['message'].'</p></div>';
+    }
+}
+add_action('admin_notices', 'buckaroo_admin_notice');
 
 //test
  

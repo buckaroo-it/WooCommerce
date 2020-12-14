@@ -153,6 +153,17 @@ abstract class BuckarooResponse extends BuckarooAbstract {
             return false;
     }
 
+    public function getPayLink() {
+        if (isset($this->_response->Services->Service->ResponseParameter)) {
+            foreach ($this->_response->Services->Service->ResponseParameter as $param) {
+                if (isset($param->Name) && $param->Name == 'PayLink') {
+                    return $param->_;
+                }
+            }
+        }
+        return false;
+    }
+
     private function setResponseXML($xml) {
         $this->_responseXML = $xml;
         //Record requests in debug mode
