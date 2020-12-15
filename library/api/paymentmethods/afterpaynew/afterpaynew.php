@@ -105,7 +105,7 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
         if(($this->AddressesDiffer == 'TRUE') && !empty($this->ShippingHouseNumberSuffix)){
             $this->data['customVars'][$this->type]['StreetNumberAdditional'][1]["value"] = $this->ShippingHouseNumberSuffix;
             $this->data['customVars'][$this->type]["StreetNumberAdditional"][1]["group"] = 'ShippingCustomer';
-        } elseif ($this->AddressesDiffer !== 'TRUE') {
+        } elseif ($this->AddressesDiffer !== 'TRUE' && !empty($this->BillingHouseNumberSuffix)) {
             $this->data['customVars'][$this->type]['StreetNumberAdditional'][1]["value"] = $this->BillingHouseNumberSuffix; //($this->AddressesDiffer == 'TRUE') ? $this->ShippingHouseNumberSuffix : $this->BillingHouseNumberSuffix;
             $this->data['customVars'][$this->type]["StreetNumberAdditional"][1]["group"] = 'ShippingCustomer';
         } else {
