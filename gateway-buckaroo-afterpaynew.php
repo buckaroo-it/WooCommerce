@@ -783,7 +783,8 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
 
         if ($_POST['shipping_method'][0] == 'dhlpwc-parcelshop') {
             $dhlConnectorData = $order->get_meta('_dhlpwc_order_connectors_data');
-            $requestPart = $this->country . '/' . $dhlConnectorData['id'];
+            $dhlCountry = !empty($this->country) ? $this->country : $_POST['billing_country'];
+            $requestPart = $dhlCountry . '/' . $dhlConnectorData['id'];
             $dhlParcelShopAddressData = $this->getDHLParcelShopLocation($requestPart);
             $afterpay->AddressesDiffer = 'TRUE';
             $afterpay->ShippingStreet = $dhlParcelShopAddressData->street;
