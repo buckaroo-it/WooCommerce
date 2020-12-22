@@ -104,6 +104,10 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
                 'name' => 'Handelsbanken',
                 'logo' => 'logo_handelsbanken.png',
             ),
+            'REVOLUT' => array(
+                'name' => 'Revolut',
+                'logo' => 'logo_revolutbanken.png',
+            ),
         );
         return $issuerArray;
     }
@@ -151,6 +155,9 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
                 break;
             case 'HANDELS':
                 $issuerCode = 'HANDNL2A';
+                break;
+            case 'REVOLUT':
+                $issuerCode = 'REVOLT21';
                 break;
         }
 
