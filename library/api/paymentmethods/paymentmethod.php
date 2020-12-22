@@ -376,7 +376,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
     /**
      *
      */
-    public function getOrderRefundData( $line_item_totals = null, $line_item_tax_totals = null, $line_item_qtys = null ){
+    public function getOrderRefundData( $order, $line_item_totals = null, $line_item_tax_totals = null, $line_item_qtys = null ){
 
         $orderRefundData = [];
 
@@ -401,7 +401,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         foreach ($line_item_tax_totals as $key => $keyItem) {
             foreach ($keyItem as $taxItem => $taxItemValue) {
                 if (!empty($taxItemValue)) {
-                    $order = wc_get_order($this->orderId);
+                    //$order = wc_get_order($order_id);
                     $item = $order->get_item($key);
                     $taxItemFromOrder = $item->get_taxes();
 
