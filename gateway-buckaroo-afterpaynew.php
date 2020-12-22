@@ -308,7 +308,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $order = wc_get_order($order_id);
         if (checkForSequentialNumbersPlugin()) {
             $order_sequential_id = $order->get_order_number();
-            $r = wc_get_order( $order_sequential_id );
 //            $order_sequential_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
 //            $order_sequential_id = preg_replace('/\./g', '-', $order_sequential_id); //Use sequential id
         }
@@ -355,7 +354,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         foreach ($items as $item) {
             if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
                 $product = new WC_Product($item['product_id']);
-//                $tax_class = $product->get_attribute("vat_category");
 
                 $tax = new WC_Tax();
                 $taxes = $tax->get_rates($product->get_tax_class());

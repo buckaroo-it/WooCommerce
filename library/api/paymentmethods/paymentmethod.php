@@ -376,7 +376,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
     /**
      *
      */
-    public function getOrderRefundData( $order_id = null, $line_item_totals = null, $line_item_tax_totals = null, $line_item_qtys = null ){
+    public function getOrderRefundData( $order = null, $line_item_totals = null, $line_item_tax_totals = null, $line_item_qtys = null ){
 
         $orderRefundData = [];
 
@@ -404,9 +404,9 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
                     if (empty($order)) {
                         if (checkForSequentialNumbersPlugin()){
                             if (function_exists('wc_seq_order_number_pro')) {
-                                $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
+                                $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $this->orderId );
                             } elseif (function_exists('wc_sequential_order_numbers')) {
-                                $order_id = wc_sequential_order_numbers()->find_order_by_order_number( $order_id );
+                                $order_id = wc_sequential_order_numbers()->find_order_by_order_number( $this->orderId );
                             }
                             $order = wc_get_order($order_id);
                         } else {
