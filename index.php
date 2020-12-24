@@ -17,6 +17,16 @@ add_action('wp_enqueue_scripts', function (){
 
 add_action('plugins_loaded', 'buckaroo_init_gateway', 0);
 add_action('admin_menu', 'buckaroo_menu_report');
+
+if (!empty($_REQUEST['wc-api']) && ($_REQUEST['wc-api'] == 'WC_Push_Buckaroo')) {
+    if (empty($_SERVER['HTTP_USER_AGENT'])) {
+        $_SERVER['HTTP_USER_AGENT']='Buckaroo plugin push';
+    }
+    if (empty($_SERVER['HTTP_REFERER'])) {
+        $_SERVER['HTTP_REFERER']='Buckaroo plugin referer';
+    }
+}
+
 add_action('woocommerce_api_wc_push_buckaroo', 'buckaroo_push_class_init');
 
 add_action( 'woocommerce_admin_order_actions_end', 'my_custom_checkout_field_display_admin_order_meta', 10, 1 );
