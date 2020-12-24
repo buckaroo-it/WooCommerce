@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 5.5.1
-Stable tag: 2.16.5
+Stable tag: 2.17.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,7 @@ Payment method support list:
 17. AfterPay 2.0
 18. Apple Pay
 19. KBC
+20. PayPerEmail
 
 == Installation ==
 
@@ -94,6 +95,16 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.17.0
+- Fixed error in inspect console on every page of shop [BP-576]
+- Add new bank to iDEAL payment method (Revolut) [BP-583]
+- Fixed issue with Woocommerce Sequential Order Number Pro plugin compatibility
+- Added payment method PayPerEmail [BP-564]
+- Added carreir support for Afterpay in combination with pick-up points (Sendcloud, PostNL, DHL, MyParcel) [BP-563 ]
+- Added payment data bank transfer to meta fields of order [BP-566]
+- Credit Card: Added validation for 'Expiration Year' field [BP-532]
+
 = 2.16.4 =
 - WooCommerce - new iDEAL logo not scaling correctly [BP-536]
 
