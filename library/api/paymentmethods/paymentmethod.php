@@ -238,12 +238,6 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
      */
     public function checkRefundData($data){
         //Check if order is refundable
-        //AFTERPAY
-//        foreach ($data as $itemKey) {
-//            if (empty($itemKey['total']) && !empty($itemKey['tax'])) {
-//                throw new Exception( 'Tax only cannot be refund' );
-//            }
-//        }
         $order_id = null;
 
         if (checkForSequentialNumbersPlugin()){
@@ -292,15 +286,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 
                 $itemTax = $items[$item_id]->get_total_tax();
                 $itemRefundedTax = $order->get_tax_refunded_for_item($item_id, $taxId);
-                // FOR AFTERPAY
-//                if ( empty($data[$item_id]['qty']) ) {
-//                    throw new Exception('Product quantity doesn`t choose');
-//                }
 
-                // FOR AFTERPAY
-//                if ((float)$itemPrice * $data[$item_id]['qty'] !== (float)round($data[$item_id]['total'], $wooPriceNumDecimals)) {
-//                    throw new Exception('Incorrect entered product price. Please check refund product price and tax amounts');
-//                }
                 if ($itemTotal < $orderItemRefunded) {
                     throw new Exception('Incorrect entered product price. Please check refund product price');
                 }
@@ -344,7 +330,6 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         }
 
         foreach ($feeItems as $item_id => $item_data) {
-            $feeRefunded = $order->get_qty_refunded_for_item($item_id, 'fee');
             $feeCost = $feeItems[$item_id]->get_total();
             $feeTax = $feeItems[$item_id]->get_taxes();
             if (!empty($feeTax['total'])) {
@@ -352,15 +337,15 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
                     $feeCost += round((float)$taxFee, 2);
                 }
             }
-            if ($feeRefunded > 1) {
-                throw new Exception('Payment fee already refunded');
-            }
+//            if ($feeRefunded > 1) {
+//                throw new Exception('Payment fee already refunded');
+//            }
             if (!empty($data[$item_id]['total'])) {
                 $totalFeePrice = round((float)$data[$item_id]['total'] + (float)$data[$item_id]['tax'],2);
-                if ( abs(($totalFeePrice - $feeCost)/$feeCost) > 0.00001 ) { //$totalFeePrice > $feeCost
+                if ( abs((abs($totalFeePrice) - abs($feeCost))/abs($feeCost)) > 0.00001 ) {
                     throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()) );
-                } elseif( abs(($feeCost - $totalFeePrice)/$totalFeePrice) > 0.00001 ) { //$totalFeePrice < $feeCost
-                    $balance = $feeCost - $totalFeePrice;
+                } elseif( abs((abs($feeCost) - abs($totalFeePrice))/abs($totalFeePrice)) > 0.00001 ) {
+                    $balance = abs($feeCost) - abs($totalFeePrice);
                     throw new Exception('Please add ' . $balance . ' ' . esc_attr(get_woocommerce_currency()) . ' to full refund payment fee cost' );
                 }
             }

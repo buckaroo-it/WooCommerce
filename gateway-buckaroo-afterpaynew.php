@@ -360,11 +360,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
                 $rates = array_shift($taxes);
                 $itemRate = number_format(array_shift($rates),2);
 
-//                if (empty($tax_class)) {
-//                    $tax_class = $this->vattype;
-//                    //wc_add_notice( __("Vat category (vat_category) do not exist for product ", 'wc-buckaroo-bpe-gateway').$item['name'], 'error' );
-//                    // return;
-//                }
                 $tmp["ArticleDescription"] = $item['name'];
                 $tmp["ArticleId"] = $item['product_id'];
                 $tmp["ArticleQuantity"] = $line_item_qtys[$item->get_id()];
@@ -400,31 +395,33 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo {
         $fees = $order->get_fees();
 
         foreach ($fees as $key => $item) {
+            if (!empty($line_item_totals[$key])) {
+                $feeTaxRate = $this->getFeeTax($fees[$key]);
 
+                $tmp["ArticleDescription"] = $item['name'];
+                $tmp["ArticleId"] = $key;
+                $tmp["ArticleQuantity"] = 1;
+                $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
+                $itemsTotalAmount += $tmp["ArticleUnitprice"];
+                $tmp["ArticleVatcategory"] = $feeTaxRate;
+                $products[] = $tmp;
+            }
             //fee refunded count
-            $feeRefund = $order->get_item_count_refunded('fee');
+//            $feeRefund = $order->get_item_count_refunded('fee');
 
             //If fee refund have been already created
-            if ($feeRefund > 1) {
-                return new WP_Error('error_refund_afterpay_fee', __("Payment fee already refunded."));
-            }
-            if ((float)$line_item_totals[$key] !== (float)$item["line_total"]) {
-                if ( $line_item_totals[$key] !== 0){
-                    return new WP_Error('error_refund_afterpay_fee_incorrect_price', __("Incorrect payment fee price for refund"));
-                } else {
-                    continue;
-                }
-            }
+//            if ($feeRefund > 1) {
+//                return new WP_Error('error_refund_afterpay_fee', __("Payment fee already refunded."));
+//            }
+//            if ((float)$line_item_totals[$key] !== (float)$item["line_total"]) {
+//                if ( $line_item_totals[$key] !== 0){
+//                    return new WP_Error('error_refund_afterpay_fee_incorrect_price', __("Incorrect payment fee price for refund"));
+//                } else {
+//                    continue;
+//                }
+//            }
 
-            $feeTaxRate = $this->getFeeTax($fees[$key]);
 
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"] = $key;
-            $tmp["ArticleQuantity"] = 1;
-            $tmp["ArticleUnitprice"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
-            $itemsTotalAmount += $tmp["ArticleUnitprice"];
-            $tmp["ArticleVatcategory"] = $feeTaxRate;
-            $products[] = $tmp;
         }
 
         // Add shippingCosts
