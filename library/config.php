@@ -153,6 +153,7 @@ class BuckarooConfig extends BuckarooConfigCore {
                 'kbc' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'requesttopay' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'in3' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'billink' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'payperemail' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => '')
             );
             //'' defaults to Web, set by BuckarooConfig::CHANNEL (see library/api/config/coreconfig.php);

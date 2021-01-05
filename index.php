@@ -229,6 +229,10 @@ function generateGateways()
             'filename' => 'gateway-buckaroo-in3.php',
             'classname' => 'WC_Gateway_Buckaroo_In3',
         ),
+        'Billink' => array(
+            'filename' => 'gateway-buckaroo-billink.php',
+            'classname' => 'WC_Gateway_Buckaroo_Billink',
+        ),
         'PayPerEmail' => array(
             'filename' => 'gateway-buckaroo-payperemail.php',
             'classname' => 'WC_Gateway_Buckaroo_PayPerEmail',
