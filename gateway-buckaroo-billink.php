@@ -48,7 +48,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             'refunds'
         );
         $this->type = 'billink';
-        $this->b2b = $this->settings['enable_bb'];
+        $this->b2b = ($this->settings['enable_bb'] == 'B2B');
 
         $this->vattype = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
         $this->notify_url = home_url('/');
@@ -92,6 +92,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $order = new WC_Order( $order_id );
         $billink = new BuckarooBillink();
+        $billink->B2B = ($this->settings['enable_bb'] == 'B2B');
         if (checkForSequentialNumbersPlugin()) {
             if (preg_match('/\./i', $order->get_order_number())) {
                 $order_id = preg_replace('/\./', '-', $order->get_order_number());
@@ -123,10 +124,10 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $get_billing_last_name = getWCOrderDetails($order_id, "billing_last_name");
         $get_billing_email = getWCOrderDetails($order_id, "billing_email");
 
-        $billinkCategory = $this->b2b;
+        $billinkCategory = $this->settings['enable_bb'];
         $billink->setCategory($billinkCategory);
 
-        $billink->BillingInitials = $this->getInitials($get_billing_first_name);
+        $billink->BillingInitials = $this->getInitials($get_billing_first_name . ' ' . $get_billing_last_name);
         $billink->setBillingFirstName( $get_billing_first_name );
 //        $billink->BillingFirstName = $get_billing_first_name;
         $billink->BillingLastName = $get_billing_last_name;
@@ -154,18 +155,15 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             $billink->ShippingCostsTax = number_format(($shippingCostsTax * 100) / $shippingCosts);
         }
 
-//        if (getWCOrderDetails($order_id, 'shipping_country') == "FI") {
-//
-//            if (empty($_POST["buckaroo-billink-IdentificationNumber"])) {
-//                wc_add_notice( __("Customer Identification Number is required for Finland", 'wc-buckaroo-bpe-gateway'), 'error' );
-//                return;
-//            }
-//            $billink->IdentificationNumber = $_POST["buckaroo-billink-IdentificationNumber"];
-//        }
 
         $billink->BillingBirthDate = $birthdate;
         // Set birthday if it's NL or BE
 //        $billink->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
+
+        if ($billink->B2B) {
+            $billink->CompanyCOCRegistration = $_POST['buckaroo-billink-CompanyCOCRegistration'];
+            $billink->VatNumber = $_POST['buckaroo-billink-VatNumber'];
+        }
 
         $get_billing_address_1 = getWCOrderDetails($order_id, 'billing_address_1');
         $get_billing_address_2 = getWCOrderDetails($order_id, 'billing_address_2');
@@ -313,6 +311,8 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
      */
     public function payment_fields()
     {
+        //var_dump($this->b2b);die();
+
         $accountname = get_user_meta($GLOBALS["current_user"]->ID, 'billing_first_name', true)." ".get_user_meta($GLOBALS["current_user"]->ID, 'billing_last_name', true);
         $post_data = array();
         if (! empty($_POST["post_data"])) {
@@ -326,7 +326,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         </p><?php endif; ?>
 
         <fieldset>
-            <?php if ($this->b2b == 'enable') {
+            <?php if ($this->b2b) {
                 ?>
                 <p class="form-row form-row-wide validate-required">
                     <?php echo _e('Checkout for company', 'wc-buckaroo-bpe-gateway')?>
@@ -338,8 +338,8 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                     function CheckoutFields(showFiields) {
                         if (showFiields) {
                             document.getElementById('showB2BBuckaroo').style.display = 'block';
-                            document.getElementById('buckaroo-billink-CompanyName').value = document.getElementById(
-                                'billing_company').value;
+                            //document.getElementById('buckaroo-billink-VatNumber').value = document.getElementById(
+                            //    'billing_company').value;
                             document.getElementById('buckaroo-billink-birthdate').disabled = true;
                             document.getElementById('buckaroo-billink-birthdate').value = '';
                             document.getElementById('buckaroo-billink-birthdate').parentElement.style.display = 'none';
@@ -377,9 +377,9 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                    class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
         </p>
         <p class="form-row form-row-wide validate-required">
-            <label for="buckaroo-billink-CompanyName"><?php echo _e('Name of the organization:', 'wc-buckaroo-bpe-gateway')?><span
+            <label for="buckaroo-billink-VatNumber"><?php echo _e('VAT number:', 'wc-buckaroo-bpe-gateway')?><span
                     class="required">*</span></label>
-            <input id="buckaroo-billink-CompanyName" name="buckaroo-billink-CompanyName" class="input-text"
+            <input id="buckaroo-billink-VatNumber" name="buckaroo-billink-VatNumber" class="input-text"
                    type="text" maxlength="250" autocomplete="off" value="" />
         </p>
     </span>
@@ -407,22 +407,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                        value="1" />
                 <?php
             } ?>
-<!--            --><?php //if ($this->type == 'afterpayacceptgiro') {
-//                ?>
-<!--                <p class="form-row form-row-wide validate-required">-->
-<!--                    <label for="buckaroo-billink-CustomerAccountNumber">--><?php //echo _e('IBAN:', 'wc-buckaroo-bpe-gateway')?><!--<span-->
-<!--                            class="required">*</span></label>-->
-<!--                    <input id="buckaroo-billink-CustomerAccountNumber" name="buckaroo-billink-CustomerAccountNumber"-->
-<!--                           class="input-text" type="text" value="" />-->
-<!--                </p>-->
-<!--                --><?php
-//            } ?>
 
-<!--            <p class="form-row form-row-wide validate-required">-->
-<!--                <a href="https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden/" target="_blank">--><?php //echo _e('Accept licence agreement:', 'wc-buckaroo-bpe-gateway')?><!--</a><span-->
-<!--                    class="required">*</span> <input id="buckaroo-billink-accept" name="buckaroo-afterpay-accept"-->
-<!--                                                     type="checkbox" value="ON" />-->
-<!--            </p>-->
             <p class="required" style="float:right;">* Verplicht</p>
         </fieldset>
         <?php
@@ -512,10 +497,10 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
 //            'default' => 'afterpaydigiaccept'];
 
         $this->form_fields['enable_bb'] = [
-            'title' => __('Select Category option for Billink', 'wc-buckaroo-bpe-gateway'),
+            'title' => __('Mode', 'wc-buckaroo-bpe-gateway'),
             'type' => 'select',
 //            'description' => __('Enables or disables possibility to pay using company credentials', 'wc-buckaroo-bpe-gateway'),
-            'options' => ['B2B'=>'Enable', 'B2C'=>'Disable'],
+            'options' => ['B2B'=>'B2B', 'B2C'=>'B2C'],
             'default' => 'B2C'];
 
         $this->form_fields['usenotification'] = [

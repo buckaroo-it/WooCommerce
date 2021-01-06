@@ -36,8 +36,6 @@ class BuckarooBillink extends BuckarooPaymentMethod
 
     public $B2B;
     public $CompanyCOCRegistration;
-    public $CompanyName;
-    public $CostCentre;
     public $VatNumber;
 
     private $category;
@@ -84,21 +82,17 @@ class BuckarooBillink extends BuckarooPaymentMethod
      */
     public function PayOrAuthorizeBillink($products = Array(), $action = 'Pay') {
 
-        $this->data['customVars'][$this->type]["Category"]["value"] = $this->getCategory();
-        $this->data['customVars'][$this->type]["Category"]["group"] = 'BillingCustomer';
-//        $this->data['customVars'][$this->type]["Category"][1]["value"] = 'Person';
-//        $this->data['customVars'][$this->type]["Category"][1]["group"] = 'ShippingCustomer';
+        $this->data['customVars'][$this->type]["Category"][0]["value"] = $this->getCategory();
+        $this->data['customVars'][$this->type]["Category"][0]["group"] = 'BillingCustomer';
 
-        $this->data['customVars'][$this->type]["CareOf"][0]["value"] = 'TEST-hardcoded';
+        $this->data['customVars'][$this->type]["CareOf"][0]["value"] = trim($this->getBillingFirstName() . ' ' . $this->BillingLastName);
         $this->data['customVars'][$this->type]["CareOf"][0]["group"] = 'BillingCustomer';
 
-        $this->data['customVars'][$this->type]["CareOf"][1]["value"] = 'TEST-hardcoded';
+        $this->data['customVars'][$this->type]["CareOf"][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? trim($this->ShippingFirstName . ' ' . $this->ShippingLastName) : $this->data['customVars'][$this->type]["CareOf"][0]["value"];
         $this->data['customVars'][$this->type]["CareOf"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]["Initials"][0]["value"] = $this->BillingInitials;
         $this->data['customVars'][$this->type]["Initials"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]["Initials"][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingInitials : $this->BillingInitials;
-        $this->data['customVars'][$this->type]["Initials"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]['FirstName'][0]["value"] = $this->getBillingFirstName();
         $this->data['customVars'][$this->type]["FirstName"][0]["group"] = 'BillingCustomer';
@@ -115,9 +109,9 @@ class BuckarooBillink extends BuckarooPaymentMethod
         $this->data['customVars'][$this->type]['Street'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingStreet : $this->BillingStreet;
         $this->data['customVars'][$this->type]["Street"][1]["group"] = 'ShippingCustomer';
 
-        $this->data['customVars'][$this->type]["StreetNumber"][0]["value"] = $this->BillingHouseNumber . ' ';
+        $this->data['customVars'][$this->type]["StreetNumber"][0]["value"] = $this->BillingHouseNumber;
         $this->data['customVars'][$this->type]["StreetNumber"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['StreetNumber'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingHouseNumber . ' ' : $this->BillingHouseNumber . ' ';
+        $this->data['customVars'][$this->type]['StreetNumber'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingHouseNumber : $this->BillingHouseNumber;
         $this->data['customVars'][$this->type]["StreetNumber"][1]["group"] = 'ShippingCustomer';
 
         if(!empty($this->BillingHouseNumberSuffix)){
@@ -147,49 +141,23 @@ class BuckarooBillink extends BuckarooPaymentMethod
 
         $this->data['customVars'][$this->type]["Email"][0]["value"] = $this->BillingEmail;
         $this->data['customVars'][$this->type]["Email"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]["Email"][1]["value"] = $this->BillingEmail;
-        $this->data['customVars'][$this->type]["Email"][1]["group"] = 'ShippingCustomer';
 
+        $this->data['customVars'][$this->type]["MobilePhone"][0]["value"] = $this->BillingPhoneNumber;
+        $this->data['customVars'][$this->type]["MobilePhone"][0]["group"] = 'BillingCustomer';
 
-        if( (isset($this->ShippingCountryCode) && in_array($this->ShippingCountryCode, ['NL', 'BE'])) || ( !isset($this->ShippingCountryCode) && in_array($this->BillingCountry, ['NL', 'BE'])) ){
+        if ($this->B2B) {
+            $this->data['customVars'][$this->type]["ChamberOfCommerce"][0]["value"] = $this->CompanyCOCRegistration;
+            $this->data['customVars'][$this->type]["ChamberOfCommerce"][0]["group"] = 'BillingCustomer';
 
-            // Send parameters (Salutation, BirthDate, MobilePhone and Phone) if shipping country is NL || BE.
+            $this->data['customVars'][$this->type]["VATNumber"][0]["value"] = $this->VatNumber;
+            $this->data['customVars'][$this->type]["VATNumber"][0]["group"] = 'BillingCustomer';
+        } else {
             $this->data['customVars'][$this->type]["Salutation"][0]["value"] = $this->BillingGender;
-//            $this->data['customVars'][$this->type]["Salutation"][0]["value"] = ($this->BillingGender) == '1' ? 'Mr' : 'Mrs';
             $this->data['customVars'][$this->type]["Salutation"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["Salutation"][1]["value"] = $this->ShippingGender;
-//            $this->data['customVars'][$this->type]["Salutation"][1]["value"] = ($this->ShippingGender) == '1' ? 'Mr' : 'Mrs';
-            $this->data['customVars'][$this->type]["Salutation"][1]["group"] = 'ShippingCustomer';
 
             $this->data['customVars'][$this->type]["BirthDate"][0]["value"] = $this->BillingBirthDate;
             $this->data['customVars'][$this->type]["BirthDate"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["BirthDate"][1]["value"] = $this->BillingBirthDate;
-            $this->data['customVars'][$this->type]["BirthDate"][1]["group"] = 'ShippingCustomer';
-
-            $this->data['customVars'][$this->type]["MobilePhone"][0]["value"] = $this->BillingPhoneNumber;
-            $this->data['customVars'][$this->type]["MobilePhone"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["MobilePhone"][1]["value"] = $this->BillingPhoneNumber;
-            $this->data['customVars'][$this->type]["MobilePhone"][1]["group"] = 'ShippingCustomer';
-
         }
-
-        if( (isset($this->ShippingCountryCode) && ($this->ShippingCountryCode == "FI")) || (!isset($this->ShippingCountryCode) && ($this->BillingCountry == "FI"))) {
-            // Send parameter IdentificationNumber if country equals FI.
-            $this->data['customVars'][$this->type]["IdentificationNumber"][0]["value"] = $this->IdentificationNumber;
-            $this->data['customVars'][$this->type]["IdentificationNumber"][0]["group"] = 'BillingCustomer';
-            // Send parameter IdentificationNumber if country equals FI.
-            $this->data['customVars'][$this->type]["IdentificationNumber"][1]["value"] = $this->IdentificationNumber;
-            $this->data['customVars'][$this->type]["IdentificationNumber"][1]["group"] = 'ShippingCustomer';
-        }
-
-
-        // if ($this->B2B == 'TRUE') {
-        //     $this->data['customVars'][$this->type]['B2B'] = $this->B2B;
-        //     $this->data['customVars'][$this->type]['CompanyCOCRegistration'] = $this->CompanyCOCRegistration;
-        //     $this->data['customVars'][$this->type]['CompanyName'] = $this->CompanyName;
-        //     $this->data['customVars'][$this->type]['CostCentre'] = $this->CostCentre;
-        //     $this->data['customVars'][$this->type]['VatNumber'] = $this->VatNumber;
-        // }
 
         // Merge products with same SKU
 
@@ -204,25 +172,22 @@ class BuckarooBillink extends BuckarooPaymentMethod
 
         $products = $mergedProducts;
 
-        $i = 1;
+        $i = 0;
         foreach($products as $p) {
-//            $this->data['customVars'][$this->type]["Description"][$i - 1]["value"] = $p["ArticleDescription"];
-//            $this->data['customVars'][$this->type]["Description"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["value"] = $p["ArticleId"];
-            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["value"] = $p["ArticleQuantity"];
-            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["GrossUnitPriceIncl"][$i - 1]["value"] = $p["ArticleUnitpriceIncl"];
-            $this->data['customVars'][$this->type]["GrossUnitPriceIncl"][$i - 1]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["Identifier"][$i]["value"] = $p["ArticleId"];
+            $this->data['customVars'][$this->type]["Identifier"][$i]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["Quantity"][$i]["value"] = $p["ArticleQuantity"];
+            $this->data['customVars'][$this->type]["Quantity"][$i]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["GrossUnitPriceIncl"][$i]["value"] = $p["ArticleUnitpriceIncl"];
+            $this->data['customVars'][$this->type]["GrossUnitPriceIncl"][$i]["group"] = 'Article';
 //            $this->data['customVars'][$this->type]["GrossUnitPriceExcl"][$i - 1]["value"] = $p["ArticleUnitpriceExcl"];
 //            $this->data['customVars'][$this->type]["GrossUnitPriceExcl"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] = isset($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0;
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"] = 'Article';
+            //if float then will be "An unhandled exception occurred, please contact Buckaroo Technical Support." from gateway
+            $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] = isset($p["ArticleVatcategory"]) ? intval($p["ArticleVatcategory"]) : 0;
+            $this->data['customVars'][$this->type]["VatPercentage"][$i]["group"] = 'Article';
             $i++;
         }
 
-//        $this->data['customVars'][$this->type]["Description"][$i]["value"] = 'Shipping Cost';
-//        $this->data['customVars'][$this->type]["Description"][$i]["group"] = 'Article';
         $this->data['customVars'][$this->type]["Identifier"][$i]["value"] = 'shipping';
         $this->data['customVars'][$this->type]["Identifier"][$i]["group"] = 'Article';
         $this->data['customVars'][$this->type]["Quantity"][$i]["value"] = '1';
@@ -231,20 +196,6 @@ class BuckarooBillink extends BuckarooPaymentMethod
         $this->data['customVars'][$this->type]["GrossUnitPriceIncl"][$i]["group"] = 'Article';
         $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] = (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0');
         $this->data['customVars'][$this->type]["VatPercentage"][$i]["group"] = 'Article';
-
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action'] = 'ExtraInfo';
-            $this->data['services']['notification']['version'] = '1';
-            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender'] = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
 
         return parent::Pay();
     }

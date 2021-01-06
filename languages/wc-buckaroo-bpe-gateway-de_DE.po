@@ -349,6 +349,10 @@ msgstr ""
 msgid "Name of the organization:"
 msgstr ""
 
+#: gateway-buckaroo-billink.php:870 gateway-buckaroo-afterpaynew.php:926
+msgid "VAT number:"
+msgstr ""
+
 #: gateway-buckaroo-afterpay.php:903 gateway-buckaroo-sepadirectdebit.php:306
 #: gateway-buckaroo-paygarant.php:309
 msgid "IBAN:"
