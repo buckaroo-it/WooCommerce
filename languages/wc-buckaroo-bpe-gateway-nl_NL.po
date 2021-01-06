@@ -123,6 +123,14 @@ msgstr ""
 msgid "Please enter correct birthdate date"
 msgstr "Vul alstublieft een juiste geboortedatum in"
 
+#: gateway-buckaroo-billink.php:631
+msgid "Please enter correct COC (KvK) number"
+msgstr "Voer het juiste COC (KvK) nummer in"
+
+#: gateway-buckaroo-billink.php:631
+msgid "Please enter correct VAT number"
+msgstr "Voer het juiste BTW nummer in"
+
 #: gateway-buckaroo-in3.php:333 gateway-buckaroo-afterpay.php:812
 #: gateway-buckaroo-sepadirectdebit.php:279 gateway-buckaroo-ideal.php:189
 #: gateway-buckaroo-afterpaynew.php:879 gateway-buckaroo-giropay.php:169

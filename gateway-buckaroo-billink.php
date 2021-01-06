@@ -58,10 +58,8 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         } else {
             add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
             add_action('woocommerce_api_wc_gateway_buckaroo_billink', array($this, 'response_handler'));
-//            if ($this->showpayproc) add_action( 'woocommerce_thankyou_buckaroo_billink' , array( $this, 'thankyou_description' ) );
             $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Billink', $this->notify_url);
         }
-//        add_action( 'woocommerce_api_callback', 'response_handler' );
 
     }
 
@@ -97,11 +95,8 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             if (preg_match('/\./i', $order->get_order_number())) {
                 $order_id = preg_replace('/\./', '-', $order->get_order_number());
             } else {
-//                $order_id = wc_seq_order_number_pro()->find_order_by_order_number( $order_id );
                 $order_id = $order->get_order_number(); //Use sequential id
             }
-//            $order_id = $order->get_order_number(); //Use sequential id
-
         }
         if (method_exists($order, 'get_order_total')) {
             $billink->amountDedit = $order->get_order_total();
@@ -113,39 +108,43 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $billink->currency = $this->currency;
 
         $billink->description = 'Billink Pay';
-//        $billink->description = $this->transactiondescription;
         $billink->invoiceId = getUniqInvoiceId(!empty($order_sequential_id) ? $order_sequential_id : (string)$order_id, $this->mode);
-//        $billink->orderId = !empty($order_sequential_id) ? $order_sequential_id : (string)$order_id;
         $billink->orderId = !empty($order_sequential_id) ? $order_sequential_id : (string)$order_id;
 
         $billink->BillingGender = $_POST['buckaroo-billink-gender'];
 
         $get_billing_first_name = getWCOrderDetails($order_id, "billing_first_name");
         $get_billing_last_name = getWCOrderDetails($order_id, "billing_last_name");
-        $get_billing_email = getWCOrderDetails($order_id, "billing_email");
 
         $billinkCategory = $this->settings['enable_bb'];
         $billink->setCategory($billinkCategory);
 
         $billink->BillingInitials = $this->getInitials($get_billing_first_name . ' ' . $get_billing_last_name);
         $billink->setBillingFirstName( $get_billing_first_name );
-//        $billink->BillingFirstName = $get_billing_first_name;
         $billink->BillingLastName = $get_billing_last_name;
-        $birthdate = $_POST['buckaroo-billink-birthdate'];
-        if (!empty($_POST["buckaroo-billink-b2b"]) && $_POST["buckaroo-billink-b2b"] == 'ON') {
-            // if is company reset birthdate
-            $birthdate = '01-01-1990';
+
+        if ($billink->B2B) {
+            if (!empty($_POST['buckaroo-billink-CompanyCOCRegistration'])) {
+                $billink->CompanyCOCRegistration = $_POST['buckaroo-billink-CompanyCOCRegistration'];
+            } else {
+                wc_add_notice( __("Please enter correct COC (KvK) number", 'wc-buckaroo-bpe-gateway'), 'error' );
+                return;
+            }
+
+            if (!empty($_POST['buckaroo-billink-VatNumber'])) {
+                $billink->VatNumber = $_POST['buckaroo-billink-VatNumber'];
+            } else {
+                wc_add_notice( __("Please enter correct VAT number", 'wc-buckaroo-bpe-gateway'), 'error' );
+                return;
+            }
+        } else {
+            if (!empty($_POST['buckaroo-billink-birthdate']) && $this->validateDate($_POST['buckaroo-billink-birthdate'],'d-m-Y')) {
+                $billink->BillingBirthDate = $_POST['buckaroo-billink-birthdate'];
+            } else {
+                wc_add_notice( __("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error' );
+                return;
+            }
         }
-//        if ($this->validateDate($birthdate,'d-m-Y')){
-//            $birthdate = date('Y-m-d', strtotime($birthdate));
-//        } elseif (in_array(getWCOrderDetails($order_id, 'billing_country'), ['NL', 'BE'])) {
-//            wc_add_notice( __("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error' );
-//            return;
-//        }
-//        if (empty($_POST["buckaroo-billink-accept"])) {
-//            wc_add_notice( __("Please accept licence agreements", 'wc-buckaroo-bpe-gateway'), 'error' );
-//            return;
-//        }
         $shippingCosts = $order->get_total_shipping();
         $shippingCostsTax = $order->get_shipping_tax();
         if (floatval($shippingCosts) > 0) {
@@ -153,16 +152,6 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         }
         if (floatval($shippingCostsTax) > 0) {
             $billink->ShippingCostsTax = number_format(($shippingCostsTax * 100) / $shippingCosts);
-        }
-
-
-        $billink->BillingBirthDate = $birthdate;
-        // Set birthday if it's NL or BE
-//        $billink->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
-
-        if ($billink->B2B) {
-            $billink->CompanyCOCRegistration = $_POST['buckaroo-billink-CompanyCOCRegistration'];
-            $billink->VatNumber = $_POST['buckaroo-billink-VatNumber'];
         }
 
         $get_billing_address_1 = getWCOrderDetails($order_id, 'billing_address_1');
@@ -183,7 +172,6 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
 
         $billink->AddressesDiffer = 'FALSE';
         if (isset($_POST["buckaroo-billink-shipping-differ"])) {
-            // if (!empty($_POST["buckaroo-billink-shipping-differ"])) {
             $billink->AddressesDiffer = 'TRUE';
 
             $get_shipping_first_name = getWCOrderDetails($order_id, 'shipping_first_name');
@@ -205,7 +193,6 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
 
             $get_shipping_email = getWCOrderDetails($order_id, 'billing_email');
             $billink->ShippingEmail = !empty($get_shipping_email) ? $get_shipping_email : '';
-//            $billink->ShippingLanguage = 'nl';
             $get_shipping_phone = getWCOrderDetails($order_id, 'billing_phone');
             $number = $this->cleanup_phone($get_shipping_phone);
             $billink->ShippingPhoneNumber = $number['phone'];
@@ -223,9 +210,6 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         foreach ( $items as $item ) {
 
             $product = new WC_Product($item['product_id']);
-//            $imgTag = $product->get_image();
-//            $xpath = new DOMXPath(@DOMDocument::loadHTML($imgTag));
-//            $src = $xpath->evaluate("string(//img/@src)");
 
             $tax = new WC_Tax();
             $taxes = $tax->get_rates($product->get_tax_class());
@@ -326,65 +310,24 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         </p><?php endif; ?>
 
         <fieldset>
-            <?php if ($this->b2b) {
-                ?>
-                <p class="form-row form-row-wide validate-required">
-                    <?php echo _e('Checkout for company', 'wc-buckaroo-bpe-gateway')?>
-                    <input id="buckaroo-billink-b2b" name="buckaroo-billink-b2b" onclick="CheckoutFields(this.checked)"
-                           type="checkbox" value="ON" />
-                </p>
+            <?php if ($this->b2b) { ?>
 
-                <script>
-                    function CheckoutFields(showFiields) {
-                        if (showFiields) {
-                            document.getElementById('showB2BBuckaroo').style.display = 'block';
-                            //document.getElementById('buckaroo-billink-VatNumber').value = document.getElementById(
-                            //    'billing_company').value;
-                            document.getElementById('buckaroo-billink-birthdate').disabled = true;
-                            document.getElementById('buckaroo-billink-birthdate').value = '';
-                            document.getElementById('buckaroo-billink-birthdate').parentElement.style.display = 'none';
-                            document.getElementById('buckaroo-billink-birthdate').parentElement.classList.remove(
-                                'woocommerce-invalid');
-                            document.getElementById('buckaroo-billink-birthdate').parentElement.classList.remove(
-                                'validate-required');
-                            document.getElementById('buckaroo-billink-genderm').disabled = true;
-                            document.getElementById('buckaroo-billink-genderf').disabled = true;
-                            document.getElementById('buckaroo-billink-genderm').parentElement.style.display = 'none';
-                            document.getElementById('buckaroo-billink-genderm').parentElement.getElementsByTagName('span').item(0)
-                                .style.display = 'none';
-                        } else {
-                            document.getElementById('showB2BBuckaroo').style.display = 'none';
-                            document.getElementById('buckaroo-billink-birthdate').disabled = false;
-                            document.getElementById('buckaroo-billink-birthdate').parentElement.style.display = 'block';
-                            document.getElementById('buckaroo-billink-birthdate').parentElement.classList.add('validate-required');
-                            document.getElementById('buckaroo-billink-genderm').disabled = false;
-                            document.getElementById('buckaroo-billink-genderf').disabled = false;
-                            document.getElementById('buckaroo-billink-genderf').parentElement.style.display = 'inline-block';
-                            document.getElementById('buckaroo-billink-genderf').parentElement.getElementsByTagName('span').item(0)
-                                .style.display = 'inline-block';
-                        }
-                    }
-                </script>
-
-                <span id="showB2BBuckaroo" style="display:none">
-        <p class="form-row form-row-wide validate-required">
-            <?php echo _e('Fill required fields if bill in on the company:', 'wc-buckaroo-bpe-gateway')?>
-        </p>
-        <p class="form-row form-row-wide validate-required">
-            <label for="buckaroo-billink-CompanyCOCRegistration"><?php echo _e('COC (KvK) number:', 'wc-buckaroo-bpe-gateway')?><span
-                    class="required">*</span></label>
-            <input id="buckaroo-billink-CompanyCOCRegistration" name="buckaroo-billink-CompanyCOCRegistration"
-                   class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
-        </p>
-        <p class="form-row form-row-wide validate-required">
-            <label for="buckaroo-billink-VatNumber"><?php echo _e('VAT number:', 'wc-buckaroo-bpe-gateway')?><span
-                    class="required">*</span></label>
-            <input id="buckaroo-billink-VatNumber" name="buckaroo-billink-VatNumber" class="input-text"
-                   type="text" maxlength="250" autocomplete="off" value="" />
-        </p>
-    </span>
-                <?php
-            } ?>
+            <p class="form-row form-row-wide validate-required">
+                <?php echo _e('Fill required fields if bill in on the company:', 'wc-buckaroo-bpe-gateway')?>
+            </p>
+            <p class="form-row form-row-wide validate-required">
+                <label for="buckaroo-billink-CompanyCOCRegistration"><?php echo _e('COC (KvK) number:', 'wc-buckaroo-bpe-gateway')?><span
+                        class="required">*</span></label>
+                <input id="buckaroo-billink-CompanyCOCRegistration" name="buckaroo-billink-CompanyCOCRegistration"
+                       class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
+            </p>
+            <p class="form-row form-row-wide validate-required">
+                <label for="buckaroo-billink-VatNumber"><?php echo _e('VAT number:', 'wc-buckaroo-bpe-gateway')?><span
+                        class="required">*</span></label>
+                <input id="buckaroo-billink-VatNumber" name="buckaroo-billink-VatNumber" class="input-text"
+                       type="text" maxlength="250" autocomplete="off" value="" />
+            </p>
+            <?php } else { ?>
 
             <p class="form-row">
                 <label for="buckaroo-billink-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway')?><span
@@ -401,6 +344,9 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                 <input id="buckaroo-billink-birthdate" name="buckaroo-billink-birthdate" class="input-text" type="text"
                        maxlength="250" autocomplete="off" value="" placeholder="DD-MM-YYYY" />
             </p>
+
+            <?php } ?>
+
             <?php if (! empty($post_data["ship_to_different_address"])) {
                 ?>
                 <input id="buckaroo-billink-shipping-differ" name="buckaroo-billink-shipping-differ" class="" type="hidden"
@@ -489,12 +435,6 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             'type' => 'file',
             'description' => __(''),
             'default' => ''];
-//        $this->form_fields['service'] = [
-//            'title' => __('Select billink service', 'wc-buckaroo-bpe-gateway'),
-//            'type' => 'select',
-//            'description' => __('Please select the service', 'wc-buckaroo-bpe-gateway'),
-//            'options' => ['afterpayacceptgiro'=>'Offer customer to pay afterwards by SEPA Direct Debit.', 'afterpaydigiaccept'=>'Offer customer to pay afterwards by digital invoice.'],
-//            'default' => 'afterpaydigiaccept'];
 
         $this->form_fields['enable_bb'] = [
             'title' => __('Mode', 'wc-buckaroo-bpe-gateway'),
@@ -523,5 +463,62 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $feeTaxRate = $feeInfo['rate'] ?? 0;
 
         return $feeTaxRate;
+    }
+
+    /**
+     * Check that a date is valid.
+     *
+     * @param String $date A date expressed as a string
+     * @param String $format The format of the date
+     * @return Object Datetime
+     * @return Boolean Format correct returns True, else returns false
+     */
+    public function validateDate($date, $format = 'Y-m-d H:i:s')
+    {
+        $d = DateTime::createFromFormat($format, $date);
+        return $d && ($d->format($format) == $date);
+    }
+
+    /**
+     * Can the order be refunded
+     * @param integer $order_id
+     * @param integer $amount defaults to null
+     * @param string $reason
+     * @return callable|string function or error
+     */
+    public function process_refund( $order_id, $amount = null, $reason = '' ) {
+        $order = wc_get_order( $order_id );
+        if ( ! $this->can_refund_order( $order ) ) {
+            return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
+        }
+        update_post_meta($order_id, '_pushallowed', 'busy');
+        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        $order = wc_get_order( $order_id );
+        if (checkForSequentialNumbersPlugin()) {
+            $order_id = $order->get_order_number(); //Use sequential id
+        }
+        $billink = new BuckarooBillink();
+        $billink->amountDedit = 0;
+        $billink->amountCredit = $amount;
+        $billink->currency = $this->currency;
+        $billink->description = $reason;
+        $billink->invoiceId = $order_id;
+        $billink->orderId = $order_id;
+        $billink->OriginalTransactionKey = $order->get_transaction_id();
+        $billink->returnUrl = $this->notify_url;
+        $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
+        $billink->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
+        $response = null;
+
+        $orderDataForChecking = $billink->getOrderRefundData();
+
+        try {
+            $billink->checkRefundData($orderDataForChecking);
+            $response = $billink->Refund();
+        } catch (exception $e) {
+            update_post_meta($order_id, '_pushallowed', 'ok');
+            return new WP_Error('refund_error', __($e->getMessage()));
+        }
+        return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
     }
 }

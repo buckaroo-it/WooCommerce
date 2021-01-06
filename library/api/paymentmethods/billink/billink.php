@@ -19,7 +19,6 @@ class BuckarooBillink extends BuckarooPaymentMethod
     public $ShippingGender;
     public $ShippingInitials;
     public $ShippingLastName;
-    public $ShippingBirthDate;
     public $ShippingStreet;
     public $ShippingHouseNumber;
     public $ShippingHouseNumberSuffix;
@@ -28,9 +27,7 @@ class BuckarooBillink extends BuckarooPaymentMethod
     public $ShippingCountryCode;
     public $ShippingEmail;
     public $ShippingPhoneNumber;
-    public $ShippingLanguage;
     public $ShippingCosts;
-    public $CustomerAccountNumber;
     public $CustomerIPAddress;
     public $Accept;
 
@@ -180,8 +177,6 @@ class BuckarooBillink extends BuckarooPaymentMethod
             $this->data['customVars'][$this->type]["Quantity"][$i]["group"] = 'Article';
             $this->data['customVars'][$this->type]["GrossUnitPriceIncl"][$i]["value"] = $p["ArticleUnitpriceIncl"];
             $this->data['customVars'][$this->type]["GrossUnitPriceIncl"][$i]["group"] = 'Article';
-//            $this->data['customVars'][$this->type]["GrossUnitPriceExcl"][$i - 1]["value"] = $p["ArticleUnitpriceExcl"];
-//            $this->data['customVars'][$this->type]["GrossUnitPriceExcl"][$i - 1]["group"] = 'Article';
             //if float then will be "An unhandled exception occurred, please contact Buckaroo Technical Support." from gateway
             $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] = isset($p["ArticleVatcategory"]) ? intval($p["ArticleVatcategory"]) : 0;
             $this->data['customVars'][$this->type]["VatPercentage"][$i]["group"] = 'Article';
