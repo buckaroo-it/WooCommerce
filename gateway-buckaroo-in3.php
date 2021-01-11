@@ -15,7 +15,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo {
 
         $this->id = 'buckaroo_in3';
         $this->title = 'In3';
-        $this->icon 		= apply_filters('woocommerce_buckaroo_in3_icon', plugins_url('library/buckaroo_images/in3.png', __FILE__));
+        $this->icon 		= apply_filters('woocommerce_buckaroo_in3_icon', plugins_url('library/buckaroo_images/24x24/in3.png', __FILE__));
         $this->has_fields 	= false;
         $this->method_title = 'Buckaroo In3';
         $this->description = "Betaal met In3";
