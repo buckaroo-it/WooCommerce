@@ -104,7 +104,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if (isset($this->settings['usemaster']) && $this->settings['usemaster'] == 'yes') {
             // merge with master settings
             $options = get_option('woocommerce_buckaroo_mastersettings_settings', null);
-
+            $options['enabled'] = $this->settings['enabled'];
             if (is_array($options)) {
                 $this->settings = array_replace($this->settings, $options);
             }
@@ -403,8 +403,17 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     public function response_handler()
     {
+//        $woocommerce = getWooCommerceObject();
+//        fn_buckaroo_process_response($this);
+//        exit;
         $woocommerce = getWooCommerceObject();
-        fn_buckaroo_process_response($this);
+        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        $result = fn_buckaroo_process_response($this);
+        if (!is_null($result)){
+            wp_safe_redirect($result['redirect']);
+        } else {
+            wp_safe_redirect($this->get_failed_url());
+        }
         exit;
     }
 
