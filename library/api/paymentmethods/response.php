@@ -457,6 +457,10 @@ abstract class BuckarooResponse extends BuckarooAbstract {
     protected function _calculateSignature() {
         $origArray = $_POST;
 
+        if (isset($origArray['input_34'])) {
+            unset($origArray['input_34']);
+        }
+
         $url_decode = true;
         if (isset($origArray['brq_transaction_method']) && $origArray['brq_transaction_method'] == 'Payconiq') {
             $url_decode = false;
