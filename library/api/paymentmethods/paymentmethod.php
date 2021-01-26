@@ -410,6 +410,9 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         }
         if (!empty($line_item_qtys)){
             foreach ($line_item_qtys as $key => $value) {
+                if(empty($value)){
+                    continue;
+                }
                 $orderRefundData[$key]['qty'] = $value;
             }
         }
