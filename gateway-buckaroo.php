@@ -85,7 +85,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if (isset($available_gateways['buckaroo_applepay'])) {
             unset($available_gateways['buckaroo_applepay']);
         }
-        if (isset($available_gateways['buckaroo_payperemail'])) {
+        if (isset($available_gateways['buckaroo_payperemail']) && $available_gateways['buckaroo_payperemail']->frontendVisible === "no") {
             unset($available_gateways['buckaroo_payperemail']);
         }
         return $available_gateways;

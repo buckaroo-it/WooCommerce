@@ -10,6 +10,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo {
     function __construct() { 
         $woocommerce = getWooCommerceObject();
         $this->id = 'buckaroo_payperemail';
+        $this->icon         = apply_filters('woocommerce_buckaroo_payperemail_icon', plugins_url('library/buckaroo_images/payperemail.png', __FILE__));
         $this->title = 'PayPerEmail';
         $this->has_fields 	= true;
         $this->method_title = "Buckaroo PayPerEmail";
@@ -29,11 +30,13 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo {
         $this->supports           = array(
             'products'
         );
-        
+        $this->type = 'peyperemail';
         $this->paymentmethodppe = '';
         if (!empty($this->settings['paymentmethodppe'])) {
             $this->paymentmethodppe = $this->settings['paymentmethodppe'];
         }
+        $this->frontendVisible = $this->settings['show_PayPerEmail_frontend'];
+
         $this->notify_url = home_url('/');
         
         if ( version_compare( WOOCOMMERCE_VERSION, '2.0.0', '<' ) ) {
@@ -43,7 +46,6 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo {
                 add_action( 'woocommerce_api_wc_gateway_buckaroo_payperemail', array( $this, 'response_handler' ) );
                 $this->notify_url   = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_PayPerEmail', $this->notify_url);
         }
-        //add_action( 'woocommerce_api_callback', 'response_handler' );           
     }
 
 
@@ -105,6 +107,23 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo {
      * @return bool
      */
     public function validate_fields() {
+        if ($this->isVisibleOnFrontend()) {
+            if (empty($_POST['buckaroo-payperemail-gender'])) {
+                wc_add_notice( __("Please select gender", 'wc-buckaroo-bpe-gateway'), 'error' );
+            }
+            if (empty($_POST['buckaroo-payperemail-firstname'])) {
+                wc_add_notice( __("Please enter firstname", 'wc-buckaroo-bpe-gateway'), 'error' );
+            }
+            if (empty($_POST['buckaroo-payperemail-lastname'])) {
+                wc_add_notice( __("Please enter lastname", 'wc-buckaroo-bpe-gateway'), 'error' );
+            }
+            if (empty($_POST['buckaroo-payperemail-email'])) {
+                wc_add_notice( __("Please enter email", 'wc-buckaroo-bpe-gateway'), 'error' );
+            } elseif (!is_email($_POST['buckaroo-payperemail-email'])) {
+                wc_add_notice( __("Please enter valid email", 'wc-buckaroo-bpe-gateway'), 'error' );
+            }
+        }
+
         if (version_compare(WC()->version, '3.6', '<')) {
             resetOrder();
         }
@@ -143,9 +162,17 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo {
         $get_billing_first_name = getWCOrderDetails($order_id, 'billing_first_name');
         $get_billing_last_name = getWCOrderDetails($order_id, 'billing_last_name');
         $get_billing_email = getWCOrderDetails($order_id, 'billing_email');
+
         $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
         $customVars['CustomerLastName'] = !empty($get_billing_last_name) ? $get_billing_last_name : '';
         $customVars['Customeremail'] = !empty($get_billing_email) ? $get_billing_email : '';
+
+        if ($this->isVisibleOnFrontend()) {
+            $customVars['CustomerGender'] =  $_POST['buckaroo-payperemail-gender'];
+            $customVars['CustomerFirstName'] = $_POST['buckaroo-payperemail-firstname'];
+            $customVars['CustomerLastName'] = $_POST['buckaroo-payperemail-lastname'];
+            $customVars['Customeremail'] = $_POST['buckaroo-payperemail-email'];
+        }
 
         if (!empty($this->paymentmethodppe)) {
             $customVars['PaymentMethodsAllowed'] = implode(",", $this->paymentmethodppe);
@@ -162,12 +189,79 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo {
         $response = $payperemail->PaymentInvitation($customVars);
         return fn_buckaroo_process_response($this, $response);
     }
-    
+
+    function isVisibleOnFrontend(){
+        if (strtolower($this->frontendVisible) === "yes") {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Payment form on checkout page
      */
-    function payment_fields() {  }     
-    
+    function payment_fields() {
+        $accountname = get_user_meta( $GLOBALS["current_user"]->ID, 'billing_first_name', true )." ".get_user_meta( $GLOBALS["current_user"]->ID, 'billing_last_name', true );
+        $post_data = Array();
+
+        $customerId = get_current_user_id();
+        $customerFirstName = '';
+        $customerLastName = '';
+        $customerEmail = '';
+        if (!empty($customerId)) {
+            $customerFirstName = get_user_meta( $customerId, 'billing_first_name', true );
+            $customerLastName = get_user_meta( $customerId, 'billing_last_name', true );
+            $customerEmail = get_user_meta( $customerId, 'billing_email', true );
+        }
+
+        if (!empty($_POST["post_data"])) {
+            parse_str($_POST["post_data"], $post_data);
+        }
+        ?>
+        <?php if ($this->mode=='test') : ?><p><?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway'); ?></p><?php endif; ?>
+        <?php if ($this->description) : ?><p><?php echo wpautop(wptexturize($this->description)); ?></p><?php endif; ?>
+
+        <fieldset>
+
+            <p class="form-row">
+                <label for="buckaroo-payperemail-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway') ?><span
+                            class="required">*</span></label>
+                <input id="buckaroo-payperemail-genderm" name="buckaroo-payperemail-gender" class="" type="radio"
+                       value="1" checked
+                       style="float:none; display: inline !important;"/> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway') ?>
+                &nbsp;
+                <input id="buckaroo-payperemail-genderf" name="buckaroo-payperemail-gender" class="" type="radio"
+                       value="2"
+                       style="float:none; display: inline !important;"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway') ?>
+            </p>
+
+            <p class="form-row validate-required">
+                <label for="buckaroo-payperemail-firstname"><?php echo _e('First Name:', 'wc-buckaroo-bpe-gateway') ?>
+                    <span class="required">*</span></label>
+                <input id="buckaroo-payperemail-firstname" name="buckaroo-payperemail-firstname" class="input-text"
+                       type="text" autocomplete="off" value="<?php echo $customerFirstName ?? '' ?>">
+            </p>
+
+            <p class="form-row validate-required">
+                <label for="buckaroo-payperemail-lastname"><?php echo _e('Last Name:', 'wc-buckaroo-bpe-gateway') ?>
+                    <span class="required">*</span></label>
+                <input id="buckaroo-payperemail-lastname" name="buckaroo-payperemail-lastname" class="input-text"
+                       type="text" autocomplete="off" value="<?php echo $customerLastName ?? '' ?>">
+            </p>
+
+            <p class="form-row validate-required">
+                <label for="buckaroo-payperemail-email"><?php echo _e('Email:', 'wc-buckaroo-bpe-gateway') ?><span
+                            class="required">*</span></label>
+                <input id="buckaroo-payperemail-email" name="buckaroo-payperemail-email"
+                       type="email" autocomplete="off" value="<?php echo $customerEmail ?? '' ?>">
+            </p>
+
+            <p class="required" style="float:right;">* Verplicht</p>
+        </fieldset>
+        <?php
+    }
+
     /**
      * Check response data
      *
@@ -274,6 +368,12 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo {
             'type' => 'text',
             'description' => __( 'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway' ),
             'default' => '0');
+
+        $this->form_fields['show_PayPerEmail_frontend'] = array(
+            'title' => __( 'Show PayLink on checkout page', 'wc-buckaroo-bpe-gateway' ),
+            'type' => 'checkbox',
+            'default' => 'no'
+        );
 
         $this->form_fields['show_PayLink'] = array(
             'title' => __( 'Show PayLink', 'wc-buckaroo-bpe-gateway' ),
