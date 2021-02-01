@@ -191,7 +191,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo {
     }
 
     function isVisibleOnFrontend(){
-        if (strtolower($this->frontendVisible) === "yes") {
+        if (!empty($this->frontendVisible) && strtolower($this->frontendVisible) === "yes") {
             return true;
         }
 
