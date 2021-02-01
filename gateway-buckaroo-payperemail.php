@@ -30,12 +30,12 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo {
         $this->supports           = array(
             'products'
         );
-        $this->type = 'peyperemail';
+
         $this->paymentmethodppe = '';
         if (!empty($this->settings['paymentmethodppe'])) {
             $this->paymentmethodppe = $this->settings['paymentmethodppe'];
         }
-        $this->frontendVisible = $this->settings['show_PayPerEmail_frontend'];
+        $this->frontendVisible = $this->settings['show_PayPerEmail_frontend'] ;
 
         $this->notify_url = home_url('/');
         
@@ -167,7 +167,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo {
         $customVars['CustomerLastName'] = !empty($get_billing_last_name) ? $get_billing_last_name : '';
         $customVars['Customeremail'] = !empty($get_billing_email) ? $get_billing_email : '';
 
-        if ($this->isVisibleOnFrontend()) {
+        if ($this->isVisibleOnFrontend() && !is_admin()) {
             $customVars['CustomerGender'] =  $_POST['buckaroo-payperemail-gender'];
             $customVars['CustomerFirstName'] = $_POST['buckaroo-payperemail-firstname'];
             $customVars['CustomerLastName'] = $_POST['buckaroo-payperemail-lastname'];
@@ -370,8 +370,9 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo {
             'default' => '0');
 
         $this->form_fields['show_PayPerEmail_frontend'] = array(
-            'title' => __( 'Show PayLink on checkout page', 'wc-buckaroo-bpe-gateway' ),
+            'title' => __( 'Show on Checkout page', 'wc-buckaroo-bpe-gateway' ),
             'type' => 'checkbox',
+            'description' => __( 'Show PayPerEnail on Checkout page', 'wc-buckaroo-bpe-gateway' ),
             'default' => 'no'
         );
 
