@@ -35,7 +35,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo {
         if (!empty($this->settings['paymentmethodppe'])) {
             $this->paymentmethodppe = $this->settings['paymentmethodppe'];
         }
-        $this->frontendVisible = $this->settings['show_PayPerEmail_frontend'] ;
+        $this->frontendVisible = $this->settings['show_PayPerEmail_frontend'] ?? '';
 
         $this->notify_url = home_url('/');
         
