@@ -10,9 +10,9 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo {
     function __construct() { 
         $woocommerce = getWooCommerceObject();
 
-        $this->id = 'buckaroo_mistercash';
+        $this->id = 'buckaroo_bancontactmrcash';
         $this->title = 'Bancontact / MisterCash';
-        $this->icon 		= apply_filters('woocommerce_buckaroo_mistercash_icon', plugins_url('library/buckaroo_images/24x24/mistercash.png', __FILE__));
+        $this->icon 		= apply_filters('woocommerce_buckaroo_bancontactmrcash_icon', plugins_url('library/buckaroo_images/24x24/mistercash.png', __FILE__));
         $this->has_fields 	= false;
         $this->method_title = 'Buckaroo Bancontact / MisterCash';
         $this->description = "Betaal met Bancontact / MisterCash";
