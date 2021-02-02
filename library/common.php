@@ -445,7 +445,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     }
     $_SESSION['buckaroo_response'] = '';
     $logger = new BuckarooLogger(BuckarooLogger::INFO, 'return');
-    $logger->logInfo("\n\n\n\n***************** Return start / fn_buckaroo_process_response***********************");
+    $logger->logInfo("\n\n\n\n***************** Return start / fn_buckaroo_process_response***********************");$logger->logInfo("Server : " . var_export($_SERVER, true));
     if ($response == '') {
         $response = BuckarooResponseFactory::getResponse();
     };
@@ -536,6 +536,27 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 }
                 set_transient( get_current_user_id().'buckarooAdminNotice', $buckaroo_admin_notice );
                 return;
+            }
+
+
+
+            $transactionsArray = parsePPENewTransactionId($response->transactions);
+            if (!empty($transactionsArray)) {
+                update_post_meta( $order_id, '_transaction_id', $transactionsArray[count($transactionsArray) - 1]);
+
+                $creditcardProvider = checkCreditcardProvider($response->payment_method);
+                $logger->logInfo('[PPE creditcards] ' . var_export($creditcardProvider, true));
+
+                if ($creditcardProvider) {
+                    update_post_meta( $order_id, '_payment_method', 'buckaroo_creditcard');
+                    update_post_meta( $order_id, '_payment_method_title', 'Creditcards');
+                    update_post_meta( $order_id, '_payment_method_transaction', $response->payment_method);
+                    update_post_meta( $order_id, '_wc_order_payment_issuer', $response->payment_method);
+                } else {
+                    update_post_meta( $order_id, '_payment_method', 'buckaroo_'. $response->payment_method);
+                    update_post_meta( $order_id, '_payment_method_title', $payment_method->title);
+                    update_post_meta( $order_id, '_payment_method_transaction', $response->payment_method);
+                }
             }
         }
 
@@ -666,6 +687,18 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         return;
     }
 
+}
+
+function parsePPENewTransactionId( $transactions ){
+    return checkPPEtransactionsId($transactions) ? explode(',', $transactions) : '';
+}
+
+function checkPPEtransactionsId( $transactions ){
+    if (!empty($transactions)) {
+        return true;
+    }
+
+    return false;
 }
 
 /**
@@ -1034,6 +1067,22 @@ function pages_with_shortcode($shortcode, $args = array()) {
     return $list;
 }
 
+function getCreditcardsProviders(){
+    $paymentgateways = WC_Payment_Gateways::instance();
+    $creditcard = $paymentgateways->payment_gateways()['buckaroo_creditcard'];
+
+    return $creditcard->getCardsList();
+}
+
+function checkCreditcardProvider( $creditcardProvider ) {
+    $creditcardsProvidersList = getCreditcardsProviders();
+    foreach ($creditcardsProvidersList as $provider) {
+        if ($provider['servicename'] === $creditcardProvider ) {
+            return $provider;
+        }
+    }
+    return false;
+}
 // quick usage guide
 // adding filter with low priority
 //add_filter("init", "_my_init_test", 0, 1000);
