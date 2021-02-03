@@ -523,7 +523,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
                             <?php echo _e('CVC:', 'wc-buckaroo-bpe-gateway') ?>
                             <span class="required">*</span>
                         </label>
-                        <input type="text" maxlength="4" name="buckaroo-creditcard-cardcvc"
+                        <input type="password" maxlength="4" name="buckaroo-creditcard-cardcvc"
                                id="buckaroo-creditcard-cardcvc"
                                placeholder="<?php echo __('CVC:', 'wc-buckaroo-bpe-gateway') ?>" class="cvc input-text"
                                maxlength="250" autocomplete="off" value="">
