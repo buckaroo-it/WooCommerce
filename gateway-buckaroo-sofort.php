@@ -9,9 +9,9 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo {
 
     function __construct() {
         $woocommerce = getWooCommerceObject();
-        $this->id = 'buckaroo_sofortbanking';
+        $this->id = 'buckaroo_sofortueberweisung';
         $this->title = 'Sofortbanking';
-        $this->icon 		= apply_filters('woocommerce_buckaroo_sofortbanking_icon', plugins_url('library/buckaroo_images/24x24/sofort.png', __FILE__));
+        $this->icon 		= apply_filters('woocommerce_buckaroo_sofortueberweisung_icon', plugins_url('library/buckaroo_images/24x24/sofort.png', __FILE__));
         $this->has_fields 	= false;
         $this->method_title = "Buckaroo Sofortbanking";
         $this->description = "Betaal met Sofortbanking";
