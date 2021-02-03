@@ -251,6 +251,30 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         $response_status = fn_buckaroo_resolve_status_code($response->status);
         $logger->logInfo('Response order status: ' . $response_status);
         $logger->logInfo('Status message: ' . $response->statusmessage);
+        if (strtolower($order->payment_method) === 'buckaroo_payperemail') {
+            $transactionsArray = parsePPENewTransactionId($response->transactions);
+            $logger->logInfo('[PPE POST] ' . var_export($_POST, true));
+            $logger->logInfo('[PPE transactionArr] ' . var_export($transactionsArray, true));
+            $logger->logInfo('[PPE payment] ' . var_export($payment_method, true));
+            $logger->logInfo('[PPE response] ' . var_export($response, true));
+            if (!empty($transactionsArray)) {
+                update_post_meta( $order_id, '_transaction_id', $transactionsArray[count($transactionsArray) - 1]);
+
+                $creditcardProvider = checkCreditcardProvider($response->payment_method);
+                $logger->logInfo('[PPE creditcards] ' . var_export($creditcardProvider, true));
+
+                if ($creditcardProvider) {
+                    update_post_meta( $order_id, '_payment_method', 'buckaroo_creditcard');
+                    update_post_meta( $order_id, '_payment_method_title', 'Creditcards');
+                    update_post_meta( $order_id, '_payment_method_transaction', $response->payment_method);
+                    update_post_meta( $order_id, '_wc_order_payment_issuer', $response->payment_method);
+                } else {
+                    update_post_meta( $order_id, '_payment_method', 'buckaroo_'. strtolower($response->payment_method));
+                    update_post_meta( $order_id, '_payment_method_title', 'PayperEmail + ' . $response->payment_method);
+                    update_post_meta( $order_id, '_payment_method_transaction', $response->payment_method);
+                }
+            }
+        }
         if ($response->hasSucceeded()) {
             if (in_array($order->status, array('completed', 'processing'))) {
                 $logger->logInfo(
@@ -482,7 +506,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     }
 
     if ($response->isValid()) {
-        if ($response->isRedirectRequired()) {
+        if ($response->isRedirectRequired()) {$logger->logInfo('[PPE method] ' . $payment_method->id);
             if($payment_method->id == 'buckaroo_payconiq'){
                 $key = $response->transactionId;
                 $invoiceNumber = $response->invoicenumber;
@@ -510,6 +534,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         $logger->logInfo('Response order status: ' . $response_status);
         $logger->logInfo('Status message: ' . $response->statusmessage);
 
+        $logger->logInfo('[PPE method] ' . $order->payment_method);
         if ($payment_method->id == 'buckaroo_payperemail') {
             if ( is_admin() ) {
                 if ($response->hasSucceeded()) {
@@ -536,27 +561,6 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 }
                 set_transient( get_current_user_id().'buckarooAdminNotice', $buckaroo_admin_notice );
                 return;
-            }
-
-
-
-            $transactionsArray = parsePPENewTransactionId($response->transactions);
-            if (!empty($transactionsArray)) {
-                update_post_meta( $order_id, '_transaction_id', $transactionsArray[count($transactionsArray) - 1]);
-
-                $creditcardProvider = checkCreditcardProvider($response->payment_method);
-                $logger->logInfo('[PPE creditcards] ' . var_export($creditcardProvider, true));
-
-                if ($creditcardProvider) {
-                    update_post_meta( $order_id, '_payment_method', 'buckaroo_creditcard');
-                    update_post_meta( $order_id, '_payment_method_title', 'Creditcards');
-                    update_post_meta( $order_id, '_payment_method_transaction', $response->payment_method);
-                    update_post_meta( $order_id, '_wc_order_payment_issuer', $response->payment_method);
-                } else {
-                    update_post_meta( $order_id, '_payment_method', 'buckaroo_'. $response->payment_method);
-                    update_post_meta( $order_id, '_payment_method_title', $payment_method->title);
-                    update_post_meta( $order_id, '_payment_method_transaction', $response->payment_method);
-                }
             }
         }
 
@@ -986,6 +990,7 @@ function pickAddress($order) {
 
 function checkCurrencySupported($payment_method = ''){
     switch ($payment_method) {
+        case 'buckaroo_payperemail':
         case 'buckaroo_creditcard':
             $supported_currencies = array(
                 'ARS','AUD','BRL','CAD','CHF','CNY',
@@ -1007,7 +1012,7 @@ function checkCurrencySupported($payment_method = ''){
                 'EUR','GBP','PLN'
             );
             break;
-        case 'buckaroo_p24':
+        case 'buckaroo_przelewy24':
             $supported_currencies = array(
                 'PLN'
             );

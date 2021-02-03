@@ -9,9 +9,9 @@ class WC_Gateway_Buckaroo_P24 extends WC_Gateway_Buckaroo {
 
     function __construct() {
         $woocommerce = getWooCommerceObject();
-        $this->id = 'buckaroo_p24';
+        $this->id = 'buckaroo_przelewy24';
         $this->title = 'P24';
-        $this->icon         = apply_filters('woocommerce_buckaroo_p24_icon', plugins_url('library/buckaroo_images/24x24/p24.png', __FILE__));
+        $this->icon         = apply_filters('woocommerce_buckaroo_przelewy24_icon', plugins_url('library/buckaroo_images/24x24/p24.png', __FILE__));
         $this->has_fields   = false;
         $this->method_title = "Buckaroo P24";
         $this->description = "Betaal met Przelewy24";

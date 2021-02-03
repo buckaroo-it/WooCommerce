@@ -148,7 +148,7 @@ class BuckarooConfig extends BuckarooConfigCore {
                 'transfer' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'payconiq' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'nexi' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
-                'p24' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'przelewy24' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
 		        'applepay' => array('process_payment' => '', 'process_refund' => ''),
                 'kbc' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'requesttopay' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
