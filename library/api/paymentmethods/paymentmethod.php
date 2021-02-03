@@ -184,7 +184,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         $this->data['currency'] = $this->currency;
         $this->data['amountDebit'] = $this->amountDedit;
         $this->data['amountCredit'] = $this->amountCredit;
-        $this->data['invoice'] = $this->invoiceId . '-R';
+        $this->data['invoice'] = $this->getInvoiceNumber();
         $this->data['order'] = $this->orderId;
         $this->data['description'] = $this->description;
         $this->data['OriginalTransactionKey'] = $this->OriginalTransactionKey;
@@ -444,5 +444,14 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         }
 
         return $this->PayGlobal();
+    }
+
+    function getInvoiceNumber(){
+        $paymentMethodsList = [ 'sepadirectdebit' ];
+        if (in_array(strtolower($this->type), $paymentMethodsList)) {
+            return $this->invoiceId;
+        }
+
+        return $this->invoiceId . '-R';
     }
 }
