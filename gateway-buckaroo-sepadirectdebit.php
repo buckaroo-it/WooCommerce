@@ -101,9 +101,9 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
         $sepadirectdebit->currency = $this->currency;
         $sepadirectdebit->description = $reason;
         $sepadirectdebit->invoiceId = $order_id;
-        if ($this->mode=='test') {
-            $sepadirectdebit->invoiceId = 'WP_'.(string)$order_id;
-        }
+//        if ($this->mode=='test') {
+//            $sepadirectdebit->invoiceId = 'WP_'.(string)$order_id;
+//        }
         $sepadirectdebit->orderId = $order_id;
         $sepadirectdebit->OriginalTransactionKey = $order->get_transaction_id();
         $sepadirectdebit->returnUrl = $this->notify_url;
