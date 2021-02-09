@@ -1041,13 +1041,52 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             class="input-text" type="text" value="" />
     </p>
     <?php
-        } ?>
+        }
+    $country = isset($_POST['s_country']) ? $_POST['s_country'] : $this->country;
+    if ($country == "NL") { ?>
+        <p class="form-row form-row-wide validate-required">
+            <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_nl/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+        </p>
+    <?php } elseif ($country == "BE") { ?>
 
-    <p class="form-row form-row-wide validate-required">
-        <a href="https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden/" target="_blank"><?php echo _e('Accept licence agreement:', 'wc-buckaroo-bpe-gateway')?></a><span
-            class="required">*</span> <input id="buckaroo-afterpay-accept" name="buckaroo-afterpay-accept"
-            type="checkbox" value="ON" />
-    </p>
+        <p class="form-row form-row-wide validate-required">
+
+            <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+            <?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?>
+            <span class="required">*</span>
+            <br>
+            <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_be/" target="_blank">
+                <?php echo _e('Afterpay conditions (Dutch)', 'wc-buckaroo-bpe-gateway')?>
+            </a>
+            <br>
+            <a href="https://documents.myafterpay.com/consumer-terms-conditions/fr_be/" target="_blank">
+                <?php echo _e('Afterpay conditions (French)', 'wc-buckaroo-bpe-gateway')?>
+            </a>
+
+        </p>
+
+    <?php } elseif ($country == "DE") { ?>
+        <p class="form-row form-row-wide validate-required">
+            <a href="https://documents.myafterpay.com/consumer-terms-conditions/de_de/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+        </p>
+    <?php } elseif ($country == "AT") { ?>
+        <p class="form-row form-row-wide validate-required">
+            <a href="https://documents.myafterpay.com/consumer-terms-conditions/de_at/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+        </p>
+    <?php } elseif ($country == "FI") { ?>
+        <p class="form-row form-row-wide validate-required">
+            <a href="https://documents.myafterpay.com/consumer-terms-conditions/fi_fi/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+        </p>
+    <?php } else { ?>
+        <p class="form-row form-row-wide validate-required">
+            <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_nl/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+        </p>
+    <?php } ?>
+<!--    <p class="form-row form-row-wide validate-required">-->
+<!--        <a href="https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden/" target="_blank">--><?php //echo _e('Accept licence agreement:', 'wc-buckaroo-bpe-gateway')?><!--</a><span-->
+<!--            class="required">*</span> <input id="buckaroo-afterpay-accept" name="buckaroo-afterpay-accept"-->
+<!--            type="checkbox" value="ON" />-->
+<!--    </p>-->
     <p class="required" style="float:right;">* Verplicht</p>
 </fieldset>
 <?php
