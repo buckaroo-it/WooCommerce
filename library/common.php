@@ -253,7 +253,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         $logger->logInfo('Status message: ' . $response->statusmessage);
         if (strtolower($order->payment_method) === 'buckaroo_payperemail') {
             $transactionsArray = parsePPENewTransactionId($response->transactions);
-            if (!empty($transactionsArray)) {
+            if (!empty($transactionsArray) && $response->statuscode == 190) {
                 $creditcardProvider = checkCreditcardProvider($response->payment_method);
                 update_post_meta( $order_id, '_transaction_id', $transactionsArray[count($transactionsArray) - 1]);
                 if ($creditcardProvider) {
