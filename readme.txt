@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 5.5.1
-Stable tag: 2.17.0
+Stable tag: 2.18.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,6 +37,7 @@ Payment method support list:
 18. Apple Pay
 19. KBC
 20. PayPerEmail
+21. Billink
 
 == Installation ==
 
@@ -96,7 +97,20 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 
 == Changelog ==
 
-= 2.17.0
+= 2.18.0 =
+- Fixed MyParcel pickup points issue
+- Afterpay old update licence agreement in checkout [BP-656]
+- Fixed notice for PayPerEmail [BP-632]
+- Changed bancontact logo
+- Added: PayPerEmail available in the front end [BP-632]
+- Fixed: Incorrect error message for Afterpay Product quantity doesn't choose [BP-637]
+- Fixed: Status is not pushed to WooCommerce shop [BP-611]
+- Fixed: Payment method checkbox to enable/disable is not saved [BP-606]
+- KBC logo is very large displayed in the checkout (Billink Request To Pay, In3) [BP-615]
+- Added Payment method Billink [BP-480]
+- Wordfence user agent & referrer [BP-572]
+
+= 2.17.0 =
 - Fixed error in inspect console on every page of shop [BP-576]
 - Add new bank to iDEAL payment method (Revolut) [BP-583]
 - Fixed issue with Woocommerce Sequential Order Number Pro plugin compatibility
