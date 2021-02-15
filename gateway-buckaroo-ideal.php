@@ -13,7 +13,6 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
 
     function __construct() {
         $woocommerce = getWooCommerceObject();
-            // return false;   
         $this->id = 'buckaroo_ideal';
         $this->title = 'iDEAL';//$this->settings['title_ideal'];
         $this->icon         = apply_filters('woocommerce_buckaroo_ideal_icon', plugins_url('library/buckaroo_images/24x24/ideal.png', __FILE__));
