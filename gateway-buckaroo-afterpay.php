@@ -764,7 +764,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
         if (isset($_POST['_myparcel_delivery_options'])) {
             $myparselDeliveryOptions = $order->get_meta('_myparcel_delivery_options');
-            if (!empty('$myparselDeliveryOptions')) {
+            if (!empty($myparselDeliveryOptions)) {
                 $myparselDeliveryOptions = unserialize($myparselDeliveryOptions);
             }
             if ($myparselDeliveryOptions->getDeliveryType() == 'pickup') {
