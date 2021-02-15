@@ -34,6 +34,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     public $b2b;
     public $showpayproc;
     public $vattype;
+    public $country;
     public function __construct()
     {
         $woocommerce = getWooCommerceObject();
@@ -55,8 +56,14 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $this->usenotification = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
         $this->notificationdelay = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
 
-        parent::__construct();
+        $country = null;
+        if (! empty($woocommerce->customer)) {
+            $country = get_user_meta($woocommerce->customer->get_id(), 'shipping_country', true);
+        }
+        $this->country = $country;
 
+        parent::__construct();
+        $this->country =
         $this->afterpaypayauthorize = (isset($this->settings['afterpaypayauthorize']) ? $this->settings['afterpaypayauthorize'] : 'Pay');
 
         $this->supports           = [
@@ -575,7 +582,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                 wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
-        if (empty($_POST['buckaroo-afterpaynew-phone']) && empty($_POST['billing_phone'])) {
+        if (empty($_POST['buckaroo-afterpay-phone']) && empty($_POST['billing_phone'])) {
             wc_add_notice( __("Please enter phone number", 'wc-buckaroo-bpe-gateway'), 'error' );
         }
         if ($this->type == 'afterpayacceptgiro') {
@@ -682,7 +689,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $afterpay->BillingLanguage = 'nl';
         $get_billing_phone = getWCOrderDetails($order_id, 'billing_phone');
         $number = $this->cleanup_phone($get_billing_phone);
-        $afterpay->BillingPhoneNumber = !empty($number['phone']) ? $number['phone'] : $_POST["buckaroo-afterpaynew-phone"];
+        $afterpay->BillingPhoneNumber = !empty($number['phone']) ? $number['phone'] : $_POST["buckaroo-afterpay-phone"];
 
         $country = null;
         if (! empty($woocommerce->customer)) {
@@ -1017,13 +1024,13 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             maxlength="250" autocomplete="off" value="" placeholder="DD-MM-YYYY" />
     </p>
     <p class="form-row validate-required">
-        <label for="buckaroo-afterpaynew-phone"><?php echo _e('Phone:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
-        <input id="buckaroo-afterpaynew-phone" name="buckaroo-afterpaynew-phone" class="input-tel" type="tel" autocomplete="off" value="<?php echo $customerPhone ?? '' ?>">
+        <label for="buckaroo-afterpay-phone"><?php echo _e('Phone:', 'wc-buckaroo-bpe-gateway')?><span class="required">*</span></label>
+        <input id="buckaroo-afterpay-phone" name="buckaroo-afterpay-phone" class="input-tel" type="tel" autocomplete="off" value="<?php echo $customerPhone ?? '' ?>">
     </p>
 
     <script>
         if (document.querySelector('input[name=billing_phone]')) {
-            document.getElementById('buckaroo-afterpaynew-phone').parentElement.style.display = 'none';
+            document.getElementById('buckaroo-afterpay-phone').parentElement.style.display = 'none';
         }
     </script>
     <?php if (! empty($post_data["ship_to_different_address"])) {
@@ -1045,13 +1052,13 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     $country = isset($_POST['s_country']) ? $_POST['s_country'] : $this->country;
     if ($country == "NL") { ?>
         <p class="form-row form-row-wide validate-required">
-            <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_nl/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+            <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_nl/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpay-accept" name="buckaroo-afterpay-accept" type="checkbox" value="ON" />
         </p>
     <?php } elseif ($country == "BE") { ?>
 
         <p class="form-row form-row-wide validate-required">
 
-            <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+            <input id="buckaroo-afterpay-accept" name="buckaroo-afterpay-accept" type="checkbox" value="ON" />
             <?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?>
             <span class="required">*</span>
             <br>
@@ -1067,19 +1074,19 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
     <?php } elseif ($country == "DE") { ?>
         <p class="form-row form-row-wide validate-required">
-            <a href="https://documents.myafterpay.com/consumer-terms-conditions/de_de/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+            <a href="https://documents.myafterpay.com/consumer-terms-conditions/de_de/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpay-accept" name="buckaroo-afterpay-accept" type="checkbox" value="ON" />
         </p>
     <?php } elseif ($country == "AT") { ?>
         <p class="form-row form-row-wide validate-required">
-            <a href="https://documents.myafterpay.com/consumer-terms-conditions/de_at/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+            <a href="https://documents.myafterpay.com/consumer-terms-conditions/de_at/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpay-accept" name="buckaroo-afterpay-accept" type="checkbox" value="ON" />
         </p>
     <?php } elseif ($country == "FI") { ?>
         <p class="form-row form-row-wide validate-required">
-            <a href="https://documents.myafterpay.com/consumer-terms-conditions/fi_fi/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+            <a href="https://documents.myafterpay.com/consumer-terms-conditions/fi_fi/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpay-accept" name="buckaroo-afterpay-accept" type="checkbox" value="ON" />
         </p>
     <?php } else { ?>
         <p class="form-row form-row-wide validate-required">
-            <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_nl/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpaynew-accept" name="buckaroo-afterpaynew-accept" type="checkbox" value="ON" />
+            <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_nl/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway')?></a><span class="required">*</span> <input id="buckaroo-afterpay-accept" name="buckaroo-afterpay-accept" type="checkbox" value="ON" />
         </p>
     <?php } ?>
 <!--    <p class="form-row form-row-wide validate-required">-->
