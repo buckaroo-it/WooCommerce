@@ -342,10 +342,10 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 //            }
             if (!empty($data[$item_id]['total'])) {
                 $totalFeePrice = round((float)$data[$item_id]['total'] + (float)$data[$item_id]['tax'],2);
-                if ( abs((abs($totalFeePrice) - abs($feeCost))/abs($feeCost)) > 0.00001 ) {
+                if (abs($totalFeePrice) - abs($feeCost) < 0 &&  abs($totalFeePrice - $feeCost) > 0.01 ) { // abs(($totalFeePrice - $feeCost)/$feeCost) > 0.00001
                     throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()) );
-                } elseif( abs((abs($feeCost) - abs($totalFeePrice))/abs($totalFeePrice)) > 0.00001 ) {
-                    $balance = abs($feeCost) - abs($totalFeePrice);
+                } elseif( abs($feeCost) - abs($totalFeePrice) < 0 && abs($feeCost - $totalFeePrice) > 0.01 ) { //abs(($feeCost - $totalFeePrice)/$totalFeePrice) > 0.00001 )
+                    $balance = $feeCost - $totalFeePrice;
                     throw new Exception('Please add ' . $balance . ' ' . esc_attr(get_woocommerce_currency()) . ' to full refund payment fee cost' );
                 }
             }

@@ -385,9 +385,9 @@ class BuckarooAfterPay extends BuckarooPaymentMethod {
             }
             if (!empty($data[$item_id]['total'])) {
                 $totalFeePrice = round((float)$data[$item_id]['total'] + (float)$data[$item_id]['tax'],2);
-                if ( abs(($totalFeePrice - $feeCost)/$feeCost) > 0.00001 ) { //$totalFeePrice > $feeCost
+                if (abs($totalFeePrice) - abs($feeCost) < 0 &&  abs($totalFeePrice - $feeCost) > 0.01 ) { // abs(($totalFeePrice - $feeCost)/$feeCost) > 0.00001
                     throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()) );
-                } elseif( abs(($feeCost - $totalFeePrice)/$totalFeePrice) > 0.00001 ) { //$totalFeePrice < $feeCost
+                } elseif( abs($feeCost) - abs($totalFeePrice) < 0 && abs($feeCost - $totalFeePrice) > 0.01 ) { //abs(($feeCost - $totalFeePrice)/$totalFeePrice) > 0.00001 )
                     $balance = $feeCost - $totalFeePrice;
                     throw new Exception('Please add ' . $balance . ' ' . esc_attr(get_woocommerce_currency()) . ' to full refund payment fee cost' );
                 }
