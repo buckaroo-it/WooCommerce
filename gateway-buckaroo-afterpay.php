@@ -774,7 +774,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             if (!empty($myparselDeliveryOptions)) {
                 $myparselDeliveryOptions = unserialize($myparselDeliveryOptions);
             }
-            if ($myparselDeliveryOptions->getDeliveryType() == 'pickup') {
+            if ($myparselDeliveryOptions->isPickup()) {
                 $afterpay->AddressesDiffer = 'TRUE';
                 $pickupOptions = $myparselDeliveryOptions->getPickupLocation();
                 $afterpay->ShippingStreet = $pickupOptions->getStreet();
