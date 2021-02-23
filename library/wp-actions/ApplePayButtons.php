@@ -59,12 +59,22 @@ Class ApplePayButtons
     }
 
     private function buttonIsEnabled($page)
-    {        
-        return get_option('woocommerce_buckaroo_applepay_settings')["button_{$page}"] === 'TRUE' ? true : false;
+    {
+        if ($settings = get_option('woocommerce_buckaroo_applepay_settings')) {
+            if (isset($settings["button_{$page}"])) {
+                return $settings["button_{$page}"] === 'TRUE' ? true : false;
+            }
+        }
+        return false;
     }
 
     private function paymentMethodIsEnabled()
     {
-        return get_option('woocommerce_buckaroo_applepay_settings')['enabled'] === 'yes'  ? true : false;
+        if ($settings = get_option('woocommerce_buckaroo_applepay_settings')) {
+            if (isset($settings['enabled'])) {
+                return $settings['enabled'] === 'yes' ? true : false;
+            }
+        }
+        return false;
     }
 }
