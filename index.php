@@ -236,6 +236,10 @@ function generateGateways()
         'PayPerEmail' => array(
             'filename' => 'gateway-buckaroo-payperemail.php',
             'classname' => 'WC_Gateway_Buckaroo_PayPerEmail',
+        ),
+        'Klarna' => array(
+            'filename' => 'gateway-buckaroo-klarna.php',
+            'classname' => 'WC_Gateway_Buckaroo_Klarna',
         )
     );
     $buckaroo_enabled_payment_methods = array();

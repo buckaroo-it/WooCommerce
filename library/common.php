@@ -530,7 +530,6 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         $logger->logInfo('Response order status: ' . $response_status);
         $logger->logInfo('Status message: ' . $response->statusmessage);
 
-        $logger->logInfo('[PPE method] ' . $order->payment_method);
         if ($payment_method->id == 'buckaroo_payperemail') {
             if ( is_admin() ) {
                 if ($response->hasSucceeded()) {
