@@ -26,6 +26,16 @@ if (!empty($_REQUEST['wc-api']) && ($_REQUEST['wc-api'] == 'WC_Push_Buckaroo')) 
         $_SERVER['HTTP_REFERER']='Buckaroo plugin referer';
     }
 }
+add_action( 'upgrader_process_complete', 'copy_language_files');
+
+function copy_language_files(){
+    foreach (glob(__DIR__ . '/languages/*.{po,mo,txt}', GLOB_BRACE) as $file) {
+        if(!is_dir($file) && is_readable($file)) {
+            $dest = WP_CONTENT_DIR . '/languages/plugins/' . basename($file);
+            rename($file, $dest);
+        }
+    }
+}
 
 add_action('woocommerce_api_wc_push_buckaroo', 'buckaroo_push_class_init');
 
