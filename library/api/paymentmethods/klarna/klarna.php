@@ -75,7 +75,6 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
     public function getShippingCategory() {
         return $this->shippingCategory;
     }
-
     /**
      * @access public
      * @param array $products
