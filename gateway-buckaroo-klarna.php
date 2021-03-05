@@ -149,6 +149,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo {
 
         $billingCompany = getWCOrderDetails($order_id,'billing_company');
         $klarna->setBillingCategory($billingCompany);
+        $klarna->setShippingCategory($billingCompany);
 
 
         $address_components = fn_buckaroo_get_address_components($get_billing_address_1." ".$get_billing_address_2);

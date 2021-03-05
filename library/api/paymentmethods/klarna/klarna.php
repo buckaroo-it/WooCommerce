@@ -188,17 +188,18 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
             $this->data['customVars'][$this->type]["ImageUrl"][$i - 1]["group"] = 'Article';
             $i++;
         }
-
-        $this->data['customVars'][$this->type]["Description"][$i]["value"] = 'Shipping Cost';
-        $this->data['customVars'][$this->type]["Description"][$i]["group"] = 'Article';
-        $this->data['customVars'][$this->type]["Identifier"][$i]["value"] = 'shipping';
-        $this->data['customVars'][$this->type]["Identifier"][$i]["group"] = 'Article';
-        $this->data['customVars'][$this->type]["Quantity"][$i]["value"] = '1';
-        $this->data['customVars'][$this->type]["Quantity"][$i]["group"] = 'Article';
-        $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["value"] = (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0');
-        $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["group"] = 'Article';
-        $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] = (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0');
-        $this->data['customVars'][$this->type]["VatPercentage"][$i]["group"] = 'Article';
+        if (!empty($this->ShippingCosts)) {
+            $this->data['customVars'][$this->type]["Description"][$i]["value"] = 'Shipping Cost';
+            $this->data['customVars'][$this->type]["Description"][$i]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["Identifier"][$i]["value"] = 'shipping';
+            $this->data['customVars'][$this->type]["Identifier"][$i]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["Quantity"][$i]["value"] = '1';
+            $this->data['customVars'][$this->type]["Quantity"][$i]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["value"] = (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0');
+            $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["group"] = 'Article';
+            $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] = (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0');
+            $this->data['customVars'][$this->type]["VatPercentage"][$i]["group"] = 'Article';
+        }
 
         if ($this->usenotification && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action'] = 'ExtraInfo';
