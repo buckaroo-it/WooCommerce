@@ -29,7 +29,7 @@ if (!empty($_REQUEST['wc-api']) && ($_REQUEST['wc-api'] == 'WC_Push_Buckaroo')) 
 add_action( 'upgrader_process_complete', 'copy_language_files');
 
 function copy_language_files(){
-    foreach (glob(__DIR__ . '/languages/*.{po,mo,txt}', GLOB_BRACE) as $file) {
+    foreach (glob(__DIR__ . '/languages/*.{po,mo}', GLOB_BRACE) as $file) {
         if(!is_dir($file) && is_readable($file)) {
             $dest = WP_CONTENT_DIR . '/languages/plugins/' . basename($file);
             rename($file, $dest);
