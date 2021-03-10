@@ -773,15 +773,16 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             $myparselDeliveryOptions = $order->get_meta('_myparcel_delivery_options');
             if (!empty($myparselDeliveryOptions)) {
                 $myparselDeliveryOptions = unserialize($myparselDeliveryOptions);
-            }
-            if ($myparselDeliveryOptions->isPickup()) {
-                $afterpay->AddressesDiffer = 'TRUE';
-                $pickupOptions = $myparselDeliveryOptions->getPickupLocation();
-                $afterpay->ShippingStreet = $pickupOptions->getStreet();
-                $afterpay->ShippingHouseNumber = $pickupOptions->getNumber();
-                $afterpay->ShippingPostalCode = $pickupOptions->getPostalCode();;
-                $afterpay->ShippingCity = $pickupOptions->getCity();
-                $afterpay->ShippingCountryCode = $pickupOptions->getCountry();
+
+                if ($myparselDeliveryOptions->isPickup()) {
+                    $afterpay->AddressesDiffer = 'TRUE';
+                    $pickupOptions = $myparselDeliveryOptions->getPickupLocation();
+                    $afterpay->ShippingStreet = $pickupOptions->getStreet();
+                    $afterpay->ShippingHouseNumber = $pickupOptions->getNumber();
+                    $afterpay->ShippingPostalCode = $pickupOptions->getPostalCode();;
+                    $afterpay->ShippingCity = $pickupOptions->getCity();
+                    $afterpay->ShippingCountryCode = $pickupOptions->getCountry();
+                }
             }
         }
 

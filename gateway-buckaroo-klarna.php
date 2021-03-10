@@ -265,15 +265,16 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo {
             $myparselDeliveryOptions = $order->get_meta('_myparcel_delivery_options');
             if (!empty($myparselDeliveryOptions)) {
                 $myparselDeliveryOptions = unserialize($myparselDeliveryOptions);
-            }
-            if ($myparselDeliveryOptions->isPickup()) {
-                $klarna->AddressesDiffer = 'TRUE';
-                $pickupOptions = $myparselDeliveryOptions->getPickupLocation();
-                $klarna->ShippingStreet = $pickupOptions->getStreet();
-                $klarna->ShippingHouseNumber = $pickupOptions->getNumber();
-                $klarna->ShippingPostalCode = $pickupOptions->getPostalCode();;
-                $klarna->ShippingCity = $pickupOptions->getCity();
-                $klarna->ShippingCountryCode = $pickupOptions->getCountry();
+
+                if ($myparselDeliveryOptions->isPickup()) {
+                    $klarna->AddressesDiffer = 'TRUE';
+                    $pickupOptions = $myparselDeliveryOptions->getPickupLocation();
+                    $klarna->ShippingStreet = $pickupOptions->getStreet();
+                    $klarna->ShippingHouseNumber = $pickupOptions->getNumber();
+                    $klarna->ShippingPostalCode = $pickupOptions->getPostalCode();;
+                    $klarna->ShippingCity = $pickupOptions->getCity();
+                    $klarna->ShippingCountryCode = $pickupOptions->getCountry();
+                }
             }
         }
 
