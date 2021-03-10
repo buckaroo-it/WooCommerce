@@ -138,12 +138,14 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
      * @return callable BuckarooResponseFactory::getResponse($soap->transactionRequest())
      */
     public function PayGlobal() {
+        add_action('woocommerce_before_checkout_process', [$this, 'order_number_shortcode']);
+        //add_shortcode('invoicenumber', array( 'this', 'order_number_shortcode'));
         $this->data['currency'] = $this->currency;
         $this->data['amountDebit'] = $this->amountDedit;
         $this->data['amountCredit'] = $this->amountCredit;
         $this->data['invoice'] = $this->invoiceId;
         $this->data['order'] = $this->orderId;
-        $this->data['description'] = $this->description;
+        $this->data['description'] = preg_replace('/\[invoicenumber\]/', $this->invoiceId , $this->description);
         $this->data['returnUrl'] = $this->returnUrl;
         $this->data['mode'] = $this->mode;
         $this->data['channel'] = $this->channel;
@@ -186,7 +188,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         $this->data['amountCredit'] = $this->amountCredit;
         $this->data['invoice'] = $this->getInvoiceNumber();
         $this->data['order'] = $this->orderId;
-        $this->data['description'] = $this->description;
+        $this->data['description'] = preg_replace('/\[invoicenumber\]/', $this->invoiceId , $this->description);;
         $this->data['OriginalTransactionKey'] = $this->OriginalTransactionKey;
         $this->data['returnUrl'] = $this->returnUrl;
         $this->data['mode'] = $this->mode;
@@ -453,5 +455,9 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         }
 
         return $this->invoiceId . '-R';
+    }
+
+    public function order_number_shortcode( ) {
+        return $this->data['description'] . ' ' . $this->invoiceId;
     }
 }
