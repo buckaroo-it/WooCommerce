@@ -145,7 +145,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         $this->data['amountCredit'] = $this->amountCredit;
         $this->data['invoice'] = $this->invoiceId;
         $this->data['order'] = $this->orderId;
-        $this->data['description'] = preg_replace('/\[invoicenumber\]/', $this->invoiceId , $this->description);
+        $this->data['description'] = preg_replace('/\{invoicenumber\}/', $this->invoiceId , $this->description);
         $this->data['returnUrl'] = $this->returnUrl;
         $this->data['mode'] = $this->mode;
         $this->data['channel'] = $this->channel;
