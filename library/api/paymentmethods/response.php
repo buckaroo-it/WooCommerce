@@ -402,9 +402,6 @@ abstract class BuckarooResponse extends BuckarooAbstract {
         $correctSignature = false;
         //   $canUpdate = false;
         $signature = $this->_calculateSignature();
-//        $logger = new BuckarooLogger(BuckarooLogger::INFO, 'response');
-//        $logger->logInfo('[$signature]' . var_export($signature, true));
-//        $logger->logInfo('[POST$signature]' . var_export($_POST['brq_signature'], true));
         if ($signature === $_POST['brq_signature']) {
             $correctSignature = true;
         }
@@ -473,30 +470,27 @@ abstract class BuckarooResponse extends BuckarooAbstract {
             $url_decode = false;
         }
 
-//        if (isset($origArray['brq_transaction_method']) && $origArray['brq_transaction_method'] == 'Klarna') {
-//            $url_decode = false;
-//        }
-
         unset($origArray['brq_signature']);
         foreach($origArray as $key => $val) {
             $origArray[$key] = stripslashes($val);
         }
         //sort the array
         $sortableArray = $this->buckarooSort($origArray);
-
         //turn into string and add the secret key to the end
         $signatureString = '';
         foreach ($sortableArray as $key => $value) {
-            if ($url_decode && strtolower($key) !== 'brq_customer_name' && strtolower($origArray['brq_transaction_method']) !== 'klarna') {
+            if (strtolower($key) == 'brq_customer_name' && strtolower($origArray['brq_transaction_method']) == 'klarna') {
+                $signatureString .= $key . '=' . $value;
+                continue;
+            }
+            if ($url_decode) {
                 $value = urldecode($value);
             }
             $signatureString .= $key . '=' . $value;
         }
         $transaction_method = isset($origArray['brq_transaction_method']) ? $origArray['brq_transaction_method'] : NULL;
         $signatureString .= BuckarooConfig::get('BUCKAROO_SECRET_KEY', $transaction_method);
-//        $logger = new BuckarooLogger(BuckarooLogger::INFO, 'response');
-//        $logger->logInfo('[signSTR]' . var_export($signatureString, true));
-//        $signatureString .= BuckarooConfig::get('BUCKAROO_SECRET_KEY', $origArray['brq_transaction_method']);
+
         //return the SHA1 encoded string for comparison
         $signature = SHA1($signatureString);
 
