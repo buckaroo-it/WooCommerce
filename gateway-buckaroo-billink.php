@@ -256,6 +256,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                 $tmp["ArticleId"] = 'remaining_price';
                 $tmp["ArticleQuantity"] = 1;
                 $tmp["ArticleUnitpriceExcl"] = number_format($billink->amountDedit - $itemsTotalAmount, 2);
+                $tmp["ArticleUnitpriceIncl"] = number_format($billink->amountDedit - $itemsTotalAmount, 2);
                 $tmp["ArticleVatcategory"] = 0;
                 $products[] = $tmp;
                 $itemsTotalAmount += 0.01;
@@ -264,6 +265,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                 $tmp["ArticleId"] = 'remaining_price';
                 $tmp["ArticleQuantity"] = 1;
                 $tmp["ArticleUnitpriceExcl"] = number_format($billink->amountDedit - $itemsTotalAmount, 2);
+                $tmp["ArticleUnitpriceIncl"] = number_format($billink->amountDedit - $itemsTotalAmount, 2);
                 $tmp["ArticleVatcategory"] = 0;
                 $products[] = $tmp;
                 $itemsTotalAmount -= 0.01;
