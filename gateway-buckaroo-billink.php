@@ -18,7 +18,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $woocommerce = getWooCommerceObject();
 
         $this->id = 'buckaroo_billink';
-        $this->title = 'Billink';
+        $this->title = 'Billink - achteraf betalen';
         $this->icon = apply_filters('woocommerce_buckaroo_billink_icon', plugins_url('library/buckaroo_images/24x24/billink.png', __FILE__));
         $this->has_fields = true;
         $this->method_title = 'Buckaroo Billink';
