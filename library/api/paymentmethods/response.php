@@ -479,7 +479,7 @@ abstract class BuckarooResponse extends BuckarooAbstract {
         //turn into string and add the secret key to the end
         $signatureString = '';
         foreach ($sortableArray as $key => $value) {
-            if (strtolower($key) == 'brq_customer_name' && strtolower($origArray['brq_transaction_method']) == 'klarna') {
+            if (strtolower($key) == 'brq_customer_name' && !empty($origArray['brq_transaction_method']) && strtolower($origArray['brq_transaction_method']) == 'klarna') {
                 $signatureString .= $key . '=' . $value;
                 continue;
             }

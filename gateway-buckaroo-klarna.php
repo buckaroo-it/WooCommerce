@@ -114,7 +114,9 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo {
      */
     public function validate_fields()
     {
-
+        if (($_POST['billing_country'] == 'NL' || $_POST['shipping_country'] == 'NL') && strtolower($this->klarnaPaymentFlowId) !== 'pay') {
+            return wc_add_notice( __('Payment method is not supported for country ' . '(' . $this->country .')', 'wc-buckaroo-bpe-gateway'), 'error' );
+        }
     }
 
     /**
@@ -434,8 +436,19 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo {
         if (!empty($_POST["post_data"])) {
             parse_str($_POST["post_data"], $post_data);
         }
+
+        $country = $this->country ?? '';
+
+        if (strtoupper($country) == 'NL' && strtolower($this->klarnaPaymentFlowId) !== 'pay') :
         ?>
-        <?php if ($this->mode == 'test') : ?><p><?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway'); ?></p><?php endif; ?>
+            <div class="woocommerce-error">
+                <p><?php
+                    echo __('Payment method is not supported for country ', 'wc-buckaroo-bpe-gateway'). '(' . $this->country .')'; ?>
+                </p>
+            </div>
+        <?php
+            endif;
+            if ($this->mode == 'test') : ?><p><?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway'); ?></p><?php endif; ?>
         <?php if ($this->description) : ?><p><?php echo wpautop(wptexturize($this->description)); ?></p><?php endif; ?>
 
         <fieldset>
