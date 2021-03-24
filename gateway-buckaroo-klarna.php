@@ -114,8 +114,20 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo {
      */
     public function validate_fields()
     {
-        if (($_POST['billing_country'] == 'NL' || $_POST['shipping_country'] == 'NL') && strtolower($this->klarnaPaymentFlowId) !== 'pay') {
-            return wc_add_notice( __('Payment method is not supported for country ' . '(' . $this->country .')', 'wc-buckaroo-bpe-gateway'), 'error' );
+        if (!empty($_POST['ship_to_different_address'])) {
+            $countryCode = $_POST['shipping_country'] == 'NL' ? $_POST['shipping_country'] : '';
+            $countryCode = $_POST['billing_country'] == 'NL' ? $_POST['billing_country'] : $countryCode;
+            if (!empty($countryCode)
+                && strtolower($this->klarnaPaymentFlowId) !== 'pay') {
+
+                return wc_add_notice( __('Payment method is not supported for country ' . '(' . $countryCode .')', 'wc-buckaroo-bpe-gateway'), 'error' );
+            }
+        } else {
+            if (($_POST['billing_country'] == 'NL')
+                && strtolower($this->klarnaPaymentFlowId) !== 'pay') {
+
+                return wc_add_notice( __('Payment method is not supported for country ' . '(' . $_POST['billing_country'] .')', 'wc-buckaroo-bpe-gateway'), 'error' );
+            }
         }
     }
 
