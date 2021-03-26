@@ -48,7 +48,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             'refunds'
         );
         $this->type = 'billink';
-        $this->b2b = ($this->settings['enable_bb'] == 'B2B');
+        $this->b2b = (!empty($this->settings['enable_bb']) && $this->settings['enable_bb'] == 'B2B');
 
         $this->vattype = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
         $this->notify_url = home_url('/');
