@@ -35,8 +35,8 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo {
             'products',
             'refunds'
         );
-        $this->datedue = $this->settings['datedue'];
-        $this->sendemail = $this->settings['sendmail'];
+        $this->datedue = $this->settings['datedue'] ?? null;
+        $this->sendemail = $this->settings['sendmail'] ?? null;
         $this->paymentmethodspg = '';
         if (!empty($this->settings['paymentmethodspg'])) {
             $this->paymentmethodspg = $this->settings['paymentmethodspg'];

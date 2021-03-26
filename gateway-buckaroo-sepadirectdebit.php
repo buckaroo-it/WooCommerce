@@ -36,8 +36,8 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
             'products',
             'refunds'
         );
-        $this->usecreditmanagment = $this->settings['usecreditmanagment'];
-        $this->invoicedelay = $this->settings['invoicedelay'];
+        $this->usecreditmanagment = $this->settings['usecreditmanagment'] ?? null;
+        $this->invoicedelay = $this->settings['invoicedelay'] ?? null;
 
         if (!isset($this->settings['usenotification'])) {
             $this->usenotification = 'FALSE';
@@ -46,11 +46,11 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo {
         } else {
             $this->usenotification = $this->settings['usenotification'];
             $this->notificationdelay = $this->settings['notificationdelay'];
-            $this->notificationtype = $this->settings['notificationtype'];
+            $this->notificationtype = $this->settings['notificationtype'] ?? null;
         }
 
-        $this->datedue = $this->settings['datedue'];
-        $this->maxreminderlevel = $this->settings['maxreminderlevel'];
+        $this->datedue = $this->settings['datedue'] ?? null;
+        $this->maxreminderlevel = $this->settings['maxreminderlevel'] ?? null;
         $this->paymentmethodssdd = '';
         if (!empty($this->settings['paymentmethodssdd'])) {
             $this->paymentmethodssdd = $this->settings['paymentmethodssdd'];
