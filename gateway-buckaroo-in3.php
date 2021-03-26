@@ -283,7 +283,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo {
                 $tmp["ArticleQuantity"] = 1;
                 $tmp["ArticleUnitprice"] = number_format($in3->amountDedit - $itemsTotalAmount, 2);
 
-                $products['product'] = $tmp;
+                $products['product'][] = $tmp;
                 $itemsTotalAmount += 0.01;
             } elseif (number_format($itemsTotalAmount - $in3->amountDedit, 2) >= 0.01) {
                 $tmp["ArticleDescription"] = 'Remaining Price';
