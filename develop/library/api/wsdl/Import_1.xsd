@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="https://checkout.buckaroo.nl/PaymentEngine/2011/10/TransactionRequest/Request/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="https://checkout.buckaroo.nl/PaymentEngine/2011/10/TransactionRequest/Request/">
+  <xs:element name="TransactionRequest" type="tns:Body"/>
+  <xs:complexType name="Body">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Currency" type="xs:string"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="AmountDebit" nillable="true" type="xs:decimal"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="AmountCredit" nillable="true" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Invoice" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Order" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="ClientIP" type="tns:IPAddress"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="ReturnURL" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="ReturnURLCancel" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="ReturnURLError" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="ReturnURLReject" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="OriginalTransactionKey" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="StartRecurrent" type="xs:boolean"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="ContinueOnIncomplete" type="tns:ContinueOnIncomplete"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="ServicesSelectableByClient" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Services" type="tns:Services"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="CustomParameters" type="tns:CustomParameters"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AdditionalParameters" type="tns:AdditionalParameters"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="IPAddress">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Type" type="tns:IPProtocolVersion" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:simpleType name="IPProtocolVersion">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="IPv4"/>
+      <xs:enumeration value="IPv6"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ContinueOnIncomplete">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="No"/>
+      <xs:enumeration value="RedirectToHTML"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="Services">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Global" type="tns:ArrayOfRequestParameter"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Service" type="tns:Service"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfRequestParameter">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="RequestParameter" nillable="true" type="tns:RequestParameter"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RequestParameter">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Name" type="xs:string"/>
+        <xs:attribute name="Group" type="xs:string"/>
+        <xs:attribute name="GroupID" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="Service">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="RequestParameter" type="tns:RequestParameter"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string"/>
+    <xs:attribute name="Action" type="xs:string"/>
+    <xs:attribute name="Version" type="xs:unsignedInt" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="CustomParameters">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="CustomParameter" type="tns:CustomParameter"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CustomParameter">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Name" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="AdditionalParameters">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="AdditionalParameter" type="tns:CustomParameter"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

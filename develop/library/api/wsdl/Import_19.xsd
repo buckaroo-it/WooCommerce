@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="https://checkout.buckaroo.nl/PaymentEngine/2012/05/TransactionStatus/Response/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="https://checkout.buckaroo.nl/PaymentEngine/2012/05/TransactionStatus/Response/">
+  <xs:element name="TransactionStatus" type="tns:Body"/>
+  <xs:complexType name="Body">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Transaction" type="tns:Transaction"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="InvalidTransaction" type="tns:InvalidTransaction"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Transaction">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="ServiceCode" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="IsTest" type="xs:boolean"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Order" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Currency" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AmountDebit" nillable="true" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AmountCredit" nillable="true" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="TransactionType" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Services" type="tns:ArrayOfService"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="CustomParameters" type="tns:ArrayOfCustomParameter"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AdditionalParameters" type="tns:AdditionalParameters"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="MutationType" type="tns:MutationType"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="RelatedTransactions" type="tns:ArrayOfRelatedTransaction"/>
+    </xs:sequence>
+    <xs:attribute name="Key" type="xs:string"/>
+    <xs:attribute name="Invoice" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="Status">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Code" type="tns:StatusCode"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="SubCode" type="tns:StatusSubCode"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="DateTime" type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="StatusCode">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Code" type="xs:int" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="StatusSubCode">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Code" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfService">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Service" nillable="true" type="tns:Service"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Service">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ResponseParameter" type="tns:ResponseParameter"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string"/>
+    <xs:attribute name="Action" type="xs:string"/>
+    <xs:attribute name="Version" type="xs:unsignedInt"/>
+  </xs:complexType>
+  <xs:complexType name="ResponseParameter">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Name" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfCustomParameter">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="CustomParameter" nillable="true" type="tns:CustomParameter"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CustomParameter">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Name" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="AdditionalParameters">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="AdditionalParameter" type="tns:CustomParameter"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="MutationType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NotSet"/>
+      <xs:enumeration value="Collecting"/>
+      <xs:enumeration value="Processing"/>
+      <xs:enumeration value="Informational"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="ArrayOfRelatedTransaction">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="RelatedTransaction" nillable="true" type="tns:RelatedTransaction"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RelatedTransaction">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="RelationType" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="InvalidTransaction">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="CustomParameter" type="tns:CustomParameter"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AdditionParameter" type="tns:CustomParameter"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="Key" type="xs:string"/>
+    <xs:attribute name="Invoice" type="xs:string"/>
+  </xs:complexType>
+</xs:schema>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="https://checkout.buckaroo.nl/PaymentEngine/2012/06/InvoiceInfo/Response/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="https://checkout.buckaroo.nl/PaymentEngine/2012/06/InvoiceInfo/Response/">
+  <xs:element name="InvoiceInfoResponse" type="tns:Body"/>
+  <xs:complexType name="Body">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Invoice" type="tns:Invoice"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="InvalidInvoice" type="tns:InvalidInvoice"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Invoice">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Status" type="tns:CreditManagementStatus"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Paid" nillable="true" type="xs:boolean"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Currency" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AmountDebit" nillable="true" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AmountCredit" nillable="true" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AmountVat" nillable="true" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AmountCreditVat" nillable="true" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AmountPaid" nillable="true" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="SurchargeAmount" nillable="true" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="MaxReminderLevel" nillable="true" type="xs:int"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="InvoiceDate" nillable="true" type="xs:date"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="DueDate" nillable="true" type="xs:date"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="CreatedDatetime" nillable="true" type="xs:dateTime"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="StatusDatetime" nillable="true" type="xs:dateTime"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="EstimatedNextStepDate" nillable="true" type="xs:date"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="CreditNotes" type="tns:ArrayOfCreditNote"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Transactions" type="tns:ArrayOfTransaction"/>
+    </xs:sequence>
+    <xs:attribute name="Key" type="xs:string"/>
+    <xs:attribute name="Number" type="xs:string"/>
+    <xs:attribute name="CustomerID" type="xs:string"/>
+    <xs:attribute name="CreditManagement" type="xs:boolean" use="required"/>
+    <xs:attribute name="Test" type="xs:boolean" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="CreditManagementStatus">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="RemindersSent" type="xs:int"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AgencyStatus" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AgencyUpdates" type="tns:ArrayOfAgencyUpdate"/>
+    </xs:sequence>
+    <xs:attribute name="CMStatus" type="xs:int" use="required"/>
+    <xs:attribute name="Running" type="xs:boolean" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfAgencyUpdate">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="AgencyUpdate" nillable="true" type="tns:AgencyUpdate"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="AgencyUpdate">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Status" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="Date" type="xs:date" use="required"/>
+    <xs:attribute name="Type" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfCreditNote">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="CreditNote" nillable="true" type="tns:CreditNote"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CreditNote">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="Amount" type="xs:decimal"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="AmountVat" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="Number" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfTransaction">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Transaction" nillable="true" type="tns:Transaction"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Transaction">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Currency" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AmountDebit" nillable="true" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AmountCredit" nillable="true" type="xs:decimal"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="AmountRefundable" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="CreatedDatetime" type="xs:dateTime"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Status" type="tns:TransactionStatus"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Refunds" type="tns:ArrayOfRefund"/>
+    </xs:sequence>
+    <xs:attribute name="ID" type="xs:string"/>
+    <xs:attribute name="Type" type="xs:string"/>
+    <xs:attribute name="TypeDescription" type="xs:string"/>
+    <xs:attribute name="Test" type="xs:boolean" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="TransactionStatus">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Code" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Message" type="xs:string"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="Datetime" type="xs:dateTime"/>
+    </xs:sequence>
+    <xs:attribute name="Success" type="xs:boolean" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfRefund">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Refund" nillable="true" type="tns:Refund"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Refund">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="Amount" type="xs:decimal"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="RefundDate" type="xs:date"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Status" type="tns:TransactionStatus"/>
+    </xs:sequence>
+    <xs:attribute name="ID" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="InvalidInvoice">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="Key" type="xs:string"/>
+    <xs:attribute name="Number" type="xs:string"/>
+    <xs:attribute name="CustomerID" type="xs:string"/>
+  </xs:complexType>
+</xs:schema>
