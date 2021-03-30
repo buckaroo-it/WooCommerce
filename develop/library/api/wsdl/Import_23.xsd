@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="https://checkout.buckaroo.nl/PaymentEngine/2012/06/RefundInfo/Response/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="https://checkout.buckaroo.nl/PaymentEngine/2012/06/RefundInfo/Response/">
+  <xs:element name="RefundInfoResponse" type="tns:Body"/>
+  <xs:complexType name="Body">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="RefundInfo" type="tns:RefundInfo"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="InvalidRefundInfo" type="tns:InvalidRefundInfo"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RefundInfo">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="IsRefundable" type="xs:boolean"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="NotRefundableExplanation" type="xs:string"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="AllowPartialRefund" type="xs:boolean"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="MaximumRefundAmount" type="xs:decimal"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="PendingRefundAmount" type="xs:decimal"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="RefundedAmount" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="RefundCurrency" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="ServiceCode" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="RefundInputFields" type="tns:ArrayOfRefundInputField"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="IsCreditmanagement" type="xs:boolean"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="Invoice" type="xs:string"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="InvoiceAmount" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="InvoiceAmountPaid" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="InvoiceAmountOpen" type="xs:decimal"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="CanCreateCreditNote" type="xs:boolean"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="CreditNoteAmount" type="xs:decimal"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="CanBeCancelled" type="xs:boolean"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="UsesBalance" type="xs:boolean"/>
+    </xs:sequence>
+    <xs:attribute name="TransactionKey" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfRefundInputField">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="RefundInputField" nillable="true" type="tns:RefundInputField"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RefundInputField">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="FieldDefinition" type="tns:ParameterDescription"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="CurrentValue" type="xs:string"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="CurrentValueIncorrect" type="xs:boolean"/>
+      <xs:element minOccurs="1" maxOccurs="1" name="CurrentValueEditable" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ParameterDescription">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ListItemDescription" type="tns:ListItemDescription"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string"/>
+    <xs:attribute name="DataType" type="tns:DataType" use="required"/>
+    <xs:attribute name="List" type="tns:ListType"/>
+    <xs:attribute name="MaxLength" type="xs:int"/>
+    <xs:attribute name="MaxOccurs" type="xs:int" use="required"/>
+    <xs:attribute name="Required" type="xs:boolean" use="required"/>
+    <xs:attribute name="Global" type="xs:boolean"/>
+    <xs:attribute name="Group" type="xs:string"/>
+    <xs:attribute name="Description" type="xs:string"/>
+    <xs:attribute name="DisplayName" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="ListItemDescription">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Description" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:simpleType name="DataType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="String"/>
+      <xs:enumeration value="Integer"/>
+      <xs:enumeration value="Decimal"/>
+      <xs:enumeration value="Date"/>
+      <xs:enumeration value="Datetime"/>
+      <xs:enumeration value="Boolean"/>
+      <xs:enumeration value="CardNumber"/>
+      <xs:enumeration value="ExpiryDate"/>
+      <xs:enumeration value="CardStartDate"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ListType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None"/>
+      <xs:enumeration value="Single"/>
+      <xs:enumeration value="Multi"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="InvalidRefundInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="TransactionKey" type="xs:string"/>
+  </xs:complexType>
+</xs:schema>
