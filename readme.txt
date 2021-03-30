@@ -98,6 +98,7 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 == Changelog ==
 
 = 2.18.1 =
+- Fix In3 not working [BP-751]
 - Bancontact possibly disable after update to 2.18 [BP-725]
 - change default Billink name for front end
 - Fix for Billink remaining price item
