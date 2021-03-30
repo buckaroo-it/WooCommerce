@@ -5,7 +5,7 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
-Version: 2.18.0
+Version: 2.18.1
 Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -247,14 +247,14 @@ function generateGateways()
             'filename' => 'gateway-buckaroo-payperemail.php',
             'classname' => 'WC_Gateway_Buckaroo_PayPerEmail',
         ),
-        'KlarnaPay' => array(
-            'filename' => 'gateway-buckaroo-klarnapay.php',
-            'classname' => 'WC_Gateway_Buckaroo_KlarnaPay',
-        ),
-        'KlarnaPII' => array(
-            'filename' => 'gateway-buckaroo-klarnapii.php',
-            'classname' => 'WC_Gateway_Buckaroo_KlarnaPII',
-        ),
+//        'KlarnaPay' => array(
+//            'filename' => 'gateway-buckaroo-klarnapay.php',
+//            'classname' => 'WC_Gateway_Buckaroo_KlarnaPay',
+//        ),
+//        'KlarnaPII' => array(
+//            'filename' => 'gateway-buckaroo-klarnapii.php',
+//            'classname' => 'WC_Gateway_Buckaroo_KlarnaPII',
+//        ),
     );
     $buckaroo_enabled_payment_methods = array();
     if (file_exists(dirname(__FILE__) . '/gateway-buckaroo-testscripts.php')) {

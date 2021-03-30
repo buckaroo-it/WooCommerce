@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 5.5.1
-Stable tag: 2.18.0
+Stable tag: 2.18.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,18 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.18.1 =
+- Bancontact possibly disable after update to 2.18 [BP-725]
+- change default Billink name for front end
+- Fix for Billink remaining price item
+- Fix for Billink price rounding
+- tags in description field [BP-688]
+- Fix for AP, Klarna with MyParcel pick-up points [BP-563]
+- In3 Order As missing Dutch translations [BP-689]
+- Deliverytype error [BP-684]
+- Apple pay error on product page and checkout [BP-687]
+- It isn't possible to do refund for order with 10% discount and shipping costs [BP-587]
 
 = 2.18.0 =
 - Fixed MyParcel pickup points issue
