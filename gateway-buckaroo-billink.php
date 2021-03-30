@@ -18,7 +18,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $woocommerce = getWooCommerceObject();
 
         $this->id = 'buckaroo_billink';
-        $this->title = 'Billink';
+        $this->title = 'Billink - achteraf betalen';
         $this->icon = apply_filters('woocommerce_buckaroo_billink_icon', plugins_url('library/buckaroo_images/24x24/billink.png', __FILE__));
         $this->has_fields = true;
         $this->method_title = 'Buckaroo Billink';
@@ -48,7 +48,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             'refunds'
         );
         $this->type = 'billink';
-        $this->b2b = ($this->settings['enable_bb'] == 'B2B');
+        $this->b2b = (!empty($this->settings['enable_bb']) && $this->settings['enable_bb'] == 'B2B');
 
         $this->vattype = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
         $this->notify_url = home_url('/');
@@ -148,7 +148,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $shippingCosts = $order->get_total_shipping();
         $shippingCostsTax = $order->get_shipping_tax();
         if (floatval($shippingCosts) > 0) {
-            $billink->ShippingCosts = number_format($shippingCosts, 2)+number_format($shippingCostsTax, 4);
+            $billink->ShippingCosts = number_format($shippingCosts, 2)+number_format($shippingCostsTax, 2);
         }
         if (floatval($shippingCostsTax) > 0) {
             $billink->ShippingCostsTax = number_format(($shippingCostsTax * 100) / $shippingCosts);
@@ -223,9 +223,9 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"] = $item['product_id'];
             $tmp["ArticleQuantity"] = $item["qty"];
-            $tmp["ArticleUnitpriceExcl"] = number_format($item["line_total"] / $item["qty"], 4);
-            $tmp["ArticleUnitpriceIncl"] = number_format(number_format($item["line_total"]+$item["line_tax"], 4)/$item["qty"], 4);
-            $itemsTotalAmount += number_format($tmp["ArticleUnitpriceIncl"] * $item["qty"], 4);
+            $tmp["ArticleUnitpriceExcl"] = number_format($item["line_total"] / $item["qty"], 2);
+            $tmp["ArticleUnitpriceIncl"] = number_format(number_format($item["line_total"]+$item["line_tax"], 4)/$item["qty"], 2);
+            $itemsTotalAmount += number_format($tmp["ArticleUnitpriceIncl"] * $item["qty"], 2);
 
             $tmp["ArticleVatcategory"] = $itemRate;
             $products[] = $tmp;
@@ -240,8 +240,8 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"] = $key;
             $tmp["ArticleQuantity"] = 1;
-            $tmp["ArticleUnitpriceExcl"] = number_format($item["line_total"], 4);
-            $tmp["ArticleUnitpriceIncl"] = number_format(($item["line_total"]+$item["line_tax"]), 4);
+            $tmp["ArticleUnitpriceExcl"] = number_format($item["line_total"], 2);
+            $tmp["ArticleUnitpriceIncl"] = number_format(($item["line_total"]+$item["line_tax"]), 2);
             $itemsTotalAmount += $tmp["ArticleUnitpriceIncl"];
             $tmp["ArticleVatcategory"] = $feeTaxRate;
             $products[] = $tmp;
@@ -255,7 +255,8 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                 $tmp["ArticleDescription"] = 'Remaining Price';
                 $tmp["ArticleId"] = 'remaining_price';
                 $tmp["ArticleQuantity"] = 1;
-                $tmp["ArticleUnitpriceExcl"] = number_format($billink->amountDedit - $itemsTotalAmount, 4);
+                $tmp["ArticleUnitpriceExcl"] = number_format($billink->amountDedit - $itemsTotalAmount, 2);
+                $tmp["ArticleUnitpriceIncl"] = number_format($billink->amountDedit - $itemsTotalAmount, 2);
                 $tmp["ArticleVatcategory"] = 0;
                 $products[] = $tmp;
                 $itemsTotalAmount += 0.01;
@@ -263,7 +264,8 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                 $tmp["ArticleDescription"] = 'Remaining Price';
                 $tmp["ArticleId"] = 'remaining_price';
                 $tmp["ArticleQuantity"] = 1;
-                $tmp["ArticleUnitpriceExcl"] = number_format($billink->amountDedit - $itemsTotalAmount, 4);
+                $tmp["ArticleUnitpriceExcl"] = number_format($billink->amountDedit - $itemsTotalAmount, 2);
+                $tmp["ArticleUnitpriceIncl"] = number_format($billink->amountDedit - $itemsTotalAmount, 2);
                 $tmp["ArticleVatcategory"] = 0;
                 $products[] = $tmp;
                 $itemsTotalAmount -= 0.01;

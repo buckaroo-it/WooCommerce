@@ -5,7 +5,7 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
-Version: 2.18.0
+Version: 2.18.1
 Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -24,6 +24,16 @@ if (!empty($_REQUEST['wc-api']) && ($_REQUEST['wc-api'] == 'WC_Push_Buckaroo')) 
     }
     if (empty($_SERVER['HTTP_REFERER'])) {
         $_SERVER['HTTP_REFERER']='Buckaroo plugin referer';
+    }
+}
+add_action( 'upgrader_process_complete', 'copy_language_files');
+
+function copy_language_files(){
+    foreach (glob(__DIR__ . '/languages/*.{po,mo}', GLOB_BRACE) as $file) {
+        if(!is_dir($file) && is_readable($file)) {
+            $dest = WP_CONTENT_DIR . '/languages/plugins/' . basename($file);
+            rename($file, $dest);
+        }
     }
 }
 
@@ -236,7 +246,15 @@ function generateGateways()
         'PayPerEmail' => array(
             'filename' => 'gateway-buckaroo-payperemail.php',
             'classname' => 'WC_Gateway_Buckaroo_PayPerEmail',
-        )
+        ),
+//        'KlarnaPay' => array(
+//            'filename' => 'gateway-buckaroo-klarnapay.php',
+//            'classname' => 'WC_Gateway_Buckaroo_KlarnaPay',
+//        ),
+//        'KlarnaPII' => array(
+//            'filename' => 'gateway-buckaroo-klarnapii.php',
+//            'classname' => 'WC_Gateway_Buckaroo_KlarnaPII',
+//        ),
     );
     $buckaroo_enabled_payment_methods = array();
     if (file_exists(dirname(__FILE__) . '/gateway-buckaroo-testscripts.php')) {

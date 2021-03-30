@@ -468,7 +468,7 @@ abstract class BuckarooResponse extends BuckarooAbstract {
         
         if (isset($origArray['brq_payment_method']) && $origArray['brq_payment_method'] == 'Payconiq') {
             $url_decode = false;
-        }        
+        }
 
         unset($origArray['brq_signature']);
         foreach($origArray as $key => $val) {
@@ -476,10 +476,13 @@ abstract class BuckarooResponse extends BuckarooAbstract {
         }
         //sort the array
         $sortableArray = $this->buckarooSort($origArray);
-
         //turn into string and add the secret key to the end
         $signatureString = '';
         foreach ($sortableArray as $key => $value) {
+            if (strtolower($key) == 'brq_customer_name' && !empty($origArray['brq_transaction_method']) && strtolower($origArray['brq_transaction_method']) == 'klarna') {
+                $signatureString .= $key . '=' . $value;
+                continue;
+            }
             if ($url_decode) {
                 $value = urldecode($value);
             }
@@ -487,7 +490,7 @@ abstract class BuckarooResponse extends BuckarooAbstract {
         }
         $transaction_method = isset($origArray['brq_transaction_method']) ? $origArray['brq_transaction_method'] : NULL;
         $signatureString .= BuckarooConfig::get('BUCKAROO_SECRET_KEY', $transaction_method);
-//        $signatureString .= BuckarooConfig::get('BUCKAROO_SECRET_KEY', $origArray['brq_transaction_method']);
+
         //return the SHA1 encoded string for comparison
         $signature = SHA1($signatureString);
 

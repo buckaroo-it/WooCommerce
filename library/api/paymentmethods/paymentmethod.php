@@ -138,12 +138,14 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
      * @return callable BuckarooResponseFactory::getResponse($soap->transactionRequest())
      */
     public function PayGlobal() {
+        add_action('woocommerce_before_checkout_process', [$this, 'order_number_shortcode']);
+        //add_shortcode('invoicenumber', array( 'this', 'order_number_shortcode'));
         $this->data['currency'] = $this->currency;
         $this->data['amountDebit'] = $this->amountDedit;
         $this->data['amountCredit'] = $this->amountCredit;
         $this->data['invoice'] = $this->invoiceId;
         $this->data['order'] = $this->orderId;
-        $this->data['description'] = $this->description;
+        $this->data['description'] = preg_replace('/\{invoicenumber\}/', $this->invoiceId , $this->description);
         $this->data['returnUrl'] = $this->returnUrl;
         $this->data['mode'] = $this->mode;
         $this->data['channel'] = $this->channel;
@@ -186,7 +188,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         $this->data['amountCredit'] = $this->amountCredit;
         $this->data['invoice'] = $this->getInvoiceNumber();
         $this->data['order'] = $this->orderId;
-        $this->data['description'] = $this->description;
+        $this->data['description'] = preg_replace('/\{invoicenumber\}/', $this->invoiceId , $this->description);;
         $this->data['OriginalTransactionKey'] = $this->OriginalTransactionKey;
         $this->data['returnUrl'] = $this->returnUrl;
         $this->data['mode'] = $this->mode;
@@ -342,10 +344,10 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
 //            }
             if (!empty($data[$item_id]['total'])) {
                 $totalFeePrice = round((float)$data[$item_id]['total'] + (float)$data[$item_id]['tax'],2);
-                if ( abs((abs($totalFeePrice) - abs($feeCost))/abs($feeCost)) > 0.00001 ) {
+                if (abs($totalFeePrice) - abs($feeCost) < 0 &&  abs($totalFeePrice - $feeCost) > 0.01 ) { // abs(($totalFeePrice - $feeCost)/$feeCost) > 0.00001
                     throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()) );
-                } elseif( abs((abs($feeCost) - abs($totalFeePrice))/abs($totalFeePrice)) > 0.00001 ) {
-                    $balance = abs($feeCost) - abs($totalFeePrice);
+                } elseif( abs($feeCost) - abs($totalFeePrice) < 0 && abs($feeCost - $totalFeePrice) > 0.01 ) { //abs(($feeCost - $totalFeePrice)/$totalFeePrice) > 0.00001 )
+                    $balance = $feeCost - $totalFeePrice;
                     throw new Exception('Please add ' . $balance . ' ' . esc_attr(get_woocommerce_currency()) . ' to full refund payment fee cost' );
                 }
             }
@@ -404,7 +406,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
                     if (!isset($taxItemFromOrder['total'][$taxItem])) {
                         throw new Exception('Incorrect entered product price. Please check refund tax amount');
                     }
-                    $orderRefundData[$key]['tax'] = $taxItemValue;
+                    $orderRefundData[$key]['tax'] += $taxItemValue;
                 }
             }
         }
@@ -453,5 +455,9 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract {
         }
 
         return $this->invoiceId . '-R';
+    }
+
+    public function order_number_shortcode( ) {
+        return $this->data['description'] . ' ' . $this->invoiceId;
     }
 }

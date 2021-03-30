@@ -70,9 +70,9 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             'products',
             'refunds'
         ];
-        $this->type = $this->settings['service'];
-        $this->b2b = $this->settings['enable_bb'];
-        $this->vattype = $this->settings['vattype'];
+        $this->type = $this->settings['service'] ?? null;
+        $this->b2b = $this->settings['enable_bb'] ?? null;
+        $this->vattype = $this->settings['vattype'] ?? null;
         $this->notify_url = home_url('/');
 
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '<')) {
@@ -773,15 +773,16 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             $myparselDeliveryOptions = $order->get_meta('_myparcel_delivery_options');
             if (!empty($myparselDeliveryOptions)) {
                 $myparselDeliveryOptions = unserialize($myparselDeliveryOptions);
-            }
-            if ($myparselDeliveryOptions->getDeliveryType() == 'pickup') {
-                $afterpay->AddressesDiffer = 'TRUE';
-                $pickupOptions = $myparselDeliveryOptions->getPickupLocation();
-                $afterpay->ShippingStreet = $pickupOptions->getStreet();
-                $afterpay->ShippingHouseNumber = $pickupOptions->getNumber();
-                $afterpay->ShippingPostalCode = $pickupOptions->getPostalCode();;
-                $afterpay->ShippingCity = $pickupOptions->getCity();
-                $afterpay->ShippingCountryCode = $pickupOptions->getCountry();
+
+                if ($myparselDeliveryOptions->isPickup()) {
+                    $afterpay->AddressesDiffer = 'TRUE';
+                    $pickupOptions = $myparselDeliveryOptions->getPickupLocation();
+                    $afterpay->ShippingStreet = $pickupOptions->getStreet();
+                    $afterpay->ShippingHouseNumber = $pickupOptions->getNumber();
+                    $afterpay->ShippingPostalCode = $pickupOptions->getPostalCode();;
+                    $afterpay->ShippingCity = $pickupOptions->getCity();
+                    $afterpay->ShippingCountryCode = $pickupOptions->getCountry();
+                }
             }
         }
 
@@ -822,15 +823,34 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         if (! empty($afterpay->ShippingCosts)) {
             $itemsTotalAmount += $afterpay->ShippingCosts;
         }
-        for ($i = 0; count($products) > $i; $i++) {
-            if ($afterpay->amountDedit != $itemsTotalAmount) {
-                if (number_format($afterpay->amountDedit - $itemsTotalAmount, 2) >= 0.01) {
-                    $products[$i]['ArticleUnitprice'] += 0.01;
-                    $itemsTotalAmount += 0.01;
-                } elseif (number_format($itemsTotalAmount - $afterpay->amountDedit, 2) >= 0.01) {
-                    $products[$i]['ArticleUnitprice'] -= 0.01;
-                    $itemsTotalAmount -= 0.01;
-                }
+//        for ($i = 0; count($products) > $i; $i++) {
+//            if ($afterpay->amountDedit != $itemsTotalAmount) {
+//                if (number_format($afterpay->amountDedit - $itemsTotalAmount, 2) >= 0.01) {
+//                    $products[$i]['ArticleUnitprice'] += 0.01;
+//                    $itemsTotalAmount += 0.01;
+//                } elseif (number_format($itemsTotalAmount - $afterpay->amountDedit, 2) >= 0.01) {
+//                    $products[$i]['ArticleUnitprice'] -= 0.01;
+//                    $itemsTotalAmount -= 0.01;
+//                }
+//            }
+//        }
+        if ($afterpay->amountDedit != $itemsTotalAmount) {
+            if (number_format($afterpay->amountDedit - $itemsTotalAmount, 2) >= 0.01) {
+                $tmp["ArticleDescription"] = 'Remaining Price';
+                $tmp["ArticleId"] = 'remaining_price';
+                $tmp["ArticleQuantity"] = 1;
+                $tmp["ArticleUnitprice"] = number_format($afterpay->amountDedit - $itemsTotalAmount, 2);
+                $tmp["ArticleVatcategory"] = 4;
+                $products[] = $tmp;
+                $itemsTotalAmount += 0.01;
+            } elseif (number_format($itemsTotalAmount - $afterpay->amountDedit, 2) >= 0.01) {
+                $tmp["ArticleDescription"] = 'Remaining Price';
+                $tmp["ArticleId"] = 'remaining_price';
+                $tmp["ArticleQuantity"] = 1;
+                $tmp["ArticleUnitprice"] = number_format($afterpay->amountDedit - $itemsTotalAmount, 2);
+                $tmp["ArticleVatcategory"] = 4;
+                $products[] = $tmp;
+                $itemsTotalAmount -= 0.01;
             }
         }
         

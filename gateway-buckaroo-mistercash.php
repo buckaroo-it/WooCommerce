@@ -28,6 +28,11 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo {
         
         parent::__construct();
 
+        $prevPaymentMethodId = get_option('woocommerce_buckaroo_mistercash_settings');
+        if (empty(get_option($this->plugin_id . $this->id . '_settings')) && !empty($prevPaymentMethodId['enabled'])) {
+            $this->enabled = $prevPaymentMethodId['enabled'];
+        }
+
         $this->supports           = array(
             'products',
             'refunds'
