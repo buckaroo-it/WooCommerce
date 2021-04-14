@@ -88,7 +88,11 @@
                 }
                 */
                 if (isset($this->_vars['customParameters'])) {
-                    $TransactionRequest = $this->_addCustomParameters($TransactionRequest);
+                    // $TransactionRequest = $this->_addCustomParameters($TransactionRequest);
+                    foreach ($this->_vars['customParameters'] as $key => $value) {
+                        $TransactionRequest->AdditionalParameters->AdditionalParameter->Name = $key;
+                        $TransactionRequest->AdditionalParameters->AdditionalParameter->_ = $value;
+                    }
                 }
 
                 $TransactionRequest->Services = new Services();

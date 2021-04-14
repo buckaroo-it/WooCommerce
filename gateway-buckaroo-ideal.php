@@ -83,15 +83,12 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
 		update_post_meta($order_id, '_pushallowed', 'busy');
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $order = wc_get_order( $order_id );
-        if (checkForSequentialNumbersPlugin()) {
-            $order_id = $order->get_order_number(); //Use sequential id
-        }
         $ideal = new BuckarooIDeal();
         $ideal->amountDedit = 0;
         $ideal->amountCredit = $amount;
         $ideal->currency = $this->currency;
         $ideal->description = $reason;
-        $ideal->invoiceId = $order_id;
+        $ideal->invoiceId = $order->get_order_number();
         $ideal->orderId = $order_id;
         $ideal->OriginalTransactionKey = $order->get_transaction_id();
         $ideal->returnUrl = $this->notify_url;
@@ -144,9 +141,6 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $order = getWCOrder($order_id);
         $ideal = new BuckarooIDeal();
-        if (checkForSequentialNumbersPlugin()) {
-            $order_id = $order->get_order_number(); //Use sequential id
-        }
         if (method_exists($order, 'get_order_total')) {
             $ideal->amountDedit = $order->get_order_total();
         } else {
@@ -156,7 +150,7 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         $ideal->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
         $ideal->currency = $this->currency;
         $ideal->description = $this->transactiondescription;
-        $ideal->invoiceId = (string)getUniqInvoiceId($order_id);
+        $ideal->invoiceId = (string)getUniqInvoiceId($order->get_order_number());
         $ideal->orderId = (string)$order_id;
         $ideal->issuer =  $_POST['buckaroo-ideal-issuer'];
         $ideal->returnUrl = $this->notify_url;
