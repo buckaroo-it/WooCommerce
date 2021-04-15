@@ -171,6 +171,8 @@ class BuckarooBillink extends BuckarooPaymentMethod
 
         $i = 0;
         foreach($products as $p) {
+            $this->data['customVars'][$this->type]["Description"][$i]["value"]    = $p["ArticleDescription"];
+            $this->data['customVars'][$this->type]["Description"][$i]["group"]    = 'Article';
             $this->data['customVars'][$this->type]["Identifier"][$i]["value"] = $p["ArticleId"];
             $this->data['customVars'][$this->type]["Identifier"][$i]["group"] = 'Article';
             $this->data['customVars'][$this->type]["Quantity"][$i]["value"] = $p["ArticleQuantity"];
@@ -183,6 +185,8 @@ class BuckarooBillink extends BuckarooPaymentMethod
             $i++;
         }
 
+        $this->data['customVars'][$this->type]["Description"][$i]["value"]    = 'Shipping Cost';
+        $this->data['customVars'][$this->type]["Description"][$i]["group"]    = 'Article';
         $this->data['customVars'][$this->type]["Identifier"][$i]["value"] = 'shipping';
         $this->data['customVars'][$this->type]["Identifier"][$i]["group"] = 'Article';
         $this->data['customVars'][$this->type]["Quantity"][$i]["value"] = '1';
