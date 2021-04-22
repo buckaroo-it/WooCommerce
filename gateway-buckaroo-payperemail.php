@@ -12,7 +12,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
     {
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_payperemail';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_payperemail_icon', plugins_url('library/buckaroo_images/payperemail.png', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_payperemail_icon', BuckarooConfig::getIconPath('payperemail.png', 'payperemail.png'));
         $this->title                  = 'PayPerEmail';
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo PayPerEmail";

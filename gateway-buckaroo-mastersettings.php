@@ -212,6 +212,12 @@
                 'description' => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
                 'default' => '');
 
+            $this->form_fields['usenewicons'] = array(
+                'title' => __( 'Use new icons', 'wc-buckaroo-bpe-gateway' ),
+                'type' => 'select',
+                'description' => __( 'By turning on this setting in checkout new payment method icons will be in use.', 'wc-buckaroo-bpe-gateway' ),
+                'options' => array(0 => 'No', 1 => 'Yes'),
+                'default' => 0);
 
 
         }

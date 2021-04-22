@@ -91,6 +91,9 @@ class BuckarooConfig extends BuckarooConfigCore {
                     $options = get_option('woocommerce_buckaroo_mastersettings_settings', null );//Debug switch only in mastersettings
                     $val = $options['debugmode'];
                     break;
+                case 'BUCKAROO_USE_NEW_ICONS':
+                    $val = (empty($options['usenewicons']) ?  FALSE : $options['usenewicons']);
+                    break;
                 default:
                 if(isset($options[$key]) && !empty($options[$key])){
                     $val = $options[$key];
@@ -180,6 +183,11 @@ class BuckarooConfig extends BuckarooConfigCore {
         $Software->ModuleName = BuckarooConfig::PLUGIN_NAME;
         $Software->ModuleVersion = BuckarooConfig::VERSION;
         return $Software;
+    }
+
+    public static function getIconPath($oldIcon, $newIcon) {
+        $icon = self::get('BUCKAROO_USE_NEW_ICONS') ? $newIcon : $oldIcon;
+        return plugins_url('buckaroo_images/' . $icon, __FILE__);
     }
     
 } ?>

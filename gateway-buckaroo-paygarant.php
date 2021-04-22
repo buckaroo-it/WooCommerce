@@ -17,7 +17,7 @@ class WC_Gateway_Buckaroo_PayGarant extends WC_Gateway_Buckaroo
 
         $this->id                     = 'buckaroo_paygarant';
         $this->title                  = 'Payment Guarantee';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_paygarant_icon', plugins_url('library/buckaroo_images/24x24/transfergarant.png', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_paygarant_icon', BuckarooConfig::getIconPath('24x24/transfergarant.png', '24x24/transfergarant.png'));
         $this->has_fields             = true;
         $this->method_title           = 'Buckaroo Payment Guarantee';
         $this->description            = "Betaal met Payment Guarantee";

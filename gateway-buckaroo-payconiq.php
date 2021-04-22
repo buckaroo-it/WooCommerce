@@ -12,7 +12,7 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_payconiq';
         $this->title                  = 'Payconiq';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_payconiq_icon', plugins_url('library/buckaroo_images/24x24/payconiq.png', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_payconiq_icon', BuckarooConfig::getIconPath('24x24/payconiq.png', 'new/Payconic.png'));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Payconiq";
         $this->description            = "Betaal met Payconiq";

@@ -13,7 +13,7 @@ class WC_Gateway_Buckaroo_Paysafecard extends WC_Gateway_Buckaroo
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_paysafecard';
         $this->title                  = 'Paysafecard';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_paysafecard_icon', plugins_url('library/buckaroo_images/24x24/paysafe.png', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_paysafecard_icon', BuckarooConfig::getIconPath('24x24/paysafe.png', '24x24/paysafe.png'));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Paysafecard";
         $this->description            = "Betaal met Paysafecard";

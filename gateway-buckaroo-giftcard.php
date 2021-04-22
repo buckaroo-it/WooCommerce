@@ -14,7 +14,7 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_giftcard';
         $this->title                  = 'Giftcards';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_giftcard_icon', plugins_url('library/buckaroo_images/24x24/giftcard.gif', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_giftcard_icon', BuckarooConfig::getIconPath('24x24/giftcard.gif', '24x24/giftcard.gif'));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Giftcards";
         $this->description            = "Betaal met Giftcards";

@@ -13,6 +13,7 @@ class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo
         $this->id                     = 'buckaroo_requesttopay';
         $this->title                  = 'Request To Pay';
         $this->icon                   = apply_filters('woocommerce_buckaroo_requesttopay_icon', plugins_url('library/buckaroo_images/24x24/requesttopay.png', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_requesttopay_icon', BuckarooConfig::getIconPath('24x24/requesttopay.png', 'new/RequestToPay.png'));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Request To Pay";
         $this->description            = "Betaal met Request To Pay";

@@ -15,7 +15,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
     public function __construct()
     {
         $woocommerce      = getWooCommerceObject();
-        $this->icon       = apply_filters('woocommerce_buckaroo_klarnapay_icon', plugins_url('library/buckaroo_images/24x24/klarna.svg', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_klarnapay_icon', BuckarooConfig::getIconPath('24x24/klarna.svg', 'new/Klarna.png'));
         $this->has_fields = true;
 
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
