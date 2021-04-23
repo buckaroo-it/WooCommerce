@@ -40,7 +40,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $woocommerce = getWooCommerceObject();
         $this->id                     = 'buckaroo_afterpay';
         $this->title                  = 'AfterPay';
-        $this->icon = apply_filters('woocommerce_buckaroo_afterpay_icon', BuckarooConfig::getIconPath('24x24/afterpay.jpg', '24x24/afterpay.jpg'));
+        $this->icon = apply_filters('woocommerce_buckaroo_afterpay_icon', BuckarooConfig::getIconPath('24x24/afterpay.jpg', 'new/AfterPay.png'));
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo AfterPay Old';
         $this->description            = "Betaal met AfterPay Old";

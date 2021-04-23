@@ -18,7 +18,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
     private $_isPost;
     //payment key
     public $payment;
-    //paypal, paymentguarantee, ideal...
+    //paypal, ideal...
     public $payment_method;
     public $statuscode;
     public $statuscode_detail;

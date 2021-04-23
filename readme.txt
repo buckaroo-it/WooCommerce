@@ -25,19 +25,17 @@ Payment method support list:
 6. Giftcards
 7. Giropay
 8. Bancontact
-9. Payment Guarantee
-10. SOFORT Banking
-11. SEPA Credit Transfer (Bank transfer)
-12. SEPA Direct Debit (With or without Credit management)
-13. Paysafecard
-14. Payconiq
-15. Nexi
-16. P24
-17. AfterPay 2.0
-18. Apple Pay
-19. KBC
-20. PayPerEmail
-21. Billink
+9. SOFORT Banking
+10. SEPA Credit Transfer (Bank transfer)
+11. SEPA Direct Debit (With or without Credit management)
+12. Payconiq
+13. Nexi
+14. P24
+15. AfterPay 2.0
+16. Apple Pay
+17. KBC
+18. PayPerEmail
+19. Billink
 
 == Installation ==
 

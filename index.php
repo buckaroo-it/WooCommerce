@@ -195,10 +195,6 @@ function generateGateways()
             'gateway-buckaroo-p24.php',
             'classname' => 'WC_Gateway_Buckaroo_P24',
         ),
-        'Paysafecard' => array(
-            'filename' => 'gateway-buckaroo-paysafecard.php',
-            'classname' => 'WC_Gateway_Buckaroo_Paysafecard',
-        ),
         'Sofortbanking' => array(
             'filename' => 'gateway-buckaroo-sofort.php',
             'classname' => 'WC_Gateway_Buckaroo_Sofortbanking',
@@ -218,10 +214,6 @@ function generateGateways()
         'Payconiq' => array(
             'filename' => 'gateway-buckaroo-payconiq.php',
             'classname' => 'WC_Gateway_Buckaroo_Payconiq',
-        ),
-        'PaymentGuarantee' => array(
-            'filename' => 'gateway-buckaroo-paygarant.php',
-            'classname' => 'WC_Gateway_Buckaroo_PayGarant',
         ),
         'Applepay' => array(
             'filename' => 'gateway-buckaroo-applepay.php',

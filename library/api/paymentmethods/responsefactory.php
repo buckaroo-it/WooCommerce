@@ -2,7 +2,6 @@
 
 require_once(dirname(__FILE__) . '/buckaroopaypal/paypalresponse.php');
 require_once(dirname(__FILE__) . '/ideal/idealresponse.php');
-require_once(dirname(__FILE__) . '/paygarant/paygarantresponse.php');
 require_once(dirname(__FILE__) . '/transfer/transferresponse.php');
 require_once(dirname(__FILE__) . '/creditcard/creditcardresponse.php');
 require_once(dirname(__FILE__) . '/giftcard/giftcardresponse.php');
@@ -40,9 +39,6 @@ class BuckarooResponseFactory {
         switch ($paymentmethod) { 
             case 'ideal':
                 return new BuckarooIdealResponse($data);
-                break;
-            case 'paymentguarantee':
-                return new BuckarooPayGarantResponse($data);
                 break;
             case 'transfer':
                 return new BuckarooTransferResponse($data);
