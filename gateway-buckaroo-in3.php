@@ -337,7 +337,7 @@ $country = isset($_POST['s_country']) ? $_POST['s_country'] : $this->country;
                     <input id="buckaroo-in3-companyname" name="buckaroo-in3-companyname" class="" maxlength="250" />
                 </p>
                 <script>
-                    let customerTypeElement = document.getElementById('buckaroo-in3-orderas');
+                    var customerTypeElement = document.getElementById('buckaroo-in3-orderas');
                     customerTypeElement.addEventListener('change', function () {
                         let customerType = this.value;
 
