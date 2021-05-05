@@ -203,10 +203,7 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'title'             => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
             'type'              => 'textarea',
             'description'       => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
-            'default'           => '',
-            'custom_attributes' => array(
-                'required' => 'required',
-            ),
+            'default'           => ''
         );
 
         $this->form_fields['usenewicons'] = array(
