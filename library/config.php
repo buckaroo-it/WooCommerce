@@ -50,7 +50,7 @@ class BuckarooConfig extends BuckarooConfigCore {
                     $val = $options['culture'];
                     break;
                 case 'BUCKAROO_TRANSDESC':
-                    $val = $options['transactiondescription'];
+                    $val = empty($options['transactiondescription']) ? "Buckaroo": $options['transactiondescription'];
                     break;
                 case 'BUCKAROO_USE_NOTIFICATION':
                     $val = (empty($options['usenotification']) ?  FALSE : $options['usenotification']);
@@ -116,9 +116,6 @@ class BuckarooConfig extends BuckarooConfigCore {
      */
     public static function getMode($key = null) {
         $options = get_option( $GLOBALS['plugin_id'], null );
-        // if (!empty($options['usemaster']) && $options['usemaster'] != 'no') {
-        //     $options = get_option('woocommerce_buckaroo_mastersettings_settings', null );
-        // }
         $mode = (!empty($options['mode']) && $options['mode'] == "live") ? 'live' : 'test';
         return $mode;
     }
