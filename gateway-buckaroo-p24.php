@@ -11,6 +11,17 @@ class WC_Gateway_Buckaroo_P24 extends WC_Gateway_Buckaroo
     {
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_przelewy24';
+
+        ////below will fix issue with renaming of payment method id and loosing of previous settings
+        if (
+            !get_option('woocommerce_'.$this->id.'_settings')
+            &&
+            ($oldSettings = get_option('woocommerce_buckaroo_p24_settings'))
+        ) {
+            add_option('woocommerce_'.$this->id.'_settings', $oldSettings);
+        }
+        ////
+
         $this->title                  = 'P24';
         $this->icon = apply_filters('woocommerce_buckaroo_przelewy24_icon', BuckarooConfig::getIconPath('24x24/p24.png', 'new/Przelewy24.png'));
         $this->has_fields             = false;

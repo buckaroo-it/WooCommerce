@@ -12,6 +12,17 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
         $woocommerce = getWooCommerceObject();
 
         $this->id                     = 'buckaroo_bancontactmrcash';
+
+        ////below will fix issue with renaming of payment method id and loosing of previous settings
+        if (
+            !get_option('woocommerce_'.$this->id.'_settings')
+            &&
+            ($oldSettings = get_option('woocommerce_buckaroo_mistercash_settings'))
+        ) {
+            add_option('woocommerce_'.$this->id.'_settings', $oldSettings);
+        }
+        ////
+
         $this->title                  = 'Bancontact / MisterCash';
         $this->icon = apply_filters('woocommerce_buckaroo_bancontactmrcash_icon', BuckarooConfig::getIconPath('24x24/mistercash.png', 'new/Bancontact.png'));
         $this->has_fields             = false;
@@ -28,11 +39,6 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
         $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
 
         parent::__construct();
-
-        $prevPaymentMethodId = get_option('woocommerce_buckaroo_mistercash_settings');
-        if (empty(get_option($this->plugin_id . $this->id . '_settings')) && !empty($prevPaymentMethodId['enabled'])) {
-            $this->enabled = $prevPaymentMethodId['enabled'];
-        }
 
         $this->supports = array(
             'products',

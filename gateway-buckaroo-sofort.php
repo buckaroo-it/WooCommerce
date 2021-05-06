@@ -11,6 +11,17 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo
     {
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_sofortueberweisung';
+
+        ////below will fix issue with renaming of payment method id and loosing of previous settings
+        if (
+            !get_option('woocommerce_'.$this->id.'_settings')
+            &&
+            ($oldSettings = get_option('woocommerce_buckaroo_sofortbanking_settings'))
+        ) {
+            add_option('woocommerce_'.$this->id.'_settings', $oldSettings);
+        }
+        ////
+
         $this->title                  = 'Sofortbanking';
         $this->icon = apply_filters('woocommerce_buckaroo_sofortueberweisung_icon', BuckarooConfig::getIconPath('24x24/sofort.png', 'new/Sofort.png'));
         $this->has_fields             = false;
