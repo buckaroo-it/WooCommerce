@@ -492,6 +492,19 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 );
             }
         }
+        //var_dump($order_id,$response, $response->payment_method,$response->hasSucceeded());die();
+        if (!$order_id && ($response->payment_method == 'IDIN') && !$response->hasSucceeded()) {
+            //var_dump("==============",$response->getResponse());
+            $message = '';
+            if (isset($response->getResponse()->Status->SubCode->_)) {
+                $message = $response->getResponse()->Status->SubCode->_;
+            }
+
+            return array(
+                'result'   => 'error',
+                'message' => $message
+            );
+        }
         $logger->logInfo('Order status: ' . $order->get_status());
         $response_status = fn_buckaroo_resolve_status_code($response->status);
         $logger->logInfo('Response order status: ' . $response_status);

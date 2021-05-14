@@ -935,3 +935,15 @@ msgstr "http://www.buckaroo.nl"
 #. Author of the plugin
 msgid "Buckaroo"
 msgstr ""
+
+msgid "Use new icons"
+msgstr "Gebruik nieuwe pictogrammen"
+
+msgid "By turning on this setting in checkout new payment method icons will be in use"
+msgstr "Door deze instelling in te schakelen bij het afrekenen, worden nieuwe betaalmethodesymbolen gebruikt"
+
+msgid "iDIN mode"
+msgstr "Modus iDIN"
+
+msgid "By turning on this setting age verification with iDIN will be in use"
+msgstr "Door deze instelling in te schakelen, wordt leeftijdsverificatie met iDIN gebruikt"

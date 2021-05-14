@@ -15,7 +15,7 @@
                 $this->setVars($data);
             }
             
-            public function transactionRequest() {
+            public function transactionRequest($type = 'TransactionRequest') {
                 try {
                     //first attempt: use the cached WSDL
                     $client = new SoapClientWSSEC(
@@ -179,7 +179,7 @@
                 $client->__SetLocation($location);
 
                 try {
-                    $response = $client->TransactionRequest($TransactionRequest);
+                    $response = $client->{$type}($TransactionRequest);
                 } catch (SoapFault $e) {
                     $logger = new BuckarooLogger(1);
                     $logger->logForUser($e->getMessage());

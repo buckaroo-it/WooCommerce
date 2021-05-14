@@ -346,6 +346,21 @@ function buckaroo_init_gateway()
 
     add_action( 'woocommerce_order_action_buckaroo_create_paylink', 'buckaroo_create_paylink', 10, 1 );
 
+    require_once __DIR__ . '/controllers/IdinController.php';
+
+    $idinController = new IdinController;
+
+    add_action('woocommerce_review_order_before_payment','buckaroo_idin');
+    add_action('woocommerce_api_wc_gateway_buckaroo_idin-identify', [$idinController, 'identify']);
+    add_action('woocommerce_api_wc_gateway_buckaroo_idin-reset', [$idinController, 'reset']);
+    add_action('woocommerce_api_wc_gateway_buckaroo_idin-return', [$idinController, 'returnHandler']);
+
+}
+
+function buckaroo_idin() {
+    if (BuckarooConfig::isIdin()) {
+        include 'templates/idin/checkout.php' ;
+    }
 }
 
 function my_custom_checkout_field_display_admin_order_meta($order){

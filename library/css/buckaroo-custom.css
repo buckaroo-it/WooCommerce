@@ -111,3 +111,11 @@ table.woocommerce_order_items tbody tr:first-child td {
     line-height: 32px;
     vertical-align: top;
 }
+
+.buckaroo-idin.buckaroo-idin-passed p {
+    margin:0;
+}
+
+#buckaroo_idin .buckaroo_idin_logo {
+    width: 3em;
+}

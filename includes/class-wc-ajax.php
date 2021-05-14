@@ -331,7 +331,7 @@ class BK_AJAX {
 		}
 
 		unset( WC()->session->refresh_totals, WC()->session->reload_checkout );
-
+//var_dump("========1");
 		wp_send_json(
 			array(
 				'result'    => empty( $messages ) ? 'success' : 'failure',

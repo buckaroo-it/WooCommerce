@@ -94,6 +94,9 @@ class BuckarooConfig extends BuckarooConfigCore {
                 case 'BUCKAROO_USE_NEW_ICONS':
                     $val = (empty($options['usenewicons']) ?  FALSE : $options['usenewicons']);
                     break;
+                case 'BUCKAROO_USE_IDIN':
+                    $val = (empty($options['useidin']) ?  FALSE : $options['useidin']);
+                    break;
                 default:
                 if(isset($options[$key]) && !empty($options[$key])){
                     $val = $options[$key];
@@ -183,6 +186,14 @@ class BuckarooConfig extends BuckarooConfigCore {
     public static function getIconPath($oldIcon, $newIcon) {
         $icon = self::get('BUCKAROO_USE_NEW_ICONS') ? $newIcon : $oldIcon;
         return plugins_url('buckaroo_images/' . $icon, __FILE__);
+    }
+
+    public static function isIdin() {
+        return boolval(self::get('BUCKAROO_USE_IDIN'));
+    }
+
+    public static function getIdinMode() {
+        return (self::get('BUCKAROO_USE_IDIN') == "live") ? 'live' : 'test';
     }
     
 } ?>

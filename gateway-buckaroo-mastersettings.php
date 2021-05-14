@@ -209,9 +209,18 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
         $this->form_fields['usenewicons'] = array(
             'title'       => __('Use new icons', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
-            'description' => __('By turning on this setting in checkout new payment method icons will be in use.', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('By turning on this setting in checkout new payment method icons will be in use', 'wc-buckaroo-bpe-gateway'),
             'options'     => array(0 => 'No', 1 => 'Yes'),
-            'default'     => 0);
+            'default'     => 0
+        );
+
+        $this->form_fields['useidin'] = array(
+            'title'       => __('iDIN mode', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'select',
+            'description' => __('By turning on this setting age verification with iDIN will be in use', 'wc-buckaroo-bpe-gateway'),
+            'options'     => array('0' => 'No', 'live' => 'Live', 'test' => 'Test'),
+            'default'     => '0'
+        );
     }
 
     protected function getTaxClasses()

@@ -795,3 +795,15 @@ msgstr ""
 #. Author of the plugin
 msgid "Buckaroo"
 msgstr ""
+
+msgid "Use new icons"
+msgstr "Utiliser de nouvelles icônes"
+
+msgid "By turning on this setting in checkout new payment method icons will be in use"
+msgstr "En activant ce paramètre lors du paiement, de nouvelles icônes de mode de paiement seront utilisées"
+
+msgid "iDIN mode"
+msgstr "Mode iDIN"
+
+msgid "By turning on this setting age verification with iDIN will be in use"
+msgstr "En activant ce paramètre, la vérification de l'âge avec iDIN sera utilisée"
