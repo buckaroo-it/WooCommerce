@@ -350,16 +350,23 @@ function buckaroo_init_gateway()
 
     $idinController = new IdinController;
 
-    add_action('woocommerce_review_order_before_payment','buckaroo_idin');
+    add_action('woocommerce_before_cart','buckaroo_idin_cart');
+    add_action('woocommerce_review_order_before_payment','buckaroo_idin_checkout');
+
     add_action('woocommerce_api_wc_gateway_buckaroo_idin-identify', [$idinController, 'identify']);
     add_action('woocommerce_api_wc_gateway_buckaroo_idin-reset', [$idinController, 'reset']);
     add_action('woocommerce_api_wc_gateway_buckaroo_idin-return', [$idinController, 'returnHandler']);
-
 }
 
-function buckaroo_idin() {
+function buckaroo_idin_cart() {
     if (BuckarooConfig::isIdin()) {
-        include 'templates/idin/checkout.php' ;
+        include 'templates/idin/cart.php';
+    }
+}
+
+function buckaroo_idin_checkout() {
+    if (BuckarooConfig::isIdin()) {
+        include 'templates/idin/checkout.php';
     }
 }
 

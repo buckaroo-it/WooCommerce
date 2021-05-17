@@ -492,13 +492,14 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 );
             }
         }
-        //var_dump($order_id,$response, $response->payment_method,$response->hasSucceeded());die();
+        $logger->logInfo(__METHOD__ . "|20|", [$order_id, $response->payment_method,$response->hasSucceeded()]);
         if (!$order_id && ($response->payment_method == 'IDIN') && !$response->hasSucceeded()) {
-            //var_dump("==============",$response->getResponse());
+            $logger->logInfo(__METHOD__ . "|25|");
             $message = '';
             if (isset($response->getResponse()->Status->SubCode->_)) {
                 $message = $response->getResponse()->Status->SubCode->_;
             }
+            $logger->logInfo(__METHOD__ . "|30|", $message);
 
             return array(
                 'result'   => 'error',

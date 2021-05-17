@@ -218,8 +218,22 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'title'       => __('iDIN mode', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('By turning on this setting age verification with iDIN will be in use', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('0' => 'No', 'live' => 'Live', 'test' => 'Test'),
+            'options'     => array('0' => 'Off', 'live' => 'Live', 'test' => 'Test'),
             'default'     => '0'
+        );
+
+        $idinCategories = [];
+        if ($categories = get_terms( ['taxonomy' => 'product_cat', 'hide_empty' => false])) {
+            foreach ($categories as $category) {
+                $idinCategories[$category->term_id] = $category->name;
+            }
+        }
+        $this->form_fields['idincategories'] = array(
+            'title'       => __('iDIN specific product categories', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'multiselect',
+            'options'     => $idinCategories,
+            'description' => __("Select for what product categories iDIN verification should be applied. Don't select anything if want to apply iDIN to any product", 'wc-buckaroo-bpe-gateway'),
+            'default'     => [],
         );
     }
 

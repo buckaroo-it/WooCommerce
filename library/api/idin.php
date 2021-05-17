@@ -12,10 +12,12 @@ class BuckarooIdin
     public static function getIssuerList()
     {
         return [
+            /*
             [
                 'servicename' => 'BANKNL2Y',
                 'displayname' => 'TEST BANK'
             ],
+            */
             [
                 'servicename' => 'ABNANL2A',
                 'displayname' => 'ABN AMRO'
