@@ -39,8 +39,8 @@ class IdinController
     {
         $this->logger->logInfo(__METHOD__ . "|1|");
 
-        if (!BuckarooConfig::isIdin()) {
-            return $this->sendError('iDIN is disabled');
+        if (!BuckarooConfig::isIdin(BuckarooIdin::getCartProductIds())) {
+            $this->sendError('iDIN is disabled');
         }
 
         $data = [];
@@ -91,13 +91,15 @@ class IdinController
         BuckarooIdin::setCurrentUserIsNotVerified();
 
         echo 'ok';
-        exit;
+        die();
     }
 
     private function sendError($error)
     {
         echo json_encode([
-            'error' => $error,
+            'result'   => 'error',
+            'message' => $error
         ], JSON_PRETTY_PRINT);
+        die();
     }
 }

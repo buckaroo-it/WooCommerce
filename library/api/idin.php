@@ -66,7 +66,7 @@ class BuckarooIdin
 
     public static function checkCurrentUserIsVerified()
     {
-        if (!BuckarooConfig::isIdin()) return true;
+        if (!BuckarooConfig::isIdin(BuckarooIdin::getCartProductIds())) return true;
 
         if ($currentIserId = get_current_user_id()) {
             return get_user_meta($currentIserId, 'buckaroo_idin', true);
@@ -92,5 +92,18 @@ class BuckarooIdin
         } else {
             WC()->session->set('buckaroo_idin', 0);
         }
+    }
+
+    public static function getCartProductIds()
+    {
+        global $woocommerce;
+        $items = $woocommerce->cart->get_cart();
+
+        $productIds = [];
+        foreach ($items as $item) {
+            $productIds[] = $item['data']->get_id();
+        }
+
+        return $productIds;
     }
 }

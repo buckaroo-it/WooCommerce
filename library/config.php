@@ -11,7 +11,7 @@ class BuckarooConfig extends BuckarooConfigCore {
 
     const SHIPPING_SKU = "WC8888";
 
-    private static $isIdin;
+    private static $idinCategories;
 
     /**
      * Check if mode is test or live
@@ -192,34 +192,32 @@ class BuckarooConfig extends BuckarooConfigCore {
         return plugins_url('buckaroo_images/' . $icon, __FILE__);
     }
 
-    public static function isIdin() {
-        if (isset(self::$isIdin)) return self::$isIdin;
-
+    public static function isIdin($ids = []) {
+        $isIdin = false;
         if (self::get('BUCKAROO_USE_IDIN')) {
-            if ($categories = BuckarooConfig::getIdinCategories()) {
-                global $woocommerce;
-                $items = $woocommerce->cart->get_cart();
-
-                foreach($items as $item => $values) {
-                    if ($productCategories = get_the_terms( $values['data']->get_id(), 'product_cat' )) {
-                        foreach ($productCategories as $productCategory) {
-                            if (in_array($productCategory->term_id, $categories)) {
-                                self::$isIdin = true;
-                                return self::$isIdin;
+            if (!isset(self::$idinCategories)) {
+                self::$idinCategories = BuckarooConfig::getIdinCategories();
+            }
+            if (self::$idinCategories) {
+                if ($ids) {
+                    foreach ($ids as $id) {
+                        if ($productCategories = get_the_terms($id, 'product_cat')) {
+                            foreach ($productCategories as $productCategory) {
+                                if (in_array($productCategory->term_id, self::$idinCategories)) {
+                                    $isIdin = true;
+                                    return $isIdin;
+                                }
                             }
                         }
                     }
                 }
-
-                self::$isIdin = false;
-                return self::$isIdin;
+                return $isIdin;
             } else {
-                self::$isIdin = true;
-                return self::$isIdin;
+                $isIdin = true;
+                return $isIdin;
             }
         } else {
-            self::$isIdin = false;
-            return self::$isIdin;
+            return $isIdin;
         }
     }
 
