@@ -28,6 +28,7 @@ class BuckarooConfig extends BuckarooConfigCore {
         } else {
             $paymentId = 'woocommerce_buckaroo_' . $paymentId . '_settings';
         }
+        $options = [];
         if (!empty($paymentId)) {
             $options = get_option($paymentId, null);
         }
