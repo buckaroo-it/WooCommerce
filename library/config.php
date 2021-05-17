@@ -31,7 +31,7 @@ class BuckarooConfig extends BuckarooConfigCore {
         if (!empty($paymentId)) {
             $options = get_option($paymentId, null);
         }
-        if ((!$options || empty($options['usemaster']) || $options['usemaster'] != 'no') && !get_option('woocommerce_buckaroo_mastersettings_settings') != TRUE) {
+        if ((empty($options) || empty($options['usemaster']) || $options['usemaster'] != 'no') && !get_option('woocommerce_buckaroo_mastersettings_settings') != TRUE) {
             $masterOptions = get_option('woocommerce_buckaroo_mastersettings_settings', null );
 
             $enabled = isset($options['enabled'])?$options['enabled']:false;
