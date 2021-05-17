@@ -807,3 +807,28 @@ msgstr "Modus iDIN"
 
 msgid "By turning on this setting age verification with iDIN will be in use"
 msgstr "Durch aktivieren dieser einstellung wird die altersüberprüfung mit iDIN verwendet"
+
+msgid "You have verified your age already"
+msgstr "Sie haben ihr alter bereits überprüft"
+
+msgid "Age verification"
+msgstr "Altersüberprüfung"
+
+msgid "To continue you must verify your age using iDIN"
+msgstr "Um fortzufahren, müssen sie ihr alter mit iDIN überprüfen"
+
+msgid "Verify your age via iDIN"
+msgstr "Überprüfen sie ihr alter über iDIN"
+
+msgid "You must be 18 years or older to order this product"
+msgstr "Sie müssen mindestens 18 jahre alt sein, um dieses produkt bestellen zu können"
+
+msgid "You must be 18 or older to pay for the products below"
+msgstr "Sie müssen mindestens 18 jahre alt sein, um für die unten aufgeführten produkte bezahlen zu können"
+
+msgid "You have been verified successfully"
+msgstr "Sie wurden erfolgreich verifiziert"
+
+msgid "Verification has been failed"
+msgstr "Überprüfung ist fehlgeschlagen"
+

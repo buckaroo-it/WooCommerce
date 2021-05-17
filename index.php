@@ -374,7 +374,6 @@ function buckaroo_idin_cart() {
 }
 
 function buckaroo_idin_checkout() {
-    //var_dump(BuckarooConfig::isIdin(BuckarooIdin::getCartProductIds()));die();
     if (BuckarooConfig::isIdin(BuckarooIdin::getCartProductIds())) {
         include 'templates/idin/checkout.php';
     }

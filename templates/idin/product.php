@@ -10,7 +10,7 @@ require_once(dirname(__FILE__) . '/../../library/api/idin.php');
                 //if (BuckarooIdin::checkCurrentUserIsVerified()) {
                 //    _e('You have verified your age already', 'wc-buckaroo-bpe-gateway');
                 //} else {
-                    _e('You must be 18 or older to pay for the product below', 'wc-buckaroo-bpe-gateway');
+                    _e('You must be 18 years or older to order this product', 'wc-buckaroo-bpe-gateway');
                 //}
                 ?>
             </p>
