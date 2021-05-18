@@ -18,8 +18,9 @@ class IdinController
         $response = new BuckarooResponseDefault($_POST);
 
         if ($response && $response->isValid() && $response->hasSucceeded()) {
-            $this->logger->logInfo(__METHOD__ . "|5|");
-            BuckarooIdin::setCurrentUserIsVerified();
+            $bin = $response->brq_service_idin_consumerbin ? $response->brq_service_idin_consumerbin : 1;
+            $this->logger->logInfo(__METHOD__ . "|5|", $bin);
+            BuckarooIdin::setCurrentUserIsVerified($bin);
             wc_add_notice(__('You have been verified successfully', 'wc-buckaroo-bpe-gateway'), 'success');
         } else {
             $this->logger->logInfo(__METHOD__ . "|10|");
@@ -51,7 +52,7 @@ class IdinController
         $url = parse_url($_SERVER['HTTP_REFERER']);
         $data['returnUrl'] = $url['scheme'] . '://' . $url['host'] . '/' . $url[' path'] .
             '?wc-api=WC_Gateway_Buckaroo_idin-return&bk_redirect='.urlencode($_SERVER['HTTP_REFERER']);
-        $data['ContinueOnIncomplete'] = 1;
+        $data['continueonincomplete'] = 'redirecttohtml';
 
         $idealEmulation = false;
 

@@ -37,6 +37,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
     public $brq_transaction_type;
     public $brq_relatedtransaction_partialpayment;
     public $brq_relatedtransaction_refund;
+    public $brq_service_idin_consumerbin;
     //transaction key
     public $transactions;
     //if is errors, othervise = null
@@ -281,6 +282,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
         $this->brq_relatedtransaction_partialpayment = $this->_setPostVariable('brq_relatedtransaction_partialpayment');
         $this->brq_transaction_type                  = $this->_setPostVariable('brq_transaction_type');
         $this->brq_relatedtransaction_refund         = $this->_setPostVariable('brq_relatedtransaction_refund');
+        $this->brq_service_idin_consumerbin          = $this->_setPostVariable('brq_service_idin_consumerbin');
 
         $this->add_order_id    = $this->_setPostVariable('add_order_id');
         $this->brq_ordernumber = $this->_setPostVariable('brq_ordernumber');
