@@ -11,13 +11,7 @@ class BuckarooIdin
      */
     public static function getIssuerList()
     {
-        return [
-            /*
-            [
-                'servicename' => 'BANKNL2Y',
-                'displayname' => 'TEST BANK'
-            ],
-            */
+        $issuers = [
             [
                 'servicename' => 'ABNANL2A',
                 'displayname' => 'ABN AMRO'
@@ -51,6 +45,14 @@ class BuckarooIdin
                 'displayname' => 'Triodos Bank'
             ]
         ];
+
+        if (BuckarooConfig::getIdinMode() == 'test') {
+            $issuers[] = [
+                'servicename' => 'BANKNL2Y',
+                'displayname' => 'TEST BANK'
+            ];
+        }
+        return $issuers;
     }
 
     public static function checkIfValidIssuer($code)
