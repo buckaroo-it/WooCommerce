@@ -199,6 +199,10 @@ function generateGateways()
             'filename' => 'gateway-buckaroo-sofort.php',
             'classname' => 'WC_Gateway_Buckaroo_Sofortbanking',
         ),
+        'Belfius' => array(
+            'filename' => 'gateway-buckaroo-belfius.php',
+            'classname' => 'WC_Gateway_Buckaroo_Belfius',
+        ),
         'SepaDirectDebit' => array(
             'filename' => 'gateway-buckaroo-sepadirectdebit.php',
             'classname' => 'WC_Gateway_Buckaroo_SepaDirectDebit',

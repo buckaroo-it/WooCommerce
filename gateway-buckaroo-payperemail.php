@@ -422,11 +422,12 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
                 'paypal'             => 'PayPal',
                 'sepadirectdebit'    => 'SEPA Direct Debit',
                 'sofortueberweisung' => 'Sofort Banking',
+                'belfius'            => 'Belfiusg',
                 'Przelewy24'         => 'P24',
                 'RequestToPay'       => 'Request To Pay',
             ),
             'description' => __('select which methods will be appear to customer', 'wc-buckaroo-bpe-gateway'),
-            'default'     => array('amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard', 'visa', 'visaelectron', 'vpay', 'maestro', 'bancontactmrcash', 'transfer', 'giftcard', 'giropay', 'ideal', 'paypal', 'sepadirectdebit', 'sofortueberweisung', 'Przelewy24', 'RequestToPay'),
+            'default'     => array('amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard', 'visa', 'visaelectron', 'vpay', 'maestro', 'bancontactmrcash', 'transfer', 'giftcard', 'giropay', 'ideal', 'paypal', 'sepadirectdebit', 'sofortueberweisung', 'belfius', 'Przelewy24', 'RequestToPay'),
         );
     }
 

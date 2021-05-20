@@ -151,6 +151,7 @@ class BuckarooConfig extends BuckarooConfigCore {
                 'paypal' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'sepadirectdebit' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => 'BackOffice'),
                 'sofortbanking' => array('process_payment' => '', 'process_capture' => '',  'process_refund' => ''),
+                'belfius' => array('process_payment' => '', 'process_capture' => '',  'process_refund' => ''),
                 'transfer' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'payconiq' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'nexi' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),

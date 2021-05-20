@@ -447,6 +447,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
                 'bancontactmrcash'           => 'Mr. Cash/Bancontact',
                 'sepadirectdebit'            => 'Machtiging (SEPA Direct Debit)',
                 'sofortueberweisung'         => 'Sofortbanking',
+                'belfius'                    => 'Belfius',
                 'empayment'                  => 'èM! Payment',
                 'babygiftcard'               => 'Baby Giftcard',
                 'babyparkgiftcard'           => 'Babypark Giftcard',

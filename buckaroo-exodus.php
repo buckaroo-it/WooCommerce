@@ -56,6 +56,7 @@
         "woocommerce_buckaroo_nexi_settings",
         "woocommerce_buckaroo_giftcard_settings",
         "woocommerce_buckaroo_sofortbanking_settings", 
+        "woocommerce_buckaroo_belfius_settings", 
         "woocommerce_buckaroo_giropay_settings",
         "woocommerce_buckaroo_sepadirectdebit_settings", 
         "woocommerce_buckaroo_payperemail_settings",
