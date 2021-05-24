@@ -18,7 +18,7 @@ class IdinController
         $response = new BuckarooResponseDefault($_POST);
 
         if ($response && $response->isValid() && $response->hasSucceeded()) {
-            $bin = $response->brq_service_idin_consumerbin ? $response->brq_service_idin_consumerbin : 1;
+            $bin = !empty($response->brq_service_idin_consumerbin) ? $response->brq_service_idin_consumerbin : 0;
             $this->logger->logInfo(__METHOD__ . "|5|", $bin);
             BuckarooIdin::setCurrentUserIsVerified($bin);
             wc_add_notice(__('You have been verified successfully', 'wc-buckaroo-bpe-gateway'), 'success');
