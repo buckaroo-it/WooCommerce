@@ -54,28 +54,14 @@ class IdinController
             '?wc-api=WC_Gateway_Buckaroo_idin-return&bk_redirect='.urlencode($_SERVER['HTTP_REFERER']);
         $data['continueonincomplete'] = 'redirecttohtml';
 
-        $idealEmulation = false;
-
-        if ($idealEmulation) {
-            $data['services']['ideal']['action']  = 'pay';
-            $data['services']['ideal']['version'] = '2';
-            $data['customVars']['ideal']['issuer'] = 'ABNANL2A';
-            $data['amountDebit'] = 10;
-            $data['invoice'] = 'emu_' . rand(1,100000000);
-        } else {
-            $data['services']['idin']['action']  = 'verify';
-            $data['services']['idin']['version'] = '0';
-            $data['customVars']['idin']['issuerId'] =
-                (isset($_GET['issuer']) && BuckarooIdin::checkIfValidIssuer($_GET['issuer'])) ? $_GET['issuer'] : '';
-        }
+        $data['services']['idin']['action']  = 'verify';
+        $data['services']['idin']['version'] = '0';
+        $data['customVars']['idin']['issuerId'] =
+            (isset($_GET['issuer']) && BuckarooIdin::checkIfValidIssuer($_GET['issuer'])) ? $_GET['issuer'] : '';
 
         $soap = new BuckarooSoap($data);
 
-        if ($idealEmulation) {
-            $response = BuckarooResponseFactory::getResponse($soap->transactionRequest());
-        } else {
-            $response = BuckarooResponseFactory::getResponse($soap->transactionRequest('DataRequest'));
-        }
+        $response = BuckarooResponseFactory::getResponse($soap->transactionRequest('DataRequest'));
 
         $this->logger->logInfo(__METHOD__ . "|5|", $response);
 
