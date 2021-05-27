@@ -972,3 +972,8 @@ msgstr "Je bent succesvol geverifieerd"
 msgid "Verification has been failed"
 msgstr "Verificatie is mislukt"
 
+msgid "According to iDIN you are under 18 years old"
+msgstr "Volgens iDIN ben je jonger dan 18 jaar"
+
+
+

@@ -81,8 +81,10 @@ class BuckarooIdin
     public static function setCurrentUserIsVerified($bin)
     {
         if ($currentIserId = get_current_user_id()) {
-            add_user_meta($currentIserId, 'buckaroo_idin', $bin, true);
+            add_user_meta($currentIserId, 'buckaroo_idin', 1, true);
+            add_user_meta($currentIserId, 'buckaroo_idin_bin', $bin, true);
         } else {
+            WC()->session->set('buckaroo_idin', 1);
             WC()->session->set('buckaroo_idin', $bin);
         }
     }
@@ -91,8 +93,10 @@ class BuckarooIdin
     {
         if ($currentIserId = get_current_user_id()) {
             delete_user_meta($currentIserId, 'buckaroo_idin');
+            delete_user_meta($currentIserId, 'buckaroo_idin_bin');
         } else {
             WC()->session->set('buckaroo_idin', 0);
+            WC()->session->set('buckaroo_idin_bin', 0);
         }
     }
 

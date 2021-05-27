@@ -19,9 +19,14 @@ class IdinController
 
         if ($response && $response->isValid() && $response->hasSucceeded()) {
             $bin = !empty($response->brq_service_idin_consumerbin) ? $response->brq_service_idin_consumerbin : 0;
+            $isEighteen = $response->brq_service_idin_iseighteenorolder === 'True' ? 1 : 0;
             $this->logger->logInfo(__METHOD__ . "|5|", $bin);
-            BuckarooIdin::setCurrentUserIsVerified($bin);
-            wc_add_notice(__('You have been verified successfully', 'wc-buckaroo-bpe-gateway'), 'success');
+            if ($isEighteen) {
+                BuckarooIdin::setCurrentUserIsVerified($bin);
+                wc_add_notice(__('You have been verified successfully', 'wc-buckaroo-bpe-gateway'), 'success');
+            } else {
+                wc_add_notice(__('According to iDIN you are under 18 years old', 'wc-buckaroo-bpe-gateway'), 'error');
+            }
         } else {
             $this->logger->logInfo(__METHOD__ . "|10|");
             wc_add_notice(

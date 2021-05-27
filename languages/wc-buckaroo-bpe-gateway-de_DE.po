@@ -832,3 +832,5 @@ msgstr "Sie wurden erfolgreich verifiziert"
 msgid "Verification has been failed"
 msgstr "Überprüfung ist fehlgeschlagen"
 
+msgid "According to iDIN you are under 18 years old"
+msgstr "Laut iDIN sind sie unter 18 jahre alt"
