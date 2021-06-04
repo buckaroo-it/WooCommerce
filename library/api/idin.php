@@ -103,11 +103,15 @@ class BuckarooIdin
     public static function getCartProductIds()
     {
         global $woocommerce;
-        $items = $woocommerce->cart->get_cart();
 
         $productIds = [];
-        foreach ($items as $item) {
-            $productIds[] = $item['data']->get_id();
+
+        if ($woocommerce->cart) {
+            $items = $woocommerce->cart->get_cart();
+
+            foreach ($items as $item) {
+                $productIds[] = $item['data']->get_id();
+            }
         }
 
         return $productIds;

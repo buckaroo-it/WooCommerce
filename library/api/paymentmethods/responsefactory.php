@@ -12,7 +12,7 @@ require_once(dirname(__FILE__) . '/responsedefault.php');
  */
 class BuckarooResponseFactory {
     
-    final private static function getPaymentMethod($data = null) {
+    private static function getPaymentMethod($data = null) {
 
         $paymentMethod = 'default';
 

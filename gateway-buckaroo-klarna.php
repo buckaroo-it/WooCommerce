@@ -298,7 +298,9 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
         foreach ($items as $item) {
             $product = new WC_Product($item['product_id']);
             $imgTag  = $product->get_image();
-            $xpath   = new DOMXPath(@DOMDocument::loadHTML($imgTag));
+            $doc = new DOMDocument();
+            $doc->loadHTML($imgTag);
+            $xpath   = new DOMXPath($doc);
             $src     = $xpath->evaluate("string(//img/@src)");
 
             $tax      = new WC_Tax();

@@ -57,7 +57,7 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
      * @param array $customVars
      * @return callable parent::PayGlobal()
      */
-    public function AuthorizeCC($customVars = Array(), $order) {
+    public function AuthorizeCC($customVars, $order) {
 
         $this->type = $customVars['CreditCardIssuer'];
         $this->version = 0;
@@ -155,7 +155,7 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
      * @param array $customVars
      * @return callable parent::PayGlobal()
      */
-    public function AuthorizeEncrypt($customVars = Array(), $order) {
+    public function AuthorizeEncrypt($customVars, $order) {
 
         $this->type = $customVars['CreditCardIssuer'];
         $this->version = 0;

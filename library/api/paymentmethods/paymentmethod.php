@@ -387,6 +387,9 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
                     if (!isset($taxItemFromOrder['total'][$taxItem])) {
                         throw new Exception('Incorrect entered product price. Please check refund tax amount');
                     }
+                    if (!isset($orderRefundData[$key]['tax'])) {
+                        $orderRefundData[$key]['tax'] = 0;
+                    }
                     $orderRefundData[$key]['tax'] += $taxItemValue;
                 }
             }
@@ -402,7 +405,12 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
 
         $orderRefundData['totalRefund'] = 0;
         foreach ($orderRefundData as $key => $item) {
-            $orderRefundData['totalRefund'] += $orderRefundData[$key]['total'] + $orderRefundData[$key]['tax'];
+            if ($key != 'totalRefund') {
+                if (!isset($orderRefundData[$key]['tax'])) {
+                    $orderRefundData[$key]['tax'] = 0;
+                }
+                $orderRefundData['totalRefund'] += $orderRefundData[$key]['total'] + $orderRefundData[$key]['tax'];
+            }
         }
 
         return $orderRefundData;

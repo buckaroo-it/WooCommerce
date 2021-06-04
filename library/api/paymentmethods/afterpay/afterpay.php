@@ -69,7 +69,7 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
      * @param array $products
      * @return callable parent::Pay();
      */
-    public function PayOrAuthorizeAfterpay($products = array(), $action)
+    public function PayOrAuthorizeAfterpay($products, $action)
     {
         $this->data['customVars'][$this->type]['BillingGender']            = $this->BillingGender;
         $this->data['customVars'][$this->type]['BillingInitials']          = $this->BillingInitials;

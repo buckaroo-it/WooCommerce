@@ -720,7 +720,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $afterpay->ShippingPhoneNumber = $number['phone'];
         }
 
-        if ($_POST['shipping_method'][0] == 'dhlpwc-parcelshop') {
+        if (!empty($_POST['shipping_method'][0]) && ($_POST['shipping_method'][0] == 'dhlpwc-parcelshop')) {
             $dhlConnectorData                    = $order->get_meta('_dhlpwc_order_connectors_data');
             $dhlCountry                          = !empty($this->country) ? $this->country : $_POST['billing_country'];
             $requestPart                         = $dhlCountry . '/' . $dhlConnectorData['id'];
@@ -788,7 +788,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
             $product = new WC_Product($item['product_id']);
             $imgTag  = $product->get_image();
-            $xpath   = new DOMXPath(@DOMDocument::loadHTML($imgTag));
+            $doc = new DOMDocument();
+            $doc->loadHTML($imgTag);
+            $xpath   = new DOMXPath($doc);
             $src     = $xpath->evaluate("string(//img/@src)");
 
             $tax      = new WC_Tax();

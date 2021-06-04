@@ -243,14 +243,14 @@ function generateGateways()
             'filename' => 'gateway-buckaroo-payperemail.php',
             'classname' => 'WC_Gateway_Buckaroo_PayPerEmail',
         ),
-//        'KlarnaPay' => array(
-//            'filename' => 'gateway-buckaroo-klarnapay.php',
-//            'classname' => 'WC_Gateway_Buckaroo_KlarnaPay',
-//        ),
-//        'KlarnaPII' => array(
-//            'filename' => 'gateway-buckaroo-klarnapii.php',
-//            'classname' => 'WC_Gateway_Buckaroo_KlarnaPII',
-//        ),
+        'KlarnaPay' => array(
+            'filename' => 'gateway-buckaroo-klarnapay.php',
+            'classname' => 'WC_Gateway_Buckaroo_KlarnaPay',
+        ),
+        'KlarnaPII' => array(
+            'filename' => 'gateway-buckaroo-klarnapii.php',
+            'classname' => 'WC_Gateway_Buckaroo_KlarnaPII',
+        ),
     );
     $buckaroo_enabled_payment_methods = array();
     if (file_exists(dirname(__FILE__) . '/gateway-buckaroo-testscripts.php')) {
