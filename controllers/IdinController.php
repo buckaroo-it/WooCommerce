@@ -55,7 +55,7 @@ class IdinController
         $data['amountCredit']     = 0;
         $data['mode'] = BuckarooConfig::getIdinMode();
         $url = parse_url($_SERVER['HTTP_REFERER']);
-        $data['returnUrl'] = $url['scheme'] . '://' . $url['host'] . '/' . $url[' path'] .
+        $data['returnUrl'] = $url['scheme'] . '://' . $url['host'] . '/' . ($url['path'] ?? '') .
             '?wc-api=WC_Gateway_Buckaroo_idin-return&bk_redirect='.urlencode($_SERVER['HTTP_REFERER']);
         $data['continueonincomplete'] = 'redirecttohtml';
 

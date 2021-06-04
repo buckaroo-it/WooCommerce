@@ -69,9 +69,9 @@
                 $credit = round($this->_vars['amountCredit'], 2);
                 $TransactionRequest->AmountDebit = str_replace($search, $replace, $debit);
                 $TransactionRequest->AmountCredit = str_replace($search, $replace, $credit);
-                $TransactionRequest->Invoice = $this->_vars['invoice'];
-                $TransactionRequest->Order = $this->_vars['order'];
-                $TransactionRequest->Description = $this->_vars['description'];
+                $TransactionRequest->Invoice = $this->_vars['invoice'] ?? null;
+                $TransactionRequest->Order = $this->_vars['order'] ?? null;
+                $TransactionRequest->Description = $this->_vars['description'] ?? null;
                 $TransactionRequest->ReturnURL = $this->_vars['returnUrl'];
                 if (!empty($this->_vars['OriginalTransactionKey'])) {
                     $TransactionRequest->OriginalTransactionKey = $this->_vars['OriginalTransactionKey'];
@@ -132,7 +132,7 @@
                 //Old Method 
                 // $Header->MessageControlBlock->Channel = BuckarooConfig::CHANNEL;
                 //New Method 
-                $Header->MessageControlBlock->Channel = $this->_vars['channel'];
+                $Header->MessageControlBlock->Channel = $this->_vars['channel'] ?? null;
 
                 $Header->MessageControlBlock->Software = BuckarooConfig::getSoftware();
                 $Header->Security = new SecurityType();

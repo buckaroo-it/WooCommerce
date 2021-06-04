@@ -50,7 +50,7 @@ class BuckarooConfig extends BuckarooConfigCore {
         }
         switch ($key) {
             case 'CULTURE':
-                $val = $options['culture'];
+                $val = $options['culture'] ?? null;
                 break;
             case 'BUCKAROO_TRANSDESC':
                 $val = empty($options['transactiondescription']) ? "Buckaroo": $options['transactiondescription'];
@@ -59,7 +59,7 @@ class BuckarooConfig extends BuckarooConfigCore {
                 $val = (empty($options['usenotification']) ?  FALSE : $options['usenotification']);
                 break;
             case 'BUCKAROO_NOTIFICATION_DELAY':
-                if ($options['usenotification'] != FALSE) {
+                if (!empty($options['usenotification'])) {
                     $val = $options['notificationdelay'];
                 } else {
                     $val = '0';
@@ -82,17 +82,17 @@ class BuckarooConfig extends BuckarooConfigCore {
 
                 break;
             case 'BUCKAROO_MERCHANT_KEY':
-                $val = $options['merchantkey'];
+                $val = $options['merchantkey'] ?? '';
                 break;
             case 'BUCKAROO_SECRET_KEY':
-                $val = $options['secretkey'];
+                $val = $options['secretkey'] ?? '';
                 break;
             case 'BUCKAROO_CERTIFICATE_THUMBPRINT':
-                $val = $options['thumbprint'];
+                $val = $options['thumbprint'] ?? '';
                 break;
             case 'BUCKAROO_DEBUG':
                 $options = get_option('woocommerce_buckaroo_mastersettings_settings', null );//Debug switch only in mastersettings
-                $val = $options['debugmode'];
+                $val = $options['debugmode'] ?? null;
                 break;
             case 'BUCKAROO_USE_NEW_ICONS':
                 $val = (empty($options['usenewicons']) ?  FALSE : $options['usenewicons']);
