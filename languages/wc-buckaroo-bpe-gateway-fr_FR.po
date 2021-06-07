@@ -795,3 +795,42 @@ msgstr ""
 #. Author of the plugin
 msgid "Buckaroo"
 msgstr ""
+
+msgid "Use new icons"
+msgstr "Utiliser de nouvelles icônes"
+
+msgid "By turning on this setting in checkout new payment method icons will be in use"
+msgstr "En activant ce paramètre lors du paiement, de nouvelles icônes de mode de paiement seront utilisées"
+
+msgid "iDIN mode"
+msgstr "Mode iDIN"
+
+msgid "By turning on this setting age verification with iDIN will be in use"
+msgstr "En activant ce paramètre, la vérification de l'âge avec iDIN sera utilisée"
+
+msgid "You have verified your age already"
+msgstr "Vous avez déjà vérifié votre âge"
+
+msgid "Age verification"
+msgstr "Verification de l'AGE"
+
+msgid "To continue you must verify your age using iDIN"
+msgstr "Pour continuer, vous devez vérifier votre âge à l'aide d'iDIN"
+
+msgid "Verify your age via iDIN"
+msgstr "Vérifiez votre âge via iDIN"
+
+msgid "You must be 18 years or older to order this product"
+msgstr "Vous devez être âgé d'au moins 18 ans pour commander ce produit"
+
+msgid "You must be 18 or older to pay for the products below"
+msgstr "Vous devez être âgé d'au moins 18 ans pour payer les produits ci-dessous"
+
+msgid "You have been verified successfully"
+msgstr "Vous avez été vérifié avec succès"
+
+msgid "Verification has been failed"
+msgstr "La vérification a échoué"
+
+msgid "According to iDIN you are under 18 years old"
+msgstr "Selon iDIN, vous avez moins de 18 ans"

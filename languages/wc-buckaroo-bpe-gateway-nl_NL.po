@@ -935,3 +935,45 @@ msgstr "http://www.buckaroo.nl"
 #. Author of the plugin
 msgid "Buckaroo"
 msgstr ""
+
+msgid "Use new icons"
+msgstr "Gebruik nieuwe pictogrammen"
+
+msgid "By turning on this setting in checkout new payment method icons will be in use"
+msgstr "Door deze instelling in te schakelen bij het afrekenen, worden nieuwe betaalmethodesymbolen gebruikt"
+
+msgid "iDIN mode"
+msgstr "Modus iDIN"
+
+msgid "By turning on this setting age verification with iDIN will be in use"
+msgstr "Door deze instelling in te schakelen, wordt leeftijdsverificatie met iDIN gebruikt"
+
+msgid "You have verified your age already"
+msgstr "U heeft uw leeftijd al geverifieerd"
+
+msgid "Age verification"
+msgstr "Leeftijd verificatie"
+
+msgid "To continue you must verify your age using iDIN"
+msgstr "Om door te gaan moet u uw leeftijd middels iDIN verifieren"
+
+msgid "Verify your age via iDIN"
+msgstr "Verifiëren uw leeftijd via iDIN"
+
+msgid "You must be 18 years or older to order this product"
+msgstr "Om dit product te bestellen dien je 18 jaar of ouder te zijn"
+
+msgid "You must be 18 or older to pay for the products below"
+msgstr "Om dit product te bestellen dien je 18 jaar of ouder te zijn"
+
+msgid "You have been verified successfully"
+msgstr "Je bent succesvol geverifieerd"
+
+msgid "Verification has been failed"
+msgstr "Verificatie is mislukt"
+
+msgid "According to iDIN you are under 18 years old"
+msgstr "Volgens iDIN ben je jonger dan 18 jaar"
+
+
+

@@ -5,7 +5,7 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
-Version: 2.18.1
+Version: 2.19.0
 Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -195,13 +195,13 @@ function generateGateways()
             'gateway-buckaroo-p24.php',
             'classname' => 'WC_Gateway_Buckaroo_P24',
         ),
-        'Paysafecard' => array(
-            'filename' => 'gateway-buckaroo-paysafecard.php',
-            'classname' => 'WC_Gateway_Buckaroo_Paysafecard',
-        ),
         'Sofortbanking' => array(
             'filename' => 'gateway-buckaroo-sofort.php',
             'classname' => 'WC_Gateway_Buckaroo_Sofortbanking',
+        ),
+        'Belfius' => array(
+            'filename' => 'gateway-buckaroo-belfius.php',
+            'classname' => 'WC_Gateway_Buckaroo_Belfius',
         ),
         'SepaDirectDebit' => array(
             'filename' => 'gateway-buckaroo-sepadirectdebit.php',
@@ -218,10 +218,6 @@ function generateGateways()
         'Payconiq' => array(
             'filename' => 'gateway-buckaroo-payconiq.php',
             'classname' => 'WC_Gateway_Buckaroo_Payconiq',
-        ),
-        'PaymentGuarantee' => array(
-            'filename' => 'gateway-buckaroo-paygarant.php',
-            'classname' => 'WC_Gateway_Buckaroo_PayGarant',
         ),
         'Applepay' => array(
             'filename' => 'gateway-buckaroo-applepay.php',
@@ -247,14 +243,14 @@ function generateGateways()
             'filename' => 'gateway-buckaroo-payperemail.php',
             'classname' => 'WC_Gateway_Buckaroo_PayPerEmail',
         ),
-//        'KlarnaPay' => array(
-//            'filename' => 'gateway-buckaroo-klarnapay.php',
-//            'classname' => 'WC_Gateway_Buckaroo_KlarnaPay',
-//        ),
-//        'KlarnaPII' => array(
-//            'filename' => 'gateway-buckaroo-klarnapii.php',
-//            'classname' => 'WC_Gateway_Buckaroo_KlarnaPII',
-//        ),
+        'KlarnaPay' => array(
+            'filename' => 'gateway-buckaroo-klarnapay.php',
+            'classname' => 'WC_Gateway_Buckaroo_KlarnaPay',
+        ),
+        'KlarnaPII' => array(
+            'filename' => 'gateway-buckaroo-klarnapii.php',
+            'classname' => 'WC_Gateway_Buckaroo_KlarnaPII',
+        ),
     );
     $buckaroo_enabled_payment_methods = array();
     if (file_exists(dirname(__FILE__) . '/gateway-buckaroo-testscripts.php')) {
@@ -354,6 +350,37 @@ function buckaroo_init_gateway()
 
     add_action( 'woocommerce_order_action_buckaroo_create_paylink', 'buckaroo_create_paylink', 10, 1 );
 
+    require_once __DIR__ . '/controllers/IdinController.php';
+
+    $idinController = new IdinController;
+
+    add_action('woocommerce_before_single_product','buckaroo_idin_product');
+    add_action('woocommerce_before_cart','buckaroo_idin_cart');
+    add_action('woocommerce_review_order_before_payment','buckaroo_idin_checkout');
+
+    add_action('woocommerce_api_wc_gateway_buckaroo_idin-identify', [$idinController, 'identify']);
+    add_action('woocommerce_api_wc_gateway_buckaroo_idin-reset', [$idinController, 'reset']);
+    add_action('woocommerce_api_wc_gateway_buckaroo_idin-return', [$idinController, 'returnHandler']);
+}
+
+function buckaroo_idin_product() {
+    global $post;
+
+    if (BuckarooConfig::isIdin([$post->ID])) {
+        include 'templates/idin/cart.php';
+    }
+}
+
+function buckaroo_idin_cart() {
+    if (BuckarooConfig::isIdin(BuckarooIdin::getCartProductIds())) {
+        include 'templates/idin/cart.php';
+    }
+}
+
+function buckaroo_idin_checkout() {
+    if (BuckarooConfig::isIdin(BuckarooIdin::getCartProductIds())) {
+        include 'templates/idin/checkout.php';
+    }
 }
 
 function my_custom_checkout_field_display_admin_order_meta($order){

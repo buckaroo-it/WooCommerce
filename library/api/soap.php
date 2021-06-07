@@ -15,7 +15,7 @@
                 $this->setVars($data);
             }
             
-            public function transactionRequest() {
+            public function transactionRequest($type = 'TransactionRequest') {
                 try {
                     //first attempt: use the cached WSDL
                     $client = new SoapClientWSSEC(
@@ -69,9 +69,9 @@
                 $credit = round($this->_vars['amountCredit'], 2);
                 $TransactionRequest->AmountDebit = str_replace($search, $replace, $debit);
                 $TransactionRequest->AmountCredit = str_replace($search, $replace, $credit);
-                $TransactionRequest->Invoice = $this->_vars['invoice'];
-                $TransactionRequest->Order = $this->_vars['order'];
-                $TransactionRequest->Description = $this->_vars['description'];
+                $TransactionRequest->Invoice = $this->_vars['invoice'] ?? null;
+                $TransactionRequest->Order = $this->_vars['order'] ?? null;
+                $TransactionRequest->Description = $this->_vars['description'] ?? null;
                 $TransactionRequest->ReturnURL = $this->_vars['returnUrl'];
                 if (!empty($this->_vars['OriginalTransactionKey'])) {
                     $TransactionRequest->OriginalTransactionKey = $this->_vars['OriginalTransactionKey'];
@@ -132,7 +132,7 @@
                 //Old Method 
                 // $Header->MessageControlBlock->Channel = BuckarooConfig::CHANNEL;
                 //New Method 
-                $Header->MessageControlBlock->Channel = $this->_vars['channel'];
+                $Header->MessageControlBlock->Channel = $this->_vars['channel'] ?? null;
 
                 $Header->MessageControlBlock->Software = BuckarooConfig::getSoftware();
                 $Header->Security = new SecurityType();
@@ -179,7 +179,7 @@
                 $client->__SetLocation($location);
 
                 try {
-                    $response = $client->TransactionRequest($TransactionRequest);
+                    $response = $client->{$type}($TransactionRequest);
                 } catch (SoapFault $e) {
                     $logger = new BuckarooLogger(1);
                     $logger->logForUser($e->getMessage());

@@ -17,7 +17,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
 
         $this->id                     = 'buckaroo_in3';
         $this->title                  = 'In3';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_in3_icon', plugins_url('library/buckaroo_images/24x24/in3.png', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_in3_icon', BuckarooConfig::getIconPath('24x24/in3.png', 'new/In3.png'));
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo In3';
         $this->description            = "Betaal met In3";
@@ -337,7 +337,7 @@ $country = isset($_POST['s_country']) ? $_POST['s_country'] : $this->country;
                     <input id="buckaroo-in3-companyname" name="buckaroo-in3-companyname" class="" maxlength="250" />
                 </p>
                 <script>
-                    let customerTypeElement = document.getElementById('buckaroo-in3-orderas');
+                    var customerTypeElement = document.getElementById('buckaroo-in3-orderas');
                     customerTypeElement.addEventListener('change', function () {
                         let customerType = this.value;
 

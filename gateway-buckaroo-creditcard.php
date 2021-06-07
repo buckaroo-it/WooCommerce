@@ -13,7 +13,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_creditcard';
         $this->title                  = 'Creditcards';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_creditcard_icon', plugins_url('library/buckaroo_images/24x24/cc.gif', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_creditcard_icon', BuckarooConfig::getIconPath('24x24/cc.gif', 'new/CreditCards.png'));
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo Creditcards";
         $this->description            = "Betaal met Creditcards";

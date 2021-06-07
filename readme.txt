@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 5.5.1
-Stable tag: 2.18.1
+Tested up to: 5.7.2
+Stable tag: 2.19.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,19 +25,19 @@ Payment method support list:
 6. Giftcards
 7. Giropay
 8. Bancontact
-9. Payment Guarantee
-10. SOFORT Banking
-11. SEPA Credit Transfer (Bank transfer)
-12. SEPA Direct Debit (With or without Credit management)
-13. Paysafecard
-14. Payconiq
-15. Nexi
-16. P24
-17. AfterPay 2.0
-18. Apple Pay
-19. KBC
-20. PayPerEmail
-21. Billink
+9. SOFORT Banking
+10. SEPA Credit Transfer (Bank transfer)
+11. SEPA Direct Debit (With or without Credit management)
+12. Payconiq
+13. Nexi
+14. P24
+15. AfterPay 2.0
+16. Apple Pay
+17. KBC
+18. PayPerEmail
+19. Billink
+20. Belfius
+21. Klarna
 
 == Installation ==
 
@@ -96,6 +96,20 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.19.0 =
+- Add payment method Belfius
+- Add verification method iDIN (age verification)
+- Add Klarna 'Pay' and 'PayInInstallments'
+- Bancontact / MisterCash broken settings
+- Plugin does not work when "Transaction Description" is not filled in
+- Identifier 'customerTypeElement' has already been declared
+- Change payment icons
+- Add Payment method Billink (add article description)
+- Remove iDEAL issuer Moneyou from all plugins.
+- Status not pushed successfully after custom change to invoice number
+- Fix some PHP notices
+- PHP8 is giving errors for the payment method "Afterpaynew"
 
 = 2.18.1 =
 - Fix In3 not working [BP-751]

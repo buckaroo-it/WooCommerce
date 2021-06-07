@@ -19,7 +19,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         $this->id                     = 'buckaroo_afterpaynew';
         $this->title                  = 'AfterPay';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_afterpay_icon', plugins_url('library/buckaroo_images/24x24/afterpaynew.png', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_afterpay_icon', BuckarooConfig::getIconPath('24x24/afterpaynew.png', 'new/AfterPay.png'));
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo AfterPay New';
         $this->description            = "Betaal met AfterPay";
@@ -720,7 +720,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $afterpay->ShippingPhoneNumber = $number['phone'];
         }
 
-        if ($_POST['shipping_method'][0] == 'dhlpwc-parcelshop') {
+        if (!empty($_POST['shipping_method'][0]) && ($_POST['shipping_method'][0] == 'dhlpwc-parcelshop')) {
             $dhlConnectorData                    = $order->get_meta('_dhlpwc_order_connectors_data');
             $dhlCountry                          = !empty($this->country) ? $this->country : $_POST['billing_country'];
             $requestPart                         = $dhlCountry . '/' . $dhlConnectorData['id'];
@@ -788,7 +788,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
             $product = new WC_Product($item['product_id']);
             $imgTag  = $product->get_image();
-            $xpath   = new DOMXPath(@DOMDocument::loadHTML($imgTag));
+            $doc = new DOMDocument();
+            $doc->loadHTML($imgTag);
+            $xpath   = new DOMXPath($doc);
             $src     = $xpath->evaluate("string(//img/@src)");
 
             $tax      = new WC_Tax();

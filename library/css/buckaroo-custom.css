@@ -2,10 +2,6 @@
    background-color: white;
 }
 
-.wc_payment_method.payment_method_buckaroo_afterpay label img {
-	width: 24px!important;
-}
-
 /* Hide Exodus Method */
 .wc_payment_method.payment_method_ {
 	display: none;
@@ -115,3 +111,22 @@ table.woocommerce_order_items tbody tr:first-child td {
     line-height: 32px;
     vertical-align: top;
 }
+
+.buckaroo-idin.buckaroo-idin-passed p, .buckaroo-idin-cart p {
+    margin:0;
+}
+
+#buckaroo_idin .buckaroo_idin_logo, #buckaroo_idin_cart .buckaroo_idin_logo {
+    width: 3em;
+    float:left;
+}
+
+.buckaroo-idin .buckaroo_idin_prompt {
+    padding-left: 3.5em;
+}
+
+.buckaroo-idin-cart .buckaroo_idin_prompt {
+    padding-top: 0.5em;
+    padding-left: 3.5em;
+}
+

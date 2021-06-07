@@ -12,7 +12,7 @@ class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_kbc';
         $this->title                  = 'KBC/CBC';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_kbc_icon', plugins_url('library/buckaroo_images/24x24/kbc.png', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_kbc_icon', BuckarooConfig::getIconPath('24x24/kbc.png', 'new/KBC.png'));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo KBC/СBC";
         $this->description            = "Betaal met KBC/CBC";

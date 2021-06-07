@@ -2,7 +2,7 @@
 
 Class ApplePayController 
 {       
-    public function getShopInformation() 
+    public static function getShopInformation() 
     {
         $country_code = preg_replace('/\:\*/', '', get_option('woocommerce_default_country'));
     
@@ -16,7 +16,7 @@ Class ApplePayController
         exit;
     }
      
-    public function getItemsFromDetailPage()
+    public static function getItemsFromDetailPage()
     {       
         $items = self::createTemporaryCart(function () {
             global $woocommerce;
@@ -79,7 +79,7 @@ Class ApplePayController
         exit;
     }
 
-    public function getItemsFromCart()
+    public static function getItemsFromCart()
     {
         global $woocommerce;
 
@@ -131,7 +131,7 @@ Class ApplePayController
         exit;
     }
 
-    public function getShippingMethods()
+    public static function getShippingMethods()
     {    
         function wcMethods() {
             global $woocommerce;

@@ -57,7 +57,7 @@ class BuckarooIn3 extends BuckarooPaymentMethod
      * @param array $products
      * @return callable parent::Pay();
      */
-    public function PayIn3($products = array(), $action)
+    public function PayIn3($products, $action)
     {
         $this->data['customParameters']["order_id"] = $this->orderId;
 

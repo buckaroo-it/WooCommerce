@@ -18,7 +18,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
 
         $this->id                     = 'buckaroo_sepadirectdebit';
         $this->title                  = 'SEPA Direct Debit';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_sepadirectdebit_icon', plugins_url('library/buckaroo_images/24x24/directdebit.png', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_sepadirectdebit_icon', BuckarooConfig::getIconPath('24x24/directdebit.png', 'new/SEPA-directdebit.png'));
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo SEPA Direct Debit';
         $this->description            = "Betaal met SEPA Direct Debit";
@@ -447,8 +447,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
                 'bancontactmrcash'           => 'Mr. Cash/Bancontact',
                 'sepadirectdebit'            => 'Machtiging (SEPA Direct Debit)',
                 'sofortueberweisung'         => 'Sofortbanking',
-                'paymentguarantee'           => 'Payment guarantee',
-                'paysafecard'                => 'Paysafecard',
+                'belfius'                    => 'Belfius',
                 'empayment'                  => 'èM! Payment',
                 'babygiftcard'               => 'Baby Giftcard',
                 'babyparkgiftcard'           => 'Babypark Giftcard',

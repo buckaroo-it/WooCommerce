@@ -12,7 +12,7 @@ class WC_Gateway_Buckaroo_Nexi extends WC_Gateway_Buckaroo
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_nexi';
         $this->title                  = 'Nexi';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_nexi_icon', plugins_url('library/buckaroo_images/24x24/nexi.png', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_nexi_icon', BuckarooConfig::getIconPath('24x24/nexi.png', 'new/Nexi.png'));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Nexi";
         $this->description            = "Betaal met Nexi";

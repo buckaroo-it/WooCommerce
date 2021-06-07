@@ -7,10 +7,12 @@ require_once dirname(__FILE__).'/api/config/configcore.php';
 class BuckarooConfig extends BuckarooConfigCore {
     const NAME = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-    const VERSION = '2.18.1';
+    const VERSION = '2.19.0';
 
     const SHIPPING_SKU = "WC8888";
-   
+
+    private static $idinCategories;
+
     /**
      * Check if mode is test or live
      * 
@@ -26,75 +28,84 @@ class BuckarooConfig extends BuckarooConfigCore {
         } else {
             $paymentId = 'woocommerce_buckaroo_' . $paymentId . '_settings';
         }
-
+        $options = [];
         if (!empty($paymentId)) {
-            $options = get_option( $paymentId, null );
-            if ((empty($options['usemaster']) || $options['usemaster'] != 'no') && !get_option('woocommerce_buckaroo_mastersettings_settings') != TRUE) {
-                $masterOptions = get_option('woocommerce_buckaroo_mastersettings_settings', null );
+            $options = get_option($paymentId, null);
+        }
+        if ((empty($options) || empty($options['usemaster']) || $options['usemaster'] != 'no') && !get_option('woocommerce_buckaroo_mastersettings_settings') != TRUE) {
+            $masterOptions = get_option('woocommerce_buckaroo_mastersettings_settings', null );
 
-                $enabled = isset($options['enabled'])?$options['enabled']:false;
-                if (is_array($options) && is_array($masterOptions)) {
-                    $options = array_replace($options, $masterOptions);
-                }
-          
-                if(!is_array($options) && is_array($masterOptions)) {
-                    $options = $masterOptions;
-                }
-
-                if(is_array($options) && $enabled){
-                    $options['enabled'] = $enabled;
-                }
+            $enabled = isset($options['enabled'])?$options['enabled']:false;
+            if (is_array($options) && is_array($masterOptions)) {
+                $options = array_replace($options, $masterOptions);
             }
-            switch ($key) {
-                case 'CULTURE':
-                    $val = $options['culture'];
-                    break;
-                case 'BUCKAROO_TRANSDESC':
-                    $val = $options['transactiondescription'];
-                    break;
-                case 'BUCKAROO_USE_NOTIFICATION':
-                    $val = (empty($options['usenotification']) ?  FALSE : $options['usenotification']);
-                    break;
-                case 'BUCKAROO_NOTIFICATION_DELAY':
-                    if ($options['usenotification'] != FALSE) {
-                        $val = $options['notificationdelay'];
-                    } else {
-                        $val = '0';
-                    }
-                    break;
-                case 'BUCKAROO_CERTIFICATE_PATH':
-                    $val = "";
-                    if (!empty($options['selectcertificate']) && $options['selectcertificate'] != 'none') {
-                        $selectedCert = $options['selectcertificate'];
-                        $val = $options["certificatecontents$selectedCert"];
-                    }
-                    //Start - Support old version of certificate storage
-                    if ($val == "" && (empty($options["certificatecontents1"]) || $options["certificatecontents1"] == "")) {
-                        $tmp_options = get_option($paymentId, null);
-                        $certificate_name = !empty($tmp_options['certificate']) ?  $tmp_options['certificate'] : 'BuckarooPrivateKey.pem';
-                        $upload_dir = wp_upload_dir();
-                        $val = file_get_contents($upload_dir["basedir"]."/woocommerce_uploads/".$certificate_name);
-                    }
-                    //End - Support old version of certificate storage
 
-                    break;
-                case 'BUCKAROO_MERCHANT_KEY':
-                    $val = $options['merchantkey'];
-                    break;
-                case 'BUCKAROO_SECRET_KEY':
-                    $val = $options['secretkey'];
-                    break;
-                case 'BUCKAROO_CERTIFICATE_THUMBPRINT':
-                    $val = $options['thumbprint'];
-                    break;
-                case 'BUCKAROO_DEBUG':
-                    $options = get_option('woocommerce_buckaroo_mastersettings_settings', null );//Debug switch only in mastersettings
-                    $val = $options['debugmode'];
-                    break;
-                default:
-                if(isset($options[$key]) && !empty($options[$key])){
-                    $val = $options[$key];
+            if(!is_array($options) && is_array($masterOptions)) {
+                $options = $masterOptions;
+            }
+
+            if(is_array($options) && $enabled){
+                $options['enabled'] = $enabled;
+            }
+        }
+        switch ($key) {
+            case 'CULTURE':
+                $val = $options['culture'] ?? null;
+                break;
+            case 'BUCKAROO_TRANSDESC':
+                $val = empty($options['transactiondescription']) ? "Buckaroo": $options['transactiondescription'];
+                break;
+            case 'BUCKAROO_USE_NOTIFICATION':
+                $val = (empty($options['usenotification']) ?  FALSE : $options['usenotification']);
+                break;
+            case 'BUCKAROO_NOTIFICATION_DELAY':
+                if (!empty($options['usenotification'])) {
+                    $val = $options['notificationdelay'];
+                } else {
+                    $val = '0';
                 }
+                break;
+            case 'BUCKAROO_CERTIFICATE_PATH':
+                $val = "";
+                if (!empty($options['selectcertificate']) && $options['selectcertificate'] != 'none') {
+                    $selectedCert = $options['selectcertificate'];
+                    $val = $options["certificatecontents$selectedCert"];
+                }
+                //Start - Support old version of certificate storage
+                if ($val == "" && (empty($options["certificatecontents1"]) || $options["certificatecontents1"] == "")) {
+                    $tmp_options = get_option($paymentId, null);
+                    $certificate_name = !empty($tmp_options['certificate']) ?  $tmp_options['certificate'] : 'BuckarooPrivateKey.pem';
+                    $upload_dir = wp_upload_dir();
+                    $val = file_get_contents($upload_dir["basedir"]."/woocommerce_uploads/".$certificate_name);
+                }
+                //End - Support old version of certificate storage
+
+                break;
+            case 'BUCKAROO_MERCHANT_KEY':
+                $val = $options['merchantkey'] ?? '';
+                break;
+            case 'BUCKAROO_SECRET_KEY':
+                $val = $options['secretkey'] ?? '';
+                break;
+            case 'BUCKAROO_CERTIFICATE_THUMBPRINT':
+                $val = $options['thumbprint'] ?? '';
+                break;
+            case 'BUCKAROO_DEBUG':
+                $options = get_option('woocommerce_buckaroo_mastersettings_settings', null );//Debug switch only in mastersettings
+                $val = $options['debugmode'] ?? null;
+                break;
+            case 'BUCKAROO_USE_NEW_ICONS':
+                $val = (empty($options['usenewicons']) ?  FALSE : $options['usenewicons']);
+                break;
+            case 'BUCKAROO_USE_IDIN':
+                $val = (empty($options['useidin']) ?  FALSE : $options['useidin']);
+                break;
+            case 'BUCKAROO_IDIN_CATEGORIES':
+                $val = (empty($options['idincategories']) ?  [] : $options['idincategories']);
+                break;
+            default:
+            if(isset($options[$key]) && !empty($options[$key])){
+                $val = $options[$key];
             }
         }
         if (is_null($val) || $val === false) {
@@ -113,9 +124,6 @@ class BuckarooConfig extends BuckarooConfigCore {
      */
     public static function getMode($key = null) {
         $options = get_option( $GLOBALS['plugin_id'], null );
-        // if (!empty($options['usemaster']) && $options['usemaster'] != 'no') {
-        //     $options = get_option('woocommerce_buckaroo_mastersettings_settings', null );
-        // }
         $mode = (!empty($options['mode']) && $options['mode'] == "live") ? 'live' : 'test';
         return $mode;
     }
@@ -140,11 +148,10 @@ class BuckarooConfig extends BuckarooConfigCore {
                 'giropay' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''), 
                 'ideal' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'mistercash' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''), 
-                'paygarant' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''), 
-                'paypal' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''), 
-                'paysafecard' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''), 
-                'sepadirectdebit' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => 'BackOffice'), 
+                'paypal' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'sepadirectdebit' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => 'BackOffice'),
                 'sofortbanking' => array('process_payment' => '', 'process_capture' => '',  'process_refund' => ''),
+                'belfius' => array('process_payment' => '', 'process_capture' => '',  'process_refund' => ''),
                 'transfer' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'payconiq' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'nexi' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
@@ -155,11 +162,11 @@ class BuckarooConfig extends BuckarooConfigCore {
                 'in3' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'billink' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'payperemail' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
-//                'klarnapay' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
-//                'klarnapii' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'klarnapay' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'klarnapii' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
             );
             //'' defaults to Web, set by BuckarooConfig::CHANNEL (see library/api/config/coreconfig.php);
-            $channel = ($overrides[$payment_type][$method] != '') ? $overrides[$payment_type][$method] : $channel;
+            $channel = !empty($overrides[$payment_type][$method]) ? $overrides[$payment_type][$method] : $channel;
         }
         return $channel;
 
@@ -180,6 +187,48 @@ class BuckarooConfig extends BuckarooConfigCore {
         $Software->ModuleName = BuckarooConfig::PLUGIN_NAME;
         $Software->ModuleVersion = BuckarooConfig::VERSION;
         return $Software;
+    }
+
+    public static function getIconPath($oldIcon, $newIcon) {
+        $icon = self::get('BUCKAROO_USE_NEW_ICONS') ? $newIcon : $oldIcon;
+        return plugins_url('buckaroo_images/' . $icon, __FILE__);
+    }
+
+    public static function isIdin($ids = []) {
+        $isIdin = false;
+        if (self::get('BUCKAROO_USE_IDIN')) {
+            if (!isset(self::$idinCategories)) {
+                self::$idinCategories = BuckarooConfig::getIdinCategories();
+            }
+            if (self::$idinCategories) {
+                if ($ids) {
+                    foreach ($ids as $id) {
+                        if ($productCategories = get_the_terms($id, 'product_cat')) {
+                            foreach ($productCategories as $productCategory) {
+                                if (in_array($productCategory->term_id, self::$idinCategories)) {
+                                    $isIdin = true;
+                                    return $isIdin;
+                                }
+                            }
+                        }
+                    }
+                }
+                return $isIdin;
+            } else {
+                $isIdin = true;
+                return $isIdin;
+            }
+        } else {
+            return $isIdin;
+        }
+    }
+
+    public static function getIdinMode() {
+        return (self::get('BUCKAROO_USE_IDIN') == "live") ? 'live' : 'test';
+    }
+
+    public static function getIdinCategories() {
+        return self::get('BUCKAROO_IDIN_CATEGORIES');
     }
     
 } ?>

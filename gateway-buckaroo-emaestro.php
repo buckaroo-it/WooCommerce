@@ -12,7 +12,7 @@ class WC_Gateway_Buckaroo_EMaestro extends WC_Gateway_Buckaroo
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_emaestro';
         $this->title                  = 'eMaestro';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_emaestro_icon', plugins_url('library/buckaroo_images/24x24/emaestro.png', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_emaestro_icon', BuckarooConfig::getIconPath('24x24/emaestro.png', 'new/Maestro.png'));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo eMaestro";
         $this->description            = "Betaal met eMaestro";

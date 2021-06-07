@@ -12,7 +12,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
     {
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_payperemail';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_payperemail_icon', plugins_url('library/buckaroo_images/payperemail.png', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_payperemail_icon', BuckarooConfig::getIconPath('payperemail.png', 'new/PayPerEmail.png'));
         $this->title                  = 'PayPerEmail';
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo PayPerEmail";
@@ -422,11 +422,12 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
                 'paypal'             => 'PayPal',
                 'sepadirectdebit'    => 'SEPA Direct Debit',
                 'sofortueberweisung' => 'Sofort Banking',
+                'belfius'            => 'Belfiusg',
                 'Przelewy24'         => 'P24',
                 'RequestToPay'       => 'Request To Pay',
             ),
             'description' => __('select which methods will be appear to customer', 'wc-buckaroo-bpe-gateway'),
-            'default'     => array('amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard', 'visa', 'visaelectron', 'vpay', 'maestro', 'bancontactmrcash', 'transfer', 'giftcard', 'giropay', 'ideal', 'paypal', 'sepadirectdebit', 'sofortueberweisung', 'Przelewy24', 'RequestToPay'),
+            'default'     => array('amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard', 'visa', 'visaelectron', 'vpay', 'maestro', 'bancontactmrcash', 'transfer', 'giftcard', 'giropay', 'ideal', 'paypal', 'sepadirectdebit', 'sofortueberweisung', 'belfius', 'Przelewy24', 'RequestToPay'),
         );
     }
 

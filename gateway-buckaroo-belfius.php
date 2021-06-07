@@ -1,22 +1,31 @@
 <?php
-
 require_once 'library/include.php';
-require_once dirname(__FILE__) . '/library/api/paymentmethods/paysafecard/paysafecard.php';
+require_once dirname(__FILE__) . '/library/api/paymentmethods/belfius/belfius.php';
 
 /**
  * @package Buckaroo
  */
-class WC_Gateway_Buckaroo_Paysafecard extends WC_Gateway_Buckaroo
+class WC_Gateway_Buckaroo_Belfius extends WC_Gateway_Buckaroo
 {
     public function __construct()
     {
-        $woocommerce                  = getWooCommerceObject();
-        $this->id                     = 'buckaroo_paysafecard';
-        $this->title                  = 'Paysafecard';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_paysafecard_icon', plugins_url('library/buckaroo_images/24x24/paysafe.png', __FILE__));
+        $woocommerce = getWooCommerceObject();
+        $this->id    = 'buckaroo_belfius';
+
+        ////below will fix issue with renaming of payment method id and loosing of previous settings
+        if (
+            !get_option('woocommerce_' . $this->id . '_settings')
+            &&
+            ($oldSettings = get_option('woocommerce_buckaroo_belfius_settings'))
+        ) {
+            add_option('woocommerce_' . $this->id . '_settings', $oldSettings);
+        }
+
+        $this->title                  = 'Belfius';
+        $this->icon                   = apply_filters('woocommerce_buckaroo_belfius_icon', BuckarooConfig::getIconPath('24x24/belfius.png', 'new/Belfius.png'));
         $this->has_fields             = false;
-        $this->method_title           = "Buckaroo Paysafecard";
-        $this->description            = "Betaal met Paysafecard";
+        $this->method_title           = "Buckaroo Belfius";
+        $this->description            = "Betaal met Belfius";
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
@@ -31,21 +40,22 @@ class WC_Gateway_Buckaroo_Paysafecard extends WC_Gateway_Buckaroo
 
         $this->supports = array(
             'products',
+            'refunds',
         );
 
         $this->notify_url = home_url('/');
 
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
             add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-            add_action('woocommerce_api_wc_gateway_buckaroo_paysafecard', array($this, 'response_handler'));
-            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Paysafecard', $this->notify_url);
+            add_action('woocommerce_api_wc_gateway_buckaroo_belfius', array($this, 'response_handler'));
+            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Belfius', $this->notify_url);
         }
     }
 
     /**
      * Can the order be refunded
-     * @param  WC_Order $order
-     * @return bool
+     * @param object $order WC_Order
+     * @return object & string
      */
     public function can_refund_order($order)
     {
@@ -69,24 +79,24 @@ class WC_Gateway_Buckaroo_Paysafecard extends WC_Gateway_Buckaroo
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $order                = wc_get_order($order_id);
 
-        $paysafecard                         = new BuckarooPaySafeCard();
-        $paysafecard->amountDedit            = 0;
-        $paysafecard->amountCredit           = $amount;
-        $paysafecard->currency               = $this->currency;
-        $paysafecard->description            = $reason;
-        $paysafecard->invoiceId              = $order->get_order_number();
-        $paysafecard->orderId                = $order_id;
-        $paysafecard->OriginalTransactionKey = $order->get_transaction_id();
-        $paysafecard->returnUrl              = $this->notify_url;
-        $payment_type                        = str_replace('buckaroo_', '', strtolower($this->id));
-        $paysafecard->channel                = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $response                            = null;
+        $belfius                         = new BuckarooBelfius();
+        $belfius->amountDedit            = 0;
+        $belfius->amountCredit           = $amount;
+        $belfius->currency               = $this->currency;
+        $belfius->description            = $reason;
+        $belfius->invoiceId              = $order->get_order_number();
+        $belfius->orderId                = $order_id;
+        $belfius->OriginalTransactionKey = $order->get_transaction_id();
+        $belfius->returnUrl              = $this->notify_url;
+        $payment_type                    = str_replace('buckaroo_', '', strtolower($this->id));
+        $belfius->channel                = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
+        $response                        = null;
 
-        $orderDataForChecking = $paysafecard->getOrderRefundData();
+        $orderDataForChecking = $belfius->getOrderRefundData();
 
         try {
-            $paysafecard->checkRefundData($orderDataForChecking);
-            $response = $paysafecard->Refund();
+            $belfius->checkRefundData($orderDataForChecking);
+            $response = $belfius->Refund();
         } catch (exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');
             return new WP_Error('refund_error', __($e->getMessage()));
@@ -117,25 +127,25 @@ class WC_Gateway_Buckaroo_Paysafecard extends WC_Gateway_Buckaroo
         $woocommerce = getWooCommerceObject();
 
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-
-        $order       = getWCOrder($order_id);
-        $paysafecard = new BuckarooPaySafeCard();
+        $order                = getWCOrder($order_id);
+        $belfius              = new BuckarooBelfius();
 
         if (method_exists($order, 'get_order_total')) {
-            $paysafecard->amountDedit = $order->get_order_total();
+            $belfius->amountDedit = $order->get_order_total();
         } else {
-            $paysafecard->amountDedit = $order->get_total();
+            $belfius->amountDedit = $order->get_total();
         }
-        $payment_type             = str_replace('buckaroo_', '', strtolower($this->id));
-        $paysafecard->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $paysafecard->currency    = $this->currency;
-        $paysafecard->description = $this->transactiondescription;
-        $paysafecard->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $paysafecard->orderId     = (string) $order_id;
-        $paysafecard->returnUrl   = $this->notify_url;
-        $customVars               = array();
+        $payment_type         = str_replace('buckaroo_', '', strtolower($this->id));
+        $belfius->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
+        $belfius->currency    = $this->currency;
+        $belfius->description = $this->transactiondescription;
+        $belfius->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
+        $belfius->orderId     = (string) $order_id;
+        $belfius->returnUrl   = $this->notify_url;
+
+        $customVars = array();
         if ($this->usenotification == 'TRUE') {
-            $paysafecard->usenotification = 1;
+            $belfius->usenotification     = 1;
             $customVars['Customergender'] = 0;
 
             $get_billing_first_name          = getWCOrderDetails($order_id, 'billing_first_name');
@@ -144,16 +154,19 @@ class WC_Gateway_Buckaroo_Paysafecard extends WC_Gateway_Buckaroo
             $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
             $customVars['CustomerLastName']  = !empty($get_billing_last_name) ? $get_billing_last_name : '';
             $customVars['Customeremail']     = !empty($get_billing_email) ? $get_billing_email : '';
+
             $customVars['Notificationtype']  = 'PaymentComplete';
             $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->notificationdelay . ' day'))));
         }
-        $response = $paysafecard->Pay($customVars);
+        $response = $belfius->Pay($customVars);
+
         return fn_buckaroo_process_response($this, $response);
     }
 
     /**
      * Check response data
      */
+
     public function response_handler()
     {
         $woocommerce          = getWooCommerceObject();
@@ -175,7 +188,6 @@ class WC_Gateway_Buckaroo_Paysafecard extends WC_Gateway_Buckaroo
      */
     public function init_form_fields()
     {
-
         parent::init_form_fields();
 
         add_filter('woocommerce_settings_api_form_fields_' . $this->id, array($this, 'enqueue_script_certificate'));

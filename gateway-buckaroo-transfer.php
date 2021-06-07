@@ -15,7 +15,7 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_transfer';
         $this->title                  = 'Bank Transfer'; //$this->settings['title_paypal'];
-        $this->icon                   = apply_filters('woocommerce_buckaroo_transfer_icon', plugins_url('library/buckaroo_images/24x24/transfer.jpg', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_transfer_icon', BuckarooConfig::getIconPath('24x24/transfer.jpg', 'new/SEPA-credittransfer.png'));
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Bank Transfer';
         $this->description            = "Betaal met Bank Transfer";

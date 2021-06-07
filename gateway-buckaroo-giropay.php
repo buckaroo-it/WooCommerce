@@ -12,7 +12,7 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_giropay';
         $this->title                  = 'Giropay';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_giropay_icon', plugins_url('library/buckaroo_images/24x24/giropay.gif', __FILE__));
+        $this->icon = apply_filters('woocommerce_buckaroo_giropay_icon', BuckarooConfig::getIconPath('24x24/giropay.gif', 'new/Giropay.png'));
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo Giropay";
         $this->description            = "Betaal met Giropay";

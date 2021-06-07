@@ -12,7 +12,6 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_paypal';
         $this->title                  = 'Buckaroo PayPal';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_paypal_icon', plugins_url('library/buckaroo_images/24x24/paypal.gif', __FILE__));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo PayPal";
         $this->description            = "Betaal met PayPal";
@@ -28,6 +27,8 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         $this->notificationdelay = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
 
         parent::__construct();
+
+        $this->icon = apply_filters('woocommerce_buckaroo_paypal_icon', BuckarooConfig::getIconPath('24x24/paypal.gif', 'new/PayPal.png'));
 
         $this->supports = array(
             'products',
