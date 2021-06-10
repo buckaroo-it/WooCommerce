@@ -502,7 +502,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $afterpay->channel                = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
         $afterpay->currency               = $this->currency;
         $afterpay->description            = $this->transactiondescription;
-        $afterpay->invoiceId              = (string) getUniqInvoiceId($woocommerce->order->get_order_number()) . (is_array($previous_captures) ? '-' . count($previous_captures) : "");
+        $afterpay->invoiceId              = (string) getUniqInvoiceId($woocommerce->order ? $woocommerce->order->get_order_number() : $order_id) . (is_array($previous_captures) ? '-' . count($previous_captures) : "");
         $afterpay->orderId                = (string) $order_id;
         $afterpay->returnUrl              = $this->notify_url;
 
