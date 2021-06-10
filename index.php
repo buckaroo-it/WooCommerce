@@ -12,6 +12,9 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
 add_action('wp_enqueue_scripts', function (){
     wp_enqueue_style('buckaroo-custom-styles', plugin_dir_url( __FILE__ ) . 'library/css/buckaroo-custom.css');
+});
+add_action('admin_enqueue_scripts', function (){
+    wp_enqueue_style('buckaroo-custom-styles', plugin_dir_url( __FILE__ ) . 'library/css/buckaroo-custom.css');
     wp_enqueue_script('creditcard_capture', plugin_dir_url( __FILE__ ) . 'library/js/9yards/creditcard-capture-form.js', array('jquery'), '1.0.0', true );
 });
 
