@@ -183,7 +183,7 @@ if ( wc_tax_enabled() ) {
 		<tbody id="order_fee_line_items">
 			<?php
 			foreach ( $line_items_fee as $item_id => $item ) {
-				// include 'html-order-fee.php';
+				include 'html-order-fee.php';
 			}
 			do_action( 'woocommerce_admin_order_items_after_fees', $order->get_id() );
 			?>
