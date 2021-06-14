@@ -195,7 +195,10 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 
     $logger->logInfo('Parse response:\n', $response);
     $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, 'test');
-    $order_id                = $response->add_order_id ? $response->add_order_id : $response->brq_ordernumber;
+    $order_id                =
+        $response->add_order_id ?
+        $response->add_order_id :
+        ($response->brq_ordernumber ? $response->brq_ordernumber : $response->invoicenumber);
     $logger->logInfo(__METHOD__ . "|5|", $order_id);
 
     $order = new WC_Order($order_id);
@@ -222,6 +225,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         if ($response->brq_relatedtransaction_refund != null) {
             $logger->logInfo('PUSH', "Refund payment PUSH received " . $response->status);
             $allowedPush = get_post_meta($order_id, '_pushallowed', true);
+            $logger->logInfo(__METHOD__ . "|10|", $allowedPush);
             if ($response->hasSucceeded() && $allowedPush == 'ok') {
                 $tmp = get_post_meta($order_id, '_refundbuckaroo' . $response->transactions, true);
                 if (empty($tmp)) {
