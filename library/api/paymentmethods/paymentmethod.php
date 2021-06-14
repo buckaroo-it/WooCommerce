@@ -192,7 +192,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         $this->data['amountDebit']            = $this->amountDedit;
         $this->data['amountCredit']           = $this->amountCredit;
         $this->data['invoice']                = $this->getInvoiceNumber();
-        if ($this->type == 'afterpay') {
+        if (in_array($this->type, ['afterpay', 'afterpayacceptgiro', 'afterpaydigiaccept'])) {
             if (($previous_refunds = get_post_meta($this->orderId, 'buckaroo_refund', false)) && count($previous_refunds) > 0) {
                 $this->data['invoice'] = $this->data['invoice'] . (count($previous_refunds) + 1);
             }
