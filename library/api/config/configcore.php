@@ -9,7 +9,7 @@ abstract class BuckarooConfigCore {
     const CHANNEL = 'Web';
     const LOCATION = 'https://checkout.buckaroo.nl/soap/';
     const LOCATION_TEST = 'https://testcheckout.buckaroo.nl/soap/';
-    const LOG = false;
+    const LOG = true;
     const LOG_DIR = '/log/';
     const CERTIFICATE_PATH = 'certificate/';
    
