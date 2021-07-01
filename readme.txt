@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 5.7.2
-Stable tag: 2.19.0
+Stable tag: 2.20.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,16 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.20.0 =
+- Make it possible for Billink to enable both methods (B2B+B2C)
+- update apple-developer-merchantid-domain-association
+- Refunds from Plaza are not visible in Admin
+- AP old - error during partial refund
+- CC and AP - capture form has no payment fee and failed
+- AP new - HTTP 500 during capture attempt
+- capture button for CC and AP is not clickable
+- AP new - error during partial refund
 
 = 2.19.0 =
 - Add payment method Belfius
