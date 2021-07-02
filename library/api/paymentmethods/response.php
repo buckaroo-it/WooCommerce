@@ -137,7 +137,9 @@ abstract class BuckarooResponse extends BuckarooAbstract
     {
         //if isValid false return false
         if ($this->isValid() && $this->isReceived()) {
-            // if ($this->status === self::BUCKAROO_SUCCESS)
+            if (($this->status === self::BUCKAROO_PENDING_PAYMENT) && ($this->payment_method == 'paypal')) {
+                return false;
+            }
             if ($this->status === self::BUCKAROO_PENDING_PAYMENT || $this->status === self::BUCKAROO_SUCCESS) {
                 return true;
             }

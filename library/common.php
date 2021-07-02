@@ -245,6 +245,9 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         }
         $logger->logInfo('Order status: ' . $order->get_status());
         $response_status = fn_buckaroo_resolve_status_code($response->status);
+        if (($response_status == 'on-hold') && ($order->get_payment_method() == 'buckaroo_paypal')) {
+            $response_status = 'cancelled';
+        }
         $logger->logInfo('Response order status: ' . $response_status);
         $logger->logInfo('Status message: ' . $response->statusmessage);
         if (strtolower($order->get_payment_method()) === 'buckaroo_payperemail') {
@@ -516,6 +519,9 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         }
         $logger->logInfo('Order status: ' . $order->get_status());
         $response_status = fn_buckaroo_resolve_status_code($response->status);
+        if (($response_status == 'on-hold') && ($payment_method->id == 'buckaroo_paypal')) {
+            $response_status = 'cancelled';
+        }
         $logger->logInfo('Response order status: ' . $response_status);
         $logger->logInfo('Status message: ' . $response->statusmessage);
 
