@@ -834,3 +834,15 @@ msgstr "Überprüfung ist fehlgeschlagen"
 
 msgid "According to iDIN you are under 18 years old"
 msgstr "Laut iDIN sind sie unter 18 jahre alt"
+
+msgid "Minimum order amount allowed"
+msgstr "Erlaubte mindestbestellmenge"
+
+msgid "Specify minimum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
+msgstr "Geben Sie die zulässige mindestbestellmenge an, um die aktuelle methode anzuzeigen. Null oder leerer wert bedeutet, dass keine regel angewendet wird."
+
+msgid "Maximum order amount allowed"
+msgstr "Maximal zulässige bestellmenge"
+
+msgid "Specify maximum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
+msgstr "Geben Sie die maximal zulässige bestellmenge an, um die aktuelle methode anzuzeigen. Null oder leerer wert bedeutet, dass keine regel angewendet wird."
