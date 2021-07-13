@@ -987,4 +987,8 @@ msgstr "Maximaal toegestane bestelbedrag"
 msgid "Specify maximum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
 msgstr "Geef het maximale bestelbedrag op dat is toegestaan om de huidige methode te tonen. Nul of lege waarde betekent dat er geen regel wordt toegepast."
 
+msgid "Send image info"
+msgstr "Afbeeldingsinfo verzenden"
 
+msgid "Image info will be sent to BPE gateway inside ImageUrl parameter"
+msgstr "Beeldinformatie wordt naar de BPE-gateway verzonden in de ImageUrl-parameter"

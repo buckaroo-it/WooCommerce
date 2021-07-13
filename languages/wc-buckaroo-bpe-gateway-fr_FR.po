@@ -847,4 +847,10 @@ msgstr "Montant maximum de commande autorisé"
 msgid "Specify maximum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
 msgstr "Spécifiez le montant de commande maximum autorisé pour afficher la méthode actuelle. Une valeur nulle ou vide signifie qu'aucune règle ne sera appliquée."
 
+msgid "Send image info"
+msgstr "Envoyer des informations sur l'image"
+
+msgid "Image info will be sent to BPE gateway inside ImageUrl parameter"
+msgstr "Les informations sur l'image seront envoyées à la passerelle BPE dans le paramètre ImageUrl"
+
 

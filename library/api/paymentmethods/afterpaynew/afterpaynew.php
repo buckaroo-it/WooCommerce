@@ -192,8 +192,10 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
             $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"]  = 'Article';
             $this->data['customVars'][$this->type]["Url"][$i - 1]["value"]            = $p["ProductUrl"];
             $this->data['customVars'][$this->type]["Url"][$i - 1]["group"]            = 'Article';
-            $this->data['customVars'][$this->type]["ImageUrl"][$i - 1]["value"]       = $p["ImageUrl"];
-            $this->data['customVars'][$this->type]["ImageUrl"][$i - 1]["group"]       = 'Article';
+            if (!empty($p["ImageUrl"])) {
+                $this->data['customVars'][$this->type]["ImageUrl"][$i - 1]["value"]       = $p["ImageUrl"];
+                $this->data['customVars'][$this->type]["ImageUrl"][$i - 1]["group"]       = 'Article';
+            }
             $i++;
         }
 
