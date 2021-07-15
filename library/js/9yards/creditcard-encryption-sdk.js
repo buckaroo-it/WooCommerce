@@ -50,6 +50,7 @@ var BuckarooClientSideEncryption;
                     case "cartebleuevisa":
                     case "dankort":
                         return /^4[0-9]{12}(?:[0-9]{3})?$/.test(cardNumberString);
+                    case "postepay":
                     case "mastercard":
                         return /^(5[1-5]|2[2-7])[0-9]{14}$/.test(cardNumberString);
                     case "bancontactmrcash":
