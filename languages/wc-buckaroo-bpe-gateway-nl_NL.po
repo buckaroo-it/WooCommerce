@@ -689,7 +689,7 @@ msgstr ""
 "Selecteer de toegestane betaalmethoden voor BetaalGarant (Ctrl + Klik om "
 "meerdere te selecteren)."
 
-#: gateway-buckaroo-billink.php:130
+#: gateway-buckaroo-billink.php:120
 msgid "Please enter correct COC (KvK) number"
 msgstr "Voer het juiste COC (KvK) nummer in"
 
