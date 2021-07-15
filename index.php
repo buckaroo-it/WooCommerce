@@ -194,6 +194,10 @@ function generateGateways()
             'gateway-buckaroo-nexi.php',
             'classname' => 'WC_Gateway_Buckaroo_Nexi',
         ),
+        'PostePay' => array('filename' =>
+            'gateway-buckaroo-postepay.php',
+            'classname' => 'WC_Gateway_Buckaroo_PostePay',
+        ),
         'P24' => array('filename' =>
             'gateway-buckaroo-p24.php',
             'classname' => 'WC_Gateway_Buckaroo_P24',
