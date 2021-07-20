@@ -603,7 +603,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
                 wc_add_notice(__("Company name is required", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         } else {
-            $birthdate = $_POST['buckaroo-afterpaynew-birthdate'];
+            $birthdate = $this->parseDate($_POST['buckaroo-afterpaynew-birthdate']);
             if (!$this->validateDate($birthdate, 'd-m-Y') && in_array($country, ['NL', 'BE'])) {
                 wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
             }
@@ -658,7 +658,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         $afterpay->BillingInitials = $this->getInitials($get_billing_first_name);
         $afterpay->BillingLastName = $get_billing_last_name;
-        $birthdate                 = $_POST['buckaroo-afterpaynew-birthdate'];
+        $birthdate                 = $this->parseDate($_POST['buckaroo-afterpaynew-birthdate']);
         if (!empty($_POST["buckaroo-afterpaynew-b2b"]) && $_POST["buckaroo-afterpaynew-b2b"] == 'ON') {
             // if is company reset birthdate
             $birthdate = '01-01-1990';

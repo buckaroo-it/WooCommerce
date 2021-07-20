@@ -575,4 +575,43 @@ endif;
         $d = DateTime::createFromFormat($format, $date);
         return $d && $d->format($format) == $date;
     }
+
+    public function parseDate($date)
+    {
+        if ($this->validateDate($date, 'd-m-Y')) return $date;
+
+        if (preg_match('/^\d{6}$/', $date)) {
+            return DateTime::createFromFormat('dmy', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{8}$/', $date)) {
+            return DateTime::createFromFormat('dmY', $date)->format('d-m-Y');
+        }
+
+        if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $date)) {
+            return DateTime::createFromFormat('d/m/Y', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{1}\/\d{2}\/\d{4}$/', $date)) {
+            return DateTime::createFromFormat('j/m/Y', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{1}\/\d{1}\/\d{4}$/', $date)) {
+            return DateTime::createFromFormat('j/n/Y', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{2}\/\d{1}\/\d{4}$/', $date)) {
+            return DateTime::createFromFormat('j/n/Y', $date)->format('d-m-Y');
+        }
+
+        if (preg_match('/^\d{2}\/\d{2}\/\d{2}$/', $date)) {
+            return DateTime::createFromFormat('d/m/y', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{1}\/\d{2}\/\d{2}$/', $date)) {
+            return DateTime::createFromFormat('j/m/y', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{1}\/\d{1}\/\d{2}$/', $date)) {
+            return DateTime::createFromFormat('j/n/y', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{2}\/\d{1}\/\d{2}$/', $date)) {
+            return DateTime::createFromFormat('j/n/y', $date)->format('d-m-Y');
+        }
+        return $date;
+    }
 }
