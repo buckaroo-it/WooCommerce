@@ -689,7 +689,7 @@ msgstr ""
 "Selecteer de toegestane betaalmethoden voor BetaalGarant (Ctrl + Klik om "
 "meerdere te selecteren)."
 
-#: gateway-buckaroo-billink.php:130
+#: gateway-buckaroo-billink.php:120
 msgid "Please enter correct COC (KvK) number"
 msgstr "Voer het juiste COC (KvK) nummer in"
 
@@ -975,5 +975,20 @@ msgstr "Verificatie is mislukt"
 msgid "According to iDIN you are under 18 years old"
 msgstr "Volgens iDIN ben je jonger dan 18 jaar"
 
+msgid "Minimum order amount allowed"
+msgstr "Minimaal toegestane bestelbedrag"
 
+msgid "Specify minimum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
+msgstr "Geef het minimale bestelbedrag op dat is toegestaan om de huidige methode weer te geven. Nul of lege waarde betekent dat er geen regel wordt toegepast."
 
+msgid "Maximum order amount allowed"
+msgstr "Maximaal toegestane bestelbedrag"
+
+msgid "Specify maximum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
+msgstr "Geef het maximale bestelbedrag op dat is toegestaan om de huidige methode te tonen. Nul of lege waarde betekent dat er geen regel wordt toegepast."
+
+msgid "Send image info"
+msgstr "Afbeeldingsinfo verzenden"
+
+msgid "Image info will be sent to BPE gateway inside ImageUrl parameter"
+msgstr "Beeldinformatie wordt naar de BPE-gateway verzonden in de ImageUrl-parameter"

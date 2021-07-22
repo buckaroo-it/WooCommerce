@@ -123,9 +123,6 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
 
             if (!empty($_POST['buckaroo-billink-VatNumber'])) {
                 $billink->VatNumber = $_POST['buckaroo-billink-VatNumber'];
-            } else {
-                wc_add_notice(__("Please enter correct VAT number", 'wc-buckaroo-bpe-gateway'), 'error');
-                return;
             }
         } else {
             if (!empty($_POST['buckaroo-billink-birthdate']) && $this->validateDate($_POST['buckaroo-billink-birthdate'], 'd-m-Y')) {
@@ -308,9 +305,8 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                 <input id="buckaroo-billink-CompanyCOCRegistration" name="buckaroo-billink-CompanyCOCRegistration"
                        class="input-text" type="text" maxlength="250" autocomplete="off" value="" />
             </p>
-            <p class="form-row form-row-wide validate-required">
-                <label for="buckaroo-billink-VatNumber"><?php echo _e('VAT number:', 'wc-buckaroo-bpe-gateway') ?><span
-                        class="required">*</span></label>
+            <p class="form-row form-row-wide">
+                <label for="buckaroo-billink-VatNumber"><?php echo _e('VAT number:', 'wc-buckaroo-bpe-gateway') ?></label>
                 <input id="buckaroo-billink-VatNumber" name="buckaroo-billink-VatNumber" class="input-text"
                        type="text" maxlength="250" autocomplete="off" value="" />
             </p>

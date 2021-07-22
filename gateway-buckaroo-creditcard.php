@@ -532,6 +532,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             "cartebleuevisa"          => "Carte Bleue",
             "dankort"                 => "Dankort",
             "mastercard"              => "Mastercard",
+            "postepay"                => "PostePay",
             "visa"                    => "Visa",
             "visaelectron"            => "Visa Electron",
             "vpay"                    => "Vpay",
@@ -657,13 +658,14 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
                 'cartebleuevisa' => 'Carte Bleue',
                 'dankort'        => 'Dankort',
                 'mastercard'     => 'Mastercard',
+                'postepay'       => 'PostePay',
                 'visa'           => 'Visa',
                 'visaelectron'   => 'Visa Electron',
                 'vpay'           => 'Vpay',
                 'maestro'        => "Maestro",
             ),
             'description' => __('select which Creditecard providers  will be appear to customer', 'wc-buckaroo-bpe-gateway'),
-            'default'     => array('amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard', 'visa', 'visaelectron', 'vpay', 'maestro'),
+            'default'     => array('amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard', 'postepay', 'visa', 'visaelectron', 'vpay', 'maestro'),
         );
 
     }

@@ -16,6 +16,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     public $extrachargetaxtype;
     public $notificationtype;
     public $sellerprotection;
+    public $minvalue;
+    public $maxvalue;
 
     public function __construct()
     {
@@ -47,6 +49,14 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->extrachargetaxtype = 'included';
         if (isset($this->settings['extrachargetaxtype'])) {
             $this->extrachargetaxtype = $this->settings['extrachargetaxtype'];
+        }
+        $this->minvalue = 0;
+        if (isset($this->settings['minvalue'])) {
+            $this->minvalue = $this->settings['minvalue'];
+        }
+        $this->maxvalue = 0;
+        if (isset($this->settings['maxvalue'])) {
+            $this->maxvalue = $this->settings['maxvalue'];
         }
 
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
@@ -85,6 +95,28 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         if (!BuckarooIdin::checkCurrentUserIsVerified()) {
             return [];
+        }
+
+        if ($available_gateways) {
+            $totalCartAmount = WC()->cart->get_total(null);
+            foreach ($available_gateways as $key => $gateway) {
+                if (
+                        (substr($key, 0, 8) === 'buckaroo')
+                        && (
+                                !empty($gateway->minvalue)
+                                ||
+                                !empty($gateway->maxvalue)
+                        )
+                ) {
+                    if (!empty($gateway->maxvalue) && $totalCartAmount > $gateway->maxvalue) {
+                        unset($available_gateways[$key]);
+                    }
+
+                    if (!empty($gateway->minvalue) && $totalCartAmount < $gateway->minvalue) {
+                        unset($available_gateways[$key]);
+                    }
+                }
+            }
         }
 
         if (isset($available_gateways['buckaroo_applepay'])) {
@@ -406,6 +438,20 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 'description' => __('Percentage or static', 'wc-buckaroo-bpe-gateway'),
                 'default'     => 'static',
             ],
+            'minvalue'      => [
+                'title'             => __('Minimum order amount allowed', 'wc-buckaroo-bpe-gateway'),
+                'type'              => 'number',
+                'custom_attributes' => ['step' => '0.01'],
+                'description'       => __('Specify minimum order amount allowed to show the current method. Zero or empty value means no rule will be applied.', 'wc-buckaroo-bpe-gateway'),
+                'default'           => '0',
+            ],
+            'maxvalue'      => [
+                'title'             => __('Maximum order amount allowed', 'wc-buckaroo-bpe-gateway'),
+                'type'              => 'number',
+                'custom_attributes' => ['step' => '0.01'],
+                'description'       => __('Specify maximum order amount allowed to show the current method. Zero or empty value means no rule will be applied.', 'wc-buckaroo-bpe-gateway'),
+                'default'           => '0',
+            ],
         ];
     }
 
@@ -500,7 +546,7 @@ endif;
      */
     public function validate_number_field($key)
     {
-        if ($key == 'extrachargeamount') {
+        if (in_array($key, ['extrachargeamount', 'minvalue', 'maxvalue'])) {
             //[9Yrds][2017-05-03][JW] WooCommerce 2.2 & 2.3 compatability
             $field = $this->plugin_id . $this->id . '_' . $key;
             // $field = $this->get_field_key($key);
@@ -528,5 +574,44 @@ endif;
     {
         $d = DateTime::createFromFormat($format, $date);
         return $d && $d->format($format) == $date;
+    }
+
+    public function parseDate($date)
+    {
+        if ($this->validateDate($date, 'd-m-Y')) return $date;
+
+        if (preg_match('/^\d{6}$/', $date)) {
+            return DateTime::createFromFormat('dmy', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{8}$/', $date)) {
+            return DateTime::createFromFormat('dmY', $date)->format('d-m-Y');
+        }
+
+        if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $date)) {
+            return DateTime::createFromFormat('d/m/Y', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{1}\/\d{2}\/\d{4}$/', $date)) {
+            return DateTime::createFromFormat('j/m/Y', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{1}\/\d{1}\/\d{4}$/', $date)) {
+            return DateTime::createFromFormat('j/n/Y', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{2}\/\d{1}\/\d{4}$/', $date)) {
+            return DateTime::createFromFormat('j/n/Y', $date)->format('d-m-Y');
+        }
+
+        if (preg_match('/^\d{2}\/\d{2}\/\d{2}$/', $date)) {
+            return DateTime::createFromFormat('d/m/y', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{1}\/\d{2}\/\d{2}$/', $date)) {
+            return DateTime::createFromFormat('j/m/y', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{1}\/\d{1}\/\d{2}$/', $date)) {
+            return DateTime::createFromFormat('j/n/y', $date)->format('d-m-Y');
+        }
+        if (preg_match('/^\d{2}\/\d{1}\/\d{2}$/', $date)) {
+            return DateTime::createFromFormat('j/n/y', $date)->format('d-m-Y');
+        }
+        return $date;
     }
 }

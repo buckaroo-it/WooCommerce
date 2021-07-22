@@ -561,7 +561,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                 wc_add_notice(__("Company name is required", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         } else {
-            $birthdate = $_POST['buckaroo-afterpay-birthdate'];
+            $birthdate = $this->parseDate($_POST['buckaroo-afterpay-birthdate']);
             if (!$this->validateDate($birthdate, 'd-m-Y')) {
                 wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
             }
@@ -619,7 +619,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
         $afterpay->BillingInitials = $this->getInitials($get_billing_first_name);
         $afterpay->BillingLastName = $get_billing_last_name;
-        $birthdate                 = $_POST['buckaroo-afterpay-birthdate'];
+        $birthdate                 = $this->parseDate($_POST['buckaroo-afterpay-birthdate']);
         if (!empty($_POST["buckaroo-afterpay-b2b"]) && $_POST["buckaroo-afterpay-b2b"] == 'ON') {
             $birthdate = '01-01-1990';
         }

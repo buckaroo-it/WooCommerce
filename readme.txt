@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 5.7.2
-Stable tag: 2.20.0
+Stable tag: 2.21.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,16 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.21.0 =
+- Make it possible to set the minimum and maximum amount for a payment method to be displayed [BP-926]
+- PayPal (V2) cancellation returns to the homepage and not back to the cart page [BP-941]
+- "A non-numeric value encountered" fix
+- Afterpay issue regarding wrong image file type [BP-963]
+- Make VAT number field non-required (BILLINK) [BP-957]
+- Add CreditCard brand PostePay [BP-970]
+- Add translation for Billink error [BP-960]
+- WooCommerce - Afterpay (new+old) date of birth field improvement [BP-964]
 
 = 2.20.0 =
 - Make it possible for Billink to enable both methods (B2B+B2C)

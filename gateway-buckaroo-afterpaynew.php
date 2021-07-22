@@ -13,6 +13,8 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     public $showpayproc;
     public $vattype;
     public $country;
+    public $sendimageinfo;
+
     public function __construct()
     {
         $woocommerce = getWooCommerceObject();
@@ -47,6 +49,12 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $this->afterpaynewpayauthorize = $this->settings['afterpaynewpayauthorize'];
         } else {
             $this->afterpaynewpayauthorize = null;
+        }
+
+        if (isset($this->settings['sendimageinfo'])) {
+            $this->sendimageinfo = $this->settings['sendimageinfo'];
+        } else {
+            $this->sendimageinfo = null;
         }
 
         $this->supports = array(
@@ -595,7 +603,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
                 wc_add_notice(__("Company name is required", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         } else {
-            $birthdate = $_POST['buckaroo-afterpaynew-birthdate'];
+            $birthdate = $this->parseDate($_POST['buckaroo-afterpaynew-birthdate']);
             if (!$this->validateDate($birthdate, 'd-m-Y') && in_array($country, ['NL', 'BE'])) {
                 wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
             }
@@ -650,7 +658,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         $afterpay->BillingInitials = $this->getInitials($get_billing_first_name);
         $afterpay->BillingLastName = $get_billing_last_name;
-        $birthdate                 = $_POST['buckaroo-afterpaynew-birthdate'];
+        $birthdate                 = $this->parseDate($_POST['buckaroo-afterpaynew-birthdate']);
         if (!empty($_POST["buckaroo-afterpaynew-b2b"]) && $_POST["buckaroo-afterpaynew-b2b"] == 'ON') {
             // if is company reset birthdate
             $birthdate = '01-01-1990';
@@ -787,11 +795,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         foreach ($items as $item) {
 
             $product = new WC_Product($item['product_id']);
-            $imgTag  = $product->get_image();
-            $doc = new DOMDocument();
-            $doc->loadHTML($imgTag);
-            $xpath   = new DOMXPath($doc);
-            $src     = $xpath->evaluate("string(//img/@src)");
 
             $tax      = new WC_Tax();
             $taxes    = $tax->get_rates($product->get_tax_class());
@@ -810,7 +813,28 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
             $tmp["ArticleVatcategory"] = $itemRate;
             $tmp["ProductUrl"]         = get_permalink($item['product_id']);
-            $tmp["ImageUrl"]           = $src;
+            if ($this->sendimageinfo) {
+                $src = get_the_post_thumbnail_url($item['product_id']);
+                if (!$src) {
+                    $imgTag = $product->get_image();
+                    $doc = new DOMDocument();
+                    $doc->loadHTML($imgTag);
+                    $xpath = new DOMXPath($doc);
+                    $src = $xpath->evaluate("string(//img/@src)");
+                }
+
+                if (strpos($src, '?') !== false) {
+                    $src = substr($src, 0, strpos($src, '?'));
+                }
+
+                if ($srcInfo = @getimagesize($src)) {
+                    if (!empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg'])) {
+                        if (!empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280)) {
+                            $tmp["ImageUrl"] = $src;
+                        }
+                    }
+                }
+            }
             $products[]                = $tmp;
             $feeItemRate               = $feeItemRate > $itemRate ? $feeItemRate : $itemRate;
         }
@@ -1216,5 +1240,13 @@ $country = isset($_POST['s_country']) ? $_POST['s_country'] : $this->country;
             'description' => __('Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('pay' => 'Pay', 'authorize' => 'Authorize'),
             'default'     => 'pay');
+
+        $this->form_fields['sendimageinfo'] = array(
+            'title'       => __('Send image info', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'select',
+            'description' => __('Image info will be sent to BPE gateway inside ImageUrl parameter', 'wc-buckaroo-bpe-gateway'),
+            'options'     => array('0' => 'No', '1' => 'Yes'),
+            'default'     => 'pay');
+
     }
 }

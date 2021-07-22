@@ -7,7 +7,7 @@ require_once dirname(__FILE__).'/api/config/configcore.php';
 class BuckarooConfig extends BuckarooConfigCore {
     const NAME = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-    const VERSION = '2.20.0';
+    const VERSION = '2.21.0';
 
     const SHIPPING_SKU = "WC8888";
 
@@ -155,6 +155,7 @@ class BuckarooConfig extends BuckarooConfigCore {
                 'transfer' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'payconiq' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'nexi' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'postepay' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'przelewy24' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
 		        'applepay' => array('process_payment' => '', 'process_refund' => ''),
                 'kbc' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
