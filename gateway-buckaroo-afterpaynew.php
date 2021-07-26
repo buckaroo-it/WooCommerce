@@ -369,8 +369,8 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
                 $tmp["ArticleDescription"] = $item['name'];
                 $tmp["ArticleId"]          = $item['product_id'];
                 $tmp["ArticleQuantity"]    = $line_item_qtys[$item->get_id()];
-                $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
-                $itemsTotalAmount += $tmp["ArticleUnitprice"] * $line_item_qtys[$item->get_id()];
+                $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4, '.', '') / $item["qty"], 2, '.', '');
+                $itemsTotalAmount += number_format($tmp["ArticleUnitprice"] * $line_item_qtys[$item->get_id()], 2, '.', '');
                 $tmp["ArticleVatcategory"] = $itemRate;
                 $products[]                = $tmp;
             } else if (!empty($orderDataForChecking[$item->get_id()]['tax'])) {
@@ -388,7 +388,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
                 $tmp["ArticleDescription"] = $rates['label'];
                 $tmp["ArticleId"]          = $taxId;
                 $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($orderDataForChecking[$item->get_id()]['tax'], 2);
+                $tmp["ArticleUnitprice"]   = number_format($orderDataForChecking[$item->get_id()]['tax'], 2, '.', '');
 
                 $itemsTotalAmount += $tmp["ArticleUnitprice"];
 
@@ -504,7 +504,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         $order = getWCOrder($order_id);
 
-        $afterpay->amountDedit            = $_POST['capture_amount'];
+        $afterpay->amountDedit            = str_replace(',', '.', $_POST['capture_amount']);
         $payment_type                     = str_replace('buckaroo_', '', strtolower($this->id));
         $afterpay->OriginalTransactionKey = $order->get_transaction_id();
         $afterpay->channel                = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
@@ -536,7 +536,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
                 $tmp["ArticleDescription"] = $item['name'];
                 $tmp["ArticleId"]          = $item['product_id'];
                 $tmp["ArticleQuantity"]    = $line_item_qtys[$item->get_id()];
-                $tmp["ArticleUnitprice"]   = (float) number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
+                $tmp["ArticleUnitprice"]   = (float) number_format(number_format($item["line_total"] + $item["line_tax"], 4, '.', '') / $item["qty"], 2, '.', '');
                 $itemsTotalAmount += $tmp["ArticleUnitprice"] * $item["qty"];
                 $tmp["ArticleVatcategory"] = $itemRate;
                 $products[]                = $tmp;
@@ -548,7 +548,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"]          = $key;
             $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = number_format(($item["line_total"] + $item["line_tax"]), 2);
+            $tmp["ArticleUnitprice"]   = number_format(($item["line_total"] + $item["line_tax"]), 2, '.', '');
             $itemsTotalAmount += $tmp["ArticleUnitprice"];
             $tmp["ArticleVatcategory"] = $feeTaxRate;
             $products[]                = $tmp;
@@ -808,8 +808,8 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"]          = $item['product_id'];
             $tmp["ArticleQuantity"]    = $item["qty"];
-            $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
-            $itemsTotalAmount += number_format($tmp["ArticleUnitprice"] * $item["qty"], 2);
+            $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4, '.', '') / $item["qty"], 2, '.', '');
+            $itemsTotalAmount += number_format($tmp["ArticleUnitprice"] * $item["qty"], 2, '.', '');
 
             $tmp["ArticleVatcategory"] = $itemRate;
             $tmp["ProductUrl"]         = get_permalink($item['product_id']);
@@ -869,7 +869,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
                 $tmp["ArticleDescription"] = 'Remaining Price';
                 $tmp["ArticleId"]          = 'remaining_price';
                 $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($afterpay->amountDedit - $itemsTotalAmount, 2);
+                $tmp["ArticleUnitprice"]   = number_format($afterpay->amountDedit - $itemsTotalAmount, 2, '.', '');
                 $tmp["ArticleVatcategory"] = 0;
                 $products[]                = $tmp;
                 $itemsTotalAmount -= 0.01;

@@ -43,7 +43,7 @@ jQuery(document).ready(function() {
 
             jQuery( '.capture input.capture_line_total' ).each(function( index, item ) {
                 if ( jQuery( item ).closest( 'tr' ).data( 'order_item_id' ) ) {
-                    line_item_totals[ jQuery( item ).closest( 'tr' ).data( 'order_item_id' ) ] = accounting.unformat( item.value, woocommerce_admin.mon_decimal_point );
+                    line_item_totals[ jQuery( item ).closest( 'tr' ).data( 'order_item_id' ) ] = item.value;
                 }
             });
 
@@ -55,7 +55,7 @@ jQuery(document).ready(function() {
                         line_item_tax_totals[ jQuery( item ).closest( 'tr' ).data( 'order_item_id' ) ] = {};
                     }
 
-                    line_item_tax_totals[ jQuery( item ).closest( 'tr' ).data( 'order_item_id' ) ][ tax_id ] = accounting.unformat( item.value, woocommerce_admin.mon_decimal_point );
+                    line_item_tax_totals[ jQuery( item ).closest( 'tr' ).data( 'order_item_id' ) ][ tax_id ] = item.value;
                 }
             });
             
@@ -134,7 +134,7 @@ jQuery(document).ready(function() {
             var refund_cost_fields = $row.find( '.capture input:not(.capture_order_item_qty)' );
 
             refund_cost_fields.each(function( index, el ) {
-                capture_amount += parseFloat( accounting.unformat( jQuery( el ).val() || 0, woocommerce_admin.mon_decimal_point ) );
+                capture_amount += parseFloat( jQuery( el ).val() || 0 );
             });
         });
 
