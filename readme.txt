@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 5.7.2
-Stable tag: 2.21.0
+Tested up to: 5.8
+Stable tag: 2.22.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,12 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.22.0 =
+- Capture amount incorrect [BP-997]
+- fix Fatal error: Uncaught Error: Call to a member function get_total() on null gateway-buckaroo.php on line 101
+- Afterpay transaction can't be placed successfully (invisible error) [BP-998]
+- Buckaroo plugin conflicts with a other plugin (Fliuentform) after our latest update [BP-999]
 
 = 2.21.0 =
 - Make it possible to set the minimum and maximum amount for a payment method to be displayed [BP-926]
