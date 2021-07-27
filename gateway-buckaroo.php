@@ -98,22 +98,24 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
 
         if ($available_gateways) {
-            $totalCartAmount = WC()->cart->get_total(null);
-            foreach ($available_gateways as $key => $gateway) {
-                if (
+            if (!empty(WC()->cart)) {
+                $totalCartAmount = WC()->cart->get_total(null);
+                foreach ($available_gateways as $key => $gateway) {
+                    if (
                         (substr($key, 0, 8) === 'buckaroo')
                         && (
-                                !empty($gateway->minvalue)
-                                ||
-                                !empty($gateway->maxvalue)
+                            !empty($gateway->minvalue)
+                            ||
+                            !empty($gateway->maxvalue)
                         )
-                ) {
-                    if (!empty($gateway->maxvalue) && $totalCartAmount > $gateway->maxvalue) {
-                        unset($available_gateways[$key]);
-                    }
+                    ) {
+                        if (!empty($gateway->maxvalue) && $totalCartAmount > $gateway->maxvalue) {
+                            unset($available_gateways[$key]);
+                        }
 
-                    if (!empty($gateway->minvalue) && $totalCartAmount < $gateway->minvalue) {
-                        unset($available_gateways[$key]);
+                        if (!empty($gateway->minvalue) && $totalCartAmount < $gateway->minvalue) {
+                            unset($available_gateways[$key]);
+                        }
                     }
                 }
             }

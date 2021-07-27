@@ -74,13 +74,13 @@ input[type="text"].validated{
     border-top: 8px solid #f8f8f8;
 }
 
-tbody {
+table.woocommerce_order_items tbody {
     display: table-row-group;
     vertical-align: middle;
 	border-color: inherit;
 }
 
-table {
+table.woocommerce_order_items {
     display: table;
     border-collapse: separate;
     border-spacing: 2px;
