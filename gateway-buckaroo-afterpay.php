@@ -450,7 +450,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
         $order = getWCOrder($order_id);
 
-        $afterpay->amountDedit            = $_POST['capture_amount'];
+        $afterpay->amountDedit            = str_replace(',', '.', $_POST['capture_amount']);
         $payment_type                     = str_replace('buckaroo_', '', strtolower($this->id));
         $afterpay->OriginalTransactionKey = $order->get_transaction_id();
         $afterpay->channel                = BuckarooConfig::getChannel($payment_type, __FUNCTION__);

@@ -370,7 +370,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 
         $customVars['CreditCardIssuer'] = get_post_meta($order->get_id(), '_wc_order_payment_issuer', true);
 
-        $creditcard->amountDedit            = $_POST['capture_amount'];
+        $creditcard->amountDedit            = str_replace(',', '.', $_POST['capture_amount']);
         $payment_type                       = str_replace('buckaroo_', '', strtolower($this->id));
         $creditcard->OriginalTransactionKey = $order->get_transaction_id();
         $creditcard->channel                = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
