@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 5.8
-Stable tag: 2.22.0
+Stable tag: 2.22.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,10 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.22.1 =
+- Capture amount incorrect (fix for cc and ap old) [BP-997]
+- fix capture transactions description pattern handling
 
 = 2.22.0 =
 - Capture amount incorrect [BP-997]
