@@ -422,6 +422,7 @@ msgstr ""
 
 #: gateway-buckaroo-afterpay.php:570 gateway-buckaroo-afterpay.php:653 
 #: gateway-buckaroo-afterpaynew.php:624 gateway-buckaroo-afterpaynew.php:711
+#: gateway-buckaroo-billink.php:136
 msgid "Please accept licence agreements"
 msgstr "Accepteer alstublieft de license agreements"
 
@@ -992,3 +993,7 @@ msgstr "Afbeeldingsinfo verzenden"
 
 msgid "Image info will be sent to BPE gateway inside ImageUrl parameter"
 msgstr "Beeldinformatie wordt naar de BPE-gateway verzonden in de ImageUrl-parameter"
+
+#: gateway-buckaroo-billink.php:319 gateway-buckaroo-billink.php:342
+msgid "Accept terms of use:"
+msgstr "Nutzungsbedingungen akzeptieren"

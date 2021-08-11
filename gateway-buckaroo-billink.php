@@ -132,6 +132,10 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                 return;
             }
         }
+        if (empty($_POST["buckaroo-billink-accept"])) {
+            wc_add_notice(__("Please accept licence agreements", 'wc-buckaroo-bpe-gateway'), 'error');
+            return;
+        }
         $shippingCosts    = $order->get_total_shipping();
         $shippingCostsTax = $order->get_shipping_tax();
         if (floatval($shippingCosts) > 0) {
@@ -310,6 +314,11 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                 <input id="buckaroo-billink-VatNumber" name="buckaroo-billink-VatNumber" class="input-text"
                        type="text" maxlength="250" autocomplete="off" value="" />
             </p>
+            
+            <p class="form-row form-row-wide validate-required">
+                <a href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf" target="_blank"><?php echo _e('Accept terms of use:', 'wc-buckaroo-bpe-gateway') ?></a><span class="required">*</span> <input id="buckaroo-billink-accept" name="buckaroo-billink-accept" type="checkbox" value="ON" />
+            </p>
+
             <p class="required" style="float:right;">* Verplicht</p>
         </fieldset>
         <fieldset id="buckaroo_billink_b2c">
@@ -328,6 +337,11 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                 <input id="buckaroo-billink-birthdate" name="buckaroo-billink-birthdate" class="input-text" type="text"
                        maxlength="250" autocomplete="off" value="" placeholder="DD-MM-YYYY" />
             </p>
+
+            <p class="form-row form-row-wide validate-required">
+                <a href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf" target="_blank"><?php echo _e('Accept terms of use:', 'wc-buckaroo-bpe-gateway') ?></a><span class="required">*</span> <input id="buckaroo-billink-accept" name="buckaroo-billink-accept" type="checkbox" value="ON" />
+            </p>
+
             <p class="required" style="float:right;">* Verplicht</p>
         </fieldset>
 
