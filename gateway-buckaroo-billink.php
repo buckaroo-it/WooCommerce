@@ -316,7 +316,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             </p>
             
             <p class="form-row form-row-wide validate-required">
-                <a href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf" target="_blank"><?php echo _e('Accept terms of use:', 'wc-buckaroo-bpe-gateway') ?></a><span class="required">*</span> <input id="buckaroo-billink-accept" name="buckaroo-billink-accept" type="checkbox" value="ON" />
+                <a href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf" target="_blank"><?php echo _e('Accept terms of use', 'wc-buckaroo-bpe-gateway') ?>:</a><span class="required">*</span> <input id="buckaroo-billink-accept" name="buckaroo-billink-accept" type="checkbox" value="ON" />
             </p>
 
             <p class="required" style="float:right;">* Verplicht</p>
@@ -339,7 +339,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             </p>
 
             <p class="form-row form-row-wide validate-required">
-                <a href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf" target="_blank"><?php echo _e('Accept terms of use:', 'wc-buckaroo-bpe-gateway') ?></a><span class="required">*</span> <input id="buckaroo-billink-accept" name="buckaroo-billink-accept" type="checkbox" value="ON" />
+                <a href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf" target="_blank"><?php echo _e('Accept terms of use', 'wc-buckaroo-bpe-gateway') ?>:</a><span class="required">*</span> <input id="buckaroo-billink-accept" name="buckaroo-billink-accept" type="checkbox" value="ON" />
             </p>
 
             <p class="required" style="float:right;">* Verplicht</p>
