@@ -89,6 +89,10 @@ jQuery(document).ready(function() {
 
     jQuery("input.capture_order_item_qty").on('change', function (e) {
 
+        function BK_price_round(num) {
+            return +(Math.round(num + "e+2")  + "e-2");
+        }
+
         var $row              = jQuery( this ).closest( 'tr.capture-item ' );
         var qty               = $row.find( 'input.quantity' ).val();
         var refund_qty        = jQuery( this ).val();
@@ -113,7 +117,7 @@ jQuery(document).ready(function() {
 
             if ( 0 < unit_total_tax ) {
                 $refund_line_total_tax.val(
-                    parseFloat( accounting.formatNumber( unit_total_tax * refund_qty, woocommerce_admin_meta_boxes.rounding_precision, '' ) )
+                    parseFloat( accounting.formatNumber( BK_price_round(unit_total_tax * refund_qty), woocommerce_admin_meta_boxes.rounding_precision, '' ) )
                         .toString()
                         .replace( '.', woocommerce_admin.mon_decimal_point )
                 ).change();
@@ -121,7 +125,7 @@ jQuery(document).ready(function() {
                 $refund_line_total_tax.val( 0 ).change();
             }
         });
-        
+
     });
 
 
@@ -134,7 +138,7 @@ jQuery(document).ready(function() {
             var refund_cost_fields = $row.find( '.capture input:not(.capture_order_item_qty)' );
 
             refund_cost_fields.each(function( index, el ) {
-                capture_amount += parseFloat( jQuery( el ).val() || 0 );
+                capture_amount += parseFloat( jQuery( el ).val().replace(',','.') || 0 );
             });
         });
 

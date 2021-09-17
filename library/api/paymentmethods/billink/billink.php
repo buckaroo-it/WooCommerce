@@ -146,8 +146,10 @@ class BuckarooBillink extends BuckarooPaymentMethod
             $this->data['customVars'][$this->type]["ChamberOfCommerce"][0]["value"] = $this->CompanyCOCRegistration;
             $this->data['customVars'][$this->type]["ChamberOfCommerce"][0]["group"] = 'BillingCustomer';
 
-            $this->data['customVars'][$this->type]["VATNumber"][0]["value"] = $this->VatNumber;
-            $this->data['customVars'][$this->type]["VATNumber"][0]["group"] = 'BillingCustomer';
+            if (!empty($this->VatNumber)){
+                $this->data['customVars'][$this->type]["VATNumber"][0]["value"] = $this->VatNumber;
+                $this->data['customVars'][$this->type]["VATNumber"][0]["group"] = 'BillingCustomer';
+            }
         } else {
             $this->data['customVars'][$this->type]["Salutation"][0]["value"] = $this->BillingGender;
             $this->data['customVars'][$this->type]["Salutation"][0]["group"] = 'BillingCustomer';

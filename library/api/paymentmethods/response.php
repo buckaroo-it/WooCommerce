@@ -362,13 +362,23 @@ abstract class BuckarooResponse extends BuckarooAbstract
         //Canonicalize nodeset
         $signedInfo = $SignedInfoNodeSet->C14N(true, false);
 
-        //get the public key
-        $certificate_path = dirname(__FILE__) . '/../../' . BuckarooConfig::CERTIFICATE_PATH . 'Checkout.pem';
-        if (!file_exists($certificate_path)) {
-            $logger = new BuckarooLogger(1);
-            $logger->logForUser($certificate_path . ' do not exists');
+        $certificatesDir = dirname(__FILE__) . '/../../' . BuckarooConfig::CERTIFICATE_PATH;
+
+        $keyIdentifier = '//wsse:Security/sig:Signature/sig:KeyInfo/wsse:SecurityTokenReference/wsse:KeyIdentifier';
+        $keyIdentifierList = $xPath->query($keyIdentifier);
+
+        if ($keyIdentifierList && $keyIdentifierList->item(0) && $keyIdentifierList->item(0)->nodeValue) {
+            $certificatePath = $certificatesDir . 'Buckaroo' . $keyIdentifierList->item(0)->nodeValue . '.pem';
+            if (!file_exists($certificatePath)) {
+                $certificatePath = $certificatesDir . 'Checkout.pem';
+            }
         }
-        $pubKey = openssl_get_publickey(openssl_x509_read(file_get_contents($certificate_path)));
+        //get the public key
+        if (!file_exists($certificatePath)) {
+            $logger = new BuckarooLogger(1);
+            $logger->logForUser($certificatePath . ' do not exists');
+        }
+        $pubKey = openssl_get_publickey(openssl_x509_read(file_get_contents($certificatePath)));
 
         //verify the signature
         $sigVerify = openssl_verify($signedInfo, $sigDecoded, $pubKey);
