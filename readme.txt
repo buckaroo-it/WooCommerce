@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 5.8
-Stable tag: 2.22.1
+Stable tag: 2.23.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,13 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.23.0 =
+- Fix VatNumber / translation [BP-957]
+- Add accept terms & conditions for Billink [BP-996]
+- 1 cent rounding issue with captures [BP-1009]
+- iDIN verification does not work [BP-1050]
+- Change SOAP certificate [BP-987]
 
 = 2.22.1 =
 - Capture amount incorrect (fix for cc and ap old) [BP-997]
