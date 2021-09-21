@@ -71,7 +71,7 @@ jQuery(document).ready(function() {
                 security              : woocommerce_admin_meta_boxes.order_item_nonce
             };
 
-            jQuery.post( "/wp-admin/admin-ajax.php", data, function( response ) {
+            jQuery.post( ajaxurl, data, function( response ) {
 
                 if ( true === response.success ) {
                     // Redirect to same page for show the refunded status
@@ -192,7 +192,7 @@ jQuery(document).ready(function() {
 function doCall(id) {
     jQuery.ajax({
         type: "POST",
-        url: "/wp-admin/admin-ajax.php",
+        url: ajaxurl,
 
         data: {
             id: id,
