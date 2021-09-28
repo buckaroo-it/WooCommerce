@@ -365,9 +365,9 @@ if ( wc_tax_enabled() ) {
 </div>
 <?php 
 
-$amountAlreadyCaptured = get_post_meta( $order->get_id(), '_wc_order_amount_captured', true ) ? (float) get_post_meta( $order->get_id(), '_wc_order_amount_captured', true ) : 0;
+$amountAlreadyCaptured = get_post_meta( $order->get_id(), '_wc_order_amount_captured', true ) ? (float) str_replace(',', '.', get_post_meta( $order->get_id(), '_wc_order_amount_captured', true )) : 0;
 
-if ( $order->get_total() - $amountAlreadyCaptured  > 0) : 
+if ( $order->get_total() - $amountAlreadyCaptured  > 0) :
 
 ?>
 <div class="wc-order-data-row wc-order-capture-items wc-order-capture-data-row-toggle" style="display: none;">
