@@ -258,6 +258,10 @@ function generateGateways()
             'filename' => 'gateway-buckaroo-klarnapii.php',
             'classname' => 'WC_Gateway_Buckaroo_KlarnaPII',
         ),
+        'EPS' => array(
+            'filename' => 'gateway-buckaroo-eps.php',
+            'classname' => 'WC_Gateway_Buckaroo_EPS',
+        ),
     );
     $buckaroo_enabled_payment_methods = array();
     if (file_exists(dirname(__FILE__) . '/gateway-buckaroo-testscripts.php')) {
