@@ -32,6 +32,7 @@ class BuckarooBillink extends BuckarooPaymentMethod
     public $Accept;
 
     public $B2B;
+    public $Company;
     public $CompanyCOCRegistration;
     public $VatNumber;
 
@@ -55,6 +56,14 @@ class BuckarooBillink extends BuckarooPaymentMethod
      */
     public function Pay($customVars = Array()) {
         return null;
+    }
+
+    public function setCompany($company){
+        $this->Company = $company;
+    }
+
+    public function getCompany(){
+        return $this->Company;
     }
 
     public function setCategory($category){
@@ -82,10 +91,16 @@ class BuckarooBillink extends BuckarooPaymentMethod
         $this->data['customVars'][$this->type]["Category"][0]["value"] = $this->getCategory();
         $this->data['customVars'][$this->type]["Category"][0]["group"] = 'BillingCustomer';
 
-        $this->data['customVars'][$this->type]["CareOf"][0]["value"] = trim($this->getBillingFirstName() . ' ' . $this->BillingLastName);
+        if ($this->B2B) {
+            $billingCareOf = $shippingCareOf = $this->getCompany();
+        } else {
+            $billingCareOf = trim($this->getBillingFirstName() . ' ' . $this->BillingLastName);
+            $shippingCareOf = ($this->AddressesDiffer == 'TRUE') ? trim($this->ShippingFirstName . ' ' . $this->ShippingLastName) : $billingCareOf;
+        }
+        $this->data['customVars'][$this->type]["CareOf"][0]["value"] = $billingCareOf;
         $this->data['customVars'][$this->type]["CareOf"][0]["group"] = 'BillingCustomer';
 
-        $this->data['customVars'][$this->type]["CareOf"][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? trim($this->ShippingFirstName . ' ' . $this->ShippingLastName) : $this->data['customVars'][$this->type]["CareOf"][0]["value"];
+        $this->data['customVars'][$this->type]["CareOf"][1]["value"] = $shippingCareOf;
         $this->data['customVars'][$this->type]["CareOf"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]["Initials"][0]["value"] = $this->BillingInitials;
