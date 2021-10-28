@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 5.8
-Stable tag: 2.23.0
+Stable tag: 2.24.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,13 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 2.24.0 =
+
+- Capture amount incorrect (fix admin area url & already captured amount) [BP-997]
+- Add EPS as payment method in the plugin [BP-1106]
+- Company name is not sent to Buckaroo platform [BP-1102]
+- Blank page upon Payconiq cancellation [BP-1062]
 
 = 2.23.0 =
 - Fix VatNumber / translation [BP-957]
