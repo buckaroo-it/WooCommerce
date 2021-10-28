@@ -108,6 +108,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $get_billing_last_name  = getWCOrderDetails($order_id, "billing_last_name");
 
         $billink->setCategory($billink->B2B ? 'B2B': 'B2C');
+        $billink->setCompany($billink->B2B ? getWCOrderDetails($order_id, "billing_company"): '');
 
         $billink->BillingInitials = $this->getInitials($get_billing_first_name . ' ' . $get_billing_last_name);
         $billink->setBillingFirstName($get_billing_first_name);

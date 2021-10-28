@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="view">
 			<?php
 			echo wp_kses_post(
-				wc_price($singleCapture['amount'], array( 'currency' => $singleCapture['currency'] ) )
+				wc_price(str_replace(',', '.', $singleCapture['amount']), array( 'currency' => $singleCapture['currency'] ) )
 			);
 			?>
 		</div>

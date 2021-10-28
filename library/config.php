@@ -7,7 +7,7 @@ require_once dirname(__FILE__).'/api/config/configcore.php';
 class BuckarooConfig extends BuckarooConfigCore {
     const NAME = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-    const VERSION = '2.23.0';
+    const VERSION = '2.24.0';
 
     const SHIPPING_SKU = "WC8888";
 
@@ -165,6 +165,7 @@ class BuckarooConfig extends BuckarooConfigCore {
                 'payperemail' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'klarnapay' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
                 'klarnapii' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
+                'eps' => array('process_payment' => '', 'process_capture' => '', 'process_refund' => ''),
             );
             //'' defaults to Web, set by BuckarooConfig::CHANNEL (see library/api/config/coreconfig.php);
             $channel = !empty($overrides[$payment_type][$method]) ? $overrides[$payment_type][$method] : $channel;
