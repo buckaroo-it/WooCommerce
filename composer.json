@@ -1,0 +1,21 @@
+{
+    "name": "buckaroo/woocommerce",
+    "description": "Buckaroo Woocommerce plugin",
+    "type": "wordpress-plugin",
+    "license": "CC-BY-NC-ND-3.0",
+    "require": {},
+    "authors": [
+        {
+            "name": "Buckaroo",
+            "email": "support@buckaroo.nl",
+            "homepage": "https://www.buckaroo.nl"
+        }
+    ],
+    "support": {
+        "email": "support@buckaroo.nl",
+        "issues": "https://support.buckaroo.nl/contact"
+    },
+    "homepage": "https://www.buckaroo.nl",
+    "version" : "2.24.0",
+    "minimum-stability": "stable"
+}
