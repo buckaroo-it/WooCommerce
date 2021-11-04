@@ -18,7 +18,7 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
         $this->icon = apply_filters('woocommerce_buckaroo_transfer_icon', BuckarooConfig::getIconPath('24x24/transfer.jpg', 'new/SEPA-credittransfer.png'));
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Bank Transfer';
-        $this->description            = "Betaal met Bank Transfer";
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');

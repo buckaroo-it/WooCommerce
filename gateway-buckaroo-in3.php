@@ -20,7 +20,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         $this->icon = apply_filters('woocommerce_buckaroo_in3_icon', BuckarooConfig::getIconPath('24x24/in3.png', 'new/In3.png'));
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo In3';
-        $this->description            = "Betaal met In3";
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');

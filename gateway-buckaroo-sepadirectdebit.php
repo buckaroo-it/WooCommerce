@@ -21,7 +21,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
         $this->icon = apply_filters('woocommerce_buckaroo_sepadirectdebit_icon', BuckarooConfig::getIconPath('24x24/directdebit.png', 'new/SEPA-directdebit.png'));
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo SEPA Direct Debit';
-        $this->description            = "Betaal met SEPA Direct Debit";
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
@@ -315,7 +315,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
                         <label for="buckaroo-sepadirectdebit-bic"><?php echo _e('BIC:', 'wc-buckaroo-bpe-gateway') ?></label>
                         <input id="buckaroo-sepadirectdebit-bic" name="buckaroo-sepadirectdebit-bic" class="input-text" type="text" maxlength="11" autocomplete="off" value="" />
                 </p>
-                <p class="required" style="float:right;">* Verplicht</p>
+                <p class="required" style="float:right;">* <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?></p>
             </fieldset>
         <?php
 }

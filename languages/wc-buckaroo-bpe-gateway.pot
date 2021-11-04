@@ -1,18 +1,20 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: WC Buckaroo BPE Gateway\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-14 12:03+0000\n"
-"PO-Revision-Date: 2021-11-04 08:58+0000\n"
-"Last-Translator: \n"
-"Language-Team: French (France)\n"
-"Language: fr_FR\n"
-"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"POT-Creation-Date: 2021-11-04 08:58+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.4.0; wp-5.5"
+"X-Loco-Version: 2.5.5; wp-5.8.1\n"
+"X-Domain: wc-buckaroo-bpe-gateway"
 
 #: gateway-buckaroo.php:347
 msgid " Payment method"
@@ -51,7 +53,7 @@ msgstr ""
 
 #: controllers/IdinController.php:28
 msgid "According to iDIN you are under 18 years old"
-msgstr "Selon iDIN, vous avez moins de 18 ans"
+msgstr ""
 
 #: gateway-buckaroo-afterpay.php:1047 gateway-buckaroo-afterpaynew.php:1103
 msgid "Afterpay conditions (Dutch)"
@@ -67,7 +69,7 @@ msgstr ""
 
 #: templates/idin/checkout.php:7 templates/idin/checkout.php:26
 msgid "Age verification"
-msgstr "Verification de l'AGE"
+msgstr ""
 
 #: gateway-buckaroo-sepadirectdebit.php:436
 msgid "Allowed payment methods"
@@ -131,15 +133,12 @@ msgstr ""
 #: gateway-buckaroo-mastersettings.php:220
 msgid "By turning on this setting age verification with iDIN will be in use"
 msgstr ""
-"En activant ce paramètre, la vérification de l'âge avec iDIN sera utilisée"
 
 #: gateway-buckaroo-mastersettings.php:212
 msgid ""
 "By turning on this setting in checkout new payment method icons will be in "
 "use"
 msgstr ""
-"En activant ce paramètre lors du paiement, de nouvelles icônes de mode de "
-"paiement seront utilisées"
 
 #: library/common.php:171
 #, php-format
@@ -354,7 +353,7 @@ msgstr ""
 
 #: gateway-buckaroo-mastersettings.php:218
 msgid "iDIN mode"
-msgstr "Mode iDIN"
+msgstr ""
 
 #: gateway-buckaroo-mastersettings.php:232
 msgid "iDIN specific product categories"
@@ -363,8 +362,6 @@ msgstr ""
 #: gateway-buckaroo-afterpaynew.php:1247
 msgid "Image info will be sent to BPE gateway inside ImageUrl parameter"
 msgstr ""
-"Les informations sur l'image seront envoyées à la passerelle BPE dans le "
-"paramètre ImageUrl"
 
 #: gateway-buckaroo-in3.php:469
 msgid "In3 version"
@@ -400,7 +397,7 @@ msgstr ""
 
 #: gateway-buckaroo.php:451
 msgid "Maximum order amount allowed"
-msgstr "Montant maximum de commande autorisé"
+msgstr ""
 
 #: gateway-buckaroo-mastersettings.php:73 gateway-buckaroo.php:392
 msgid "Merchant key"
@@ -412,7 +409,7 @@ msgstr ""
 
 #: gateway-buckaroo.php:444
 msgid "Minimum order amount allowed"
-msgstr "Montant minimum de commande autorisé"
+msgstr ""
 
 #: gateway-buckaroo-afterpay.php:983 gateway-buckaroo-afterpaynew.php:1047
 msgid "Name of the organization:"
@@ -616,7 +613,7 @@ msgstr ""
 
 #: gateway-buckaroo-creditcard.php:239
 msgid "Select a credit card."
-msgstr "Sélectionnez une carte de crédit"
+msgstr ""
 
 #: gateway-buckaroo-afterpay.php:1167
 msgid "Select afterpay service"
@@ -705,7 +702,7 @@ msgstr ""
 
 #: gateway-buckaroo-afterpaynew.php:1245
 msgid "Send image info"
-msgstr "Envoyer des informations sur l'image"
+msgstr ""
 
 #: gateway-buckaroo-paypal.php:287
 msgid ""
@@ -775,17 +772,12 @@ msgid ""
 "Specify maximum order amount allowed to show the current method. Zero or "
 "empty value means no rule will be applied."
 msgstr ""
-"Spécifiez le montant de commande maximum autorisé pour afficher la méthode "
-"actuelle. Une valeur nulle ou vide signifie qu'aucune règle ne sera "
-"appliquée."
 
 #: gateway-buckaroo.php:447
 msgid ""
 "Specify minimum order amount allowed to show the current method. Zero or "
 "empty value means no rule will be applied."
 msgstr ""
-"Geben Sie die zulässige mindestbestellmenge an, um die aktuelle methode "
-"anzuzeigen. Null oder leerer wert bedeutet, dass keine regel angewendet wird."
 
 #: gateway-buckaroo-sepadirectdebit.php:422
 msgid ""
@@ -886,7 +878,7 @@ msgstr ""
 
 #: templates/idin/checkout.php:31
 msgid "To continue you must verify your age using iDIN"
-msgstr "Pour continuer, vous devez vérifier votre âge à l'aide d'iDIN"
+msgstr ""
 
 #: gateway-buckaroo-mastersettings.php:198
 msgid "Toggle debug mode on/off"
@@ -920,7 +912,7 @@ msgstr ""
 
 #: gateway-buckaroo-mastersettings.php:210
 msgid "Use new icons"
-msgstr "Utiliser de nouvelles icônes"
+msgstr ""
 
 #: gateway-buckaroo-afterpay.php:1193 gateway-buckaroo-afterpaynew.php:1225
 #: gateway-buckaroo-applepay.php:439 gateway-buckaroo-belfius.php:262
@@ -948,11 +940,11 @@ msgstr ""
 
 #: controllers/IdinController.php:34
 msgid "Verification has been failed"
-msgstr "La vérification a échoué"
+msgstr ""
 
 #: templates/idin/checkout.php:51 templates/idin/checkout.php:52
 msgid "Verify your age via iDIN"
-msgstr "Vérifiez votre âge via iDIN"
+msgstr ""
 
 #. Name of the plugin
 msgid "WC Buckaroo BPE Gateway"
@@ -976,11 +968,11 @@ msgstr ""
 
 #: controllers/IdinController.php:26
 msgid "You have been verified successfully"
-msgstr "Vous avez été vérifié avec succès"
+msgstr ""
 
 #: templates/idin/checkout.php:11
 msgid "You have verified your age already"
-msgstr "Vous avez déjà vérifié votre âge"
+msgstr ""
 
 #: gateway-buckaroo-creditcard.php:318
 msgid "You havent selected your credit card issuer"
@@ -990,12 +982,11 @@ msgstr ""
 #: templates/idin/cart.php:13
 msgid "You must be 18 or older to pay for the products below"
 msgstr ""
-"Vous devez être âgé d'au moins 18 ans pour payer les produits ci-dessous"
 
 #. } else {
 #: templates/idin/product.php:13
 msgid "You must be 18 years or older to order this product"
-msgstr "Vous devez être âgé d'au moins 18 ans pour commander ce produit"
+msgstr ""
 
 #: gateway-buckaroo-applepay.php:476
 msgid "Your merchant ID"

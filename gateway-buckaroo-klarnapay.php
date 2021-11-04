@@ -9,7 +9,7 @@ class WC_Gateway_Buckaroo_KlarnaPay extends WC_Gateway_Buckaroo_Klarna {
         $this->id = 'buckaroo_klarnapay';
         $this->title = 'Klarna: Pay later';
         $this->method_title = 'Buckaroo Klarna Pay later';
-        $this->description = "Betaal met Klarna Pay";
+        $this->description =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
 
         $this->klarnaPaymentFlowId = 'pay';
         $this->klarnaSelector = 'buckaroo_' . $this->id;

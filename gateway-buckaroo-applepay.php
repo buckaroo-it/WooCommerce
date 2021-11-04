@@ -16,7 +16,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         $this->icon                   = null;
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo Applepay";
-        $this->description            = "Betaal met Applepay";
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');

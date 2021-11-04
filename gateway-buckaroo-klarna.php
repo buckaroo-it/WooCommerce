@@ -492,7 +492,7 @@ endif;
                        type="hidden" value="1"/>
             <?php }?>
 
-            <p class="required" style="float:right;">* Verplicht</p>
+            <p class="required" style="float:right;">* <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?></p>
         </fieldset>
         <?php
 }

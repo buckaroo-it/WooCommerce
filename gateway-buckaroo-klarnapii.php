@@ -9,8 +9,7 @@ class WC_Gateway_Buckaroo_KlarnaPII extends WC_Gateway_Buckaroo_Klarna {
         $this->id = 'buckaroo_klarnapii';
         $this->title = 'Klarna: Slice it';
         $this->method_title = 'Buckaroo Klarna Slice it';
-        $this->description = "Betaal met Klarna Slice it";
-
+        $this->description =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $this->klarnaPaymentFlowId = 'PayInInstallments';
         $this->klarnaSelector = 'buckaroo_' . $this->id;
 

@@ -25,7 +25,7 @@ class WC_Gateway_Buckaroo_Belfius extends WC_Gateway_Buckaroo
         $this->icon                   = apply_filters('woocommerce_buckaroo_belfius_icon', BuckarooConfig::getIconPath('24x24/belfius.png', 'new/Belfius.png'));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Belfius";
-        $this->description            = "Betaal met Belfius";
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');

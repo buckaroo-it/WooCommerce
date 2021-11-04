@@ -43,7 +43,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $this->icon = apply_filters('woocommerce_buckaroo_afterpay_icon', BuckarooConfig::getIconPath('24x24/afterpay.jpg', 'new/AfterPay.png'));
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo AfterPay Old';
-        $this->description            = "Betaal met AfterPay Old";
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
@@ -122,7 +122,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                     $refund = json_decode($refundJson, true);
 
                     if (isset($refund['OriginalCaptureTransactionKey']) && $capture['OriginalTransactionKey'] == $refund['OriginalCaptureTransactionKey']) {
-
                         foreach ($capture['products'] as &$capture_product) {
                             foreach ($refund['products'] as &$refund_product) {
                                 if ($capture_product['ArticleId'] != BuckarooConfig::SHIPPING_SKU && $capture_product['ArticleId'] == $refund_product['ArticleId'] && $refund_product['ArticleQuantity'] > 0) {
@@ -133,7 +132,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                                         $refund_product['ArticleQuantity'] -= $capture_product['ArticleQuantity'];
                                         $capture_product['ArticleQuantity'] = 0;
                                     }
-                                } else if ($capture_product['ArticleId'] == BuckarooConfig::SHIPPING_SKU && $capture_product['ArticleId'] == $refund_product['ArticleId'] && $refund_product['ArticleUnitprice'] > 0) {
+                                } elseif ($capture_product['ArticleId'] == BuckarooConfig::SHIPPING_SKU && $capture_product['ArticleId'] == $refund_product['ArticleId'] && $refund_product['ArticleUnitprice'] > 0) {
                                     if ($capture_product['ArticleUnitprice'] >= $refund_product['ArticleUnitprice']) {
                                         $capture_product['ArticleUnitprice'] -= $refund_product['ArticleUnitprice'];
                                         $refund_product['ArticleUnitprice'] = 0;
@@ -197,7 +196,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                                     $originalTransactionKey_new[$counter] = $capture['OriginalTransactionKey'];
                                     $counter++;
                                 }
-
                             }
                         }
                     }
@@ -238,7 +236,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                             $shippingOriginalTransactionKey_new[$counter] = $capture['OriginalTransactionKey'];
                             $counter++;
                         }
-
                     }
                 }
             }
@@ -296,7 +293,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             }
 
             return true;
-
         } else {
             return $this->process_partial_refunds($order_id, $amount, $reason);
         }
@@ -539,7 +535,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $process_response = fn_buckaroo_process_capture($response, $order, $this->currency, $products);
 
         return $process_response;
-
     }
 
     /**
@@ -925,13 +920,13 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $post_data   = array();
         if (!empty($_POST["post_data"])) {
             parse_str($_POST["post_data"], $post_data);
-        }?>
+        } ?>
 <?php if ($this->mode == 'test'): ?>
-<p><?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway');?>
-</p><?php endif;?>
+<p><?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway'); ?>
+</p><?php endif; ?>
 <?php if ($this->description): ?>
 <p><?php echo wpautop(wptexturize($this->description)); ?>
-</p><?php endif;?>
+</p><?php endif; ?>
 
 <fieldset>
     <?php if ($this->b2b == 'enable' && $this->type == 'afterpaydigiaccept') {
@@ -992,7 +987,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         </p>
     </span>
     <?php
-}?>
+        } ?>
 
     <p class="form-row">
         <label for="buckaroo-afterpay-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway') ?><span
@@ -1024,7 +1019,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     <input id="buckaroo-afterpay-shipping-differ" name="buckaroo-afterpay-shipping-differ" class="" type="hidden"
         value="1" />
     <?php
-}?>
+        } ?>
     <?php if ($this->type == 'afterpayacceptgiro') {
             ?>
     <p class="form-row form-row-wide validate-required">
@@ -1034,7 +1029,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             class="input-text" type="text" value="" />
     </p>
     <?php
-}
+        }
         $country = isset($_POST['s_country']) ? $_POST['s_country'] : $this->country;
         if ($country == "NL") {?>
         <p class="form-row form-row-wide validate-required">
@@ -1074,11 +1069,11 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         <p class="form-row form-row-wide validate-required">
             <a href="https://documents.myafterpay.com/consumer-terms-conditions/nl_nl/" target="_blank"><?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway') ?></a><span class="required">*</span> <input id="buckaroo-afterpay-accept" name="buckaroo-afterpay-accept" type="checkbox" value="ON" />
         </p>
-    <?php }?>
-    <p class="required" style="float:right;">* Verplicht</p>
+    <?php } ?>
+    <p class="required" style="float:right;">* <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?></p>
 </fieldset>
 <?php
-}
+    }
 
     /**
      * Check response data
@@ -1139,7 +1134,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
             $while_key++;
         }
-        $final_ccontent                                          = $keycount;
+        $final_ccontent  = $keycount;
         $this->form_fields["certificatecontents$final_ccontent"] = [
             'title'       => '',
             'type'        => 'hidden',

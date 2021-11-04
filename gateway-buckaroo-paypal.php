@@ -14,7 +14,7 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         $this->title                  = 'Buckaroo PayPal';
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo PayPal";
-        $this->description            = "Betaal met PayPal";
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');

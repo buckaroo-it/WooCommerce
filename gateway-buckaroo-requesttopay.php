@@ -16,7 +16,7 @@ class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo
         $this->icon = apply_filters('woocommerce_buckaroo_requesttopay_icon', BuckarooConfig::getIconPath('24x24/requesttopay.png', 'new/RequestToPay.png'));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Request To Pay";
-        $this->description            = "Betaal met Request To Pay";
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');

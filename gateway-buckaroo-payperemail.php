@@ -16,7 +16,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
         $this->title                  = 'PayPerEmail';
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo PayPerEmail";
-        $this->description            = "Betaal met PayPerEmail";
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
@@ -258,7 +258,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
                        type="email" autocomplete="off" value="<?php echo $customerEmail ?? '' ?>">
             </p>
 
-            <p class="required" style="float:right;">* Verplicht</p>
+            <p class="required" style="float:right;">* <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?></p>
         </fieldset>
         <?php
 }

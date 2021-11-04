@@ -27,7 +27,7 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
         $this->icon = apply_filters('woocommerce_buckaroo_bancontactmrcash_icon', BuckarooConfig::getIconPath('24x24/mistercash.png', 'new/Bancontact.png'));
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Bancontact / MisterCash';
-        $this->description            = "Betaal met Bancontact / MisterCash";
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');

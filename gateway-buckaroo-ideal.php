@@ -18,7 +18,7 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         $this->icon = apply_filters('woocommerce_buckaroo_ideal_icon', BuckarooConfig::getIconPath('24x24/ideal.png', 'new/iDEAL.png'));
         $this->has_fields   = true;
         $this->method_title = "Buckaroo iDEAL";
-        $this->description = "Betaal met iDEAL";
+        $this->description =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $this->currency = get_woocommerce_currency();
         $this->secretkey = BuckarooConfig::get('BUCKAROO_SECRET_KEY');

@@ -15,7 +15,7 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
         $this->icon = apply_filters('woocommerce_buckaroo_giropay_icon', BuckarooConfig::getIconPath('24x24/giropay.gif', 'new/Giropay.png'));
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo Giropay";
-        $this->description            = "Betaal met Giropay";
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
@@ -177,7 +177,7 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
                 </label>
                 <input id="buckaroo-giropay-bancaccount" name="buckaroo-giropay-bancaccount" class="input-text card-number" type="text" maxlength="11" autocomplete="off" value="" />
             </p>
-            <p class="required" style="float:right;">* Verplicht</p>
+            <p class="required" style="float:right;">* <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?></p>
         </fieldset>
     <?php }
 

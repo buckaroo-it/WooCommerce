@@ -18,11 +18,11 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $woocommerce = getWooCommerceObject();
 
         $this->id                     = 'buckaroo_billink';
-        $this->title                  = 'Billink - achteraf betalen';
+        $this->title                  = 'Billink - postpay';
         $this->icon = apply_filters('woocommerce_buckaroo_billink_icon', BuckarooConfig::getIconPath('24x24/billink.png', 'new/Billink.png'));
         $this->has_fields             = true;
         $this->method_title           = 'Buckaroo Billink';
-        $this->description            = "Betaal met Billink";
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
@@ -320,7 +320,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                 <a href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf" target="_blank"><?php echo _e('Accept terms of use', 'wc-buckaroo-bpe-gateway') ?>:</a><span class="required">*</span> <input id="buckaroo-billink-accept" name="buckaroo-billink-accept" type="checkbox" value="ON" />
             </p>
 
-            <p class="required" style="float:right;">* Verplicht</p>
+            <p class="required" style="float:right;">* <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?></p>
         </fieldset>
         <fieldset id="buckaroo_billink_b2c">
             <p class="form-row">
@@ -343,7 +343,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                 <a href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf" target="_blank"><?php echo _e('Accept terms of use', 'wc-buckaroo-bpe-gateway') ?>:</a><span class="required">*</span> <input id="buckaroo-billink-accept" name="buckaroo-billink-accept" type="checkbox" value="ON" />
             </p>
 
-            <p class="required" style="float:right;">* Verplicht</p>
+            <p class="required" style="float:right;">* <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?></p>
         </fieldset>
 
         <script>

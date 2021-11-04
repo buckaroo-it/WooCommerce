@@ -16,7 +16,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         $this->icon = apply_filters('woocommerce_buckaroo_creditcard_icon', BuckarooConfig::getIconPath('24x24/cc.gif', 'new/CreditCards.png'));
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo Creditcards";
-        $this->description            = "Betaal met Creditcards";
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->currency               = get_woocommerce_currency();
         $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
