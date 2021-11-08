@@ -474,13 +474,17 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         $order_id = $response->invoicenumber;
     } else {
         $order_id = $response->brq_ordernumber;
-    }    
+    }
 
-    $order = new WC_Order($order_id);
-    if ((int) $order_id > 0) {
-        if (!isset($GLOBALS['plugin_id'])) {
-            $GLOBALS['plugin_id'] = $payment_method->plugin_id . $order->get_payment_method() . "_settings";
+    try {
+        $order = new WC_Order($order_id);
+        if ((int) $order_id > 0) {
+            if (!isset($GLOBALS['plugin_id'])) {
+                $GLOBALS['plugin_id'] = $payment_method->plugin_id . $order->get_payment_method() . "_settings";
+            }
         }
+    } catch (\Exception $e) {
+        $logger->logInfo(__METHOD__ . "|10|");
     }
 
     if ($response->isValid()) {
