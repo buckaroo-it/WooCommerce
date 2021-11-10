@@ -173,44 +173,6 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
     }
     
     /**
-     * Payment form on checkout page
-     */
-    function payment_fields() { ?>
-
-        <?php if ($this->mode=='test') : ?>
-            <p>
-                <?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway'); ?>
-            </p>
-        <?php endif; ?>
-
-        <?php if ($this->description) : ?>
-            <p>
-                <?php echo wpautop(wptexturize($this->description)); ?>
-            </p>
-        <?php endif; ?>
-
-        <fieldset style="background: none">
-            <p class="form-row form-row-wide">
-                <select name='buckaroo-ideal-issuer' id='buckaroo-ideal-issuer'>
-                    <?php $first = true; ?>
-                    <option value='0'  style='color: grey !important'>
-                        <?php echo __('Select your bank', 'wc-buckaroo-bpe-gateway')?>
-                    </option>
-                    <?php foreach(BuckarooIDeal::getIssuerList() as $key => $issuer) : ?>
-                        <div>
-                            <option value='<?php echo $key; ?>'>
-                                <?php echo _e($issuer["name"], 'wc-buckaroo-bpe-gateway')?>
-                            </option>
-                        </div>
-                        <?php $first = false; ?>
-                    <?php endforeach ?>
-                </select>
-            </p>
-        </fieldset>
-
-    <?php } //Here ends the function.
-
-    /**
      * Check response data
      * 
      * @access public

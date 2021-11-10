@@ -6,6 +6,9 @@ require_once(dirname(__FILE__) . '/library/api/idin.php');
  */
 class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 {
+    
+    const BUCKAROO_TEMPLATE_LOCATION = '/templates/gateways/';
+
     public $notify_url;
     public $transactiondescription;
     public $usenotification;
@@ -187,7 +190,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     public function refresh_frontend()
     {
-        $min = !defined('SCRIPT_DEBUG') || !SCRIPT_DEBUG ? '.min' : '';
 
         if (!is_checkout()) {
             return;
@@ -195,7 +197,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         wp_enqueue_script(
             'wc-pf-checkout',
-            $this->plugin_url() . '/assets/js/checkout' . $min . '.js',
+            $this->plugin_url() . '/assets/js/checkout.js',
             ['jquery'],
             BuckarooConfig::VERSION,
             true
@@ -477,19 +479,12 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
     /**
      * Payment form on checkout page
+     * 
+     * @return void
      */
     public function payment_fields()
     {
-        if ($this->mode == 'test'): ?>
-<p>
-    <?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway');?>
-</p><?php
-endif;
-        if ($this->description): ?>
-<p>
-    <?php echo wpautop(wptexturize($this->description)); ?>
-</p><?php
-endif;
+        $this->renderTemplate();
     }
 
     public function get_failed_url()
@@ -615,5 +610,61 @@ endif;
             return DateTime::createFromFormat('j/n/y', $date)->format('d-m-Y');
         }
         return $date;
+    }
+    /**
+     * Get the template for the payment gateway if exists 
+     * 
+     * @param string $name Template name / payment id.
+     * 
+     * @return void
+     */
+    protected function getPaymentTemplate($name) 
+    {
+        $location = dirname(BK_PLUGIN_FILE).self::BUCKAROO_TEMPLATE_LOCATION;
+        $file = $location.$name.".php";
+
+        if (file_exists($file)) {
+            include $file;
+        }
+    }
+    /**
+     * Render the gateway template
+     *
+     * @return void
+     */
+    protected function renderTemplate($id = null)
+    {
+        if (is_null($id)) {
+            $id = $this->id;
+        }
+        
+        $name = str_replace("buckaroo_", "", $id);
+
+        do_action("buckaroo_before_render_gateway_template_".$name, $this);
+
+        $this->getPaymentTemplate('global');
+        $this->getPaymentTemplate($name);
+
+        do_action("buckaroo_after_render_gateway_template_".$name, $this);
+    }
+    /**
+     * Get checkout field values
+     *
+     * @param string $key Input name
+     *
+     * @return mixt
+     */
+    protected function geCheckoutField($key)
+    {
+        $value = '';
+        $post_data   = array();
+        if (!empty($_POST["post_data"])) {
+            parse_str($_POST["post_data"], $post_data);
+        }
+
+        if (isset($post_data[$key])) {
+            $value = $post_data[$key];
+        }
+        return sanitize_text_field($value);
     }
 }

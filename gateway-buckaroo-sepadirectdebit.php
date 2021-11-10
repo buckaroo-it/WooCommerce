@@ -275,52 +275,6 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
     }
 
     /**
-     * Payment form on checkout page
-     */
-    public function payment_fields()
-    {
-        $accountname = get_user_meta($GLOBALS["current_user"]->ID, 'billing_first_name', true) . " " . get_user_meta($GLOBALS["current_user"]->ID, 'billing_last_name', true);
-        ?>
-            <?php if ($this->mode == 'test'): ?><p><?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway');?></p><?php endif;?>
-            <?php if ($this->description): ?><p><?php echo wpautop(wptexturize($this->description)); ?></p><?php endif;?>
-
-            <fieldset>
-                <?php if ($this->usecreditmanagment == 'TRUE'): ?>
-                <p class="form-row">
-                        <label for="buckaroo-sepadirectdebit-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway') ?><span class="required">*</span></label>
-                        <input id="buckaroo-sepadirectdebit-genderm" name="buckaroo-sepadirectdebit-gender" class="" type="radio" value="1" checked /> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway') ?> &nbsp;
-                        <input id="buckaroo-sepadirectdebit-genderf" name="buckaroo-sepadirectdebit-gender" class="" type="radio" value="2"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway') ?>
-                </p>
-                <p class="form-row form-row-wide validate-required">
-                        <label for="buckaroo-sepadirectdebit-birthdate"><?php echo _e('Birthdate:', 'wc-buckaroo-bpe-gateway') ?><span class="required">*</span></label>
-                        <input id="buckaroo-sepadirectdebit-birthdate" name="buckaroo-sepadirectdebit-birthdate" class="input-text" type="text" maxlength="250" autocomplete="off" value="" placeholder="YYYY-MM-DD" />
-                </p>
-                <?php endif;?>
-                <?php if ($this->usenotification == 'TRUE' && $this->usecreditmanagment == 'FALSE'): ?>
-                    <p class="form-row">
-                        <label for="buckaroo-sepadirectdebit-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway') ?><span class="required">*</span></label>
-                        <input id="buckaroo-sepadirectdebit-genderm" name="buckaroo-sepadirectdebit-gender" class="" type="radio" value="1" checked /> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway') ?> &nbsp;
-                        <input id="buckaroo-sepadirectdebit-genderf" name="buckaroo-sepadirectdebit-gender" class="" type="radio" value="2"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway') ?>
-                    </p>
-                <?php endif;?>
-                <p class="form-row form-row-wide validate-required">
-                        <label for="buckaroo-sepadirectdebit-accountname"><?php echo _e('Bank account holder:', 'wc-buckaroo-bpe-gateway') ?><span class="required">*</span></label>
-                        <input id="buckaroo-sepadirectdebit-accountname" name="buckaroo-sepadirectdebit-accountname" class="input-text" type="text" maxlength="250" autocomplete="off" value="<?php echo $accountname; ?>" />
-                </p>
-                <p class="form-row form-row-wide validate-required">
-                    <label for="buckaroo-sepadirectdebit-iban"><?php echo _e('IBAN:', 'wc-buckaroo-bpe-gateway') ?><span class="required">*</span></label>
-                    <input id="buckaroo-sepadirectdebit-iban" name="buckaroo-sepadirectdebit-iban" class="input-text" type="text" maxlength="25" autocomplete="off" value="" />
-                </p>
-                <p class="form-row form-row-wide">
-                        <label for="buckaroo-sepadirectdebit-bic"><?php echo _e('BIC:', 'wc-buckaroo-bpe-gateway') ?></label>
-                        <input id="buckaroo-sepadirectdebit-bic" name="buckaroo-sepadirectdebit-bic" class="input-text" type="text" maxlength="11" autocomplete="off" value="" />
-                </p>
-                <p class="required" style="float:right;">* <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?></p>
-            </fieldset>
-        <?php
-}
-
-    /**
      * Check response data
      *
      * @access public
