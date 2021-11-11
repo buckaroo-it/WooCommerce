@@ -98,15 +98,6 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'description' => __('Click to select and upload your certificate. Note: Please save after uploading.', 'wc-buckaroo-bpe-gateway'),
             'default'     => '');
 
-        $taxes                       = $this->getTaxClasses();
-        $this->form_fields['feetax'] = [
-            'title'       => __('Select tax class for fee', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'options'     => $taxes,
-            'description' => __('Fee tax class', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '',
-        ];
-
         //Start Dynamic Rendering of Hidden Fields
         $master_options = get_option('woocommerce_buckaroo_mastersettings_settings', null);
         $ccontent_arr   = array();
@@ -172,6 +163,15 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'default'     => '');
 
         //End Dynamic Rendering of Hidden Fields
+
+        $taxes                       = $this->getTaxClasses();
+        $this->form_fields['feetax'] = [
+            'title'       => __('Select tax class for fee', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'select',
+            'options'     => $taxes,
+            'description' => __('Fee tax class', 'wc-buckaroo-bpe-gateway'),
+            'default'     => '',
+        ];
 
         $this->form_fields['usenotification'] = array(
             'title'       => __('Use notification service', 'wc-buckaroo-bpe-gateway'),
