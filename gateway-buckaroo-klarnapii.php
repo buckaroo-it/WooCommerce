@@ -11,7 +11,6 @@ class WC_Gateway_Buckaroo_KlarnaPII extends WC_Gateway_Buckaroo_Klarna {
         $this->method_title = 'Buckaroo Klarna Slice it';
         $this->description =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $this->klarnaPaymentFlowId = 'PayInInstallments';
-        $this->klarnaSelector = 'buckaroo_' . $this->id;
 
         parent::__construct();
 
@@ -22,5 +21,14 @@ class WC_Gateway_Buckaroo_KlarnaPII extends WC_Gateway_Buckaroo_Klarna {
             add_action( 'woocommerce_api_wc_gateway_buckaroo_klarnapii', array( $this, 'response_handler' ) );
             $this->notify_url   = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_KlarnaPII', $this->notify_url);
         }
+    }
+    /**
+     * Payment form on checkout page
+     * 
+     * @return void
+     */
+    public function payment_fields()
+    {
+        $this->renderTemplate('buckaroo_klarnapay');
     }
 }

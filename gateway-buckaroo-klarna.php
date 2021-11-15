@@ -10,7 +10,6 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
     protected $type;
     protected $currency;
     protected $klarnaPaymentFlowId = '';
-    protected $klarnaSelector      = '';
 
     public function __construct()
     {
@@ -49,7 +48,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
     public function getKlarnaSelector()
     {
-        return $this->klarnaSelector;
+        return str_replace("_", "-", $this->id);
     }
 
     public function getKlarnaPaymentFlow()
@@ -430,72 +429,6 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
         return $format;
     }
-
-    /**
-     * Payment form on checkout page
-     */
-    public function payment_fields()
-    {
-        $post_data = array();
-
-        $customerId    = get_current_user_id();
-        $customerPhone = '';
-        if (!empty($customerId)) {
-            $customerPhone = get_user_meta($customerId, 'billing_phone', true);
-        }
-
-        if (!empty($_POST["post_data"])) {
-            parse_str($_POST["post_data"], $post_data);
-        }
-
-        $country = $this->country ?? '';
-
-        if (strtoupper($country) == 'NL' && strtolower($this->klarnaPaymentFlowId) !== 'pay'):
-        ?>
-            <div class="woocommerce-error">
-                <p><?php
-echo __('Payment method is not supported for country ', 'wc-buckaroo-bpe-gateway') . '(' . $this->country . ')'; ?>
-                </p>
-            </div>
-        <?php
-endif;
-        if ($this->mode == 'test'): ?><p><?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway');?></p><?php endif;?>
-        <?php if ($this->description): ?><p><?php echo wpautop(wptexturize($this->description)); ?></p><?php endif;?>
-
-        <fieldset>
-            <p class="form-row">
-                <label for="<?php echo $this->getKlarnaSelector() ?>-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway') ?><span
-                            class="required">*</span></label>
-                <input id="<?php echo $this->getKlarnaSelector() ?>-genderm" name="<?php echo $this->getKlarnaSelector() ?>-gender" class="" type="radio"
-                       value="Male" checked
-                       style="float:none; display: inline !important;"/> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway') ?>
-                &nbsp;
-                <input id="<?php echo $this->getKlarnaSelector() ?>-genderf" name="<?php echo $this->getKlarnaSelector() ?>-gender" class="" type="radio"
-                       value="Female"
-                       style="float:none; display: inline !important;"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway') ?>
-            </p>
-            <p class="form-row validate-required">
-                <label for="<?php echo $this->getKlarnaSelector() ?>-phone"><?php echo _e('Phone:', 'wc-buckaroo-bpe-gateway') ?><span
-                            class="required">*</span></label>
-                <input id="<?php echo $this->getKlarnaSelector() ?>-phone" name="<?php echo $this->getKlarnaSelector() ?>-phone" class="input-tel"
-                       type="tel" autocomplete="off" value="<?php echo $customerPhone ?? '' ?>">
-            </p>
-
-            <script>
-                if (document.querySelector('input[name=billing_phone]')) {
-                    document.getElementById('<?php echo $this->getKlarnaSelector() ?>-phone').parentElement.style.display = 'none';
-                }
-            </script>
-
-            <?php if (!empty($post_data["ship_to_different_address"])) {?>
-                <input id="<?php echo $this->getKlarnaSelector() ?>-shipping-differ" name="<?php echo $this->getKlarnaSelector() ?>-shipping-differ" class=""
-                       type="hidden" value="1"/>
-            <?php }?>
-
-            <p class="required" style="float:right;">* <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?></p>
-        </fieldset>
-        <?php
-}
 
     /**
      * Add fields to the form_fields() array, specific to this page.

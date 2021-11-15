@@ -101,54 +101,9 @@ function buckaroo_menu_report()
 function buckaroo_reports()
 {
     echo '<h1>Error report for Buckaroo WooCommerce plugin</h1>';
-    echo '<table class="wp-list-table widefat fixed posts">
-    <tr>
-        <th width="5%"><b>Error no</b></th>
-        <th width="15%"><b>Time</b></th>
-        <th width="80%"><b>Error description</b></th>
-    </tr>';
-    $plugin_dir = plugin_dir_path(__FILE__);
-    $file = $plugin_dir . 'library/api/log/report_log.txt';
-    if (file_exists($file)) {
-        $data = Array();
-        $handle = @fopen($plugin_dir . 'library/api/log/report_log.txt', "r");
-        if ($handle) {
-            while (($buffer = fgets($handle, 4096)) !== false) {
-                $data[] = $buffer;
-            }
-            fclose($handle);
-        }
-        if (!empty($data)) {
-            $data = array_reverse($data);
-            $i = 1;
-            foreach ($data as $d) {
-                $tmp = explode("|||", $d);
-                if (!empty($tmp[1])) {
-                    list ($time, $value) = $tmp;
-                } else {
-                    $time = 'unknown';
-                    $value = $d;
-                }
-                echo '<tr>
-                <td>' . $i . '</td>
-                <td>' . $time . '</td>
-                <td>' . $value . '</td>
-                </tr>';
-                $i++;
-            }
-        } else {
-            echo '<tr>
-        <td colspan="3">Log file empty</td>
-        </tr>';
-
-        }
-    } else {
-        echo '<tr>
-        <td colspan="3">No data</td>
-        </tr>';
-    }
-
-    echo '</table>';
+    include_once __DIR__.'/templates/BuckarooReportPage.php';
+    $reportPage = new BuckarooReportPage();
+    $reportPage->output_report();
 }
 
 function generateGateways()
