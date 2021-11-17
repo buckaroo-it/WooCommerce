@@ -156,32 +156,6 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
     }
 
     /**
-     * Payment form on checkout page
-     */
-    public function payment_fields()
-    {?>
-        <?php if ($this->mode == 'test'): ?>
-            <p>
-                <?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway');?>
-            </p>
-        <?php endif;?>
-        <?php if ($this->description): ?>
-            <p>
-                <?php echo wpautop(wptexturize($this->description)); ?>
-            </p>
-        <?php endif;?>
-        <fieldset>
-            <p class="form-row form-row-wide">
-                <label for="buckaroo-giropay-bancaccount"><?php echo _e('BIC:', 'wc-buckaroo-bpe-gateway') ?>
-                    <span class="required">*</span>
-                </label>
-                <input id="buckaroo-giropay-bancaccount" name="buckaroo-giropay-bancaccount" class="input-text card-number" type="text" maxlength="11" autocomplete="off" value="" />
-            </p>
-            <p class="required" style="float:right;">* <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?></p>
-        </fieldset>
-    <?php }
-
-    /**
      * Check response data
      *
      * @access public
