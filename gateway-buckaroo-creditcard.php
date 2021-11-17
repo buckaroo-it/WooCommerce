@@ -640,7 +640,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
+            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'FALSE');
 
         $this->form_fields['notificationdelay'] = array(
@@ -650,7 +650,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             'default'     => '0');
 
         $this->form_fields['AllowedProvider'] = array(
-            'title'       => __('Allowed provider', 'Allowed provider'),
+            'title'       => __('Allowed provider', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'multiselect',
             'options'     => array(
                 'amex'           => 'American Express',

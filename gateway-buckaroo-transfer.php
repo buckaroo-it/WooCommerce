@@ -285,19 +285,19 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
             'title'       => __('Send email', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Buckaroo sends an email to the customer with the payment procedures.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
+            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'FALSE');
         $this->form_fields['showpayproc'] = array(
             'title'       => __('Show payment procedures', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Show payment procedures on the thank you page after payment confirmation.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
+            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'FALSE');
         $this->form_fields['usenotification'] = array(
             'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
+            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'FALSE');
         $this->form_fields['notificationdelay'] = array(
             'title'       => __('Notification delay', 'wc-buckaroo-bpe-gateway'),

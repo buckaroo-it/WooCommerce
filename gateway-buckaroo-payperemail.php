@@ -363,7 +363,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
             'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
+            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'FALSE');
 
         $this->form_fields['notificationdelay'] = array(
@@ -383,7 +383,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
             'title'       => __('Show PayLink', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Show PayLink in admin order actions', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Show', 'FALSE' => 'Hide'),
+            'options'     => array('TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'TRUE',
         );
 
@@ -391,18 +391,18 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
             'title'       => __('Show PayPerEmail', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Show PayPerEmail in admin order actions', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Show', 'FALSE' => 'Hide'),
+            'options'     => array('TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'TRUE',
         );
 
         $this->form_fields['expirationDate'] = array(
             'title'       => __('Due date (in days)', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'text',
-            'description' => __('The expiration date for the paylink.'),
+            'description' => __('The expiration date for the paylink.', 'wc-buckaroo-bpe-gateway'),
             'default'     => '');
 
         $this->form_fields['paymentmethodppe'] = array(
-            'title'       => __('Allowed methods', 'Allowed methods'),
+            'title'       => __('Allowed methods', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'multiselect',
             'options'     => array(
                 'amex'               => 'American Express',
