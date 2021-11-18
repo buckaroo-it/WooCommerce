@@ -439,7 +439,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
             'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
+            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'FALSE');
 
         $this->form_fields['notificationdelay'] = array(
@@ -452,7 +452,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
             'title'       => __('Button on product page', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Show the Apple pay button on the product page', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Show', 'FALSE' => 'Hide'),
+            'options'     => array('TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'TRUE',
         );
 
@@ -460,7 +460,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
             'title'       => __('Button on cart page', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Show the Apple pay button on the cart page', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Show', 'FALSE' => 'Hide'),
+            'options'     => array('TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'TRUE',
         );
 
@@ -468,7 +468,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
             'title'       => __('Button on checkout page', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Show the Apple pay button on the checkout page', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Show', 'FALSE' => 'Hide'),
+            'options'     => array('TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'TRUE',
         );
 

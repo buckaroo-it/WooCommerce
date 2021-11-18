@@ -331,7 +331,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $charset        = strtolower(ini_get('default_charset'));
         $addDescription = '';
         if ($charset != 'utf-8') {
-            $addDescription = '<fieldset style="border: 1px solid #ffac0e; padding: 10px;"><legend><b style="color: #ffac0e">Warning!</b></legend>default_charset is not set.<br>This might cause a problems on receiving push message.<br>Please set default_charset="UTF-8" in your php.ini and add AddDefaultCharset UTF-8 to .htaccess file.</fieldset>';
+            $addDescription = '<fieldset style="border: 1px solid #ffac0e; padding: 10px;"><legend><b style="color: #ffac0e">'.__('Warning', 'wc-buckaroo-bpe-gateway').'!</b></legend>'.__('default_charset is not set.<br>This might cause a problems on receiving push message.<br>Please set default_charset="UTF-8" in your php.ini and add AddDefaultCharset UTF-8 to .htaccess file.', 'wc-buckaroo-bpe-gateway').'</fieldset>';
         }
         //Add Warning, if currency set in Buckaroo is unsupported
         if (isset($_GET['section']) && $this->id == $_GET['section'] && !checkCurrencySupported($this->id) && is_admin()): ?>
@@ -346,10 +346,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->form_fields = [
             'enabled'                => [
                 'title'       => __('Enable/Disable', 'wc-buckaroo-bpe-gateway'),
-                'label'       => __(
-                    'Enable ' . (isset($this->method_title) ? $this->method_title : '') . ' Payment method',
-                    'wc-buckaroo-bpe-gateway'
-                ),
+                'label'       => sprintf(__('Enable %s Payment Method', 'wc-buckaroo-bpe-gateway'), (isset($this->method_title) ? $this->method_title : '')),
                 'type'        => 'checkbox',
                 'description' => $addDescription,
                 'default'     => 'no',

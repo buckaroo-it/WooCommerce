@@ -1004,7 +1004,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             'title'       => __('Select afterpay service', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Please select the service', 'wc-buckaroo-bpe-gateway'),
-            'options'     => ['afterpayacceptgiro' => 'Offer customer to pay afterwards by SEPA Direct Debit.', 'afterpaydigiaccept' => 'Offer customer to pay afterwards by digital invoice.'],
+            'options'     => ['afterpayacceptgiro' => __('Offer customer to pay afterwards by SEPA Direct Debit.', 'wc-buckaroo-bpe-gateway'), 'afterpaydigiaccept' => __('Offer customer to pay afterwards by digital invoice.', 'wc-buckaroo-bpe-gateway')],
             'default'     => 'afterpaydigiaccept'];
 
         $this->form_fields['enable_bb'] = [
@@ -1030,7 +1030,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => ['TRUE' => 'Yes', 'FALSE' => 'No'],
+            'options'     => ['TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')],
             'default'     => 'FALSE'];
 
         $this->form_fields['notificationdelay'] = [

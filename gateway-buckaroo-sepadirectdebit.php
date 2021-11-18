@@ -367,7 +367,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
             'title'       => __('Use credit managment', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Buckaroo sends payment reminders to the customer. (Contact Buckaroo before activating credit management. By default this is excluded in the contract.)', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
+            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'FALSE');
         $this->form_fields['invoicedelay'] = array(
             'title'       => __('Invoice delay (in days)', 'wc-buckaroo-bpe-gateway'),
@@ -427,7 +427,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
             'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
+            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'FALSE');
         $this->form_fields['notificationtype'] = array(
             'title'       => __('Notification Type', 'wc-buckaroo-bpe-gateway'),
