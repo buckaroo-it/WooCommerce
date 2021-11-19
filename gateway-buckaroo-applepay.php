@@ -206,7 +206,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         $response          = $applepay->Pay($customVars);
         $buckaroo_response = fn_buckaroo_process_response($this, $response);
 
-        if ($response->status === "BUCKAROO_SUCCESS") {
+        if ($response->status === BuckarooAbstract::STATUS_COMPLETED) {
             $order->update_status('processing', 'Order paid with Apple pay');
         } else {
             $buckaroo_response = [

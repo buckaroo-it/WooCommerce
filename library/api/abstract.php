@@ -7,63 +7,72 @@ require_once dirname(__FILE__).'/../include.php';
 */
 abstract class BuckarooAbstract {
     
-    const BUCKAROO_SUCCESS           = 'BUCKAROO_SUCCESS';
-    const BUCKAROO_FAILED            = 'BUCKAROO_FAILED';
-    const BUCKAROO_CANCELED          = 'BUCKAROO_CANCELED';
-    const BUCKAROO_ERROR             = 'BUCKAROO_ERROR';
-    const BUCKAROO_NEUTRAL           = 'BUCKAROO_NEUTRAL';
-    const BUCKAROO_PENDING_PAYMENT   = 'BUCKAROO_PENDING_PAYMENT';
-    const BUCKAROO_INCORRECT_PAYMENT = 'BUCKAROO_INCORRECT_PAYMENT';
-    const REQUEST_ERROR              = 'REQUEST_ERROR';
-    
+    const CODE_SUCCESS               = 190;
+    const CODE_FAILED                = 490;
+    const CODE_VALIDATION_FAILURE    = 491;
+    const CODE_TECHNICAL_FAILURE     = 492;
+    const CODE_REJECTED              = 690;
+    const CODE_PENDING_INPUT         = 790;
+    const CODE_PENDING_PROCESSING    = 791;
+    const CODE_AWAITING_CONSUMER     = 792;
+    const CODE_ON_HOLD               = 793;
+    const CODE_CANCELLED_BY_USER     = 890;
+    const CODE_CANCELLED_BY_MERCHANT = 891;
+
+
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_ON_HOLD   = 'on-hold';
+    const STATUS_CANCELED  = 'cancelled';
+    const STATUS_FAILED    = 'failed';
+
 	/**
 	 *  List of possible response codes sent by buckaroo.
 	 *  This is the list for the BPE 3.0 gateway.
 	 */
     public $responseCodes = array(
-        190 => array(
+        self::CODE_SUCCESS => array(
             'message' => 'Success',
-            'status'  => self::BUCKAROO_SUCCESS,
+            'status'  => self::STATUS_COMPLETED,
         ),
-        490 => array(
+        self::CODE_FAILED => array(
            'message' => 'Payment failure',
-            'status'  => self::BUCKAROO_FAILED,
+            'status'  => self::STATUS_FAILED,
         ),
-        491 => array(
+        self::CODE_VALIDATION_FAILURE => array(
             'message' => 'Validation error',
-            'status'  => self::BUCKAROO_FAILED,
+            'status'  => self::STATUS_FAILED,
         ),
-        492 => array(
+        self::CODE_TECHNICAL_FAILURE => array(
             'message' => 'Technical error',
-            'status'  => self::BUCKAROO_ERROR,
+            'status'  => self::STATUS_FAILED,
         ),
-        690 => array(
+        self::CODE_REJECTED => array(
             'message' => 'Payment rejected',
-            'status'  => self::BUCKAROO_FAILED,
+            'status'  => self::STATUS_FAILED,
         ),
-        790 => array(
+        self::CODE_PENDING_INPUT => array(
             'message' => 'Waiting for user input',
-            'status'  => self::BUCKAROO_PENDING_PAYMENT,
+            'status'  => self::STATUS_ON_HOLD,
         ),
-        791 => array(
+        self::CODE_PENDING_PROCESSING => array(
             'message' => 'Waiting for processor',
-            'status'  => self::BUCKAROO_PENDING_PAYMENT,
+            'status'  => self::STATUS_ON_HOLD,
         ),
-        792 => array(
+        self::CODE_AWAITING_CONSUMER => array(
             'message' => 'Waiting on consumer action',
-            'status'  => self::BUCKAROO_PENDING_PAYMENT,
+            'status'  => self::STATUS_ON_HOLD,
         ),
-        793 => array(
+        self::CODE_ON_HOLD => array(
             'message' => 'Payment on hold',
-            'status'  => self::BUCKAROO_PENDING_PAYMENT,
+            'status'  => self::STATUS_ON_HOLD,
         ),
-        890 => array(
+        self::CODE_CANCELLED_BY_USER => array(
             'message' => 'Cancelled by consumer',
-            'status'  => self::BUCKAROO_CANCELED,
+            'status'  => self::STATUS_CANCELED,
         ),
-        891 => array(
+        self::CODE_CANCELLED_BY_MERCHANT => array(
             'message' => 'Cancelled by merchant',
-            'status'  => self::BUCKAROO_FAILED,
+            'status'  => self::STATUS_FAILED,
         ),
     );
     
