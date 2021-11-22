@@ -158,8 +158,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             $line_item_qtys_new                 = array();
             $line_item_totals_new               = array();
             $line_item_tax_totals_new           = array();
-            $originalTransactionKey_new         = array();
-            $shippingOriginalTransactionKey_new = array();
 
             $order = wc_get_order($order_id);
             $items = $order->get_items();
@@ -170,8 +168,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             foreach ($items as $item) {
                 $item_ids[$item->get_id()] = $item->get_product_id();
             }
-
-            $counter = 0;
 
             $totalQtyToRefund = 0;
 
@@ -187,14 +183,12 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                                 // See if qty is sufficent.
                                 if ($qty_to_refund > 0) {
                                     if ($qty_to_refund <= $product['ArticleQuantity']) {
-                                        $line_item_qtys_new[$counter][$id_to_refund] = $qty_to_refund;
+                                        $line_item_qtys_new[$id_to_refund] = $qty_to_refund;
                                         $qty_to_refund                               = 0;
                                     } else {
-                                        $line_item_qtys_new[$counter][$id_to_refund] = $product['ArticleQuantity'];
+                                        $line_item_qtys_new[$id_to_refund] = $product['ArticleQuantity'];
                                         $qty_to_refund -= $product['ArticleQuantity'];
                                     }
-                                    $originalTransactionKey_new[$counter] = $capture['OriginalTransactionKey'];
-                                    $counter++;
                                 }
                             }
                         }
@@ -202,8 +196,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                     $totalQtyToRefund += $qty_to_refund;
                 }
             }
-
-            $counter = 0;
 
             // loop for shipping costs
             $shipping_item = $order->get_items('shipping');
@@ -225,16 +217,14 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                         // See if amount is sufficent.
                         if ($shippingCostsToRefund > 0) {
                             if ($shippingCostsToRefund <= $product['ArticleUnitprice']) {
-                                $line_item_totals_new[$counter][$shippingIdToRefund]     = $shippingCostsToRefund;
-                                $line_item_tax_totals_new[$counter][$shippingIdToRefund] = array(1 => 0);
+                                $line_item_totals_new[$shippingIdToRefund]     = $shippingCostsToRefund;
+                                $line_item_tax_totals_new[$shippingIdToRefund] = array(1 => 0);
                                 $shippingCostsToRefund                                   = 0;
                             } else {
-                                $line_item_totals_new[$counter][$shippingIdToRefund]     = $product['ArticleUnitprice'];
-                                $line_item_tax_totals_new[$counter][$shippingIdToRefund] = array(1 => 0);
+                                $line_item_totals_new[$shippingIdToRefund]     = $product['ArticleUnitprice'];
+                                $line_item_tax_totals_new[$shippingIdToRefund] = array(1 => 0);
                                 $shippingCostsToRefund -= $product['ArticleUnitprice'];
                             }
-                            $shippingOriginalTransactionKey_new[$counter] = $capture['OriginalTransactionKey'];
-                            $counter++;
                         }
                     }
                 }
@@ -250,48 +240,26 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             if ($NotRefundable) {
                 return new WP_Error('error_refund_trid', __("Selected items or amount is not fully captured, you can only refund captured items"));
             }
-
-            // Process all refund items
-            $refund_result = array();
-            for ($i = 0; $i < count($line_item_qtys_new); $i++) {
-                if ($amount > 0) {
-                    $refund_result[] = $this->process_partial_refunds(
-                        $order_id,
-                        $amount,
-                        $reason,
-                        $line_item_qtys_new[$i],
-                        [],
-                        [],
-                        $originalTransactionKey_new[$i]
-                    );
-                }
+            if ($amount > 0) {
+                $refund_result = $this->process_partial_refunds(
+                    $order_id,
+                    $amount,
+                    $reason,
+                    $line_item_qtys_new,
+                    $line_item_totals_new,
+                    $line_item_tax_totals_new,
+                    $capture['OriginalTransactionKey']
+                );
             }
 
-            // Process all refund shipping
-            for ($i = 0; $i < count($line_item_totals_new); $i++) {
-                if ($amount > 0) {
-                    $refund_result[] = $this->process_partial_refunds(
-                        $order_id,
-                        $amount,
-                        $reason,
-                        [],
-                        $line_item_totals_new[$i],
-                        $line_item_tax_totals_new[$i],
-                        $shippingOriginalTransactionKey_new[$i]
-                    );
+            if ($refund_result !== true) {
+                if (isset($refund_result->errors['error_refund'][0])) {
+                    return new WP_Error('error_refund_trid', __($result->errors['error_refund'][0]));
+                } else {
+                    return new WP_Error('error_refund_trid', __("Unexpected error occured while processing refund, please check your transactions in the Buckaroo plaza."));
                 }
             }
-
-            foreach ($refund_result as $result) {
-                if ($result !== true) {
-                    if (isset($result->errors['error_refund'][0])) {
-                        return new WP_Error('error_refund_trid', __($result->errors['error_refund'][0]));
-                    } else {
-                        return new WP_Error('error_refund_trid', __("Unexpected error occured while processing refund, please check your transactions in the Buckaroo plaza."));
-                    }
-                }
-            }
-
+                     
             return true;
         } else {
             return $this->process_partial_refunds($order_id, $amount, $reason);
