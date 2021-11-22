@@ -22,14 +22,15 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     public $minvalue;
     public $maxvalue;
 
+    public $showpayproc = false;
+
     public function __construct()
     {
-        $woocommerce = getWooCommerceObject();
+        $this->setCommonFields();
         if ((!is_admin() && !checkCurrencySupported($this->id)) || (defined('DOING_AJAX') && !checkCurrencySupported($this->id))) {
             unset($this->id);
             unset($this->title);
         }
-        $woocommerce = getWooCommerceObject();
         // Load the form fields
         $this->init_form_fields();
         // Load the settings.
@@ -90,8 +91,124 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         // [JM] Compatibility with WC3.6+
         add_action('woocommerce_checkout_process', array($this, 'action_woocommerce_checkout_process'));
-    }
 
+        $this->addGatewayHooks(static::class);
+    }
+    /**
+     * Set common available fields
+     *
+     * @return void
+     */
+    protected function setCommonFields()
+    {
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
+        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
+        $this->currency               = get_woocommerce_currency();
+        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
+        $this->mode                   = BuckarooConfig::getMode();
+        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
+        $this->culture                = BuckarooConfig::get('CULTURE');
+        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
+        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
+        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
+    }
+    /**
+     * Set gateway icon
+     *
+     * @param string $oldPath  Old image path
+     * @param string $newPath  New image path
+     *
+     * @return void
+     */
+    protected function setIcon($oldPath, $newPath)
+    {
+        $this->icon = apply_filters(
+            'woocommerce_'.$this->id.'_icon',
+            BuckarooConfig::getIconPath($oldPath, $newPath)
+        );
+    }
+    /**
+     * Set country field
+     *
+     * @return void
+     */
+    protected function setCountry()
+    {
+        $woocommerce = getWooCommerceObject();
+
+        $country = null;
+        if (!empty($woocommerce->customer)) {
+            $country = get_user_meta($woocommerce->customer->get_id(), 'shipping_country', true);
+        }
+        $this->country = $country;
+    }
+    /**
+     * Add the gateway hooks
+     *
+     * @param string $class Gateway Class name
+     *
+     * @return void
+     */
+    protected function addGatewayHooks($class)
+    {
+        $this->showpayproc = isset($this->settings['showpayproc']) && $this->settings['showpayproc'] == 'TRUE';
+        
+        $this->notify_url = home_url('/');
+        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
+
+            add_action(
+                'woocommerce_update_options_payment_gateways_' . $this->id,
+                array($this, 'process_admin_options')
+            );
+
+            add_action(
+                'woocommerce_api_wc_gateway_' . $this->id,
+                array($this, 'response_handler')
+            );
+
+            if ($this->showpayproc) {
+                add_action(
+                    'woocommerce_thankyou_' . $this->id,
+                    array($this, 'thankyou_description')
+                );
+            }
+
+            $this->notify_url = add_query_arg('wc-api', $class, $this->notify_url);
+        }
+    }
+    /**
+     * Add refund support
+     *
+     * @return void
+     */
+    protected function addRefundSupport()
+    {
+        $this->supports = [
+            'products',
+            'refunds',
+        ];
+    }
+    /**
+     * Migrate old named setting to new name
+     *
+     * @param string $oldKey Old settings key
+     *
+     * @return void
+     */
+    protected function migrateOldSettings($oldKey)
+    {
+        if (
+            !get_option('woocommerce_' . $this->id . '_settings') &&
+            ($oldSettings = get_option($oldKey))
+        ) {
+            add_option('woocommerce_' . $this->id . '_settings', $oldSettings);
+            delete_option($oldKey);//clean the table
+        }
+    }
+    public function thankyou_description()
+    {
+        //not implemented 
+    }
     public function payment_gateway_disable($available_gateways)
     {
         global $woocommerce;

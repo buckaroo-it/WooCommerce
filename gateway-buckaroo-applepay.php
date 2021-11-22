@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once __DIR__ . '/controllers/ApplePayController.php';
 require_once dirname(__FILE__) . '/library/api/paymentmethods/applepay/applepay.php';
 
@@ -10,49 +10,27 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
 {
     public function __construct()
     {
-        $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_applepay';
         $this->title                  = 'Applepay';
         $this->icon                   = null;
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo Applepay";
-        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
-        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->currency               = get_woocommerce_currency();
-        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode                   = BuckarooConfig::getMode();
-        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture                = BuckarooConfig::get('CULTURE');
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
         $this->CustomerCardName       = '';
 
         parent::__construct();
+        
+        $this->addRefundSupport();
 
         if (!isset($this->settings['usenotification'])) {
             $this->usenotification   = 'FALSE';
             $this->notificationdelay = '0';
-
         } else {
             $this->usenotification   = $this->settings['usenotification'];
             $this->notificationdelay = $this->settings['notificationdelay'];
         }
 
-        $this->supports = array(
-            'products',
-            'refunds',
-        );
-
-        $this->notify_url = home_url('/');
-
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '<')) {
-
-        } else {
+        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
             $this->registerControllers();
-            add_action('woocommerce_update_options_payment_gateways_' . $this->id, [$this, 'process_admin_options']);
-            add_action('woocommerce_api_wc_gateway_buckaroo_applepay', array($this, 'response_handler'));
-            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Applepay', $this->notify_url);
         }
     }
 

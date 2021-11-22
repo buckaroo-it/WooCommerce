@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once(dirname(__FILE__) . '/library/api/paymentmethods/ideal/ideal.php');
 
 /**
@@ -12,28 +12,17 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
     var $notificationdelay;
 
     function __construct() {
-        $woocommerce = getWooCommerceObject();
         $this->id = 'buckaroo_ideal';
-        $this->title = 'iDEAL';//$this->settings['title_ideal'];
-        $this->icon = apply_filters('woocommerce_buckaroo_ideal_icon', BuckarooConfig::getIconPath('24x24/ideal.png', 'new/iDEAL.png'));
+        $this->title = 'iDEAL';
         $this->has_fields   = true;
         $this->method_title = "Buckaroo iDEAL";
-        $this->description =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $this->currency = get_woocommerce_currency();
-        $this->secretkey = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode = BuckarooConfig::getMode();
-        $this->thumbprint = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture = BuckarooConfig::get('CULTURE');
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->usenotification = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
-        // if(!checkCurrencySupported($this->id) && !is_admin()){ 
-        //     unset($this->id);
-        //     unset($this->title);
-        // }
+        $this->setIcon('24x24/ideal.png', 'new/iDEAL.png');
+
         
         parent::__construct();
+
+        $this->addRefundSupport();
+
         if (!isset($this->settings['usenotification'])) {
             $this->usenotification = 'FALSE';
             $this->notificationdelay = '0';
@@ -42,21 +31,6 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
             $this->usenotification = $this->settings['usenotification'];
             $this->notificationdelay = $this->settings['notificationdelay'];
         }
-        $this->supports           = array(
-            'products',
-            'refunds'
-        );
-        
-        $this->notify_url = home_url('/');
-        
-        if ( version_compare( WOOCOMMERCE_VERSION, '2.0.0', '<' ) ) {
-
-        } else {
-                add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-                add_action( 'woocommerce_api_wc_gateway_buckaroo_ideal', array( $this, 'response_handler' ) );
-                $this->notify_url   = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Ideal', $this->notify_url);
-        }
-        //add_action( 'woocommerce_api_callback', 'response_handler' );           
     }
 
     /**
