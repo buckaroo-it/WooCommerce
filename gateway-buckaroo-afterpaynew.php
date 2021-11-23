@@ -24,9 +24,12 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $this->setCountry();
 
         parent::__construct();
-
         $this->addRefundSupport();
-
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
         if (isset($this->settings['afterpaynewpayauthorize'])) {
             $this->afterpaynewpayauthorize = $this->settings['afterpaynewpayauthorize'];
         } else {
@@ -41,9 +44,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         $this->type       = 'afterpay';
         $this->vattype    = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
-        
     }
-
     /**
      * Can the order be refunded
      * @access public

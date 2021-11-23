@@ -18,21 +18,21 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         $this->method_title = "Buckaroo iDEAL";
         $this->setIcon('24x24/ideal.png', 'new/iDEAL.png');
 
-        
         parent::__construct();
-
         $this->addRefundSupport();
-
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
         if (!isset($this->settings['usenotification'])) {
             $this->usenotification = 'FALSE';
             $this->notificationdelay = '0';
-
         } else {
             $this->usenotification = $this->settings['usenotification'];
             $this->notificationdelay = $this->settings['notificationdelay'];
         }
     }
-
     /**
      * Can the order be refunded
      * @param object $order WC_Order

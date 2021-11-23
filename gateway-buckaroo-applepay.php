@@ -18,9 +18,15 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         $this->CustomerCardName       = '';
 
         parent::__construct();
-        
         $this->addRefundSupport();
-
+        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
+            $this->registerControllers();
+        }
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
         if (!isset($this->settings['usenotification'])) {
             $this->usenotification   = 'FALSE';
             $this->notificationdelay = '0';
@@ -28,12 +34,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
             $this->usenotification   = $this->settings['usenotification'];
             $this->notificationdelay = $this->settings['notificationdelay'];
         }
-
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            $this->registerControllers();
-        }
     }
-
     private function registerControllers()
     {
         $namespace = "woocommerce_api_wc_gateway_buckaroo_applepay";

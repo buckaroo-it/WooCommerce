@@ -16,7 +16,6 @@ class WC_Gateway_Buckaroo_EPS extends WC_Gateway_Buckaroo
         $this->setIcon('24x24/eps.png', 'new/EPS.png');
 
         parent::__construct();
-
         $this->addRefundSupport();
     }
 

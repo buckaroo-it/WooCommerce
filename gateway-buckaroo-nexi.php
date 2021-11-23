@@ -16,7 +16,6 @@ class WC_Gateway_Buckaroo_Nexi extends WC_Gateway_Buckaroo
         $this->setIcon('24x24/nexi.png', 'new/Nexi.png');
 
         parent::__construct();
-
         $this->addRefundSupport();
     }
 

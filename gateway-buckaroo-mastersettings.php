@@ -17,12 +17,14 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
         $this->method_title = __('Buckaroo Master Settings', 'wc-buckaroo-bpe-gateway');
 
         parent::__construct();
-
         $this->addRefundSupport();
-        
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
         $this->sendemail   = !empty($this->settings['sendmail']) ? $this->settings['sendmail'] : false;
     }
-
     public function enqueue_script_exodus($settings)
     {
         if (is_admin()) {

@@ -18,9 +18,12 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo
         $this->setIcon('24x24/giftcard.gif', 'new/Giftcards.png');
 
         parent::__construct();
-        
         $this->addRefundSupport();
-
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
         if (isset($this->settings['giftcards'])) {
             $this->giftcards = $this->settings['giftcards'];
         } else {

@@ -16,7 +16,6 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
         $this->setIcon('24x24/payconiq.png', 'new/Payconic.png');
 
         parent::__construct();
-
         $this->addRefundSupport();
     }
 

@@ -17,15 +17,17 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
         $this->setIcon('payperemail.png', 'new/PayPerEmail.png');
 
         parent::__construct();
-
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
         $this->paymentmethodppe = '';
         if (!empty($this->settings['paymentmethodppe'])) {
             $this->paymentmethodppe = $this->settings['paymentmethodppe'];
         }
         $this->frontendVisible = $this->settings['show_PayPerEmail_frontend'] ?? '';
-
     }
-
     /**
      * Can the order be refunded
      * @param object $order WC_Order

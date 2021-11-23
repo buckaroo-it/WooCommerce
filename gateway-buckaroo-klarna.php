@@ -19,13 +19,16 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
         $this->setCountry();
 
         parent::__construct();
-
         $this->addRefundSupport();
 
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
         $this->vattype    = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
         $this->notify_url = home_url('/');
     }
-
     public function getKlarnaSelector()
     {
         return str_replace("_", "-", $this->id);

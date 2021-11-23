@@ -36,6 +36,37 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         // Load the settings.
         $this->init_settings();
 
+        $this->setProperties();
+        
+        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
+            add_action('woocommerce_api_wc_gateway_buckaroo', [$this, 'response_handler']);
+            add_action('woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
+            add_action('wp_enqueue_scripts', [$this, 'refresh_frontend']);
+
+            add_action('wp_enqueue_scripts', function () {
+                wp_enqueue_script('initiate_jquery_if_not_loaded', plugin_dir_url(__FILE__) . 'library/js/loadjquery.js', ['jquery'], '1.0.0', true);
+
+                wp_enqueue_script('creditcard_encryption_sdk', plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-encryption-sdk.js', ['jquery'], '1.0.0', true);
+                wp_enqueue_script('creditcard_call_encryption', plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-call-encryption.js', ['jquery'], '1.0.0', true);
+
+            });
+            add_filter('woocommerce_available_payment_gateways', array($this, 'payment_gateway_disable'));
+            add_filter('woocommerce_order_button_html', array($this, 'replace_order_button_html'));
+        }
+        add_action('wp_enqueue_scripts', [$this, 'loadCss']);
+
+        // [JM] Compatibility with WC3.6+
+        add_action('woocommerce_checkout_process', array($this, 'action_woocommerce_checkout_process'));
+
+        $this->addGatewayHooks(static::class);
+    }
+    /**
+     * Init class fields from settings
+     *
+     * @return void
+     */
+    protected function setProperties()
+    {
         //Don't load empty values (it fills up the debug log);
         if (!empty($this->settings['title']) and $this->title != $this->settings['title']) {
             $this->title = $this->settings['title'];
@@ -62,23 +93,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if (isset($this->settings['maxvalue'])) {
             $this->maxvalue = $this->settings['maxvalue'];
         }
-
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action('woocommerce_api_wc_gateway_buckaroo', [$this, 'response_handler']);
-            add_action('woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
-            add_action('wp_enqueue_scripts', [$this, 'refresh_frontend']);
-
-            add_action('wp_enqueue_scripts', function () {
-                wp_enqueue_script('initiate_jquery_if_not_loaded', plugin_dir_url(__FILE__) . 'library/js/loadjquery.js', ['jquery'], '1.0.0', true);
-
-                wp_enqueue_script('creditcard_encryption_sdk', plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-encryption-sdk.js', ['jquery'], '1.0.0', true);
-                wp_enqueue_script('creditcard_call_encryption', plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-call-encryption.js', ['jquery'], '1.0.0', true);
-
-            });
-
-            add_filter('woocommerce_available_payment_gateways', array($this, 'payment_gateway_disable'));
-            add_filter('woocommerce_order_button_html', array($this, 'replace_order_button_html'));
-        }
         $this->notificationtype = 'PaymentComplete';
 
         if (!isset($this->settings['sellerprotection'])) {
@@ -86,13 +100,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         } else {
             $this->sellerprotection = $this->settings['sellerprotection'];
         }
-
-        add_action('wp_enqueue_scripts', [$this, 'loadCss']);
-
-        // [JM] Compatibility with WC3.6+
-        add_action('woocommerce_checkout_process', array($this, 'action_woocommerce_checkout_process'));
-
-        $this->addGatewayHooks(static::class);
     }
     /**
      * Set common available fields
@@ -298,8 +305,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     }
 
     /**
-     * Decides whether to use checkout.js or checkout.min.js
-     * Only load checkout.js/checkout.min.js script, when user is on checkout.
+     * Add checkout javascript to the checkout page
      *
      * @access public
      * @return void

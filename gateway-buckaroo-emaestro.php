@@ -16,7 +16,6 @@ class WC_Gateway_Buckaroo_EMaestro extends WC_Gateway_Buckaroo
         $this->setIcon('24x24/emaestro.png', 'new/Maestro.png');
 
         parent::__construct();
-
         $this->addRefundSupport();
     }
 

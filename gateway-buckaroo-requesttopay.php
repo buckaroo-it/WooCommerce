@@ -16,7 +16,6 @@ class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo
         $this->setIcon('24x24/requesttopay.png', 'new/RequestToPay.png');
 
         parent::__construct();
-
         $this->addRefundSupport();
     }
 

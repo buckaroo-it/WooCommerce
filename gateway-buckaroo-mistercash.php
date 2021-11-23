@@ -17,7 +17,6 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
         $this->migrateOldSettings('woocommerce_buckaroo_mistercash_settings');
 
         parent::__construct();
-
         $this->addRefundSupport();
     }
 

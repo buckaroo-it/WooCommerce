@@ -22,17 +22,18 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $this->setCountry();
 
         parent::__construct();
-
         $this->addRefundSupport();
-
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
         $this->afterpaypayauthorize = (isset($this->settings['afterpaypayauthorize']) ? $this->settings['afterpaypayauthorize'] : 'Pay');
 
         $this->type       = $this->settings['service'] ?? null;
         $this->b2b        = $this->settings['enable_bb'] ?? null;
         $this->vattype    = $this->settings['vattype'] ?? null;
-
     }
-
     /**
      * Can the order be refunded
      * @access public

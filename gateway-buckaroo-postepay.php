@@ -16,7 +16,6 @@ class WC_Gateway_Buckaroo_PostePay extends WC_Gateway_Buckaroo
         $this->setIcon('24x24/postepay.png', 'new/PostePay.png');
 
         parent::__construct();
-
         $this->addRefundSupport();
     }
 

@@ -16,7 +16,6 @@ class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo
         $this->setIcon('24x24/kbc.png', 'new/KBC.png');
         
         parent::__construct();
-
         $this->addRefundSupport();
     }
 

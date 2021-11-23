@@ -19,7 +19,11 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         parent::__construct();
 
         $this->addRefundSupport();
-
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
         if (isset($this->settings['AllowedProvider'])) {
             $this->creditCardProvider = $this->settings['AllowedProvider'];
         } else {
@@ -28,7 +32,6 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 
         $this->creditcardmethod       = (isset($this->settings['creditcardmethod']) ? $this->settings['creditcardmethod'] : "redirect");
         $this->creditcardpayauthorize = (isset($this->settings['creditcardpayauthorize']) ? $this->settings['creditcardpayauthorize'] : "Pay");
-
     }
 
     /**

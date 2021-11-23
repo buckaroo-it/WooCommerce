@@ -19,12 +19,19 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
         $this->setIcon('24x24/transfer.jpg', 'new/SEPA-credittransfer.png');
 
         parent::__construct();
-
         $this->addRefundSupport();
+    }
+
+    /**
+     * @inheritDoc
+     * 
+     */
+    protected function setProperties()
+    {
+        parent::setProperties();
         $this->datedue     = $this->settings['datedue'];
         $this->sendemail   = $this->settings['sendmail'];
     }
-
     /**
      * Can the order be refunded
      * @param object $order WC_Order

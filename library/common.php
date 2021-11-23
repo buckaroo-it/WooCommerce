@@ -141,7 +141,14 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
         return false;
     }
 }
-
+/**
+ * Process push response
+ *
+ * @param WC_Push_Buckaroo $payment_method
+ * @param string $response
+ *
+ * @return void
+ */
 function fn_buckaroo_process_response_push($payment_method = null, $response = '')
 {
     $woocommerce = getWooCommerceObject();
@@ -409,7 +416,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 /**
  * Process response from buckaroo
  *
- * @param object $payment_method defaults to NULL
+ * @param  WC_Payment_Gateway|null $payment_method defaults to NULL
  * @param string $response
  * @param string $mode
  * @return void|array

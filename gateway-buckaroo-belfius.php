@@ -16,7 +16,6 @@ class WC_Gateway_Buckaroo_Belfius extends WC_Gateway_Buckaroo
         $this->setIcon('24x24/belfius.png', 'new/Belfius.png');
 
         parent::__construct();
-
         $this->addRefundSupport();
     }
 

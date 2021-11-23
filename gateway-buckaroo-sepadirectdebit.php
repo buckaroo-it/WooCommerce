@@ -20,8 +20,15 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
         $this->setIcon('24x24/directdebit.png', 'new/SEPA-directdebit.png');
 
         parent::__construct();
-
         $this->addRefundSupport();
+    }
+    /**
+     * @inheritDoc
+     * 
+     */
+    protected function setProperties()
+    {
+        parent::setProperties();
         $this->usecreditmanagment = $this->settings['usecreditmanagment'] ?? null;
         $this->invoicedelay       = $this->settings['invoicedelay'] ?? null;
 
@@ -42,7 +49,6 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
             $this->paymentmethodssdd = $this->settings['paymentmethodssdd'];
         }
     }
-
     /**
      * Can the order be refunded
      * @param object $order WC_Order

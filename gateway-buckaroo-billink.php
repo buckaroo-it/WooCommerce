@@ -23,16 +23,15 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $this->setCountry();
 
         parent::__construct();
-
         $this->addRefundSupport();
-
-        $this->type = 'billink';
-
-        $this->vattype    = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
-       
-
     }
-
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
+        $this->type = 'billink';
+        $this->vattype    = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
+    }
     /**
      * Can the order be refunded
      * @access public
