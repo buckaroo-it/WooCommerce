@@ -429,7 +429,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 'title'             => __('Extra charge amount', 'wc-buckaroo-bpe-gateway'),
                 'type'              => 'number',
                 'custom_attributes' => ["step" => "0.01"],
-                'description'       => __('Specify static or percentage amount.' . ' ' . __('Decimals must be seperated by a dot (.)'), 'wc-buckaroo-bpe-gateway'),
+                'description'       => __('Specify static or percentage amount.', 'wc-buckaroo-bpe-gateway') . ' ' . __('Decimals must be seperated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
                 'default'           => '0',
             ],
             'extrachargetype'        => [
