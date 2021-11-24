@@ -30,20 +30,10 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     protected function setProperties()
     {
         parent::setProperties();
-        if (isset($this->settings['afterpaynewpayauthorize'])) {
-            $this->afterpaynewpayauthorize = $this->settings['afterpaynewpayauthorize'];
-        } else {
-            $this->afterpaynewpayauthorize = null;
-        }
-
-        if (isset($this->settings['sendimageinfo'])) {
-            $this->sendimageinfo = $this->settings['sendimageinfo'];
-        } else {
-            $this->sendimageinfo = null;
-        }
-
+        $this->afterpaynewpayauthorize = $this->get_option('afterpaynewpayauthorize');
+        $this->sendimageinfo = $this->get_option('sendimageinfo');
+        $this->vattype    = $this->get_option('vattype');
         $this->type       = 'afterpay';
-        $this->vattype    = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
     }
     /**
      * Can the order be refunded

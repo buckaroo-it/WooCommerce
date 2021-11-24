@@ -24,14 +24,9 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     protected function setProperties()
     {
         parent::setProperties();
-        if (isset($this->settings['AllowedProvider'])) {
-            $this->creditCardProvider = $this->settings['AllowedProvider'];
-        } else {
-            $this->creditCardProvider = [];
-        }
-
-        $this->creditcardmethod       = (isset($this->settings['creditcardmethod']) ? $this->settings['creditcardmethod'] : "redirect");
-        $this->creditcardpayauthorize = (isset($this->settings['creditcardpayauthorize']) ? $this->settings['creditcardpayauthorize'] : "Pay");
+        $this->creditCardProvider     = $this->get_option('AllowedProvider', []);
+        $this->creditcardmethod       = $this->get_option('creditcardmethod', "redirect");
+        $this->creditcardpayauthorize = $this->get_option('creditcardpayauthorize', "Pay");
     }
 
     /**

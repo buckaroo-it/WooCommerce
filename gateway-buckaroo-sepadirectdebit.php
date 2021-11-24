@@ -29,25 +29,16 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
     protected function setProperties()
     {
         parent::setProperties();
-        $this->usecreditmanagment = $this->settings['usecreditmanagment'] ?? null;
-        $this->invoicedelay       = $this->settings['invoicedelay'] ?? null;
+        $this->usecreditmanagment = $this->get_option('usecreditmanagment');
+        $this->invoicedelay       = $this->get_option('invoicedelay');
+  
+        $this->usenotification   = $this->get_option('usenotification', 'FALSE');
+        $this->notificationdelay = $this->get_option('notificationdelay', 0);
+        $this->notificationtype  = $this->get_option('notificationtype', 'PaymentComplete');
 
-        if (!isset($this->settings['usenotification'])) {
-            $this->usenotification   = 'FALSE';
-            $this->notificationdelay = 0;
-            $this->notificationtype  = 'PaymentComplete';
-        } else {
-            $this->usenotification   = $this->settings['usenotification'];
-            $this->notificationdelay = $this->settings['notificationdelay'];
-            $this->notificationtype  = $this->settings['notificationtype'] ?? null;
-        }
-
-        $this->datedue           = $this->settings['datedue'] ?? null;
-        $this->maxreminderlevel  = $this->settings['maxreminderlevel'] ?? null;
-        $this->paymentmethodssdd = '';
-        if (!empty($this->settings['paymentmethodssdd'])) {
-            $this->paymentmethodssdd = $this->settings['paymentmethodssdd'];
-        }
+        $this->datedue           = $this->get_option('datedue');
+        $this->maxreminderlevel  = $this->get_option('maxreminderlevel');
+        $this->paymentmethodssdd = $this->get_option('paymentmethodssdd', '');
     }
     /**
      * Can the order be refunded

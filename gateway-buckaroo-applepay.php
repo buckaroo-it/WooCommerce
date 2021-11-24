@@ -27,13 +27,8 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
     protected function setProperties()
     {
         parent::setProperties();
-        if (!isset($this->settings['usenotification'])) {
-            $this->usenotification   = 'FALSE';
-            $this->notificationdelay = '0';
-        } else {
-            $this->usenotification   = $this->settings['usenotification'];
-            $this->notificationdelay = $this->settings['notificationdelay'];
-        }
+        $this->usenotification   = $this->get_option('usenotification', 'FALSE');
+        $this->notificationdelay = $this->get_option('notificationdelay', '0');
     }
     private function registerControllers()
     {

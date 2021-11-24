@@ -39,7 +39,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->setProperties();
         
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action('woocommerce_api_wc_gateway_buckaroo', [$this, 'response_handler']);
             add_action('woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
             add_action('wp_enqueue_scripts', [$this, 'refresh_frontend']);
 
@@ -69,37 +68,16 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     {
         //Don't load empty values (it fills up the debug log);
         if (!empty($this->settings['title']) and $this->title != $this->settings['title']) {
-            $this->title = $this->settings['title'];
+            $this->title = $this->get_option('title');
         }
-        $this->description = !empty($this->settings['description']) ? $this->settings['description'] : '';
-
-        $this->extrachargeamount = 0;
-        if (isset($this->settings['extrachargeamount'])) {
-            $this->extrachargeamount = $this->settings['extrachargeamount'];
-        }
-        $this->extrachargetype = 'static';
-        if (isset($this->settings['extrachargetype'])) {
-            $this->extrachargetype = $this->settings['extrachargetype'];
-        }
-        $this->extrachargetaxtype = 'included';
-        if (isset($this->settings['extrachargetaxtype'])) {
-            $this->extrachargetaxtype = $this->settings['extrachargetaxtype'];
-        }
-        $this->minvalue = 0;
-        if (isset($this->settings['minvalue'])) {
-            $this->minvalue = $this->settings['minvalue'];
-        }
-        $this->maxvalue = 0;
-        if (isset($this->settings['maxvalue'])) {
-            $this->maxvalue = $this->settings['maxvalue'];
-        }
+        $this->description = $this->get_option('description',  '');
+        $this->extrachargeamount = $this->get_option('extrachargeamount', 0);
+        $this->extrachargetype = $this->get_option('extrachargetype', 'static');
+        $this->extrachargetaxtype = $this->get_option('extrachargetaxtype', 'included');
+        $this->minvalue = $this->get_option('minvalue', 0);
+        $this->maxvalue = $this->get_option('maxvalue', 0);
+        $this->sellerprotection = $this->get_option('sellerprotection', 'TRUE');
         $this->notificationtype = 'PaymentComplete';
-
-        if (!isset($this->settings['sellerprotection'])) {
-            $this->sellerprotection = 'TRUE';
-        } else {
-            $this->sellerprotection = $this->settings['sellerprotection'];
-        }
     }
     /**
      * Set common available fields

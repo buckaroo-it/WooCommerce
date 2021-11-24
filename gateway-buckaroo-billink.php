@@ -30,7 +30,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
     {
         parent::setProperties();
         $this->type = 'billink';
-        $this->vattype    = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
+        $this->vattype    = $this->get_option('vattype');
     }
     /**
      * Can the order be refunded

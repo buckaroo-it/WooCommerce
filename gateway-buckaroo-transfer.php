@@ -29,8 +29,8 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
     protected function setProperties()
     {
         parent::setProperties();
-        $this->datedue     = $this->settings['datedue'];
-        $this->sendemail   = $this->settings['sendmail'];
+        $this->datedue     = $this->get_option('datedue');
+        $this->sendemail   = $this->get_option('sendmail');
     }
     /**
      * Can the order be refunded

@@ -28,11 +28,10 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     protected function setProperties()
     {
         parent::setProperties();
-        $this->afterpaypayauthorize = (isset($this->settings['afterpaypayauthorize']) ? $this->settings['afterpaypayauthorize'] : 'Pay');
-
-        $this->type       = $this->settings['service'] ?? null;
-        $this->b2b        = $this->settings['enable_bb'] ?? null;
-        $this->vattype    = $this->settings['vattype'] ?? null;
+        $this->afterpaypayauthorize = $this->get_option('afterpaypayauthorize', 'Pay');
+        $this->type       = $this->get_option('service');
+        $this->b2b        = $this->get_option('enable_bb');
+        $this->vattype    = $this->get_option('vattype');
     }
     /**
      * Can the order be refunded

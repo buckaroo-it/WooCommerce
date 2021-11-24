@@ -24,11 +24,8 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo
     protected function setProperties()
     {
         parent::setProperties();
-        if (isset($this->settings['giftcards'])) {
-            $this->giftcards = $this->settings['giftcards'];
-        } else {
-            $this->giftcards = null;
-        }
+        $this->giftcards = $this->get_option('giftcards');
+
     }
 
     /**

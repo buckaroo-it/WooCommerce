@@ -19,15 +19,14 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
         $this->setCountry();
 
         parent::__construct();
+        $this->notify_url = home_url('/');
         $this->addRefundSupport();
-
     }
     /**  @inheritDoc */
     protected function setProperties()
     {
         parent::setProperties();
-        $this->vattype    = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
-        $this->notify_url = home_url('/');
+        $this->vattype = $this->get_option('vattype');
     }
     public function getKlarnaSelector()
     {
@@ -147,7 +146,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
         $klarna->orderId = !empty($order_sequential_id) ? $order_sequential_id : (string) $order_id;
 
-        $klarna->BillingGender = $_POST[$this->klarnaSelector . '-gender'] ?? 'Unknown';
+        $klarna->BillingGender = $_POST[$this->getKlarnaSelector() . '-gender'] ?? 'Unknown';
 
         $get_billing_first_name = getWCOrderDetails($order_id, "billing_first_name");
         $get_billing_last_name  = getWCOrderDetails($order_id, "billing_last_name");

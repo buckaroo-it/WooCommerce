@@ -22,11 +22,8 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
     protected function setProperties()
     {
         parent::setProperties();
-        $this->paymentmethodppe = '';
-        if (!empty($this->settings['paymentmethodppe'])) {
-            $this->paymentmethodppe = $this->settings['paymentmethodppe'];
-        }
-        $this->frontendVisible = $this->settings['show_PayPerEmail_frontend'] ?? '';
+        $this->paymentmethodppe = $this->get_option('paymentmethodppe', '');
+        $this->frontendVisible = $this->get_option('show_PayPerEmail_frontend', '');
     }
     /**
      * Can the order be refunded
