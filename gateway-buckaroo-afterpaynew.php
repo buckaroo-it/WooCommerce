@@ -195,13 +195,24 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
                 }
             }
 
+            // loop for fees
+            $fee_items = $order->get_items('fee');
+
+            $feeCostsToRefund = 0;
+            foreach ($fee_items as $fee_item) {
+                if (isset($line_item_totals[$fee_item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
+                    $feeCostsToRefund = $line_item_totals[$fee_item->get_id()];
+                    $feeIdToRefund    = $fee_item->get_id();
+                }
+            }
+
             // loop for shipping costs
             $shipping_item = $order->get_items('shipping');
 
             $shippingCostsToRefund = 0;
             foreach ($shipping_item as $item) {
                 if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                    $shippingCostsToRefund = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
+                    $shippingCostsToRefund = $line_item_totals[$item->get_id()];
                     $shippingIdToRefund    = $item->get_id();
                 }
             }
@@ -222,6 +233,20 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
                                 $line_item_totals_new[$shippingIdToRefund]     = $product['ArticleUnitprice'];
                                 $line_item_tax_totals_new[$shippingIdToRefund] = array(1 => 0);
                                 $shippingCostsToRefund -= $product['ArticleUnitprice'];
+                            }
+                        }
+                    } elseif ($product['ArticleId'] == $feeIdToRefund) {
+                        // Found the payment fee in the capture.
+                        // See if amount is sufficent.
+                        if ($feeCostsToRefund > 0) {
+                            if ($feeCostsToRefund <= $product['ArticleUnitprice']) {
+                                $line_item_totals_new[$feeIdToRefund]     = $feeCostsToRefund;
+                                $line_item_tax_totals_new[$feeIdToRefund] = array(1 => 0);
+                                $feeCostsToRefund                         = 0;
+                            } else {
+                                $line_item_totals_new[$feeIdToRefund]     = $product['ArticleUnitprice'];
+                                $line_item_tax_totals_new[$feeIdToRefund] = array(1 => 0);
+                                $feeCostsToRefund -= $product['ArticleUnitprice'];
                             }
                         }
                     }
@@ -375,9 +400,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
                 $tmp["ArticleId"]          = $key;
                 $tmp["ArticleQuantity"]    = 1;
                 $tmp["ArticleUnitprice"]   = number_format(($item["line_total"] + $item["line_tax"]), 2);
-                $itemsTotalAmount += $tmp["ArticleUnitprice"];
                 $tmp["ArticleVatcategory"] = $feeTaxRate;
                 $products[]                = $tmp;
+                $itemsTotalAmount += $tmp["ArticleUnitprice"];
             }
         }
 
@@ -437,7 +462,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         }
 
         if (!(count($products) > 0)) {
-            return new WP_Error('error_refund_afterpay_no_products', __("To refund an AfterPay transaction you need to refund atleast one product."));
+            return new WP_Error('error_refund_afterpay_no_products', __("To refund an AfterPay transaction you need to refund at least one product."));
         }
 
         try {
