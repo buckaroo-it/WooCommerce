@@ -24,10 +24,6 @@ $customerName.= " ".$this->geCheckoutField('billing_last_name');
         $this->getPaymentTemplate('partial_gender_field');
         $this->getPaymentTemplate('partial_birth_field');    
     endif;?>
-    
-    <?php if ($this->usenotification == 'TRUE' && $this->usecreditmanagment == 'FALSE') : 
-        $this->getPaymentTemplate('partial_gender_field');
-    endif;?>
 
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-sepadirectdebit-accountname">

@@ -11,13 +11,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
     public $notify_url;
     public $transactiondescription;
-    public $usenotification;
-    public $invoicedelay;
-    public $notificationdelay;
     public $extrachargeamount;
     public $extrachargetype;
     public $extrachargetaxtype;
-    public $notificationtype;
     public $sellerprotection;
     public $minvalue;
     public $maxvalue;
@@ -77,7 +73,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->minvalue = $this->get_option('minvalue', 0);
         $this->maxvalue = $this->get_option('maxvalue', 0);
         $this->sellerprotection = $this->get_option('sellerprotection', 'TRUE');
-        $this->notificationtype = 'PaymentComplete';
     }
     /**
      * Set common available fields
@@ -94,8 +89,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
         $this->culture                = BuckarooConfig::get('CULTURE');
         $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
     }
     /**
      * Set gateway icon

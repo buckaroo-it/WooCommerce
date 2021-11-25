@@ -95,13 +95,15 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     {
         $country = isset($_POST['billing_country']) ? $_POST['billing_country'] : $this->country;
 
-        if (strtolower($_POST['buckaroo-in3-orderas']) != 'debtor') {
-            if (empty($_POST['buckaroo-in3-coc'])) {
-                wc_add_notice(__("Please enter CoC number", 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-
-            if (empty($_POST['buckaroo-in3-companyname'])) {
-                wc_add_notice(__("Please enter company name", 'wc-buckaroo-bpe-gateway'), 'error');
+        if ($country === 'NL') {
+            if (strtolower($_POST['buckaroo-in3-orderas']) != 'debtor') {
+                if (empty($_POST['buckaroo-in3-coc'])) {
+                    wc_add_notice(__("Please enter CoC number", 'wc-buckaroo-bpe-gateway'), 'error');
+                }
+    
+                if (empty($_POST['buckaroo-in3-companyname'])) {
+                    wc_add_notice(__("Please enter company name", 'wc-buckaroo-bpe-gateway'), 'error');
+                }
             }
         }
 
@@ -243,19 +245,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
 
         $in3->returnUrl = $this->notify_url;
 
-        if ($this->usenotification == 'TRUE') {
-            $in3->usenotification         = 1;
-            $customVars['Customergender'] = $_POST['buckaroo-sepadirectdebit-gender'];
 
-            $get_billing_first_name          = getWCOrderDetails($order_id, 'billing_first_name');
-            $get_billing_last_name           = getWCOrderDetails($order_id, 'billing_last_name');
-            $get_billing_email               = getWCOrderDetails($order_id, 'billing_email');
-            $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-            $customVars['CustomerLastName']  = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-            $customVars['Customeremail']     = !empty($get_billing_email) ? $get_billing_email : '';
-            $customVars['Notificationtype']  = 'PaymentComplete';
-            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->invoicedelay . ' day')) . ' + ' . (int) $this->notificationdelay . ' day'));
-        }
 
         $in3->in3Version = $this->settings['in3version'];
         $action          = 'PayInInstallments';
@@ -357,20 +347,6 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             'type'        => 'file',
             'description' => __(''),
             'default'     => '');
-
-        $this->form_fields['usenotification'] = array(
-            'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
-            'default'     => 'FALSE');
-
-        $this->form_fields['notificationdelay'] = array(
-            'title'       => __('Notification delay', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'text',
-            'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '0');
-
         $this->form_fields['in3version'] = array(
             'title'       => __('In3 version', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
