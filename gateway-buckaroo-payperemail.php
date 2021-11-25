@@ -375,7 +375,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
         $this->form_fields['show_PayPerEmail_frontend'] = array(
             'title'       => __('Show on Checkout page', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'checkbox',
-            'description' => __('Show PayPerEnail on Checkout page', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Show PayPerEmail on Checkout page', 'wc-buckaroo-bpe-gateway'),
             'default'     => 'no',
         );
 
