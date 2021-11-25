@@ -7,9 +7,6 @@ require_once(dirname(__FILE__) . '/library/api/paymentmethods/ideal/ideal.php');
 */
 class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
 
-    var $usenotification;
-    var $notificationtype;
-    var $notificationdelay;
 
     function __construct() {
         $woocommerce = getWooCommerceObject();
@@ -26,22 +23,9 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         $this->thumbprint = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
         $this->culture = BuckarooConfig::get('CULTURE');
         $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->usenotification = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
-        // if(!checkCurrencySupported($this->id) && !is_admin()){ 
-        //     unset($this->id);
-        //     unset($this->title);
-        // }
-        
+     
         parent::__construct();
-        if (!isset($this->settings['usenotification'])) {
-            $this->usenotification = 'FALSE';
-            $this->notificationdelay = '0';
-
-        } else {
-            $this->usenotification = $this->settings['usenotification'];
-            $this->notificationdelay = $this->settings['notificationdelay'];
-        }
+       
         $this->supports           = array(
             'products',
             'refunds'
@@ -154,21 +138,8 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         $ideal->orderId = (string)$order_id;
         $ideal->issuer =  $_POST['buckaroo-ideal-issuer'];
         $ideal->returnUrl = $this->notify_url;
-        $customVars = Array();
-        if ($this->usenotification == 'TRUE') {
-            $ideal->usenotification = 1;
-            $customVars['Customergender'] = 0;
 
-            $get_billing_first_name = getWCOrderDetails($order_id, 'billing_first_name');
-            $get_billing_last_name = getWCOrderDetails($order_id, 'billing_last_name');
-            $get_billing_email = getWCOrderDetails($order_id, 'billing_email');
-            $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-            $customVars['CustomerLastName'] = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-            $customVars['Customeremail'] = !empty($get_billing_email) ? $get_billing_email : '';
-            $customVars['Notificationtype'] = 'PaymentComplete';
-            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + '. (int)$this->notificationdelay.' day'))));
-        }
-        $response = $ideal->Pay($customVars);            
+        $response = $ideal->Pay();            
         return fn_buckaroo_process_response($this, $response);
     }
     
@@ -265,22 +236,6 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
             'type' => 'file',
             'description' => __(''),
             'default' => '');
-
-
-
-
-        $this->form_fields['usenotification'] = array(
-            'title' => __( 'Use Notification Service', 'wc-buckaroo-bpe-gateway' ),
-            'type' => 'select',
-            'description' => __( 'The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway' ),
-            'options' => array('TRUE'=>'Yes', 'FALSE'=>'No'),
-            'default' => 'FALSE');
-
-        $this->form_fields['notificationdelay'] = array(
-            'title' => __( 'Notification delay', 'wc-buckaroo-bpe-gateway' ),
-            'type' => 'text',
-            'description' => __( 'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway' ),
-            'default' => '0');
     }
 
 }

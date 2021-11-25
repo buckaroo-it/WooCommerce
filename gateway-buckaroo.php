@@ -11,17 +11,13 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
     public $notify_url;
     public $transactiondescription;
-    public $usenotification;
-    public $invoicedelay;
-    public $notificationdelay;
     public $extrachargeamount;
     public $extrachargetype;
     public $extrachargetaxtype;
-    public $notificationtype;
     public $sellerprotection;
     public $minvalue;
     public $maxvalue;
-
+    
     public function __construct()
     {
         $woocommerce = getWooCommerceObject();
@@ -78,7 +74,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             add_filter('woocommerce_available_payment_gateways', array($this, 'payment_gateway_disable'));
             add_filter('woocommerce_order_button_html', array($this, 'replace_order_button_html'));
         }
-        $this->notificationtype = 'PaymentComplete';
 
         if (!isset($this->settings['sellerprotection'])) {
             $this->sellerprotection = 'TRUE';
@@ -91,7 +86,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         // [JM] Compatibility with WC3.6+
         add_action('woocommerce_checkout_process', array($this, 'action_woocommerce_checkout_process'));
     }
-
     public function payment_gateway_disable($available_gateways)
     {
         global $woocommerce;

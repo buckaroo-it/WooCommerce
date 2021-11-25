@@ -80,7 +80,7 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
      * @param array $products
      * @return callable parent::Pay();
      */
-    public function paymentAction($products = Array()) {
+    public function paymentAction($products = array()) {
 
         $this->data['services'][$this->type]['action'] = $this->getPaymnetFlow();
         $this->data['services'][$this->type]['version'] = $this->version;
@@ -199,19 +199,6 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
             $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["group"] = 'Article';
             $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] = (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0');
             $this->data['customVars'][$this->type]["VatPercentage"][$i]["group"] = 'Article';
-        }
-
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action'] = 'ExtraInfo';
-            $this->data['services']['notification']['version'] = '1';
-            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
         }
 
         return parent::PayGlobal();

@@ -20,11 +20,11 @@ class BuckarooPayPerEmail extends BuckarooPaymentMethod {
      * @param array $customVars
      * @return callable parent::Pay()
      */
-    public function Pay($customVars = Array()) {
+    public function Pay($customVars = array()) {
         return null;
     }
 
-    public function PaymentInvitation($customVars = Array()) {
+    public function PaymentInvitation($customVars = array()) {
 
         $this->data['services'][$this->type]['action'] = 'PaymentInvitation';
         $this->data['services'][$this->type]['version'] = $this->version;

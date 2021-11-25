@@ -26,26 +26,13 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
      * @param array $customVars
      * @return callable parent::PayGlobal()
      */
-    public function Pay($customVars = Array()) {
+    public function Pay($customVars = array()) {
         $this->type = $customVars['CreditCardIssuer'];
         $this->version = 0;
         $this->mode = BuckarooConfig::getMode($this->type);
 
         $this->data['services'][$this->type]['action'] = 'Pay';
         $this->data['services'][$this->type]['version'] = $this->version;
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action'] = 'ExtraInfo';
-            $this->data['services']['notification']['version'] = '1';
-            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender'] = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
         // add the flag
         update_post_meta( $this->orderId, '_wc_order_authorized', 'yes' );
 
@@ -66,20 +53,6 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
         $this->data['services'][$this->type]['action'] = 'Authorize';
         $this->data['services'][$this->type]['version'] = $this->version;
 
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action'] = 'ExtraInfo';
-            $this->data['services']['notification']['version'] = '1';
-            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender'] = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
-
         // add the flag
         update_post_meta( $order->get_id(), '_wc_order_authorized', 'yes' );
 
@@ -91,7 +64,7 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
      * @param array $customVars
      * @return callable parent::PayGlobal()
      */
-    public function Capture($customVars = Array()) {
+    public function Capture($customVars = array()) {
 
         $this->type = $customVars['CreditCardIssuer'];
         $this->version = 0;
@@ -100,19 +73,6 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
         $this->data['services'][$this->type]['action'] = 'Capture';
         $this->data['services'][$this->type]['version'] = $this->version;
 
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action'] = 'ExtraInfo';
-            $this->data['services']['notification']['version'] = '1';
-            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender'] = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
 
         return $this->CaptureGlobal();
     }
@@ -122,7 +82,7 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
      * @param array $customVars
      * @return callable parent::PayGlobal()
      */
-    public function PayEncrypt($customVars = Array()) {
+    public function PayEncrypt($customVars = array()) {
 
         $this->type = $customVars['CreditCardIssuer'];
         $this->version = 0;
@@ -133,19 +93,7 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
 
         $this->data['customVars'][$this->type]['EncryptedCardData'] = $customVars['CreditCardDataEncrypted'];
 
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action'] = 'ExtraInfo';
-            $this->data['services']['notification']['version'] = '1';
-            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender'] = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
+
 
         return $this->PayGlobal();
     }
@@ -165,20 +113,6 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
         $this->data['services'][$this->type]['version'] = $this->version;
 
         $this->data['customVars'][$this->type]['EncryptedCardData'] = $customVars['CreditCardDataEncrypted'];
-
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action'] = 'ExtraInfo';
-            $this->data['services']['notification']['version'] = '1';
-            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender'] = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
 
         // add the flag
         update_post_meta( $order->get_id(), '_wc_order_authorized', 'yes' );

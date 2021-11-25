@@ -86,10 +86,6 @@
           $n++;
           continue;
         }
-        if (empty($options['usenotification']) || $options['usenotification'] == '' || $options['usenotification'] == null) {
-          $n++;
-          continue;
-        }
         if (empty($options['merchantkey']) || $options['merchantkey'] == '' || $options['merchantkey'] == null) {
           $n++;
           continue;
@@ -123,8 +119,6 @@
         $onetime_settings2['certificatename1'] = $timestamp.': '.$certificate_name;
         $onetime_settings2['selectcertificate'] = '1';
         $onetime_settings2['choosecertificate'] = '';
-        $onetime_settings2['usenotification'] = $keys['usenotification'];
-        $onetime_settings2['notificationdelay'] = $keys['notificationdelay'];
         $onetime_settings2['currency'] = $keys['currency'];
         $onetime_settings2['culture'] = $keys['culture'];
         $onetime_settings2['debugmode'] = 'off';
