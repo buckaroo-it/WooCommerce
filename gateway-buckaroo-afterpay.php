@@ -197,6 +197,17 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                 }
             }
 
+            // loop for fees
+            $fee_items = $order->get_items('fee');
+
+            $feeCostsToRefund = 0;
+            foreach ($fee_items as $fee_item) {
+                if (isset($line_item_totals[$fee_item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
+                    $feeCostsToRefund = $line_item_totals[$fee_item->get_id()];
+                    $feeIdToRefund    = $fee_item->get_id();
+                }
+            }
+
             // loop for shipping costs
             $shipping_item = $order->get_items('shipping');
 
@@ -224,6 +235,20 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                                 $line_item_totals_new[$shippingIdToRefund]     = $product['ArticleUnitprice'];
                                 $line_item_tax_totals_new[$shippingIdToRefund] = array(1 => 0);
                                 $shippingCostsToRefund -= $product['ArticleUnitprice'];
+                            }
+                        }
+                    } elseif ($product['ArticleId'] == $feeIdToRefund) {
+                        // Found the payment fee in the capture.
+                        // See if amount is sufficent.
+                        if ($feeCostsToRefund > 0) {
+                            if ($feeCostsToRefund <= $product['ArticleUnitprice']) {
+                                $line_item_totals_new[$feeIdToRefund]     = $feeCostsToRefund;
+                                $line_item_tax_totals_new[$feeIdToRefund] = array(1 => 0);
+                                $feeCostsToRefund                         = 0;
+                            } else {
+                                $line_item_totals_new[$feeIdToRefund]     = $product['ArticleUnitprice'];
+                                $line_item_tax_totals_new[$feeIdToRefund] = array(1 => 0);
+                                $feeCostsToRefund -= $product['ArticleUnitprice'];
                             }
                         }
                     }
