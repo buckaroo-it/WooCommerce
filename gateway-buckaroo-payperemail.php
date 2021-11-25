@@ -358,7 +358,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
                 'paypal'             => 'PayPal',
                 'sepadirectdebit'    => 'SEPA Direct Debit',
                 'sofortueberweisung' => 'Sofort Banking',
-                'belfius'            => 'Belfiusg',
+                'belfius'            => 'Belfius',
                 'Przelewy24'         => 'P24',
                 'RequestToPay'       => 'Request To Pay',
             ),
