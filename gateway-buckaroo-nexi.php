@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/nexi/nexi.php';
  */
 class WC_Gateway_Buckaroo_Nexi extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooNexi::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_nexi';
@@ -95,25 +96,9 @@ class WC_Gateway_Buckaroo_Nexi extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $nexi                 = new BuckarooNexi();
-
-        if (method_exists($order, 'get_order_total')) {
-            $nexi->amountDedit = $order->get_order_total();
-        } else {
-            $nexi->amountDedit = $order->get_total();
-        }
-        $payment_type      = str_replace('buckaroo_', '', strtolower($this->id));
-        $nexi->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $nexi->currency    = $this->currency;
-        $nexi->description = $this->transactiondescription;
-        $nexi->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $nexi->orderId     = (string) $order_id;
-        $nexi->returnUrl   = $this->notify_url;
-        
+        $order = getWCOrder($order_id);
+        /** @var BuckarooNexi */
+        $nexi = $this->createDebitRequest($order);
         $response = $nexi->Pay();
         return fn_buckaroo_process_response($this, $response);
     }

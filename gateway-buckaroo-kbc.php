@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/kbc/kbc.php';
  */
 class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooKBC::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_kbc';
@@ -91,26 +92,9 @@ class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $kbc                  = new BuckarooKBC();
-        if (method_exists($order, 'get_order_total')) {
-            $kbc->amountDedit = $order->get_order_total();
-        } else {
-            $kbc->amountDedit = $order->get_total();
-        }
-        $payment_type     = str_replace('buckaroo_', '', strtolower($this->id));
-        $kbc->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $kbc->currency    = $this->currency;
-        $kbc->description = $this->transactiondescription;
-
-        $kbc->invoiceId = getUniqInvoiceId($order->get_order_number());
-        $kbc->orderId   = (string) $order_id;
-        $kbc->returnUrl = $this->notify_url;
-        
-
+        $order = getWCOrder($order_id);
+        /** @var BuckarooKBC */
+        $kbc = $this->createDebitRequest($order);
         $response = $kbc->Pay();
         return fn_buckaroo_process_response($this, $response);
     }

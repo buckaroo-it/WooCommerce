@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/requesttopay/reque
  */
 class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooRequestToPay::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_requesttopay';
@@ -92,24 +93,9 @@ class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $rtp                  = new BuckarooRequestToPay();
-        if (method_exists($order, 'get_order_total')) {
-            $rtp->amountDedit = $order->get_order_total();
-        } else {
-            $rtp->amountDedit = $order->get_total();
-        }
-        $payment_type  = str_replace('buckaroo_', '', strtolower($this->id));
-        $rtp->channel  = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $rtp->currency = $this->currency;
-
-        $rtp->invoiceId = getUniqInvoiceId($order->get_order_number());
-        $rtp->orderId   = (string) $order_id;
-        $rtp->returnUrl = $this->notify_url;
-      
+        $order = getWCOrder($order_id);
+        /** @var BuckarooRequestToPay */
+        $rtp = $this->createDebitRequest($order);
         $response = $rtp->Pay();
         return fn_buckaroo_process_response($this, $response);
     }

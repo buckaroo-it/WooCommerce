@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/billink/billink.ph
  */
 class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooBillink::class;
     public $type;
     public $b2b;
     public $vattype;
@@ -51,29 +52,13 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        // Save this meta that is used later for the Capture call
-        update_post_meta($order_id, '_wc_order_selected_payment_method', 'Billink');
-        update_post_meta($order_id, '_wc_order_payment_issuer', $this->type);
+        $this->setOrderCapture($order_id, 'Billink');
 
-        $woocommerce = getWooCommerceObject();
+        $order = getWCOrder($order_id);
+        /** @var BuckarooBillink */
+        $billink = $this->createDebitRequest($order);
 
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = new WC_Order($order_id);
-        $billink              = new BuckarooBillink();
         $billink->B2B         = getWCOrderDetails($order_id, "billing_company");
-        if (method_exists($order, 'get_order_total')) {
-            $billink->amountDedit = $order->get_order_total();
-        } else {
-            $billink->amountDedit = $order->get_total();
-        }
-        $payment_type      = str_replace('buckaroo_', '', strtolower($this->id));
-        $billink->channel  = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $billink->currency = $this->currency;
-
-        $billink->description = 'Billink Pay';
-        $billink->invoiceId   = getUniqInvoiceId(preg_replace('/\./', '-', $order->get_order_number()), $this->mode);
-        $billink->orderId     = !empty($order_sequential_id) ? $order_sequential_id : (string) $order_id;
-
         $billink->BillingGender = $_POST['buckaroo-billink-gender'];
 
         $get_billing_first_name = getWCOrderDetails($order_id, "billing_first_name");

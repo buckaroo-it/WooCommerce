@@ -6,7 +6,7 @@ require_once(dirname(__FILE__) . '/library/api/idin.php');
  */
 class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 {
-    
+    const PAYMENT_CLASS = null;
     const BUCKAROO_TEMPLATE_LOCATION = '/templates/gateways/';
 
     public $notify_url;
@@ -756,5 +756,76 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $value = $post_data[$key];
         }
         return sanitize_text_field($value);
+    }
+    /**
+     * Set order capture
+     *
+     * @param int $order_id Order id
+     * @param string $paymentName Payment name
+     * @param string|null $paymentType Payment type
+     *
+     * @return void
+     */
+    protected function setOrderCapture($order_id, $paymentName, $paymentType = null)
+    {
+        
+        update_post_meta($order_id, '_wc_order_selected_payment_method', $paymentName);
+        $this->setOrderIssuer($order_id, $paymentType);
+    }
+    /**
+     * Set order issuer
+     *
+     * @param int $order_id Order id
+     * @param string|null $paymentType Payment type
+     *
+     * @return void
+     */
+    protected function setOrderIssuer($order_id, $paymentType = null)
+    {
+        if (is_null($paymentType)) {
+            $paymentType = $this->type;
+        }
+        update_post_meta($order_id, '_wc_order_payment_issuer', $paymentType);
+    }
+    /**
+     * Create a request for debit
+     *
+     * @param WC_Order $order Woocommerce order
+     *
+     * @return BuckarooPaymentMethod
+     */
+    protected function createDebitRequest($order)
+    {
+
+        $payment = $this->createPaymentRequest($order);
+        if (method_exists($order, 'get_order_total')) {
+            $payment->amountDedit = $order->get_order_total();
+        } else {
+            $payment->amountDedit = $order->get_total();
+        }
+        return $payment;
+    }
+    /**
+     * Create the payment method
+     *
+     * @param WC_Order $order Woocommerce order
+     *
+     * @return BuckarooPaymentMethod
+     */
+    protected function createPaymentRequest($order)
+    {
+        
+        $paymentClass = static::PAYMENT_CLASS;
+        $payment = new $paymentClass();
+        $payment->currency = get_woocommerce_currency();
+        $payment->amountDedit = 0;
+        $payment->amountCredit = 0;
+        $payment->invoiceId = (string) getUniqInvoiceId($order->get_order_number());
+        $payment->orderId = (string)$order->get_id();
+        $payment->description = $this->transactiondescription;
+        $payment->returnUrl = $this->notify_url;
+        $payment->mode = BuckarooConfig::getMode();
+        $payment->channel = BuckarooConfig::CHANNEL;
+        return $payment;
     }
 }

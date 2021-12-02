@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/klarna/klarna.php'
  */
 class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooKlarna::class;
     protected $type;
     protected $currency;
     protected $klarnaPaymentFlowId = '';
@@ -123,28 +124,11 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        // Save this meta that is used later for the Capture call
-        update_post_meta($order_id, '_wc_order_selected_payment_method', 'Klarna');
-        update_post_meta($order_id, '_wc_order_payment_issuer', $this->type);
+        $this->setOrderCapture($order_id, 'Klarna');
 
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-
-        $order  = new WC_Order($order_id);
-        $klarna = new BuckarooKlarna($this->type);
-
-        if (method_exists($order, 'get_order_total')) {
-            $klarna->amountDedit = $order->get_order_total();
-        } else {
-            $klarna->amountDedit = $order->get_total();
-        }
-        $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
-
-        $klarna->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $klarna->currency    = $this->currency;
-        $klarna->description = $this->transactiondescription;
-        $klarna->invoiceId   = getUniqInvoiceId(preg_replace('/\./', '-', $order->get_order_number()), $this->mode);
-
-        $klarna->orderId = !empty($order_sequential_id) ? $order_sequential_id : (string) $order_id;
+        $order = getWCOrder($order_id);
+        /** @var BuckarooKlarna */
+        $klarna = $this->createDebitRequest($order);
 
         $klarna->BillingGender = $_POST[$this->getKlarnaSelector() . '-gender'] ?? 'Unknown';
 

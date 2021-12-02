@@ -90,30 +90,16 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
      * @param integer $order_id
      * @return callable fn_buckaroo_process_response()
      */
-    function process_payment($order_id) {
-        $woocommerce = getWooCommerceObject();
-        // Validation: Required fields
+    function process_payment($order_id) {  
         if ( !isset( $_POST['buckaroo-ideal-issuer'] ) || !$_POST['buckaroo-ideal-issuer'] || empty($_POST['buckaroo-ideal-issuer']) ) {
             wc_add_notice( __("<strong>iDEAL bank </strong> is a required field.", 'wc-buckaroo-bpe-gateway'), 'error' );
             return;
         }
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order = getWCOrder($order_id);
-        $ideal = new BuckarooIDeal();
-        if (method_exists($order, 'get_order_total')) {
-            $ideal->amountDedit = $order->get_order_total();
-        } else {
-            $ideal->amountDedit = $order->get_total();
-        }
-        $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
-        $ideal->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $ideal->currency = $this->currency;
-        $ideal->description = $this->transactiondescription;
-        $ideal->invoiceId = (string)getUniqInvoiceId($order->get_order_number());
-        $ideal->orderId = (string)$order_id;
-        $ideal->issuer =  $_POST['buckaroo-ideal-issuer'];
-        $ideal->returnUrl = $this->notify_url;
 
+        $order = getWCOrder($order_id);
+        /** @var BuckarooIDeal */
+        $ideal = $this->createDebitRequest($order);
+        $ideal->issuer =  $_POST['buckaroo-ideal-issuer'];
         $response = $ideal->Pay();            
         return fn_buckaroo_process_response($this, $response);
     }
