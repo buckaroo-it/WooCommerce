@@ -12,7 +12,7 @@ class BuckarooTransfer extends BuckarooPaymentMethod {
         $this->mode = BuckarooConfig::getMode($this->type);
     }
 
-    public function Pay($customVars = Array()) {
+    public function Pay($customVars = array()) {
         return null;
     }
     

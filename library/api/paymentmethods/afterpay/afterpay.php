@@ -158,19 +158,6 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
         $this->data['customVars'][$this->type]['ShippingPhoneNumber']       = $this->ShippingPhoneNumber;
         $this->data['customVars'][$this->type]['ShippingLanguage']          = $this->ShippingLanguage;
 
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action']                = 'ExtraInfo';
-            $this->data['services']['notification']['version']               = '1';
-            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
 
         return parent::$action();
     }
@@ -207,20 +194,6 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
             $i++;
         }
 
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action']                = 'ExtraInfo';
-            $this->data['services']['notification']['version']               = '1';
-            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
-
         return $this->RefundGlobal();
     }
 
@@ -252,20 +225,6 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
             $this->data['customVars'][$this->type]["ArticleVatcategory"][$i - 1]["value"] = $p["ArticleVatcategory"];
             $this->data['customVars'][$this->type]["ArticleVatcategory"][$i - 1]["group"] = $i;
             $i++;
-        }
-
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action']                = 'ExtraInfo';
-            $this->data['services']['notification']['version']               = '1';
-            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
         }
 
         return $this->CaptureGlobal();

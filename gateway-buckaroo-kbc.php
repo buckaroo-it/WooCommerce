@@ -109,31 +109,9 @@ class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo
         $kbc->invoiceId = getUniqInvoiceId($order->get_order_number());
         $kbc->orderId   = (string) $order_id;
         $kbc->returnUrl = $this->notify_url;
-        $customVars     = array();
+        
 
-        if ($this->usenotification == 'TRUE') {
-            $kbc->usenotification         = 1;
-            $customVars['Customergender'] = 0;
-
-            $get_billing_first_name          = getWCOrderDetails($order_id, 'billing_first_name');
-            $get_billing_last_name           = getWCOrderDetails($order_id, 'billing_last_name');
-            $get_billing_email               = getWCOrderDetails($order_id, 'billing_email');
-            $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-            $customVars['CustomerLastName']  = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-            $customVars['Customeremail']     = !empty($get_billing_email) ? $get_billing_email : '';
-
-            $customVars['Notificationtype']  = 'PaymentComplete';
-            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->notificationdelay . ' day'))));
-        } else {
-            $get_shipping_first_name         = getWCOrderDetails($order_id, 'billing_first_name');
-            $get_shipping_last_name          = getWCOrderDetails($order_id, 'billing_last_name');
-            $get_shipping_email              = getWCOrderDetails($order_id, 'billing_email');
-            $customVars['customerEmail']     = !empty($get_shipping_email) ? $get_shipping_email : '';
-            $customVars['CustomerFirstName'] = !empty($get_shipping_first_name) ? $get_shipping_first_name : '';
-            $customVars['CustomerLastName']  = !empty($get_shipping_last_name) ? $get_shipping_last_name : '';
-        }
-
-        $response = $kbc->Pay($customVars);
+        $response = $kbc->Pay();
         return fn_buckaroo_process_response($this, $response);
     }
 
@@ -222,19 +200,6 @@ class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo
             'type'        => 'file',
             'description' => __(''),
             'default'     => '');
-
-        $this->form_fields['usenotification'] = array(
-            'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
-            'default'     => 'FALSE');
-
-        $this->form_fields['notificationdelay'] = array(
-            'title'       => __('Notification delay', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'text',
-            'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '0');
     }
 
 }

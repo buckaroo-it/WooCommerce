@@ -31,11 +31,6 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
         parent::setProperties();
         $this->usecreditmanagment = $this->get_option('usecreditmanagment');
         $this->invoicedelay       = $this->get_option('invoicedelay');
-  
-        $this->usenotification   = $this->get_option('usenotification', 'FALSE');
-        $this->notificationdelay = $this->get_option('notificationdelay', 0);
-        $this->notificationtype  = $this->get_option('notificationtype', 'PaymentComplete');
-
         $this->datedue           = $this->get_option('datedue');
         $this->maxreminderlevel  = $this->get_option('maxreminderlevel');
         $this->paymentmethodssdd = $this->get_option('paymentmethodssdd', '');
@@ -224,21 +219,8 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
             }
 
         }
-        if ($this->usenotification == 'TRUE') {
-            if ($this->usecreditmanagment != 'TRUE') {
-                $this->invoicedelay = 0;
-            }
-            $sepadirectdebit->usenotification = 1;
-            $customVars['Customergender']     = $_POST['buckaroo-sepadirectdebit-gender'];
-            $get_billing_first_name           = getWCOrderDetails($order_id, 'billing_first_name');
-            $get_billing_last_name            = getWCOrderDetails($order_id, 'billing_last_name');
-            $get_billing_email                = getWCOrderDetails($order_id, 'billing_email');
-            $customVars['CustomerFirstName']  = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-            $customVars['CustomerLastName']   = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-            $customVars['Customeremail']      = !empty($get_billing_email) ? $get_billing_email : '';
-            $customVars['Notificationtype']   = $this->notificationtype;
-            $customVars['Notificationdelay']  = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->invoicedelay . ' day')) . ' + ' . (int) $this->notificationdelay . ' day'));
-        }
+       
+    
         $sepadirectdebit->returnUrl = $this->notify_url;
         $response                   = $sepadirectdebit->PayDirectDebit($customVars);
         return fn_buckaroo_process_response($this, $response, $this->mode);
@@ -339,10 +321,11 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
             'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'FALSE');
         $this->form_fields['invoicedelay'] = array(
-            'title'       => __('Invoice delay (in days)', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'text',
-            'description' => __('Specify the amount of days before Buckaroo invoices the order and sends out the payment mail.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '3');
+            'title'             => __('Invoice delay (in days)', 'wc-buckaroo-bpe-gateway'),
+            'type'              => 'number',
+            'custom_attributes' => ["step" => "1"],
+            'description'       => __('Specify the amount of days before Buckaroo invoices the order and sends out the payment mail.', 'wc-buckaroo-bpe-gateway'),
+            'default'           => '3');
         $this->form_fields['datedue'] = array(
             'title'       => __('Due date (in days)', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'text',
@@ -392,22 +375,6 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
                 'yourgift'                   => 'Your Gift',
                 'fashioncheque'              => 'Fashioncheque'),
         );
-        $this->form_fields['usenotification'] = array(
-            'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
-            'default'     => 'FALSE');
-        $this->form_fields['notificationtype'] = array(
-            'title'       => __('Notification Type', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('Pre Notification: A pre-notification that is sent some time before performing a scheduled action. Payment Complete: A notification that is sent when a transaction has been completed with success.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('PreNotification' => 'Pre Notification', 'PaymentComplete' => 'Payment Complete'),
-            'default'     => 'FALSE');
-        $this->form_fields['notificationdelay'] = array(
-            'title'       => __('Notification delay', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'text',
-            'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '0');
+      
     }
 }
