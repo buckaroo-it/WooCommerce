@@ -664,4 +664,14 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         return sanitize_text_field($value);
     }
+    /**
+     * Can the order be refunded
+     * @access public
+     * @param object $order WC_Order
+     * @return object & string
+     */
+    public function can_refund_order($order)
+    {
+        return $order && $order->get_transaction_id();
+    }
 }

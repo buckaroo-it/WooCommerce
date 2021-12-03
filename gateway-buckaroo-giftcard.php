@@ -51,16 +51,6 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo
 
     /**
      * Can the order be refunded
-     * @param object $order WC_Order
-     * @return object & string
-     */
-    public function can_refund_order($order)
-    {
-        return $order && $order->get_transaction_id();
-    }
-
-    /**
-     * Can the order be refunded
      * @param integer $order_id
      * @param integer $amount defaults to null
      * @param string $reason
