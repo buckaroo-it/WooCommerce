@@ -87,18 +87,6 @@ class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo
     }
 
     /**
-     * Validate fields
-     * @return void;
-     */
-    public function validate_fields()
-    {
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
-        return;
-    }
-
-    /**
      * Process payment
      *
      * @param integer $order_id

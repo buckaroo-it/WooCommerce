@@ -94,19 +94,6 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo
     }
 
     /**
-     * Validate payment fields on the frontend.
-     *
-     * @return bool
-     */
-    public function validate_fields()
-    {
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
-        return;
-    }
-
-    /**
      * Process payment
      *
      * @param integer $order_id

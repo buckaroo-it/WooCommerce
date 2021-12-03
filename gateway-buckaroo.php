@@ -674,4 +674,15 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     {
         return $order && $order->get_transaction_id();
     }
+    /**
+     * Validate fields
+     * @return void;
+     */
+    public function validate_fields()
+    {
+        if (version_compare(WC()->version, '3.6', '<')) {
+            resetOrder();
+        }
+        return;
+    }
 }
