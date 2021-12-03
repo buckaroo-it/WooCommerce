@@ -22,7 +22,7 @@ if (strtoupper($country) == 'NL' && strtolower($this->klarnaPaymentFlowId) !== '
     <div class="woocommerce-error">
         <p>
             <?php 
-                echo __('Payment method is not supported for country ', 'wc-buckaroo-bpe-gateway') . '(' . $this->country . ')'; 
+                echo __('Payment method is not supported for country ', 'wc-buckaroo-bpe-gateway') . '(' . $country . ')'; 
             ?>
         </p>
     </div>

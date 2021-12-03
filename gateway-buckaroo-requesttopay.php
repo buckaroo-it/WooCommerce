@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once dirname(__FILE__) . '/library/api/paymentmethods/requesttopay/requesttopay.php';
 
 /**
@@ -9,38 +9,14 @@ class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo
 {
     public function __construct()
     {
-        $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_requesttopay';
         $this->title                  = 'Request To Pay';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_requesttopay_icon', plugins_url('library/buckaroo_images/24x24/requesttopay.png', __FILE__));
-        $this->icon = apply_filters('woocommerce_buckaroo_requesttopay_icon', BuckarooConfig::getIconPath('24x24/requesttopay.png', 'new/RequestToPay.png'));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Request To Pay";
-        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
-        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->currency               = get_woocommerce_currency();
-        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode                   = BuckarooConfig::getMode();
-        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture                = BuckarooConfig::get('CULTURE');
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
+        $this->setIcon('24x24/requesttopay.png', 'new/RequestToPay.png');
 
         parent::__construct();
-
-        $this->supports = array(
-            'products',
-            'refunds',
-        );
-
-        $this->notify_url = home_url('/');
-
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-            add_action('woocommerce_api_wc_gateway_buckaroo_requesttopay', array($this, 'response_handler'));
-            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_RequestToPay', $this->notify_url);
-        }
+        $this->addRefundSupport();
     }
 
     /**

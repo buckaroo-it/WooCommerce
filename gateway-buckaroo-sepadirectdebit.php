@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once dirname(__FILE__) . '/library/api/paymentmethods/sepadirectdebit/sepadirectdebit.php';
 
 /**
@@ -11,65 +11,35 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
     public $datedue;
     public $maxreminderlevel;
     public $paymentmethodssdd;
-    public $showpayproc;
     public function __construct()
     {
-        $woocommerce = getWooCommerceObject();
-
         $this->id                     = 'buckaroo_sepadirectdebit';
         $this->title                  = 'SEPA Direct Debit';
-        $this->icon = apply_filters('woocommerce_buckaroo_sepadirectdebit_icon', BuckarooConfig::getIconPath('24x24/directdebit.png', 'new/SEPA-directdebit.png'));
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo SEPA Direct Debit';
-        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
-        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->currency               = get_woocommerce_currency();
-        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode                   = BuckarooConfig::getMode();
-        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture                = BuckarooConfig::get('CULTURE');
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
+        $this->setIcon('24x24/directdebit.png', 'new/SEPA-directdebit.png');
 
         parent::__construct();
-
-        $this->supports = array(
-            'products',
-            'refunds',
-        );
-        $this->usecreditmanagment = $this->settings['usecreditmanagment'] ?? null;
-        $this->invoicedelay       = $this->settings['invoicedelay'] ?? null;
-
-        if (!isset($this->settings['usenotification'])) {
-            $this->usenotification   = 'FALSE';
-            $this->notificationdelay = 0;
-            $this->notificationtype  = 'PaymentComplete';
-        } else {
-            $this->usenotification   = $this->settings['usenotification'];
-            $this->notificationdelay = $this->settings['notificationdelay'];
-            $this->notificationtype  = $this->settings['notificationtype'] ?? null;
-        }
-
-        $this->datedue           = $this->settings['datedue'] ?? null;
-        $this->maxreminderlevel  = $this->settings['maxreminderlevel'] ?? null;
-        $this->paymentmethodssdd = '';
-        if (!empty($this->settings['paymentmethodssdd'])) {
-            $this->paymentmethodssdd = $this->settings['paymentmethodssdd'];
-        }
-        $this->notify_url = home_url('/');
-
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-            add_action('woocommerce_api_wc_gateway_buckaroo_sepadirectdebit', array($this, 'response_handler'));
-            if ($this->showpayproc) {
-                add_action('woocommerce_thankyou_buckaroo_sepadirectdebit', array($this, 'thankyou_description'));
-            }
-
-            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_SepaDirectDebit', $this->notify_url);
-        }
+        $this->addRefundSupport();
     }
+    /**
+     * @inheritDoc
+     * 
+     */
+    protected function setProperties()
+    {
+        parent::setProperties();
+        $this->usecreditmanagment = $this->get_option('usecreditmanagment');
+        $this->invoicedelay       = $this->get_option('invoicedelay');
+  
+        $this->usenotification   = $this->get_option('usenotification', 'FALSE');
+        $this->notificationdelay = $this->get_option('notificationdelay', 0);
+        $this->notificationtype  = $this->get_option('notificationtype', 'PaymentComplete');
 
+        $this->datedue           = $this->get_option('datedue');
+        $this->maxreminderlevel  = $this->get_option('maxreminderlevel');
+        $this->paymentmethodssdd = $this->get_option('paymentmethodssdd', '');
+    }
     /**
      * Can the order be refunded
      * @param object $order WC_Order

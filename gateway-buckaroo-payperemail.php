@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once dirname(__FILE__) . '/library/api/paymentmethods/payperemail/payperemail.php';
 
 /**
@@ -10,44 +10,21 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
     public $paymentmethodppe;
     public function __construct()
     {
-        $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_payperemail';
-        $this->icon = apply_filters('woocommerce_buckaroo_payperemail_icon', BuckarooConfig::getIconPath('payperemail.png', 'new/PayPerEmail.png'));
         $this->title                  = 'PayPerEmail';
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo PayPerEmail";
-        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
-        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->currency               = get_woocommerce_currency();
-        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode                   = BuckarooConfig::getMode();
-        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture                = BuckarooConfig::get('CULTURE');
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
+        $this->setIcon('payperemail.png', 'new/PayPerEmail.png');
 
         parent::__construct();
-
-        $this->supports = array(
-            'products',
-        );
-
-        $this->paymentmethodppe = '';
-        if (!empty($this->settings['paymentmethodppe'])) {
-            $this->paymentmethodppe = $this->settings['paymentmethodppe'];
-        }
-        $this->frontendVisible = $this->settings['show_PayPerEmail_frontend'] ?? '';
-
-        $this->notify_url = home_url('/');
-
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-            add_action('woocommerce_api_wc_gateway_buckaroo_payperemail', array($this, 'response_handler'));
-            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_PayPerEmail', $this->notify_url);
-        }
     }
-
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
+        $this->paymentmethodppe = $this->get_option('paymentmethodppe', '');
+        $this->frontendVisible = $this->get_option('show_PayPerEmail_frontend', '');
+    }
     /**
      * Can the order be refunded
      * @param object $order WC_Order

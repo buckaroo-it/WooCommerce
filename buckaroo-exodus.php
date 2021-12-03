@@ -1,6 +1,6 @@
 <?php
 
-  require_once 'library/include.php';
+  
 
   /**
    * @package Buckaroo
@@ -12,7 +12,6 @@
 	return;
       }
     
-      $woocommerce = getWooCommerceObject();
       $this->title        = 'Exodus';
       $this->has_fields   = false;
       
@@ -20,14 +19,7 @@
           'products',
           'refunds'
       );
-      $this->showpayproc = false; //Never Show at checkout
-      $this->notify_url = home_url('/');
-      
-      if (!(version_compare(WOOCOMMERCE_VERSION, '2.0.0', '<'))) {
-        add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-        add_action('woocommerce_api_wc_gateway_buckaroo_exodus', array($this, 'exodus_actions'));
-        $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Transfer', $this->notify_url);
-      }
+
     }
 
     /**

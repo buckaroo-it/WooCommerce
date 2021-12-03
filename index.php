@@ -241,6 +241,7 @@ $buckaroo_enabled_payment_methods = generateGateways();
 
 function buckaroo_init_gateway()
 {
+    require_once 'library/include.php';
     load_plugin_textdomain('wc-buckaroo-bpe-gateway', false, dirname(plugin_basename(__FILE__)) . '/languages/');
     global $buckaroo_enabled_payment_methods;
     $buckaroo_enabled_payment_methods = (count($buckaroo_enabled_payment_methods)) ? $buckaroo_enabled_payment_methods : generateGateways();

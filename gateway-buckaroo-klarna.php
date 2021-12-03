@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once dirname(__FILE__) . '/library/api/paymentmethods/klarna/klarna.php';
 
 /**
@@ -13,39 +13,21 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
     public function __construct()
     {
-        $woocommerce      = getWooCommerceObject();
-        $this->icon = apply_filters('woocommerce_buckaroo_klarnapay_icon', BuckarooConfig::getIconPath('24x24/klarna.svg', 'new/Klarna.png'));
         $this->has_fields = true;
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $this->currency       = get_woocommerce_currency();
-
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode                   = BuckarooConfig::getMode();
-        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture                = BuckarooConfig::get('CULTURE');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
-
-        $country = null;
-        if (!empty($woocommerce->customer)) {
-            $country = get_user_meta($woocommerce->customer->get_id(), 'shipping_country', true);
-        }
-
-        $this->country = $country;
-        parent::__construct();
-
-        $this->supports = array(
-            'products',
-            'refunds',
-        );
-
         $this->type       = 'klarna';
-        $this->vattype    = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
-        $this->notify_url = home_url('/');
-    }
+        $this->setIcon('24x24/klarna.svg', 'new/Klarna.png');
+        $this->setCountry();
 
+        parent::__construct();
+        $this->notify_url = home_url('/');
+        $this->addRefundSupport();
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
+        $this->vattype = $this->get_option('vattype');
+    }
     public function getKlarnaSelector()
     {
         return str_replace("_", "-", $this->id);
@@ -164,7 +146,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
         $klarna->orderId = !empty($order_sequential_id) ? $order_sequential_id : (string) $order_id;
 
-        $klarna->BillingGender = $_POST[$this->klarnaSelector . '-gender'] ?? 'Unknown';
+        $klarna->BillingGender = $_POST[$this->getKlarnaSelector() . '-gender'] ?? 'Unknown';
 
         $get_billing_first_name = getWCOrderDetails($order_id, "billing_first_name");
         $get_billing_last_name  = getWCOrderDetails($order_id, "billing_last_name");

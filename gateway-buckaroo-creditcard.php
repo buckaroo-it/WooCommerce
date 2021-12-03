@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once dirname(__FILE__) . '/library/api/paymentmethods/creditcard/creditcard.php';
 
 /**
@@ -10,45 +10,23 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     public $creditCardProvider = [];
     public function __construct()
     {
-        $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_creditcard';
         $this->title                  = 'Creditcards';
-        $this->icon = apply_filters('woocommerce_buckaroo_creditcard_icon', BuckarooConfig::getIconPath('24x24/cc.gif', 'new/CreditCards.png'));
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo Creditcards";
-        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
-        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->currency               = get_woocommerce_currency();
-        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode                   = BuckarooConfig::getMode();
-        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture                = BuckarooConfig::get('CULTURE');
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
+        $this->setIcon('24x24/cc.gif', 'new/CreditCards.png');
 
         parent::__construct();
 
-        if (isset($this->settings['AllowedProvider'])) {
-            $this->creditCardProvider = $this->settings['AllowedProvider'];
-        } else {
-            $this->creditCardProvider = [];
-        }
-
-        $this->creditcardmethod       = (isset($this->settings['creditcardmethod']) ? $this->settings['creditcardmethod'] : "redirect");
-        $this->creditcardpayauthorize = (isset($this->settings['creditcardpayauthorize']) ? $this->settings['creditcardpayauthorize'] : "Pay");
-
-        $this->supports = array(
-            'products',
-            'refunds',
-        );
-        $this->notify_url = home_url('/');
-
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-            add_action('woocommerce_api_wc_gateway_buckaroo_creditcard', array($this, 'response_handler'));
-            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Creditcard', $this->notify_url);
-        }
+        $this->addRefundSupport();
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
+        $this->creditCardProvider     = $this->get_option('AllowedProvider', []);
+        $this->creditcardmethod       = $this->get_option('creditcardmethod', "redirect");
+        $this->creditcardpayauthorize = $this->get_option('creditcardpayauthorize', "Pay");
     }
 
     /**

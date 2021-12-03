@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once dirname(__FILE__) . '/library/api/paymentmethods/sofortbanking/sofortbanking.php';
 
 /**
@@ -9,48 +9,16 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo
 {
     public function __construct()
     {
-        $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_sofortueberweisung';
-
-        ////below will fix issue with renaming of payment method id and loosing of previous settings
-        if (
-            !get_option('woocommerce_'.$this->id.'_settings')
-            &&
-            ($oldSettings = get_option('woocommerce_buckaroo_sofortbanking_settings'))
-        ) {
-            add_option('woocommerce_'.$this->id.'_settings', $oldSettings);
-        }
-        ////
-
         $this->title                  = 'Sofortbanking';
-        $this->icon = apply_filters('woocommerce_buckaroo_sofortueberweisung_icon', BuckarooConfig::getIconPath('24x24/sofort.png', 'new/Sofort.png'));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Sofortbanking";
-        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
-        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->currency               = get_woocommerce_currency();
-        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode                   = BuckarooConfig::getMode();
-        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture                = BuckarooConfig::get('CULTURE');
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
-
+        $this->setIcon('24x24/sofort.png', 'new/Sofort.png');
+        
+        $this->migrateOldSettings('woocommerce_buckaroo_sofortbanking_settings');
         parent::__construct();
+        $this->addRefundSupport();
 
-        $this->supports = array(
-            'products',
-            'refunds',
-        );
-
-        $this->notify_url = home_url('/');
-
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-            add_action('woocommerce_api_wc_gateway_buckaroo_sofortbanking', array($this, 'response_handler'));
-            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Sofortbanking', $this->notify_url);
-        }
     }
 
     /**

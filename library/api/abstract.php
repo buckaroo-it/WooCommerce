@@ -24,6 +24,7 @@ abstract class BuckarooAbstract {
     const STATUS_ON_HOLD   = 'on-hold';
     const STATUS_CANCELED  = 'cancelled';
     const STATUS_FAILED    = 'failed';
+    const STATUS_REQUEST_ERROR = 'request-error';
 
 	/**
 	 *  List of possible response codes sent by buckaroo.

@@ -1,29 +1,7 @@
 <?php
 
-require_once 'library/include.php';
-require_once dirname(__FILE__) . '/library/api/paymentmethods/afterpay/afterpay.php';
 
-function getClientIpBuckaroo()
-{
-    $ipaddress = '';
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED'])) {
-        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
-    } elseif (!empty($_SERVER['HTTP_FORWARDED_FOR'])) {
-        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
-    } elseif (!empty($_SERVER['HTTP_FORWARDED'])) {
-        $ipaddress = $_SERVER['HTTP_FORWARDED'];
-    } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
-        $ipaddress = $_SERVER['REMOTE_ADDR'];
-    } else {
-        $ipaddress = 'UNKNOWN';
-    }
-    $ex = explode(",", $ipaddress);
-    return trim($ex[0]);
-}
+require_once dirname(__FILE__) . '/library/api/paymentmethods/afterpay/afterpay.php';
 
 /**
  * @package Buckaroo
@@ -32,58 +10,29 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 {
     public $type;
     public $b2b;
-    public $showpayproc;
     public $vattype;
     public $country;
     public function __construct()
     {
-        $woocommerce = getWooCommerceObject();
         $this->id                     = 'buckaroo_afterpay';
         $this->title                  = 'AfterPay';
-        $this->icon = apply_filters('woocommerce_buckaroo_afterpay_icon', BuckarooConfig::getIconPath('24x24/afterpay.jpg', 'new/AfterPay.png'));
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo AfterPay Old';
-        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
-        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->currency               = get_woocommerce_currency();
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-
-        $this->secretkey         = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode              = BuckarooConfig::getMode();
-        $this->thumbprint        = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture           = BuckarooConfig::get('CULTURE');
-        $this->usenotification   = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
-
-        $country = null;
-        if (!empty($woocommerce->customer)) {
-            $country = get_user_meta($woocommerce->customer->get_id(), 'shipping_country', true);
-        }
-        $this->country = $country;
+        $this->setIcon('24x24/afterpay.jpg', 'new/AfterPay.png');
+        $this->setCountry();
 
         parent::__construct();
-        $this->country              =
-        $this->afterpaypayauthorize = (isset($this->settings['afterpaypayauthorize']) ? $this->settings['afterpaypayauthorize'] : 'Pay');
-
-        $this->supports = [
-            'products',
-            'refunds',
-        ];
-        $this->type       = $this->settings['service'] ?? null;
-        $this->b2b        = $this->settings['enable_bb'] ?? null;
-        $this->vattype    = $this->settings['vattype'] ?? null;
-        $this->notify_url = home_url('/');
-
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action('woocommerce_update_options_payment_gateways_' . $this->id, [$this, 'process_admin_options']);
-            add_action('woocommerce_api_wc_gateway_buckaroo_sepadirectdebit', [$this, 'response_handler']);
-            if ($this->showpayproc) {
-                add_action('woocommerce_thankyou_buckaroo_afterpay', [$this, 'thankyou_description']);
-            }
-            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Afterpay', $this->notify_url);
-        }
+        $this->addRefundSupport();
     }
-
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
+        $this->afterpaypayauthorize = $this->get_option('afterpaypayauthorize', 'Pay');
+        $this->type       = $this->get_option('service');
+        $this->b2b        = $this->get_option('enable_bb');
+        $this->vattype    = $this->get_option('vattype');
+    }
     /**
      * Can the order be refunded
      * @access public
@@ -912,7 +861,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
      */
     public function response_handler()
     {
-        $woocommerce = getWooCommerceObject();
         fn_buckaroo_process_response($this);
         exit;
     }
