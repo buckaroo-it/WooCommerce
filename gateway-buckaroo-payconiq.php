@@ -159,7 +159,6 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
      */
     public function response_handler()
     {
-        $woocommerce          = getWooCommerceObject();
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $result               = fn_buckaroo_process_response($this);
         $order_id             = isset($_GET["order_id"]) ? $_GET["order_id"] : false;

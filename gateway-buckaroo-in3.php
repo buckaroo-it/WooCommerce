@@ -289,24 +289,6 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         $response = $in3->PayIn3($products, $action);
         return fn_buckaroo_process_response($this, $response, $this->mode);
     }
-
-    /**
-     * Check response data
-     *
-     * @access public
-     */
-    public function response_handler()
-    {
-        $woocommerce = getWooCommerceObject();
-        $result      = fn_buckaroo_process_response($this);
-        if (!is_null($result)) {
-            wp_safe_redirect($result['redirect']);
-        } else {
-            wp_safe_redirect($this->get_failed_url());
-        }
-        exit;
-    }
-
     /**
      * Add fields to the form_fields() array, specific to this page.
      *

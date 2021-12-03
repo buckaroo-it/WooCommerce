@@ -379,23 +379,6 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
         $response = $klarna->paymentAction($products);
         return fn_buckaroo_process_response($this, $response, $this->mode);
     }
-
-    /**
-     * Check response data
-     *
-     * @access public
-     */
-    public function response_handler()
-    {
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $result               = fn_buckaroo_process_response($this);
-        if (!is_null($result)) {
-            wp_safe_redirect($result['redirect']);
-        } else {
-            wp_safe_redirect($this->get_failed_url());
-        }
-    }
-
     private function getFeeTax($fee)
     {
         $feeInfo    = WC_Tax::get_rates($fee->get_tax_class());

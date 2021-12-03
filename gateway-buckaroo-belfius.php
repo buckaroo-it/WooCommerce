@@ -162,25 +162,6 @@ class WC_Gateway_Buckaroo_Belfius extends WC_Gateway_Buckaroo
 
         return fn_buckaroo_process_response($this, $response);
     }
-
-    /**
-     * Check response data
-     */
-
-    public function response_handler()
-    {
-        $woocommerce          = getWooCommerceObject();
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $result               = fn_buckaroo_process_response($this);
-        if (!is_null($result)) {
-            wp_safe_redirect($result['redirect']);
-        } else {
-            wp_safe_redirect($this->get_failed_url());
-        }
-
-        exit;
-    }
-
     /**
      * Add fields to the form_fields() array, specific to this page.
      *

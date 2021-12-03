@@ -912,7 +912,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
      */
     public function response_handler()
     {
-        $woocommerce = getWooCommerceObject();
         fn_buckaroo_process_response($this);
         exit;
     }

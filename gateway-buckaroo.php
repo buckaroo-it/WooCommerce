@@ -463,7 +463,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     public function response_handler()
     {
-        $woocommerce          = getWooCommerceObject();
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $result               = fn_buckaroo_process_response($this);
         if (!is_null($result)) {
