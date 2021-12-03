@@ -160,7 +160,6 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
      */
     public function response_handler()
     {
-        $woocommerce = getWooCommerceObject();
         fn_buckaroo_process_response($this);
         exit;
     }

@@ -367,27 +367,6 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         return fn_buckaroo_process_capture($response, $order, $this->currency);
 
     }
-
-
-    /**
-     * Check response data
-     *
-     * @access public
-     */
-    public function response_handler()
-    {
-        $woocommerce          = getWooCommerceObject();
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $result               = fn_buckaroo_process_response($this);
-        if (!is_null($result)) {
-            wp_safe_redirect($result['redirect']);
-        } else {
-            wp_safe_redirect($this->get_failed_url());
-        }
-
-        exit;
-    }
-
     public function getCardsList()
     {
         $cards     = array();
