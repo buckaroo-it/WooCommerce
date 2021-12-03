@@ -57,6 +57,9 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooBillink */
         $billink = $this->createDebitRequest($order);
+        $billink->invoiceId = (string)getUniqInvoiceId(
+            preg_replace('/\./', '-', $order->get_order_number())
+        );
 
         $billink->B2B         = getWCOrderDetails($order_id, "billing_company");
         $billink->BillingGender = $_POST['buckaroo-billink-gender'];

@@ -820,9 +820,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $payment->currency = get_woocommerce_currency();
         $payment->amountDedit = 0;
         $payment->amountCredit = 0;
-        $payment->invoiceId = (string)getUniqInvoiceId(
-            preg_replace('/\./', '-', $order->get_order_number())
-        );
+        $payment->invoiceId = (string)getUniqInvoiceId($order->get_order_number());
         $payment->orderId = (string)$order->get_id();
         $payment->description = $this->transactiondescription;
         $payment->returnUrl = $this->notify_url;

@@ -584,6 +584,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         /** @var BuckarooAfterPayNew */
         $afterpay = $this->createDebitRequest($order);
         $afterpay->setType($this->type);
+        $afterpay->invoiceId = (string)getUniqInvoiceId(
+            preg_replace('/\./', '-', $order->get_order_number())
+        );
 
         $afterpay->BillingGender = $_POST['buckaroo-afterpaynew-gender'];
 
