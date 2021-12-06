@@ -110,10 +110,8 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
         if ( !isset( $_POST['buckaroo-ideal-issuer'] ) || !$_POST['buckaroo-ideal-issuer'] || empty($_POST['buckaroo-ideal-issuer']) ) {
             wc_add_notice( __("<strong>iDEAL bank </strong> is a required field.", 'wc-buckaroo-bpe-gateway'), 'error' );
         }
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
-        return;
+
+        parent::validate_fields();
     }
     
     /**

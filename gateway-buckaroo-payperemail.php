@@ -114,10 +114,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
             }
         }
 
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
-        return;
+        parent::validate_fields();
     }
 
     /**

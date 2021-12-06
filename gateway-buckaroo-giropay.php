@@ -92,10 +92,8 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
         if (empty($_POST['buckaroo-giropay-bancaccount'])) {
             wc_add_notice(__('Please provide correct BIC', 'wc-buckaroo-bpe-gateway'), 'error');
         }
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
-        return;
+        
+        parent::validate_fields();
     }
 
     /**

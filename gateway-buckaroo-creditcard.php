@@ -222,9 +222,8 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
      */
     public function validate_fields()
     {
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
+        parent::validate_fields();
+        
         if (empty($_POST['buckaroo-creditcard-issuer'])) {
             wc_add_notice(__("Select a credit card.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
