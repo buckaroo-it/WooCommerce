@@ -10,14 +10,99 @@ Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
-add_action('wp_enqueue_scripts', function (){
-    wp_enqueue_style('buckaroo-custom-styles', plugin_dir_url( __FILE__ ) . 'library/css/buckaroo-custom.css');
-});
-add_action('admin_enqueue_scripts', function (){
-    wp_enqueue_style('buckaroo-custom-styles', plugin_dir_url( __FILE__ ) . 'library/css/buckaroo-custom.css');
-    wp_enqueue_script('creditcard_capture', plugin_dir_url( __FILE__ ) . 'library/js/9yards/creditcard-capture-form.js', array('jquery'), '1.0.0', true );
-});
+add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
 
+/**
+ * Enqueue backend scripts
+ *
+ * @return void
+ */
+function buckaroo_payment_setup_scripts()
+{
+    wp_enqueue_style(
+        'buckaroo-custom-styles',
+        plugin_dir_url( __FILE__ ) . 'library/css/buckaroo-custom.css',
+        [],
+        BuckarooConfig::VERSION
+    );
+
+    wp_enqueue_script(
+        'initiate_jquery_if_not_loaded',
+        plugin_dir_url(__FILE__) . 'library/js/loadjquery.js',
+        ['jquery'],
+        BuckarooConfig::VERSION,
+        true
+    );
+    wp_enqueue_script(
+        'creditcard_capture',
+        plugin_dir_url( __FILE__ ) . 'library/js/9yards/creditcard-capture-form.js',
+        array('jquery'),
+        BuckarooConfig::VERSION,
+        true
+    );
+    wp_enqueue_script(
+        'buckaroo_certificate_management_js',
+        plugin_dir_url(__FILE__) . 'library/js/9yards/upload_certificate.js',
+        ['jquery'],
+        BuckarooConfig::VERSION,
+        true
+    );
+    wp_enqueue_script(
+        'buckaroo_display_local_settings',
+        plugin_dir_url(__FILE__) . 'library/js/9yards/display_local.js',
+        ['jquery'],
+        BuckarooConfig::VERSION,
+        true
+    );
+}
+add_action('wp_enqueue_scripts', 'buckaroo_payment_frontend_scripts');
+
+/**
+ * Enqueue frontend scripts
+ *
+ * @return void
+ */
+function buckaroo_payment_frontend_scripts() 
+{
+    wp_enqueue_style(
+        'buckaroo-custom-styles',
+        plugin_dir_url( __FILE__ ) . 'library/css/buckaroo-custom.css',
+        [],
+        BuckarooConfig::VERSION
+    );
+    
+    wp_enqueue_script(
+        'initiate_jquery_if_not_loaded',
+        plugin_dir_url(__FILE__) . 'library/js/loadjquery.js',
+        ['jquery'],
+        BuckarooConfig::VERSION,
+        true
+    );
+    wp_enqueue_script(
+        'creditcard_encryption_sdk',
+        plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-encryption-sdk.js',
+        ['jquery'],
+        BuckarooConfig::VERSION,
+        true
+    );
+    wp_enqueue_script(
+        'creditcard_call_encryption',
+        plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-call-encryption.js',
+        ['jquery'],
+        BuckarooConfig::VERSION,
+        true
+    );
+
+    if (is_checkout()) {
+        wp_enqueue_script(
+            'wc-pf-checkout',
+            plugin_dir_url(__FILE__) . '/assets/js/checkout.js',
+            ['jquery'],
+            BuckarooConfig::VERSION,
+            true
+        );
+    }
+}
 add_action('plugins_loaded', 'buckaroo_init_gateway', 0);
 add_action('admin_menu', 'buckaroo_menu_report');
 
