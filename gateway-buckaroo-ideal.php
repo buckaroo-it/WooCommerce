@@ -7,7 +7,7 @@ require_once(dirname(__FILE__) . '/library/api/paymentmethods/ideal/ideal.php');
 */
 class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo {
 
-
+    const PAYMENT_CLASS = BuckarooIDeal::class;
     function __construct() {
         $this->id = 'buckaroo_ideal';
         $this->title = 'iDEAL';
