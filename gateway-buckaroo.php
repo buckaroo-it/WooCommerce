@@ -788,6 +788,67 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         update_post_meta($order_id, '_wc_order_payment_issuer', $paymentType);
     }
     /**
+     * Process default refund
+     *
+     * @param int      $order_id Order id
+     * @param float    $amount Refund amount
+     * @param string   $reason Refund reason
+     * @param boolean  $setType Set request type from meta
+     * @param callable $callback Set additional params to the $request object
+     *
+     * @return WP_Error|String|Boolean
+     */
+    protected function processDefaultRefund($order_id, $amount, $reason, $setType = false, $callback = null)
+    {
+        $order = wc_get_order($order_id);
+        if (!$this->can_refund_order($order)) {
+            return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
+        }
+        update_post_meta($order_id, '_pushallowed', 'busy');
+
+        $request = $this->createCreditRequest($order, $amount, $reason);
+
+        if ($setType) {
+            $request->setType(
+                get_post_meta(
+                    (int)str_replace('#', '', $order->get_order_number()),
+                    '_payment_method_transaction',
+                    true
+                )
+            );
+        }
+
+        if (is_callable($callback)) {
+            $callback($request);
+        }
+
+        try {
+            $response = $request->Refund();
+        } catch (exception $e) {
+            update_post_meta($order_id, '_pushallowed', 'ok');
+            return new WP_Error('refund_error', __($e->getMessage()));
+        }
+        return fn_buckaroo_process_refund($response ?? null, $order, $amount, $this->currency);
+    }
+    /**
+     * Create a request for credit
+     *
+     * @param WC_Order $order Woocommerce order
+     *
+     * @return BuckarooPaymentMethod
+     */
+    protected function createCreditRequest($order, $amount, $reason)
+    {
+
+        $payment = $this->createPaymentRequest($order);
+        $payment->amountCredit = $amount;
+        $payment->description = $reason;
+        $payment->invoiceId = $order->get_order_number();
+        $payment->OriginalTransactionKey = $order->get_transaction_id();
+        return $payment;
+    }
+
+    /**
      * Create a request for debit
      *
      * @param WC_Order $order Woocommerce order

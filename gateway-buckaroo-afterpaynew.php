@@ -266,26 +266,13 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         }
 
         update_post_meta($order_id, '_pushallowed', 'busy');
-        $GLOBALS['plugin_id']  = $this->plugin_id . $this->id . '_settings';
-        $order                 = wc_get_order($order_id);
-        $afterpay              = new BuckarooAfterPayNew($this->type);
-        $afterpay->amountDedit = 0;
-        $afterpay->currency    = $this->currency;
-        $afterpay->description = $reason;
-        if ($this->mode == 'test') {
-            $afterpay->invoiceId = 'WP_' . (string) $order_id;
-        }
 
-        $afterpay->invoiceId = $order->get_order_number();
-        $afterpay->orderId   = $order_id;
-        if ($originalTransactionKey === null) {
-            $afterpay->OriginalTransactionKey = $order->get_transaction_id();
-        } else {
+        /** @var BuckarooAfterPayNew */
+        $afterpay = $this->createCreditRequest($order, $amount, $reason);
+
+        if ($originalTransactionKey !== null) {
             $afterpay->OriginalTransactionKey = $originalTransactionKey;
         }
-        $afterpay->returnUrl = $this->notify_url;
-        $payment_type        = str_replace('buckaroo_', '', strtolower($this->id));
-        $afterpay->channel   = BuckarooConfig::getChannel($payment_type, 'process_refund');
 
         // add items to refund call for afterpay
         $issuer = get_post_meta($order_id, '_wc_order_payment_issuer', true);
