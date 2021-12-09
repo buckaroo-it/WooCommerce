@@ -1074,3 +1074,13 @@ function getClientIpBuckaroo()
     $ex = explode(",", $ipaddress);
     return trim($ex[0]);
 }
+
+function roundAmount($amount, $decimals = null){
+
+    //If decimals not set use woocommerce rounding setting
+    if (!isset($decimals)) {
+        $decimals = (int) get_option('woocommerce_price_num_decimals');
+    }
+
+    return round($amount, $decimals);
+}

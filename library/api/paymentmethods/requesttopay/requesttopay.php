@@ -49,7 +49,7 @@ class BuckarooRequestToPay extends BuckarooPaymentMethod {
         $productRefund = $order->get_item_count_refunded();
         $orderFeeRefund = $order->get_item_count_refunded('fee');
 
-        $shippingCosts = round(floatval($order->get_shipping_total()) + floatval($order->get_shipping_tax()), 2);
+        $shippingCosts = roundAmount(floatval($order->get_shipping_total()) + floatval($order->get_shipping_tax()), 2);
 
         $shippingRefundedCosts = $order->get_total_shipping_refunded();
 
@@ -78,7 +78,7 @@ class BuckarooRequestToPay extends BuckarooPaymentMethod {
                 throw new Exception('Payment fee already refunded');
             }
             if (!empty($data[$item_id]['total'])) {
-                if (round($data[$item_id]['total']+$data[$item_id]['tax'],2) > $feeCost) {
+                if (roundAmount($data[$item_id]['total']+$data[$item_id]['tax'],2) > $feeCost) {
                     throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()) );
                 } elseif(round($data[$item_id]['total']+$data[$item_id]['tax']) < $feeCost) {
                     $balance = $feeCost - round($data[$item_id]['total']+$data[$item_id]['tax']);
