@@ -62,10 +62,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     protected function setProperties()
     {
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        //Don't load empty values (it fills up the debug log);
-        if (!empty($this->settings['title']) and $this->title != $this->settings['title']) {
-            $this->title              = $this->get_option('title');
-        }
+        $this->title                  = $this->get_option('title', $this->title ?? '');
         $this->currency               = get_woocommerce_currency();
         $this->description            = $this->get_option(
             'description',  
