@@ -16,7 +16,6 @@ class BuckarooSepaDirectDebit extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "sepadirectdebit";
         $this->version = '1';
-        $this->mode = BuckarooConfig::getMode('SEPADIRECTDEBIT');
     }
 
     /**
@@ -41,8 +40,9 @@ class BuckarooSepaDirectDebit extends BuckarooPaymentMethod {
 
         if ($this->usecreditmanagment) {
 
-            $this->data['services']['creditmanagement']['action'] = 'Invoice';
-            $this->data['services']['creditmanagement']['version'] = '1';
+            $this->setServiceOfType('action', 'Invoice', 'creditmanagement');
+            $this->setServiceOfType('version', '1', 'creditmanagement');
+            
             $this->data['customVars']['creditmanagement']['MaxReminderLevel'] = $customVars['MaxReminderLevel'];
             $this->data['customVars']['creditmanagement']['DateDue'] = $customVars['DateDue'];
             $this->data['customVars']['creditmanagement']['InvoiceDate'] = $customVars['InvoiceDate'];

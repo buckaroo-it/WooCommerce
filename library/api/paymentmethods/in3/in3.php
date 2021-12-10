@@ -39,7 +39,6 @@ class BuckarooIn3 extends BuckarooPaymentMethod
     {
         $this->type    = 'Capayable';
         $this->version = '1';
-        $this->mode    = BuckarooConfig::getMode($this->type);
     }
 
     /**
@@ -177,11 +176,11 @@ class BuckarooIn3 extends BuckarooPaymentMethod
      */
     public function In3Refund()
     {
-        $this->type    = 'Capayable';
-        $this->version = 1;
-        $this->mode    = BuckarooConfig::getMode($this->type);
-
-        $this->data['services'][$this->type]['action'] = 'Refund';
+        $this->setServiceTypeActionAndVersion(
+            'Capayable',
+            'Refund',
+            BuckarooPaymentMethod::VERSION_ONE
+        );
 
         return $this->RefundGlobal();
     }

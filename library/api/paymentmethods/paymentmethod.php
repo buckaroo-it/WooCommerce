@@ -9,25 +9,13 @@ require_once dirname(__FILE__) . '/responsefactory.php';
  */
 abstract class BuckarooPaymentMethod extends BuckarooAbstract
 {
-
+    const TYPE_PAY = 'pay';
+    const TYPE_CAPTURE = 'capture';
+    const TYPE_REFUND = 'refund';
+    const VERSION_ZERO = 0;
+    const VERSION_ONE = 1;
+    const VERSION_TWO = 2;
     protected $type;
-
-    /**
-     * @param mixed $type
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
     public $currency;
     public $amountDedit;
     public $amountCredit = 0;
@@ -45,8 +33,212 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     public $CreditCardDataEncrypted;
     protected $data = array();
 
-    public $CustomerCardName;
+    /**
+     * @param mixed $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+    /**
+     * Set request parameter
+     *
+     * @param string $key
+     * @param string $value
+     *
+     * @return string $value
+     */
+    public function setParameter($key, $value)
+    {
+        $this->data[$key] = $value;
+        return $value;
+    }
+    /**
+     * Set service param key and value
+     *
+     * @param string $key
+     * @param string $value
+     * @param string|null $type
+     *
+     * @return string $value
+     */
+    public function setService($key, $value)
+    {
+        return $this->setServiceOfType($key, $value);
+    }
+    /**
+     * Set service param for specific type
+     *
+     * @param string $key
+     * @param string $value
+     * @param string|null $type
+     *
+     * @return string $value
+     */
+    public function setServiceOfType($key, $value, $type = null)
+    {
+        if ($type === null) {
+            $type = $this->type;
+        }
+        
+        if (!isset($this->data['services'])) {
+            $this->data['services'] = [];
+        }
+
+        if (!isset($this->data['services'][$type])) {
+            $this->data['services'][$type] = [];
+        }
+
+        $this->data['services'][$type][$key] = $value;
+
+        return $value;
+    }
+     /**
+     * Set custom param key and value
+     *
+     * @param string|array $keyOrValues Key of the value or associative array of values
+     * @param string|null $value
+     * @param string|null $type
+     *
+     * @return string $value
+     */
+    public function setCustomVar($keyOrValues, $value = null)
+    {
+        return $this->setCustomVarOfType($keyOrValues, $value);
+    }
+
+    /**
+     * Set custom params for specific type
+     *
+     * @param string|array $key Key of the value or associative array of values
+     * @param string|null $value
+     * @param string|null $type
+     *
+     * @return string|array $value
+     */
+    public function setCustomVarOfType($keyOrValues, $value = null, $type = null)
+    {
+        if ($type === null) {
+            $type = $this->type;
+        }
+        
+        if (!isset($this->data['customVars'])) {
+            $this->data['customVars'] = [];
+        }
+
+        if ($type === false) {
+            return $this->setCustomVarWithoutType($keyOrValues, $value);
+        }
+
+        if (!isset($this->data['customVars'][$type])) {
+            $this->data['customVars'][$type] = [];
+        }
+
+        if (is_array($keyOrValues)) {
+
+            $this->data['customVars'][$type] = array_merge(
+                $this->data['customVars'][$type],
+                $keyOrValues
+            );
+            return $keyOrValues;
+
+        } else {
+            $this->data['customVars'][$type][$keyOrValues] = $value;
+        }
+        return $value;
+    }
+    /**
+     * Set custom param without type key
+     *
+     * @param string|array $keyOrValues
+     * @param string|null $value
+     *
+     * @return $value
+     */
+    public function setCustomVarWithoutType($keyOrValues, $value = null)
+    {
+        if (is_array($keyOrValues)) {
+            $this->data['customVars'] = array_merge(
+                $this->data['customVars'],
+                $keyOrValues
+            );
+            return $keyOrValues;
+        }
+        $this->data['customVars'][$keyOrValues] = $value;
+        return $value;
+    }
+    /**
+     * Set Service action and function
+     *
+     * @param string $action
+     * @param string|null $version
+     *
+     * @return void
+     */
+    protected function setServiceActionAndVersion($action, $version = null)
+    {
+        if ($version === null) {
+            $version = $this->version;
+        }
+        $this->setService('action', $action);
+        $this->setService('version', $version);
+    }
+    /**
+     * Set service type, action and version
+     *
+     * @param string $type
+     * @param string|null $action
+     * @param int|null $version
+     *
+     * @return void
+     */
+    protected function setServiceTypeActionAndVersion($type, $action = null, $version = null)
+    {
+        $this->setType($type);
+
+        if ($action === null) {
+            return;
+        }
+
+        $this->setServiceActionAndVersion($action, $version);
+    }
+    /**
+     * Set main parameters for type
+     *
+     * @param string $type pay|capture|refund
+     *
+     * @return void
+     */
+    private function setMainParametersForRequestType($type = self::TYPE_PAY)
+    {
+        $this->setParameter('currency', $this->currency);
+        $this->setParameter('amountDebit', $this->amountDedit);
+        $this->setParameter('amountCredit', $this->amountCredit);
+        $this->setParameter('invoice', $this->invoiceId);
+        $this->setParameter('order', $this->orderId);
+        $this->setParameter(
+            'description',
+            preg_replace('/\{invoicenumber\}/', $this->invoiceId, $this->description)
+        );
+        $this->setParameter('returnUrl', $this->returnUrl);
+        $this->setParameter('mode', $this->mode);
+        $this->setParameter('channel', $this->channel);
+
+        if (in_array($type, [self::TYPE_REFUND, self::TYPE_CAPTURE])) {
+            $this->setParameter('OriginalTransactionKey', $this->OriginalTransactionKey);
+        }
+        if ($type === self::TYPE_REFUND) {
+            $this->setParameter('invoice', $this->getInvoiceNumber());
+        }
+    }
     /**
      * Populate generic fields in $customVars() array
      *
@@ -56,25 +248,9 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
      */
     public function Pay()
     {
-        $this->data['services'][$this->type]['action']  = 'Pay';
-        $this->data['services'][$this->type]['version'] = $this->version;
+        $this->setServiceActionAndVersion('Pay');
         return $this->PayGlobal();
     }
-
-    /**
-     * Populate generic fields in $customVars() array
-     *
-     * @access public
-     * @param array $customeVars defaults to empty array
-     * @return callable $this->PayGlobal()
-     */
-    public function Authorize()
-    {
-        $this->data['services'][$this->type]['action']  = 'Authorize';
-        $this->data['services'][$this->type]['version'] = $this->version;
-        return $this->PayGlobal();
-    }
-
     /**
      * Populate generic fields for a refund
      *
@@ -83,97 +259,55 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
      */
     public function Refund()
     {
-        $this->data['services'][$this->type]['action']  = 'Refund';
-        $this->data['services'][$this->type]['version'] = $this->version;
+        $this->setServiceActionAndVersion('Refund');
         return $this->RefundGlobal();
     }
-
     /**
-     * Populate generic fields for a refund
+     * Send request and get response
      *
-     * @access public
-     * @return callable $this->RefundGlobal()
+     * @param string $action pay | capture | refund
+     *
+     * @return BuckarooResponse
      */
-    public function guaranteeRefund()
+    private function executeRequestOfType($type)
     {
-        $this->data['services'][$this->type]['action']  = 'CreditNote';
-        $this->data['services'][$this->type]['version'] = $this->version;
-        $this->data['OriginalInvoiceNumber']            = $this->OriginalInvoiceNumber;
-        $this->data['AmountVat']                        = $this->AmountVat;
-        return $this->RefundGlobal();
+        $this->setMainParametersForRequestType($type);
+        return BuckarooResponseFactory::getResponse(
+            (new BuckarooSoap($this->data))->transactionRequest()
+        );
     }
-
     /**
      * Build soap request for payment and get response
      *
-     * @access public
+     * @access protected
      * @return callable BuckarooResponseFactory::getResponse($soap->transactionRequest())
      */
-    public function PayGlobal()
+    protected function PayGlobal()
     {
         add_action('woocommerce_before_checkout_process', [$this, 'order_number_shortcode']);
-        $this->data['currency']         = $this->currency;
-        $this->data['amountDebit']      = $this->amountDedit;
-        $this->data['amountCredit']     = $this->amountCredit;
-        $this->data['invoice']          = $this->invoiceId;
-        $this->data['order']            = $this->orderId;
-        $this->data['description']      = preg_replace('/\{invoicenumber\}/', $this->invoiceId, $this->description);
-        $this->data['returnUrl']        = $this->returnUrl;
-        $this->data['mode']             = $this->mode;
-        $this->data['channel']          = $this->channel;
-        $this->data['CustomerCardName'] = $this->customercardname ?? '';
-
-        $soap = new BuckarooSoap($this->data);
-        return BuckarooResponseFactory::getResponse($soap->transactionRequest());
+        return $this->executeRequestOfType(self::TYPE_PAY);
     }
 
     /**
      * Build soap request for payment and get response
      *
-     * @access public
+     * @access protected
      * @return callable BuckarooResponseFactory::getResponse($soap->transactionRequest())
      */
-    public function CaptureGlobal()
+    protected function CaptureGlobal()
     {
-        $this->data['currency']               = $this->currency;
-        $this->data['amountDebit']            = $this->amountDedit;
-        $this->data['amountCredit']           = $this->amountCredit;
-        $this->data['invoice']                = $this->invoiceId;
-        $this->data['OriginalTransactionKey'] = $this->OriginalTransactionKey;
-        $this->data['order']                  = $this->orderId;
-        $this->data['description'] = preg_replace('/\{invoicenumber\}/', $this->invoiceId, $this->description);
-        $this->data['returnUrl']              = $this->returnUrl;
-        $this->data['mode']                   = $this->mode;
-        $this->data['channel']                = $this->channel;
-        $soap                                 = new BuckarooSoap($this->data);
-        return BuckarooResponseFactory::getResponse($soap->transactionRequest());
+        return $this->executeRequestOfType(self::TYPE_CAPTURE);
     }
 
     /**
      * Build soap request for refund and get response
      *
-     * @access public
+     * @access protected
      * @return callable BuckarooResponseFactory::getResponse($soap->transactionRequest())
      */
-    public function RefundGlobal()
+    protected function RefundGlobal()
     {
-        $this->data['currency']               = $this->currency;
-        $this->data['amountDebit']            = $this->amountDedit;
-        $this->data['amountCredit']           = $this->amountCredit;
-        $this->data['invoice']                = $this->getInvoiceNumber();
-        if (in_array($this->type, ['afterpay', 'afterpayacceptgiro', 'afterpaydigiaccept'])) {
-            if (($previous_refunds = get_post_meta($this->orderId, 'buckaroo_refund', false)) && count($previous_refunds) > 0) {
-                $this->data['invoice'] = $this->data['invoice'] . (count($previous_refunds) + 1);
-            }
-        }
-        $this->data['order']                  = $this->orderId;
-        $this->data['description']            = preg_replace('/\{invoicenumber\}/', $this->invoiceId, $this->description);
-        $this->data['OriginalTransactionKey'] = $this->OriginalTransactionKey;
-        $this->data['returnUrl']              = $this->returnUrl;
-        $this->data['mode']                   = $this->mode;
-        $this->data['channel']                = $this->channel;
-        $soap                                 = new BuckarooSoap($this->data);
-        return BuckarooResponseFactory::getResponse($soap->transactionRequest());
+        return $this->executeRequestOfType(self::TYPE_REFUND);
     }
 
     /**
@@ -390,21 +524,37 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         return $orderRefundData;
     }
 
-    public function PayInInstallments()
+    /**
+     * Get invoice number for refund
+     *
+     * @return string
+     */
+    private function getInvoiceNumber()
     {
-        $this->data['services'][$this->type]['action']  = 'PayInInstallments';
-        $this->data['services'][$this->type]['version'] = $this->version;
-        return $this->PayGlobal();
-    }
 
-    public function getInvoiceNumber()
-    {
-        $paymentMethodsList = ['sepadirectdebit'];
-        if (in_array(strtolower($this->type), $paymentMethodsList)) {
+        if (in_array(strtolower($this->type), ['sepadirectdebit'])) {
             return $this->invoiceId;
         }
 
-        return $this->invoiceId . '-R';
+        return $this->invoiceId . '-R' . $this->getInvoiceIncrement();
+    }
+
+    /**
+     * Get incremental invoice number for refund
+     *
+     * @return string
+     */
+    private function getInvoiceIncrement()
+    {
+        if (in_array($this->type, ['afterpay', 'afterpayacceptgiro', 'afterpaydigiaccept'])) {
+            if (
+                ($previous_refunds = get_post_meta($this->orderId, 'buckaroo_refund', false)) &&
+                count($previous_refunds) > 0
+            ) {
+                return count($previous_refunds) + 1;
+            }
+        }
+        return '';
     }
 
     public function order_number_shortcode()

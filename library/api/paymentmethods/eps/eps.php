@@ -6,7 +6,6 @@ class BuckarooEPS extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "eps";
         $this->version = 1;
-        $this->mode = BuckarooConfig::getMode($this->type);
     }
 
     /**
@@ -16,8 +15,6 @@ class BuckarooEPS extends BuckarooPaymentMethod {
      */
     public function Pay($customVars = array())
     {
-        $this->data['services'][$this->type]['action'] = 'Pay';
-        $this->data['services'][$this->type]['version'] = $this->version;
         return parent::Pay();
     }
 

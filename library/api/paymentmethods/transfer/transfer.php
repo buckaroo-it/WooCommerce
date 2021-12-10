@@ -9,7 +9,6 @@ class BuckarooTransfer extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "transfer";
         $this->version = 1;
-        $this->mode = BuckarooConfig::getMode($this->type);
     }
 
     public function Pay($customVars = array()) {
@@ -17,8 +16,6 @@ class BuckarooTransfer extends BuckarooPaymentMethod {
     }
     
     public function PayTransfer($customVars) {
-        $this->data['services'][$this->type]['action'] = 'Pay';
-        $this->data['services'][$this->type]['version'] = $this->version;
         
         if (isset($customVars['CustomerGender']))
             $this->data['customVars'][$this->type]['customergender'] = $customVars['CustomerGender'];    

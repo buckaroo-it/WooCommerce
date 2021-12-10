@@ -51,7 +51,6 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
     {
         $this->type    = $type;
         $this->version = '1';
-        $this->mode    = BuckarooConfig::getMode('AFTERPAY');
     }
 
     /**
@@ -223,12 +222,11 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
      */
     public function AfterPayRefund($products, $issuer)
     {
-        $this->type    = $issuer;
-        $this->version = 1;
-        $this->mode    = BuckarooConfig::getMode($this->type);
-
-        $this->data['services'][$this->type]['action']  = 'Refund';
-        $this->data['services'][$this->type]['version'] = $this->version;
+        $this->setServiceTypeActionAndVersion(
+            $issuer,
+            'Refund',
+            BuckarooPaymentMethod::VERSION_ONE
+        );
 
         $i = 1;
         foreach ($products as $p) {
@@ -258,12 +256,11 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
     public function Capture($customVars = array(), $products = array())
     {
 
-        $this->type    = $customVars['payment_issuer'];
-        $this->version = 1;
-        $this->mode    = BuckarooConfig::getMode($this->type);
-
-        $this->data['services'][$this->type]['action']  = 'Capture';
-        $this->data['services'][$this->type]['version'] = $this->version;
+        $this->setServiceTypeActionAndVersion(
+            $customVars['payment_issuer'],
+            'Capture',
+            BuckarooPaymentMethod::VERSION_ONE
+        );
 
         $i = 1;
         foreach ($products as $p) {

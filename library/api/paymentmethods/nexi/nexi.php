@@ -12,8 +12,6 @@ class BuckarooNexi extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "nexi";
         $this->version = 1;
-        $this->mode = BuckarooConfig::getMode($this->type);
-
     }
 }
 

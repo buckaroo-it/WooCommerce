@@ -50,7 +50,6 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
     public function __construct($type = 'klarna') {
         $this->type = $type;
         $this->version = '0';
-        $this->mode = BuckarooConfig::getMode('Klarna');
     }
 
     public function setPaymnetFlow($paymentFlow){
@@ -82,8 +81,7 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
      */
     public function paymentAction($products = array()) {
 
-        $this->data['services'][$this->type]['action'] = $this->getPaymnetFlow();
-        $this->data['services'][$this->type]['version'] = $this->version;
+        $this->setServiceActionAndVersion($this->getPaymnetFlow());
 
         $this->data['customVars'][$this->type]["Category"][0]["value"] = !empty($this->getBillingCategory()) ? 'B2B' : 'B2C';
         $this->data['customVars'][$this->type]["Category"][0]["group"] = 'BillingCustomer';

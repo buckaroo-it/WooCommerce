@@ -13,7 +13,6 @@ class BuckarooGiropay extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "giropay";
         $this->version = 2;
-        $this->mode = BuckarooConfig::getMode($this->type);
     }
 
     /**
@@ -22,7 +21,7 @@ class BuckarooGiropay extends BuckarooPaymentMethod {
      * @return callable parent::Pay()
      */
     public function Pay($customVars = array()) {
-        $this->data['customVars'][$this->type]['bic'] = $this->bic;
+        $this->setCustomVar('bic', $this->bic);
         return parent::Pay();
     }
 }

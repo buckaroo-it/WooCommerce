@@ -15,7 +15,6 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "ideal";
         $this->version = 2;
-        $this->mode = BuckarooConfig::getMode($this->type);
     }
 
     /**
@@ -24,7 +23,10 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
      * @return callable parent::Pay();
      */
     public function Pay($customVars = array()) {
-        $this->data['customVars'][$this->type]['issuer'] = $this->_getIssuer($this->issuer);
+        $this->setCustomVar(
+            'issuer',
+            $this->_getIssuer($this->issuer)
+        );
         return parent::Pay();
     }
 

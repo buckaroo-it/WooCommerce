@@ -12,7 +12,6 @@ class BuckarooPayPerEmail extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "payperemail";
         $this->version = 1;
-        $this->mode = BuckarooConfig::getMode($this->type);
     }
 
     /**
@@ -26,8 +25,7 @@ class BuckarooPayPerEmail extends BuckarooPaymentMethod {
 
     public function PaymentInvitation($customVars = array()) {
 
-        $this->data['services'][$this->type]['action'] = 'PaymentInvitation';
-        $this->data['services'][$this->type]['version'] = $this->version;
+        $this->setServiceTypeActionAndVersion('PaymentInvitation');
 
         if (!empty($customVars['PaymentMethodsAllowed'])) {
             $this->data['customVars'][$this->type]['PaymentMethodsAllowed'] = $customVars['PaymentMethodsAllowed'];

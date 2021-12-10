@@ -46,7 +46,6 @@ class BuckarooBillink extends BuckarooPaymentMethod
     {
         $this->type = $type;
         $this->version = '1';
-        $this->mode = BuckarooConfig::getMode($this->type);
     }
 
     /**
