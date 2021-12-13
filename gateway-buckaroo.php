@@ -631,7 +631,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      * @param string $key
      * @return boolean
      */
-    public function validate_number_field($key)
+    public function validate_number_field($key, $text)
     {
         if (in_array($key, ['extrachargeamount', 'minvalue', 'maxvalue'])) {
             //[9Yrds][2017-05-03][JW] WooCommerce 2.2 & 2.3 compatability
