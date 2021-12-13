@@ -18,18 +18,18 @@ class BuckarooTransfer extends BuckarooPaymentMethod {
     public function PayTransfer($customVars) {
         
         if (isset($customVars['CustomerGender']))
-            $this->data['customVars'][$this->type]['customergender'] = $customVars['CustomerGender'];    
+            $this->setCustomVar('customergender', $customVars['CustomerGender']);    
         if (isset($customVars['CustomerFirstName']))
-            $this->data['customVars'][$this->type]['customerFirstName'] = $customVars['CustomerFirstName'];
+            $this->setCustomVar('customerFirstName', $customVars['CustomerFirstName']);
         if (isset($customVars['CustomerLastName']))
-            $this->data['customVars'][$this->type]['customerLastName'] = $customVars['CustomerLastName'];
+            $this->setCustomVar('customerLastName', $customVars['CustomerLastName']);
         if (isset($customVars['Customeremail']))
-            $this->data['customVars'][$this->type]['customeremail'] = $customVars['Customeremail'];
+            $this->setCustomVar('customeremail', $customVars['Customeremail']);
         if (isset($customVars['DateDue']))        
-            $this->data['customVars'][$this->type]['DateDue'] = $customVars['DateDue'];
+            $this->setCustomVar('DateDue', $customVars['DateDue']);
         if (isset($customVars['CustomerCountry']))        
-            $this->data['customVars'][$this->type]['customercountry'] = $customVars['CustomerCountry'];
-        $this->data['customVars'][$this->type]['SendMail'] = $customVars['SendMail'];      
+            $this->setCustomVar('customercountry', $customVars['CustomerCountry']);
+        $this->setCustomVar('SendMail', $customVars['SendMail']);      
         
         return parent::Pay($customVars);
     }

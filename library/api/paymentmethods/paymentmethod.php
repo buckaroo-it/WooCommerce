@@ -52,7 +52,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
      * Set request parameter
      *
      * @param string $key
-     * @param string $value
+     * @param mixed $value
      *
      * @return string $value
      */
@@ -105,14 +105,15 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
      * Set custom param key and value
      *
      * @param string|array $keyOrValues Key of the value or associative array of values
-     * @param string|null $value
+     * @param mixed|null $value
+     * @param string|null $group
      * @param string|null $type
      *
      * @return string $value
      */
-    public function setCustomVar($keyOrValues, $value = null)
+    public function setCustomVar($keyOrValues, $value = null, $group = null)
     {
-        return $this->setCustomVarOfType($keyOrValues, $value);
+        return $this->setCustomVarOfType($keyOrValues, $value, $group);
     }
 
     /**
@@ -120,11 +121,12 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
      *
      * @param string|array $key Key of the value or associative array of values
      * @param string|null $value
+     * @param string|null $group
      * @param string|null $type
      *
      * @return string|array $value
      */
-    public function setCustomVarOfType($keyOrValues, $value = null, $type = null)
+    public function setCustomVarOfType($keyOrValues, $value = null, $group = null, $type = null)
     {
         if ($type === null) {
             $type = $this->type;
@@ -144,6 +146,18 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
 
         if (is_array($keyOrValues)) {
 
+            if ($group !== null) {
+                $keyOrValues = array_map(
+                    function ($value) use ($group) {
+                        return [
+                            "value"=>$value,
+                            "group"=>$group
+                        ];
+                    },
+                    $keyOrValues
+                );
+            }
+
             $this->data['customVars'][$type] = array_merge(
                 $this->data['customVars'][$type],
                 $keyOrValues
@@ -151,9 +165,63 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
             return $keyOrValues;
 
         } else {
+            if ($group !== null) {
+                $value = [
+                    "value"=>$value,
+                    "group"=>$group
+                ];
+            }
             $this->data['customVars'][$type][$keyOrValues] = $value;
         }
         return $value;
+    }
+    /**
+     * Set custom param at specific position in array
+     *
+     * @param string $key
+     * @param string $value
+     * @param integer $position
+     * @param string $group
+     * @param string $type
+     *
+     * @return void
+     */
+    public function setCustomVarAtPosition($key, $value, $position = 0, $group = null, $type = null)
+    {
+        if ($type === null) {
+            $type = $this->type;
+        }
+        
+        if (!isset($this->data['customVars'])) {
+            $this->data['customVars'] = [];
+        }
+        if (!isset($this->data['customVars'][$type])) {
+            $this->data['customVars'][$type] = [];
+        }
+        if ($group !== null) {
+            $value = [
+                "value"=>$value,
+                "group"=>$group
+            ];
+        }
+        $this->data['customVars'][$type][$key][$position] = $value;
+    }
+     /**
+     * Set custom value for position fro array of values
+     *
+     * @param array $values
+     * @param int $position
+     * @param string|null $group
+     * @param string|null $type
+     *
+     * @return void
+     */
+    public function setCustomVarsAtPosition($values, $position, $group = null, $type = null) {
+        foreach ($values as $key => $value) {
+            $this->setCustomVarAtPosition(
+                $key, $value, $position, $group, $type
+            );
+        }
     }
     /**
      * Set custom param without type key

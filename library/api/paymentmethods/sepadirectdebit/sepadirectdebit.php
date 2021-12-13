@@ -34,54 +34,59 @@ class BuckarooSepaDirectDebit extends BuckarooPaymentMethod {
      */
     public function PayDirectDebit($customVars) {
 
-        $this->data['customVars'][$this->type]['customeraccountname'] = $this->customeraccountname;
-        $this->data['customVars'][$this->type]['CustomerBIC'] = $this->CustomerBIC;
-        $this->data['customVars'][$this->type]['CustomerIBAN'] = $this->CustomerIBAN;
+        $this->setCustomVar('customeraccountname', $this->customeraccountname);
+        $this->setCustomVar('CustomerBIC', $this->CustomerBIC);
+        $this->setCustomVar('CustomerIBAN', $this->CustomerIBAN);
 
         if ($this->usecreditmanagment) {
 
             $this->setServiceOfType('action', 'Invoice', 'creditmanagement');
             $this->setServiceOfType('version', '1', 'creditmanagement');
             
-            $this->data['customVars']['creditmanagement']['MaxReminderLevel'] = $customVars['MaxReminderLevel'];
-            $this->data['customVars']['creditmanagement']['DateDue'] = $customVars['DateDue'];
-            $this->data['customVars']['creditmanagement']['InvoiceDate'] = $customVars['InvoiceDate'];
+            $credit = [
+                'MaxReminderLevel' => $customVars['MaxReminderLevel'],
+                'DateDue' => $customVars['DateDue'],
+                'InvoiceDate' => $customVars['InvoiceDate'],
+                'CustomerFirstName' => $customVars['CustomerFirstName'],
+                'CustomerLastName' => $customVars['CustomerLastName'],
+                'CustomerInitials' => $customVars['CustomerInitials'],
+                'Customergender' => $customVars['Customergender'],
+                'Customeremail' => $customVars['Customeremail'],
+                'CustomerType' => '0',
+                'AmountVat' => $customVars['AmountVat'],
+            ];
+            
+
             if (isset($customVars['CustomerCode'])) {
-                $this->data['customVars']['creditmanagement']['CustomerCode'] = $customVars['CustomerCode'];
+                $credit['CustomerCode'] = $customVars['CustomerCode'];
             }
             if (!empty($customVars['CompanyName'])) {
-                $this->data['customVars']['creditmanagement']['CompanyName'] = $customVars['CompanyName'];
+                $credit['CompanyName'] = $customVars['CompanyName'];
             }
-            $this->data['customVars']['creditmanagement']['CustomerFirstName'] = $customVars['CustomerFirstName'];
-            $this->data['customVars']['creditmanagement']['CustomerLastName'] = $customVars['CustomerLastName'];
-            $this->data['customVars']['creditmanagement']['CustomerInitials'] = $customVars['CustomerInitials'];
-            $this->data['customVars']['creditmanagement']['Customergender'] = $customVars['Customergender'];
-            $this->data['customVars']['creditmanagement']['Customeremail'] = $customVars['Customeremail'];
-
+           
             if (!empty($customVars['PaymentMethodsAllowed'])) {
-                $this->data['customVars']['creditmanagement']['PaymentMethodsAllowed'] = $customVars['PaymentMethodsAllowed'];
+                $credit['PaymentMethodsAllowed'] = $customVars['PaymentMethodsAllowed'];
             }
-
             if (isset($customVars['MobilePhoneNumber'])) {
-                $this->data['customVars']['creditmanagement']['MobilePhoneNumber'] = $customVars['MobilePhoneNumber'];
-                $this->data['customVars']['creditmanagement']['PhoneNumber'] = $customVars['MobilePhoneNumber'];
+                $credit['MobilePhoneNumber'] = $customVars['MobilePhoneNumber'];
+                $credit['PhoneNumber'] = $customVars['MobilePhoneNumber'];
             }
             if (isset($customVars['PhoneNumber'])) {
-                $this->data['customVars']['creditmanagement']['PhoneNumber'] = $customVars['PhoneNumber'];
+                $credit['PhoneNumber'] = $customVars['PhoneNumber'];
             }
             if (isset($customVars['CustomerBirthDate'])) {
-                $this->data['customVars']['creditmanagement']['CustomerBirthDate'] = $customVars['CustomerBirthDate'];
+                $credit['CustomerBirthDate'] = $customVars['CustomerBirthDate'];
             }
+            $this->setCustomVarOfType(
+                $credit, null, null, 'creditmanagement'
+            );
 
-            $this->data['customVars']['creditmanagement']['CustomerType'] = '0';
-            $this->data['customVars']['creditmanagement']['AmountVat'] = $customVars['AmountVat'];
-
-            foreach ($customVars['ADDRESS'] as $key => $adress) {
-
-                $this->data['customVars']['creditmanagement'][$key]['value'] = $adress;
-                $this->data['customVars']['creditmanagement'][$key]['group'] = 'address';
-
+            foreach ($customVars['ADDRESS'] as $key => $address) {
+                $this->setCustomVarOfType(
+                    $key, $address, 'address', 'creditmanagement'
+                );
             }
+            
         }
         return parent::Pay();
     }
