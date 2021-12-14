@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/sofortbanking/sofo
  */
 class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooSofortbanking::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_sofortueberweisung';
@@ -93,24 +94,9 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $sofortbanking        = new BuckarooSofortbanking();
-
-        if (method_exists($order, 'get_order_total')) {
-            $sofortbanking->amountDedit = $order->get_order_total();
-        } else {
-            $sofortbanking->amountDedit = $order->get_total();
-        }
-        $payment_type               = str_replace('buckaroo_', '', strtolower($this->id));
-        $sofortbanking->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $sofortbanking->currency    = $this->currency;
-        $sofortbanking->description = $this->transactiondescription;
-        $sofortbanking->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $sofortbanking->orderId     = (string) $order_id;
-        $sofortbanking->returnUrl   = $this->notify_url;
+        $order = getWCOrder($order_id);
+        /** @var BuckarooSofortbanking */
+        $sofortbanking = $this->createDebitRequest($order);
         $response = $sofortbanking->Pay();
 
         return fn_buckaroo_process_response($this, $response);

@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/emaestro/emaestro.
  */
 class WC_Gateway_Buckaroo_EMaestro extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooEMaestro::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_emaestro';
@@ -95,26 +96,9 @@ class WC_Gateway_Buckaroo_EMaestro extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $emaestro             = new BuckarooEMaestro();
-
-        if (method_exists($order, 'get_order_total')) {
-            $emaestro->amountDedit = $order->get_order_total();
-        } else {
-            $emaestro->amountDedit = $order->get_total();
-        }
-        $payment_type          = str_replace('buckaroo_', '', strtolower($this->id));
-        $emaestro->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $emaestro->currency    = $this->currency;
-        $emaestro->description = $this->transactiondescription;
-        $emaestro->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $emaestro->orderId     = (string) $order_id;
-        $emaestro->returnUrl   = $this->notify_url;
-
-
+        $order = getWCOrder($order_id);
+        /** @var BuckarooEMaestro */
+        $emaestro = $this->createDebitRequest($order);
         $response = $emaestro->Pay();
         return fn_buckaroo_process_response($this, $response);
     }

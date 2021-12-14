@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/transfer/transfer.
  */
 class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooTransfer::class;
     public $datedue;
     public $sendemail;
     public $showpayproc;
@@ -104,24 +105,9 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-
-        $order    = getWCOrder($order_id);
-        $transfer = new BuckarooTransfer();
-
-        if (method_exists($order, 'get_order_total')) {
-            $transfer->amountDedit = $order->get_order_total();
-        } else {
-            $transfer->amountDedit = $order->get_total();
-        }
-        $payment_type          = str_replace('buckaroo_', '', strtolower($this->id));
-        $transfer->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $transfer->currency    = $this->currency;
-        $transfer->description = $this->transactiondescription;
-        $transfer->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $transfer->orderId     = (string) $order_id;
+        $order = getWCOrder($order_id);
+        /** @var BuckarooTransfer */
+        $transfer = $this->createDebitRequest($order);
 
         $customVars = array();
 
@@ -139,8 +125,6 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
             $customVars['DateDue'] = date('Y-m-d', strtotime('now + 14 day'));
         }
         $customVars['CustomerCountry'] = getWCOrderDetails($order_id, "billing_country");
-
-        $transfer->returnUrl = $this->notify_url;
 
         $response = $transfer->PayTransfer($customVars);
         return fn_buckaroo_process_response($this, $response);

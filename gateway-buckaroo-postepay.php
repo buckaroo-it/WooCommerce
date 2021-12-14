@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/postepay/postepay.
  */
 class WC_Gateway_Buckaroo_PostePay extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooPostePay::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_postepay';
@@ -95,25 +96,9 @@ class WC_Gateway_Buckaroo_PostePay extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $postepay                 = new BuckarooPostePay();
-
-        if (method_exists($order, 'get_order_total')) {
-            $postepay->amountDedit = $order->get_order_total();
-        } else {
-            $postepay->amountDedit = $order->get_total();
-        }
-        $payment_type      = str_replace('buckaroo_', '', strtolower($this->id));
-        $postepay->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $postepay->currency    = $this->currency;
-        $postepay->description = $this->transactiondescription;
-        $postepay->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $postepay->orderId     = (string) $order_id;
-        $postepay->returnUrl   = $this->notify_url;
-        
+        $order = getWCOrder($order_id);
+        /** @var BuckarooPostePay */
+        $postepay = $this->createDebitRequest($order);
         $response = $postepay->Pay();
         return fn_buckaroo_process_response($this, $response);
     }

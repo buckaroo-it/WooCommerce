@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/buckaroopaypal/buc
  */
 class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooPayPal::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_paypal';
@@ -91,24 +92,10 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
+        $order = getWCOrder($order_id);
+        /** @var BuckarooPayPal */
+        $paypal = $this->createDebitRequest($order);
 
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $paypal               = new BuckarooPayPal();
-        if (method_exists($order, 'get_order_total')) {
-            $paypal->amountDedit = $order->get_order_total();
-        } else {
-            $paypal->amountDedit = $order->get_total();
-        }
-        $payment_type        = str_replace('buckaroo_', '', strtolower($this->id));
-        $paypal->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $paypal->currency    = $this->currency;
-        $paypal->description = $this->transactiondescription;
-
-        $paypal->invoiceId              = getUniqInvoiceId($order->get_order_number());
-        $paypal->orderId                = (string) $order_id;
-        $paypal->returnUrl              = $this->notify_url;
         $customVars                     = array();
         $customVars['CustomerLastName'] = getWCOrderDetails($order_id, 'billing_last_name');
 

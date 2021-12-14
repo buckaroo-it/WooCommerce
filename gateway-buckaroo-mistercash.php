@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/mistercash/misterc
  */
 class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooMisterCash::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_bancontactmrcash';
@@ -92,25 +93,9 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $mistercash           = new BuckarooMisterCash();
-
-        if (method_exists($order, 'get_order_total')) {
-            $mistercash->amountDedit = $order->get_order_total();
-        } else {
-            $mistercash->amountDedit = $order->get_total();
-        }
-        $payment_type            = str_replace('buckaroo_', '', strtolower($this->id));
-        $mistercash->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $mistercash->currency    = $this->currency;
-        $mistercash->description = $this->transactiondescription;
-        $mistercash->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $mistercash->orderId     = (string) $order_id;
-        $mistercash->returnUrl   = $this->notify_url;
-        
+        $order = getWCOrder($order_id);
+        /** @var BuckarooMisterCash */
+        $mistercash = $this->createDebitRequest($order);
         $response = $mistercash->Pay();
         return fn_buckaroo_process_response($this, $response);
     }

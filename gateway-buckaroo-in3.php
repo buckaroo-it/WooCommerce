@@ -8,6 +8,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/in3/in3.php';
  */
 class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooIn3::class;
     public $type;
     public $vattype;
     public $country;
@@ -122,27 +123,11 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        // Save this meta that is used later for the Capture call
-        update_post_meta($order_id, '_wc_order_selected_payment_method', 'In3');
-        update_post_meta($order_id, '_wc_order_payment_issuer', $this->type);
+        $this->setOrderCapture($order_id, 'In3');
 
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = new WC_Order($order_id);
-        $in3                  = new BuckarooIn3($this->type);
-
-        if (method_exists($order, 'get_order_total')) {
-            $in3->amountDedit = $order->get_order_total();
-        } else {
-            $in3->amountDedit = $order->get_total();
-        }
-        $payment_type      = str_replace('buckaroo_', '', strtolower($this->id));
-        $in3->channel      = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $in3->currency     = $this->currency;
-        $in3->description  = 'Order #' . $order_id;
-        $in3->orderId      = $order_id;
-        $in3->invoiceId    = getUniqInvoiceId((string) $order->get_order_number(), $this->mode);
+        $order = getWCOrder($order_id);
+        /** @var BuckarooIn3 */
+        $in3 = $this->createDebitRequest($order);
         $in3->CustomerType = $_POST["buckaroo-in3-orderas"];
 
         if (strtolower($in3->CustomerType) != 'debtor') {

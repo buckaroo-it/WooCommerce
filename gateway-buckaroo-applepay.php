@@ -8,6 +8,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/applepay/applepay.
  */
 class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooApplepay::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_applepay';
@@ -129,26 +130,10 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
+        $order = getWCOrder($order_id);
+        /** @var BuckarooApplepay */
+        $applepay = $this->createDebitRequest($order);
 
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $applepay             = new BuckarooApplepay();
-
-        if (method_exists($order, 'get_order_total')) {
-            $applepay->amountDedit = $order->get_order_total();
-        } else {
-            $applepay->amountDedit = $order->get_total();
-        }
-
-        $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
-
-        $applepay->channel          = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $applepay->currency         = $this->currency;
-        $applepay->description      = $this->transactiondescription;
-        $applepay->invoiceId        = $order->get_order_number();
-        $applepay->orderId          = $order_id;
-        $applepay->returnUrl        = $this->notify_url;
         $applepay->CustomerCardName = $this->CustomerCardName;
 
         $customVars                     = array();

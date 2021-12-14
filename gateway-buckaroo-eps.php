@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/eps/eps.php';
  */
 class WC_Gateway_Buckaroo_EPS extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooEPS::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_eps';
@@ -91,24 +92,9 @@ class WC_Gateway_Buckaroo_EPS extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $eps                  = new BuckarooEPS();
-        if (method_exists($order, 'get_order_total')) {
-            $eps->amountDedit = $order->get_order_total();
-        } else {
-            $eps->amountDedit = $order->get_total();
-        }
-        $payment_type     = str_replace('buckaroo_', '', strtolower($this->id));
-        $eps->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $eps->currency    = $this->currency;
-        $eps->description = $this->transactiondescription;
-
-        $eps->invoiceId = getUniqInvoiceId($order->get_order_number());
-        $eps->orderId   = (string) $order_id;
-        $eps->returnUrl = $this->notify_url;
+        $order = getWCOrder($order_id);
+        /** @var BuckarooEPS */
+        $eps = $this->createDebitRequest($order);
         $customVars     = array();
 
         

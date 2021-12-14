@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/p24/p24.php';
  */
 class WC_Gateway_Buckaroo_P24 extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooP24::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_przelewy24';
@@ -94,25 +95,9 @@ class WC_Gateway_Buckaroo_P24 extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $p24                  = new BuckarooP24();
-
-        if (method_exists($order, 'get_order_total')) {
-            $p24->amountDedit = $order->get_order_total();
-        } else {
-            $p24->amountDedit = $order->get_total();
-        }
-        $payment_type     = str_replace('buckaroo_', '', strtolower($this->id));
-        $p24->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $p24->currency    = $this->currency;
-        $p24->description = $this->transactiondescription;
-        $p24->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $p24->orderId     = (string) $order_id;
-        $p24->returnUrl   = $this->notify_url;
-
+        $order = getWCOrder($order_id);
+        /** @var BuckarooP24 */
+        $p24 = $this->createDebitRequest($order);
         $get_shipping_first_name         = getWCOrderDetails($order_id, 'billing_first_name');
         $get_shipping_last_name          = getWCOrderDetails($order_id, 'billing_last_name');
         $get_shipping_email              = getWCOrderDetails($order_id, 'billing_email');

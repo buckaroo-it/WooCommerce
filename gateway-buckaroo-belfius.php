@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/belfius/belfius.ph
  */
 class WC_Gateway_Buckaroo_Belfius extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooBelfius::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_belfius';
@@ -91,24 +92,9 @@ class WC_Gateway_Buckaroo_Belfius extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $belfius              = new BuckarooBelfius();
-
-        if (method_exists($order, 'get_order_total')) {
-            $belfius->amountDedit = $order->get_order_total();
-        } else {
-            $belfius->amountDedit = $order->get_total();
-        }
-        $payment_type         = str_replace('buckaroo_', '', strtolower($this->id));
-        $belfius->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $belfius->currency    = $this->currency;
-        $belfius->description = $this->transactiondescription;
-        $belfius->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $belfius->orderId     = (string) $order_id;
-        $belfius->returnUrl   = $this->notify_url;
+        $order = getWCOrder($order_id);
+        /** @var BuckarooBelfius */
+        $belfius = $this->createDebitRequest($order);
 
 
         $response = $belfius->Pay();
