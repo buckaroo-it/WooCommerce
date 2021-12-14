@@ -7,11 +7,6 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/sepadirectdebit/se
  */
 class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
 {
-    const PAYMENT_CLASS = BuckarooSepaDirectDebit::class;
-    public $usecreditmanagment;
-    public $datedue;
-    public $maxreminderlevel;
-    public $paymentmethodssdd;
     public function __construct()
     {
         $this->id                     = 'buckaroo_sepadirectdebit';
@@ -23,19 +18,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
         parent::__construct();
         $this->addRefundSupport();
     }
-    /**
-     * @inheritDoc
-     * 
-     */
-    protected function setProperties()
-    {
-        parent::setProperties();
-        $this->usecreditmanagment = $this->get_option('usecreditmanagment');
-        $this->invoicedelay       = $this->get_option('invoicedelay');
-        $this->datedue           = $this->get_option('datedue');
-        $this->maxreminderlevel  = $this->get_option('maxreminderlevel');
-        $this->paymentmethodssdd = $this->get_option('paymentmethodssdd', '');
-    }
+   
     /**
      * Can the order be refunded
      * @param object $order WC_Order
@@ -84,12 +67,6 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
         if (!BuckarooSepaDirectDebit::isIBAN($_POST['buckaroo-sepadirectdebit-iban'])) {
             wc_add_notice(__("Wrong IBAN number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
-        if ($this->usecreditmanagment == 'TRUE') {
-            $birthdate = $_POST['buckaroo-sepadirectdebit-birthdate'];
-            if (!$this->validateDate($birthdate, 'Y-m-d')) {
-                wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-        }
         if (version_compare(WC()->version, '3.6', '<')) {
             resetOrder();
         }
@@ -113,7 +90,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
         /** @var BuckarooSepaDirectDebit */
         $sepadirectdebit = $this->createDebitRequest($order);
 
-        if (!BuckarooSepaDirectDebit::isIBAN($_POST['buckaroo-sepadirectdebit-iban'])) {
+        if (!$sepadirectdebit->isIBAN($_POST['buckaroo-sepadirectdebit-iban'])) {
             wc_add_notice(__("Wrong IBAN number", 'wc-buckaroo-bpe-gateway'), 'error');
             return;
         }
@@ -122,70 +99,9 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
         $sepadirectdebit->CustomerBIC         = $_POST['buckaroo-sepadirectdebit-bic'];
         $sepadirectdebit->CustomerIBAN        = $_POST['buckaroo-sepadirectdebit-iban'];
 
-        $customVars = array();
-        if ($this->usecreditmanagment == 'TRUE') {
-            $birthdate = $_POST['buckaroo-sepadirectdebit-birthdate'];
-            if (!$this->validateDate($birthdate, 'Y-m-d')) {
-                wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
-                return;
-            }
-            $sepadirectdebit->usecreditmanagment = 1;
-            $customVars['MaxReminderLevel']      = $this->maxreminderlevel;
-
-            $customVars['CustomerCode'] = $order->customer_user;
-
-            $get_billing_company             = getWCOrderDetails($order_id, 'billing_company');
-            $get_billing_first_name          = getWCOrderDetails($order_id, 'billing_first_name');
-            $get_billing_last_name           = getWCOrderDetails($order_id, 'billing_last_name');
-            $customVars['CompanyName']       = !empty($get_billing_company) ? $get_billing_company : '';
-            $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-            $customVars['CustomerLastName']  = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-            $customVars['CustomerInitials']  = $this->getInitials($get_billing_first_name);
-            $customVars['Customergender']    = $_POST['buckaroo-sepadirectdebit-gender'];
-            $customVars['CustomerBirthDate'] = date('Y-m-d', strtotime($birthdate));
-
-            $get_billing_email           = getWCOrderDetails($order_id, 'billing_email');
-            $customVars['Customeremail'] = !empty($get_billing_email) ? $get_billing_email : '';
-            $get_billing_phone           = getWCOrderDetails($order_id, 'billing_phone');
-            $number                      = $this->cleanup_phone($get_billing_phone);
-
-            if ($number['type'] == 'mobile') {
-                $customVars['MobilePhoneNumber'] = $number['phone'];
-            } else {
-                $customVars['PhoneNumber'] = $number['phone'];
-            }
-            $customVars['InvoiceDate'] = date('Y-m-d', strtotime('now + ' . (int) $this->invoicedelay . ' day'));
-            $customVars['DateDue']     = date('Y-m-d', strtotime($customVars['InvoiceDate'] . ' + ' . (int) $this->datedue . ' day'));
-
-            $get_billing_address_1 = getWCOrderDetails($order_id, 'billing_address_1');
-            $get_billing_address_2 = getWCOrderDetails($order_id, 'billing_address_2');
-            $address_components    = fn_buckaroo_get_address_components($get_billing_address_1 . " " . $get_billing_address_2);
-
-            $customVars['ADDRESS']['ZipCode'] = getWCOrderDetails($order_id, 'billing_postcode');
-            $customVars['ADDRESS']['City']    = getWCOrderDetails($order_id, 'billing_city');
-            if (!empty($address_components['street'])) {
-                $customVars['ADDRESS']['Street'] = $address_components['street'];
-            }
-
-            if (!empty($address_components['house_number'])) {
-                $customVars['ADDRESS']['HouseNumber'] = $address_components['house_number'];
-            }
-
-            if (!empty($address_components['number_addition'])) {
-                $customVars['ADDRESS']['HouseNumberSuffix'] = $address_components['number_addition'];
-            }
-
-            $customVars['ADDRESS']['Country'] = getWCOrderDetails($order_id, 'billing_country');
-            $customVars['AmountVat']          = (WooV3Plus()) ? $order->get_total_tax() : $order->order_tax;
-            if (!empty($this->paymentmethodssdd)) {
-                $customVars['PaymentMethodsAllowed'] = implode(",", $this->paymentmethodssdd);
-            }
-
-        }
-       
     
         $sepadirectdebit->returnUrl = $this->notify_url;
-        $response                   = $sepadirectdebit->PayDirectDebit($customVars);
+        $response                   = $sepadirectdebit->PayDirectDebit();
         return fn_buckaroo_process_response($this, $response, $this->mode);
     }
 
@@ -276,68 +192,6 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
             'type'        => 'file',
             'description' => __(''),
             'default'     => '');
-
-        $this->form_fields['usecreditmanagment'] = array(
-            'title'       => __('Use credit managment', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('Buckaroo sends payment reminders to the customer. (Contact Buckaroo before activating credit management. By default this is excluded in the contract.)', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
-            'default'     => 'FALSE');
-        $this->form_fields['invoicedelay'] = array(
-            'title'             => __('Invoice delay (in days)', 'wc-buckaroo-bpe-gateway'),
-            'type'              => 'number',
-            'custom_attributes' => ["step" => "1"],
-            'description'       => __('Specify the amount of days before Buckaroo invoices the order and sends out the payment mail.', 'wc-buckaroo-bpe-gateway'),
-            'default'           => '3');
-        $this->form_fields['datedue'] = array(
-            'title'       => __('Due date (in days)', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'text',
-            'description' => __('Specify the number of days the customer has to complete their payment before the first reminder e-mail will be sent by Buckaroo.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '14');
-        $this->form_fields['maxreminderlevel'] = array(
-            'title'       => __('Max reminder level', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('Select the maximum reminder level buckaroo will use.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('4' => '4', '3' => '3', '2' => '2', '1' => '1'),
-            'default'     => '4');
-        $this->form_fields['paymentmethodssdd'] = array(
-            'title'       => __('Allowed payment methods', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'multiselect',
-            'css'         => 'height: 650px;',
-            'description' => __('Select allowed payment methods for SEPA Direct Debit. (Ctrl+Click select multiple)', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array(
-                'ideal'                      => 'iDEAL',
-                'transfer'                   => 'Overboeking (SEPA Credit Transfer)',
-                'mastercard'                 => 'Mastercard',
-                'visa'                       => 'Visa',
-                'maestro'                    => 'eMaestro',
-                'giropay'                    => 'Giropay',
-                'paypal'                     => 'Paypal',
-                'bancontactmrcash'           => 'Mr. Cash/Bancontact',
-                'sepadirectdebit'            => 'Machtiging (SEPA Direct Debit)',
-                'sofortueberweisung'         => 'Sofortbanking',
-                'belfius'                    => 'Belfius',
-                'empayment'                  => 'èM! Payment',
-                'babygiftcard'               => 'Baby Giftcard',
-                'babyparkgiftcard'           => 'Babypark Giftcard',
-                'beautywellness'             => 'Beauty Wellness',
-                'boekenbon'                  => 'Boekenbon',
-                'boekenvoordeel'             => 'Boekenvoordeel',
-                'designshopsgiftcard'        => 'Designshops Giftcard',
-                'fijncadeau'                 => 'Fijn Cadeau',
-                'koffiecadeau'               => 'Koffie Cadeau',
-                'kokenzo'                    => 'Koken En Zo',
-                'kookcadeau'                 => 'Kook Cadeau',
-                'nationaleentertainmentcard' => 'Nationale Entertainment Card',
-                'naturesgift'                => 'Natures Gift',
-                'podiumcadeaukaart'          => 'Podium Cadeaukaart',
-                'shoesaccessories'           => 'Shoes Accessories',
-                'webshopgiftcard'            => 'Webshop Giftcard',
-                'wijncadeau'                 => 'Wijn Cadeau',
-                'wonenzo'                    => 'Wonen En Zo',
-                'yourgift'                   => 'Your Gift',
-                'fashioncheque'              => 'Fashioncheque'),
-        );
       
     }
 }
