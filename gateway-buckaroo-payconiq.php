@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/payconiq/payconiq.
  */
 class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooPayconiq::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_payconiq';
@@ -93,25 +94,9 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $payconiq             = new BuckarooPayconiq();
-
-        if (method_exists($order, 'get_order_total')) {
-            $payconiq->amountDedit = $order->get_order_total();
-        } else {
-            $payconiq->amountDedit = $order->get_total();
-        }
-        $payment_type          = str_replace('buckaroo_', '', strtolower($this->id));
-        $payconiq->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $payconiq->currency    = $this->currency;
-        $payconiq->description = $this->transactiondescription;
-        $payconiq->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $payconiq->orderId     = (string) $order_id;
-        $payconiq->returnUrl   = $this->notify_url;
-        
+        $order = getWCOrder($order_id);
+        /** @var BuckarooPayconiq */
+        $payconiq = $this->createDebitRequest($order);
         $response = $payconiq->Pay();
         return fn_buckaroo_process_response($this, $response);
     }
