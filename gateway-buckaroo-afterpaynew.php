@@ -8,6 +8,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/afterpaynew/afterp
  */
 class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooAfterPayNew::class;
     public $type;
     public $b2b;
     public $vattype;
@@ -578,27 +579,14 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        // Save this meta that is used later for the Capture call
-        update_post_meta($order_id, '_wc_order_selected_payment_method', 'Afterpaynew');
-        update_post_meta($order_id, '_wc_order_payment_issuer', $this->type);
-
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = new WC_Order($order_id);
-        $afterpay             = new BuckarooAfterPayNew($this->type);
-
-        if (method_exists($order, 'get_order_total')) {
-            $afterpay->amountDedit = $order->get_order_total();
-        } else {
-            $afterpay->amountDedit = $order->get_total();
-        }
-        $payment_type          = str_replace('buckaroo_', '', strtolower($this->id));
-        $afterpay->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $afterpay->currency    = $this->currency;
-        $afterpay->description = $this->transactiondescription;
-        $afterpay->invoiceId   = getUniqInvoiceId(preg_replace('/\./', '-', $order->get_order_number()), $this->mode);
-        $afterpay->orderId     = (string) $order_id;
+        $this->setOrderCapture($order_id, 'Afterpaynew');
+        $order = getWCOrder($order_id);
+        /** @var BuckarooAfterPayNew */
+        $afterpay = $this->createDebitRequest($order);
+        $afterpay->setType($this->type);
+        $afterpay->invoiceId = (string)getUniqInvoiceId(
+            preg_replace('/\./', '-', $order->get_order_number())
+        );
 
         $afterpay->BillingGender = $_POST['buckaroo-afterpaynew-gender'];
 

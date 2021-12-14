@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/giftcard/giftcard.
  */
 class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooGiftCard::class;
     public $giftcards;
 
     public function __construct()
@@ -103,24 +104,10 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
+        $order = getWCOrder($order_id);
+        /** @var BuckarooGiftCard */
+        $giftcard = $this->createDebitRequest($order);
 
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $giftcard             = new BuckarooGiftCard();
-
-        if (method_exists($order, 'get_order_total')) {
-            $giftcard->amountDedit = $order->get_order_total();
-        } else {
-            $giftcard->amountDedit = $order->get_total();
-        }
-        $payment_type          = str_replace('buckaroo_', '', strtolower($this->id));
-        $giftcard->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $giftcard->currency    = $this->currency;
-        $giftcard->description = $this->transactiondescription;
-        $giftcard->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $giftcard->orderId     = (string) $order_id;
-        $giftcard->returnUrl   = $this->notify_url;
         $customVars            = array();
 
         $customVars['servicesSelectableByClient'] = $this->giftcards;

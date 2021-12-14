@@ -104,38 +104,23 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-
         if (empty($_POST['buckaroo-sepadirectdebit-accountname'])
             || empty($_POST['buckaroo-sepadirectdebit-iban'])) {
             wc_add_notice(__("Please fill in all required fields", 'wc-buckaroo-bpe-gateway'), 'error');
             return;
         };
+        $order = getWCOrder($order_id);
+        /** @var BuckarooSepaDirectDebit */
+        $sepadirectdebit = $this->createDebitRequest($order);
 
-        $sepadirectdebit = new BuckarooSepaDirectDebit();
         if (!$sepadirectdebit->isIBAN($_POST['buckaroo-sepadirectdebit-iban'])) {
             wc_add_notice(__("Wrong IBAN number", 'wc-buckaroo-bpe-gateway'), 'error');
             return;
         }
 
-        $order = getWCOrder($order_id);
-
-        if (method_exists($order, 'get_order_total')) {
-            $sepadirectdebit->amountDedit = $order->get_order_total();
-        } else {
-            $sepadirectdebit->amountDedit = $order->get_total();
-        }
-        $payment_type                         = str_replace('buckaroo_', '', strtolower($this->id));
-        $sepadirectdebit->channel             = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $sepadirectdebit->currency            = $this->currency;
-        $sepadirectdebit->description         = $this->transactiondescription;
         $sepadirectdebit->customeraccountname = $_POST['buckaroo-sepadirectdebit-accountname'];
         $sepadirectdebit->CustomerBIC         = $_POST['buckaroo-sepadirectdebit-bic'];
         $sepadirectdebit->CustomerIBAN        = $_POST['buckaroo-sepadirectdebit-iban'];
-        $sepadirectdebit->invoiceId           = getUniqInvoiceId((string) $order->get_order_number(), $this->mode);
-        $sepadirectdebit->orderId             = (string) $order_id;
 
     
         $sepadirectdebit->returnUrl = $this->notify_url;

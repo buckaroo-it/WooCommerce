@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/payperemail/payper
  */
 class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooPayPerEmail::class;
     public $paymentmethodppe;
     public function __construct()
     {
@@ -115,24 +116,10 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id, $paylink = false)
     {
-        $woocommerce = getWooCommerceObject();
+        $order = getWCOrder($order_id);
+        /** @var BuckarooPayPerEmail */
+        $payperemail = $this->createDebitRequest($order);
 
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $payperemail          = new BuckarooPayPerEmail();
-
-        if (method_exists($order, 'get_order_total')) {
-            $payperemail->amountDedit = $order->get_order_total();
-        } else {
-            $payperemail->amountDedit = $order->get_total();
-        }
-        $payment_type                 = str_replace('buckaroo_', '', strtolower($this->id));
-        $payperemail->channel         = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $payperemail->currency        = $this->currency;
-        $payperemail->description     = $this->transactiondescription;
-        $payperemail->invoiceId       = (string) getUniqInvoiceId($order->get_order_number());
-        $payperemail->orderId         = (string) $order_id;
-        $payperemail->returnUrl       = $this->notify_url;
         $customVars                   = array();
         $customVars['CustomerGender'] = 0;
         $get_billing_first_name       = getWCOrderDetails($order_id, 'billing_first_name');
