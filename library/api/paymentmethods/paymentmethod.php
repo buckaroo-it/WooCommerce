@@ -28,7 +28,6 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     public $returnUrl;
     public $mode;
     public $version;
-    public $usecreditmanagment = 0;
     public $sellerprotection   = 0;
     public $CreditCardDataEncrypted;
     protected $data = array();

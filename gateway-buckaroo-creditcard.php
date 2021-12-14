@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/creditcard/creditc
  */
 class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooCreditCard::class;
     public $creditCardProvider = [];
     public function __construct()
     {
@@ -244,27 +245,17 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce            = getWooCommerceObject();
+        $this->setOrderCapture(
+            $order_id,
+            'Creditcard',
+            $_POST["buckaroo-creditcard-issuer"]
+        );
+        $order = getWCOrder($order_id);
+        /** @var BuckarooCreditCard */
+        $creditcard = $this->createDebitRequest($order);
+
         $creditCardMethod       = isset($this->creditcardmethod) ? $this->creditcardmethod : 'redirect';
         $creditCardPayAuthorize = isset($this->creditcardpayauthorize) ? $this->creditcardpayauthorize : 'pay';
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $creditcard           = new BuckarooCreditCard();
-
-        if (method_exists($order, 'get_order_total')) {
-            $creditcard->amountDedit = $order->get_order_total();
-        } else {
-            $creditcard->amountDedit = $order->get_total();
-        }
-
-        $payment_type            = str_replace('buckaroo_', '', strtolower($this->id));
-        $creditcard->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $creditcard->currency    = $this->currency;
-        $creditcard->description = $this->transactiondescription;
-        $creditcard->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $creditcard->orderId     = (string) $order_id;
-        $creditcard->returnUrl   = $this->notify_url;
 
         $customVars = array();
 
@@ -279,9 +270,6 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         } else {
             $customVars['CreditCardIssuer'] = null;
         }
-        // Save this meta that is used later for the Capture call
-        update_post_meta($order->get_id(), '_wc_order_payment_issuer', $_POST["buckaroo-creditcard-issuer"]);
-        update_post_meta($order->get_id(), '_wc_order_selected_payment_method', 'Creditcard');
 
         if ($creditCardMethod == 'encrypt' && $this->isSecure()) {
             // In this case we only send the encrypted card data.
@@ -458,8 +446,10 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             'type'        => 'select',
             'description' => __('Redirect user to Buckaroo or enter creditcard information inline in the checkout. SSL is required to enable inline creditcard information', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('redirect' => 'Redirect', 'encrypt' => 'Inline'),
-            'default'     => 'encrypt');
-
+            'default'     => 'encrypt',
+            'desc_tip'    =>__('Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.', 'wc-buckaroo-bpe-gateway'),
+        
+        );
         $this->form_fields['creditcardpayauthorize'] = array(
             'title'       => __('Credit card Pay or Capture', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',

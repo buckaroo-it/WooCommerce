@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/giropay/giropay.ph
  */
 class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooGiropay::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_giropay';
@@ -94,29 +95,15 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
         if (empty($_POST['buckaroo-giropay-bancaccount'])) {
             wc_add_notice(__('Please provide correct BIC', 'wc-buckaroo-bpe-gateway'), 'error');
             return;
         }
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $giropay              = new BuckarooGiropay();
-        if (method_exists($order, 'get_order_total')) {
-            $giropay->amountDedit = $order->get_order_total();
-        } else {
-            $giropay->amountDedit = $order->get_total();
-        }
-        $payment_type         = str_replace('buckaroo_', '', strtolower($this->id));
-        $giropay->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $giropay->currency    = $this->currency;
-        $giropay->description = $this->transactiondescription;
-        $giropay->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $giropay->orderId     = (string) $order_id;
-        $giropay->bic         = $_POST['buckaroo-giropay-bancaccount'];
-        $giropay->returnUrl   = $this->notify_url;
 
+        $order = getWCOrder($order_id);
+        /** @var BuckarooGiropay */
+        $giropay = $this->createDebitRequest($order);
+        $giropay->bic         = $_POST['buckaroo-giropay-bancaccount'];
         $response = $giropay->Pay();
         return fn_buckaroo_process_response($this, $response);
     }

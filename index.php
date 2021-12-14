@@ -354,7 +354,13 @@ function my_custom_checkout_field_display_admin_order_meta($order){
 
 }
 
-function orderCapture(){
+/**
+ * Ajax hook for capture of orders 
+ *
+ * @return void
+ */
+function orderCapture()
+{
 
     $paymentMethod = get_post_meta( $_POST['order_id'], '_wc_order_selected_payment_method', true);
 
@@ -374,8 +380,9 @@ function orderCapture(){
     }
    
     if (isset($gateway)) {
-        $response = $gateway->process_capture($_POST);
-        echo json_encode($response);
+        echo json_encode(
+            $gateway->process_capture($_POST)
+        );
     }
     exit;
 }
