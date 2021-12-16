@@ -20,8 +20,6 @@ jQuery(document).ready(function() {
                 var selectCertificateTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_selectcertificate").closest('tr');
                 var cultureTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_culture").closest('tr');
                 var transactionDescriptionTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_transactiondescription").closest('tr');
-                var useNotificationTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_usenotification").closest('tr');
-                var notificationDelayTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_notificationdelay").closest('tr');
                 if (checked == 1) {
                     merchantKeyTR.style.display = "none";
                     secretKeyTR.style.display = "none";
@@ -31,8 +29,6 @@ jQuery(document).ready(function() {
                     selectCertificateTR.style.display = "none";
                     cultureTR.style.display = "none";
                     transactionDescriptionTR.style.display = "none";
-                    useNotificationTR.style.display = "none";
-                    notificationDelayTR.style.display = "none";
                 } else {
                     merchantKeyTR.style.display = "table-row";
                     secretKeyTR.style.display = "table-row";
@@ -42,8 +38,6 @@ jQuery(document).ready(function() {
                     selectCertificateTR.style.display = "table-row";
                     cultureTR.style.display = "table-row";
                     transactionDescriptionTR.style.display = "table-row";
-                    useNotificationTR.style.display = "table-row";
-                    notificationDelayTR.style.display = "table-row";
                 }
                 return checked;
             }

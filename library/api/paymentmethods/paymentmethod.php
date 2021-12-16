@@ -40,8 +40,6 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     public $returnUrl;
     public $mode;
     public $version;
-    public $usecreditmanagment = 0;
-    public $usenotification    = 0;
     public $sellerprotection   = 0;
     public $CreditCardDataEncrypted;
     protected $data = array();
@@ -55,25 +53,10 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
      * @param array $customeVars defaults to empty array
      * @return callable $this->PayGlobal()
      */
-    public function Pay($customVars = array())
+    public function Pay()
     {
         $this->data['services'][$this->type]['action']  = 'Pay';
         $this->data['services'][$this->type]['version'] = $this->version;
-
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action']                = 'ExtraInfo';
-            $this->data['services']['notification']['version']               = '1';
-            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
-
         return $this->PayGlobal();
     }
 
@@ -84,25 +67,10 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
      * @param array $customeVars defaults to empty array
      * @return callable $this->PayGlobal()
      */
-    public function Authorize($customVars = array())
+    public function Authorize()
     {
         $this->data['services'][$this->type]['action']  = 'Authorize';
         $this->data['services'][$this->type]['version'] = $this->version;
-
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action']                = 'ExtraInfo';
-            $this->data['services']['notification']['version']               = '1';
-            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
-
         return $this->PayGlobal();
     }
 
@@ -421,25 +389,10 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         return $orderRefundData;
     }
 
-    public function PayInInstallments($customVars = array())
+    public function PayInInstallments()
     {
         $this->data['services'][$this->type]['action']  = 'PayInInstallments';
         $this->data['services'][$this->type]['version'] = $this->version;
-
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action']                = 'ExtraInfo';
-            $this->data['services']['notification']['version']               = '1';
-            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
-
         return $this->PayGlobal();
     }
 

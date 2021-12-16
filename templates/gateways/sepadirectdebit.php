@@ -20,15 +20,6 @@ $customerName.= " ".$this->geCheckoutField('billing_last_name');
 ?>
 
 <fieldset>
-    <?php if ($this->usecreditmanagment == 'TRUE') : 
-        $this->getPaymentTemplate('partial_gender_field');
-        $this->getPaymentTemplate('partial_birth_field');    
-    endif;?>
-    
-    <?php if ($this->usenotification == 'TRUE' && $this->usecreditmanagment == 'FALSE') : 
-        $this->getPaymentTemplate('partial_gender_field');
-    endif;?>
-
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-sepadirectdebit-accountname">
             <?php echo _e('Bank account holder:', 'wc-buckaroo-bpe-gateway') ?>

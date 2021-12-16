@@ -131,7 +131,7 @@ $customerName.= " ".$this->geCheckoutField('billing_last_name');
 
         <p class="form-row form-row-wide validate-required"></p>
         <p class="required" style="float:right;">*
-            <?php echo _e('Obligatory fields', 'wc-buckaroo-bpe-gateway') ?>
+            <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?>
         </p>
 
         <input

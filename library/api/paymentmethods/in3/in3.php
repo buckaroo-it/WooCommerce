@@ -161,20 +161,6 @@ class BuckarooIn3 extends BuckarooPaymentMethod
         $this->data['customVars'][$this->type]["Price"][$i]["value"]    = (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0');
         $this->data['customVars'][$this->type]["Price"][$i]["group"]    = 'SubtotalLine';
 
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action']                = 'ExtraInfo';
-            $this->data['services']['notification']['version']               = '1';
-            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
-
         $this->data['customVars'][$this->type]["IsInThreeGuarantee"]["value"] = $this->in3Version;
         $this->data['customVars'][$this->type]["IsInThreeGuarantee"]["group"] = '';
 
@@ -196,20 +182,6 @@ class BuckarooIn3 extends BuckarooPaymentMethod
         $this->mode    = BuckarooConfig::getMode($this->type);
 
         $this->data['services'][$this->type]['action'] = 'Refund';
-
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action']                = 'ExtraInfo';
-            $this->data['services']['notification']['version']               = '1';
-            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
 
         return $this->RefundGlobal();
     }

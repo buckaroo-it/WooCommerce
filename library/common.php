@@ -141,7 +141,14 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
         return false;
     }
 }
-
+/**
+ * Process push response
+ *
+ * @param WC_Push_Buckaroo $payment_method
+ * @param string $response
+ *
+ * @return void
+ */
 function fn_buckaroo_process_response_push($payment_method = null, $response = '')
 {
     $woocommerce = getWooCommerceObject();
@@ -409,7 +416,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 /**
  * Process response from buckaroo
  *
- * @param object $payment_method defaults to NULL
+ * @param  WC_Payment_Gateway|null $payment_method defaults to NULL
  * @param string $response
  * @param string $mode
  * @return void|array
@@ -1045,4 +1052,25 @@ function checkCreditcardProvider($creditcardProvider)
         }
     }
     return false;
+}
+function getClientIpBuckaroo()
+{
+    $ipaddress = '';
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED'])) {
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+    } elseif (!empty($_SERVER['HTTP_FORWARDED_FOR'])) {
+        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+    } elseif (!empty($_SERVER['HTTP_FORWARDED'])) {
+        $ipaddress = $_SERVER['HTTP_FORWARDED'];
+    } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+        $ipaddress = $_SERVER['REMOTE_ADDR'];
+    } else {
+        $ipaddress = 'UNKNOWN';
+    }
+    $ex = explode(",", $ipaddress);
+    return trim($ex[0]);
 }

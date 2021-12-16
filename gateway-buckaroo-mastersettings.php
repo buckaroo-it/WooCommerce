@@ -1,6 +1,6 @@
 <?php
 
-require_once 'library/include.php';
+
 
 /**
  * @package Buckaroo
@@ -9,35 +9,22 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
 {
     public $datedue;
     public $sendemail;
-    public $showpayproc;
     public function __construct()
     {
-        $woocommerce        = getWooCommerceObject();
         $this->id           = 'buckaroo_mastersettings';
         $this->title        = 'Master Settings';
         $this->has_fields   = false;
         $this->method_title = __('Buckaroo Master Settings', 'wc-buckaroo-bpe-gateway');
 
         parent::__construct();
-
-        $this->supports = array(
-            'products',
-            'refunds',
-        );
-        $this->sendemail   = !empty($this->settings['sendmail']) ? $this->settings['sendmail'] : false;
-        $this->showpayproc = false; //Never Show at checkout
-        $this->notify_url  = home_url('/');
-
-        if (!(version_compare(WOOCOMMERCE_VERSION, '2.0.0', '<'))) {
-            add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-            add_action('woocommerce_api_wc_gateway_buckaroo_transfer', array($this, 'response_handler'));
-            if ($this->showpayproc) {
-                add_action('woocommerce_thankyou_buckaroo_transfer', array($this, 'thankyou_description'));
-            }
-            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Transfer', $this->notify_url);
-        }
+        $this->addRefundSupport();
     }
-
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
+        $this->sendemail   = !empty($this->settings['sendmail']) ? $this->settings['sendmail'] : false;
+    }
     public function enqueue_script_exodus($settings)
     {
         if (is_admin()) {
@@ -172,20 +159,6 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'description' => __('Fee tax class', 'wc-buckaroo-bpe-gateway'),
             'default'     => '',
         ];
-
-        $this->form_fields['usenotification'] = array(
-            'title'       => __('Use notification service', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
-            'default'     => 'FALSE');
-
-        $this->form_fields['notificationdelay'] = array(
-            'title'       => __('Notification delay', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'text',
-            'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '0');
-
         $this->form_fields['culture'] = array(
             'title'       => __('Language', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',

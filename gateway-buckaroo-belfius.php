@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once dirname(__FILE__) . '/library/api/paymentmethods/belfius/belfius.php';
 
 /**
@@ -7,49 +7,17 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/belfius/belfius.ph
  */
 class WC_Gateway_Buckaroo_Belfius extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooBelfius::class;
     public function __construct()
     {
-        $woocommerce = getWooCommerceObject();
-        $this->id    = 'buckaroo_belfius';
-
-        ////below will fix issue with renaming of payment method id and loosing of previous settings
-        if (
-            !get_option('woocommerce_' . $this->id . '_settings')
-            &&
-            ($oldSettings = get_option('woocommerce_buckaroo_belfius_settings'))
-        ) {
-            add_option('woocommerce_' . $this->id . '_settings', $oldSettings);
-        }
-
+        $this->id                     = 'buckaroo_belfius';
         $this->title                  = 'Belfius';
-        $this->icon                   = apply_filters('woocommerce_buckaroo_belfius_icon', BuckarooConfig::getIconPath('24x24/belfius.png', 'new/Belfius.png'));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Belfius";
-        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
-        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->currency               = get_woocommerce_currency();
-        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode                   = BuckarooConfig::getMode();
-        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture                = BuckarooConfig::get('CULTURE');
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
+        $this->setIcon('24x24/belfius.png', 'new/Belfius.png');
 
         parent::__construct();
-
-        $this->supports = array(
-            'products',
-            'refunds',
-        );
-
-        $this->notify_url = home_url('/');
-
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-            add_action('woocommerce_api_wc_gateway_buckaroo_belfius', array($this, 'response_handler'));
-            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Belfius', $this->notify_url);
-        }
+        $this->addRefundSupport();
     }
 
     /**
@@ -102,63 +70,15 @@ class WC_Gateway_Buckaroo_Belfius extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
+        $order = getWCOrder($order_id);
+        /** @var BuckarooBelfius */
+        $belfius = $this->createDebitRequest($order);
 
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $belfius              = new BuckarooBelfius();
 
-        if (method_exists($order, 'get_order_total')) {
-            $belfius->amountDedit = $order->get_order_total();
-        } else {
-            $belfius->amountDedit = $order->get_total();
-        }
-        $payment_type         = str_replace('buckaroo_', '', strtolower($this->id));
-        $belfius->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $belfius->currency    = $this->currency;
-        $belfius->description = $this->transactiondescription;
-        $belfius->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $belfius->orderId     = (string) $order_id;
-        $belfius->returnUrl   = $this->notify_url;
-
-        $customVars = array();
-        if ($this->usenotification == 'TRUE') {
-            $belfius->usenotification     = 1;
-            $customVars['Customergender'] = 0;
-
-            $get_billing_first_name          = getWCOrderDetails($order_id, 'billing_first_name');
-            $get_billing_last_name           = getWCOrderDetails($order_id, 'billing_last_name');
-            $get_billing_email               = getWCOrderDetails($order_id, 'billing_email');
-            $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-            $customVars['CustomerLastName']  = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-            $customVars['Customeremail']     = !empty($get_billing_email) ? $get_billing_email : '';
-
-            $customVars['Notificationtype']  = 'PaymentComplete';
-            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->notificationdelay . ' day'))));
-        }
-        $response = $belfius->Pay($customVars);
+        $response = $belfius->Pay();
 
         return fn_buckaroo_process_response($this, $response);
     }
-
-    /**
-     * Check response data
-     */
-
-    public function response_handler()
-    {
-        $woocommerce          = getWooCommerceObject();
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $result               = fn_buckaroo_process_response($this);
-        if (!is_null($result)) {
-            wp_safe_redirect($result['redirect']);
-        } else {
-            wp_safe_redirect($this->get_failed_url());
-        }
-
-        exit;
-    }
-
     /**
      * Add fields to the form_fields() array, specific to this page.
      *
@@ -235,19 +155,6 @@ class WC_Gateway_Buckaroo_Belfius extends WC_Gateway_Buckaroo
             'type'        => 'file',
             'description' => __(''),
             'default'     => '');
-
-        $this->form_fields['usenotification'] = array(
-            'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
-            'default'     => 'FALSE');
-
-        $this->form_fields['notificationdelay'] = array(
-            'title'       => __('Notification delay', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'text',
-            'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '0');
     }
 
 }

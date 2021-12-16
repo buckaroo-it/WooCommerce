@@ -92,7 +92,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
             $this->_parseSoapResponseChild();
             $this->_received = true;
         } else {
-            $this->status = self::REQUEST_ERROR;
+            $this->status = self::STATUS_REQUEST_ERROR;
         }
     }
 

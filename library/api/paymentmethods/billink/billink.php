@@ -54,7 +54,7 @@ class BuckarooBillink extends BuckarooPaymentMethod
      * @param array $customVars
      * @return void
      */
-    public function Pay($customVars = Array()) {
+    public function Pay($customVars = array()) {
         return null;
     }
 
@@ -86,7 +86,7 @@ class BuckarooBillink extends BuckarooPaymentMethod
      * @param array $products
      * @return callable parent::Pay();
      */
-    public function PayOrAuthorizeBillink($products = Array(), $action = 'Pay') {
+    public function PayOrAuthorizeBillink($products = array(), $action = 'Pay') {
 
         $this->data['customVars'][$this->type]["Category"][0]["value"] = $this->getCategory();
         $this->data['customVars'][$this->type]["Category"][0]["group"] = 'BillingCustomer';
