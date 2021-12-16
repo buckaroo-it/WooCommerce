@@ -302,7 +302,7 @@ if ( wc_tax_enabled() ) {
 						<?php
                         $captured = false;//$order->get_total_tax_captured_by_rate_id( $tax_total->rate_id );
 						if ( $captured > 0 ) {
-							echo '<del>' . wp_strip_all_tags( $tax_total->formatted_amount ) . '</del> <ins>' . wc_price( WC_Tax::round( $tax_total->amount, wc_get_price_decimals() ) - WC_Tax::round( $captured, wc_get_price_decimals() ), array( 'currency' => $order->get_currency() ) ) . '</ins>'; // WPCS: XSS ok.
+							echo '<del>' . wp_strip_all_tags( $tax_total->formatted_amount ) . '</del> <ins>' . wc_price( roundAmount( $tax_total->amount ) - roundAmount( $captured ), array( 'currency' => $order->get_currency() ) ) . '</ins>'; // WPCS: XSS ok.
 						} else {
 							echo wp_kses_post( $tax_total->formatted_amount );
 						}

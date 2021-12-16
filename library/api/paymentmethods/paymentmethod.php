@@ -221,17 +221,13 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     {
         //Check if order is refundable
         $order = wc_get_order($this->orderId);
-
-        $wooRoundingOption   = get_option('woocommerce_tax_round_at_subtotal');
-        $wooPriceNumDecimals = (int) get_option('woocommerce_price_num_decimals');
-
         $items         = $order->get_items();
         $shippingItems = $order->get_items('shipping');
         $feeItems      = $order->get_items('fee');
 
         $shippingCostWithoutTax  = (float) $order->get_shipping_total();
         $shippingTax             = (float) $order->get_shipping_tax();
-        $shippingCosts           = round($shippingCostWithoutTax, $wooPriceNumDecimals) + round($shippingTax, $wooPriceNumDecimals);
+        $shippingCosts           = roundAmount($shippingCostWithoutTax) + roundAmount($shippingTax);
         $shippingRefundedCosts   = 0.00;
         $shippingAlreadyRefunded = $order->get_total_shipping_refunded();
 
@@ -242,7 +238,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
                 $orderItemRefunded = $order->get_total_refunded_for_item($item_id);
                 $itemTotal         = $items[$item_id]->get_total();
                 $itemQuantity      = $items[$item_id]->get_quantity();
-                $itemPrice         = round($itemTotal / $itemQuantity, $wooPriceNumDecimals);
+                $itemPrice         = roundAmount($itemTotal / $itemQuantity);
 
                 $tax   = $items[$item_id]->get_taxes();
                 $taxId = 3;
@@ -279,7 +275,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
                     }
                 }
 
-                if (round($itemRefundedTax, $wooPriceNumDecimals) - round($itemTax, $wooPriceNumDecimals) > 0.01) {
+                if (roundAmount($itemRefundedTax) - roundAmount($itemTax) > 0.01) {
                     throw new Exception('Incorrect refund tax price');
                 }
             }
@@ -301,11 +297,11 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
             $feeTax  = $feeItems[$item_id]->get_taxes();
             if (!empty($feeTax['total'])) {
                 foreach ($feeTax['total'] as $taxFee) {
-                    $feeCost += round((float) $taxFee, 2);
+                    $feeCost += roundAmount((float) $taxFee);
                 }
             }
             if (!empty($data[$item_id]['total'])) {
-                $totalFeePrice = round((float) $data[$item_id]['total'] + (float) $data[$item_id]['tax'], 2);
+                $totalFeePrice = roundAmount((float) $data[$item_id]['total'] + (float) $data[$item_id]['tax']);
                 if (abs($totalFeePrice) - abs($feeCost) < 0 && abs($totalFeePrice - $feeCost) > 0.01) {
                     throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()));
                 } elseif (abs($feeCost) - abs($totalFeePrice) < 0 && abs($feeCost - $totalFeePrice) > 0.01) {

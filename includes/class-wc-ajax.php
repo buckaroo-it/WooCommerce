@@ -2403,7 +2403,7 @@ class BK_AJAX {
 
 			if ( '%' === substr( $value, -1 ) ) {
 				$percent      = wc_format_decimal( substr( $value, 0, -1 ) );
-				$field_value += round( ( $field_value / 100 ) * $percent, wc_get_price_decimals() ) * "{$operator}1";
+				$field_value += roundAmount( ( $field_value / 100 ) * $percent ) * "{$operator}1";
 			} else {
 				$field_value += $value * "{$operator}1";
 			}

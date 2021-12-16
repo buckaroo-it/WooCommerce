@@ -65,8 +65,8 @@
                     $TransactionRequest->AmountVat = $this->_vars['AmountVat'];
                 }
 
-                $debit = round($this->_vars['amountDebit'], 2);
-                $credit = round($this->_vars['amountCredit'], 2);
+                $debit = roundAmount($this->_vars['amountDebit']);
+                $credit = roundAmount($this->_vars['amountCredit']);
                 $TransactionRequest->AmountDebit = str_replace($search, $replace, $debit);
                 $TransactionRequest->AmountCredit = str_replace($search, $replace, $credit);
                 $TransactionRequest->Invoice = $this->_vars['invoice'] ?? null;

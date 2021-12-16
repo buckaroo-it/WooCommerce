@@ -1074,3 +1074,9 @@ function getClientIpBuckaroo()
     $ex = explode(",", $ipaddress);
     return trim($ex[0]);
 }
+
+function roundAmount($amount) {
+
+    $precision = 2;
+    return round($amount, $precision);
+}

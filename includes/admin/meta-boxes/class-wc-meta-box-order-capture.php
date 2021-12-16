@@ -4,10 +4,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-function BK_price_round($val) {
-    return round($val, 2);
-}
-
 /**
  * BK_Meta_Box_Order_Items Class.
  */
