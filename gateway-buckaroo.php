@@ -765,7 +765,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         return;
     }
-    /*
+    /**
      * Set order capture
      *
      * @param int $order_id Order id
