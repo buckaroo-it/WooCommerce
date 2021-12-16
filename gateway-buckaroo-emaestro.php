@@ -22,16 +22,6 @@ class WC_Gateway_Buckaroo_EMaestro extends WC_Gateway_Buckaroo
 
     /**
      * Can the order be refunded
-     * @param object $order WC_Order
-     * @return object & string
-     */
-    public function can_refund_order($order)
-    {
-        return $order && $order->get_transaction_id();
-    }
-
-    /**
-     * Can the order be refunded
      * @param integer $order_id
      * @param integer $amount defaults to null
      * @param string $reason
@@ -72,20 +62,6 @@ class WC_Gateway_Buckaroo_EMaestro extends WC_Gateway_Buckaroo
             return new WP_Error('refund_error', __($e->getMessage()));
         }
         return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
-    }
-
-    /**
-     * Validate payment fields on the frontend.
-     *
-     * @access public
-     * @return void
-     */
-    public function validate_fields()
-    {
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
-        return;
     }
 
     /**

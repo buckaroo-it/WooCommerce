@@ -34,17 +34,6 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $this->vattype    = $this->get_option('vattype');
     }
     /**
-     * Can the order be refunded
-     * @access public
-     * @param object $order WC_Order
-     * @return object & string
-     */
-    public function can_refund_order($order)
-    {
-        return $order && $order->get_transaction_id();
-    }
-
-    /**
      * Process payment
      *
      * @param integer $order_id
