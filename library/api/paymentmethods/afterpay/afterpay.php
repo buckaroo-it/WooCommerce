@@ -321,14 +321,14 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
             $feeTax      = $feeItems[$item_id]->get_taxes();
             if (!empty($feeTax['total'])) {
                 foreach ($feeTax['total'] as $taxFee) {
-                    $feeCost += roundAmount((float) $taxFee, 2);
+                    $feeCost += roundAmount((float) $taxFee);
                 }
             }
             if ($feeRefunded > 1) {
                 throw new Exception('Payment fee already refunded');
             }
             if (!empty($data[$item_id]['total'])) {
-                $totalFeePrice = roundAmount((float) $data[$item_id]['total'] + (float) $data[$item_id]['tax'], 2);
+                $totalFeePrice = roundAmount((float) $data[$item_id]['total'] + (float) $data[$item_id]['tax']);
                 if (abs($totalFeePrice) - abs($feeCost) < 0 && abs($totalFeePrice - $feeCost) > 0.01) {
                     throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()));
                 } elseif (abs($feeCost) - abs($totalFeePrice) < 0 && abs($feeCost - $totalFeePrice) > 0.01) {

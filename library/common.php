@@ -1075,12 +1075,8 @@ function getClientIpBuckaroo()
     return trim($ex[0]);
 }
 
-function roundAmount($amount, $decimals = null){
+function roundAmount($amount) {
 
-    //If decimals not set use woocommerce rounding setting
-    if (!isset($decimals)) {
-        $decimals = (int) get_option('woocommerce_price_num_decimals');
-    }
-
-    return round($amount, $decimals);
+    $precision = 2;
+    return round($amount, $precision);
 }
