@@ -35,19 +35,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
             add_action('woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
-            add_action('wp_enqueue_scripts', [$this, 'refresh_frontend']);
-
-            add_action('wp_enqueue_scripts', function () {
-                wp_enqueue_script('initiate_jquery_if_not_loaded', plugin_dir_url(__FILE__) . 'library/js/loadjquery.js', ['jquery'], '1.0.0', true);
-
-                wp_enqueue_script('creditcard_encryption_sdk', plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-encryption-sdk.js', ['jquery'], '1.0.0', true);
-                wp_enqueue_script('creditcard_call_encryption', plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-call-encryption.js', ['jquery'], '1.0.0', true);
-
-            });
             add_filter('woocommerce_available_payment_gateways', array($this, 'payment_gateway_disable'));
             add_filter('woocommerce_order_button_html', array($this, 'replace_order_button_html'));
         }
-        add_action('wp_enqueue_scripts', [$this, 'loadCss']);
 
         // [JM] Compatibility with WC3.6+
         add_action('woocommerce_checkout_process', array($this, 'action_woocommerce_checkout_process'));
@@ -243,48 +233,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             }
         }
     }
-
-    public function loadCss()
-    {
-        //Load Custom CSS
-        wp_enqueue_style('buckaroo-custom-styles', substr(__DIR__, strlen($_SERVER['DOCUMENT_ROOT'])) . '/library/css/buckaroo-custom.css');
-    }
-
-    /**
-     * Populates $this->plugin_url with a url, while removing the trailing slash.
-     *
-     * @access public
-     * @return void
-     *
-     */
-    public function plugin_url()
-    {
-        return $this->plugin_url = untrailingslashit(plugins_url('/', __FILE__));
-    }
-
-    /**
-     * Add checkout javascript to the checkout page
-     *
-     * @access public
-     * @return void
-     *
-     */
-    public function refresh_frontend()
-    {
-
-        if (!is_checkout()) {
-            return;
-        }
-
-        wp_enqueue_script(
-            'wc-pf-checkout',
-            $this->plugin_url() . '/assets/js/checkout.js',
-            ['jquery'],
-            BuckarooConfig::VERSION,
-            true
-        );
-    }
-
     /**
      * Calculates fees on items in shopping cart. (e.g. Taxes)
      *
@@ -371,44 +319,12 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     }
 
     /**
-     * Adds Scripts to the loading process of the page.
-     *
-     * @access public
-     * @param array $settings
-     * @return array $settings
-     */
-    public function enqueue_script_certificate($settings)
-    {
-        wp_enqueue_script('initiate_jquery_if_not_loaded', plugin_dir_url(__FILE__) . 'library/js/loadjquery.js', ['jquery'], '1.0.0', true);
-        if (is_admin()) {
-            wp_enqueue_script('buckaroo_certificate_management_js', plugin_dir_url(__FILE__) . 'library/js/9yards/upload_certificate.js', ['jquery'], '1.0.0', true);
-        }
-        return $settings;
-    }
-
-    /**
-     * Adds Script to show or hide local settings, when master settings are not enabled.
-     *
-     * @access public
-     * @param array $settings
-     * @return array $settings
-     */
-    public function enqueue_script_hide_local($settings)
-    {
-        if (is_admin()) {
-            wp_enqueue_script('buckaroo_display_local_settings', plugin_dir_url(__FILE__) . 'library/js/9yards/display_local.js', ['jquery'], '1.0.0', true);
-        }
-        return $settings;
-    }
-
-    /**
      * Initialize Gateway Settings Form Fields
      *
      * @access public
      */
     public function init_form_fields()
     {
-        $upload_dir     = wp_upload_dir();
         $charset        = strtolower(ini_get('default_charset'));
         $addDescription = '';
         if ($charset != 'utf-8') {
@@ -461,13 +377,17 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 ),
                 'default'     => $this->description,
             ],
-
             'upload'                 => [
                 'title'       => __('Upload certificate', 'wc-buckaroo-bpe-gateway'),
                 'type'        => 'button',
                 'description' => __('Click to select and upload your certificate. Note: Please save after uploading.', 'wc-buckaroo-bpe-gateway'),
                 'default'     => '',
-            ],
+            ]
+        ];
+
+        $this->initCerificateFields();
+
+        $this->form_fields = array_merge($this->form_fields, [
             'merchantkey'            => [
                 'title'       => __('Merchant key', 'wc-buckaroo-bpe-gateway'),
                 'type'        => 'text',
@@ -534,9 +454,79 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 'description'       => __('Specify maximum order amount allowed to show the current method. Zero or empty value means no rule will be applied.', 'wc-buckaroo-bpe-gateway'),
                 'default'           => '0',
             ],
-        ];
+        ]);
     }
+    /**
+     * Add certificate fields to the gateway settings page
+     *
+     * @return void
+     */
+    public function initCerificateFields()
+    {
+        //Start Dynamic Rendering of Hidden Fields
+        $options      = get_option("woocommerce_" . $this->id . "_settings", null);
+        $ccontent_arr = array();
+        $keybase      = 'certificatecontents';
+        $keycount     = 1;
+        if (!empty($options["$keybase$keycount"])) {
+            while (!empty($options["$keybase$keycount"])) {
+                $ccontent_arr[] = "$keybase$keycount";
+                $keycount++;
+            }
+        }
+        $while_key                 = 1;
+        $selectcertificate_options = array('none' => 'None selected');
+        while ($while_key != $keycount) {
+            $this->form_fields["certificatecontents$while_key"] = array(
+                'title'       => '',
+                'type'        => 'hidden',
+                'description' => '',
+                'default'     => '',
+            );
+            $this->form_fields["certificateuploadtime$while_key"] = array(
+                'title'       => '',
+                'type'        => 'hidden',
+                'description' => '',
+                'default'     => '');
+            $this->form_fields["certificatename$while_key"] = array(
+                'title'       => '',
+                'type'        => 'hidden',
+                'description' => '',
+                'default'     => '');
+            $selectcertificate_options["$while_key"] = $options["certificatename$while_key"];
 
+            $while_key++;
+        }
+        $final_ccontent                                          = $keycount;
+        $this->form_fields["certificatecontents$final_ccontent"] = array(
+            'title'       => '',
+            'type'        => 'hidden',
+            'description' => '',
+            'default'     => '');
+        $this->form_fields["certificateuploadtime$final_ccontent"] = array(
+            'title'       => '',
+            'type'        => 'hidden',
+            'description' => '',
+            'default'     => '');
+        $this->form_fields["certificatename$final_ccontent"] = array(
+            'title'       => '',
+            'type'        => 'hidden',
+            'description' => '',
+            'default'     => '');
+
+        $this->form_fields['selectcertificate'] = array(
+            'title'       => __('Select Certificate', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'select',
+            'description' => __('Select your certificate by name.', 'wc-buckaroo-bpe-gateway'),
+            'options'     => $selectcertificate_options,
+            'default'     => 'none',
+        );
+        $this->form_fields['choosecertificate'] = array(
+            'title'       => __('', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'file',
+            'description' => __(''),
+            'default'     => '');
+    }
     /**
      * Check response data
      *

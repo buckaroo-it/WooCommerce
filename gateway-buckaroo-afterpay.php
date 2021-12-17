@@ -833,74 +833,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     public function init_form_fields()
     {
         parent::init_form_fields();
-
-        add_filter('woocommerce_settings_api_form_fields_' . $this->id, [$this, 'enqueue_script_certificate']);
-
-        add_filter('woocommerce_settings_api_form_fields_' . $this->id, [$this, 'enqueue_script_hide_local']);
-
-        //Start Dynamic Rendering of Hidden Fields
-        $options      = get_option("woocommerce_" . $this->id . "_settings", null);
-        $ccontent_arr = array();
-        $keybase      = 'certificatecontents';
-        $keycount     = 1;
-        if (!empty($options["$keybase$keycount"])) {
-            while (!empty($options["$keybase$keycount"])) {
-                $ccontent_arr[] = "$keybase$keycount";
-                $keycount++;
-            }
-        }
-        $while_key                 = 1;
-        $selectcertificate_options = ['none' => 'None selected'];
-        while ($while_key != $keycount) {
-            $this->form_fields["certificatecontents$while_key"] = [
-                'title'       => '',
-                'type'        => 'hidden',
-                'description' => '',
-                'default'     => '',
-            ];
-            $this->form_fields["certificateuploadtime$while_key"] = [
-                'title'       => '',
-                'type'        => 'hidden',
-                'description' => '',
-                'default'     => ''];
-            $this->form_fields["certificatename$while_key"] = [
-                'title'       => '',
-                'type'        => 'hidden',
-                'description' => '',
-                'default'     => ''];
-            $selectcertificate_options["$while_key"] = $options["certificatename$while_key"];
-
-            $while_key++;
-        }
-        $final_ccontent  = $keycount;
-        $this->form_fields["certificatecontents$final_ccontent"] = [
-            'title'       => '',
-            'type'        => 'hidden',
-            'description' => '',
-            'default'     => ''];
-        $this->form_fields["certificateuploadtime$final_ccontent"] = [
-            'title'       => '',
-            'type'        => 'hidden',
-            'description' => '',
-            'default'     => ''];
-        $this->form_fields["certificatename$final_ccontent"] = [
-            'title'       => '',
-            'type'        => 'hidden',
-            'description' => '',
-            'default'     => ''];
-
-        $this->form_fields['selectcertificate'] = [
-            'title'       => __('Select Certificate', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('Select your certificate by name.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => $selectcertificate_options,
-            'default'     => 'none',
-        ];
-        $this->form_fields['choosecertificate'] = [
-            'title'       => __('', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'file',
-            'description' => __(''),
-            'default'     => ''];
+        
         $this->form_fields['service'] = [
             'title'       => __('Select afterpay service', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
