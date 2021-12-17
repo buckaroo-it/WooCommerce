@@ -44,33 +44,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
      */
     public function process_refund($order_id, $amount = null, $reason = '')
     {
-        $order = wc_get_order($order_id);
-        if (!$this->can_refund_order($order)) {
-            return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
-        }
-        update_post_meta($order_id, '_pushallowed', 'busy');
-        $GLOBALS['plugin_id']             = $this->plugin_id . $this->id . '_settings';
-        $order                            = wc_get_order($order_id);
-        $applepay                         = new BuckarooApplepay();
-        $applepay->amountDedit            = 0;
-        $applepay->amountCredit           = $amount;
-        $applepay->currency               = $this->currency;
-        $applepay->description            = $reason;
-        $applepay->invoiceId              = $order->get_order_number();
-        $applepay->orderId                = $order_id;
-        $applepay->OriginalTransactionKey = $order->get_transaction_id();
-        $applepay->returnUrl              = $this->notify_url;
-        $clean_order_no                   = (int) str_replace('#', '', $order->get_order_number());
-        $applepay->setType(get_post_meta($clean_order_no, '_payment_method_transaction', true));
-        $payment_type      = str_replace('buckaroo_', '', strtolower($this->id));
-        $applepay->channel = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $response          = null;
-        try {
-            $response = $applepay->Refund();
-        } catch (exception $e) {
-            update_post_meta($order_id, '_pushallowed', 'ok');
-        }
-        return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
+        return $this->processDefaultRefund($order_id, $amount, $reason, true);
     }
 
     /**

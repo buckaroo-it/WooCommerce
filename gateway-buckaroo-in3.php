@@ -41,38 +41,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
      */
     public function process_refund($order_id, $amount = null, $reason = '', $line_item_qtys = null, $line_item_totals = null, $line_item_tax_totals = null, $originalTransactionKey = null)
     {
-        $order = wc_get_order($order_id);
-        if (!$this->can_refund_order($order)) {
-            return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
-        }
-        update_post_meta($order_id, '_pushallowed', 'busy');
-        $GLOBALS['plugin_id']        = $this->plugin_id . $this->id . '_settings';
-        $order                       = wc_get_order($order_id);
-        $in3                         = new BuckarooIn3();
-        $in3->amountDedit            = 0;
-        $in3->amountCredit           = $amount;
-        $in3->currency               = $this->currency;
-        $in3->description            = $reason;
-        $in3->invoiceId              = $order->get_order_number();
-        $in3->orderId                = $order_id;
-        $in3->OriginalTransactionKey = $order->get_transaction_id();
-        $in3->returnUrl              = $this->notify_url;
-        $payment_type                = str_replace('buckaroo_', '', strtolower($this->id));
-        $in3->channel                = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $response                    = null;
-
-        $orderDataForChecking = $in3->getOrderRefundData();
-
-        try {
-            $in3->checkRefundData($orderDataForChecking);
-            $response = $in3->In3Refund();
-
-        } catch (Exception $e) {
-            update_post_meta($order_id, '_pushallowed', 'ok');
-            return new WP_Error('refund_error', __($e->getMessage()));
-        }
-
-        return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
+        return $this->processDefaultRefund($order_id, $amount, $reason);
     }
 
     /**

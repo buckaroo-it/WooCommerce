@@ -137,7 +137,9 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
         }
         update_post_meta($order_id, '_pushallowed', 'busy');
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        
+        /** @var BuckarooCreditCard */
+        $creditcard = $this->createCreditRequest($order, $amount, $reason);
 
         $orderRefundData = [];
 
@@ -153,37 +155,30 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
         }
 
-        $creditcard               = new BuckarooCreditCard();
-        $creditcard->amountDedit  = 0;
-        $creditcard->amountCredit = $amount;
-        $creditcard->currency     = $order->get_currency();
-        $creditcard->description  = $reason;
-        $creditcard->invoiceId    = $order->get_order_number();
-        $creditcard->orderId      = $order_id;
 
         if ($OriginalTransactionKey !== null) {
             $creditcard->OriginalTransactionKey = $OriginalTransactionKey;
-        } else {
-            $creditcard->OriginalTransactionKey = $order->get_transaction_id();
         }
-        $creditcard->returnUrl = $this->notify_url;
-        $clean_order_no        = (int) str_replace('#', '', $order->get_order_number());
-        $creditcard->setType(get_post_meta($clean_order_no, '_payment_method_transaction', true));
-        $payment_type        = str_replace('buckaroo_', '', strtolower($this->id));
-        $creditcard->channel = BuckarooConfig::getChannel($payment_type, 'process_refund');
-        $response            = null;
 
-        $orderDataForChecking = $creditcard->getOrderRefundData();
+        $creditcard->setType(
+            get_post_meta(
+                (int) str_replace('#', '', $order->get_order_number()),
+                '_payment_method_transaction',
+                true
+            )
+        );
 
         try {
-            $creditcard->checkRefundData($orderDataForChecking);
+            $creditcard->checkRefundData(
+                $creditcard->getOrderRefundData()
+            );
             $response = $creditcard->Refund();
         } catch (exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');
             return new WP_Error('refund_error', __($e->getMessage()));
         }
 
-        $final_response = fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
+        $final_response = fn_buckaroo_process_refund($response ?? null, $order, $amount, $this->currency);
 
         if ($final_response === true) {
             // Store the transaction_key together with refunded products, we need this for later refunding actions

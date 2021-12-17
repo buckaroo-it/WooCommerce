@@ -35,37 +35,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
      */
     public function process_refund($order_id, $amount = null, $reason = '')
     {
-        $order = wc_get_order($order_id);
-        if (!$this->can_refund_order($order)) {
-            return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
-        }
-        update_post_meta($order_id, '_pushallowed', 'busy');
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = wc_get_order($order_id);
-
-        $payperemail                         = new BuckarooPayPerEmail();
-        $payperemail->amountDedit            = 0;
-        $payperemail->amountCredit           = $amount;
-        $payperemail->currency               = $this->currency;
-        $payperemail->description            = $reason;
-        $payperemail->invoiceId              = $order->get_order_number();
-        $payperemail->orderId                = $order_id;
-        $payperemail->OriginalTransactionKey = $order->get_transaction_id();
-        $payperemail->returnUrl              = $this->notify_url;
-        $payment_type                        = str_replace('buckaroo_', '', strtolower($this->id));
-        $payperemail->channel                = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $response                            = null;
-
-        $orderDataForChecking = $payperemail->getOrderRefundData();
-
-        try {
-            $payperemail->checkRefundData($orderDataForChecking);
-            $response = $payperemail->Refund();
-        } catch (exception $e) {
-            update_post_meta($order_id, '_pushallowed', 'ok');
-            return new WP_Error('refund_error', __($e->getMessage()));
-        }
-        return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
+        return $this->processDefaultRefund($order_id, $amount, $reason);
     }
 
     /**

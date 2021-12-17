@@ -28,38 +28,16 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
      */
     public function process_refund($order_id, $amount = null, $reason = '')
     {
-        $order = wc_get_order($order_id);
-        if (!$this->can_refund_order($order)) {
-            return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
-        }
-        update_post_meta($order_id, '_pushallowed', 'busy');
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = wc_get_order($order_id);
-
-        $sepadirectdebit               = new BuckarooSepaDirectDebit();
-        $sepadirectdebit->amountDedit  = 0;
-        $sepadirectdebit->amountCredit = $amount;
-        $sepadirectdebit->currency     = $this->currency;
-        $sepadirectdebit->description  = $reason;
-        $sepadirectdebit->invoiceId    = $order->get_order_number();
-
-        $sepadirectdebit->orderId                = $order_id;
-        $sepadirectdebit->OriginalTransactionKey = $order->get_transaction_id();
-        $sepadirectdebit->returnUrl              = $this->notify_url;
-        $payment_type                            = str_replace('buckaroo_', '', strtolower($this->id));
-        $sepadirectdebit->channel                = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $response                                = null;
-
-        $orderDataForChecking = $sepadirectdebit->getOrderRefundData();
-
-        try {
-            $sepadirectdebit->checkRefundData($orderDataForChecking);
-            $response = $sepadirectdebit->Refund();
-        } catch (exception $e) {
-            update_post_meta($order_id, '_pushallowed', 'ok');
-            return new WP_Error('refund_error', __($e->getMessage()));
-        }
-        return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
+        return $this->processDefaultRefund(
+            $order_id,
+            $amount,
+            $reason,
+            false,
+            function($request)
+            {
+                $request->channel   = BuckarooConfig::CHANNEL_BACKOFFICE;
+            }
+        );
     }
 
     /**
@@ -76,8 +54,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
             wc_add_notice(__("Please fill in all required fields", 'wc-buckaroo-bpe-gateway'), 'error');
         }
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $sepadirectdebit      = new BuckarooSepaDirectDebit();
-        if (!$sepadirectdebit->isIBAN($_POST['buckaroo-sepadirectdebit-iban'])) {
+        if (!BuckarooSepaDirectDebit::isIBAN($_POST['buckaroo-sepadirectdebit-iban'])) {
             wc_add_notice(__("Wrong IBAN number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
         if ($this->usecreditmanagment == 'TRUE') {
