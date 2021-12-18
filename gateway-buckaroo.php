@@ -1,6 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/library/api/idin.php');
-
+require_once(dirname(__FILE__) . '/library/class-wc-session-handler-buckaroo.php');
 /**
  * @package Buckaroo
  */
@@ -20,6 +20,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
     public $showpayproc = false;
 
+    private static $woocommerce_set_cart_cookies = false;
+
     public function __construct()
     {
         if ((!is_admin() && !checkCurrencySupported($this->id)) || (defined('DOING_AJAX') && !checkCurrencySupported($this->id))) {
@@ -32,7 +34,12 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->init_settings();
         
         $this->setProperties();
-        
+
+        if (version_compare(PHP_VERSION, '7.3.0') >= 0) {
+            add_filter('woocommerce_session_handler', array($this, 'woocommerce_session_handler'));
+            add_action('woocommerce_set_cart_cookies', array($this, 'woocommerce_set_cart_cookies'));
+        }
+
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
             add_action('woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
             add_filter('woocommerce_available_payment_gateways', array($this, 'payment_gateway_disable'));
@@ -44,6 +51,25 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         $this->addGatewayHooks(static::class);
     }
+
+    public function woocommerce_session_handler()
+    {
+        return 'WC_Session_Handler_Buckaroo';
+    }
+
+    public function woocommerce_set_cart_cookies()
+    {
+        if (!self::$woocommerce_set_cart_cookies) {
+
+            if (!empty($_COOKIE['woocommerce_cart_hash'])) {
+                WC()->session->wc_setcookie('woocommerce_cart_hash', $_COOKIE['woocommerce_cart_hash']);
+            }
+
+            self::$woocommerce_set_cart_cookies = 1;
+        }
+        WC()->session->set_customer_session_cookie(true);
+    }
+
     /**
      * Init class fields from settings
      *
@@ -536,6 +562,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     {
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $result               = fn_buckaroo_process_response($this);
+
+        //var_dump($result, $this->get_failed_url(), WC()->session, $_COOKIE);die();
         if (!is_null($result)) {
             wp_safe_redirect($result['redirect']);
         } else {
