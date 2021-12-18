@@ -623,6 +623,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     );
 
                 } else {
+                    $logger->logInfo(__METHOD__ . "|50|");
                     wc_add_notice(
                         __(
                             'Payment unsuccessful. Please try again or choose another payment method.',
@@ -632,14 +633,18 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     $logger->logInfo('wc session after: ' . var_export(WC()->session, true));
                     if (WooV3Plus()) {
                         if ($order->get_billing_country() == 'NL') {
-                            $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
-                            $logger->logInfo('||| failed status message: ' . $error_description);
-                            wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
+                            if (strrpos($response->ChannelError, ': ') !== false) {
+                                $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
+                                $logger->logInfo('||| failed status message: ' . $error_description);
+                                wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
+                            }
                         }
                     } else {
                         if ($order->billing_country == 'NL') {
-                            $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
-                            wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
+                            if (strrpos($response->ChannelError, ': ') !== false) {
+                                $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
+                                wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
+                            }
                         }
                     }
                 }
