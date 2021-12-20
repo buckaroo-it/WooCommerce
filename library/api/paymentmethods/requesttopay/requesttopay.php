@@ -6,7 +6,6 @@ class BuckarooRequestToPay extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "RequestToPay";
         $this->version = 1;
-        $this->mode = BuckarooConfig::getMode($this->type);
     }
 
     /**
@@ -16,11 +15,17 @@ class BuckarooRequestToPay extends BuckarooPaymentMethod {
      */
     public function Pay($customVars = array())
     {
-        $this->data['services'][$this->type]['action'] = 'Pay';
-        $this->data['services'][$this->type]['version'] = $this->version;
-
-        $this->data['customVars'][$this->type]['DebtorName'][0]['value'] = $customVars['CustomerFirstName'] . ' ' . $customVars['CustomerLastName'] ;
-        $this->data['customVars'][$this->type]['DebtorName'][0]['group'] = '';
+        $this->setCustomVar(
+            [
+                'DebtorName'=>
+                [
+                    [
+                        'value'=> $customVars['CustomerFirstName'] . ' ' . $customVars['CustomerLastName'],
+                        'group'=>''
+                    ]
+                ]
+            ]
+        );
         return parent::Pay();
     }
 

@@ -14,7 +14,6 @@ class BuckarooApplepay extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "applepay";
         $this->version = 0;
-        $this->mode = BuckarooConfig::getMode($this->type);
     }
 
     /**
@@ -23,10 +22,12 @@ class BuckarooApplepay extends BuckarooPaymentMethod {
      * @return callable parent::Pay();
      */
     public function Pay($customVars = array()) {
-        $this->data['services'][$this->type]['action'] = 'Pay';
-        $this->data['services'][$this->type]['version'] = $this->version;
-        $this->data['customVars'][$this->type]['PaymentData'] = $customVars['PaymentData'];
-        $this->data['customVars'][$this->type]['CustomerCardName'] = $customVars['CustomerCardName'];
+        $this->setCustomVar(
+            [
+                'PaymentData' => $customVars['PaymentData'],
+                'CustomerCardName' => $customVars['CustomerCardName']
+            ]
+            );
 
         return parent::Pay();
     }

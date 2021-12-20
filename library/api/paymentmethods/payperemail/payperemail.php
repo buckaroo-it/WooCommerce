@@ -12,7 +12,6 @@ class BuckarooPayPerEmail extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "payperemail";
         $this->version = 1;
-        $this->mode = BuckarooConfig::getMode($this->type);
     }
 
     /**
@@ -26,32 +25,31 @@ class BuckarooPayPerEmail extends BuckarooPaymentMethod {
 
     public function PaymentInvitation($customVars = array()) {
 
-        $this->data['services'][$this->type]['action'] = 'PaymentInvitation';
-        $this->data['services'][$this->type]['version'] = $this->version;
+        $this->setServiceTypeActionAndVersion('PaymentInvitation');
 
         if (!empty($customVars['PaymentMethodsAllowed'])) {
-            $this->data['customVars'][$this->type]['PaymentMethodsAllowed'] = $customVars['PaymentMethodsAllowed'];
+            $this->setCustomVar('PaymentMethodsAllowed', $customVars['PaymentMethodsAllowed']);
         }
 
-        if (isset($customVars['CustomerGender'])){
-            $this->data['customVars'][$this->type]['customergender'] = $customVars['CustomerGender'];    
+        if (isset($customVars['CustomerGender'])) {
+            $this->setCustomVar('customergender', $customVars['CustomerGender']);    
         }
-        if (isset($customVars['CustomerFirstName'])){
-            $this->data['customVars'][$this->type]['customerFirstName'] = $customVars['CustomerFirstName'];
+        if (isset($customVars['CustomerFirstName'])) {
+            $this->setCustomVar('customerFirstName', $customVars['CustomerFirstName']);
         }
-        if (isset($customVars['CustomerLastName'])){
-            $this->data['customVars'][$this->type]['customerLastName'] = $customVars['CustomerLastName'];
+        if (isset($customVars['CustomerLastName'])) {
+            $this->setCustomVar('customerLastName', $customVars['CustomerLastName']);
         }
-        if (isset($customVars['Customeremail'])){
-            $this->data['customVars'][$this->type]['customeremail'] = $customVars['Customeremail'];
-        }
-
-        if (isset($customVars['merchantSendsEmail'])){
-            $this->data['customVars'][$this->type]['merchantSendsEmail'] = $customVars['merchantSendsEmail'];
+        if (isset($customVars['Customeremail'])) {
+            $this->setCustomVar('customeremail', $customVars['Customeremail']);
         }
 
-        if (isset($customVars['ExpirationDate'])){
-            $this->data['customVars'][$this->type]['ExpirationDate'] = $customVars['ExpirationDate'];
+        if (isset($customVars['merchantSendsEmail'])) {
+            $this->setCustomVar('merchantSendsEmail', $customVars['merchantSendsEmail']);
+        }
+
+        if (isset($customVars['ExpirationDate'])) {
+            $this->setCustomVar('ExpirationDate', $customVars['ExpirationDate']);
         }
 
         return $this->PayGlobal();

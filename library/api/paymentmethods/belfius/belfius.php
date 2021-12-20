@@ -13,7 +13,5 @@ class BuckarooBelfius extends BuckarooPaymentMethod
     {
         $this->type    = "belfius";
         $this->version = 0;
-        $this->mode    = BuckarooConfig::getMode($this->type);
-
     }
 }

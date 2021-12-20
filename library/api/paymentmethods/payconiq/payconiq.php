@@ -12,6 +12,5 @@ class BuckarooPayconiq extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "payconiq";
         $this->version = 1;
-        $this->mode = BuckarooConfig::getMode('PAYCONIQ');
     }
 }

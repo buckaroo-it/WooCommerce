@@ -9,26 +9,23 @@ class BuckarooGiftCard extends BuckarooPaymentMethod {
 
     /**
      * @access public
-     * @return void
-     */
-    public function __construct() {
-        $this->mode = BuckarooConfig::getMode('GIFTCARD');
-    }
-
-    /**
-     * @access public
      * @param array $customVars
      * @return callable parent::Pay()
      */
     public function Pay($customVars = array()) {
 
-        if(empty($customVars['servicesSelectableByClient'])){
-            $this->data['customVars']['servicesSelectableByClient'] = BuckarooConfig::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS');
-        } else {
-            $this->data['customVars']['servicesSelectableByClient'] = $customVars['servicesSelectableByClient'];
-        }
+        $servicesSelectableByClient = BuckarooConfig::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS');
 
-        $this->data['customVars']['continueOnIncomplete'] = 'RedirectToHTML';
+        if (!empty($customVars['servicesSelectableByClient'])) {
+            $servicesSelectableByClient = $customVars['servicesSelectableByClient'];
+        }
+        $this->setCustomVarWithoutType(
+            [
+                "servicesSelectableByClient"=>$servicesSelectableByClient,
+                "continueOnIncomplete"=>'RedirectToHTML'
+            ]
+            );
+            
         $this->data['services'] = array();        
         return parent::PayGlobal();
     }

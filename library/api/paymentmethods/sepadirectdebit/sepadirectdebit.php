@@ -16,7 +16,6 @@ class BuckarooSepaDirectDebit extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "sepadirectdebit";
         $this->version = '1';
-        $this->mode = BuckarooConfig::getMode('SEPADIRECTDEBIT');
     }
 
     /**
@@ -35,9 +34,9 @@ class BuckarooSepaDirectDebit extends BuckarooPaymentMethod {
      */
     public function PayDirectDebit() {
 
-        $this->data['customVars'][$this->type]['customeraccountname'] = $this->customeraccountname;
-        $this->data['customVars'][$this->type]['CustomerBIC'] = $this->CustomerBIC;
-        $this->data['customVars'][$this->type]['CustomerIBAN'] = $this->CustomerIBAN;
+        $this->setCustomVar('customeraccountname', $this->customeraccountname);
+        $this->setCustomVar('CustomerBIC', $this->CustomerBIC);
+        $this->setCustomVar('CustomerIBAN', $this->CustomerIBAN);
 
         return parent::Pay();
     }

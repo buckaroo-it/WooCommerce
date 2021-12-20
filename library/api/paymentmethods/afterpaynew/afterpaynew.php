@@ -51,7 +51,6 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
     {
         $this->type    = $type;
         $this->version = '1';
-        $this->mode    = BuckarooConfig::getMode('AFTERPAY');
     }
 
     /**
@@ -72,99 +71,74 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
     public function PayOrAuthorizeAfterpay($products, $action)
     {
 
-        $this->data['customVars'][$this->type]["Category"][0]["value"] = 'Person';
-        $this->data['customVars'][$this->type]["Category"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]["Category"][1]["value"] = 'Person';
-        $this->data['customVars'][$this->type]["Category"][1]["group"] = 'ShippingCustomer';
+        $billing = [
+            "Category" => 'Person',
+            "FirstName" => $this->BillingInitials,
+            "LastName" => $this->BillingLastName,
+            "Street" => $this->BillingStreet,
+            "StreetNumber" => $this->BillingHouseNumber . ' ',
+            "PostalCode" => $this->BillingPostalCode,
+            "City" => $this->BillingCity,
+            "Country" => $this->BillingCountry,
+            "Email" => $this->BillingEmail,
+        ];
+        $shipping = [
+            "Category" => 'Person',
+            "FirstName" => $this->diffAddress($this->ShippingInitials, $this->BillingInitials),
+            "LastName" => $this->diffAddress($this->ShippingLastName, $this->BillingLastName),
+            "Street" => $this->diffAddress($this->ShippingStreet, $this->BillingStreet),
+            "StreetNumber" => $this->diffAddress($this->ShippingHouseNumber, $this->BillingHouseNumber). ' ',
+            "PostalCode" => $this->diffAddress($this->ShippingPostalCode, $this->BillingPostalCode),
+            "City" => $this->diffAddress($this->ShippingCity, $this->BillingCity),
+            "Country" => $this->diffAddress($this->ShippingCountryCode, $this->BillingCountry),
+            "Email" => $this->BillingEmail,
+        ];
 
-        $this->data['customVars'][$this->type]["FirstName"][0]["value"] = $this->BillingInitials;
-        $this->data['customVars'][$this->type]["FirstName"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['FirstName'][1]["value"] = ($this->AddressesDiffer == 'TRUE' && !empty($this->ShippingInitials)) ? $this->ShippingInitials : $this->BillingInitials;
-        $this->data['customVars'][$this->type]["FirstName"][1]["group"] = 'ShippingCustomer';
-
-        $this->data['customVars'][$this->type]["LastName"][0]["value"] = $this->BillingLastName;
-        $this->data['customVars'][$this->type]["LastName"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['LastName'][1]["value"] = ($this->AddressesDiffer == 'TRUE' && !empty($this->ShippingLastName)) ? $this->ShippingLastName : $this->BillingLastName;
-        $this->data['customVars'][$this->type]["LastName"][1]["group"] = 'ShippingCustomer';
-
-        $this->data['customVars'][$this->type]["Street"][0]["value"] = $this->BillingStreet;
-        $this->data['customVars'][$this->type]["Street"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['Street'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingStreet : $this->BillingStreet;
-        $this->data['customVars'][$this->type]["Street"][1]["group"] = 'ShippingCustomer';
-
-        $this->data['customVars'][$this->type]["StreetNumber"][0]["value"] = $this->BillingHouseNumber . ' ';
-        $this->data['customVars'][$this->type]["StreetNumber"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['StreetNumber'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingHouseNumber . ' ' : $this->BillingHouseNumber . ' ';
-        $this->data['customVars'][$this->type]["StreetNumber"][1]["group"] = 'ShippingCustomer';
 
         if (!empty($this->BillingHouseNumberSuffix)) {
-            $this->data['customVars'][$this->type]["StreetNumberAdditional"][0]["value"] = $this->BillingHouseNumberSuffix;
-            $this->data['customVars'][$this->type]["StreetNumberAdditional"][0]["group"] = 'BillingCustomer';
+            $billing["StreetNumberAdditional"] = $this->BillingHouseNumberSuffix;
         } else {
             unset($this->BillingHouseNumberSuffix);
         }
 
         if (($this->AddressesDiffer == 'TRUE') && !empty($this->ShippingHouseNumberSuffix)) {
-            $this->data['customVars'][$this->type]['StreetNumberAdditional'][1]["value"] = $this->ShippingHouseNumberSuffix;
-            $this->data['customVars'][$this->type]["StreetNumberAdditional"][1]["group"] = 'ShippingCustomer';
+            $shipping["StreetNumberAdditional"] = $this->ShippingHouseNumberSuffix;
         } elseif ($this->AddressesDiffer !== 'TRUE' && !empty($this->BillingHouseNumberSuffix)) {
-            $this->data['customVars'][$this->type]['StreetNumberAdditional'][1]["value"] = $this->BillingHouseNumberSuffix;
-            $this->data['customVars'][$this->type]["StreetNumberAdditional"][1]["group"] = 'ShippingCustomer';
+            $shipping["StreetNumberAdditional"] = $this->BillingHouseNumberSuffix;
         } else {
             unset($this->ShippingHouseNumberSuffix);
         }
 
-        $this->data['customVars'][$this->type]["PostalCode"][0]["value"] = $this->BillingPostalCode;
-        $this->data['customVars'][$this->type]["PostalCode"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['PostalCode'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingPostalCode : $this->BillingPostalCode;
-        $this->data['customVars'][$this->type]["PostalCode"][1]["group"] = 'ShippingCustomer';
-
-        $this->data['customVars'][$this->type]["City"][0]["value"] = $this->BillingCity;
-        $this->data['customVars'][$this->type]["City"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['City'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingCity : $this->BillingCity;
-        $this->data['customVars'][$this->type]["City"][1]["group"] = 'ShippingCustomer';
-
-        $this->data['customVars'][$this->type]["Country"][0]["value"] = $this->BillingCountry;
-        $this->data['customVars'][$this->type]["Country"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['Country'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingCountryCode : $this->BillingCountry;
-        $this->data['customVars'][$this->type]["Country"][1]["group"] = 'ShippingCustomer';
-
-        $this->data['customVars'][$this->type]["Email"][0]["value"] = $this->BillingEmail;
-        $this->data['customVars'][$this->type]["Email"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]["Email"][1]["value"] = $this->BillingEmail;
-        $this->data['customVars'][$this->type]["Email"][1]["group"] = 'ShippingCustomer';
-
+        
         if ((isset($this->ShippingCountryCode) && in_array($this->ShippingCountryCode, ['NL', 'BE'])) || (!isset($this->ShippingCountryCode) && in_array($this->BillingCountry, ['NL', 'BE']))) {
             // Send parameters (Salutation, BirthDate, MobilePhone and Phone) if shipping country is NL || BE.
-            $this->data['customVars'][$this->type]["Salutation"][0]["value"] = ($this->BillingGender) == '1' ? 'Mr' : 'Mrs';
-            $this->data['customVars'][$this->type]["Salutation"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["Salutation"][1]["value"] = ($this->ShippingGender) == '1' ? 'Mr' : 'Mrs';
-            $this->data['customVars'][$this->type]["Salutation"][1]["group"] = 'ShippingCustomer';
-
-            $this->data['customVars'][$this->type]["BirthDate"][0]["value"] = $this->BillingBirthDate;
-            $this->data['customVars'][$this->type]["BirthDate"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["BirthDate"][1]["value"] = $this->BillingBirthDate;
-            $this->data['customVars'][$this->type]["BirthDate"][1]["group"] = 'ShippingCustomer';
-
-            $this->data['customVars'][$this->type]["MobilePhone"][0]["value"] = $this->BillingPhoneNumber;
-            $this->data['customVars'][$this->type]["MobilePhone"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["MobilePhone"][1]["value"] = $this->BillingPhoneNumber;
-            $this->data['customVars'][$this->type]["MobilePhone"][1]["group"] = 'ShippingCustomer';
-
-            $this->data['customVars'][$this->type]["Phone"][0]["value"] = $this->BillingPhoneNumber;
-            $this->data['customVars'][$this->type]["Phone"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["Phone"][1]["value"] = $this->BillingPhoneNumber;
-            $this->data['customVars'][$this->type]["Phone"][1]["group"] = 'ShippingCustomer';
+            $billing = array_merge(
+                $billing,
+                [
+                    "Salutation" => $this->BillingGender == '1' ? 'Mr' : 'Mrs',
+                    "BirthDate" => $this->BillingBirthDate,
+                    "MobilePhone" =>  $this->BillingPhoneNumber,
+                    "Phone" =>  $this->BillingPhoneNumber,
+                ]
+            );
+            $shipping = array_merge(
+                $shipping,
+                [
+                    "Salutation" => $this->ShippingGender == '1' ? 'Mr' : 'Mrs',
+                    "BirthDate" => $this->BillingBirthDate,
+                    "MobilePhone" =>  $this->BillingPhoneNumber,
+                    "Phone" =>  $this->BillingPhoneNumber,
+                ]
+            );
         }
 
         if ((isset($this->ShippingCountryCode) && ($this->ShippingCountryCode == "FI")) || (!isset($this->ShippingCountryCode) && ($this->BillingCountry == "FI"))) {
-            // Send parameter IdentificationNumber if country equals FI.
-            $this->data['customVars'][$this->type]["IdentificationNumber"][0]["value"] = $this->IdentificationNumber;
-            $this->data['customVars'][$this->type]["IdentificationNumber"][0]["group"] = 'BillingCustomer';
-            // Send parameter IdentificationNumber if country equals FI.
-            $this->data['customVars'][$this->type]["IdentificationNumber"][1]["value"] = $this->IdentificationNumber;
-            $this->data['customVars'][$this->type]["IdentificationNumber"][1]["group"] = 'ShippingCustomer';
+            $shipping["IdentificationNumber"] = $this->IdentificationNumber;
+            $billing["IdentificationNumber"] = $this->IdentificationNumber;
         }
+
+        $this->setCustomVarsAtPosition($billing, 0, 'BillingCustomer');
+        $this->setCustomVarsAtPosition($shipping, 1, 'ShippingCustomer');
 
         // Merge products with same SKU
         $mergedProducts = array();
@@ -178,41 +152,53 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
 
         $products = $mergedProducts;
 
-        $i = 1;
-        foreach ($products as $p) {
-            $this->data['customVars'][$this->type]["Description"][$i - 1]["value"]    = $p["ArticleDescription"];
-            $this->data['customVars'][$this->type]["Description"][$i - 1]["group"]    = 'Article';
-            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["value"]     = $p["ArticleId"];
-            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["group"]     = 'Article';
-            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["value"]       = $p["ArticleQuantity"];
-            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["group"]       = 'Article';
-            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["value"] = $p["ArticleUnitprice"];
-            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"]  = isset($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0;
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"]  = 'Article';
-            $this->data['customVars'][$this->type]["Url"][$i - 1]["value"]            = $p["ProductUrl"];
-            $this->data['customVars'][$this->type]["Url"][$i - 1]["group"]            = 'Article';
-            if (!empty($p["ImageUrl"])) {
-                $this->data['customVars'][$this->type]["ImageUrl"][$i - 1]["value"]       = $p["ImageUrl"];
-                $this->data['customVars'][$this->type]["ImageUrl"][$i - 1]["group"]       = 'Article';
-            }
-            $i++;
-        }
+        foreach (array_values($products) as $pos => $product) {
+            $this->setDefaultProductParams($product, $pos);
+            $additonalVars = [
+                'Url' => $product["ProductUrl"],
+            ];
 
-        $this->data['customVars'][$this->type]["Description"][$i]["value"]    = 'Shipping Cost';
-        $this->data['customVars'][$this->type]["Description"][$i]["group"]    = 'Article';
-        $this->data['customVars'][$this->type]["Identifier"][$i]["value"]     = 'shipping';
-        $this->data['customVars'][$this->type]["Identifier"][$i]["group"]     = 'Article';
-        $this->data['customVars'][$this->type]["Quantity"][$i]["value"]       = '1';
-        $this->data['customVars'][$this->type]["Quantity"][$i]["group"]       = 'Article';
-        $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["value"] = (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0');
-        $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["group"] = 'Article';
-        $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"]  = (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0');
-        $this->data['customVars'][$this->type]["VatPercentage"][$i]["group"]  = 'Article';
+            if (!empty($p["ImageUrl"])) {
+                $additonalVars['ImageUrl'] = $product["ImageUrl"];
+            }
+
+            $this->setCustomVarsAtPosition($additonalVars, $pos, 'Article');
+
+        }
+        $this->setShipping(count($products));
 
         return parent::$action();
     }
+    private function diffAddress($shippingField, $billingField)
+    {
+        if ($this->AddressesDiffer == 'TRUE') {
+            return $shippingField;
+        }
+        return $billingField;
+    }
+    /**
+     * Set shipping at postion
+     *
+     * @param int $position
+     *
+     * @return void
+     */
+    public function setShipping($position)
+    {
+        $this->setCustomVarsAtPosition(
+            [
+                'Description' => 'Shipping Cost',
+                'Identifier' => 'shipping',
+                'Quantity' => 1,
+                'GrossUnitprice' => (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0'),
+                'VatPercentage' => (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0')
 
+            ],
+            $position,
+            'Article'
+        );
+    }
+    
     /**
      * Populate generic fields for a refund
      *
@@ -223,28 +209,20 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
      */
     public function AfterPayRefund($products, $issuer)
     {
-        $this->type    = $issuer;
-        $this->version = 1;
-        $this->mode    = BuckarooConfig::getMode($this->type);
+        $this->setServiceTypeActionAndVersion(
+            $issuer,
+            'Refund',
+            BuckarooPaymentMethod::VERSION_ONE
+        );
 
-        $this->data['services'][$this->type]['action']  = 'Refund';
-        $this->data['services'][$this->type]['version'] = $this->version;
-
-        $i = 1;
-        foreach ($products as $p) {
-            $this->data['customVars'][$this->type]["Description"][$i - 1]["value"]    = $p["ArticleDescription"];
-            $this->data['customVars'][$this->type]["Description"][$i - 1]["group"]    = 'Article';
-            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["value"]     = $p["ArticleId"];
-            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["group"]     = 'Article';
-            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["value"]       = $p["ArticleQuantity"];
-            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["group"]       = 'Article';
-            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["value"] = $p["ArticleUnitprice"];
-            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"]  = !empty($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0;
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"]  = 'Article';
-            $this->data['customVars'][$this->type]["RefundType"][$i - 1]["value"]     = ($p["ArticleId"] == BuckarooConfig::SHIPPING_SKU ? "Refund" : "Return");
-            $this->data['customVars'][$this->type]["RefundType"][$i - 1]["group"]     = 'Article';
-            $i++;
+        foreach (array_values($products) as $pos => $product) {
+            $this->setDefaultProductParams($product, $pos);
+            $this->setCustomVarAtPosition(
+                'RefundType',
+                ($product["ArticleId"] == BuckarooConfig::SHIPPING_SKU ? "Refund" : "Return"),
+                $pos,
+                'Article'
+            );
         }
         return $this->RefundGlobal();
     }
@@ -258,31 +236,33 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
     public function Capture($customVars = array(), $products = array())
     {
 
-        $this->type    = $customVars['payment_issuer'];
-        $this->version = 1;
-        $this->mode    = BuckarooConfig::getMode($this->type);
+        $this->setServiceTypeActionAndVersion(
+            $customVars['payment_issuer'],
+            'Capture',
+            BuckarooPaymentMethod::VERSION_ONE
+        );
 
-        $this->data['services'][$this->type]['action']  = 'Capture';
-        $this->data['services'][$this->type]['version'] = $this->version;
-
-        $i = 1;
-        foreach ($products as $p) {
-            $this->data['customVars'][$this->type]["Description"][$i - 1]["value"]    = $p["ArticleDescription"];
-            $this->data['customVars'][$this->type]["Description"][$i - 1]["group"]    = 'Article';
-            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["value"]     = $p["ArticleId"];
-            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["group"]     = 'Article';
-            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["value"]       = $p["ArticleQuantity"];
-            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["group"]       = 'Article';
-            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["value"] = $p["ArticleUnitprice"];
-            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"]  = !empty($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0;
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"]  = 'Article';
-            $i++;
+        foreach (array_values($products) as $pos => $product) {
+            $this->setDefaultProductParams($product, $pos);
         }
 
         return $this->CaptureGlobal();
     }
+    public function setDefaultProductParams($product, $position)
+    {
+        $this->setCustomVarsAtPosition(
+            [
+                'Description' => $product["ArticleDescription"],
+                'Identifier' => $product["ArticleId"],
+                'Quantity' => $product["ArticleQuantity"],
+                'GrossUnitprice' => $product["ArticleUnitprice"],
+                'VatPercentage' => !empty($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0,
 
+            ],
+            $position,
+            'Article'
+        );
+    }
     public function checkRefundData($data)
     {
         //Check if order is refundable
