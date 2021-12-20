@@ -426,20 +426,13 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $previous_captures = get_post_meta($order_id, '_wc_order_captures') ? get_post_meta($order_id, '_wc_order_captures') : false;
 
         $woocommerce          = getWooCommerceObject();
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $afterpay             = new BuckarooAfterPayNew();
 
         $order = getWCOrder($order_id);
-
+        /** @var BuckarooAfterPayNew */
+        $afterpay = $this->createDebitRequest($order);
         $afterpay->amountDedit            = str_replace(',', '.', $_POST['capture_amount']);
-        $payment_type                     = str_replace('buckaroo_', '', strtolower($this->id));
         $afterpay->OriginalTransactionKey = $order->get_transaction_id();
-        $afterpay->channel                = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $afterpay->currency               = $this->currency;
-        $afterpay->description            = $this->transactiondescription;
         $afterpay->invoiceId              = (string) getUniqInvoiceId($woocommerce->order ? $woocommerce->order->get_order_number() : $order_id) . (is_array($previous_captures) ? '-' . count($previous_captures) : "");
-        $afterpay->orderId                = (string) $order_id;
-        $afterpay->returnUrl              = $this->notify_url;
 
         // add items to capture call for afterpay
         $customVars['payment_issuer'] = get_post_meta($order_id, '_wc_order_payment_issuer', true);

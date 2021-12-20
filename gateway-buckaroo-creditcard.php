@@ -300,24 +300,15 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     public function process_capture()
     {
         $order_id             = $_POST['order_id'];
-        $woocommerce          = getWooCommerceObject();
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $creditcard           = new BuckarooCreditCard();
-
+        
         $order = getWCOrder($order_id);
-
-        $customVars['CreditCardIssuer'] = get_post_meta($order->get_id(), '_wc_order_payment_issuer', true);
-
+        /** @var BuckarooCreditCard */
+        $creditcard = $this->createDebitRequest($order);
         $creditcard->amountDedit            = str_replace(',', '.', $_POST['capture_amount']);
-        $payment_type                       = str_replace('buckaroo_', '', strtolower($this->id));
         $creditcard->OriginalTransactionKey = $order->get_transaction_id();
-        $creditcard->channel                = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $creditcard->currency               = $this->currency;
-        $creditcard->description            = $this->transactiondescription;
-        $creditcard->invoiceId              = (string) getUniqInvoiceId($order->get_order_number());
-        $creditcard->orderId                = (string) $order_id;
-        $creditcard->returnUrl              = $this->notify_url;
-
+        $creditcard->channel                = BuckarooConfig::CHANNEL_BACKOFFICE;
+        
+        $customVars['CreditCardIssuer'] = get_post_meta($order->get_id(), '_wc_order_payment_issuer', true);
         $response = $creditcard->Capture($customVars);
 
         // Store the transaction_key together with captured amount, we need this for refunding
