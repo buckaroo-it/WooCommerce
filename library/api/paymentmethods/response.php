@@ -92,7 +92,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
             $this->_parseSoapResponseChild();
             $this->_received = true;
         } else {
-            $this->status = self::STATUS_REQUEST_ERROR;
+            $this->status = self::REQUEST_ERROR;
         }
     }
 
@@ -137,10 +137,10 @@ abstract class BuckarooResponse extends BuckarooAbstract
     {
         //if isValid false return false
         if ($this->isValid() && $this->isReceived()) {
-            if (($this->status === self::STATUS_ON_HOLD) && ($this->payment_method == 'paypal')) {
+            if (($this->status === self::BUCKAROO_PENDING_PAYMENT) && ($this->payment_method == 'paypal')) {
                 return false;
             }
-            if ($this->status === self::STATUS_ON_HOLD || $this->status === self::STATUS_COMPLETED) {
+            if ($this->status === self::BUCKAROO_PENDING_PAYMENT || $this->status === self::BUCKAROO_SUCCESS) {
                 return true;
             }
 

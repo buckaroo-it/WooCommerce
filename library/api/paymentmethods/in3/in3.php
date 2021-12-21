@@ -39,6 +39,7 @@ class BuckarooIn3 extends BuckarooPaymentMethod
     {
         $this->type    = 'Capayable';
         $this->version = '1';
+        $this->mode    = BuckarooConfig::getMode($this->type);
     }
 
     /**
@@ -58,36 +59,50 @@ class BuckarooIn3 extends BuckarooPaymentMethod
      */
     public function PayIn3($products, $action)
     {
-        $this->setParameter("customParameters", ["order_id" => $this->orderId]);
-        $this->setCustomVar("CustomerType", ["value" => $this->CustomerType]);
-        $this->setCustomVar("InvoiceDate", ["value" => $this->InvoiceDate]);
+        $this->data['customParameters']["order_id"] = $this->orderId;
 
-        $this->setCustomVar(
-            [
-                "LastName" => $this->BillingLastName,
-                "Culture" =>  'nl-NL',
-                "Initials" => $this->BillingInitials,
-                "Gender" => $this->BillingGender,
-                "BirthDate" => $this->BillingBirthDate
-            ],
-            null,
-            'Person'
-        );
+        $this->data['customVars'][$this->type]["CustomerType"]["value"] = $this->CustomerType;
 
-        $this->setCustomVar(
-            [
-                "Street" => $this->BillingStreet,
-                "HouseNumber" => isset($this->BillingHouseNumber) ? $this->BillingHouseNumber . ' ' : $this->BillingHouseNumber,
-                "HouseNumberSuffix" => $this->BillingHouseNumberSuffix,
-                "ZipCode" => $this->BillingPostalCode,
-                "City" => $this->BillingCity,
-                "Country" => $this->BillingCountry,
-            ],
-            null,
-            'Address'
-        );
-        $this->setCustomVar("Phone", $this->BillingPhoneNumber, 'Phone');
-        $this->setCustomVar("Email", $this->BillingEmail, 'Email');
+        $this->data['customVars'][$this->type]["InvoiceDate"]["value"] = $this->InvoiceDate;
+
+        $this->data['customVars'][$this->type]["LastName"]["value"] = $this->BillingLastName;
+        $this->data['customVars'][$this->type]["LastName"]["group"] = 'Person';
+
+        $this->data['customVars'][$this->type]["Culture"]["value"] = 'nl-NL';
+        $this->data['customVars'][$this->type]["Culture"]["group"] = 'Person';
+
+        $this->data['customVars'][$this->type]["Initials"]["value"] = $this->BillingInitials;
+        $this->data['customVars'][$this->type]["Initials"]["group"] = 'Person';
+
+        $this->data['customVars'][$this->type]["Gender"]["value"] = $this->BillingGender;
+        $this->data['customVars'][$this->type]["Gender"]["group"] = 'Person';
+
+        $this->data['customVars'][$this->type]["BirthDate"]["value"] = $this->BillingBirthDate;
+        $this->data['customVars'][$this->type]["BirthDate"]["group"] = 'Person';
+
+        $this->data['customVars'][$this->type]["Street"]["value"] = $this->BillingStreet;
+        $this->data['customVars'][$this->type]["Street"]["group"] = 'Address';
+
+        $this->data['customVars'][$this->type]["HouseNumber"]["value"] = isset($this->BillingHouseNumber) ? $this->BillingHouseNumber . ' ' : $this->BillingHouseNumber;
+        $this->data['customVars'][$this->type]["HouseNumber"]["group"] = 'Address';
+
+        $this->data['customVars'][$this->type]["HouseNumberSuffix"]["value"] = $this->BillingHouseNumberSuffix;
+        $this->data['customVars'][$this->type]["HouseNumberSuffix"]["group"] = 'Address';
+
+        $this->data['customVars'][$this->type]["ZipCode"]["value"] = $this->BillingPostalCode;
+        $this->data['customVars'][$this->type]["ZipCode"]["group"] = 'Address';
+
+        $this->data['customVars'][$this->type]["City"]["value"] = $this->BillingCity;
+        $this->data['customVars'][$this->type]["City"]["group"] = 'Address';
+
+        $this->data['customVars'][$this->type]["Country"]["value"] = $this->BillingCountry;
+        $this->data['customVars'][$this->type]["Country"]["group"] = 'Address';
+
+        $this->data['customVars'][$this->type]["Phone"]["value"] = $this->BillingPhoneNumber;
+        $this->data['customVars'][$this->type]["Phone"]["group"] = 'Phone';
+
+        $this->data['customVars'][$this->type]["Email"]["value"] = $this->BillingEmail;
+        $this->data['customVars'][$this->type]["Email"]["group"] = 'Email';
 
         // Merge products with same SKU
         $mergedProducts = array();
@@ -101,56 +116,67 @@ class BuckarooIn3 extends BuckarooPaymentMethod
 
         $products['product'] = $mergedProducts;
 
-        foreach (array_values($products['product']) as $pos => $p) {
-            $this->setCustomVarsAtPosition(
-                [
-                    "Name" => $p["ArticleDescription"],
-                    "Code" => $p["ArticleId"],
-                    "Quantity" => $p["ArticleQuantity"],
-                    "Price" =>$p["ArticleUnitprice"]
-                ],
-                $pos,
-                'ProductLine'
-            );
+        $i = 1;
+        foreach ($products['product'] as $p) {
+            $this->data['customVars'][$this->type]["Name"][$i - 1]["value"]     = $p["ArticleDescription"];
+            $this->data['customVars'][$this->type]["Name"][$i - 1]["group"]     = 'ProductLine';
+            $this->data['customVars'][$this->type]["Code"][$i - 1]["value"]     = $p["ArticleId"];
+            $this->data['customVars'][$this->type]["Code"][$i - 1]["group"]     = 'ProductLine';
+            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["value"] = $p["ArticleQuantity"];
+            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["group"] = 'ProductLine';
+            $this->data['customVars'][$this->type]["Price"][$i - 1]["value"]    = $p["ArticleUnitprice"];
+            $this->data['customVars'][$this->type]["Price"][$i - 1]["group"]    = 'ProductLine';
+            $i++;
         }
-        $i = count($products['product']);
-        if (!empty($products['fee'])) {
 
-            $this->setCustomVarsAtPosition(
-                [
-                    "Name"     => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
-                    "Code"     => $products['fee']["ArticleId"],
-                    "Quantity" => $products['fee']["ArticleQuantity"],
-                    "Price"    => $products['fee']["ArticleUnitprice"]
-                ],
-                $i,
-                'ProductLine'
-            );
+        if (!empty($products['fee'])) {
+            $this->data['customVars'][$this->type]["Name"][$i]["value"]     = __('Payment fee', 'wc-buckaroo-bpe-gateway');
+            $this->data['customVars'][$this->type]["Name"][$i]["group"]     = 'SubtotalLine';
+            $this->data['customVars'][$this->type]["Code"][$i]["value"]     = $products['fee']["ArticleId"];
+            $this->data['customVars'][$this->type]["Code"][$i]["group"]     = 'SubtotalLine';
+            $this->data['customVars'][$this->type]["Quantity"][$i]["value"] = $products['fee']["ArticleQuantity"];
+            $this->data['customVars'][$this->type]["Quantity"][$i]["group"] = 'SubtotalLine';
+            $this->data['customVars'][$this->type]["Price"][$i]["value"]    = $products['fee']["ArticleUnitprice"];
+            $this->data['customVars'][$this->type]["Price"][$i]["group"]    = 'SubtotalLine';
             $i++;
         }
 
         if (!empty($this->cocNumber)) {
-            $this->setCustomVar("ChamberOfCommerce", $this->cocNumber, 'Company');
+            $this->data['customVars'][$this->type]["ChamberOfCommerce"]["value"] = $this->cocNumber;
+            $this->data['customVars'][$this->type]["ChamberOfCommerce"]["group"] = 'Company';
         }
 
         if (!empty($this->companyName)) {
-            $this->setCustomVarAtPosition(
-                "Name", $this->companyName, $i, 'Company'
-            );
+            $this->data['customVars'][$this->type]["Name"][$i]["value"] = $this->companyName;
+            $this->data['customVars'][$this->type]["Name"][$i]["group"] = 'Company';
             $i++;
         }
-        $this->setCustomVarsAtPosition(
-            [
-                "Name"     => __('Shipping cost', 'wc-buckaroo-bpe-gateway'),
-                "Code"     => __('Shipping', 'wc-buckaroo-bpe-gateway'),
-                "Quantity" => '1',
-                "Price"    => (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0')
-            ],
-            $i,
-            'SubtotalLine'
-        );
 
-        $this->setCustomVar("IsInThreeGuarantee", $this->in3Version, '');
+        $this->data['customVars'][$this->type]["Name"][$i]["value"]     = __('Shipping cost', 'wc-buckaroo-bpe-gateway');
+        $this->data['customVars'][$this->type]["Name"][$i]["group"]     = 'SubtotalLine';
+        $this->data['customVars'][$this->type]["Code"][$i]["value"]     = __('Shipping', 'wc-buckaroo-bpe-gateway');
+        $this->data['customVars'][$this->type]["Code"][$i]["group"]     = 'SubtotalLine';
+        $this->data['customVars'][$this->type]["Quantity"][$i]["value"] = '1';
+        $this->data['customVars'][$this->type]["Quantity"][$i]["group"] = 'SubtotalLine';
+        $this->data['customVars'][$this->type]["Price"][$i]["value"]    = (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0');
+        $this->data['customVars'][$this->type]["Price"][$i]["group"]    = 'SubtotalLine';
+
+        if ($this->usenotification && !empty($customVars['Customeremail'])) {
+            $this->data['services']['notification']['action']                = 'ExtraInfo';
+            $this->data['services']['notification']['version']               = '1';
+            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
+            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
+            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
+            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
+            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
+            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
+            if (!empty($customVars['Notificationdelay'])) {
+                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
+            }
+        }
+
+        $this->data['customVars'][$this->type]["IsInThreeGuarantee"]["value"] = $this->in3Version;
+        $this->data['customVars'][$this->type]["IsInThreeGuarantee"]["group"] = '';
 
         return parent::$action();
     }
@@ -165,11 +191,25 @@ class BuckarooIn3 extends BuckarooPaymentMethod
      */
     public function In3Refund()
     {
-        $this->setServiceTypeActionAndVersion(
-            'Capayable',
-            'Refund',
-            BuckarooPaymentMethod::VERSION_ONE
-        );
+        $this->type    = 'Capayable';
+        $this->version = 1;
+        $this->mode    = BuckarooConfig::getMode($this->type);
+
+        $this->data['services'][$this->type]['action'] = 'Refund';
+
+        if ($this->usenotification && !empty($customVars['Customeremail'])) {
+            $this->data['services']['notification']['action']                = 'ExtraInfo';
+            $this->data['services']['notification']['version']               = '1';
+            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
+            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
+            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
+            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
+            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
+            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
+            if (!empty($customVars['Notificationdelay'])) {
+                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
+            }
+        }
 
         return $this->RefundGlobal();
     }

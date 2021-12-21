@@ -12,6 +12,8 @@ class BuckarooPostePay extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "postepay";
         $this->version = 1;
+        $this->mode = BuckarooConfig::getMode($this->type);
+
     }
 }
 

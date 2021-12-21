@@ -55,6 +55,16 @@ class BuckarooConfig extends BuckarooConfigCore {
             case 'BUCKAROO_TRANSDESC':
                 $val = empty($options['transactiondescription']) ? "Buckaroo": $options['transactiondescription'];
                 break;
+            case 'BUCKAROO_USE_NOTIFICATION':
+                $val = (empty($options['usenotification']) ?  FALSE : $options['usenotification']);
+                break;
+            case 'BUCKAROO_NOTIFICATION_DELAY':
+                if (!empty($options['usenotification'])) {
+                    $val = $options['notificationdelay'];
+                } else {
+                    $val = '0';
+                }
+                break;
             case 'BUCKAROO_CERTIFICATE_PATH':
                 $val = "";
                 if (!empty($options['selectcertificate']) && $options['selectcertificate'] != 'none') {

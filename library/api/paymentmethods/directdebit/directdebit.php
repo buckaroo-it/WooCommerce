@@ -5,39 +5,33 @@ require_once(dirname(__FILE__) . '/../paymentmethod.php');
 /**
  * @package Buckaroo
  */
-class BuckarooSepaDirectDebit extends BuckarooPaymentMethod {
+class BuckarooDirectDebit extends BuckarooPaymentMethod {
     public $customeraccountname;
-    public $CustomerBIC;
-    public $CustomerIBAN;
+    public $customeraccountnumber;
 
-    /**
-     * @access public
-     */
     public function __construct() {
-        $this->type = "sepadirectdebit";
+        $this->type = "directdebit";
         $this->version = '1';
-        $this->mode = BuckarooConfig::getMode('SEPADIRECTDEBIT');
+        $this->mode = BuckarooConfig::getMode('DD');
     }
 
     /**
      * @access public
-     * @param array $customVars
      * @return void
      */
-    public function Pay($customVars = Array()) {
+    public function Pay() {
         return null;
     }
 
     /**
      * @access public
      * @param array $customVars
-     * @return parent::Pay()
+     * @return callable parent::Pay()
      */
     public function PayDirectDebit($customVars) {
 
         $this->data['customVars'][$this->type]['customeraccountname'] = $this->customeraccountname;
-        $this->data['customVars'][$this->type]['CustomerBIC'] = $this->CustomerBIC;
-        $this->data['customVars'][$this->type]['CustomerIBAN'] = $this->CustomerIBAN;
+        $this->data['customVars'][$this->type]['customeraccountnumber'] = $this->customeraccountnumber;
 
         if ($this->usecreditmanagment) {
 
@@ -84,21 +78,8 @@ class BuckarooSepaDirectDebit extends BuckarooPaymentMethod {
             }
         }
 
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action'] = 'ExtraInfo';
-            $this->data['services']['notification']['version'] = '1';
-            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender'] = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
-
         return parent::Pay();
     }
 }
 
+?>

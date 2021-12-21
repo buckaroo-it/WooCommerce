@@ -1,5 +1,5 @@
 <?php
-
+require_once 'library/include.php';
 require_once dirname(__FILE__) . '/library/api/paymentmethods/transfer/transfer.php';
 
 /**
@@ -7,32 +7,50 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/transfer/transfer.
  */
 class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
 {
-    const PAYMENT_CLASS = BuckarooTransfer::class;
     public $datedue;
     public $sendemail;
     public $showpayproc;
     public function __construct()
     {
+        $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_transfer';
-        $this->title                  = 'Bank Transfer';
+        $this->title                  = 'Bank Transfer'; //$this->settings['title_paypal'];
+        $this->icon = apply_filters('woocommerce_buckaroo_transfer_icon', BuckarooConfig::getIconPath('24x24/transfer.jpg', 'new/SEPA-credittransfer.png'));
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Bank Transfer';
-        $this->setIcon('24x24/transfer.jpg', 'new/SEPA-credittransfer.png');
+        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
+        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
+        $this->currency               = get_woocommerce_currency();
+        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
+        $this->mode                   = BuckarooConfig::getMode();
+        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
+        $this->culture                = BuckarooConfig::get('CULTURE');
+        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
+        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
+        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
 
         parent::__construct();
-        $this->addRefundSupport();
+
+        $this->supports = array(
+            'products',
+            'refunds',
+        );
+        $this->datedue     = $this->settings['datedue'];
+        $this->sendemail   = $this->settings['sendmail'];
+        $this->showpayproc = ($this->settings['showpayproc'] == 'TRUE') ? true : false;
+        $this->notify_url  = home_url('/');
+
+        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
+            add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
+            add_action('woocommerce_api_wc_gateway_buckaroo_transfer', array($this, 'response_handler'));
+            if ($this->showpayproc) {
+                add_action('woocommerce_thankyou_buckaroo_transfer', array($this, 'thankyou_description'));
+            }
+
+            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Transfer', $this->notify_url);
+        }
     }
 
-    /**
-     * @inheritDoc
-     * 
-     */
-    protected function setProperties()
-    {
-        parent::setProperties();
-        $this->datedue     = $this->get_option('datedue');
-        $this->sendemail   = $this->get_option('sendmail');
-    }
     /**
      * Can the order be refunded
      * @param object $order WC_Order
@@ -105,9 +123,24 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $order = getWCOrder($order_id);
-        /** @var BuckarooTransfer */
-        $transfer = $this->createDebitRequest($order);
+        $woocommerce = getWooCommerceObject();
+
+        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+
+        $order    = getWCOrder($order_id);
+        $transfer = new BuckarooTransfer();
+
+        if (method_exists($order, 'get_order_total')) {
+            $transfer->amountDedit = $order->get_order_total();
+        } else {
+            $transfer->amountDedit = $order->get_total();
+        }
+        $payment_type          = str_replace('buckaroo_', '', strtolower($this->id));
+        $transfer->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
+        $transfer->currency    = $this->currency;
+        $transfer->description = $this->transactiondescription;
+        $transfer->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
+        $transfer->orderId     = (string) $order_id;
 
         $customVars = array();
 
@@ -126,6 +159,15 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
         }
         $customVars['CustomerCountry'] = getWCOrderDetails($order_id, "billing_country");
 
+        $transfer->returnUrl = $this->notify_url;
+
+        if ($this->usenotification == 'TRUE') {
+            $transfer->usenotification    = 1;
+            $customVars['Customergender'] = 0;
+
+            $customVars['Notificationtype']  = 'PaymentComplete';
+            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->notificationdelay . ' day'))));
+        }
         $response = $transfer->PayTransfer($customVars);
         return fn_buckaroo_process_response($this, $response);
     }
@@ -137,6 +179,7 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
      */
     public function response_handler()
     {
+        $woocommerce = getWooCommerceObject();
         fn_buckaroo_process_response($this);
         exit;
     }
@@ -242,13 +285,24 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
             'title'       => __('Send email', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Buckaroo sends an email to the customer with the payment procedures.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
+            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
             'default'     => 'FALSE');
         $this->form_fields['showpayproc'] = array(
             'title'       => __('Show payment procedures', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Show payment procedures on the thank you page after payment confirmation.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway')),
+            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
             'default'     => 'FALSE');
+        $this->form_fields['usenotification'] = array(
+            'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'select',
+            'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
+            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
+            'default'     => 'FALSE');
+        $this->form_fields['notificationdelay'] = array(
+            'title'       => __('Notification delay', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'text',
+            'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
+            'default'     => '0');
     }
 }
