@@ -49,7 +49,7 @@ Class ApplePayButtons
     {
         $path = plugin_dir_url(__DIR__) . '../assets/js/applepay/index.js';    
 
-        echo "<script type='text/javascript'>$ = jQuery; var buckaroo_ajax_url = '".home_url('/')."';</script>";
+        echo "<script type='text/javascript'>$ = jQuery</script>";
         echo "<script type='module' src='{$path}'></script>";
     }
 
