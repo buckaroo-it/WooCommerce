@@ -306,6 +306,11 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
             $this->setParameter('invoice', $this->getInvoiceNumber());
         }
     }
+    public function Authorize()
+    {
+        $this->setServiceActionAndVersion('Authorize');
+        return $this->PayGlobal();
+    }
     /**
      * Populate generic fields in $customVars() array
      *
