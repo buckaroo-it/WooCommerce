@@ -307,6 +307,17 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         }
     }
     /**
+     * Populate generic fields for a authorize
+     *
+     * @access public
+     * @return callable $this->RefundGlobal()
+     */
+    public function Authorize()
+    {
+        $this->setServiceActionAndVersion('Authorize');
+        return $this->PayGlobal();
+    }
+    /**
      * Populate generic fields in $customVars() array
      *
      * @access public
