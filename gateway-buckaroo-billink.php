@@ -59,7 +59,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $billink->setCategory($billink->B2B ? 'B2B': 'B2C');
         $billink->setCompany($billink->B2B ? getWCOrderDetails($order_id, "billing_company"): '');
 
-        $billink->BillingInitials = $this->getInitials($get_billing_first_name . ' ' . $get_billing_last_name);
+        $billink->BillingInitials = strtoupper(substr($get_billing_first_name, 0, 1));
         $billink->setBillingFirstName($get_billing_first_name);
         $billink->BillingLastName = $get_billing_last_name;
 
@@ -116,7 +116,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             $billink->AddressesDiffer = 'TRUE';
 
             $get_shipping_first_name            = getWCOrderDetails($order_id, 'shipping_first_name');
-            $billink->ShippingInitials          = $this->getInitials($get_shipping_first_name);
+            $billink->ShippingInitials          = strtoupper(substr($get_shipping_first_name, 0, 1));
             $billink->ShippingFirstName         = $get_shipping_first_name;
             $get_shipping_last_name             = getWCOrderDetails($order_id, 'shipping_last_name');
             $billink->ShippingLastName          = $get_shipping_last_name;
