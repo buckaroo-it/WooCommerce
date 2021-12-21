@@ -180,6 +180,9 @@ if ( wc_tax_enabled() ) {
 			do_action( 'woocommerce_admin_order_items_after_shipping', $order->get_id() );
 			?>
 		</tbody>
+		<?php
+		if ( !$captures ) { 
+		?>
 		<tbody id="order_fee_line_items">
 			<?php
 			foreach ( $line_items_fee as $item_id => $item ) {
@@ -188,6 +191,7 @@ if ( wc_tax_enabled() ) {
 			do_action( 'woocommerce_admin_order_items_after_fees', $order->get_id() );
 			?>
 		</tbody>
+		<?php } ?>
 		<tbody>
 				<tr><td class="shipping_spacer" colspan="<?php echo (wc_tax_enabled() ? 7 : 6) ?>">&nbsp;</td></tr>
 		</tbody>		

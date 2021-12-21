@@ -101,54 +101,9 @@ function buckaroo_menu_report()
 function buckaroo_reports()
 {
     echo '<h1>Error report for Buckaroo WooCommerce plugin</h1>';
-    echo '<table class="wp-list-table widefat fixed posts">
-    <tr>
-        <th width="5%"><b>Error no</b></th>
-        <th width="15%"><b>Time</b></th>
-        <th width="80%"><b>Error description</b></th>
-    </tr>';
-    $plugin_dir = plugin_dir_path(__FILE__);
-    $file = $plugin_dir . 'library/api/log/report_log.txt';
-    if (file_exists($file)) {
-        $data = Array();
-        $handle = @fopen($plugin_dir . 'library/api/log/report_log.txt', "r");
-        if ($handle) {
-            while (($buffer = fgets($handle, 4096)) !== false) {
-                $data[] = $buffer;
-            }
-            fclose($handle);
-        }
-        if (!empty($data)) {
-            $data = array_reverse($data);
-            $i = 1;
-            foreach ($data as $d) {
-                $tmp = explode("|||", $d);
-                if (!empty($tmp[1])) {
-                    list ($time, $value) = $tmp;
-                } else {
-                    $time = 'unknown';
-                    $value = $d;
-                }
-                echo '<tr>
-                <td>' . $i . '</td>
-                <td>' . $time . '</td>
-                <td>' . $value . '</td>
-                </tr>';
-                $i++;
-            }
-        } else {
-            echo '<tr>
-        <td colspan="3">Log file empty</td>
-        </tr>';
-
-        }
-    } else {
-        echo '<tr>
-        <td colspan="3">No data</td>
-        </tr>';
-    }
-
-    echo '</table>';
+    include_once __DIR__.'/templates/BuckarooReportPage.php';
+    $reportPage = new BuckarooReportPage();
+    $reportPage->output_report();
 }
 
 function generateGateways()
@@ -286,6 +241,7 @@ $buckaroo_enabled_payment_methods = generateGateways();
 
 function buckaroo_init_gateway()
 {
+    require_once 'library/include.php';
     load_plugin_textdomain('wc-buckaroo-bpe-gateway', false, dirname(plugin_basename(__FILE__)) . '/languages/');
     global $buckaroo_enabled_payment_methods;
     $buckaroo_enabled_payment_methods = (count($buckaroo_enabled_payment_methods)) ? $buckaroo_enabled_payment_methods : generateGateways();
@@ -398,7 +354,13 @@ function my_custom_checkout_field_display_admin_order_meta($order){
 
 }
 
-function orderCapture(){
+/**
+ * Ajax hook for capture of orders 
+ *
+ * @return void
+ */
+function orderCapture()
+{
 
     $paymentMethod = get_post_meta( $_POST['order_id'], '_wc_order_selected_payment_method', true);
 
@@ -418,8 +380,9 @@ function orderCapture(){
     }
    
     if (isset($gateway)) {
-        $response = $gateway->process_capture($_POST);
-        echo json_encode($response);
+        echo json_encode(
+            $gateway->process_capture($_POST)
+        );
     }
     exit;
 }

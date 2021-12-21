@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once dirname(__FILE__) . '/library/api/paymentmethods/payconiq/payconiq.php';
 
 /**
@@ -7,38 +7,17 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/payconiq/payconiq.
  */
 class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooPayconiq::class;
     public function __construct()
     {
-        $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_payconiq';
         $this->title                  = 'Payconiq';
-        $this->icon = apply_filters('woocommerce_buckaroo_payconiq_icon', BuckarooConfig::getIconPath('24x24/payconiq.png', 'new/Payconic.png'));
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Payconiq";
-        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
-        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->currency               = get_woocommerce_currency();
-        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode                   = BuckarooConfig::getMode();
-        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture                = BuckarooConfig::get('CULTURE');
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
+        $this->setIcon('24x24/payconiq.png', 'new/Payconic.png');
 
         parent::__construct();
-
-        $this->supports = array(
-            'products',
-            'refunds',
-        );
-        $this->notify_url = home_url('/');
-
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-            add_action('woocommerce_api_wc_gateway_buckaroo_payconiq', array($this, 'response_handler'));
-            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Payconiq', $this->notify_url);
-        }
+        $this->addRefundSupport();
     }
 
     /**
@@ -115,40 +94,10 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $payconiq             = new BuckarooPayconiq();
-
-        if (method_exists($order, 'get_order_total')) {
-            $payconiq->amountDedit = $order->get_order_total();
-        } else {
-            $payconiq->amountDedit = $order->get_total();
-        }
-        $payment_type          = str_replace('buckaroo_', '', strtolower($this->id));
-        $payconiq->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $payconiq->currency    = $this->currency;
-        $payconiq->description = $this->transactiondescription;
-        $payconiq->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $payconiq->orderId     = (string) $order_id;
-        $payconiq->returnUrl   = $this->notify_url;
-        $customVars            = array();
-        if ($this->usenotification == 'TRUE') {
-            $payconiq->usenotification    = 1;
-            $customVars['Customergender'] = 0;
-
-            $get_billing_first_name          = getWCOrderDetails($order_id, 'billing_first_name');
-            $get_billing_last_name           = getWCOrderDetails($order_id, 'billing_last_name');
-            $get_billing_email               = getWCOrderDetails($order_id, 'billing_email');
-            $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-            $customVars['CustomerLastName']  = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-            $customVars['Customeremail']     = !empty($get_billing_email) ? $get_billing_email : '';
-
-            $customVars['Notificationtype']  = 'PaymentComplete';
-            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->notificationdelay . ' day'))));
-        }
-        $response = $payconiq->Pay($customVars);
+        $order = getWCOrder($order_id);
+        /** @var BuckarooPayconiq */
+        $payconiq = $this->createDebitRequest($order);
+        $response = $payconiq->Pay();
         return fn_buckaroo_process_response($this, $response);
     }
 
@@ -159,7 +108,6 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
      */
     public function response_handler()
     {
-        $woocommerce          = getWooCommerceObject();
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $result               = fn_buckaroo_process_response($this);
         $order_id             = isset($_GET["order_id"]) ? $_GET["order_id"] : false;
@@ -259,17 +207,6 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
             'type'        => 'file',
             'description' => __(''),
             'default'     => '');
-        $this->form_fields['usenotification'] = array(
-            'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
-            'default'     => 'FALSE');
-        $this->form_fields['notificationdelay'] = array(
-            'title'       => __('Notification delay', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'text',
-            'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '0');
     }
 
 }

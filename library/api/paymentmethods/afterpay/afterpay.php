@@ -51,7 +51,6 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
     {
         $this->type    = $type;
         $this->version = '1';
-        $this->mode    = BuckarooConfig::getMode('AFTERPAY');
     }
 
     /**
@@ -158,19 +157,6 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
         $this->data['customVars'][$this->type]['ShippingPhoneNumber']       = $this->ShippingPhoneNumber;
         $this->data['customVars'][$this->type]['ShippingLanguage']          = $this->ShippingLanguage;
 
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action']                = 'ExtraInfo';
-            $this->data['services']['notification']['version']               = '1';
-            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
 
         return parent::$action();
     }
@@ -184,12 +170,12 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
      */
     public function AfterPayRefund($products, $issuer)
     {
-        $this->type    = $issuer;
-        $this->version = 1;
-        $this->mode    = BuckarooConfig::getMode($this->type);
+        $this->setServiceTypeActionAndVersion(
+            $issuer,
+            'Refund',
+            BuckarooPaymentMethod::VERSION_ONE
+        );
 
-        $this->data['services'][$this->type]['action']  = 'Refund';
-        $this->data['services'][$this->type]['version'] = $this->version;
 
         // Refunds have to be done on the captures (if authorize/capture is enabled)
         $i = 1;
@@ -207,20 +193,6 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
             $i++;
         }
 
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action']                = 'ExtraInfo';
-            $this->data['services']['notification']['version']               = '1';
-            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
-
         return $this->RefundGlobal();
     }
 
@@ -232,13 +204,12 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
      */
     public function Capture($customVars = array(), $products = array())
     {
-        $this->type    = $customVars['payment_issuer'];
-        $this->version = 1;
-        $this->mode    = BuckarooConfig::getMode($this->type);
-
-        $this->data['services'][$this->type]['action']  = 'Capture';
-        $this->data['services'][$this->type]['version'] = $this->version;
-
+        $this->setServiceTypeActionAndVersion(
+            $customVars['payment_issuer'],
+            'Capture',
+            BuckarooPaymentMethod::VERSION_ONE
+        );
+       
         $i = 1;
         foreach ($products as $p) {
             $this->data['customVars'][$this->type]["ArticleDescription"][$i - 1]["value"] = $p["ArticleDescription"];
@@ -252,20 +223,6 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
             $this->data['customVars'][$this->type]["ArticleVatcategory"][$i - 1]["value"] = $p["ArticleVatcategory"];
             $this->data['customVars'][$this->type]["ArticleVatcategory"][$i - 1]["group"] = $i;
             $i++;
-        }
-
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action']                = 'ExtraInfo';
-            $this->data['services']['notification']['version']               = '1';
-            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
         }
 
         return $this->CaptureGlobal();

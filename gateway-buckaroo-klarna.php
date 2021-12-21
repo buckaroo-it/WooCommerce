@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once dirname(__FILE__) . '/library/api/paymentmethods/klarna/klarna.php';
 
 /**
@@ -7,49 +7,31 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/klarna/klarna.php'
  */
 class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooKlarna::class;
     protected $type;
     protected $currency;
     protected $klarnaPaymentFlowId = '';
-    protected $klarnaSelector      = '';
 
     public function __construct()
     {
-        $woocommerce      = getWooCommerceObject();
-        $this->icon = apply_filters('woocommerce_buckaroo_klarnapay_icon', BuckarooConfig::getIconPath('24x24/klarna.svg', 'new/Klarna.png'));
         $this->has_fields = true;
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $this->currency       = get_woocommerce_currency();
-
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode                   = BuckarooConfig::getMode();
-        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture                = BuckarooConfig::get('CULTURE');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
-
-        $country = null;
-        if (!empty($woocommerce->customer)) {
-            $country = get_user_meta($woocommerce->customer->get_id(), 'shipping_country', true);
-        }
-
-        $this->country = $country;
-        parent::__construct();
-
-        $this->supports = array(
-            'products',
-            'refunds',
-        );
-
         $this->type       = 'klarna';
-        $this->vattype    = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
-        $this->notify_url = home_url('/');
-    }
+        $this->setIcon('24x24/klarna.svg', 'new/Klarna.png');
+        $this->setCountry();
 
+        parent::__construct();
+        $this->notify_url = home_url('/');
+        $this->addRefundSupport();
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
+        $this->vattype = $this->get_option('vattype');
+    }
     public function getKlarnaSelector()
     {
-        return $this->klarnaSelector;
+        return str_replace("_", "-", $this->id);
     }
 
     public function getKlarnaPaymentFlow()
@@ -142,30 +124,16 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        // Save this meta that is used later for the Capture call
-        update_post_meta($order_id, '_wc_order_selected_payment_method', 'Klarna');
-        update_post_meta($order_id, '_wc_order_payment_issuer', $this->type);
+        $this->setOrderCapture($order_id, 'Klarna');
 
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        $order = getWCOrder($order_id);
+        /** @var BuckarooKlarna */
+        $klarna = $this->createDebitRequest($order);
+        $klarna->invoiceId = (string)getUniqInvoiceId(
+            preg_replace('/\./', '-', $order->get_order_number())
+        );
 
-        $order  = new WC_Order($order_id);
-        $klarna = new BuckarooKlarna($this->type);
-
-        if (method_exists($order, 'get_order_total')) {
-            $klarna->amountDedit = $order->get_order_total();
-        } else {
-            $klarna->amountDedit = $order->get_total();
-        }
-        $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
-
-        $klarna->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $klarna->currency    = $this->currency;
-        $klarna->description = $this->transactiondescription;
-        $klarna->invoiceId   = getUniqInvoiceId(preg_replace('/\./', '-', $order->get_order_number()), $this->mode);
-
-        $klarna->orderId = !empty($order_sequential_id) ? $order_sequential_id : (string) $order_id;
-
-        $klarna->BillingGender = $_POST[$this->klarnaSelector . '-gender'] ?? 'Unknown';
+        $klarna->BillingGender = $_POST[$this->getKlarnaSelector() . '-gender'] ?? 'Unknown';
 
         $get_billing_first_name = getWCOrderDetails($order_id, "billing_first_name");
         $get_billing_last_name  = getWCOrderDetails($order_id, "billing_last_name");
@@ -362,41 +330,12 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
         $klarna->returnUrl = $this->notify_url;
 
-        if ($this->usenotification == 'TRUE') {
-            $klarna->usenotification      = 1;
-            $customVars['Customergender'] = $_POST[$this->getKlarnaSelector() . '-gender'];
-
-            $get_billing_first_name          = getWCOrderDetails($order_id, 'billing_first_name');
-            $get_billing_last_name           = getWCOrderDetails($order_id, 'billing_last_name');
-            $get_billing_email               = getWCOrderDetails($order_id, 'billing_email');
-            $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-            $customVars['CustomerLastName']  = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-            $customVars['Customeremail']     = !empty($get_billing_email) ? $get_billing_email : '';
-            $customVars['Notificationtype']  = 'PaymentComplete';
-            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->invoicedelay . ' day')) . ' + ' . (int) $this->notificationdelay . ' day'));
-        }
+        
 
         $klarna->setPaymnetFlow($this->getKlarnaPaymentFlow());
         $response = $klarna->paymentAction($products);
         return fn_buckaroo_process_response($this, $response, $this->mode);
     }
-
-    /**
-     * Check response data
-     *
-     * @access public
-     */
-    public function response_handler()
-    {
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $result               = fn_buckaroo_process_response($this);
-        if (!is_null($result)) {
-            wp_safe_redirect($result['redirect']);
-        } else {
-            wp_safe_redirect($this->get_failed_url());
-        }
-    }
-
     private function getFeeTax($fee)
     {
         $feeInfo    = WC_Tax::get_rates($fee->get_tax_class());
@@ -430,72 +369,6 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
         return $format;
     }
-
-    /**
-     * Payment form on checkout page
-     */
-    public function payment_fields()
-    {
-        $post_data = array();
-
-        $customerId    = get_current_user_id();
-        $customerPhone = '';
-        if (!empty($customerId)) {
-            $customerPhone = get_user_meta($customerId, 'billing_phone', true);
-        }
-
-        if (!empty($_POST["post_data"])) {
-            parse_str($_POST["post_data"], $post_data);
-        }
-
-        $country = $this->country ?? '';
-
-        if (strtoupper($country) == 'NL' && strtolower($this->klarnaPaymentFlowId) !== 'pay'):
-        ?>
-            <div class="woocommerce-error">
-                <p><?php
-echo __('Payment method is not supported for country ', 'wc-buckaroo-bpe-gateway') . '(' . $this->country . ')'; ?>
-                </p>
-            </div>
-        <?php
-endif;
-        if ($this->mode == 'test'): ?><p><?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway');?></p><?php endif;?>
-        <?php if ($this->description): ?><p><?php echo wpautop(wptexturize($this->description)); ?></p><?php endif;?>
-
-        <fieldset>
-            <p class="form-row">
-                <label for="<?php echo $this->getKlarnaSelector() ?>-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway') ?><span
-                            class="required">*</span></label>
-                <input id="<?php echo $this->getKlarnaSelector() ?>-genderm" name="<?php echo $this->getKlarnaSelector() ?>-gender" class="" type="radio"
-                       value="Male" checked
-                       style="float:none; display: inline !important;"/> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway') ?>
-                &nbsp;
-                <input id="<?php echo $this->getKlarnaSelector() ?>-genderf" name="<?php echo $this->getKlarnaSelector() ?>-gender" class="" type="radio"
-                       value="Female"
-                       style="float:none; display: inline !important;"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway') ?>
-            </p>
-            <p class="form-row validate-required">
-                <label for="<?php echo $this->getKlarnaSelector() ?>-phone"><?php echo _e('Phone:', 'wc-buckaroo-bpe-gateway') ?><span
-                            class="required">*</span></label>
-                <input id="<?php echo $this->getKlarnaSelector() ?>-phone" name="<?php echo $this->getKlarnaSelector() ?>-phone" class="input-tel"
-                       type="tel" autocomplete="off" value="<?php echo $customerPhone ?? '' ?>">
-            </p>
-
-            <script>
-                if (document.querySelector('input[name=billing_phone]')) {
-                    document.getElementById('<?php echo $this->getKlarnaSelector() ?>-phone').parentElement.style.display = 'none';
-                }
-            </script>
-
-            <?php if (!empty($post_data["ship_to_different_address"])) {?>
-                <input id="<?php echo $this->getKlarnaSelector() ?>-shipping-differ" name="<?php echo $this->getKlarnaSelector() ?>-shipping-differ" class=""
-                       type="hidden" value="1"/>
-            <?php }?>
-
-            <p class="required" style="float:right;">* <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?></p>
-        </fieldset>
-        <?php
-}
 
     /**
      * Add fields to the form_fields() array, specific to this page.
@@ -573,17 +446,5 @@ endif;
             'description' => __(''),
             'default'     => '');
 
-        $this->form_fields['usenotification'] = array(
-            'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
-            'default'     => 'FALSE');
-
-        $this->form_fields['notificationdelay'] = array(
-            'title'       => __('Notification delay', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'text',
-            'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '0');
     }
 }

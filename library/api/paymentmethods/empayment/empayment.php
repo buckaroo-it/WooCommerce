@@ -13,7 +13,6 @@ class BuckarooEmpayment extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "empayment";
         $this->version = 1;
-        $this->mode = BuckarooConfig::getMode('EMPAYMENT');
     }
 
     /**

@@ -1,39 +1,6 @@
 <?php
+require_once dirname(__FILE__) . '/api/abstract.php';
 
-/**
- * Make status codes reader friendly
- *
- * @param  String $status_code
- * @return String
- */
-function fn_buckaroo_resolve_status_code($status_code)
-{
-    require_once dirname(__FILE__) . '/api/abstract.php';
-    switch ($status_code) {
-
-        case BuckarooAbstract::BUCKAROO_SUCCESS:
-            {
-                return 'completed';
-            }
-            break;
-
-        case BuckarooAbstract::BUCKAROO_PENDING_PAYMENT:
-            {
-                return 'on-hold';
-            }
-            break;
-        case BuckarooAbstract::BUCKAROO_CANCELED:
-            return 'cancelled';
-            break;
-        case BuckarooAbstract::BUCKAROO_ERROR:
-        case BuckarooAbstract::BUCKAROO_FAILED:
-        case BuckarooAbstract::BUCKAROO_INCORRECT_PAYMENT:
-        default:
-            {
-                return 'failed';
-            }
-    }
-}
 
 /**
  * Can the order be refunded.
@@ -143,8 +110,6 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
             )
         );
 
-        $response->status = 'fully_captured';
-
         // Store the transaction_key together with captured products, we need this for refunding
         if ($products != null) {
             $capture_data = json_encode(['OriginalTransactionKey' => $response->transactions, 'products' => $products]);
@@ -176,7 +141,14 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
         return false;
     }
 }
-
+/**
+ * Process push response
+ *
+ * @param WC_Push_Buckaroo $payment_method
+ * @param string $response
+ *
+ * @return void
+ */
 function fn_buckaroo_process_response_push($payment_method = null, $response = '')
 {
     $woocommerce = getWooCommerceObject();
@@ -216,7 +188,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
             );
         }
 
-        $giftCardPartialPayment = ($response->statuscode == 792 && $response->brq_transaction_type == 'I150');
+        $giftCardPartialPayment = ($response->statuscode == BuckarooAbstract::CODE_AWAITING_CONSUMER && $response->brq_transaction_type == 'I150');
 
         if ($response->brq_relatedtransaction_partialpayment != null || $giftCardPartialPayment) {
             $logger->logInfo('PUSH', "Partial payment PUSH received " . $response->status);
@@ -244,15 +216,14 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
             exit();
         }
         $logger->logInfo('Order status: ' . $order->get_status());
-        $response_status = fn_buckaroo_resolve_status_code($response->status);
-        if (($response_status == 'on-hold') && ($order->get_payment_method() == 'buckaroo_paypal')) {
-            $response_status = 'cancelled';
+        if (($response->status == BuckarooAbstract::STATUS_ON_HOLD) && ($order->get_payment_method() == 'buckaroo_paypal')) {
+            $response->status = BuckarooAbstract::STATUS_CANCELED;
         }
-        $logger->logInfo('Response order status: ' . $response_status);
+        $logger->logInfo('Response order status: ' . $response->status);
         $logger->logInfo('Status message: ' . $response->statusmessage);
         if (strtolower($order->get_payment_method()) === 'buckaroo_payperemail') {
             $transactionsArray = parsePPENewTransactionId($response->transactions);
-            if (!empty($transactionsArray) && $response->statuscode == 190) {
+            if (!empty($transactionsArray) && $response->statuscode == BuckarooAbstract::CODE_SUCCESS) {
                 $creditcardProvider = checkCreditcardProvider($response->payment_method);
                 update_post_meta($order_id, '_transaction_id', $transactionsArray[count($transactionsArray) - 1]);
                 if ($creditcardProvider) {
@@ -275,7 +246,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                 $logger->logInfo(
                     'Push message. Order already in final state or have the same status as response. Order status: ' . $order->get_status()
                 );
-                switch ($response_status) {
+                switch ($response->status) {
                     case 'completed':
                         if (!is_null($payment_method)) {
                             return array(
@@ -288,7 +259,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                         return;
                 }
             } else {
-                switch ($response_status) {
+                switch ($response->status) {
                     case 'completed':
                         $transaction        = $response->transactions;
                         $payment_methodname = $response->payment_method;
@@ -388,7 +359,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
             } else {
                 $logger->logInfo('Push message. Order status cannot be changed.');
             }
-            if ($response_status == 'cancelled') {
+            if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
                 $logger->logInfo('Update status 3. Order status: cancelled');
                 if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled'))) {
                     $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
@@ -397,7 +368,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                 }
                 wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
             } else {
-                if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == 690) {
+                if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == BuckarooAbstract::CODE_REJECTED) {
                     wc_add_notice(
                         __(
                             "We are sorry to inform you that the request to pay afterwards with AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of AfterPay. Or you can visit the website of AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
@@ -420,7 +391,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
     } else {
         $logger->logInfo('Response not valid!');
         $logger->logInfo('Parse response:\n', $response);
-        if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == 690) {
+        if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == BuckarooAbstract::CODE_REJECTED) {
             wc_add_notice(
                 __(
                     "We are sorry to inform you that the request to pay afterwards with AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of AfterPay. Or you can visit the website of AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
@@ -445,7 +416,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 /**
  * Process response from buckaroo
  *
- * @param object $payment_method defaults to NULL
+ * @param  WC_Payment_Gateway|null $payment_method defaults to NULL
  * @param string $response
  * @param string $mode
  * @return void|array
@@ -526,11 +497,10 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             );
         }
         $logger->logInfo('Order status: ' . $order->get_status());
-        $response_status = fn_buckaroo_resolve_status_code($response->status);
-        if (($response_status == 'on-hold') && ($payment_method->id == 'buckaroo_paypal')) {
-            $response_status = 'cancelled';
+        if (($response->status == BuckarooAbstract::STATUS_ON_HOLD) && ($payment_method->id == 'buckaroo_paypal')) {
+            $response->status = BuckarooAbstract::STATUS_CANCELED;
         }
-        $logger->logInfo('Response order status: ' . $response_status);
+        $logger->logInfo('Response order status: ' . $response->status);
         $logger->logInfo('Status message: ' . $response->statusmessage);
 
         if ($payment_method->id == 'buckaroo_payperemail') {
@@ -578,7 +548,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     }
                 }
             }
-            switch ($response_status) {
+            switch ($response->status) {
                 case 'completed':
                 case 'processing':
                 case 'pending':
@@ -597,7 +567,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         } else {
 
             $logger->logInfo('Payment request failed/canceled. Order status: ' . $order->get_status());
-            $logger->logInfo('||| infoLog ' . $response_status);
+            $logger->logInfo('||| infoLog ' . $response->status);
             if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                 //We receive a valid response that the payment is canceled/failed.
                 $logger->logInfo('Update status 4. Order status: failed');
@@ -605,7 +575,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             } else {
                 $logger->logInfo('Order status cannot be changed.');
             }
-            if ($response_status == 'cancelled') {
+            if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
                 $logger->logInfo('Update status 5. Order status: cancelled');
                 if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                     $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
@@ -620,7 +590,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 } else {
                     $logger->logInfo('Order status cannot be changed.');
                 }
-                if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == 690) {
+                if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == BuckarooAbstract::CODE_REJECTED) {
                     wc_add_notice(
                         __(
                             "We are sorry to inform you that the request to pay afterwards with AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of AfterPay. Or you can visit the website of AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
@@ -628,7 +598,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                         ),
                         'error'
                     );
-                } elseif ($payment_method instanceof WC_Gateway_Buckaroo_Giftcard && $response->statuscode == 490) {
+                } elseif ($payment_method instanceof WC_Gateway_Buckaroo_Giftcard && $response->statuscode == BuckarooAbstract::CODE_FAILED) {
                     if ($response->statusmessage == 'Failed') {
                         wc_add_notice(
                             sprintf(
@@ -643,7 +613,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                             'error'
                         );
                     }
-                } elseif (($response->payment_method == "afterpay") && ($response->statuscode == 690)) {
+                } elseif (($response->payment_method == "afterpay") && ($response->statuscode == BuckarooAbstract::CODE_REJECTED)) {
                     wc_add_notice(
                         __(
                             $response->ChannelError,
@@ -1082,4 +1052,25 @@ function checkCreditcardProvider($creditcardProvider)
         }
     }
     return false;
+}
+function getClientIpBuckaroo()
+{
+    $ipaddress = '';
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED'])) {
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+    } elseif (!empty($_SERVER['HTTP_FORWARDED_FOR'])) {
+        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+    } elseif (!empty($_SERVER['HTTP_FORWARDED'])) {
+        $ipaddress = $_SERVER['HTTP_FORWARDED'];
+    } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+        $ipaddress = $_SERVER['REMOTE_ADDR'];
+    } else {
+        $ipaddress = 'UNKNOWN';
+    }
+    $ex = explode(",", $ipaddress);
+    return trim($ex[0]);
 }

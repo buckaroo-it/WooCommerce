@@ -6,61 +6,34 @@ require_once(dirname(__FILE__) . '/library/api/idin.php');
  */
 class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 {
+    const PAYMENT_CLASS = null;
+    const BUCKAROO_TEMPLATE_LOCATION = '/templates/gateways/';
+
     public $notify_url;
     public $transactiondescription;
-    public $usenotification;
-    public $invoicedelay;
-    public $notificationdelay;
     public $extrachargeamount;
     public $extrachargetype;
     public $extrachargetaxtype;
-    public $notificationtype;
     public $sellerprotection;
     public $minvalue;
     public $maxvalue;
 
+    public $showpayproc = false;
+
     public function __construct()
     {
-        $woocommerce = getWooCommerceObject();
         if ((!is_admin() && !checkCurrencySupported($this->id)) || (defined('DOING_AJAX') && !checkCurrencySupported($this->id))) {
             unset($this->id);
             unset($this->title);
         }
-        $woocommerce = getWooCommerceObject();
         // Load the form fields
         $this->init_form_fields();
         // Load the settings.
         $this->init_settings();
-
-        //Don't load empty values (it fills up the debug log);
-        if (!empty($this->settings['title']) and $this->title != $this->settings['title']) {
-            $this->title = $this->settings['title'];
-        }
-        $this->description = !empty($this->settings['description']) ? $this->settings['description'] : '';
-
-        $this->extrachargeamount = 0;
-        if (isset($this->settings['extrachargeamount'])) {
-            $this->extrachargeamount = $this->settings['extrachargeamount'];
-        }
-        $this->extrachargetype = 'static';
-        if (isset($this->settings['extrachargetype'])) {
-            $this->extrachargetype = $this->settings['extrachargetype'];
-        }
-        $this->extrachargetaxtype = 'included';
-        if (isset($this->settings['extrachargetaxtype'])) {
-            $this->extrachargetaxtype = $this->settings['extrachargetaxtype'];
-        }
-        $this->minvalue = 0;
-        if (isset($this->settings['minvalue'])) {
-            $this->minvalue = $this->settings['minvalue'];
-        }
-        $this->maxvalue = 0;
-        if (isset($this->settings['maxvalue'])) {
-            $this->maxvalue = $this->settings['maxvalue'];
-        }
-
+        
+        $this->setProperties();
+        
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action('woocommerce_api_wc_gateway_buckaroo', [$this, 'response_handler']);
             add_action('woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
             add_action('wp_enqueue_scripts', [$this, 'refresh_frontend']);
 
@@ -71,24 +44,136 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 wp_enqueue_script('creditcard_call_encryption', plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-call-encryption.js', ['jquery'], '1.0.0', true);
 
             });
-
             add_filter('woocommerce_available_payment_gateways', array($this, 'payment_gateway_disable'));
             add_filter('woocommerce_order_button_html', array($this, 'replace_order_button_html'));
         }
-        $this->notificationtype = 'PaymentComplete';
-
-        if (!isset($this->settings['sellerprotection'])) {
-            $this->sellerprotection = 'TRUE';
-        } else {
-            $this->sellerprotection = $this->settings['sellerprotection'];
-        }
-
         add_action('wp_enqueue_scripts', [$this, 'loadCss']);
 
         // [JM] Compatibility with WC3.6+
         add_action('woocommerce_checkout_process', array($this, 'action_woocommerce_checkout_process'));
-    }
 
+        $this->addGatewayHooks(static::class);
+    }
+    /**
+     * Init class fields from settings
+     *
+     * @return void
+     */
+    protected function setProperties()
+    {
+        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
+        $this->title                  = $this->get_option('title', $this->title ?? '');
+        $this->currency               = get_woocommerce_currency();
+        $this->description            = $this->get_option(
+            'description',  
+            sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title)
+        );
+        $this->mode                   = $this->get_option('mode');
+        $this->minvalue               = $this->get_option('minvalue', 0);
+        $this->maxvalue               = $this->get_option('maxvalue', 0);
+        $this->sellerprotection       = $this->get_option('sellerprotection', 'TRUE');
+        $this->extrachargetype        = $this->get_option('extrachargetype', 'static');
+        $this->extrachargeamount      = $this->get_option('extrachargeamount', 0);
+        $this->extrachargetaxtype     = $this->get_option('extrachargetaxtype', 'included');
+        $this->transactiondescription = $this->get_option('transactiondescription');
+    }
+    /**
+     * Set gateway icon
+     *
+     * @param string $oldPath  Old image path
+     * @param string $newPath  New image path
+     *
+     * @return void
+     */
+    protected function setIcon($oldPath, $newPath)
+    {
+        $this->icon = apply_filters(
+            'woocommerce_'.$this->id.'_icon',
+            BuckarooConfig::getIconPath($oldPath, $newPath)
+        );
+    }
+    /**
+     * Set country field
+     *
+     * @return void
+     */
+    protected function setCountry()
+    {
+        $woocommerce = getWooCommerceObject();
+
+        $country = null;
+        if (!empty($woocommerce->customer)) {
+            $country = get_user_meta($woocommerce->customer->get_id(), 'shipping_country', true);
+        }
+        $this->country = $country;
+    }
+    /**
+     * Add the gateway hooks
+     *
+     * @param string $class Gateway Class name
+     *
+     * @return void
+     */
+    protected function addGatewayHooks($class)
+    {
+        $this->showpayproc = isset($this->settings['showpayproc']) && $this->settings['showpayproc'] == 'TRUE';
+        
+        $this->notify_url = home_url('/');
+        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
+
+            add_action(
+                'woocommerce_update_options_payment_gateways_' . $this->id,
+                array($this, 'process_admin_options')
+            );
+
+            add_action(
+                'woocommerce_api_'.strtolower(wc_clean($class)),
+                array($this, 'response_handler')
+            );
+
+            if ($this->showpayproc) {
+                add_action(
+                    'woocommerce_thankyou_' . $this->id,
+                    array($this, 'thankyou_description')
+                );
+            }
+
+            $this->notify_url = add_query_arg('wc-api', $class, $this->notify_url);
+        }
+    }
+    /**
+     * Add refund support
+     *
+     * @return void
+     */
+    protected function addRefundSupport()
+    {
+        $this->supports = [
+            'products',
+            'refunds',
+        ];
+    }
+    /**
+     * Migrate old named setting to new name
+     *
+     * @param string $oldKey Old settings key
+     *
+     * @return void
+     */
+    protected function migrateOldSettings($oldKey)
+    {
+        if (
+            !get_option('woocommerce_' . $this->id . '_settings') &&
+            ($oldSettings = get_option($oldKey))
+        ) {
+            add_option('woocommerce_' . $this->id . '_settings', $oldSettings);
+            delete_option($oldKey);//clean the table
+        }
+    }
+    public function thankyou_description()
+    {
+        //not implemented 
+    }
     public function payment_gateway_disable($available_gateways)
     {
         global $woocommerce;
@@ -178,8 +263,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     }
 
     /**
-     * Decides whether to use checkout.js or checkout.min.js
-     * Only load checkout.js/checkout.min.js script, when user is on checkout.
+     * Add checkout javascript to the checkout page
      *
      * @access public
      * @return void
@@ -187,7 +271,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     public function refresh_frontend()
     {
-        $min = !defined('SCRIPT_DEBUG') || !SCRIPT_DEBUG ? '.min' : '';
 
         if (!is_checkout()) {
             return;
@@ -195,7 +278,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         wp_enqueue_script(
             'wc-pf-checkout',
-            $this->plugin_url() . '/assets/js/checkout' . $min . '.js',
+            $this->plugin_url() . '/assets/js/checkout.js',
             ['jquery'],
             BuckarooConfig::VERSION,
             true
@@ -329,7 +412,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $charset        = strtolower(ini_get('default_charset'));
         $addDescription = '';
         if ($charset != 'utf-8') {
-            $addDescription = '<fieldset style="border: 1px solid #ffac0e; padding: 10px;"><legend><b style="color: #ffac0e">Warning!</b></legend>default_charset is not set.<br>This might cause a problems on receiving push message.<br>Please set default_charset="UTF-8" in your php.ini and add AddDefaultCharset UTF-8 to .htaccess file.</fieldset>';
+            $addDescription = '<fieldset style="border: 1px solid #ffac0e; padding: 10px;"><legend><b style="color: #ffac0e">'.__('Warning', 'wc-buckaroo-bpe-gateway').'!</b></legend>'.__('default_charset is not set.<br>This might cause a problems on receiving push message.<br>Please set default_charset="UTF-8" in your php.ini and add AddDefaultCharset UTF-8 to .htaccess file.', 'wc-buckaroo-bpe-gateway').'</fieldset>';
         }
         //Add Warning, if currency set in Buckaroo is unsupported
         if (isset($_GET['section']) && $this->id == $_GET['section'] && !checkCurrencySupported($this->id) && is_admin()): ?>
@@ -344,10 +427,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->form_fields = [
             'enabled'                => [
                 'title'       => __('Enable/Disable', 'wc-buckaroo-bpe-gateway'),
-                'label'       => __(
-                    'Enable ' . (isset($this->method_title) ? $this->method_title : '') . ' Payment method',
-                    'wc-buckaroo-bpe-gateway'
-                ),
+                'label'       => sprintf(__('Enable %s Payment Method', 'wc-buckaroo-bpe-gateway'), (isset($this->method_title) ? $this->method_title : '')),
                 'type'        => 'checkbox',
                 'description' => $addDescription,
                 'default'     => 'no',
@@ -430,7 +510,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 'title'             => __('Extra charge amount', 'wc-buckaroo-bpe-gateway'),
                 'type'              => 'number',
                 'custom_attributes' => ["step" => "0.01"],
-                'description'       => __('Specify static or percentage amount.' . ' ' . __('Decimals must be seperated by a dot (.)'), 'wc-buckaroo-bpe-gateway'),
+                'description'       => __('Specify static or percentage amount.', 'wc-buckaroo-bpe-gateway') . ' ' . __('Decimals must be seperated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
                 'default'           => '0',
             ],
             'extrachargetype'        => [
@@ -464,7 +544,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     public function response_handler()
     {
-        $woocommerce          = getWooCommerceObject();
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $result               = fn_buckaroo_process_response($this);
         if (!is_null($result)) {
@@ -477,19 +556,12 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
     /**
      * Payment form on checkout page
+     * 
+     * @return void
      */
     public function payment_fields()
     {
-        if ($this->mode == 'test'): ?>
-<p>
-    <?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway');?>
-</p><?php
-endif;
-        if ($this->description): ?>
-<p>
-    <?php echo wpautop(wptexturize($this->description)); ?>
-</p><?php
-endif;
+        $this->renderTemplate();
     }
 
     public function get_failed_url()
@@ -546,7 +618,7 @@ endif;
      * @param string $key
      * @return boolean
      */
-    public function validate_number_field($key)
+    public function validate_number_field($key, $text)
     {
         if (in_array($key, ['extrachargeamount', 'minvalue', 'maxvalue'])) {
             //[9Yrds][2017-05-03][JW] WooCommerce 2.2 & 2.3 compatability
@@ -615,5 +687,132 @@ endif;
             return DateTime::createFromFormat('j/n/y', $date)->format('d-m-Y');
         }
         return $date;
+    }
+    /**
+     * Get the template for the payment gateway if exists 
+     * 
+     * @param string $name Template name / payment id.
+     * 
+     * @return void
+     */
+    protected function getPaymentTemplate($name) 
+    {
+        $location = dirname(BK_PLUGIN_FILE).self::BUCKAROO_TEMPLATE_LOCATION;
+        $file = $location.$name.".php";
+
+        if (file_exists($file)) {
+            include $file;
+        }
+    }
+    /**
+     * Render the gateway template
+     *
+     * @return void
+     */
+    protected function renderTemplate($id = null)
+    {
+        if (is_null($id)) {
+            $id = $this->id;
+        }
+        
+        $name = str_replace("buckaroo_", "", $id);
+
+        do_action("buckaroo_before_render_gateway_template_".$name, $this);
+
+        $this->getPaymentTemplate('global');
+        $this->getPaymentTemplate($name);
+
+        do_action("buckaroo_after_render_gateway_template_".$name, $this);
+    }
+    /**
+     * Get checkout field values
+     *
+     * @param string $key Input name
+     *
+     * @return mixt
+     */
+    protected function geCheckoutField($key)
+    {
+        $value = '';
+        $post_data   = array();
+        if (!empty($_POST["post_data"])) {
+            parse_str($_POST["post_data"], $post_data);
+        }
+
+        if (isset($post_data[$key])) {
+            $value = $post_data[$key];
+        }
+        return sanitize_text_field($value);
+    }
+    /**
+     * Set order capture
+     *
+     * @param int $order_id Order id
+     * @param string $paymentName Payment name
+     * @param string|null $paymentType Payment type
+     *
+     * @return void
+     */
+    protected function setOrderCapture($order_id, $paymentName, $paymentType = null)
+    {
+        
+        update_post_meta($order_id, '_wc_order_selected_payment_method', $paymentName);
+        $this->setOrderIssuer($order_id, $paymentType);
+    }
+    /**
+     * Set order issuer
+     *
+     * @param int $order_id Order id
+     * @param string|null $paymentType Payment type
+     *
+     * @return void
+     */
+    protected function setOrderIssuer($order_id, $paymentType = null)
+    {
+        if (is_null($paymentType)) {
+            $paymentType = $this->type;
+        }
+        update_post_meta($order_id, '_wc_order_payment_issuer', $paymentType);
+    }
+    /**
+     * Create a request for debit
+     *
+     * @param WC_Order $order Woocommerce order
+     *
+     * @return BuckarooPaymentMethod
+     */
+    protected function createDebitRequest($order)
+    {
+
+        $payment = $this->createPaymentRequest($order);
+        if (method_exists($order, 'get_order_total')) {
+            $payment->amountDedit = $order->get_order_total();
+        } else {
+            $payment->amountDedit = $order->get_total();
+        }
+        return $payment;
+    }
+    /**
+     * Create the payment method
+     *
+     * @param WC_Order $order Woocommerce order
+     *
+     * @return BuckarooPaymentMethod
+     */
+    protected function createPaymentRequest($order)
+    {
+        
+        $paymentClass = static::PAYMENT_CLASS;
+        $payment = new $paymentClass();
+        $payment->currency = get_woocommerce_currency();
+        $payment->amountDedit = 0;
+        $payment->amountCredit = 0;
+        $payment->invoiceId = (string)getUniqInvoiceId($order->get_order_number());
+        $payment->orderId = (string)$order->get_id();
+        $payment->description = $this->transactiondescription;
+        $payment->returnUrl = $this->notify_url;
+        $payment->mode = $this->mode;
+        $payment->channel = BuckarooConfig::CHANNEL;
+        return $payment;
     }
 }

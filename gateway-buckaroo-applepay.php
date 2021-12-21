@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once __DIR__ . '/controllers/ApplePayController.php';
 require_once dirname(__FILE__) . '/library/api/paymentmethods/applepay/applepay.php';
 
@@ -8,54 +8,22 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/applepay/applepay.
  */
 class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooApplepay::class;
     public function __construct()
     {
-        $woocommerce                  = getWooCommerceObject();
         $this->id                     = 'buckaroo_applepay';
         $this->title                  = 'Applepay';
         $this->icon                   = null;
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo Applepay";
-        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
-        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->currency               = get_woocommerce_currency();
-        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode                   = BuckarooConfig::getMode();
-        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture                = BuckarooConfig::get('CULTURE');
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
         $this->CustomerCardName       = '';
 
         parent::__construct();
-
-        if (!isset($this->settings['usenotification'])) {
-            $this->usenotification   = 'FALSE';
-            $this->notificationdelay = '0';
-
-        } else {
-            $this->usenotification   = $this->settings['usenotification'];
-            $this->notificationdelay = $this->settings['notificationdelay'];
-        }
-
-        $this->supports = array(
-            'products',
-            'refunds',
-        );
-
-        $this->notify_url = home_url('/');
-
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '<')) {
-
-        } else {
+        $this->addRefundSupport();
+        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
             $this->registerControllers();
-            add_action('woocommerce_update_options_payment_gateways_' . $this->id, [$this, 'process_admin_options']);
-            add_action('woocommerce_api_wc_gateway_buckaroo_applepay', array($this, 'response_handler'));
-            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Applepay', $this->notify_url);
         }
     }
-
     private function registerControllers()
     {
         $namespace = "woocommerce_api_wc_gateway_buckaroo_applepay";
@@ -162,51 +130,22 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce = getWooCommerceObject();
+        $order = getWCOrder($order_id);
+        /** @var BuckarooApplepay */
+        $applepay = $this->createDebitRequest($order);
 
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $applepay             = new BuckarooApplepay();
-
-        if (method_exists($order, 'get_order_total')) {
-            $applepay->amountDedit = $order->get_order_total();
-        } else {
-            $applepay->amountDedit = $order->get_total();
-        }
-
-        $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
-
-        $applepay->channel          = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $applepay->currency         = $this->currency;
-        $applepay->description      = $this->transactiondescription;
-        $applepay->invoiceId        = $order->get_order_number();
-        $applepay->orderId          = $order_id;
-        $applepay->returnUrl        = $this->notify_url;
         $applepay->CustomerCardName = $this->CustomerCardName;
 
         $customVars                     = array();
         $customVars['PaymentData']      = base64_encode(json_encode($this->paymentData['token']));
         $customVars['CustomerCardName'] = $this->CustomerCardName;
 
-        if ($this->usenotification == 'TRUE') {
-            $applepay->usenotification    = 1;
-            $customVars['Customergender'] = 0;
-
-            $get_billing_first_name          = getWCOrderDetails($order_id, 'billing_first_name');
-            $get_billing_last_name           = getWCOrderDetails($order_id, 'billing_last_name');
-            $get_billing_email               = getWCOrderDetails($order_id, 'billing_email');
-            $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-            $customVars['CustomerLastName']  = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-            $customVars['Customeremail']     = !empty($get_billing_email) ? $get_billing_email : '';
-
-            $customVars['Notificationtype']  = 'PaymentComplete';
-            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->notificationdelay . ' day'))));
-        }
+    
 
         $response          = $applepay->Pay($customVars);
         $buckaroo_response = fn_buckaroo_process_response($this, $response);
 
-        if ($response->status === "BUCKAROO_SUCCESS") {
+        if ($response->status === BuckarooAbstract::STATUS_COMPLETED) {
             $order->update_status('processing', 'Order paid with Apple pay');
         } else {
             $buckaroo_response = [
@@ -335,26 +274,6 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
             'country'    => $address['countryCode'],
         ];
     }
-
-    /**
-     * Check response data
-     *
-     * @access public
-     */
-    public function response_handler()
-    {
-        $woocommerce          = getWooCommerceObject();
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $result               = fn_buckaroo_process_response($this);
-        if (!is_null($result)) {
-            wp_safe_redirect($result['redirect']);
-        } else {
-            wp_safe_redirect($this->get_failed_url());
-        }
-
-        exit;
-    }
-
     /**
      * Add fields to the form_fields() array, specific to this page.
      *
@@ -435,24 +354,11 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
             'description' => __(''),
             'default'     => '');
 
-        $this->form_fields['usenotification'] = array(
-            'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
-            'default'     => 'FALSE');
-
-        $this->form_fields['notificationdelay'] = array(
-            'title'       => __('Notification delay', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'text',
-            'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '0');
-
         $this->form_fields['button_product'] = array(
             'title'       => __('Button on product page', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Show the Apple pay button on the product page', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Show', 'FALSE' => 'Hide'),
+            'options'     => array('TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'TRUE',
         );
 
@@ -460,7 +366,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
             'title'       => __('Button on cart page', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Show the Apple pay button on the cart page', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Show', 'FALSE' => 'Hide'),
+            'options'     => array('TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'TRUE',
         );
 
@@ -468,7 +374,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
             'title'       => __('Button on checkout page', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Show the Apple pay button on the checkout page', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Show', 'FALSE' => 'Hide'),
+            'options'     => array('TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'TRUE',
         );
 
