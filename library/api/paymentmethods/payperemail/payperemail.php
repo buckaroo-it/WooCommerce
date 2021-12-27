@@ -25,7 +25,7 @@ class BuckarooPayPerEmail extends BuckarooPaymentMethod {
 
     public function PaymentInvitation($customVars = array()) {
 
-        $this->setServiceTypeActionAndVersion('PaymentInvitation');
+        $this->setServiceActionAndVersion('PaymentInvitation');
 
         if (!empty($customVars['PaymentMethodsAllowed'])) {
             $this->setCustomVar('PaymentMethodsAllowed', $customVars['PaymentMethodsAllowed']);
