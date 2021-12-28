@@ -631,6 +631,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                         ), 'error'
                     );
 
+                    /*
                     if (version_compare(PHP_VERSION, '7.3.0') >= 0) {
                         WC()->session->set_customer_session_cookie(true);
                         WC()->session->wc_setcookie('woocommerce_items_in_cart', 1);
@@ -638,6 +639,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                             WC()->session->wc_setcookie('woocommerce_cart_hash', $_COOKIE['woocommerce_cart_hash']);
                         }
                     }
+                    */
 
                     $logger->logInfo('wc session after: ' . var_export(WC()->session, true));
                     if (WooV3Plus()) {

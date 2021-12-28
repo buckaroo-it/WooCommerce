@@ -20,7 +20,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
     public $showpayproc = false;
 
-    private static $woocommerce_set_cart_cookies = false;
+    //private static $woocommerce_set_cart_cookies = false;
 
     public function __construct()
     {
@@ -37,7 +37,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         if (version_compare(PHP_VERSION, '7.3.0') >= 0) {
             add_filter('woocommerce_session_handler', array($this, 'woocommerce_session_handler'));
-            add_action('woocommerce_set_cart_cookies', array($this, 'woocommerce_set_cart_cookies'));
+            //add_action('woocommerce_set_cart_cookies', array($this, 'woocommerce_set_cart_cookies'));
         }
 
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
@@ -57,6 +57,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         return 'WC_Session_Handler_Buckaroo';
     }
 
+    /*
     public function woocommerce_set_cart_cookies()
     {
         if (!self::$woocommerce_set_cart_cookies) {
@@ -69,6 +70,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         WC()->session->set_customer_session_cookie(true);
     }
+    */
 
     /**
      * Init class fields from settings

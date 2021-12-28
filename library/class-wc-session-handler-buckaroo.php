@@ -20,7 +20,7 @@ class WC_Session_Handler_Buckaroo extends WC_Session_Handler
     }
 
     function wc_setcookie( $name, $value, $expire = 0, $secure = false, $httponly = false ) {
-        //if ( ! headers_sent() ) {
+        if ( ! headers_sent() ) {
             $arr_cookie_options = [
                 'expires' => $expire,
                 'path' => COOKIEPATH ? COOKIEPATH : '/',
@@ -30,9 +30,9 @@ class WC_Session_Handler_Buckaroo extends WC_Session_Handler
                 'samesite' => 'None, Secure'
             ];
             setcookie( $name, $value, $arr_cookie_options );
-        /*} elseif ( Constants::is_true( 'WP_DEBUG' ) ) {
+        } elseif ( Constants::is_true( 'WP_DEBUG' ) ) {
             headers_sent( $file, $line );
             trigger_error( "{$name} cookie cannot be set - headers already sent by {$file} on line {$line}", E_USER_NOTICE ); // @codingStandardsIgnoreLine
-        }*/
+        }
     }
 }
