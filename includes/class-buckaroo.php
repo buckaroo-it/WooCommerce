@@ -52,8 +52,6 @@ final class Buckaroo {
 	 */
 	public function includes() {
 
-		include_once BK_ABSPATH . 'includes/class-wc-ajax.php';
-
 		if ( $this->is_request( 'admin' ) ) {
 			include_once BK_ABSPATH . 'includes/admin/class-wc-admin.php';
 		}
