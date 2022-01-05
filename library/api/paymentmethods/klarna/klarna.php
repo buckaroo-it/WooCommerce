@@ -164,7 +164,7 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
                 [
                     "Description"=> 'Shipping Cost',
                     "Identifier"=> 'shipping',
-                    "Quantity"=> $p["ArticleQuantity"],
+                    "Quantity"=> 1,
                     "GrossUnitprice"=> (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0'),
                     "VatPercentage"=> (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0'),
                 ],
