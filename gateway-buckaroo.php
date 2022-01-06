@@ -24,8 +24,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
     public function __construct()
     {
-        $this->setCommonFields();
-
         if ((!is_admin() && !checkCurrencySupported($this->id)) || (defined('DOING_AJAX') && !checkCurrencySupported($this->id))) {
             unset($this->id);
             unset($this->title);
@@ -34,7 +32,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->init_form_fields();
         // Load the settings.
         $this->init_settings();
-        
+
         $this->setProperties();
 
         if (version_compare(PHP_VERSION, '7.3.0') >= 0) {
@@ -82,15 +80,13 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     protected function setProperties()
     {
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        //Don't load empty values (it fills up the debug log);
-        if (!empty($this->settings['title']) and $this->title != $this->settings['title']) {
-            $this->title = $this->get_option('title');
-        }
+        $this->title                  = $this->get_option('title', $this->title ?? '');
         $this->currency               = get_woocommerce_currency();
         $this->description            = $this->get_option(
-            'description',  
+            'description',
             sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title)
         );
+        $this->mode                   = $this->get_option('mode');
         $this->minvalue               = $this->get_option('minvalue', 0);
         $this->maxvalue               = $this->get_option('maxvalue', 0);
         $this->sellerprotection       = $this->get_option('sellerprotection', 'TRUE');
@@ -99,18 +95,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->extrachargetaxtype     = $this->get_option('extrachargetaxtype', 'included');
         $this->transactiondescription = $this->get_option('transactiondescription');
     }
-
-    /**
-     * Set common available fields
-     *
-     * @return void
-     */
-    protected function setCommonFields()
-    {
-        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->mode                   = BuckarooConfig::getMode();
-    }
-
     /**
      * Set gateway icon
      *
@@ -151,7 +135,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     protected function addGatewayHooks($class)
     {
         $this->showpayproc = isset($this->settings['showpayproc']) && $this->settings['showpayproc'] == 'TRUE';
-        
+
         $this->notify_url = home_url('/');
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
 
@@ -206,7 +190,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     }
     public function thankyou_description()
     {
-        //not implemented 
+        //not implemented
     }
     public function payment_gateway_disable($available_gateways)
     {
@@ -271,7 +255,12 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if (isset($this->settings['usemaster']) && $this->settings['usemaster'] == 'yes') {
             // merge with master settings
             $options            = get_option('woocommerce_buckaroo_mastersettings_settings', null);
-            $options['enabled'] = $this->settings['enabled'];
+            unset(
+                $options['enabled'],
+                $options['title'],
+                $options['mode'],
+                $options['description'],
+            );
             if (is_array($options)) {
                 $this->settings = array_replace($this->settings, $options);
             }
@@ -592,7 +581,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
     /**
      * Payment form on checkout page
-     * 
+     *
      * @return void
      */
     public function payment_fields()
@@ -725,13 +714,13 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         return $date;
     }
     /**
-     * Get the template for the payment gateway if exists 
-     * 
+     * Get the template for the payment gateway if exists
+     *
      * @param string $name Template name / payment id.
-     * 
+     *
      * @return void
      */
-    protected function getPaymentTemplate($name) 
+    protected function getPaymentTemplate($name)
     {
         $location = dirname(BK_PLUGIN_FILE).self::BUCKAROO_TEMPLATE_LOCATION;
         $file = $location.$name.".php";
@@ -750,7 +739,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if (is_null($id)) {
             $id = $this->id;
         }
-        
+
         $name = str_replace("buckaroo_", "", $id);
 
         do_action("buckaroo_before_render_gateway_template_".$name, $this);
@@ -812,7 +801,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     protected function setOrderCapture($order_id, $paymentName, $paymentType = null)
     {
-        
+
         update_post_meta($order_id, '_wc_order_selected_payment_method', $paymentName);
         $this->setOrderIssuer($order_id, $paymentType);
     }
@@ -918,7 +907,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     protected function createPaymentRequest($order)
     {
-        
+
         $paymentClass = static::PAYMENT_CLASS;
         $payment = new $paymentClass();
         $payment->currency = get_woocommerce_currency();
