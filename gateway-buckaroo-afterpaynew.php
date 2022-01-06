@@ -462,16 +462,19 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
                 $products[]                = $tmp;
             }
         }
-        $fees = $order->get_fees();
-        foreach ($fees as $key => $item) {
-            $feeTaxRate                = $this->getFeeTax($fees[$key]);
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $key;
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = number_format(($item["line_total"] + $item["line_tax"]), 2, '.', '');
-            $itemsTotalAmount += $tmp["ArticleUnitprice"];
-            $tmp["ArticleVatcategory"] = $feeTaxRate;
-            $products[]                = $tmp;
+
+        if (!$previous_captures) {
+            $fees = $order->get_fees();
+            foreach ($fees as $key => $item) {
+                $feeTaxRate = $this->getFeeTax($fees[$key]);
+                $tmp["ArticleDescription"] = $item['name'];
+                $tmp["ArticleId"] = $key;
+                $tmp["ArticleQuantity"] = 1;
+                $tmp["ArticleUnitprice"] = number_format(($item["line_total"] + $item["line_tax"]), 2, '.', '');
+                $itemsTotalAmount += $tmp["ArticleUnitprice"];
+                $tmp["ArticleVatcategory"] = $feeTaxRate;
+                $products[] = $tmp;
+            }
         }
 
         // Add shippingCosts
