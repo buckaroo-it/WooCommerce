@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/sepadirectdebit/se
  */
 class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooSepaDirectDebit::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_sepadirectdebit';
