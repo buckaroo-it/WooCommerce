@@ -30,14 +30,6 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
 
     /**
      * @access public
-     * @return callable parent::Refund();
-     */
-    public function Refund() {
-        return parent::Refund();
-    }
-
-    /**
-     * @access public
      * @return array $issuerArray
      */
     public static function getIssuerList() {

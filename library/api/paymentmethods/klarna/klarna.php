@@ -203,10 +203,4 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
 
         return parent::PayGlobal();
     }
-
-    public function checkRefundData($data){
-        return parent::checkRefundData($data);
-    }
 }
-
-?>

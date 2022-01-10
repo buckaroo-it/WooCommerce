@@ -25,15 +25,6 @@ class BuckarooRequestToPay extends BuckarooPaymentMethod {
     }
 
     /**
-     * @access public
-     * @return callable parent::Refund();
-     * @throws Exception
-     */
-    public function Refund() {
-        return parent::Refund();
-    }
-
-    /**
      * @param $data
      * @throws Exception
      */

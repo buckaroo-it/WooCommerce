@@ -20,23 +20,4 @@ class BuckarooKBC extends BuckarooPaymentMethod {
         $this->data['services'][$this->type]['version'] = $this->version;
         return parent::Pay();
     }
-
-    /**
-     * @access public
-     * @return callable parent::Refund();
-     * @throws Exception
-     */
-    public function Refund() {
-        return parent::Refund();
-    }
-
-    /**
-     * @access public
-     * @return callable parent::checkRefundData($data);
-     * @param $data array
-     * @throws Exception
-     */
-    public function checkRefundData($data) {
-        return parent::checkRefundData($data);
-    }
 }
