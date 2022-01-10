@@ -28,7 +28,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     public $returnUrl;
     public $mode;
     public $version;
-    public $sellerprotection   = 0;
+    public $sellerprotection = 0;
     public $CreditCardDataEncrypted;
     protected $data = array();
 
@@ -47,6 +47,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     {
         return $this->type;
     }
+
     /**
      * Set request parameter
      *
@@ -60,6 +61,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         $this->data[$key] = $value;
         return $value;
     }
+
     /**
      * Set service param key and value
      *
@@ -73,6 +75,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     {
         return $this->setServiceOfType($key, $value);
     }
+
     /**
      * Set service param for specific type
      *
@@ -87,7 +90,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         if ($type === null) {
             $type = $this->type;
         }
-        
+
         if (!isset($this->data['services'])) {
             $this->data['services'] = [];
         }
@@ -100,7 +103,8 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
 
         return $value;
     }
-     /**
+
+    /**
      * Set custom param key and value
      *
      * @param string|array $keyOrValues Key of the value or associative array of values
@@ -130,7 +134,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         if ($type === null) {
             $type = $this->type;
         }
-        
+
         if (!isset($this->data['customVars'])) {
             $this->data['customVars'] = [];
         }
@@ -149,8 +153,8 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
                 $keyOrValues = array_map(
                     function ($value) use ($group) {
                         return [
-                            "value"=>$value,
-                            "group"=>$group
+                            "value" => $value,
+                            "group" => $group
                         ];
                     },
                     $keyOrValues
@@ -166,14 +170,15 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         } else {
             if ($group !== null) {
                 $value = [
-                    "value"=>$value,
-                    "group"=>$group
+                    "value" => $value,
+                    "group" => $group
                 ];
             }
             $this->data['customVars'][$type][$keyOrValues] = $value;
         }
         return $value;
     }
+
     /**
      * Set custom param at specific position in array
      *
@@ -190,7 +195,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         if ($type === null) {
             $type = $this->type;
         }
-        
+
         if (!isset($this->data['customVars'])) {
             $this->data['customVars'] = [];
         }
@@ -199,13 +204,14 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         }
         if ($group !== null) {
             $value = [
-                "value"=>$value,
-                "group"=>$group
+                "value" => $value,
+                "group" => $group
             ];
         }
         $this->data['customVars'][$type][$key][$position] = $value;
     }
-     /**
+
+    /**
      * Set custom value for position fro array of values
      *
      * @param array $values
@@ -215,13 +221,15 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
      *
      * @return void
      */
-    public function setCustomVarsAtPosition($values, $position, $group = null, $type = null) {
+    public function setCustomVarsAtPosition($values, $position, $group = null, $type = null)
+    {
         foreach ($values as $key => $value) {
             $this->setCustomVarAtPosition(
                 $key, $value, $position, $group, $type
             );
         }
     }
+
     /**
      * Set custom param without type key
      *
@@ -242,6 +250,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         $this->data['customVars'][$keyOrValues] = $value;
         return $value;
     }
+
     /**
      * Set Service action and function
      *
@@ -258,6 +267,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         $this->setService('action', $action);
         $this->setService('version', $version);
     }
+
     /**
      * Set service type, action and version
      *
@@ -277,6 +287,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
 
         $this->setServiceActionAndVersion($action, $version);
     }
+
     /**
      * Set main parameters for type
      *
@@ -306,6 +317,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
             $this->setParameter('invoice', $this->getInvoiceNumber());
         }
     }
+
     /**
      * Populate generic fields for a authorize
      *
@@ -317,6 +329,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         $this->setServiceActionAndVersion('Authorize');
         return $this->PayGlobal();
     }
+
     /**
      * Populate generic fields in $customVars() array
      *
@@ -329,6 +342,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         $this->setServiceActionAndVersion('Pay');
         return $this->PayGlobal();
     }
+
     /**
      * Populate generic fields for a refund
      *
@@ -340,6 +354,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         $this->setServiceActionAndVersion('Refund');
         return $this->RefundGlobal();
     }
+
     /**
      * Send request and get response
      *
@@ -354,6 +369,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
             (new BuckarooSoap($this->data))->transactionRequest()
         );
     }
+
     /**
      * Build soap request for payment and get response
      *
@@ -402,7 +418,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
 
         if (preg_match('/^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$/', $iban)) {
             $country = substr($iban, 0, 2);
-            $check   = intval(substr($iban, 2, 2));
+            $check = intval(substr($iban, 2, 2));
             $account = substr($iban, 4);
 
             // To numeric representation
@@ -434,26 +450,24 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     {
         //Check if order is refundable
         $order = wc_get_order($this->orderId);
-        $items         = $order->get_items();
+        $items = $order->get_items();
         $shippingItems = $order->get_items('shipping');
-        $feeItems      = $order->get_items('fee');
+        $feeItems = $order->get_items('fee');
 
-        $shippingCostWithoutTax  = (float) $order->get_shipping_total();
-        $shippingTax             = (float) $order->get_shipping_tax();
-        $shippingCosts           = roundAmount($shippingCostWithoutTax) + roundAmount($shippingTax);
-        $shippingRefundedCosts   = 0.00;
+        $shippingCostWithoutTax = (float)$order->get_shipping_total();
+        $shippingTax = (float)$order->get_shipping_tax();
+        $shippingCosts = roundAmount($shippingCostWithoutTax) + roundAmount($shippingTax);
+        $shippingRefundedCosts = 0.00;
         $shippingAlreadyRefunded = $order->get_total_shipping_refunded();
 
         foreach ($items as $item_id => $item_data) {
             if ($items[$item_id] instanceof WC_Order_Item_Product && isset($data[$item_id])) {
 
-                $itemPrice         = 0;
                 $orderItemRefunded = $order->get_total_refunded_for_item($item_id);
-                $itemTotal         = $items[$item_id]->get_total();
-                $itemQuantity      = $items[$item_id]->get_quantity();
-                $itemPrice         = roundAmount($itemTotal / $itemQuantity);
+                $itemTotal = $items[$item_id]->get_total();
+                $itemQuantity = $items[$item_id]->get_quantity();
 
-                $tax   = $items[$item_id]->get_taxes();
+                $tax = $items[$item_id]->get_taxes();
                 $taxId = 3;
 
                 if (!empty($tax['total'])) {
@@ -462,7 +476,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
                     }
                 }
 
-                $itemTax         = $items[$item_id]->get_total_tax();
+                $itemTax = $items[$item_id]->get_total_tax();
                 $itemRefundedTax = $order->get_tax_refunded_for_item($item_id, $taxId);
 
                 if ($itemTotal < $orderItemRefunded) {
@@ -477,58 +491,11 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
                     throw new Exception('Incorrect entered product price. Please check refund tax amount');
                 }
 
-                if (!empty($data[$item_id]['qty'])) {
-                    $item_refunded = $order->get_qty_refunded_for_item($item_id);
-                    if ($itemQuantity === abs($item_refunded) - $data[$item_id]['qty']) {
-                        throw new Exception('Product already refunded');
-                    } elseif ($itemQuantity < abs($item_refunded)) {
-                        $availableRefundQty = $itemQuantity - (abs($item_refunded) - $data[$item_id]['qty']);
-                        $message            = $availableRefundQty . ' item(s) can be refund';
-                        throw new Exception($message);
-                    }
-                }
-
-                if (roundAmount($itemRefundedTax) - roundAmount($itemTax) > 0.01) {
-                    throw new Exception('Incorrect refund tax price');
-                }
+                $this->checkRefundDataCommon2($data, $order, $item_id, $itemQuantity, $itemRefundedTax, $itemTax);
             }
         }
 
-        foreach ($shippingItems as $shipping_item_id => $item_data) {
-            if ($shippingItems[$shipping_item_id] instanceof WC_Order_Item_Shipping && isset($data[$shipping_item_id])) {
-                if (array_key_exists('total', $data[$shipping_item_id])) {
-                    $shippingRefundedCosts += $data[$shipping_item_id]['total'];
-                }
-                if (array_key_exists('tax', $data[$shipping_item_id])) {
-                    $shippingRefundedCosts += $data[$shipping_item_id]['tax'];
-                }
-            }
-        }
-
-        foreach ($feeItems as $item_id => $item_data) {
-            $feeCost = $feeItems[$item_id]->get_total();
-            $feeTax  = $feeItems[$item_id]->get_taxes();
-            if (!empty($feeTax['total'])) {
-                foreach ($feeTax['total'] as $taxFee) {
-                    $feeCost += roundAmount((float) $taxFee);
-                }
-            }
-            if (!empty($data[$item_id]['total'])) {
-                $totalFeePrice = roundAmount((float) $data[$item_id]['total'] + (float) $data[$item_id]['tax']);
-                if (abs($totalFeePrice) - abs($feeCost) < 0 && abs($totalFeePrice - $feeCost) > 0.01) {
-                    throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()));
-                } elseif (abs($feeCost) - abs($totalFeePrice) < 0 && abs($feeCost - $totalFeePrice) > 0.01) {
-                    $balance = $feeCost - $totalFeePrice;
-                    throw new Exception('Please add ' . $balance . ' ' . esc_attr(get_woocommerce_currency()) . ' to full refund payment fee cost');
-                }
-            }
-        }
-        if ($shippingAlreadyRefunded > $shippingCosts) {
-            throw new Exception('Shipping price already refunded');
-        }
-        if (((float) $shippingCosts !== (float) $shippingRefundedCosts || abs($shippingCosts - $shippingRefundedCosts) > 0.01) && !empty($shippingRefundedCosts)) {
-            throw new Exception('Incorrect refund shipping price. Please check refund shipping price and tax amounts');
-        }
+        $this->checkRefundDataCommon($data, $shippingItems, $shippingRefundedCosts, $feeItems, $order, $shippingAlreadyRefunded, $shippingCosts, false);
     }
 
     /**
@@ -563,7 +530,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
                     if (empty($order)) {
                         $order = wc_get_order($this->orderId);
                     }
-                    $item             = $order->get_item($key);
+                    $item = $order->get_item($key);
                     $taxItemFromOrder = $item->get_taxes();
 
                     if (!isset($taxItemFromOrder['total'][$taxItem])) {
@@ -634,5 +601,139 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     public function order_number_shortcode()
     {
         return $this->data['description'] . ' ' . $this->invoiceId;
+    }
+
+    protected function PayOrAuthorizeCommon($products, $billing, $shipping)
+    {
+        $this->setCustomVarsAtPosition($billing, 0, 'BillingCustomer');
+        $this->setCustomVarsAtPosition($shipping, 1, 'ShippingCustomer');
+
+        // Merge products with same SKU
+        $mergedProducts = array();
+        foreach ($products as $product) {
+            if (!isset($mergedProducts[$product['ArticleId']])) {
+                $mergedProducts[$product['ArticleId']] = $product;
+            } else {
+                $mergedProducts[$product['ArticleId']]["ArticleQuantity"] += 1;
+            }
+        }
+
+        return $mergedProducts;
+
+    }
+
+    public function checkRefundDataAp($data)
+    {
+        //Check if order is refundable
+        foreach ($data as $itemKey) {
+            if (empty($itemKey['total']) && !empty($itemKey['tax'])) {
+                throw new Exception('Tax only cannot be refund');
+            }
+        }
+        $order = wc_get_order($this->orderId);
+        $items = $order->get_items();
+        $shippingItems = $order->get_items('shipping');
+        $feeItems = $order->get_items('fee');
+
+        $shippingCostWithoutTax = (float)$order->get_shipping_total();
+        $shippingTax = (float)$order->get_shipping_tax();
+        $shippingCosts = roundAmount($shippingCostWithoutTax) + roundAmount($shippingTax);
+        $shippingRefundedCosts = 0.00;
+        $shippingAlreadyRefunded = $order->get_total_shipping_refunded();
+
+        foreach ($items as $item_id => $item_data) {
+            if ($items[$item_id] instanceof WC_Order_Item_Product && isset($data[$item_id])) {
+
+                $itemTotal = $items[$item_id]->get_total();
+                $itemQuantity = $items[$item_id]->get_quantity();
+                $itemPrice = roundAmount($itemTotal / $itemQuantity);
+
+                $tax = $items[$item_id]->get_taxes();
+                $taxId = 3;
+
+                if (!empty($tax['total'])) {
+                    foreach ($tax['total'] as $key => $value) {
+                        $taxId = $key;
+                    }
+                }
+
+                $itemTax = $items[$item_id]->get_total_tax();
+                $itemRefundedTax = $order->get_tax_refunded_for_item($item_id, $taxId);
+                // FOR AFTERPAY
+                if (empty($data[$item_id]['qty'])) {
+                    throw new Exception('Product quantity doesn`t choose');
+                }
+
+                // FOR AFTERPAY
+                if ((float)$itemPrice * $data[$item_id]['qty'] !== (float)roundAmount($data[$item_id]['total'])) {
+                    throw new Exception('Incorrect entered product price. Please check refund product price and tax amounts');
+                }
+
+                $this->checkRefundDataCommon2($data, $order, $item_id, $itemQuantity, $itemRefundedTax, $itemTax);
+            }
+        }
+
+        $this->checkRefundDataCommon($data, $shippingItems, $shippingRefundedCosts, $feeItems, $order, $shippingAlreadyRefunded, $shippingCosts, true);
+    }
+
+    private function checkRefundDataCommon($data, $shippingItems, $shippingRefundedCosts, $feeItems, $order, $shippingAlreadyRefunded, $shippingCosts, $checkFeeRefunded)
+    {
+        foreach ($shippingItems as $shipping_item_id => $item_data) {
+            if ($shippingItems[$shipping_item_id] instanceof WC_Order_Item_Shipping && isset($data[$shipping_item_id])) {
+                if (array_key_exists('total', $data[$shipping_item_id])) {
+                    $shippingRefundedCosts += $data[$shipping_item_id]['total'];
+                }
+                if (array_key_exists('tax', $data[$shipping_item_id])) {
+                    $shippingRefundedCosts += $data[$shipping_item_id]['tax'];
+                }
+            }
+        }
+
+        foreach ($feeItems as $item_id => $item_data) {
+            $feeRefunded = $order->get_qty_refunded_for_item($item_id, 'fee');
+            $feeCost = $feeItems[$item_id]->get_total();
+            $feeTax = $feeItems[$item_id]->get_taxes();
+            if (!empty($feeTax['total'])) {
+                foreach ($feeTax['total'] as $taxFee) {
+                    $feeCost += roundAmount((float)$taxFee);
+                }
+            }
+            if ($checkFeeRefunded && ($feeRefunded > 1)) {
+                throw new Exception('Payment fee already refunded');
+            }
+            if (!empty($data[$item_id]['total'])) {
+                $totalFeePrice = roundAmount((float)$data[$item_id]['total'] + (float)$data[$item_id]['tax']);
+                if (abs($totalFeePrice) - abs($feeCost) < 0 && abs($totalFeePrice - $feeCost) > 0.01) {
+                    throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()));
+                } elseif (abs($feeCost) - abs($totalFeePrice) < 0 && abs($feeCost - $totalFeePrice) > 0.01) {
+                    $balance = $feeCost - $totalFeePrice;
+                    throw new Exception('Please add ' . $balance . ' ' . esc_attr(get_woocommerce_currency()) . ' to full refund payment fee cost');
+                }
+            }
+        }
+        if ($shippingAlreadyRefunded > $shippingCosts) {
+            throw new Exception('Shipping price already refunded');
+        }
+        if (((float)$shippingCosts !== (float)$shippingRefundedCosts || abs($shippingCosts - $shippingRefundedCosts) > 0.01) && !empty($shippingRefundedCosts)) {
+            throw new Exception('Incorrect refund shipping price. Please check refund shipping price and tax amounts');
+        }
+    }
+
+    private function checkRefundDataCommon2($data, $order, $item_id, $itemQuantity, $itemRefundedTax, $itemTax)
+    {
+        if (!empty($data[$item_id]['qty'])) {
+            $item_refunded = $order->get_qty_refunded_for_item($item_id);
+            if ($itemQuantity === abs($item_refunded) - $data[$item_id]['qty']) {
+                throw new Exception('Product already refunded');
+            } elseif ($itemQuantity < abs($item_refunded)) {
+                $availableRefundQty = $itemQuantity - (abs($item_refunded) - $data[$item_id]['qty']);
+                $message = $availableRefundQty . ' item(s) can be refund';
+                throw new Exception($message);
+            }
+        }
+
+        if (roundAmount($itemRefundedTax) - roundAmount($itemTax) > 0.01) {
+            throw new Exception('Incorrect refund tax price');
+        }
     }
 }

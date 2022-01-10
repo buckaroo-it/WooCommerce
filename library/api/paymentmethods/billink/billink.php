@@ -141,21 +141,7 @@ class BuckarooBillink extends BuckarooPaymentMethod
             $billing['BirthDate'] = $this->BillingBirthDate;
         }
 
-        $this->setCustomVarsAtPosition($billing, 0, 'BillingCustomer');
-        $this->setCustomVarsAtPosition($shipping, 1, 'ShippingCustomer');
-
-        // Merge products with same SKU
-
-        $mergedProducts = array();
-        foreach ($products as $product) {
-            if (! isset($mergedProducts[$product['ArticleId']])) {
-                $mergedProducts[$product['ArticleId']] = $product;
-            } else {
-                $mergedProducts[$product['ArticleId']]["ArticleQuantity"] += 1;
-            }
-        }
-
-        $products = $mergedProducts;
+        $products = $this->PayOrAuthorizeCommon($products, $billing, $shipping);
 
         foreach(array_values($products) as $pos => $p) {
             $this->setCustomVarsAtPosition(
