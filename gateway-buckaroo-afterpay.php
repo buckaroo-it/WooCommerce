@@ -656,6 +656,27 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept            = 'TRUE';
+        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts);
+
+        $afterpay->returnUrl = $this->notify_url;
+
+       
+        $action = ucfirst(isset($this->afterpaypayauthorize) ? $this->afterpaypayauthorize : 'pay');
+
+        if ($action == 'Authorize') {
+            update_post_meta($order_id, '_wc_order_authorized', 'yes');
+        }
+
+        $response = $afterpay->PayOrAuthorizeAfterpay($products, $action);
+
+        // Save the original tranaction ID from the authorize or capture, we need it to do the refund
+        // JM REMOVE???
+        //update_post_meta( $order->get_id(), '_wc_order_payment_original_transaction_key', $this->type);
+
+        return fn_buckaroo_process_response($this, $response, $this->mode);
+    }
+
+    private function getProductsInfo($order, $amountDedit, $shippingCosts){
         $products                    = array();
         $items                       = $order->get_items();
         $itemsTotalAmount            = 0;
@@ -676,6 +697,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                 $products[] = $tmp;
             }
         }
+
         $fees = $order->get_fees();
         foreach ($fees as $key => $item) {
             $tmp["ArticleDescription"] = $item['name'];
@@ -686,45 +708,32 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             $tmp["ArticleVatcategory"] = '4';
             $products[]                = $tmp;
         }
-        if (!empty($afterpay->ShippingCosts)) {
-            $itemsTotalAmount += $afterpay->ShippingCosts;
+
+        if (!empty($shippingCosts)) {
+            $itemsTotalAmount += $shippingCosts;
         }
-        if ($afterpay->amountDedit != $itemsTotalAmount) {
-            if (number_format($afterpay->amountDedit - $itemsTotalAmount, 2) >= 0.01) {
+
+        if ($amountDedit != $itemsTotalAmount) {
+            if (number_format($amountDedit - $itemsTotalAmount, 2) >= 0.01) {
                 $tmp["ArticleDescription"] = 'Remaining Price';
                 $tmp["ArticleId"]          = 'remaining_price';
                 $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($afterpay->amountDedit - $itemsTotalAmount, 2);
+                $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2);
                 $tmp["ArticleVatcategory"] = 4;
                 $products[]                = $tmp;
                 $itemsTotalAmount += 0.01;
-            } elseif (number_format($itemsTotalAmount - $afterpay->amountDedit, 2) >= 0.01) {
+            } elseif (number_format($itemsTotalAmount - $amountDedit, 2) >= 0.01) {
                 $tmp["ArticleDescription"] = 'Remaining Price';
                 $tmp["ArticleId"]          = 'remaining_price';
                 $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($afterpay->amountDedit - $itemsTotalAmount, 2);
+                $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2);
                 $tmp["ArticleVatcategory"] = 4;
                 $products[]                = $tmp;
                 $itemsTotalAmount -= 0.01;
             }
         }
 
-        $afterpay->returnUrl = $this->notify_url;
-
-       
-        $action = ucfirst(isset($this->afterpaypayauthorize) ? $this->afterpaypayauthorize : 'pay');
-
-        if ($action == 'Authorize') {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes');
-        }
-
-        $response = $afterpay->PayOrAuthorizeAfterpay($products, $action);
-
-        // Save the original tranaction ID from the authorize or capture, we need it to do the refund
-        // JM REMOVE???
-        //update_post_meta( $order->get_id(), '_wc_order_payment_original_transaction_key', $this->type);
-
-        return fn_buckaroo_process_response($this, $response, $this->mode);
+        return $products;
     }
 
     private function getDHLParcelShopLocation($parcelShopUrl)

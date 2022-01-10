@@ -218,6 +218,19 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
         $klarna->CustomerIPAddress = getClientIpBuckaroo();
         $klarna->Accept            = 'TRUE';
+        $products = $this->getProductsInfo($order, $klarna->amountDedit, $klarna->ShippingCosts);
+
+        $klarna->returnUrl = $this->notify_url;
+
+        
+
+        $klarna->setPaymnetFlow($this->getKlarnaPaymentFlow());
+        $response = $klarna->paymentAction($products);
+        return fn_buckaroo_process_response($this, $response, $this->mode);
+    }
+
+    private function getProductsInfo($order, $amountDedit, $shippingCosts){
+
         $products                  = array();
         $items                     = $order->get_items();
         $itemsTotalAmount          = 0;
@@ -264,37 +277,33 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
             $tmp["ArticleVatcategory"] = $feeTaxRate;
             $products[]                = $tmp;
         }
-        if (!empty($klarna->ShippingCosts)) {
-            $itemsTotalAmount += $klarna->ShippingCosts;
+
+        if (!empty($shippingCosts)) {
+            $itemsTotalAmount += $shippingCosts;
         }
 
-        if ($klarna->amountDedit != $itemsTotalAmount) {
-            if (number_format($klarna->amountDedit - $itemsTotalAmount, 2) >= 0.01) {
+        if ($amountDedit != $itemsTotalAmount) {
+            if (number_format($amountDedit - $itemsTotalAmount, 2) >= 0.01) {
                 $tmp["ArticleDescription"] = 'Remaining Price';
                 $tmp["ArticleId"]          = 'remaining_price';
                 $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($klarna->amountDedit - $itemsTotalAmount, 2);
+                $tmp["ArticleUnitprice"]   = number_format($mountDedit - $itemsTotalAmount, 2);
                 $tmp["ArticleVatcategory"] = 0;
                 $products[]                = $tmp;
                 $itemsTotalAmount += 0.01;
-            } elseif (number_format($itemsTotalAmount - $klarna->amountDedit, 2) >= 0.01) {
+            } elseif (number_format($itemsTotalAmount - $amountDedit, 2) >= 0.01) {
                 $tmp["ArticleDescription"] = 'Remaining Price';
                 $tmp["ArticleId"]          = 'remaining_price';
                 $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($klarna->amountDedit - $itemsTotalAmount, 2);
+                $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2);
                 $tmp["ArticleVatcategory"] = 0;
                 $products[]                = $tmp;
                 $itemsTotalAmount -= 0.01;
             }
         }
 
-        $klarna->returnUrl = $this->notify_url;
+        return $products;
 
-        
-
-        $klarna->setPaymnetFlow($this->getKlarnaPaymentFlow());
-        $response = $klarna->paymentAction($products);
-        return fn_buckaroo_process_response($this, $response, $this->mode);
     }
     private function getFeeTax($fee)
     {
