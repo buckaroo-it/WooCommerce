@@ -23,27 +23,7 @@ Class ApplePayController
 
             $cart = $woocommerce->cart;
 
-            $current_shown_product = [
-                'product_id'   => $_GET['product_id'],
-                'variation_id' => $_GET['variation_id'],
-                'quantity'     => (int) $_GET['quantity'],
-            ];
-
-            $products = array_map(function ($product) {
-                //var_dump($product);
-                $id = $product['variation_id'] !== 0
-                    ? $product['variation_id']
-                    : $product['product_id'];
-
-                return [
-                    'type'       => 'product',
-                    'id'         => $id,
-                    'name'       => wc_get_product($id)->get_name(),
-                    'price'      => $product['line_total'] + $product['line_tax'],
-                    'quantity'   => $product['quantity'],
-                    'attributes' => []
-                ];
-            }, $cart->get_cart_contents());
+            $products = self::getProductsFromCart($cart);
 
             $product = reset($products);
 
@@ -84,21 +64,8 @@ Class ApplePayController
         global $woocommerce;
 
         $cart = $woocommerce->cart;
-    
-        $products = array_map(function ($product) {
-            //var_dump($product);
-            $id = $product['variation_id'] !== 0 
-                ? $product['variation_id']
-                : $product['product_id'];
-            return [
-                'type'       => 'product',
-                'id'         => $id,
-                'name'       => wc_get_product($id)->get_name(),
-                'price'      => $product['line_total'] + $product['line_tax'],
-                'quantity'   => $product['quantity'],
-                'attributes' => []
-            ];
-        }, $cart->get_cart_contents());
+
+        $products = self::getProductsFromCart($cart);
 
         $coupons = array_map(function ($coupon) use ($cart) {
             $price = $cart->get_coupon_discount_amount($coupon->get_code(), $cart->display_cart_ex_tax);
@@ -129,6 +96,26 @@ Class ApplePayController
 
         echo json_encode(array_values($items), JSON_PRETTY_PRINT);
         exit;
+    }
+
+    private static function getProductsFromCart($cart)
+    {
+        $products = array_map(function ($product) {
+            //var_dump($product);
+            $id = $product['variation_id'] !== 0
+                ? $product['variation_id']
+                : $product['product_id'];
+            return [
+                'type'       => 'product',
+                'id'         => $id,
+                'name'       => wc_get_product($id)->get_name(),
+                'price'      => $product['line_total'] + $product['line_tax'],
+                'quantity'   => $product['quantity'],
+                'attributes' => []
+            ];
+        }, $cart->get_cart_contents());
+
+        return $products;
     }
 
     public static function getShippingMethods()

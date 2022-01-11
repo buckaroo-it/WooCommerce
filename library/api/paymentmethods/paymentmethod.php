@@ -736,4 +736,5 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
             throw new Exception('Incorrect refund tax price');
         }
     }
+
 }
