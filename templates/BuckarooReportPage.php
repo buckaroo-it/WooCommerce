@@ -87,17 +87,36 @@ class BuckarooReportPage extends WP_List_Table
         $file = new \SplFileObject($this->getFilePath(), 'r');
         $file->seek($this->getStartingLine($current_page));
 
-        for ($i=1; $i <= $this->per_page; $i++) { 
+        $count =  $this->per_page;
+        if ($current_page * $this->per_page > $this->total_items) {
+            $count =  $this->total_items % $this->per_page;
+        }
+        
+        for ($i=1; $i <= $count; $i++) { 
             if (!$file->eof()) {
-                $items[] = $this->formatLine(
-                    $this->getColumnIndex($i, $current_page),
-                    $file->current()
-                );
+                if ($this->isNotLastItem($current_page, $i)) {
+                    $items[] = $this->formatLine(
+                        $this->getColumnIndex($i, $current_page),
+                        $file->current()
+                    );
+                }
             }
             $file->next();
         }
         
         return array_reverse($items);
+    }
+    /**
+     * Determine if not the last row in file
+     *
+     * @param int $current_page
+     * @param int $i
+     *
+     * @return boolean
+     */
+    public function isNotLastItem($current_page ,$i)
+    {
+        return (($current_page -1)* $this->per_page) + $i <= $this->total_items;
     }
     /**
      * Get index of row in page
@@ -171,7 +190,6 @@ class BuckarooReportPage extends WP_List_Table
     {
         $this->_column_headers = array( $this->get_columns(), array(),array());
         $current_page          = absint($this->get_pagenum());
-        $per_page              = 20;
 
         $this->items = $this->get_items($current_page);
 
@@ -181,7 +199,7 @@ class BuckarooReportPage extends WP_List_Table
         $this->set_pagination_args(
             array(
                 'total_items' => $this->total_items,
-                'per_page'    => $per_page,
+                'per_page'    => $this->per_page,
                 'total_pages' => ceil($this->total_items / $this->per_page),
             )
         );
@@ -198,7 +216,7 @@ class BuckarooReportPage extends WP_List_Table
         $file = new \SplFileObject($this->getFilePath(), 'r');
         $file->seek(PHP_INT_MAX);
 
-        $this->total_items = $file->key() + 1;
+        $this->total_items = $file->key();
     }
     /**
      * Get the path to the file
@@ -218,7 +236,7 @@ class BuckarooReportPage extends WP_List_Table
      */
     protected function getStartingLine($current_page)
     {
-        $startingLine = $this->total_items - ($current_page * $this->per_page) - 1;
+        $startingLine = $this->total_items - ($current_page * $this->per_page);
         return $startingLine > 0 ? $startingLine : 0;
     }
 }

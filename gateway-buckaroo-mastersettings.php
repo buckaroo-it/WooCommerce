@@ -7,24 +7,17 @@
  */
 class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
 {
-    public $datedue;
-    public $sendemail;
     public function __construct()
     {
         $this->id           = 'buckaroo_mastersettings';
         $this->title        = 'Master Settings';
         $this->has_fields   = false;
-        $this->method_title = __('Buckaroo Master Settings', 'wc-buckaroo-bpe-gateway');
-
+        $this->method_title = __(
+            'Buckaroo Master Settings', 'wc-buckaroo-bpe-gateway'
+        );
         parent::__construct();
-        $this->addRefundSupport();
     }
-    /**  @inheritDoc */
-    protected function setProperties()
-    {
-        parent::setProperties();
-        $this->sendemail   = !empty($this->settings['sendmail']) ? $this->settings['sendmail'] : false;
-    }
+  
     public function enqueue_script_exodus($settings)
     {
         if (is_admin()) {
@@ -32,7 +25,7 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
         }
         return $settings;
     }
-
+    
     /**
      * Add fields to the form_fields() array, specific to this page.
      *

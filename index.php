@@ -104,7 +104,6 @@ function buckaroo_payment_frontend_scripts()
     }
 }
 add_action('plugins_loaded', 'buckaroo_init_gateway', 0);
-add_action('admin_menu', 'buckaroo_menu_report');
 
 if (!empty($_REQUEST['wc-api']) && ($_REQUEST['wc-api'] == 'WC_Push_Buckaroo')) {
     if (empty($_SERVER['HTTP_USER_AGENT'])) {
@@ -178,28 +177,11 @@ function buckaroo_push_class_init()
     exit();
 }
 
-function buckaroo_menu_report()
-{
-    add_menu_page('Buckaroo plugin report', 'Buckaroo report', 'manage_options', 'buckaroo-report', 'buckaroo_reports');
-}
-
-function buckaroo_reports()
-{
-    echo '<h1>Error report for Buckaroo WooCommerce plugin</h1>';
-    include_once __DIR__.'/templates/BuckarooReportPage.php';
-    $reportPage = new BuckarooReportPage();
-    $reportPage->output_report();
-}
 
 function generateGateways()
 {
 
     $buckaroo_enabled_payment_methods_pre = array(
-        //Master Settings page should be left enabled
-        'Master Settings' => array(
-            'filename' => 'gateway-buckaroo-mastersettings.php',
-            'classname' => 'WC_Gateway_Buckaroo_MasterSettings',
-        ),
         //comment payment methods you do not want to use
         'PayPal' => array(
             'filename' => 'gateway-buckaroo-paypal.php',
@@ -324,8 +306,80 @@ function generateGateways()
 
 $buckaroo_enabled_payment_methods = generateGateways();
 
+function buckaroo_page_menu()
+{
+    add_menu_page(
+        'Buckaroo',
+        'Buckaroo',
+        'read',
+        'admin.php?page=wc-settings&tab=buckaroo_settings',
+        '',
+        'data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjIiIGJhc2VQcm9maWxlPSJ0aW55LXBzIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTAgMTUwIiB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCI+Cgk8dGl0bGU+bG9nby1zdmc8L3RpdGxlPgoJPHN0eWxlPgoJCXRzcGFuIHsgd2hpdGUtc3BhY2U6cHJlIH0KCQkuczAgeyBmaWxsOiAjY2RkOTA1IH0gCgk8L3N0eWxlPgoJPHBhdGggaWQ9IkxheWVyIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsYXNzPSJzMCIgZD0ibS0wLjA1IDAuODVoMjEuNGwxOS40NyA0My4wMWg2Mi4wOGwxOC40LTQzLjAxaDIxLjRsLTYyLjcxIDE0Ni44MmgtMTQuNzhsLTY1LjI4LTE0Ni44MnptOTQuODEgNjEuODVoLTQ1LjM3bDIzLjU0IDUyLjg3bDIxLjgzLTUyLjg3eiIgLz4KPC9zdmc+',
+        '55.3'
+    );
+    add_submenu_page(
+        'admin.php?page=wc-settings&tab=buckaroo_settings',
+        __('Settings',  'wc-buckaroo-bpe-gateway'),
+        __('Settings',  'wc-buckaroo-bpe-gateway'),
+        'manage_options',
+        'admin.php?page=wc-settings&tab=buckaroo_settings',
+    );
+    add_submenu_page(
+        'admin.php?page=wc-settings&tab=buckaroo_settings',
+        __('Payment methods',  'wc-buckaroo-bpe-gateway'),
+        __('Payment methods',  'wc-buckaroo-bpe-gateway'),
+        'manage_options',
+        'admin.php?page=wc-settings&tab=buckaroo_settings&section=methods',
+    );
+    add_submenu_page(
+        'admin.php?page=wc-settings&tab=buckaroo_settings',
+        __('Report',  'wc-buckaroo-bpe-gateway'),
+        __('Report',  'wc-buckaroo-bpe-gateway'),
+        'manage_options',
+        'admin.php?page=wc-settings&tab=buckaroo_settings&section=report',
+    );
+}
+
+/**
+ * Add link to plugin settings in plugin list
+ * plugin_action_links_'.plugin_basename(__FILE__)
+ *
+ * @param array $actions
+ *
+ * @return array $actions
+ */
+function buckaroo_add_setting_link($actions)
+{
+    $settingsLink = array(
+        '<a href="' . admin_url('admin.php?page=wc-settings&tab=buckaroo_settings') . '">'.__('Settings',  'wc-buckaroo-bpe-gateway').'</a>',
+    );
+    $actions = array_merge($actions, $settingsLink);
+    return $actions;
+}
+/**
+ * Add the buckaroo tab to woocommerce settings page
+ *
+ * @param array $settings Array of woocommerce tabs
+ *
+ * @return array $settings Array of woocommerce tabs
+ */
+function buckaroo_add_woocommerce_settings_page($settings)
+{
+    include_once __DIR__.'/templates/BuckarooReportPage.php';
+    include_once __DIR__.'/gateway-buckaroo-mastersettings.php';
+    $settings[] = include_once plugin_dir_path(__FILE__). "WC_Buckaroo_Settings_Page.php";
+    return $settings;
+}
 function buckaroo_init_gateway()
 {
+    add_filter(
+        'plugin_action_links_'.plugin_basename(__FILE__), 'buckaroo_add_setting_link'
+    );
+    add_filter(
+        'woocommerce_get_settings_pages', 'buckaroo_add_woocommerce_settings_page'
+    );
+    add_action('admin_menu', 'buckaroo_page_menu');
+
     require_once 'library/include.php';
     load_plugin_textdomain('wc-buckaroo-bpe-gateway', false, dirname(plugin_basename(__FILE__)) . '/languages/');
     global $buckaroo_enabled_payment_methods;
