@@ -448,11 +448,25 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept            = 'TRUE';
+        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts);
+
+        $afterpay->returnUrl = $this->notify_url;
+
+
+        $action = ucfirst(isset($this->afterpaynewpayauthorize) ? $this->afterpaynewpayauthorize : 'pay');
+
+        if ($action == 'Authorize') {
+            update_post_meta($order_id, '_wc_order_authorized', 'yes');
+        }
+
+        $response = $afterpay->PayOrAuthorizeAfterpay($products, $action);
+        return fn_buckaroo_process_response($this, $response, $this->mode);
+    }
+
+    private function getProductsInfo($order, $amountDedit, $shippingCosts){
         $products                    = array();
         $items                       = $order->get_items();
         $itemsTotalAmount            = 0;
-
-        $articlesLooped = [];
 
         $feeItemRate = 0;
         foreach ($items as $item) {
@@ -515,41 +529,33 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $tmp["ArticleVatcategory"] = $feeTaxRate;
             $products[]                = $tmp;
         }
-        if (!empty($afterpay->ShippingCosts)) {
-            $itemsTotalAmount += $afterpay->ShippingCosts;
+
+        if (!empty($shippingCosts)) {
+            $itemsTotalAmount += $shippingCosts;
         }
 
-        if ($afterpay->amountDedit != $itemsTotalAmount) {
-            if (number_format($afterpay->amountDedit - $itemsTotalAmount, 2) >= 0.01) {
+        if ($amountDedit != $itemsTotalAmount) {
+            if (number_format($amountDedit - $itemsTotalAmount, 2) >= 0.01) {
                 $tmp["ArticleDescription"] = 'Remaining Price';
                 $tmp["ArticleId"]          = 'remaining_price';
                 $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($afterpay->amountDedit - $itemsTotalAmount, 2);
+                $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2);
                 $tmp["ArticleVatcategory"] = 0;
                 $products[]                = $tmp;
                 $itemsTotalAmount += 0.01;
-            } elseif (number_format($itemsTotalAmount - $afterpay->amountDedit, 2) >= 0.01) {
+            } elseif (number_format($itemsTotalAmount - $amountDedit, 2) >= 0.01) {
                 $tmp["ArticleDescription"] = 'Remaining Price';
                 $tmp["ArticleId"]          = 'remaining_price';
                 $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($afterpay->amountDedit - $itemsTotalAmount, 2, '.', '');
+                $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2, '.', '');
                 $tmp["ArticleVatcategory"] = 0;
                 $products[]                = $tmp;
                 $itemsTotalAmount -= 0.01;
             }
         }
 
-        $afterpay->returnUrl = $this->notify_url;
+        return $products;
 
-
-        $action = ucfirst(isset($this->afterpaynewpayauthorize) ? $this->afterpaynewpayauthorize : 'pay');
-
-        if ($action == 'Authorize') {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes');
-        }
-
-        $response = $afterpay->PayOrAuthorizeAfterpay($products, $action);
-        return fn_buckaroo_process_response($this, $response, $this->mode);
     }
 
     private function getFeeTax($fee)
