@@ -167,7 +167,7 @@ class BuckarooBillink extends BuckarooPaymentMethod
                 "GrossUnitPriceIncl"=> (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0'),
                 "VatPercentage"=> (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0'),
             ],
-            count($product),
+            count($products),
             'Article'
         );
         return parent::Pay();
