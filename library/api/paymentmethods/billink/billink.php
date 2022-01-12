@@ -126,7 +126,9 @@ class BuckarooBillink extends BuckarooPaymentMethod
         }
 
         if(!empty($this->BillingHouseNumberSuffix) || !empty($this->ShippingHouseNumberSuffix)){
-            $shipping['StreetNumberAdditional'] =  $this->diffAddress($this->ShippingHouseNumberSuffix, $this->BillingHouseNumberSuffix);
+            if(!empty($this->diffAddress($this->ShippingHouseNumberSuffix, $this->BillingHouseNumberSuffix))){
+                $shipping['StreetNumberAdditional'] =  $this->diffAddress($this->ShippingHouseNumberSuffix, $this->BillingHouseNumberSuffix);
+            }
         }
         
 
