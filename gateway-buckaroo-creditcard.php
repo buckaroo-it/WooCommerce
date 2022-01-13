@@ -141,8 +141,6 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         /** @var BuckarooCreditCard */
         $creditcard = $this->createCreditRequest($order, $amount, $reason);
 
-        $orderRefundData = [];
-
         if ($line_item_qtys === null) {
             $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
         }

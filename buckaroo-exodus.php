@@ -55,7 +55,7 @@
         "woocommerce_buckaroo_payperemail_settings",
       );
 
-      $n = $break = 0;
+      $n = 0;
       $key_options = $certificate_contents = $certificate_name = '';
       while(!empty($options_tocheck[$n]) && $key_options == '') {
         $options = get_option($options_tocheck[$n], null);

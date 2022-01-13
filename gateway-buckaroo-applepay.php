@@ -286,7 +286,6 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         global $woocommerce;
 
         $cart         = $woocommerce->cart;
-        $country_code = strtoupper($_GET['country_code']);
 
         $current_shown_product = [
             'product_id'   => $_GET['product_id'],
