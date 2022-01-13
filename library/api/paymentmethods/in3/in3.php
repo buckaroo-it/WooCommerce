@@ -173,15 +173,4 @@ class BuckarooIn3 extends BuckarooPaymentMethod
 
         return $this->RefundGlobal();
     }
-
-    /**
-     * @access public
-     * @return callable parent::checkRefundData($data);
-     * @param $data array
-     * @throws Exception
-     */
-    public function checkRefundData($data)
-    {
-        return parent::checkRefundData($data);
-    }
 }
