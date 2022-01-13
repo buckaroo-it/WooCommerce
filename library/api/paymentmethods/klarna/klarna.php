@@ -182,9 +182,4 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
         }
         return $billingField;
     }
-    public function checkRefundData($data){
-        return parent::checkRefundData($data);
-    }
 }
-
-?>

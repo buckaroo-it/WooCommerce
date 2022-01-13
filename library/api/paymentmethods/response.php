@@ -188,11 +188,6 @@ abstract class BuckarooResponse extends BuckarooAbstract
         writeToDebug($xml, 'Response');
     }
 
-    private function getResponseXML()
-    {
-        return $this->_responseXML;
-    }
-
     private function setResponse($response)
     {
         $this->_response = $response;
