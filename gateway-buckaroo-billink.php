@@ -163,10 +163,8 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $products                   = array();
         $items                      = $order->get_items();
         $itemsTotalAmount           = 0;
-
-        $articlesLooped = [];
-
         $feeItemRate = 0;
+        
         foreach ($items as $item) {
 
             $product = new WC_Product($item['product_id']);

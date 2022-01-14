@@ -31,14 +31,4 @@ class BuckarooApplepay extends BuckarooPaymentMethod {
 
         return parent::Pay();
     }
-
-    /**
-     * @access public
-     * @return callable parent::Refund();
-     */
-    public function Refund() {
-        return parent::Refund();
-    }
-
- 
 }

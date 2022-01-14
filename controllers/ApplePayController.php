@@ -101,7 +101,7 @@ Class ApplePayController
     private static function getProductsFromCart($cart)
     {
         $products = array_map(function ($product) {
-            //var_dump($product);
+
             $id = $product['variation_id'] !== 0
                 ? $product['variation_id']
                 : $product['product_id'];
@@ -194,7 +194,6 @@ Class ApplePayController
         global $woocommerce;
 
         $cart = $woocommerce->cart;
-        $country_code = strtoupper($_GET['country_code']);
 
         $current_shown_product = [
             'product_id'   => $_GET['product_id'],

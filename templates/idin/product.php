@@ -7,11 +7,7 @@ require_once(dirname(__FILE__) . '/../../library/api/idin.php');
             <img class="buckaroo_idin_logo" src="<?php echo plugin_dir_url(__DIR__) . '../library/buckaroo_images/idin_logo.svg'; ?>" />
             <p class="buckaroo_idin_prompt">
                 <?php
-                //if (BuckarooIdin::checkCurrentUserIsVerified()) {
-                //    _e('You have verified your age already', 'wc-buckaroo-bpe-gateway');
-                //} else {
                     _e('You must be 18 years or older to order this product', 'wc-buckaroo-bpe-gateway');
-                //}
                 ?>
             </p>
         </div>

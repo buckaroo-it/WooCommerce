@@ -82,13 +82,8 @@
                     $TransactionRequest->ServicesSelectableByClient = $this->_vars['customVars']['servicesSelectableByClient'];
                     $TransactionRequest->ContinueOnIncomplete       = $this->_vars['customVars']['continueOnIncomplete'];
                 }
-                /*
-                if (array_key_exists('OriginalTransactionKey', $this->_vars)) {
-                    $TransactionRequest->OriginalTransactionKey = $this->_vars['OriginalTransactionKey'];
-                }
-                */
+
                 if (isset($this->_vars['customParameters'])) {
-                    // $TransactionRequest = $this->_addCustomParameters($TransactionRequest);
                     foreach ($this->_vars['customParameters'] as $key => $value) {
                         $TransactionRequest->AdditionalParameters->AdditionalParameter->Name = $key;
                         $TransactionRequest->AdditionalParameters->AdditionalParameter->_ = $value;
@@ -97,14 +92,7 @@
 
                 $TransactionRequest->Services = new Services();
                 $this->_addServices($TransactionRequest);
-                /*
-                $TransactionRequest->Services = new Services();
-                 
-                $TransactionRequest->Services->Service = new Service();
-                $TransactionRequest->Services->Service->Name= $this->_vars['service']['type'];
-                $TransactionRequest->Services->Service->Action = $this->_vars['service']['action'];;
-                $TransactionRequest->Services->Service->Version = $this->_vars['service']['version'];;
-                */
+
                 $TransactionRequest->ClientIP = new IPAddress();
                 $TransactionRequest->ClientIP->Type = 'IPv4';
                 $TransactionRequest->ClientIP->_ = $_SERVER['REMOTE_ADDR'];
@@ -183,12 +171,10 @@
                 } catch (SoapFault $e) {
                     $logger = new BuckarooLogger(1);
                     $logger->logForUser($e->getMessage());
-                    //$this->logException($e->getMessage());
                     return $this->_error($client);
                 } catch (Exception $e) {
                     $logger = new BuckarooLogger(1);
                     $logger->logForUser($e->getMessage());
-                    //$this->logException($e->getMessage());
                     return $this->_error($client);
                 }
                 

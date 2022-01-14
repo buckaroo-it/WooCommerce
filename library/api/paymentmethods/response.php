@@ -188,11 +188,6 @@ abstract class BuckarooResponse extends BuckarooAbstract
         writeToDebug($xml, 'Response');
     }
 
-    private function getResponseXML()
-    {
-        return $this->_responseXML;
-    }
-
     private function setResponse($response)
     {
         $this->_response = $response;
@@ -450,24 +445,11 @@ abstract class BuckarooResponse extends BuckarooAbstract
     protected function _canProcessPush()
     {
         $correctSignature = false;
-        //   $canUpdate = false;
         $signature = $this->_calculateSignature();
         if ($signature === $_POST['brq_signature']) {
             $correctSignature = true;
         }
-        /*
-        //check if the order can recieve further status updates
-        if ($correctSignature === true) {
-        $canUpdate = $this->_canUpdate();
-        }
-
-        $return = array(
-        (bool) $correctSignature,
-        (bool) $canUpdate,
-        );
-         *
-         */
-        return $correctSignature; //$return;
+        return $correctSignature;
     }
 
     /**
