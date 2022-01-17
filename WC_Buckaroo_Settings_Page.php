@@ -25,7 +25,7 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
         $this->gateway = $gateway;
 
         $this->id    = 'buckaroo_settings';
-        $this->label = __('Buckaroo', 'wc-buckaroo-bpe-gateway');
+        $this->label = __('Buckaroo Settings', 'wc-buckaroo-bpe-gateway');
         parent::__construct();
 
         add_action(
