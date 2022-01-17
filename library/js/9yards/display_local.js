@@ -12,7 +12,7 @@ jQuery(document).ready(function() {
             
             function togglelocal(checked){
                 // console.log('usemaster:'+checked);
-                jQuery('[id$="test"]').closest('tr').toggle('checked');
+                jQuery('[id$="test_credentials"]').closest('tr').toggle(!checked);
                 var merchantKeyTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_merchantkey").closest('tr');
                 var secretKeyTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_secretkey").closest('tr');
                 var thumbprintTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_thumbprint").closest('tr');

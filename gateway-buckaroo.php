@@ -421,14 +421,15 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         $this->initCerificateFields();
 
-        $this->form_fields['test'] = array(
+        $this->form_fields['test_credentials'] = array(
             'title'       => __('Test credentials', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'button',
             'description' => __('Click here to verify credentials', 'wc-buckaroo-bpe-gateway'),
             'custom_attributes' => [
-                'gateway_id' => $this->plugin_id . $this->id
+                'gateway_id' => $this->plugin_id . $this->id,
+                'title' => __('Test')
             ],
-            'default'     => __('Test')
+            'default'     => ''
         );
 
         

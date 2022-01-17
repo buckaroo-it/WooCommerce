@@ -2,8 +2,9 @@
 // and management of Buckaroo certificates, for the 
 // master settings page & all buckaroo payment methods.
 jQuery(document).ready(function() {
-    let testButton = jQuery('[id$="test"]');
+    let testButton = jQuery('[id$="test_credentials"]');
     testButton.addClass('button-primary');
+    testButton.val(testButton.attr('title'));
     let gateway_id = testButton.attr('gateway_id');
     testButton.on('click', function() {
             jQuery.post(
