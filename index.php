@@ -127,6 +127,65 @@ function copy_language_files(){
 add_action('woocommerce_api_wc_push_buckaroo', 'buckaroo_push_class_init');
 
 add_action( 'wp_ajax_order_capture', 'orderCapture' );
+add_action( 'wp_ajax_buckaroo_test_credentials', 'buckaroo_test_credentials' );
+
+function buckaroo_test_credentials()
+{
+    $url = 'https://testcheckout.buckaroo.nl/json/Transaction/Specification/ideal?serviceVersion=2';
+
+    $timeStamp = time();
+    $nonce = bin2hex(random_bytes(8));
+
+    if (isset($_POST['gateway_id'])) {
+        $GLOBALS['plugin_id'] = $_POST['gateway_id'] . '_settings';
+    }
+
+    $body = implode(
+        "",
+        [
+            BuckarooConfig::get('BUCKAROO_MERCHANT_KEY'),
+            'GET',
+            strtolower(
+                rawurlencode(
+                    str_replace('https://', '', $url)
+                )
+            ),
+            $timeStamp,
+            $nonce,
+            ''
+        ]
+    );
+
+    $hmacAuthorization =  "Authorization: hmac " . implode(
+        ':',
+        [
+            BuckarooConfig::get('BUCKAROO_MERCHANT_KEY'),
+            base64_encode(
+                hash_hmac(
+                    'sha256',
+                    $body,
+                    BuckarooConfig::get('BUCKAROO_SECRET_KEY'),
+                    true
+                )
+            ),
+            $nonce,
+            $timeStamp,
+        ]
+    );
+
+    $response = wp_remote_get(
+        $url,
+        array(
+            "headers" =>   $hmacAuthorization
+        )
+    );
+    if ($response['response']['code'] === 200) {
+        echo __('Credentials are OK',  'wc-buckaroo-bpe-gateway');
+    } else {
+        echo __('Credentials are incorrect',  'wc-buckaroo-bpe-gateway');
+    }
+    die();
+}
 
 include( plugin_dir_path(__FILE__) . 'includes/admin/meta-boxes/class-wc-meta-box-order-capture.php');
 

@@ -2,6 +2,22 @@
 // and management of Buckaroo certificates, for the 
 // master settings page & all buckaroo payment methods.
 jQuery(document).ready(function() {
+    let testButton = jQuery('[id$="test"]');
+    testButton.addClass('button-primary');
+    let gateway_id = testButton.attr('gateway_id');
+    testButton.on('click', function() {
+            jQuery.post(
+                ajaxurl,
+                {
+                    action:'buckaroo_test_credentials',
+                    gateway_id: gateway_id
+                },
+                function(response) {
+                    alert(response);
+                }
+            )
+    });
+
     if (jQuery('.wrap.woocommerce label').first().attr("for") && jQuery('.wrap.woocommerce label').first().attr("for").lastIndexOf('_')) {
         //Get Location
         var label = jQuery('.wrap.woocommerce label').first().attr("for");

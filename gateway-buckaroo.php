@@ -392,26 +392,15 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 ),
                 'default'     => $this->description,
             ],
-            'upload'                 => [
-                'title'       => __('Upload certificate', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'button',
-                'description' => __('Click to select and upload your certificate. Note: Please save after uploading.', 'wc-buckaroo-bpe-gateway'),
-                'default'     => '',
-            ]
-        ];
-
-        $this->initCerificateFields();
-
-        $this->form_fields = array_merge($this->form_fields, [
             'merchantkey'            => [
-                'title'       => __('Merchant key', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'text',
+                'title'       => __('Website key', 'wc-buckaroo-bpe-gateway'),
+                'type'        => 'password',
                 'description' => __('This is your Buckaroo Payment Plaza website key (My Buckaroo -> Websites -> Choose website through Filter -> Key).', 'wc-buckaroo-bpe-gateway'),
                 'default'     => '',
             ],
             'secretkey'              => [
                 'title'       => __('Secret key', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'text',
+                'type'        => 'password',
                 'description' => __('The secret password to verify transactions (Configuration -> Security -> Secret key).', 'wc-buckaroo-bpe-gateway'),
                 'default'     => '',
             ],
@@ -421,6 +410,30 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 'description' => __('Certificate thumbprint (Configuration -> Security -> Certificates -> See "Fingerprint" after a certificate has been generated).', 'wc-buckaroo-bpe-gateway'),
                 'default'     => '',
             ],
+            'upload'                 => [
+                'title'       => __('Upload certificate', 'wc-buckaroo-bpe-gateway'),
+                'type'        => 'button',
+                'description' => __('Click to select and upload your certificate. Note: Please save after uploading.', 'wc-buckaroo-bpe-gateway'),
+                'default'     => '',
+            ],
+        ];
+
+
+        $this->initCerificateFields();
+
+        $this->form_fields['test'] = array(
+            'title'       => __('Test credentials', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'button',
+            'description' => __('Click here to verify credentials', 'wc-buckaroo-bpe-gateway'),
+            'custom_attributes' => [
+                'gateway_id' => $this->plugin_id . $this->id
+            ],
+            'default'     => __('Test')
+        );
+
+        
+        $this->form_fields = array_merge($this->form_fields, [
+
             'mode'                   => [
                 'title'       => __('Transaction mode', 'wc-buckaroo-bpe-gateway'),
                 'type'        => 'select',
