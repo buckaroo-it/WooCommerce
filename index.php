@@ -12,6 +12,15 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
 add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
 
+require_once dirname(__FILE__). "/library/Buckaroo_Logger.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Logger_Storage.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Cron_Events.php";
+
+/**
+ * Start runing buckaroo events
+ */
+new Buckaroo_Cron_Events();
+
 /**
  * Enqueue backend scripts
  *
@@ -156,6 +165,13 @@ function BK() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.Fu
 $GLOBALS['buckaroo'] = BK();
 
 register_activation_hook(__FILE__, array('WC_Buckaroo_Install', 'install'));
+register_deactivation_hook(__FILE__, 'buckaroo_deactivation');
+
+function buckaroo_deactivation()
+{
+    Buckaroo_Cron_Events::unschedule();
+}
+
 add_shortcode('buckaroo_payconiq', 'fw_reserve_page_template');
 
 function fw_reserve_page_template()
@@ -365,7 +381,7 @@ function buckaroo_add_setting_link($actions)
  */
 function buckaroo_add_woocommerce_settings_page($settings)
 {
-    include_once __DIR__.'/templates/BuckarooReportPage.php';
+    include_once __DIR__.'/templates/Buckaroo_Report_Page.php';
     include_once __DIR__.'/gateway-buckaroo-mastersettings.php';
     $settings[] = include_once plugin_dir_path(__FILE__). "WC_Buckaroo_Settings_Page.php";
     return $settings;
@@ -409,7 +425,6 @@ function buckaroo_init_gateway()
     (new ApplePayButtons)->loadActions();   
     
     add_filter('woocommerce_payment_gateways', 'add_buckaroo_gateway');
-    new WC_Gateway_Buckaroo();
 
     if (!file_exists(__DIR__.'/../../../.well-known/apple-developer-merchantid-domain-association')) {
         if (!file_exists(__DIR__.'/../../../.well-known')) {

@@ -1,5 +1,4 @@
 <?php
-require_once dirname(__FILE__) . '/../../logger.php';
 require_once dirname(__FILE__) . '/../abstract.php';
 require_once dirname(__FILE__) . '/../soap.php';
 require_once dirname(__FILE__) . '/responsefactory.php';

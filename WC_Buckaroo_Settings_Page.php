@@ -59,7 +59,7 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
         parent::output();
 
         if ($current_section === 'report') {
-            (new BuckarooReportPage())->output_report();
+            (new Buckaroo_Report_Page())->output_report();
             $hide_save_button = true;
         } 
         if ($current_section === 'methods') {
