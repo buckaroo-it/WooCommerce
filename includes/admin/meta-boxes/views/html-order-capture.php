@@ -280,7 +280,7 @@ if ( wc_tax_enabled() ) {
 				<td width="1%"></td>
 				<td class="total">
 					<?php
-                    $captured = false;//$order->get_total_shipping_captured();
+                    $captured = false;
 					if ( $captured > 0 ) {
 						echo '<del>' . wp_strip_all_tags( wc_price( $order->get_shipping_total(), array( 'currency' => $order->get_currency() ) ) ) . '</del> <ins>' . wc_price( $order->get_shipping_total() - $captured, array( 'currency' => $order->get_currency() ) ) . '</ins>'; // WPCS: XSS ok.
 					} else {
@@ -300,7 +300,7 @@ if ( wc_tax_enabled() ) {
 					<td width="1%"></td>
 					<td class="total">
 						<?php
-                        $captured = false;//$order->get_total_tax_captured_by_rate_id( $tax_total->rate_id );
+                        $captured = false;
 						if ( $captured > 0 ) {
 							echo '<del>' . wp_strip_all_tags( $tax_total->formatted_amount ) . '</del> <ins>' . wc_price( roundAmount( $tax_total->amount ) - roundAmount( $captured ), array( 'currency' => $order->get_currency() ) ) . '</ins>'; // WPCS: XSS ok.
 						} else {

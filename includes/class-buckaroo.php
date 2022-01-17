@@ -64,9 +64,9 @@ final class Buckaroo {
 	 * Define Buckaroo Constants.
 	 */
 	private function define_constants() {
-		$upload_dir = wp_upload_dir( null, false );
 
 		$this->define( 'BK_ABSPATH', dirname( BK_PLUGIN_FILE ) . '/' );
+		
 	}
 
 	/**

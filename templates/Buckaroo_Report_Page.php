@@ -82,7 +82,6 @@ class Buckaroo_Report_Page extends WP_List_Table
      */
     public function get_items($current_page) 
     {
-        Buckaroo_Logger::log(__METHOD__, $this);
         return $this->get_items_from_storage($current_page);
     }
     

@@ -59,7 +59,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="view">
 			<?php
 			echo wc_price( $item->get_total(), array( 'currency' => $order->get_currency() ) );
-            $captured = false;//$order->get_total_captured_for_item( $item_id, 'shipping' );
+            $captured = false;
 			if ( $captured ) {
 				echo '<small class="captured">-' . wc_price( $captured, array( 'currency' => $order->get_currency() ) ) . '</small>';
 			}
@@ -83,7 +83,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="view">
 					<?php
 					echo ( '' !== $tax_item_total ) ? wc_price( wc_round_tax_total( $tax_item_total ), array( 'currency' => $order->get_currency() ) ) : '&ndash;';
-                    $captured = false;//$order->get_tax_captured_for_item( $item_id, $tax_item_id, 'shipping' );
+                    $captured = false;
 					if ( $captured ) {
 						echo '<small class="captured">-' . wc_price( $captured, array( 'currency' => $order->get_currency() ) ) . '</small>';
 					}

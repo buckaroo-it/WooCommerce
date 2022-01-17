@@ -34,10 +34,7 @@ class BK_Admin {
 	 * Include any classes we need within admin.
 	 */
 	public function includes() {
-		// include_once dirname( __FILE__ ) . '/wc-admin-functions.php';
-		// include_once dirname( __FILE__ ) . '/wc-meta-box-functions.php';
-		include_once dirname( __FILE__ ) . '/class-wc-admin-post-types.php';
-	
+		include_once dirname( __FILE__ ) . '/class-wc-admin-post-types.php';	
 	}
 
 }

@@ -572,11 +572,8 @@ function getOrderIdFromInvoiceId($invoice_id, $mode = 'live')
     if ($mode == 'test') {
         $invoice_id = str_replace("WP_", "", $invoice_id);
     }
-    $order_id = preg_replace('/_i(.*)/', '', $invoice_id);
 
-    $order_id = preg_replace('/(\-[0-9]{1,3})$/', '', $invoice_id);
-
-    return $order_id;
+    return $invoice_id;
 }
 
 /**

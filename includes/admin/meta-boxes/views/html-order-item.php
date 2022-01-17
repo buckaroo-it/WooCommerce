@@ -102,7 +102,7 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
 				echo '<span class="wc-order-item-discount">' . sprintf( esc_html__( '%s discount', 'woocommerce' ), wc_price( wc_format_decimal( $item->get_subtotal() - $item->get_total(), '' ), array( 'currency' => $order->get_currency() ) ) ) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 
-            $captured = false;//$order->get_total_captured_for_item($item_id);
+            $captured = false;
 
 			if ( $captured ) {
 				echo '<small class="captured">-' . wc_price( $captured, array( 'currency' => $order->get_currency() ) ) . '</small>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -144,7 +144,7 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
 						echo '&ndash;';
 					}
 
-                    $captured = false;//$order->get_tax_captured_for_item( $item_id, $tax_item_id );
+                    $captured = false;
 
 					if ( $captured ) {
 						echo '<small class="captured">-' . wc_price( $captured, array( 'currency' => $order->get_currency() ) ) . '</small>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

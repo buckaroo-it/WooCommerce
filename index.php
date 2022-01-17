@@ -135,7 +135,6 @@ function copy_language_files(){
 
 add_action('woocommerce_api_wc_push_buckaroo', 'buckaroo_push_class_init');
 
-add_action( 'woocommerce_admin_order_actions_end', 'my_custom_checkout_field_display_admin_order_meta', 10, 1 );
 add_action( 'wp_ajax_order_capture', 'orderCapture' );
 
 include( plugin_dir_path(__FILE__) . 'includes/admin/meta-boxes/class-wc-meta-box-order-capture.php');
@@ -502,10 +501,6 @@ function buckaroo_idin_checkout() {
     if (BuckarooConfig::isIdin(BuckarooIdin::getCartProductIds())) {
         include 'templates/idin/checkout.php';
     }
-}
-
-function my_custom_checkout_field_display_admin_order_meta($order){
-
 }
 
 /**
