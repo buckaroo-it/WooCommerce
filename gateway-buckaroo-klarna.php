@@ -20,7 +20,6 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
         $this->setCountry();
 
         parent::__construct();
-        $this->notify_url = home_url('/');
         $this->addRefundSupport();
     }
     /**  @inheritDoc */
