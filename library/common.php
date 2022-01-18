@@ -321,7 +321,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     if ($response->isValid()) {
         
         //Check if redirect required
-        $checkIfRedirectRequired = fn_process_check_redirect_required($response, 'response', $payment_method);
+        $checkIfRedirectRequired = fn_process_check_redirect_required($response, 'response', $payment_method, $order_id);
         if ($checkIfRedirectRequired){
             return $checkIfRedirectRequired;
         }
@@ -1126,9 +1126,9 @@ function fn_process_response_idin($response, $order_id = null){
     }
 }
 
-function fn_process_check_redirect_required($response, $mode = null, $payment_method = null){
+function fn_process_check_redirect_required($response, $mode = null, $payment_method = null, $order_id = null){
     if ($response->isRedirectRequired()) {
-        if ($payment_method->id == 'buckaroo_payconiq' && $mode == 'response') {
+        if ($payment_method->id == 'buckaroo_payconiq' && $mode == 'response' && !empty($order_id)) {
             $key           = $response->transactionId;
             $invoiceNumber = $response->invoicenumber;
             $amount        = $response->amount;
