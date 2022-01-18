@@ -2,11 +2,11 @@
 // and management of Buckaroo certificates, for the 
 // master settings page & all buckaroo payment methods.
 jQuery(document).ready(function() {
-    let testButton = jQuery('[id$="test_credentials"]');
-    testButton.addClass('button-primary');
-    testButton.val(testButton.attr('title'));
-    let gateway_id = testButton.attr('gateway_id');
-    testButton.on('click', function() {
+    let buckarooTestButton = jQuery('[id$="test_credentials"]');
+    buckarooTestButton.addClass('button-primary');
+    buckarooTestButton.val(buckarooTestButton.attr('title'));
+    let gateway_id = buckarooTestButton.attr('gateway_id');
+    buckarooTestButton.on('click', function() {
             jQuery.post(
                 ajaxurl,
                 {
@@ -18,7 +18,10 @@ jQuery(document).ready(function() {
                 }
             )
     });
-
+    jQuery('[name^="woocommerce_buckaroo_"][type="password"]').on('input', function () {
+        buckarooTestButton.prop('disabled', true);
+        buckarooTestButton.val(buckarooTestButton.attr('save_required'));
+    });
     if (jQuery('.wrap.woocommerce label').first().attr("for") && jQuery('.wrap.woocommerce label').first().attr("for").lastIndexOf('_')) {
         //Get Location
         var label = jQuery('.wrap.woocommerce label').first().attr("for");
