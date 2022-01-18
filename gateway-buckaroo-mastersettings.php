@@ -106,6 +106,18 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'description' => __('Toggle debug mode on/off', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('on' => 'On', 'off' => 'Off'),
             'default'     => 'off');
+    
+        $this->form_fields['logstorage'] = array(
+            'title'       => __('Debug data storage', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'select',
+            'description' => __('Select where to store debug data', 'wc-buckaroo-bpe-gateway'),
+            'options'     => array(
+                Buckaroo_Logger_Storage::STORAGE_ALL => __('Both'),
+                Buckaroo_Logger_Storage::STORAGE_FILE => __('File'),
+                Buckaroo_Logger_Storage::STORAGE_DB => __('Database'),
+            ),
+            'default'     => Buckaroo_Logger_Storage::STORAGE_ALL);
+
 
         $this->form_fields['transactiondescription'] = array(
             'title'             => __('Transaction description', 'wc-buckaroo-bpe-gateway'),

@@ -849,6 +849,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         try {
             $response = $request->Refund();
         } catch (exception $e) {
+            Buckaroo_Logger::log(__METHOD__, $e->getMessage());
             update_post_meta($order_id, '_pushallowed', 'ok');
             return new WP_Error('refund_error', __($e->getMessage()));
         }

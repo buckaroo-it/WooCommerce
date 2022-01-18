@@ -1,6 +1,5 @@
 <?php
 
-require_once dirname(__FILE__) . '/../../logger.php';
 require_once dirname(__FILE__) . '/../abstract.php';
 
 /**
@@ -52,25 +51,24 @@ abstract class BuckarooResponse extends BuckarooAbstract
 
     public function __construct($data = null)
     {
-        $logger = new BuckarooLogger(BuckarooLogger::INFO, 'response');
-        $logger->logInfo("\n\n\n\n***************** Response ***********************");
+        Buckaroo_Logger::log("Start Response");
         if ($this->isHttpRequest()) {
-            $logger->logInfo("Type: HTTP");
-            $logger->logInfo("POST", print_r($_POST, true));
+            Buckaroo_Logger::log("Type: HTTP");
+            Buckaroo_Logger::log("POST", print_r($_POST, true));
         } else {
-            $logger->logInfo("Type: SOAP");
+            Buckaroo_Logger::log("Type: SOAP");
             if (!is_null($data)) {
 
                 if ($data[0] != false) {
-                    $logger->logInfo("Data[0]: ", print_r($data[0], true));
+                    Buckaroo_Logger::log("Data[0]: ", print_r($data[0], true));
                 }
 
                 if ($data[1] != false) {
-                    $logger->logInfo("Data[1]: ", $data[1]->saveHTML());
+                    Buckaroo_Logger::log("Data[1]: ", $data[1]->saveHTML());
                 }
 
                 if ($data[2] != false) {
-                    $logger->logInfo("Data[2]: ", $data[2]->saveHTML());
+                    Buckaroo_Logger::log("Data[2]: ", $data[2]->saveHTML());
                 }
 
             }
@@ -370,8 +368,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
         }
         //get the public key
         if (!file_exists($certificatePath)) {
-            $logger = new BuckarooLogger(1);
-            $logger->logForUser($certificatePath . ' do not exists');
+            Buckaroo_Logger::log($certificatePath . ' do not exists');
         }
         $pubKey = openssl_get_publickey(openssl_x509_read(file_get_contents($certificatePath)));
 
@@ -475,8 +472,9 @@ abstract class BuckarooResponse extends BuckarooAbstract
         ) {
             $return = true;
         } else {
-            $logger = new BuckarooLogger(BuckarooLogger::INFO, 'response');
-            $logger->logWarn("\nOrder already has succes, complete, closed, or holded state \n\n");
+            Buckaroo_Logger::log(
+                "\nOrder already has succes, complete, closed, or holded state \n\n"
+            );
         }
 
         return $return;
