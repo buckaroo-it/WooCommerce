@@ -10,7 +10,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     const BUCKAROO_TEMPLATE_LOCATION = '/templates/gateways/';
 
     public $notify_url;
-    public $transactiondescription;
     public $extrachargeamount;
     public $extrachargetype;
     public $extrachargetaxtype;
@@ -75,7 +74,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->extrachargetype        = $this->get_option('extrachargetype', 'static');
         $this->extrachargeamount      = $this->get_option('extrachargeamount', 0);
         $this->extrachargetaxtype     = $this->get_option('extrachargetaxtype', 'included');
-        $this->transactiondescription = $this->get_option('transactiondescription');
     }
     /**
      * Set gateway icon
@@ -908,7 +906,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $payment->amountCredit = 0;
         $payment->invoiceId = (string)getUniqInvoiceId($order->get_order_number());
         $payment->orderId = (string)$order->get_id();
-        $payment->description = $this->transactiondescription;
+        $payment->description = $this->get_option('transactiondescription', 'Order #' . (string)$order->get_id());
         $payment->returnUrl = $this->notify_url;
         $payment->mode = $this->mode;
         $payment->channel = BuckarooConfig::CHANNEL;

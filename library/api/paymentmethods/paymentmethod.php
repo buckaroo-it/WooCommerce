@@ -319,6 +319,17 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     }
 
     /**
+     * Populate generic fields for a PayInInstallments
+     *
+     * @access public
+     * @return callable $this->PayGlobal()
+     */
+    public function PayInInstallments()
+    {
+        $this->setServiceActionAndVersion('PayInInstallments');
+        return $this->PayGlobal();
+    }
+    /**
      * Populate generic fields for a authorize
      *
      * @access public
