@@ -7,11 +7,12 @@ jQuery(document).ready(function() {
         
         var usemaster = jQuery("#woocommerce_buckaroo"+locationName+"_usemaster");
         var checked = (usemaster.attr('checked') ? 1 : 0);
+        
         if (usemaster.length != 0){
             
             function togglelocal(checked){
                 // console.log('usemaster:'+checked);
-
+                jQuery('[id$="test_credentials"]').closest('tr').toggle(!checked);
                 var merchantKeyTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_merchantkey").closest('tr');
                 var secretKeyTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_secretkey").closest('tr');
                 var thumbprintTR = document.querySelector("#woocommerce_buckaroo"+locationName+"_thumbprint").closest('tr');

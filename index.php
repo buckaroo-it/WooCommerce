@@ -127,6 +127,79 @@ function copy_language_files(){
 add_action('woocommerce_api_wc_push_buckaroo', 'buckaroo_push_class_init');
 
 add_action( 'wp_ajax_order_capture', 'orderCapture' );
+add_action( 'wp_ajax_buckaroo_test_credentials', 'buckaroo_test_credentials' );
+
+function buckaroo_test_credentials()
+{
+    if (!isset($_POST['website_key']) || !strlen(trim($_POST['website_key']))) {
+        wp_die(
+            __('Credentials are incorrect',  'wc-buckaroo-bpe-gateway')
+        );
+    }
+
+    if (!isset($_POST['secret_key']) || !strlen(trim($_POST['secret_key']))) {
+        wp_die(
+            __('Credentials are incorrect',  'wc-buckaroo-bpe-gateway')
+        );
+    }
+
+    $url = 'https://testcheckout.buckaroo.nl/json/Transaction/Specification/ideal?serviceVersion=2';
+
+    $timeStamp = time();
+    $nonce = bin2hex(random_bytes(8));
+
+    $website_key = $_POST['website_key'];
+    $secret_key = $_POST['secret_key'];
+
+    $body = implode(
+        "",
+        [
+            $website_key,
+            'GET',
+            strtolower(
+                rawurlencode(
+                    str_replace('https://', '', $url)
+                )
+            ),
+            $timeStamp,
+            $nonce,
+            ''
+        ]
+    );
+
+    $hmacAuthorization =  "Authorization: hmac " . implode(
+        ':',
+        [
+            $website_key,
+            base64_encode(
+                hash_hmac(
+                    'sha256',
+                    $body,
+                    $secret_key,
+                    true
+                )
+            ),
+            $nonce,
+            $timeStamp,
+        ]
+    );
+
+    $response = wp_remote_get(
+        $url,
+        array(
+            "headers" =>   $hmacAuthorization
+        )
+    );
+    if ($response['response']['code'] === 200) {
+        wp_die(
+            __('Credentials are OK',  'wc-buckaroo-bpe-gateway')
+        );
+    } else {
+        wp_die(
+            __('Credentials are incorrect',  'wc-buckaroo-bpe-gateway')
+        );
+    }
+}
 
 include( plugin_dir_path(__FILE__) . 'includes/admin/meta-boxes/class-wc-meta-box-order-capture.php');
 
