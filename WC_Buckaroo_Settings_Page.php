@@ -29,6 +29,9 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
         parent::__construct();
 
         add_action(
+            'woocommerce_admin_field_buckaroo_payment_list', [$this, "render_payment_list"]
+        );
+        add_action(
             'woocommerce_admin_field_buckaroo_button', [$this, "render_button_field"]
         );
         add_action(
@@ -107,10 +110,27 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
             array(
                 array(
                     'title' => __(
-                        'Buckaroo master settings', 'wc-buckaroo-bpe-gateway'
+                        'Buckaroo settings', 'wc-buckaroo-bpe-gateway'
                     ),
                     'type'  => 'title',
                     'id'    => 'buckaroo-page',
+                    'desc' => __(
+                        'Integrate more then 30+ international payment methods in your WooCommerce webshop. Simply enable them into your WooCommerce webshop with the Buckaroo Payments plugin.
+                        Please go to the <a href="https://plaza.buckaroo.nl/Configuration/Website/Index/">signup page</a> to create a Buckaroo account and start receiving payments.</br>
+                        Contact <a href="mailto:support@buckaroo.nl">support@buckaroo.nl</a> if you have any questions about this plugin.',
+                        'wc-buckaroo-bpe-gateway'
+                    ),
+                ),
+                array(
+                    'type' => 'buckaroo_payment_list'
+                ),
+                array(
+                    'title' => __(
+                        'General settings', 'wc-buckaroo-bpe-gateway'
+                    ),
+                    'type'  => 'title',
+                    'id'    => 'buckaroo-general-settings',
+                   
                 ),
             ),
             $this->get_master_settings()
@@ -150,6 +170,43 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
             $fields[] = $field;
         }
         return $fields;
+    }
+    public function render_payment_list()
+    {
+        $gateways = $this->getBuckarooGateways();
+        ?>
+        <ul class="buckaroo-payment-list">
+        <?php foreach ($gateways as $gateway) {
+            $method_title = $gateway->get_method_title() ? $gateway->get_method_title() : $gateway->get_title();
+        ?>
+            <li>
+                <?php 
+                if ($gateway->icon !== null) {
+                    ?>
+                    <img class="buckaroo-payment-list-icon" src="<?php echo $gateway->icon; ?>">
+                    <?php 
+                }
+                echo wp_kses_post(str_replace("Buckaroo ", "", $method_title));
+                if (wc_string_to_bool($gateway->enabled)) {
+                    if ($gateway->mode === 'live') {
+                        echo '<b class="buckaroo-payment-status buckaroo-payment-enabled-live">'.__('enabled (live)', 'wc-buckaroo-bpe-gateway').'</b>'; 
+                    } else {
+                        echo '<b class="buckaroo-payment-status buckaroo-payment-enabled-test">'.__('enabled (test)', 'wc-buckaroo-bpe-gateway').'</b>'; 
+                    }
+                } else {
+                    echo '<b class="buckaroo-payment-status buckaroo-payment-disabled">'.__('disabled', 'wc-buckaroo-bpe-gateway').'</b>';
+                }
+
+                ?>
+                <a href="<?php echo esc_url(admin_url('admin.php?page=wc-settings&tab=checkout&section=' . strtolower($gateway->id)));?>">
+                <?php echo __('edit', 'wc-buckaroo-bpe-gateway'); ?>
+            </a>
+            </li>
+        <?php
+        }?>
+
+        </ul>
+        <?php
     }
     /**
      * Add custom file field

@@ -80,7 +80,7 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
         $this->form_fields['test_credentials'] = array(
             'title'       => __('Test credentials', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'button',
-            'description' => __('Click here to verify credentials', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Click here to verify website key & secret key.', 'wc-buckaroo-bpe-gateway'),
             'custom_attributes' => [
                 'title' => __('Test', 'wc-buckaroo-bpe-gateway'),
             ],

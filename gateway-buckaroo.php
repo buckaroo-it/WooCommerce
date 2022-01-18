@@ -364,11 +364,18 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'usemaster'              => [
                 'title'       => __('Use master settings', 'wc-buckaroo-bpe-gateway'),
                 'label'       => __(
-                    "Tick to use master settings for this payment method (see 'Buckaroo Master Settings' page to setup your default certificate).",
+                    "Tick to use master settings for this payment method.",
                     'wc-buckaroo-bpe-gateway'
                 ),
                 'type'        => 'checkbox',
-                'description' => $addDescription,
+                'description' => sprintf(
+                    __(
+                        'See <a href="%s">Buckaroo Settings</a> tab to setup your default certificate and keys',
+                    ),
+                    esc_url(
+                        admin_url('admin.php?page=wc-settings&tab=buckaroo_settings')
+                    )
+                ),   
                 'default'     => 'yes',
             ],
             'title'                  => [
@@ -422,7 +429,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->form_fields['test_credentials'] = array(
             'title'       => __('Test credentials', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'button',
-            'description' => __('Click here to verify credentials', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Click here to verify website key & secret key.', 'wc-buckaroo-bpe-gateway'),
             'custom_attributes' => [
                 'title' => __('Test', 'wc-buckaroo-bpe-gateway'),
             ],
