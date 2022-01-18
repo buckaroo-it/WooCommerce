@@ -10,17 +10,22 @@ Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
+require_once dirname(__FILE__). "/library/Buckaroo_Logger_Storage.php";
+
+if(isset($_GET['buckaroo_download_log_file'])) {
+    Buckaroo_Logger_Storage::downloadFile($_GET['buckaroo_download_log_file']);
+}
+
+
 add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
 
 require_once dirname(__FILE__). "/library/Buckaroo_Logger.php";
-require_once dirname(__FILE__). "/library/Buckaroo_Logger_Storage.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Cron_Events.php";
 
 /**
  * Start runing buckaroo events
  */
 new Buckaroo_Cron_Events();
-
 /**
  * Enqueue backend scripts
  *

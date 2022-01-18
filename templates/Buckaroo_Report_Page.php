@@ -262,6 +262,7 @@ class Buckaroo_Report_Page extends WP_List_Table
     public function display_log_file($fileName)
     {
         $backButton = '<a style="margin-right:10px" href="'.esc_url(admin_url('admin.php?page=wc-settings&tab=buckaroo_settings&section=report')).'">'.__('Back').'</a>';
+        $downloadButton = '<a style="margin-left:10px" href="'.esc_url(plugin_dir_url(BK_PLUGIN_FILE)."?buckaroo_download_log_file=".$fileName).'">'.__('Download').'</a>';
         $directory = Buckaroo_Logger_Storage::get_file_storage_location();
         $logs = glob($directory . "*.log");
 
@@ -269,7 +270,7 @@ class Buckaroo_Report_Page extends WP_List_Table
         foreach ($logs as $filePath) {
             if (basename($filePath) === $fileName) {
                 $file = file_get_contents($filePath);
-                $logData = "<h4>".$backButton.$fileName."</h4></hr><textarea disabled style='width:100%;height:80vh;'>".$file."</textarea>";
+                $logData = "<h4>".$backButton.$fileName.$downloadButton."</h4></hr><textarea disabled style='width:100%;height:80vh;'>".$file."</textarea>";
             }
         }
         echo $logData;

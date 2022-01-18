@@ -109,8 +109,16 @@ class Buckaroo_Logger_Storage
     protected function store_in_file(array $info)
     {
         @file_put_contents(
-            $this->get_file_storage_location().date('d-m-Y').".log",
-            implode("|||", $info) . PHP_EOL,
+            self::get_file_storage_location().date('d-m-Y').".log",
+            implode(
+                "|||",
+                [
+                    $info[0],
+                    uniqid("", true),
+                    $info[1],
+                    $info[2]
+                ]
+            ) . PHP_EOL,
             FILE_APPEND
         );
     }
@@ -169,6 +177,25 @@ class Buckaroo_Logger_Storage
             return var_export($message, true);
         }
         return $message;
+    }
+    public static function downloadFile($name)
+    {
+        $file = self::get_file_storage_location().$name;
+        
+        if (file_exists($file)) {
+            header("Expires: 0");
+            header("Cache-Control: no-cache, no-store, must-revalidate"); 
+            header('Cache-Control: pre-check=0, post-check=0, max-age=0', false); 
+            header("Pragma: no-cache");
+            header("Content-type: text/plain");
+            header("Content-Disposition:attachment; filename={$name}");
+            
+            readfile($file);
+            exit();
+        } else {
+            echo  "<p>No log file found</p>";
+            exit();
+        }
     }
 }
 ?>
