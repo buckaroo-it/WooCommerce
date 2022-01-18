@@ -36,6 +36,13 @@ class Buckaroo_Logger_Storage
      */
     private static $instance;
 
+    /**
+     * Unique id for current instance
+     *
+     * @var string
+     */
+    private static $processId;
+
     public static function get_instance()
     {
         if (null === self::$instance) {
@@ -78,7 +85,9 @@ class Buckaroo_Logger_Storage
         $date = date('Y-m-d h:i:s');
 
         if (method_exists($this, $method)) {
-            $this->{$method}(array($date, $message, $locationId));
+            $this->{$method}(
+                array($date, $this->getProcessId(), $message, $locationId)
+            );
         }
     }
     /**
@@ -112,12 +121,7 @@ class Buckaroo_Logger_Storage
             self::get_file_storage_location().date('d-m-Y').".log",
             implode(
                 "|||",
-                [
-                    $info[0],
-                    uniqid("", true),
-                    $info[1],
-                    $info[2]
-                ]
+                $info
             ) . PHP_EOL,
             FILE_APPEND
         );
@@ -134,10 +138,11 @@ class Buckaroo_Logger_Storage
         global $wpdb;
         $table = $wpdb->prefix.self::STORAGE_DB_TABLE;
         
-        list($date, $message, $locationId) = $info;
+        list($date, $processId, $message, $locationId) = $info;
         
         $data = array(
             "date" => $date,
+            "process_id" => $processId,
             "message" => $message,
             "location_id" => $locationId
         );
@@ -196,6 +201,13 @@ class Buckaroo_Logger_Storage
             echo  "<p>No log file found</p>";
             exit();
         }
+    }
+    protected static function getProcessId()
+    {
+        if (empty(self::$processId)) {
+            self::$processId = uniqid("", true);
+        }
+        return self::$processId;
     }
 }
 ?>

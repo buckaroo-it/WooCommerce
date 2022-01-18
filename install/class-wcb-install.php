@@ -56,6 +56,7 @@ class WC_Buckaroo_Install {
             "CREATE TABLE IF NOT EXISTS $table (
                 `id` BIGINT NOT NULL AUTO_INCREMENT , 
                 `date` DATETIME NOT NULL , 
+                `process_id` VARCHAR(23) NOT NULL ,
                 `message` TEXT NOT NULL , 
                 `location_id` VARCHAR(255) NOT NULL , 
                 PRIMARY KEY (`id`)
