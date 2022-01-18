@@ -131,19 +131,30 @@ add_action( 'wp_ajax_buckaroo_test_credentials', 'buckaroo_test_credentials' );
 
 function buckaroo_test_credentials()
 {
+    if (!isset($_POST['website_key']) || !strlen(trim($_POST['website_key']))) {
+        wp_die(
+            __('Credentials are incorrect',  'wc-buckaroo-bpe-gateway')
+        );
+    }
+
+    if (!isset($_POST['secret_key']) || !strlen(trim($_POST['secret_key']))) {
+        wp_die(
+            __('Credentials are incorrect',  'wc-buckaroo-bpe-gateway')
+        );
+    }
+
     $url = 'https://testcheckout.buckaroo.nl/json/Transaction/Specification/ideal?serviceVersion=2';
 
     $timeStamp = time();
     $nonce = bin2hex(random_bytes(8));
 
-    if (isset($_POST['gateway_id'])) {
-        $GLOBALS['plugin_id'] = $_POST['gateway_id'] . '_settings';
-    }
+    $website_key = $_POST['website_key'];
+    $secret_key = $_POST['secret_key'];
 
     $body = implode(
         "",
         [
-            BuckarooConfig::get('BUCKAROO_MERCHANT_KEY'),
+            $website_key,
             'GET',
             strtolower(
                 rawurlencode(
@@ -159,12 +170,12 @@ function buckaroo_test_credentials()
     $hmacAuthorization =  "Authorization: hmac " . implode(
         ':',
         [
-            BuckarooConfig::get('BUCKAROO_MERCHANT_KEY'),
+            $website_key,
             base64_encode(
                 hash_hmac(
                     'sha256',
                     $body,
-                    BuckarooConfig::get('BUCKAROO_SECRET_KEY'),
+                    $secret_key,
                     true
                 )
             ),
@@ -180,11 +191,14 @@ function buckaroo_test_credentials()
         )
     );
     if ($response['response']['code'] === 200) {
-        echo __('Credentials are OK',  'wc-buckaroo-bpe-gateway');
+        wp_die(
+            __('Credentials are OK',  'wc-buckaroo-bpe-gateway')
+        );
     } else {
-        echo __('Credentials are incorrect',  'wc-buckaroo-bpe-gateway');
+        wp_die(
+            __('Credentials are incorrect',  'wc-buckaroo-bpe-gateway')
+        );
     }
-    die();
 }
 
 include( plugin_dir_path(__FILE__) . 'includes/admin/meta-boxes/class-wc-meta-box-order-capture.php');

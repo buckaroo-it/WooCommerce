@@ -426,9 +426,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'type'        => 'button',
             'description' => __('Click here to verify credentials', 'wc-buckaroo-bpe-gateway'),
             'custom_attributes' => [
-                'gateway_id' => $this->plugin_id . $this->id,
                 'title' => __('Test', 'wc-buckaroo-bpe-gateway'),
-                'save_required' => __('Save credentials before testing', 'wc-buckaroo-bpe-gateway'),
             ],
             'default'     => ''
         );
