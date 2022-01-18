@@ -25,7 +25,7 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
         $this->gateway = $gateway;
 
         $this->id    = 'buckaroo_settings';
-        $this->label = __('Buckaroo', 'wc-buckaroo-bpe-gateway');
+        $this->label = __('Buckaroo Settings', 'wc-buckaroo-bpe-gateway');
         parent::__construct();
 
         add_action(
@@ -64,6 +64,10 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
         } 
         if ($current_section === 'methods') {
             $this->render_gateway_list();
+            $hide_save_button = true;
+        }
+        if ($current_section === 'logs' && isset($_GET['log_file'])) {
+            (new Buckaroo_Report_Page())->display_log_file($_GET['log_file']);
             $hide_save_button = true;
         }
     }

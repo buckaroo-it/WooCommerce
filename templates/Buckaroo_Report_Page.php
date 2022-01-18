@@ -35,7 +35,7 @@ class Buckaroo_Report_Page extends WP_List_Table
      *
      * @var integer
      */
-    protected $per_page = 3;
+    protected $per_page = 20;
 
     protected $file_raport_lines = [];
 
@@ -216,56 +216,63 @@ class Buckaroo_Report_Page extends WP_List_Table
      */
     protected function get_page_item_from_file($current_page)
     {
-        if (!file_exists($this->get_file_path())) {
-            return array();
-        }
-
-        $file = new \SplFileObject($this->get_file_path(), 'r');
-        $file->setFlags(SplFileObject::DROP_NEW_LINE);
-
-        $file->seek(PHP_INT_MAX);
-        $endFile = $file->key();
-
-        $pages = array_chunk(array_reverse($this->file_raport_lines), $this->per_page);
         
-        if ($current_page === 1) {
-            $filePageStart = $endFile;
-        } else {
-            $filePageStart = $pages[$current_page-1][0];
-        }
-        if ($current_page === count($pages)) {
-            $filePageEnd = 0;
-        } else {
-            $filePageEnd =  $pages[$current_page][0];
-        }
+        $directory = Buckaroo_Logger_Storage::get_file_storage_location();
+        $logs = glob($directory . "*.log");
 
-        $fileLine = $filePageStart;
+        $items = [];
 
-        $i = 0;
-        $index = 0;
-        $raportItems = [];
-
-        while ($fileLine > $filePageEnd) {
-            $i++;
-            $fileLine = $filePageStart - $i;
-            $file->seek($fileLine);
-            $currentLine = $file->key();
-
-            $lineData  = $file->current();
-            $lineData = str_replace("-->", "", $lineData);
-            $raportItem[] = $lineData;
-            
-            if (in_array($currentLine, $this->file_raport_lines) || $currentLine === 0) {
-                $raportItems[] = $this->format_file_line(
-                    $this->get_column_index($index++, $current_page),
-                    implode("<br>", array_reverse($raportItem))
+        foreach ($logs as $fileName) {
+            $date = 'unkown';
+            try {
+                $date = DateTime::createFromFormat(
+                    'd-m-Y',
+                    str_replace('.log', '', basename($fileName))
                 );
                 
-                $raportItem = [];
+            } catch (\Throwable $th) {
+                Buckaroo_Logger::log(__METHOD__, "Invalid file name for log: ".$fileName);
+            }
+            $items[] = [
+                'date' => $date,
+                'description' => '<a href="'.esc_url(admin_url('admin.php?page=wc-settings&tab=buckaroo_settings&section=logs&log_file=' .basename($fileName))).'">'.basename($fileName).'</a>'
+            ];
+        }
+
+        //sort by date
+        usort(
+            $items,
+            function ($item1, $item2) {
+                return $item1['date'] < $item2['date'];
+            }
+        );
+
+        $itemsWithIndex = [];
+
+        foreach ($items as $key => $item) {
+            $item['index'] = $key + 1;
+            if ($item['date'] instanceof DateTime) {
+                $item['date'] = $item['date']->format('d-m-Y');
+            }
+            $itemsWithIndex[] = $item;
+        }
+        $pages = array_chunk($itemsWithIndex, $this->per_page);
+        return $pages[$current_page-1];
+    }
+    public function display_log_file($fileName)
+    {
+        $backButton = '<a style="margin-right:10px" href="'.esc_url(admin_url('admin.php?page=wc-settings&tab=buckaroo_settings&section=report')).'">'.__('Back').'</a>';
+        $directory = Buckaroo_Logger_Storage::get_file_storage_location();
+        $logs = glob($directory . "*.log");
+
+        $logData = "<p>".$backButton.__('No log file found')."</p>";
+        foreach ($logs as $filePath) {
+            if (basename($filePath) === $fileName) {
+                $file = file_get_contents($filePath);
+                $logData = "<h4>".$backButton.$fileName."</h4></hr><textarea disabled style='width:100%;height:80vh;'>".$file."</textarea>";
             }
         }
-        
-        return $raportItems;
+        echo $logData;
     }
     /**
      * Get total count for file storage
@@ -274,24 +281,9 @@ class Buckaroo_Report_Page extends WP_List_Table
      */
     public function get_total_count_file()
     {
-        if (!file_exists($this->get_file_path())) {
-            return 0;
-        }
-        $file = new \SplFileObject($this->get_file_path(), 'r');
-        $file->setFlags(SplFileObject::DROP_NEW_LINE);
-        $lines = [];
-
-        while (!$file->eof()) {
-            $rowData = $file->current();
-            $key = $file->key();
-            if (str_contains($rowData, "-->")) {
-                $lines[] = $key;
-            }
-            $file->next();
-        }
-        $lines[] =  $file->key();
-        $this->file_raport_lines = $lines;
-        return count($lines);
+        $directory = Buckaroo_Logger_Storage::get_file_storage_location();
+        $logs = glob($directory . "*.log");
+        return count($logs);
     }
 
     protected function get_page_item_from_database($current_page)
@@ -314,51 +306,5 @@ class Buckaroo_Report_Page extends WP_List_Table
         }
         return $results;
     }
-    /**
-     * Get index of row in page
-     *
-     * @param int $i            Current index
-     * @param int $current_page Current page
-     *
-     * @return void
-     */
-    protected function get_column_index($i, $current_page)
-    {
-        return $i + (($current_page - 1) * $this->per_page) + 1;
-    }
-    /**
-     * Format file line
-     *
-     * @param string $index Line index
-     * @param string $line  File line
-     *
-     * @return array 
-     */
-    protected function format_file_line($index, $line)
-    {
-        $index = $index;
-        
-        $tmp = explode("|||", $line);
-
-        if (count($tmp) > 1) {
-            list ($date, $description) = $tmp;
-            $description = implode("", array_slice($tmp, 1));
-        } else {
-            $date = 'unknown';
-            $description = $line;
-        }
-
-        $description = htmlentities($description);
-
-        return compact('index', 'date', 'description');
-    }  
-    /**
-     * Get the path to the file
-     *
-     * @return string
-     */
-    protected function get_file_path()
-    {
-        return Buckaroo_Logger_Storage::get_file_location();
-    }
+    
 }
