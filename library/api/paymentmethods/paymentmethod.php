@@ -240,6 +240,10 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     public function setCustomVarWithoutType($keyOrValues, $value = null)
     {
         if (is_array($keyOrValues)) {
+            if (!isset($this->data['customVars'])) {
+                $this->data['customVars'] =  $keyOrValues;
+            }
+            
             $this->data['customVars'] = array_merge(
                 $this->data['customVars'],
                 $keyOrValues
