@@ -467,6 +467,7 @@ function buckaroo_init_gateway()
 {
     //no code should be implemented before testing for active woocommerce
     if (!class_exists('WC_Order')) {
+
         set_transient(get_current_user_id().'buckaroo_require_woocommerce', true);
         return;
     }
