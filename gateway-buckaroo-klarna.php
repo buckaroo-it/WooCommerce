@@ -286,7 +286,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
                 $tmp["ArticleDescription"] = 'Remaining Price';
                 $tmp["ArticleId"]          = 'remaining_price';
                 $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($mountDedit - $itemsTotalAmount, 2);
+                $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2);
                 $tmp["ArticleVatcategory"] = 0;
                 $products[]                = $tmp;
                 $itemsTotalAmount += 0.01;
