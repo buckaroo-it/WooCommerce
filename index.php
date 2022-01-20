@@ -465,6 +465,14 @@ function buckaroo_add_woocommerce_settings_page($settings)
 }
 function buckaroo_init_gateway()
 {
+    //no code should be implemented before testing for active woocommerce
+    if (!is_plugin_active('woocommerce/woocommerce.php')) {
+        echo "Wooo not active";
+        set_transient(get_current_user_id().'buckaroo_require_woocommerce', true);
+        return;
+    }
+    delete_transient( get_current_user_id().'buckaroo_require_woocommerce' );
+
     add_filter(
         'plugin_action_links_'.plugin_basename(__FILE__), 'buckaroo_add_setting_link'
     );
@@ -477,9 +485,7 @@ function buckaroo_init_gateway()
     load_plugin_textdomain('wc-buckaroo-bpe-gateway', false, dirname(plugin_basename(__FILE__)) . '/languages/');
     global $buckaroo_enabled_payment_methods;
     $buckaroo_enabled_payment_methods = (count($buckaroo_enabled_payment_methods)) ? $buckaroo_enabled_payment_methods : generateGateways();
-    if (!class_exists('WC_Payment_Gateway')) {
-        return;
-    }
+    
     $plugin_dir = plugin_dir_path(__FILE__);
 
     foreach ($buckaroo_enabled_payment_methods as $method) {
@@ -622,6 +628,12 @@ function buckaroo_admin_notice() {
     if($message = get_transient( get_current_user_id().'buckarooAdminNotice' ) ) {
         delete_transient( get_current_user_id().'buckarooAdminNotice' );
         echo '<div class="notice notice-'.$message['type'].' is-dismissible"><p>'.$message['message'].'</p></div>';
+    }
+    if(get_transient( get_current_user_id().'buckaroo_require_woocommerce') ) {
+        delete_transient( get_current_user_id().'buckaroo_require_woocommerce' );
+        echo '<div class="notice notice-error"><p>'.__(
+            'Buckaroo BPE requires Woocommerce to be installed and active',  'wc-buckaroo-bpe-gateway'
+        ).'</p></div>';
     }
 }
 add_action('admin_notices', 'buckaroo_admin_notice');
