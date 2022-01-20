@@ -107,7 +107,7 @@ function buckaroo_payment_frontend_scripts()
         true
     );
 
-    if (is_checkout()) {
+    if (class_exists('WC_Order') && is_checkout()) {
         wp_enqueue_script(
             'wc-pf-checkout',
             plugin_dir_url(__FILE__) . '/assets/js/checkout.js',
@@ -466,7 +466,8 @@ function buckaroo_add_woocommerce_settings_page($settings)
 function buckaroo_init_gateway()
 {
     //no code should be implemented before testing for active woocommerce
-    if (!is_plugin_active('woocommerce/woocommerce.php')) {
+    if (!class_exists('WC_Order')) {
+
         set_transient(get_current_user_id().'buckaroo_require_woocommerce', true);
         return;
     }
@@ -631,7 +632,7 @@ function buckaroo_admin_notice() {
     if(get_transient( get_current_user_id().'buckaroo_require_woocommerce') ) {
         delete_transient( get_current_user_id().'buckaroo_require_woocommerce' );
         echo '<div class="notice notice-error"><p>'.__(
-            'Buckaroo BPE requires Woocommerce to be installed and active',  'wc-buckaroo-bpe-gateway'
+            'Buckaroo BPE requires WooCommerce to be installed and active',  'wc-buckaroo-bpe-gateway'
         ).'</p></div>';
     }
 }
