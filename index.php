@@ -467,7 +467,6 @@ function buckaroo_init_gateway()
 {
     //no code should be implemented before testing for active woocommerce
     if (!is_plugin_active('woocommerce/woocommerce.php')) {
-        echo "Wooo not active";
         set_transient(get_current_user_id().'buckaroo_require_woocommerce', true);
         return;
     }
