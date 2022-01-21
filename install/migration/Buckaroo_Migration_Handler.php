@@ -54,7 +54,16 @@ class Buckaroo_Migration_Handler
             return $this->update();
         }
         if ($migrationStatus === 1) {
-            return $this->rollback();
+            set_transient(
+                get_current_user_id().'buckarooAdminNotice',
+                [
+                    "type" => "warning",
+                    "message" => __(
+                        'You installed a previous version Buckaroo BPE, some functionality may not work properly',
+                        'wc-buckaroo-bpe-gateway'
+                    )
+                ]
+            );
         }
        
         
@@ -90,33 +99,9 @@ class Buckaroo_Migration_Handler
             }
         );
         $this->execute_list(
-            $this->load($migrations)
+            $migrations
         );
         WC_Buckaroo_Install::set_db_version(BuckarooConfig::VERSION);
-    }
-    /**
-     * Rollback plugin
-     *
-     * @return void
-     */
-    protected function rollback()
-    {
-        $migrations = array_filter(
-            $this->get_migration_items(),
-            function ($migration) {
-                return $this->compare_versions(
-                    $migration['version'], BuckarooConfig::VERSION, ">"
-                ) &&
-                $this->compare_versions(
-                    $migration['version'], $this->databaseVersion, "<="
-                );
-            }
-        );
-        
-        $this->execute_list(
-            array_reverse($this->load($migrations)),
-            'down'
-        );
     }
     /**
      * Load migrations
@@ -125,30 +110,22 @@ class Buckaroo_Migration_Handler
      *
      * @return array
      */
-    protected function load($migrations)
+    protected function execute_list($migrations)
     {
         $migrationObjects = [];
         foreach ($migrations as $migration) {
             if (file_exists($migration['path'])) {
-                $migrationObjects[] = include_once $migration['path'];
+                var_dump('here');
+                
+                $object = include_once $migration['path'];
+                $this->execute(
+                    $object,
+                    $migration['version']
+                );
             }
         }
         
         return $migrationObjects; 
-    }
-    /**
-     * Execute all migrations
-     *
-     * @param array $migrations
-     * @param string $method
-     *
-     * @return void
-     */
-    protected function execute_list($migrations, $method = 'up')
-    {
-        foreach ($migrations as $migration) {
-            $this->execute($migration, $method);
-        }
     }
     /**
      * Execute single migration method
@@ -158,18 +135,18 @@ class Buckaroo_Migration_Handler
      *
      * @return void
      */
-    protected function execute($migration, $method)
+    protected function execute($migration, $version)
     {
         try {
             if (
                 $migration instanceof Buckaroo_Migration &&
-                method_exists($migration, $method)
+                method_exists($migration, 'execute')
             ) {
-                $migration->{$method}();
+                $migration->execute();
             }
         } catch (\Throwable $th) {
             throw new Buckaroo_Migration_Exception(
-                "Cannot run migration ". get_class($migration), 1, $th
+                "Cannot run migration for version: ".$version , 1, $th
             );
             
         }

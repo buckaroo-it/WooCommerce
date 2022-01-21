@@ -14,15 +14,11 @@
 interface Buckaroo_Migration
 {
     /**
-     * Execute migration
+     * Execute migration, 
+     * each version should attempt to be backward compatible with previous versions
+     * if the users decides to downgrade
      *
      * @return void
      */
-    public function up();
-    /**
-     * Rollback migration
-     *
-     * @return void
-     */
-    public function down();
+    public function execute();
 }
