@@ -301,7 +301,7 @@ class Buckaroo_Report_Page extends WP_List_Table
         if ($rows !== null) {
             foreach ($rows as $key => $row) {
                 $row['index'] = ($key + 1) + (10 * ($current_page - 1));
-                $row['description'] = htmlentities($row['description']);
+                $row['description'] = "<code style='display:block;padding:10px;'><pre>".htmlentities($row['description'])."</pre></code>";
                 $results[] = $row;
             }
         }
