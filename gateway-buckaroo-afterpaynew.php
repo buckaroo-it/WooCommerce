@@ -151,30 +151,10 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         }
 
         // Add shippingCosts
-        $shipping_item       = $order->get_items('shipping');
-        $shippingTaxClassKey = 0;
-        $shippingCosts       = 0;
-        foreach ($shipping_item as $item) {
-            if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                $shippingCosts   = $line_item_totals[$item->get_id()];
-                $shippingTaxInfo = $item->get_taxes();
-                if (isset($line_item_tax_totals[$item->get_id()])) {
-                    foreach ($shippingTaxInfo['total'] as $shippingTaxClass => $shippingTaxClassValue) {
-                        $shippingTaxClassKey = $shippingTaxClass;
-                        $shippingCosts += $shippingTaxClassValue;
-                    }
-                }
-            }
-        }
-        if ($shippingCosts > 0) {
-            // Add virtual shipping cost product
-            $tmp["ArticleDescription"] = "Shipping";
-            $tmp["ArticleId"]          = BuckarooConfig::SHIPPING_SKU;
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = $shippingCosts;
-            $tmp["ArticleVatcategory"] = WC_Tax::_get_tax_rate($shippingTaxClassKey)['tax_rate'] ?? 0;
-            $products[]                = $tmp;
-            $itemsTotalAmount += $shippingCosts;
+        $shippingInfo = $this->getAfterPayShippingInfo('afterpay-new', 'partial_refunds', $order, $line_item_totals, $line_item_tax_totals);
+        if ($shippingInfo['costs'] > 0) {
+            $products[] = $shippingInfo['shipping_virtual_product'];
+            $itemsTotalAmount += $shippingInfo['costs'];
         }
 
         if ($orderDataForChecking['totalRefund'] != $itemsTotalAmount) {
@@ -288,22 +268,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         }
 
         // Add shippingCosts
-        $shipping_item = $order->get_items('shipping');
-
-        $shippingCosts = 0;
-        foreach ($shipping_item as $item) {
-            if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                $shippingCosts = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
-            }
-        }
-
-        if ($shippingCosts > 0) {
-            // Add virtual shipping cost product
-            $tmp["ArticleDescription"] = "Shipping";
-            $tmp["ArticleId"]          = BuckarooConfig::SHIPPING_SKU;
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = $shippingCosts;
-            $products[]                = $tmp;
+        $shippingInfo = $this->getAfterPayShippingInfo('afterpay', 'capture', $order, $line_item_totals, $line_item_tax_totals);
+        if ($shippingInfo['costs'] > 0) {
+            $products[] = $shippingInfo['shipping_virtual_product'];
         }
 
         // end add items
@@ -448,7 +415,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept            = 'TRUE';
-        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts);
+        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts, 'afterpay-new', $this->sendimageinfo);
 
         $afterpay->returnUrl = $this->notify_url;
 
@@ -461,110 +428,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         $response = $afterpay->PayOrAuthorizeAfterpay($products, $action);
         return fn_buckaroo_process_response($this, $response, $this->mode);
-    }
-
-    private function getProductsInfo($order, $amountDedit, $shippingCosts){
-        $products                    = array();
-        $items                       = $order->get_items();
-        $itemsTotalAmount            = 0;
-
-        $feeItemRate = 0;
-        foreach ($items as $item) {
-
-            $product = new WC_Product($item['product_id']);
-
-            $tax      = new WC_Tax();
-            $taxes    = $tax->get_rates($product->get_tax_class());
-            $rates    = array_shift($taxes);
-            $itemRate = number_format(array_shift($rates), 2);
-
-            if ($product->get_tax_status() != 'taxable') {
-                $itemRate = 0;
-            }
-
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $item['product_id'];
-            $tmp["ArticleQuantity"]    = $item["qty"];
-            $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4, '.', '') / $item["qty"], 2, '.', '');
-            $itemsTotalAmount += number_format($tmp["ArticleUnitprice"] * $item["qty"], 2, '.', '');
-
-            $tmp["ArticleVatcategory"] = $itemRate;
-            $tmp["ProductUrl"]         = get_permalink($item['product_id']);
-            if ($this->sendimageinfo) {
-                $src = get_the_post_thumbnail_url($item['product_id']);
-                if (!$src) {
-                    $imgTag = $product->get_image();
-                    $doc = new DOMDocument();
-                    $doc->loadHTML($imgTag);
-                    $xpath = new DOMXPath($doc);
-                    $src = $xpath->evaluate("string(//img/@src)");
-                }
-
-                if (strpos($src, '?') !== false) {
-                    $src = substr($src, 0, strpos($src, '?'));
-                }
-
-                if ($srcInfo = @getimagesize($src)) {
-                    if (!empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg'])) {
-                        if (!empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280)) {
-                            $tmp["ImageUrl"] = $src;
-                        }
-                    }
-                }
-            }
-            $products[]                = $tmp;
-            $feeItemRate               = $feeItemRate > $itemRate ? $feeItemRate : $itemRate;
-        }
-
-        $fees = $order->get_fees();
-        foreach ($fees as $key => $item) {
-
-            $feeTaxRate = $this->getFeeTax($fees[$key]);
-
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $key;
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = number_format(($item["line_total"] + $item["line_tax"]), 2);
-            $itemsTotalAmount += $tmp["ArticleUnitprice"];
-            $tmp["ArticleVatcategory"] = $feeTaxRate;
-            $products[]                = $tmp;
-        }
-
-        if (!empty($shippingCosts)) {
-            $itemsTotalAmount += $shippingCosts;
-        }
-
-        if ($amountDedit != $itemsTotalAmount) {
-            if (number_format($amountDedit - $itemsTotalAmount, 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"] = 0;
-                $products[]                = $tmp;
-                $itemsTotalAmount += 0.01;
-            } elseif (number_format($itemsTotalAmount - $amountDedit, 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2, '.', '');
-                $tmp["ArticleVatcategory"] = 0;
-                $products[]                = $tmp;
-                $itemsTotalAmount -= 0.01;
-            }
-        }
-
-        return $products;
-
-    }
-
-    private function getFeeTax($fee)
-    {
-        $feeInfo    = WC_Tax::get_rates($fee->get_tax_class());
-        $feeInfo    = array_shift($feeInfo);
-        $feeTaxRate = $feeInfo['rate'] ?? 0;
-
-        return $feeTaxRate;
     }
 
     /**

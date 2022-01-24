@@ -218,7 +218,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
         $klarna->CustomerIPAddress = getClientIpBuckaroo();
         $klarna->Accept            = 'TRUE';
-        $products = $this->getProductsInfo($order, $klarna->amountDedit, $klarna->ShippingCosts);
+        $products = $this->getProductsInfo($order, $klarna->amountDedit, $klarna->ShippingCosts, 'klarna');
 
         $klarna->returnUrl = $this->notify_url;
 
@@ -227,91 +227,6 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
         $klarna->setPaymnetFlow($this->getKlarnaPaymentFlow());
         $response = $klarna->paymentAction($products);
         return fn_buckaroo_process_response($this, $response, $this->mode);
-    }
-
-    private function getProductsInfo($order, $amountDedit, $shippingCosts){
-
-        $products                  = array();
-        $items                     = $order->get_items();
-        $itemsTotalAmount          = 0;
-
-        $feeItemRate = 0;
-        foreach ($items as $item) {
-            $product = new WC_Product($item['product_id']);
-            $imgTag  = $product->get_image();
-            $doc = new DOMDocument();
-            $doc->loadHTML($imgTag);
-            $xpath   = new DOMXPath($doc);
-            $src     = $xpath->evaluate("string(//img/@src)");
-
-            $tax      = new WC_Tax();
-            $taxes    = $tax->get_rates($product->get_tax_class());
-            $rates    = array_shift($taxes);
-            $itemRate = number_format(array_shift($rates), 2);
-
-            if ($product->get_tax_status() != 'taxable') {
-                $itemRate = 0;
-            }
-
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $item['product_id'];
-            $tmp["ArticleQuantity"]    = $item["qty"];
-            $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
-            $itemsTotalAmount += number_format($tmp["ArticleUnitprice"] * $item["qty"], 2);
-
-            $tmp["ArticleVatcategory"] = $itemRate;
-            $tmp["ProductUrl"]         = get_permalink($item['product_id']);
-            $tmp["ImageUrl"]           = $src;
-            $products[]                = $tmp;
-            $feeItemRate               = $feeItemRate > $itemRate ? $feeItemRate : $itemRate;
-        }
-
-        $fees = $order->get_fees();
-        foreach ($fees as $key => $item) {
-            $feeTaxRate                = $this->getFeeTax($fees[$key]);
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $key;
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = number_format(($item["line_total"] + $item["line_tax"]), 2);
-            $itemsTotalAmount += $tmp["ArticleUnitprice"];
-            $tmp["ArticleVatcategory"] = $feeTaxRate;
-            $products[]                = $tmp;
-        }
-
-        if (!empty($shippingCosts)) {
-            $itemsTotalAmount += $shippingCosts;
-        }
-
-        if ($amountDedit != $itemsTotalAmount) {
-            if (number_format($amountDedit - $itemsTotalAmount, 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($mountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"] = 0;
-                $products[]                = $tmp;
-                $itemsTotalAmount += 0.01;
-            } elseif (number_format($itemsTotalAmount - $amountDedit, 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"] = 0;
-                $products[]                = $tmp;
-                $itemsTotalAmount -= 0.01;
-            }
-        }
-
-        return $products;
-
-    }
-    private function getFeeTax($fee)
-    {
-        $feeInfo    = WC_Tax::get_rates($fee->get_tax_class());
-        $feeInfo    = array_shift($feeInfo);
-        $feeTaxRate = $feeInfo['rate'] ?? 0;
-
-        return $feeTaxRate;
     }
 
     public function formatStreet($street)

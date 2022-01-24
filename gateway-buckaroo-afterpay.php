@@ -123,24 +123,10 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         }
 
         // Add shippingCosts
-        $shipping_item = $order->get_items('shipping');
-
-        $shippingCosts = 0;
-        foreach ($shipping_item as $item) {
-            if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                $shippingCosts = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
-            }
-        }
-
-        if ($shippingCosts > 0) {
-            // Add virtual shipping cost product
-            $tmp["ArticleDescription"] = "Shipping";
-            $tmp["ArticleId"]          = BuckarooConfig::SHIPPING_SKU;
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = $shippingCosts;
-            $tmp["ArticleVatcategory"] = 1;
-            $products[]                = $tmp;
-            $itemsTotalAmount += $shippingCosts;
+        $shippingInfo = $this->getAfterPayShippingInfo('afterpay', 'partial_refunds', $order, $line_item_totals, $line_item_tax_totals);
+        if ($shippingInfo['costs'] > 0) {
+            $products[] = $shippingInfo['shipping_virtual_product'];
+            $itemsTotalAmount += $shippingInfo['costs'];
         }
 
         // end add items
@@ -233,23 +219,9 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         }
 
         // Add shippingCosts
-        $shipping_item = $order->get_items('shipping');
-
-        $shippingCosts = 0;
-        foreach ($shipping_item as $item) {
-            if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                $shippingCosts = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
-            }
-        }
-
-        if ($shippingCosts > 0) {
-            // Add virtual shipping cost product
-            $tmp["ArticleDescription"] = "Shipping";
-            $tmp["ArticleId"]          = BuckarooConfig::SHIPPING_SKU;
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = $shippingCosts;
-            $tmp["ArticleVatcategory"] = 1;
-            $products[]                = $tmp;
+        $shippingInfo = $this->getAfterPayShippingInfo('afterpay', 'capture', $order, $line_item_totals, $line_item_tax_totals);
+        if ($shippingInfo['costs'] > 0) {
+            $products[] = $shippingInfo['shipping_virtual_product'];
         }
 
         // Merge products with same SKU
@@ -424,7 +396,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept            = 'TRUE';
-        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts);
+        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts, 'afterpay-old');
 
         $afterpay->returnUrl = $this->notify_url;
 
@@ -442,66 +414,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         //update_post_meta( $order->get_id(), '_wc_order_payment_original_transaction_key', $this->type);
 
         return fn_buckaroo_process_response($this, $response, $this->mode);
-    }
-
-    private function getProductsInfo($order, $amountDedit, $shippingCosts){
-        $products                    = array();
-        $items                       = $order->get_items();
-        $itemsTotalAmount            = 0;
-
-        foreach ($items as $item) {
-            $product   = new WC_Product($item['product_id']);
-            $tax_class = $product->get_attribute("vat_category");
-            if (empty($tax_class)) {
-                $tax_class = $this->vattype;
-            }
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $item['product_id'];
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
-            $itemsTotalAmount += $tmp["ArticleUnitprice"] * $item["qty"];
-            $tmp["ArticleVatcategory"] = $tax_class;
-            for ($i = 0; $item["qty"] > $i; $i++) {
-                $products[] = $tmp;
-            }
-        }
-
-        $fees = $order->get_fees();
-        foreach ($fees as $key => $item) {
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $key;
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = number_format(($item["line_total"] + $item["line_tax"]), 2);
-            $itemsTotalAmount += $tmp["ArticleUnitprice"];
-            $tmp["ArticleVatcategory"] = '4';
-            $products[]                = $tmp;
-        }
-
-        if (!empty($shippingCosts)) {
-            $itemsTotalAmount += $shippingCosts;
-        }
-
-        if ($amountDedit != $itemsTotalAmount) {
-            if (number_format($amountDedit - $itemsTotalAmount, 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"] = 4;
-                $products[]                = $tmp;
-                $itemsTotalAmount += 0.01;
-            } elseif (number_format($itemsTotalAmount - $amountDedit, 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"] = 4;
-                $products[]                = $tmp;
-                $itemsTotalAmount -= 0.01;
-            }
-        }
-
-        return $products;
     }
 
     /**

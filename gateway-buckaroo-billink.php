@@ -141,96 +141,13 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
 
         $billink->CustomerIPAddress = getClientIpBuckaroo();
         $billink->Accept            = 'TRUE';
-        $products = $this->getProductsInfo($order, $billink->amountDedit, $billink->ShippingCosts);
+        $products = $this->getProductsInfo($order, $billink->amountDedit, $billink->ShippingCosts, 'billink');
         $billink->returnUrl = $this->notify_url;
 
 
 
         $response = $billink->PayOrAuthorizeBillink($products, 'Pay');
         return fn_buckaroo_process_response($this, $response, $this->mode);
-    }
-
-    private function getFeeTax($fee)
-    {
-        $feeInfo    = WC_Tax::get_rates($fee->get_tax_class());
-        $feeInfo    = array_shift($feeInfo);
-        $feeTaxRate = $feeInfo['rate'] ?? 0;
-
-        return $feeTaxRate;
-    }
-
-    private function getProductsInfo($order, $amountDedit, $shippingCosts){
-        $products                   = array();
-        $items                      = $order->get_items();
-        $itemsTotalAmount           = 0;
-        $feeItemRate = 0;
-        
-        foreach ($items as $item) {
-
-            $product = new WC_Product($item['product_id']);
-
-            $tax      = new WC_Tax();
-            $taxes    = $tax->get_rates($product->get_tax_class());
-            $rates    = array_shift($taxes);
-            $itemRate = number_format(array_shift($rates), 2);
-
-            if ($product->get_tax_status() != 'taxable') {
-                $itemRate = 0;
-            }
-
-            $tmp["ArticleDescription"]   = $item['name'];
-            $tmp["ArticleId"]            = $item['product_id'];
-            $tmp["ArticleQuantity"]      = $item["qty"];
-            $tmp["ArticleUnitpriceExcl"] = number_format($item["line_total"] / $item["qty"], 2);
-            $tmp["ArticleUnitpriceIncl"] = number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
-            $itemsTotalAmount += number_format($tmp["ArticleUnitpriceIncl"] * $item["qty"], 2);
-
-            $tmp["ArticleVatcategory"] = $itemRate;
-            $products[]                = $tmp;
-            $feeItemRate               = $feeItemRate > $itemRate ? $feeItemRate : $itemRate;
-        }
-
-        $fees = $order->get_fees();
-        foreach ($fees as $key => $item) {
-
-            $feeTaxRate = $this->getFeeTax($fees[$key]);
-
-            $tmp["ArticleDescription"]   = $item['name'];
-            $tmp["ArticleId"]            = $key;
-            $tmp["ArticleQuantity"]      = 1;
-            $tmp["ArticleUnitpriceExcl"] = number_format($item["line_total"], 2);
-            $tmp["ArticleUnitpriceIncl"] = number_format(($item["line_total"] + $item["line_tax"]), 2);
-            $itemsTotalAmount += $tmp["ArticleUnitpriceIncl"];
-            $tmp["ArticleVatcategory"] = $feeTaxRate;
-            $products[]                = $tmp;
-        }
-        if (!empty($shippingCosts)) {
-            $itemsTotalAmount += $shippingCosts;
-        }
-
-        if ($amountDedit != $itemsTotalAmount) {
-            if (number_format($amountDedit - $itemsTotalAmount, 2) >= 0.01) {
-                $tmp["ArticleDescription"]   = 'Remaining Price';
-                $tmp["ArticleId"]            = 'remaining_price';
-                $tmp["ArticleQuantity"]      = 1;
-                $tmp["ArticleUnitpriceExcl"] = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleUnitpriceIncl"] = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"]   = 0;
-                $products[]                  = $tmp;
-                $itemsTotalAmount += 0.01;
-            } elseif (number_format($itemsTotalAmount - $amountDedit, 2) >= 0.01) {
-                $tmp["ArticleDescription"]   = 'Remaining Price';
-                $tmp["ArticleId"]            = 'remaining_price';
-                $tmp["ArticleQuantity"]      = 1;
-                $tmp["ArticleUnitpriceExcl"] = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleUnitpriceIncl"] = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"]   = 0;
-                $products[]                  = $tmp;
-                $itemsTotalAmount -= 0.01;
-            }
-        }
-
-        return $products;
     }
 
     /**
