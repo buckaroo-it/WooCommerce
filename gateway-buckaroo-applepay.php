@@ -59,9 +59,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
 
     public function createTransaction()
     {
-        require_once dirname(__FILE__) . '/library/logger.php';
-        $logger = new BuckarooLogger(BuckarooLogger::INFO, 'applepay');
-        $logger->logInfo(__METHOD__ . "|1|", $_POST);
+        Buckaroo_Logger::log(__METHOD__ . "|1|", $_POST);
 
         $this->paymentData      = $_POST['paymentData'];
         $this->CustomerCardName = $this->paymentData['billingContact']['givenName'] . ' ' . $this->paymentData['billingContact']['familyName'];
@@ -124,9 +122,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
 
     public function createOrder($billing_addresses, $shipping_addresses, $items, $selected_method_id)
     {
-        require_once dirname(__FILE__) . '/library/logger.php';
-        $logger = new BuckarooLogger(BuckarooLogger::INFO, 'applepay');
-        $logger->logInfo(__METHOD__ . "|1|");
+        Buckaroo_Logger::log(__METHOD__ . "|1|");
 
         $order = wc_create_order();
 

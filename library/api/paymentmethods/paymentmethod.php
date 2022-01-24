@@ -1,5 +1,4 @@
 <?php
-require_once dirname(__FILE__) . '/../../logger.php';
 require_once dirname(__FILE__) . '/../abstract.php';
 require_once dirname(__FILE__) . '/../soap.php';
 require_once dirname(__FILE__) . '/responsefactory.php';
@@ -241,6 +240,10 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     public function setCustomVarWithoutType($keyOrValues, $value = null)
     {
         if (is_array($keyOrValues)) {
+            if (!isset($this->data['customVars'])) {
+                $this->data['customVars'] =  $keyOrValues;
+            }
+            
             $this->data['customVars'] = array_merge(
                 $this->data['customVars'],
                 $keyOrValues
@@ -318,6 +321,17 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         }
     }
 
+    /**
+     * Populate generic fields for a PayInInstallments
+     *
+     * @access public
+     * @return callable $this->PayGlobal()
+     */
+    public function PayInInstallments()
+    {
+        $this->setServiceActionAndVersion('PayInInstallments');
+        return $this->PayGlobal();
+    }
     /**
      * Populate generic fields for a authorize
      *

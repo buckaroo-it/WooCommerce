@@ -47,8 +47,8 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
 
         //Start Certificate fields
         $this->form_fields['merchantkey'] = array(
-            'title'             => __('Merchant key', 'wc-buckaroo-bpe-gateway'),
-            'type'              => 'text',
+            'title'             => __('Website key', 'wc-buckaroo-bpe-gateway'),
+            'type'              => 'password',
             'description'       => __('This is your Buckaroo Payment Plaza website key (My Buckaroo -> Websites -> Choose website through Filter -> Key).', 'wc-buckaroo-bpe-gateway'),
             'default'           => '',
             'custom_attributes' => array(
@@ -57,7 +57,7 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
         );
         $this->form_fields['secretkey'] = array(
             'title'             => __('Secret key', 'wc-buckaroo-bpe-gateway'),
-            'type'              => 'text',
+            'type'              => 'password',
             'description'       => __('The secret password to verify transactions (Configuration -> Security -> Secret key).', 'wc-buckaroo-bpe-gateway'),
             'default'           => '',
             'custom_attributes' => array(
@@ -77,6 +77,15 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
 
         $this->initCerificateFields();
         
+        $this->form_fields['test_credentials'] = array(
+            'title'       => __('Test credentials', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'button',
+            'description' => __('Click here to verify website key & secret key.', 'wc-buckaroo-bpe-gateway'),
+            'custom_attributes' => [
+                'title' => __('Test', 'wc-buckaroo-bpe-gateway'),
+            ],
+            'default'     => '');
+
         $taxes                       = $this->getTaxClasses();
         $this->form_fields['feetax'] = [
             'title'       => __('Select tax class for fee', 'wc-buckaroo-bpe-gateway'),
@@ -97,6 +106,18 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'description' => __('Toggle debug mode on/off', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('on' => 'On', 'off' => 'Off'),
             'default'     => 'off');
+    
+        $this->form_fields['logstorage'] = array(
+            'title'       => __('Debug data storage', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'select',
+            'description' => __('Select where to store debug data', 'wc-buckaroo-bpe-gateway'),
+            'options'     => array(
+                Buckaroo_Logger_Storage::STORAGE_ALL => __('Both'),
+                Buckaroo_Logger_Storage::STORAGE_FILE => __('File'),
+                Buckaroo_Logger_Storage::STORAGE_DB => __('Database'),
+            ),
+            'default'     => Buckaroo_Logger_Storage::STORAGE_ALL);
+
 
         $this->form_fields['transactiondescription'] = array(
             'title'             => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
@@ -134,6 +155,7 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'description' => __("Select for what product categories iDIN verification should be applied. Don't select anything if want to apply iDIN to any product", 'wc-buckaroo-bpe-gateway'),
             'default'     => [],
         );
+        
     }
 
     protected function getTaxClasses()

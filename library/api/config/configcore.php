@@ -10,8 +10,6 @@ abstract class BuckarooConfigCore {
     const CHANNEL_BACKOFFICE = 'BackOffice';
     const LOCATION = 'https://checkout.buckaroo.nl/soap/';
     const LOCATION_TEST = 'https://testcheckout.buckaroo.nl/soap/';
-    const LOG = false;
-    const LOG_DIR = '/log/';
     const CERTIFICATE_PATH = 'certificate/';
    
     public static function get($key) {

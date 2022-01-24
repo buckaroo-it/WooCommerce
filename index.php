@@ -10,8 +10,22 @@ Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
+require_once dirname(__FILE__). "/library/Buckaroo_Logger_Storage.php";
+
+if(isset($_GET['buckaroo_download_log_file'])) {
+    Buckaroo_Logger_Storage::downloadFile($_GET['buckaroo_download_log_file']);
+}
+
+
 add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
 
+require_once dirname(__FILE__). "/library/Buckaroo_Logger.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Cron_Events.php";
+
+/**
+ * Start runing buckaroo events
+ */
+new Buckaroo_Cron_Events();
 /**
  * Enqueue backend scripts
  *
@@ -93,7 +107,7 @@ function buckaroo_payment_frontend_scripts()
         true
     );
 
-    if (is_checkout()) {
+    if (class_exists('WC_Order') && is_checkout()) {
         wp_enqueue_script(
             'wc-pf-checkout',
             plugin_dir_url(__FILE__) . '/assets/js/checkout.js',
@@ -127,6 +141,79 @@ function copy_language_files(){
 add_action('woocommerce_api_wc_push_buckaroo', 'buckaroo_push_class_init');
 
 add_action( 'wp_ajax_order_capture', 'orderCapture' );
+add_action( 'wp_ajax_buckaroo_test_credentials', 'buckaroo_test_credentials' );
+
+function buckaroo_test_credentials()
+{
+    if (!isset($_POST['website_key']) || !strlen(trim($_POST['website_key']))) {
+        wp_die(
+            __('Credentials are incorrect',  'wc-buckaroo-bpe-gateway')
+        );
+    }
+
+    if (!isset($_POST['secret_key']) || !strlen(trim($_POST['secret_key']))) {
+        wp_die(
+            __('Credentials are incorrect',  'wc-buckaroo-bpe-gateway')
+        );
+    }
+
+    $url = 'https://testcheckout.buckaroo.nl/json/Transaction/Specification/ideal?serviceVersion=2';
+
+    $timeStamp = time();
+    $nonce = bin2hex(random_bytes(8));
+
+    $website_key = $_POST['website_key'];
+    $secret_key = $_POST['secret_key'];
+
+    $body = implode(
+        "",
+        [
+            $website_key,
+            'GET',
+            strtolower(
+                rawurlencode(
+                    str_replace('https://', '', $url)
+                )
+            ),
+            $timeStamp,
+            $nonce,
+            ''
+        ]
+    );
+
+    $hmacAuthorization =  "Authorization: hmac " . implode(
+        ':',
+        [
+            $website_key,
+            base64_encode(
+                hash_hmac(
+                    'sha256',
+                    $body,
+                    $secret_key,
+                    true
+                )
+            ),
+            $nonce,
+            $timeStamp,
+        ]
+    );
+
+    $response = wp_remote_get(
+        $url,
+        array(
+            "headers" =>   $hmacAuthorization
+        )
+    );
+    if ($response['response']['code'] === 200) {
+        wp_die(
+            __('Credentials are OK',  'wc-buckaroo-bpe-gateway')
+        );
+    } else {
+        wp_die(
+            __('Credentials are incorrect',  'wc-buckaroo-bpe-gateway')
+        );
+    }
+}
 
 include( plugin_dir_path(__FILE__) . 'includes/admin/meta-boxes/class-wc-meta-box-order-capture.php');
 
@@ -155,6 +242,13 @@ function BK() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.Fu
 $GLOBALS['buckaroo'] = BK();
 
 register_activation_hook(__FILE__, array('WC_Buckaroo_Install', 'install'));
+register_deactivation_hook(__FILE__, 'buckaroo_deactivation');
+
+function buckaroo_deactivation()
+{
+    Buckaroo_Cron_Events::unschedule();
+}
+
 add_shortcode('buckaroo_payconiq', 'fw_reserve_page_template');
 
 function fw_reserve_page_template()
@@ -364,13 +458,21 @@ function buckaroo_add_setting_link($actions)
  */
 function buckaroo_add_woocommerce_settings_page($settings)
 {
-    include_once __DIR__.'/templates/BuckarooReportPage.php';
+    include_once __DIR__.'/templates/Buckaroo_Report_Page.php';
     include_once __DIR__.'/gateway-buckaroo-mastersettings.php';
     $settings[] = include_once plugin_dir_path(__FILE__). "WC_Buckaroo_Settings_Page.php";
     return $settings;
 }
 function buckaroo_init_gateway()
 {
+    //no code should be implemented before testing for active woocommerce
+    if (!class_exists('WC_Order')) {
+
+        set_transient(get_current_user_id().'buckaroo_require_woocommerce', true);
+        return;
+    }
+    delete_transient( get_current_user_id().'buckaroo_require_woocommerce' );
+
     add_filter(
         'plugin_action_links_'.plugin_basename(__FILE__), 'buckaroo_add_setting_link'
     );
@@ -383,9 +485,7 @@ function buckaroo_init_gateway()
     load_plugin_textdomain('wc-buckaroo-bpe-gateway', false, dirname(plugin_basename(__FILE__)) . '/languages/');
     global $buckaroo_enabled_payment_methods;
     $buckaroo_enabled_payment_methods = (count($buckaroo_enabled_payment_methods)) ? $buckaroo_enabled_payment_methods : generateGateways();
-    if (!class_exists('WC_Payment_Gateway')) {
-        return;
-    }
+    
     $plugin_dir = plugin_dir_path(__FILE__);
 
     foreach ($buckaroo_enabled_payment_methods as $method) {
@@ -408,7 +508,6 @@ function buckaroo_init_gateway()
     (new ApplePayButtons)->loadActions();   
     
     add_filter('woocommerce_payment_gateways', 'add_buckaroo_gateway');
-    new WC_Gateway_Buckaroo();
 
     if (!file_exists(__DIR__.'/../../../.well-known/apple-developer-merchantid-domain-association')) {
         if (!file_exists(__DIR__.'/../../../.well-known')) {
@@ -529,6 +628,12 @@ function buckaroo_admin_notice() {
     if($message = get_transient( get_current_user_id().'buckarooAdminNotice' ) ) {
         delete_transient( get_current_user_id().'buckarooAdminNotice' );
         echo '<div class="notice notice-'.$message['type'].' is-dismissible"><p>'.$message['message'].'</p></div>';
+    }
+    if(get_transient( get_current_user_id().'buckaroo_require_woocommerce') ) {
+        delete_transient( get_current_user_id().'buckaroo_require_woocommerce' );
+        echo '<div class="notice notice-error"><p>'.__(
+            'Buckaroo BPE requires WooCommerce to be installed and active',  'wc-buckaroo-bpe-gateway'
+        ).'</p></div>';
     }
 }
 add_action('admin_notices', 'buckaroo_admin_notice');

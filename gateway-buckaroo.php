@@ -10,7 +10,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     const BUCKAROO_TEMPLATE_LOCATION = '/templates/gateways/';
 
     public $notify_url;
-    public $transactiondescription;
     public $extrachargeamount;
     public $extrachargetype;
     public $extrachargetaxtype;
@@ -75,7 +74,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->extrachargetype        = $this->get_option('extrachargetype', 'static');
         $this->extrachargeamount      = $this->get_option('extrachargeamount', 0);
         $this->extrachargetaxtype     = $this->get_option('extrachargetaxtype', 'included');
-        $this->transactiondescription = $this->get_option('transactiondescription');
     }
     /**
      * Set gateway icon
@@ -366,11 +364,18 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'usemaster'              => [
                 'title'       => __('Use master settings', 'wc-buckaroo-bpe-gateway'),
                 'label'       => __(
-                    "Tick to use master settings for this payment method (see 'Buckaroo Master Settings' page to setup your default certificate).",
+                    "Tick to use master settings for this payment method.",
                     'wc-buckaroo-bpe-gateway'
                 ),
                 'type'        => 'checkbox',
-                'description' => $addDescription,
+                'description' => sprintf(
+                    __(
+                        'See <a href="%s">Buckaroo Settings</a> tab to setup your default certificate and keys',
+                    ),
+                    esc_url(
+                        admin_url('admin.php?page=wc-settings&tab=buckaroo_settings')
+                    )
+                ),   
                 'default'     => 'yes',
             ],
             'title'                  => [
@@ -392,26 +397,15 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 ),
                 'default'     => $this->description,
             ],
-            'upload'                 => [
-                'title'       => __('Upload certificate', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'button',
-                'description' => __('Click to select and upload your certificate. Note: Please save after uploading.', 'wc-buckaroo-bpe-gateway'),
-                'default'     => '',
-            ]
-        ];
-
-        $this->initCerificateFields();
-
-        $this->form_fields = array_merge($this->form_fields, [
             'merchantkey'            => [
-                'title'       => __('Merchant key', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'text',
+                'title'       => __('Website key', 'wc-buckaroo-bpe-gateway'),
+                'type'        => 'password',
                 'description' => __('This is your Buckaroo Payment Plaza website key (My Buckaroo -> Websites -> Choose website through Filter -> Key).', 'wc-buckaroo-bpe-gateway'),
                 'default'     => '',
             ],
             'secretkey'              => [
                 'title'       => __('Secret key', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'text',
+                'type'        => 'password',
                 'description' => __('The secret password to verify transactions (Configuration -> Security -> Secret key).', 'wc-buckaroo-bpe-gateway'),
                 'default'     => '',
             ],
@@ -421,6 +415,30 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 'description' => __('Certificate thumbprint (Configuration -> Security -> Certificates -> See "Fingerprint" after a certificate has been generated).', 'wc-buckaroo-bpe-gateway'),
                 'default'     => '',
             ],
+            'upload'                 => [
+                'title'       => __('Upload certificate', 'wc-buckaroo-bpe-gateway'),
+                'type'        => 'button',
+                'description' => __('Click to select and upload your certificate. Note: Please save after uploading.', 'wc-buckaroo-bpe-gateway'),
+                'default'     => '',
+            ],
+        ];
+
+
+        $this->initCerificateFields();
+
+        $this->form_fields['test_credentials'] = array(
+            'title'       => __('Test credentials', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'button',
+            'description' => __('Click here to verify website key & secret key.', 'wc-buckaroo-bpe-gateway'),
+            'custom_attributes' => [
+                'title' => __('Test', 'wc-buckaroo-bpe-gateway'),
+            ],
+            'default'     => ''
+        );
+
+        
+        $this->form_fields = array_merge($this->form_fields, [
+
             'mode'                   => [
                 'title'       => __('Transaction mode', 'wc-buckaroo-bpe-gateway'),
                 'type'        => 'select',
@@ -838,6 +856,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         try {
             $response = $request->Refund();
         } catch (exception $e) {
+            Buckaroo_Logger::log(__METHOD__, $e->getMessage());
             update_post_meta($order_id, '_pushallowed', 'ok');
             return new WP_Error('refund_error', __($e->getMessage()));
         }
@@ -895,7 +914,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $payment->amountCredit = 0;
         $payment->invoiceId = (string)getUniqInvoiceId($order->get_order_number());
         $payment->orderId = (string)$order->get_id();
-        $payment->description = $this->transactiondescription;
+        $payment->description = $this->get_option('transactiondescription', 'Order #' . (string)$order->get_id());
         $payment->returnUrl = $this->notify_url;
         $payment->mode = $this->mode;
         $payment->channel = BuckarooConfig::CHANNEL;

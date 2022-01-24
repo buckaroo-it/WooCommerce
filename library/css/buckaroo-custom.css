@@ -138,3 +138,42 @@ table.woocommerce_order_items tbody tr:first-child td {
     table-layout: auto;
     width: 100%;
 }
+.buckaroo-payment-list {
+    background-color: #fff;
+    padding: 15px;
+    display: flex;
+    flex-wrap: wrap;
+}
+.buckaroo-payment-list li {
+    flex: 0 0 auto;
+    width: 33.333%;
+    display: flex;
+    align-items: center;
+}
+.buckaroo-payment-list-icon {
+    height: 35px;
+    width: auto;
+    margin-right: 10px;
+}
+.buckaroo-payment-status {
+    margin: 0 3px;
+}
+.buckaroo-payment-enabled-live {
+    color: #198754;
+}
+.buckaroo-payment-enabled-test {
+    color: #ffc107;
+}
+.buckaroo-payment-disabled {
+    color: #dc3545;
+}
+@media (max-width: 1024px) {
+    .buckaroo-payment-list li {
+        width: 50%;
+    }
+}
+@media (max-width: 768px) {
+    .buckaroo-payment-list li {
+        width: 1000%;
+    }
+}
