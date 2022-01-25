@@ -59,7 +59,7 @@ class Buckaroo_Migration_Handler
                 [
                     "type" => "warning",
                     "message" => __(
-                        'You installed a previous version Buckaroo BPE, some functionality may not work properly',
+                        'You installed a previous version of Buckaroo BPE, some functionality may not work properly',
                         'wc-buckaroo-bpe-gateway'
                     )
                 ]
@@ -115,8 +115,6 @@ class Buckaroo_Migration_Handler
         $migrationObjects = [];
         foreach ($migrations as $migration) {
             if (file_exists($migration['path'])) {
-                var_dump('here');
-                
                 $object = include_once $migration['path'];
                 $this->execute(
                     $object,
@@ -146,7 +144,7 @@ class Buckaroo_Migration_Handler
             }
         } catch (\Throwable $th) {
             throw new Buckaroo_Migration_Exception(
-                "Cannot run migration for version: ".$version , 1, $th
+                "Cannot run migration for version: ".$version, 1, $th
             );
             
         }
@@ -173,7 +171,7 @@ class Buckaroo_Migration_Handler
                 $version = str_replace(
                     ".php",
                     "",
-                    basename($version)
+                    $version
                 );
 
                 return [
