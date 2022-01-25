@@ -10,22 +10,40 @@ Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
+
+// Define BK_PLUGIN_FILE.
+if (!defined('BK_PLUGIN_FILE')) {
+    define('BK_PLUGIN_FILE', __FILE__);
+}
+
 require_once dirname(__FILE__). "/library/Buckaroo_Logger_Storage.php";
 
 if(isset($_GET['buckaroo_download_log_file'])) {
     Buckaroo_Logger_Storage::downloadFile($_GET['buckaroo_download_log_file']);
 }
 
-
-add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
-
 require_once dirname(__FILE__). "/library/Buckaroo_Logger.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Cron_Events.php";
+require_once dirname(__FILE__). "/install/class-wcb-install.php";
+require_once dirname(__FILE__). "/install/migration/Buckaroo_Migration_Handler.php";
+
+//do a install if the plugin was installed prior to 2.24.1 
+WC_Buckaroo_Install::installUntrackedInstalation();
+
 
 /**
  * Start runing buckaroo events
  */
 new Buckaroo_Cron_Events();
+/**
+ * Handle plugin updates
+ */
+new Buckaroo_Migration_Handler();
+
+
+
+add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
+
 /**
  * Enqueue backend scripts
  *
@@ -127,17 +145,6 @@ if (!empty($_REQUEST['wc-api']) && ($_REQUEST['wc-api'] == 'WC_Push_Buckaroo')) 
         $_SERVER['HTTP_REFERER']='Buckaroo plugin referer';
     }
 }
-add_action( 'upgrader_process_complete', 'copy_language_files');
-
-function copy_language_files(){
-    foreach (glob(__DIR__ . '/languages/*.{po,mo}', GLOB_BRACE) as $file) {
-        if(!is_dir($file) && is_readable($file)) {
-            $dest = WP_CONTENT_DIR . '/languages/plugins/' . basename($file);
-            rename($file, $dest);
-        }
-    }
-}
-
 add_action('woocommerce_api_wc_push_buckaroo', 'buckaroo_push_class_init');
 
 add_action( 'wp_ajax_order_capture', 'orderCapture' );
@@ -217,12 +224,7 @@ function buckaroo_test_credentials()
 
 include( plugin_dir_path(__FILE__) . 'includes/admin/meta-boxes/class-wc-meta-box-order-capture.php');
 
-// Define BK_PLUGIN_FILE.
-if ( ! defined( 'BK_PLUGIN_FILE' ) ) {
-	define( 'BK_PLUGIN_FILE', __FILE__ );
-}
 
-include_once('install/class-wcb-install.php');
 
 // Include the main Buckaroo class.
 if ( ! class_exists( 'Buckaroo' ) ) {
@@ -467,7 +469,6 @@ function buckaroo_init_gateway()
 {
     //no code should be implemented before testing for active woocommerce
     if (!class_exists('WC_Order')) {
-
         set_transient(get_current_user_id().'buckaroo_require_woocommerce', true);
         return;
     }
