@@ -146,7 +146,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
         return $method;
     }
     /**
-     * Get info info for pay request
+     * Get shipping info for pay request
      *
      * @param Buckaroo_Order_Details $order_details
      * @param BuckarooKlarna $method
