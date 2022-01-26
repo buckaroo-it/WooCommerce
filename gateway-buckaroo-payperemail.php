@@ -76,16 +76,14 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooPayPerEmail */
         $payperemail = $this->createDebitRequest($order);
+        $order_details = new Buckaroo_Order_Details($order);
 
-        $customVars                   = array();
-        $customVars['CustomerGender'] = 0;
-        $get_billing_first_name       = getWCOrderDetails($order_id, 'billing_first_name');
-        $get_billing_last_name        = getWCOrderDetails($order_id, 'billing_last_name');
-        $get_billing_email            = getWCOrderDetails($order_id, 'billing_email');
-
-        $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-        $customVars['CustomerLastName']  = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-        $customVars['Customeremail']     = !empty($get_billing_email) ? $get_billing_email : '';
+        $customVars = array(
+            'CustomerGender' => 0,
+            'CustomerFirstName' => $order_details->getBilling('first_name'),
+            'CustomerLastName' => $order_details->getBilling('last_name'),
+            'Customeremail' => $order_details->getBilling('email')
+        );
 
         if ($this->isVisibleOnFrontend() && !is_admin()) {
             $customVars['CustomerGender']    = $_POST['buckaroo-payperemail-gender'];
