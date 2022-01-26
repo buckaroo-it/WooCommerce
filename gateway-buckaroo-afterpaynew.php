@@ -415,7 +415,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept            = 'TRUE';
-        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts, 'afterpay-new', $this->sendimageinfo);
+        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts, 'afterpay-new');
 
         $afterpay->returnUrl = $this->notify_url;
 
@@ -464,5 +464,32 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             'options'     => array('0' => 'No', '1' => 'Yes'),
             'default'     => 'pay');
 
+    }
+
+    public function getProductImage($product) {
+
+        if ($this->sendimageinfo){
+            $src = get_the_post_thumbnail_url($product->get_id());
+            if (!$src) {
+                $imgTag = $product->get_image();
+                $doc = new DOMDocument();
+                $doc->loadHTML($imgTag);
+                $xpath = new DOMXPath($doc);
+                $src = $xpath->evaluate("string(//img/@src)");
+            }
+
+            if (strpos($src, '?') !== false) {
+                $src = substr($src, 0, strpos($src, '?'));
+            }
+
+            if ($srcInfo = @getimagesize($src)) {
+                if (!empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg'])) {
+                    if (!empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280)) {
+                        $imageUrl = $src;
+                    }
+                }
+            } 
+        }
+        return $imageUrl; 
     }
 }

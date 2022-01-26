@@ -1266,7 +1266,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         return ['costs' => 0];
     }
 
-    public function getProductsInfo($order, $amountDedit, $shippingCosts, $payment_method, $sendImageInfo = null){
+    public function getProductsInfo($order, $amountDedit, $shippingCosts, $payment_method){
         $products                    = array();
         $items                       = $order->get_items();
         $itemsTotalAmount            = 0;
@@ -1316,7 +1316,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             //Product & Image URL
             if ($payment_method == 'afterpay-new' || $payment_method == 'klarna') {
                 $tmp["ProductUrl"] = get_permalink($item['product_id']);
-                $imgUrl = $this->getProductImage($product, $payment_method, $sendImageInfo);
+                $imgUrl = $this->getProductImage($product);
                 //Don't sent the tag if imgurl not set
                 if(!empty($imgUrl)){
                     $tmp['ImageUrl'] = $imgUrl;
@@ -1401,43 +1401,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         return $products;
     }
 
-    public function getProductImage($product, $method, $sendImageInfo = null) {
-        if ($method != 'afterpay-new' || $method != 'klarna') {
-            return false;
-        }
-
-        //Afterpay
-        if ($sendImageInfo && $method == 'afterpay-new'){
-            $src = get_the_post_thumbnail_url($item['product_id']);
-            if (!$src) {
-                $imgTag = $product->get_image();
-                $doc = new DOMDocument();
-                $doc->loadHTML($imgTag);
-                $xpath = new DOMXPath($doc);
-                $src = $xpath->evaluate("string(//img/@src)");
-            }
-            if (strpos($src, '?') !== false) {
-                $src = substr($src, 0, strpos($src, '?'));
-            }
-            if ($srcInfo = @getimagesize($src)) {
-                if (!empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg'])) {
-                    if (!empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280)) {
-                        $imageUrl = $src;
-                    }
-                }
-            }
-        //Klarna    
-        } else {
-            $imgTag  = $product->get_image();	
-            $doc = new DOMDocument();	
-            $doc->loadHTML($imgTag);	
-            $xpath   = new DOMXPath($doc);	
-            $imageUrl     = $xpath->evaluate("string(//img/@src)");
-        }
-        
-        return $imageUrl;
-    }
-    
     public function formatStreet($street)
     {
         $format = [

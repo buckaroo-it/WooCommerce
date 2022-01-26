@@ -252,4 +252,14 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
         return $format;
     }
+
+    public function getProductImage($product) {
+        $imgTag = $product->get_image();	
+        $doc = new DOMDocument();	
+        $doc->loadHTML($imgTag);	
+        $xpath = new DOMXPath($doc);	
+        $imageUrl = $xpath->evaluate("string(//img/@src)");
+        
+        return $imageUrl;
+    }
 }
