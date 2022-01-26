@@ -44,7 +44,7 @@ class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooRequestToPay */
         $rtp = $this->createDebitRequest($order);
-        $order_details = new Buckaroo_Order_Details($order_id);
+        $order_details = new Buckaroo_Order_Details($order);
        
         $response = $rtp->Pay(
             array(

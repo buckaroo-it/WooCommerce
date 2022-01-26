@@ -103,7 +103,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
             $klarna->ShippingCostsTax = number_format(($shippingCostsTax * 100) / $shippingCosts);
         }
 
-        $order_details = new Buckaroo_Order_Details($order_id);
+        $order_details = new Buckaroo_Order_Details($order);
         
         $klarna = $this->getBillingInfo($order_details, $klarna);
         $klarna = $this->getShippingInfo($order_details, $klarna);

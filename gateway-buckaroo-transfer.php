@@ -56,7 +56,7 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooTransfer */
         $transfer = $this->createDebitRequest($order);
-        $order_details = new Buckaroo_Order_Details($order_id);
+        $order_details = new Buckaroo_Order_Details($order);
 
         $customVars = array(
             'CustomerFirstName' => $order_details->getBilling('first_name'),

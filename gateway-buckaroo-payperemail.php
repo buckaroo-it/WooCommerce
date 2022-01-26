@@ -76,7 +76,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooPayPerEmail */
         $payperemail = $this->createDebitRequest($order);
-        $order_details = new Buckaroo_Order_Details($order_id);
+        $order_details = new Buckaroo_Order_Details($order);
 
         $customVars = array(
             'CustomerGender' => 0,

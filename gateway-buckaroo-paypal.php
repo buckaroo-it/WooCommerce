@@ -43,7 +43,7 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooPayPal */
         $paypal = $this->createDebitRequest($order);
-        $order_details = new Buckaroo_Order_Details($order_id);
+        $order_details = new Buckaroo_Order_Details($order);
         
         $customVars = array(
             'CustomerLastName' => $order_details->getBilling('last_name')

@@ -88,7 +88,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             $in3->cocNumber   = $_POST["buckaroo-in3-coc"];
             $in3->companyName = $_POST["buckaroo-in3-companyname"];
         }
-        $order_details = new Buckaroo_Order_Details($order_id);
+        $order_details = new Buckaroo_Order_Details($order);
         
         $birthdate            = $_POST['buckaroo-in3-birthdate'];
         if ($this->validateDate($birthdate, 'd-m-Y')) {

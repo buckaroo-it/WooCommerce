@@ -365,7 +365,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $afterpay->invoiceId = (string)getUniqInvoiceId(
             preg_replace('/\./', '-', $order->get_order_number())
         );
-        $order_details = new Buckaroo_Order_Details($order_id);
+        $order_details = new Buckaroo_Order_Details($order);
      
         $birthdate                 = $this->parseDate($_POST['buckaroo-afterpaynew-birthdate']);
         if (!empty($_POST["buckaroo-afterpaynew-b2b"]) && $_POST["buckaroo-afterpaynew-b2b"] == 'ON') {

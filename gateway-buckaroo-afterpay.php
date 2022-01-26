@@ -355,7 +355,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             $afterpay->CompanyName            = $_POST["buckaroo-afterpay-CompanyName"];
         }
 
-        $order_details = new Buckaroo_Order_Details($order_id);
+        $order_details = new Buckaroo_Order_Details($order);
         $afterpay = $this->getBillingInfo($order_details, $afterpay, $birthdate);
         $afterpay = $this->getShippingInfo($order_details, $afterpay);
         

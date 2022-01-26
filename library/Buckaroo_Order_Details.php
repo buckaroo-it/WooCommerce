@@ -23,7 +23,7 @@ class Buckaroo_Order_Details
 
     public function __construct($order)
     {
-        $this->order = wc_get_order($order);
+        $this->order = $order;
     }
     /**
      * Checks if WooCommerce Version 3 or greater is installed

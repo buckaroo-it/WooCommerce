@@ -44,7 +44,7 @@ class WC_Gateway_Buckaroo_P24 extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooP24 */
         $p24 = $this->createDebitRequest($order);
-        $order_details = new Buckaroo_Order_Details($order_id);
+        $order_details = new Buckaroo_Order_Details($order);
         $response = $p24->Pay(
             array(
                 'Customeremail' => $order_details->getBilling('email'),

@@ -50,7 +50,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             preg_replace('/\./', '-', $order->get_order_number())
         );
 
-        $order_details = new Buckaroo_Order_Details($order_id);
+        $order_details = new Buckaroo_Order_Details($order);
         $billink->B2B  = $order_details->getBilling("company");
 
 
