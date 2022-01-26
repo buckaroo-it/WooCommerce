@@ -92,13 +92,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
             preg_replace('/\./', '-', $order->get_order_number())
         );
 
-        $klarna->BillingGender = $_POST[$this->getKlarnaSelector() . '-gender'] ?? 'Unknown';
-
-        $get_billing_first_name = getWCOrderDetails($order_id, "billing_first_name");
-        $get_billing_last_name  = getWCOrderDetails($order_id, "billing_last_name");
-
-        $klarna->BillingFirstName = $get_billing_first_name;
-        $klarna->BillingLastName  = $get_billing_last_name;
+      
 
         $shippingCosts    = $order->get_total_shipping();
         $shippingCostsTax = $order->get_shipping_tax();
@@ -109,111 +103,11 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
             $klarna->ShippingCostsTax = number_format(($shippingCostsTax * 100) / $shippingCosts);
         }
 
-        $get_billing_address_1 = getWCOrderDetails($order_id, 'billing_address_1');
-        $get_billing_address_2 = getWCOrderDetails($order_id, 'billing_address_2');
-
-        $billingCompany = getWCOrderDetails($order_id, 'billing_company');
-        $klarna->setBillingCategory($billingCompany);
-        $klarna->setShippingCategory($billingCompany);
-
-        $address_components               = fn_buckaroo_get_address_components($get_billing_address_1 . " " . $get_billing_address_2);
-        $klarna->BillingStreet            = $address_components['street'];
-        $klarna->BillingHouseNumber       = $address_components['house_number'];
-        $klarna->BillingHouseNumberSuffix = $address_components['number_addition'] ?? null;
-        $klarna->BillingPostalCode        = getWCOrderDetails($order_id, 'billing_postcode');
-        $klarna->BillingCity              = getWCOrderDetails($order_id, 'billing_city');
-        $klarna->BillingCountry           = getWCOrderDetails($order_id, 'billing_country');
-        $get_billing_email                = getWCOrderDetails($order_id, 'billing_email');
-        $klarna->BillingEmail             = !empty($get_billing_email) ? $get_billing_email : '';
-        $klarna->BillingLanguage          = 'nl';
-        $get_billing_phone                = getWCOrderDetails($order_id, 'billing_phone');
-        $number                           = $this->cleanup_phone($get_billing_phone);
-        $klarna->BillingPhoneNumber       = !empty($number['phone']) ? $number['phone'] : $_POST[$this->getKlarnaSelector() . "-phone"];
-
-        $klarna->AddressesDiffer = 'FALSE';
-        if (isset($_POST[$this->getKlarnaSelector() . "-shipping-differ"])) {
-            $klarna->AddressesDiffer = 'TRUE';
-
-            $shippingCompany = getWCOrderDetails($order_id, 'shipping_company');
-            $klarna->setShippingCategory($shippingCompany);
-
-            $get_shipping_first_name           = getWCOrderDetails($order_id, 'shipping_first_name');
-            $klarna->ShippingFirstName         = $get_shipping_first_name;
-            $get_shipping_last_name            = getWCOrderDetails($order_id, 'shipping_last_name');
-            $klarna->ShippingLastName          = $get_shipping_last_name;
-            $get_shipping_address_1            = getWCOrderDetails($order_id, 'shipping_address_1');
-            $get_shipping_address_2            = getWCOrderDetails($order_id, 'shipping_address_2');
-            $address_components                = fn_buckaroo_get_address_components($get_shipping_address_1 . " " . $get_shipping_address_2);
-            $klarna->ShippingStreet            = $address_components['street'];
-            $klarna->ShippingHouseNumber       = $address_components['house_number'];
-            $klarna->ShippingHouseNumberSuffix = $address_components['number_addition'];
-
-            $klarna->ShippingPostalCode  = getWCOrderDetails($order_id, 'shipping_postcode');
-            $klarna->ShippingCity        = getWCOrderDetails($order_id, 'shipping_city');
-            $klarna->ShippingCountryCode = getWCOrderDetails($order_id, 'shipping_country');
-
-            $get_shipping_email          = getWCOrderDetails($order_id, 'billing_email');
-            $klarna->ShippingEmail       = !empty($get_shipping_email) ? $get_shipping_email : '';
-            $klarna->ShippingLanguage    = 'nl';
-            $get_shipping_phone          = getWCOrderDetails($order_id, 'billing_phone');
-            $number                      = $this->cleanup_phone($get_shipping_phone);
-            $klarna->ShippingPhoneNumber = $number['phone'];
-        }
-
-        if ($_POST['shipping_method'][0] == 'dhlpwc-parcelshop') {
-            $dhlConnectorData                  = $order->get_meta('_dhlpwc_order_connectors_data');
-            $dhlCountry                        = !empty($this->country) ? $this->country : $_POST['billing_country'];
-            $requestPart                       = $dhlCountry . '/' . $dhlConnectorData['id'];
-            $dhlParcelShopAddressData          = $this->getDHLParcelShopLocation($requestPart);
-            $klarna->AddressesDiffer           = 'TRUE';
-            $klarna->ShippingStreet            = $dhlParcelShopAddressData->street;
-            $klarna->ShippingHouseNumber       = $dhlParcelShopAddressData->number;
-            $klarna->ShippingPostalCode        = $dhlParcelShopAddressData->postalCode;
-            $klarna->ShippingHouseNumberSuffix = '';
-            $klarna->ShippingCity              = $dhlParcelShopAddressData->city;
-            $klarna->ShippingCountryCode       = $dhlParcelShopAddressData->countryCode;
-        }
-
-        if (!empty($_POST['post-deliver-or-pickup']) && $_POST['post-deliver-or-pickup'] == 'post-pickup') {
-            $postNL                            = $order->get_meta('_postnl_delivery_options');
-            $klarna->AddressesDiffer           = 'TRUE';
-            $klarna->ShippingStreet            = $postNL['street'];
-            $klarna->ShippingHouseNumber       = $postNL['number'];
-            $klarna->ShippingPostalCode        = $postNL['postal_code'];
-            $klarna->ShippingHouseNumberSuffix = trim(str_replace('-', ' ', $postNL['number_suffix']));
-            $klarna->ShippingCity              = $postNL['city'];
-            $klarna->ShippingCountryCode       = $postNL['cc'];
-        }
-
-        if (!empty($_POST['sendcloudshipping_service_point_selected'])) {
-            $klarna->AddressesDiffer = 'TRUE';
-            $sendcloudPointAddress   = $order->get_meta('sendcloudshipping_service_point_meta');
-            $addressData             = $this->parseSendCloudPointAddress($sendcloudPointAddress['extra']);
-
-            $klarna->ShippingStreet            = $addressData['street']['name'];
-            $klarna->ShippingHouseNumber       = $addressData['street']['house_number'];
-            $klarna->ShippingPostalCode        = $addressData['postal_code'];
-            $klarna->ShippingHouseNumberSuffix = $addressData['street']['number_addition'];
-            $klarna->ShippingCity              = $addressData['city'];
-            $klarna->ShippingCountryCode       = $klarna->BillingCountry;
-        }
-
-        if (isset($_POST['_myparcel_delivery_options'])) {
-            $myparselDeliveryOptions = $order->get_meta('_myparcel_delivery_options');
-            if (!empty($myparselDeliveryOptions)) {
-                if ($myparselDeliveryOptions = unserialize($myparselDeliveryOptions)) {
-                    if ($myparselDeliveryOptions->isPickup()) {
-                        $klarna->AddressesDiffer = 'TRUE';
-                        $pickupOptions = $myparselDeliveryOptions->getPickupLocation();
-                        $klarna->ShippingStreet = $pickupOptions->getStreet();
-                        $klarna->ShippingHouseNumber = $pickupOptions->getNumber();
-                        $klarna->ShippingPostalCode = $pickupOptions->getPostalCode();
-                        $klarna->ShippingCity = $pickupOptions->getCity();
-                        $klarna->ShippingCountryCode = $pickupOptions->getCountry();
-                    }
-                }
-            }
-        }
+        $order_details = new Buckaroo_Order_Details($order_id);
+        
+        $klarna = $this->getBillingInfo($order_details, $klarna);
+        $klarna = $this->getShippingInfo($order_details, $klarna);
+        $klarna = $this->handleThirdPartyShippings($klarna, $order, $this->country);
 
         $klarna->CustomerIPAddress = getClientIpBuckaroo();
         $klarna->Accept            = 'TRUE';
@@ -221,14 +115,61 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
         $klarna->returnUrl = $this->notify_url;
 
-        
-
         $klarna->setPaymnetFlow($this->getKlarnaPaymentFlow());
         $response = $klarna->paymentAction($products);
         return fn_buckaroo_process_response($this, $response, $this->mode);
     }
+    /**
+     * Get billing info for pay request
+     *
+     * @param Buckaroo_Order_Details $order_details
+     * @param BuckarooKlarna $method
+     * @param string $birthdate
+     *
+     * @return BuckarooKlarna  $method
+     */
+    protected function getBillingInfo($order_details, $method)
+    {
+        /** @var BuckarooKlarna */
+        $method = $this->set_billing($method, $order_details);
+        $method->BillingGender = $_POST[$this->getKlarnaSelector() . '-gender'] ?? 'Unknown';
+        $method->BillingFirstName = $order_details->getBilling('first_name');
+        if (empty($method->BillingPhoneNumber)) {
+            $method->BillingPhoneNumber =  $_POST[$this->getKlarnaSelector() . "-phone"];
+        }
 
-    private function getProductsInfo($order, $amountDedit, $shippingCosts){
+
+        $billingCompany =$order_details->getBilling('company');
+        $method->setBillingCategory($billingCompany);
+        $method->setShippingCategory($billingCompany);
+
+        return $method;
+    }
+    /**
+     * Get info info for pay request
+     *
+     * @param Buckaroo_Order_Details $order_details
+     * @param BuckarooKlarna $method
+     *
+     * @return BuckarooKlarna $method
+     */
+    protected function getShippingInfo($order_details, $method)
+    {
+        $method->AddressesDiffer = 'FALSE';
+        if (isset($_POST[$this->getKlarnaSelector() . "-shipping-differ"])) {
+            $method->AddressesDiffer = 'TRUE';
+
+            $shippingCompany = $order_details->getShipping('company');
+            $method->setShippingCategory($shippingCompany);
+
+            /** @var BuckarooKlarna */
+            $method = $this->set_shipping($method, $order_details);
+            $method->ShippingFirstName = $order_details->getShipping('first_name');
+        }
+        return $method;
+    }
+    private function getProductsInfo($order, $amountDedit, $shippingCosts)
+    {
 
         $products                  = array();
         $items                     = $order->get_items();
@@ -311,30 +252,5 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
         $feeTaxRate = $feeInfo['rate'] ?? 0;
 
         return $feeTaxRate;
-    }
-
-    public function formatStreet($street)
-    {
-        $format = [
-            'house_number'    => '',
-            'number_addition' => '',
-            'name'            => $street,
-        ];
-
-        if (preg_match('#^(.*?)([0-9\-]+)(.*)#s', $street, $matches)) {
-            // Check if the number is at the beginning of streetname
-            if ('' == $matches[1]) {
-                $format['house_number'] = trim($matches[2]);
-                $format['name']         = trim($matches[3]);
-            } else {
-                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
-                    $format['name']            = trim($matches[1]);
-                    $format['house_number']    = trim($matches[2]);
-                    $format['number_addition'] = trim($matches[3]);
-                }
-            }
-        }
-
-        return $format;
     }
 }

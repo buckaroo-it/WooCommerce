@@ -44,14 +44,14 @@ class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooRequestToPay */
         $rtp = $this->createDebitRequest($order);
-
-        $customVars = [];
-        $get_billing_first_name          = getWCOrderDetails($order_id, 'billing_first_name');
-        $get_billing_last_name           = getWCOrderDetails($order_id, 'billing_last_name');
-        $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-        $customVars['CustomerLastName']  = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-
-        $response = $rtp->Pay($customVars);
+        $order_details = new Buckaroo_Order_Details($order_id);
+       
+        $response = $rtp->Pay(
+            array(
+                'CustomerFirstName' => $order_details->getBilling('first_name'),
+                'CustomerLastName' => $order_details->getBilling('last_name')
+            )
+        );
         return fn_buckaroo_process_response($this, $response);
     }
 

@@ -24,6 +24,7 @@ if(isset($_GET['buckaroo_download_log_file'])) {
 
 require_once dirname(__FILE__). "/library/Buckaroo_Logger.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Cron_Events.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Order_Details.php";
 require_once dirname(__FILE__). "/install/class-wcb-install.php";
 require_once dirname(__FILE__). "/install/migration/Buckaroo_Migration_Handler.php";
 

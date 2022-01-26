@@ -58,12 +58,6 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
         if (!BuckarooSepaDirectDebit::isIBAN($_POST['buckaroo-sepadirectdebit-iban'])) {
             wc_add_notice(__("Wrong IBAN number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
-        if ($this->usecreditmanagment == 'TRUE') {
-            $birthdate = $_POST['buckaroo-sepadirectdebit-birthdate'];
-            if (!$this->validateDate($birthdate, 'Y-m-d')) {
-                wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-        }
 
         parent::validate_fields();
     }

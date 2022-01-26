@@ -43,28 +43,26 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooPayPal */
         $paypal = $this->createDebitRequest($order);
-
-        $customVars                     = array();
-        $customVars['CustomerLastName'] = getWCOrderDetails($order_id, 'billing_last_name');
-
-      
+        $order_details = new Buckaroo_Order_Details($order_id);
+        
+        $customVars = array(
+            'CustomerLastName' => $order_details->getBilling('last_name')
+        );
         if ($this->sellerprotection == 'TRUE') {
-            $paypal->sellerprotection         = 1;
-            $get_shipping_postcode            = getWCOrderDetails($order_id, 'shipping_postcode');
-            $customVars['ShippingPostalCode'] = !empty($get_shipping_postcode) ? $get_shipping_postcode : '';
+            $paypal->sellerprotection = 1;
+            $address =  $order_details->getBillingAddressComponents();
 
-            $get_shipping_city          = getWCOrderDetails($order_id, 'shipping_city');
-            $customVars['ShippingCity'] = !empty($get_shipping_city) ? $get_shipping_city : '';
-
-            $get_billing_address_1        = getWCOrderDetails($order_id, 'billing_address_1');
-            $get_billing_address_2        = getWCOrderDetails($order_id, 'billing_address_2');
-            $address_components           = fn_buckaroo_get_address_components($get_billing_address_1 . " " . $get_billing_address_2);
-            $customVars['ShippingStreet'] = !empty($address_components['street']) ? $address_components['street'] : '';
-            $customVars['ShippingHouse']  = !empty($address_components['house_number']) ? $address_components['house_number'] : '';
-
-            $customVars['StateOrProvince'] = getWCOrderDetails($order_id, 'billing_state');
-            $customVars['Country']         = getWCOrderDetails($order_id, 'billing_country');
-
+            $customVars = array_merge(
+                $customVars,
+                array(
+                   'ShippingPostalCode' => $order_details->getShipping('postcode'),
+                   'ShippingCity'       => $order_details->getShipping('city'),
+                   'ShippingStreet'     => $address['street'],
+                   'ShippingHouse'      => $address['house_number'],
+                   'StateOrProvince'    => $order_details->getBilling('state'),
+                   'Country'            => $order_details->getBilling('country')
+                )
+            );
         }
         $response = $paypal->Pay($customVars);
 

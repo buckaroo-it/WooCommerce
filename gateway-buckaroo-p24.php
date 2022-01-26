@@ -44,13 +44,14 @@ class WC_Gateway_Buckaroo_P24 extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooP24 */
         $p24 = $this->createDebitRequest($order);
-        $get_shipping_first_name         = getWCOrderDetails($order_id, 'billing_first_name');
-        $get_shipping_last_name          = getWCOrderDetails($order_id, 'billing_last_name');
-        $get_shipping_email              = getWCOrderDetails($order_id, 'billing_email');
-        $customVars['Customeremail']     = !empty($get_shipping_email) ? $get_shipping_email : '';
-        $customVars['CustomerFirstName'] = !empty($get_shipping_first_name) ? $get_shipping_first_name : '';
-        $customVars['CustomerLastName']  = !empty($get_shipping_last_name) ? $get_shipping_last_name : '';
-        $response = $p24->Pay($customVars);
+        $order_details = new Buckaroo_Order_Details($order_id);
+        $response = $p24->Pay(
+            array(
+                'Customeremail' => $order_details->getBilling('email'),
+                'CustomerFirstName' => $order_details->getBilling('first_name'),
+                'CustomerLastName' => $order_details->getBilling('last_name')
+            )
+        );
         return fn_buckaroo_process_response($this, $response);
     }
 }

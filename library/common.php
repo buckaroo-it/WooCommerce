@@ -642,31 +642,6 @@ function writeToDebug($request, $type)
     return;
 }
 
-function getWCOrderDetails($order_id, $field)
-{
-    $order        = (WooV3Plus()) ? wc_get_order($order_id) : new WC_Order($order_id);
-    $shipping_arr = array(
-        'shipping_phone',
-        'shipping_email',
-        'shipping_country',
-        'shipping_city',
-        'shipping_postcode',
-        'shipping_address_1',
-        'shipping_address_2',
-        'shipping_first_name',
-        'shipping_last_name',
-    );
-    if (in_array($field, $shipping_arr)) {
-        $pickAddress = pickAddress($order);
-        $offset      = str_replace('shipping_', '', $field);
-        return $pickAddress[$offset];
-    } elseif (WooV3Plus()) {
-        return $order->{"get_" . $field}();
-    } else {
-        return $order->{$field};
-    }
-}
-
 function getWCOrder($order_id)
 {
     if (WooV3Plus()) {
@@ -678,59 +653,7 @@ function getWCOrder($order_id)
     }
 }
 
-/**
- * Checks if there is a shipping address & Returns
- *
- * @param object $order
- * @return array $result
- */
-function pickAddress($order)
-{
-    //There is no shipping phone
-    $get_billing_phone = (WooV3Plus()) ? $order->get_billing_phone() : $order->billing_phone;
-    $result['phone']   = (!empty($get_billing_phone)) ? $get_billing_phone : '';
 
-    //There is no shipping email
-    $get_billing_email = (WooV3Plus()) ? $order->get_billing_email() : $order->billing_email;
-    $result['email']   = (!empty($get_billing_email)) ? $get_billing_email : '';
-
-    $get_shipping_country = (WooV3Plus()) ? $order->get_shipping_country() : $order->shipping_country;
-    $get_billing_country  = (WooV3Plus()) ? $order->get_billing_country() : $order->billing_country;
-    $country              = (!empty($get_shipping_country)) ? $get_shipping_country : $get_billing_country;
-    $result['country']    = (!empty($country) && $country != '') ? $country : '';
-
-    $get_shipping_city = (WooV3Plus()) ? $order->get_shipping_city() : $order->shipping_city;
-    $get_billing_city  = (WooV3Plus()) ? $order->get_billing_city() : $order->billing_city;
-    $city              = (!empty($get_shipping_city)) ? $get_shipping_city : $get_billing_city;
-    $result['city']    = (!empty($city) && $city != '') ? $city : '';
-
-    $get_shipping_postcode = (WooV3Plus()) ? $order->get_shipping_postcode() : $order->shipping_postcode;
-    $get_billing_postcode  = (WooV3Plus()) ? $order->get_billing_postcode() : $order->billing_postcode;
-    $postcode              = (!empty($get_shipping_postcode)) ? $get_shipping_postcode : $get_billing_postcode;
-    $result['postcode']    = (!empty($postcode) && $postcode != '') ? $postcode : '';
-
-    $get_shipping_address_1 = (WooV3Plus()) ? $order->get_shipping_address_1() : $order->shipping_address_1;
-    $get_billing_address_1  = (WooV3Plus()) ? $order->get_billing_address_1() : $order->billing_address_1;
-    $address_1              = (!empty($get_shipping_address_1)) ? $get_shipping_address_1 : $get_billing_address_1;
-    $result['address_1']    = (!empty($address_1) && $address_1 != '') ? $address_1 : '';
-
-    $get_shipping_address_2 = (WooV3Plus()) ? $order->get_shipping_address_2() : $order->shipping_address_2;
-    $get_billing_address_2  = (WooV3Plus()) ? $order->get_billing_address_2() : $order->billing_address_2;
-    $address_2              = (!empty($get_shipping_address_2)) ? $get_shipping_address_2 : $get_billing_address_2;
-    $result['address_2']    = (!empty($address_2) && $address_2 != '') ? $address_2 : '';
-
-    $get_shipping_first_name = (WooV3Plus()) ? $order->get_shipping_first_name() : $order->shipping_first_name;
-    $get_billing_first_name  = (WooV3Plus()) ? $order->get_billing_first_name() : $order->billing_first_name;
-    $first_name              = (!empty($get_shipping_first_name)) ? $get_shipping_first_name : $get_billing_first_name;
-    $result['first_name']    = (!empty($first_name) && $first_name != '') ? $first_name : '';
-
-    $get_shipping_last_name = (WooV3Plus()) ? $order->get_shipping_last_name() : $order->shipping_last_name;
-    $get_billing_last_name  = (WooV3Plus()) ? $order->get_billing_last_name() : $order->billing_last_name;
-    $last_name              = (!empty($get_shipping_last_name)) ? $get_shipping_last_name : $get_billing_last_name;
-    $result['last_name']    = (!empty($last_name) && $last_name != '') ? $last_name : '';
-
-    return $result;
-}
 
 function checkCurrencySupported($payment_method = '')
 {

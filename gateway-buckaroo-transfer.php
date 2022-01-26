@@ -56,23 +56,21 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooTransfer */
         $transfer = $this->createDebitRequest($order);
+        $order_details = new Buckaroo_Order_Details($order_id);
 
-        $customVars = array();
+        $customVars = array(
+            'CustomerFirstName' => $order_details->getBilling('first_name'),
+            'CustomerLastName' => $order_details->getBilling('last_name'),
+            'Customeremail' => $order_details->getBilling('email'),
+            'CustomerCountry' => $order_details->getBilling('country'),
+            'SendMail' => $this->sendemail
+        );
 
-        $get_billing_first_name          = getWCOrderDetails($order_id, 'billing_first_name');
-        $get_billing_last_name           = getWCOrderDetails($order_id, 'billing_last_name');
-        $get_billing_email               = getWCOrderDetails($order_id, 'billing_email');
-        $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-        $customVars['CustomerLastName']  = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-        $customVars['Customeremail']     = !empty($get_billing_email) ? $get_billing_email : '';
-
-        $customVars['SendMail'] = $this->sendemail;
         if ((int) $this->datedue > -1) {
             $customVars['DateDue'] = date('Y-m-d', strtotime('now + ' . (int) $this->datedue . ' day'));
         } else {
             $customVars['DateDue'] = date('Y-m-d', strtotime('now + 14 day'));
         }
-        $customVars['CustomerCountry'] = getWCOrderDetails($order_id, "billing_country");
 
         $response = $transfer->PayTransfer($customVars);
         return fn_buckaroo_process_response($this, $response);
