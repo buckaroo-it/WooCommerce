@@ -151,7 +151,7 @@ table.woocommerce_order_items tbody tr:first-child td {
     align-items: center;
 }
 .buckaroo-payment-list-icon {
-    height: 35px;
+    max-height: 35px;
     width: auto;
     margin-right: 10px;
 }
