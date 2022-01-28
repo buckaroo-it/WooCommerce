@@ -271,9 +271,9 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         );
 
         $this->form_fields['merchant_guid'] = array(
-            'title'       => __('Your merchant ID', 'wc-buckaroo-bpe-gateway'),
+            'title'       => __('Your merchant Guid', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'text',
-            'description' => __('Your merchant ID as supplied by Buckaroo, can be found in the Buckaroo plaza.', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Your merchant Guid can be found in the Buckaroo plaza by click on "Your merchant name" and then opening the "General" page', 'wc-buckaroo-bpe-gateway'),
             'default'     => '0');
     }
 
