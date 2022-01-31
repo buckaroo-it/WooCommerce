@@ -1266,98 +1266,72 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         return ['costs' => 0];
     }
 
-    public function getProductsInfo($order, $amountDedit, $shippingCosts, $payment_method){
+    public function getProductTaxRate($product) {
+        $tax      = new WC_Tax();
+        $taxes    = $tax->get_rates($product->get_tax_class());
+        $rates    = array_shift($taxes);
+        $itemRate = number_format(array_shift($rates), 2);
+        if ($product->get_tax_status() != 'taxable') {
+            $itemRate = 0;
+        } 
+        return ['rate' => $itemRate];
+    }
+
+    public function getProductsInfo($order, $amountDedit, $shippingCosts){
         $products                    = array();
         $items                       = $order->get_items();
         $itemsTotalAmount            = 0;
-        if ($payment_method != 'afterpay-old') {
-            $feeItemRate = 0;
-        }
 
         //Loop trough products
         foreach ($items as $item) {
+
             $product   = new WC_Product($item['product_id']);
-            //Tax
-            if ($payment_method == 'afterpay-old') {
-                $tax_class = $product->get_attribute("vat_category");
-                if (empty($tax_class)) {
-                    $tax_class = $this->vattype;
-                }
-            } else {
-                $tax      = new WC_Tax();
-                $taxes    = $tax->get_rates($product->get_tax_class());
-                $rates    = array_shift($taxes);
-                $itemRate = number_format(array_shift($rates), 2);
-                if ($product->get_tax_status() != 'taxable') {
-                    $itemRate = 0;
-                } 
-            }
-
             //Product details
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $item['product_id'];
-            $tmp["ArticleQuantity"]    = ($payment_method == 'afterpay-old') ? 1: $item["qty"];
+            $tmp['ArticleDescription'] = $item['name'];
+            $tmp['ArticleId'] = $item['product_id'];
+            $tmp['ArticleQuantity'] = $item['qty'];
 
-            if ($payment_method == 'afterpay-old') {
-                $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
-                $itemsTotalAmount += $tmp["ArticleUnitprice"] * $item["qty"];
-            } elseif ($payment_method == 'afterpay-new') { 
-                $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4, '.', '') / $item["qty"], 2, '.', '');
-                $itemsTotalAmount += number_format($tmp["ArticleUnitprice"] * $item["qty"], 2, '.', '');
-            } elseif ($payment_method == 'billink') {
-                $tmp["ArticleUnitpriceExcl"] = number_format($item["line_total"] / $item["qty"], 2);
-                $tmp["ArticleUnitpriceIncl"] = number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
-                $itemsTotalAmount += number_format($tmp["ArticleUnitpriceIncl"] * $item["qty"], 2);
-            } elseif($payment_method == 'klarna') {
-                $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
-                $itemsTotalAmount += number_format($tmp["ArticleUnitprice"] * $item["qty"], 2);
-            }
-
-            //Product & Image URL
-            if ($payment_method == 'afterpay-new' || $payment_method == 'klarna') {
-                $tmp["ProductUrl"] = get_permalink($item['product_id']);
-                $imgUrl = $this->getProductImage($product);
-                //Don't sent the tag if imgurl not set
-                if(!empty($imgUrl)){
-                    $tmp['ImageUrl'] = $imgUrl;
-                }
-            }
+            //Get payment method product specific
+            $productArr = $this->getProductSpecific($product, $item, $tmp);
+            $tmp = $productArr['product_tmp'];            
+            $itemsTotalAmount += $productArr['product_itemsTotalAmount'];
 
             //VAT
-            if ($payment_method == 'afterpay-old') {
-                $tmp["ArticleVatcategory"] = $tax_class;
-                for ($i = 0; $item["qty"] > $i; $i++) {
+            $productTaxRate = $this->getProductTaxRate($product, $feeItemRate);
+            $tmp['ArticleVatcategory'] = $productTaxRate['rate'];
+            if (!empty($productTaxRate['product_qty_loop'])) {                
+                for ($i = 0; $item['qty'] > $i; $i++) {
                     $products[] = $tmp;
                 }
-            }else{
-                $tmp["ArticleVatcategory"] = $itemRate;
-                $feeItemRate               = $feeItemRate > $itemRate ? $feeItemRate : $itemRate;
+            } else {
+                $feeItemRate = $feeItemRate > $productTaxRate['rate'] ? $feeItemRate : $productTaxRate['rate'];
                 $products[] = $tmp;
             }
 
         }
-
+        
         $fees = $order->get_fees();
         foreach ($fees as $key => $item) {
-            if ($payment_method != 'afterpay-old') {
-                $feeTaxRate = $this->getFeeTax($fees[$key]);
-                $tmp["ArticleVatcategory"] = $feeTaxRate;
-            } else {
-                $tmp["ArticleVatcategory"] = '4';
-            }
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $key;
-            $tmp["ArticleQuantity"]    = 1;
-            if ($payment_method == 'bilink') {
-                $tmp["ArticleUnitpriceExcl"] = number_format($item["line_total"], 2);
-                $tmp["ArticleUnitpriceIncl"] = number_format(($item["line_total"] + $item["line_tax"]), 2);
-                $itemsTotalAmount += $tmp["ArticleUnitpriceIncl"];
-            } else {
-                $tmp["ArticleUnitprice"]   = number_format(($item["line_total"] + $item["line_tax"]), 2);
-                $itemsTotalAmount += $tmp["ArticleUnitprice"];
+
+            $tmp['ArticleDescription'] = $item['name'];
+            $tmp['ArticleId']          = $key;
+            $tmp['ArticleQuantity']    = 1;
+            $tmp['ArticleUnitprice']   = number_format(($item['line_total'] + $item['line_tax']), 2);
+            $tmp['ArticleVatcategory'] = 4;
+
+            //Payment method fee specific
+            if (method_exists($this, 'getFeeSpecific')) {
+                $feeArr = $this->getFeeSpecific($item, $tmp, $fees[$key]);
+                $tmp = $feeArr['product_tmp'];
             }
 
-            $products[]                = $tmp;
+            if ($feeArr['product_itemsTotalAmount']) {
+                $itemsTotalAmount += $feeArr['product_itemsTotalAmount'];
+            } else {
+                $itemsTotalAmount += $tmp['ArticleUnitprice'];
+            }         
+
+            $products[] = $tmp;
         }
 
         if (!empty($shippingCosts)) {
@@ -1365,39 +1339,30 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
 
         if ($amountDedit != $itemsTotalAmount) {
+
+            Buckaroo_Logger::log(__METHOD__ . "|2|".$this->id, ['amounDedit'=> $amountDedit, 'itemstotal'=>$itemsTotalAmount]);
+            $tmp['ArticleDescription'] = 'Remaining Price';
+            $tmp['ArticleId']          = 'remaining_price';
+            $tmp['ArticleQuantity']    = 1;
+            $tmp['ArticleUnitprice']   = number_format($amountDedit - $itemsTotalAmount, 2);
+            $tmp['ArticleVatcategory'] = 0;
+
             if (number_format($amountDedit - $itemsTotalAmount, 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                if ($payment_method == 'bilink') {
-                    $tmp["ArticleUnitpriceExcl"] = number_format($amountDedit - $itemsTotalAmount, 2);
-                    $tmp["ArticleUnitpriceIncl"] = number_format($amountDedit - $itemsTotalAmount, 2);
-                } else {
-                    $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2);
-                }
-                ($payment_method == 'afterpay-old') ? $tmp["ArticleVatcategory"] = 4 : $tmp["ArticleVatcategory"] = 0;
-                $products[]                = $tmp;
-                $itemsTotalAmount += 0.01;
+                $diffMode = 1;
             } elseif (number_format($itemsTotalAmount - $amountDedit, 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                
-                if ($payment_method == 'bilink') {
-                    $tmp["ArticleUnitpriceExcl"] = number_format($amountDedit - $itemsTotalAmount, 2);
-                    $tmp["ArticleUnitpriceIncl"] = number_format($amountDedit - $itemsTotalAmount, 2);
-                } elseif($payment_method == 'afterpay-new') {
-                    $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2, '.', '');
-                } else { 
-                    $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2);
-                }
-
-                ($payment_method == 'afterpay-old') ? $tmp["ArticleVatcategory"] = 4 : $tmp["ArticleVatcategory"] = 0;
-                $products[]                = $tmp;
-                $itemsTotalAmount -= 0.01;
+                $diffMode = 2;
             }
-        }
 
+            if ($diffMode) {
+                //Payment method remaining price specific
+                if (method_exists($this, 'getRemainingPriceSpecific')) {
+                    $feeArr = $this->getRemainingPriceSpecific($diffMode, $amountDedit, $itemsTotalAmount, $tmp);
+                    $tmp = $feeArr['product_tmp'];
+                }
+                $products[] = $tmp;
+            }
+            
+        }
         return $products;
     }
 

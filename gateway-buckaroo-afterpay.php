@@ -396,7 +396,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept            = 'TRUE';
-        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts, 'afterpay-old');
+        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts);
 
         $afterpay->returnUrl = $this->notify_url;
 
@@ -468,5 +468,40 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             'description' => __('Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway'),
             'options'     => ['pay' => 'Pay', 'authorize' => 'Authorize'],
             'default'     => 'pay'];
+    }
+
+    public function getProductTaxRate($product) {
+        //Tax
+        $tax_class = $product->get_attribute("vat_category");
+        if (empty($tax_class)) {
+            $tax_class = $this->vattype;
+        }
+
+        return ['rate' => $tax_class, 'product_qty_loop' => 1];
+    }
+
+    public function getProductSpecific($product, $item, $tmp) {
+        //Product
+        $data['product_tmp'] = $tmp;
+        $data['product_tmp']['ArticleUnitprice']   = number_format(number_format($item['line_total'] + $item['line_tax'], 4) / $item['qty'], 2);
+        $data['product_tmp']['ArticleQuantity'] = 1;
+        $data['product_itemsTotalAmount'] = $data['product_tmp']['ArticleUnitprice'] * $item['qty'];
+
+        return $data;
+    }
+
+    public function getFeeSpecific($item, $tmp, $fee){
+        $feeTaxRate = $this->getFeeTax($fee);
+        $data['product_tmp'] = $tmp;
+        $data['product_tmp']['ArticleVatcategory'] = $feeTaxRate;
+
+        return $data;
+    }
+
+    public function getRemainingPriceSpecific($mode, $amountDedit, $itemsTotalAmount, $tmp) { 
+        $data['product_tmp'] = $tmp;
+        $data['product_tmp']['ArticleVatcategory'] =  4;
+
+        return $data;
     }
 }

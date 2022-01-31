@@ -415,7 +415,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept            = 'TRUE';
-        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts, 'afterpay-new');
+        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts);
 
         $afterpay->returnUrl = $this->notify_url;
 
@@ -491,5 +491,31 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             } 
         }
         return $imageUrl; 
+    }
+
+    public function getProductSpecific($product, $item, $tmp) {
+        //Product
+        $data['product_tmp'] = $tmp;
+        $data['product_tmp']['ArticleUnitprice'] = number_format(number_format($item['line_total'] + $item['line_tax'], 4, '.', '') / $item['qty'], 2, '.', '');
+        $data['product_tmp']['ProductUrl'] = get_permalink($item['product_id']);
+        $imgUrl = $this->getProductImage($product);
+        //Don't sent the tag if imgurl not set
+        if(!empty($imgUrl)){
+            $data['product_tmp']['ImageUrl'] = $imgUrl;
+        }
+        
+        $data['product_itemsTotalAmount'] = number_format($data['product_tmp']['ArticleUnitprice'] * $item['qty'], 2, '.', '');
+
+        return $data;
+    }
+
+    public function getRemainingPriceSpecific($mode, $amountDedit, $itemsTotalAmount, $tmp) {
+        $data['product_tmp'] = $tmp;
+
+        if ($mode == 2) {            
+            $data['product_tmp']['ArticleUnitprice'] = number_format($amountDedit - $itemsTotalAmount, 2, '.', '');
+        }
+        
+        return $data;
     }
 }

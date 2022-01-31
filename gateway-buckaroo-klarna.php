@@ -217,7 +217,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
         $klarna->CustomerIPAddress = getClientIpBuckaroo();
         $klarna->Accept            = 'TRUE';
-        $products = $this->getProductsInfo($order, $klarna->amountDedit, $klarna->ShippingCosts, 'klarna');
+        $products = $this->getProductsInfo($order, $klarna->amountDedit, $klarna->ShippingCosts);
 
         $klarna->returnUrl = $this->notify_url;
 
@@ -261,5 +261,21 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
         $imageUrl = $xpath->evaluate("string(//img/@src)");
         
         return $imageUrl;
+    }
+
+    public function getProductSpecific($product, $item, $tmp) { 
+        //Product
+        $data['product_tmp'] = $tmp;
+        $data['product_tmp']['ArticleUnitprice'] = number_format(number_format($item['line_total'] + $item['line_tax'], 4) / $item['qty'], 2);
+        $data['product_tmp']['ProductUrl'] = get_permalink($item['product_id']);
+        $imgUrl = $this->getProductImage($product);
+        //Don't sent the tag if imgurl not set
+        if(!empty($imgUrl)){
+            $data['product_tmp']['ImageUrl'] = $imgUrl;
+        }
+        
+        $data['product_itemsTotalAmount'] = number_format($data['product_tmp']['ArticleUnitprice'] * $item['qty'], 2);
+
+        return $data;
     }
 }
