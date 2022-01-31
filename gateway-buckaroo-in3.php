@@ -88,19 +88,12 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             $in3->cocNumber   = $_POST["buckaroo-in3-coc"];
             $in3->companyName = $_POST["buckaroo-in3-companyname"];
         }
-
-        $in3->BillingGender = $_POST['buckaroo-in3-gender'];
-
-        $get_billing_first_name = getWCOrderDetails($order_id, "billing_first_name");
-        $get_billing_last_name  = getWCOrderDetails($order_id, "billing_last_name");
-        $get_billing_email      = getWCOrderDetails($order_id, "billing_email");
-
-        $in3->BillingInitials = $this->getInitials($get_billing_first_name);
-        $in3->BillingLastName = $get_billing_last_name;
+        $order_details = new Buckaroo_Order_Details($order);
+        
         $birthdate            = $_POST['buckaroo-in3-birthdate'];
         if ($this->validateDate($birthdate, 'd-m-Y')) {
             $birthdate = date('Y-m-d', strtotime($birthdate));
-        } elseif (in_array(getWCOrderDetails($order_id, 'billing_country'), ['NL'])) {
+        } elseif (in_array($order_details->getBilling('country'), ['NL'])) {
             wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
             return;
         }
@@ -113,26 +106,10 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         if (floatval($shippingCostsTax) > 0) {
             $in3->ShippingCostsTax = number_format(($shippingCostsTax * 100) / $shippingCosts);
         }
-
-        // Set birthday if it's NL or BE
-        $in3->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
-
-        $get_billing_address_1         = getWCOrderDetails($order_id, 'billing_address_1');
-        $get_billing_address_2         = getWCOrderDetails($order_id, 'billing_address_2');
-        $address_components            = fn_buckaroo_get_address_components($get_billing_address_1 . " " . $get_billing_address_2);
-        $in3->BillingStreet            = $address_components['street'];
-        $in3->BillingHouseNumber       = $address_components['house_number'];
-        $in3->BillingHouseNumberSuffix = $address_components['number_addition'];
-        $in3->BillingPostalCode        = getWCOrderDetails($order_id, 'billing_postcode');
-        $in3->BillingCity              = getWCOrderDetails($order_id, 'billing_city');
-        $in3->BillingCountry           = getWCOrderDetails($order_id, 'billing_country');
-        $get_billing_email             = getWCOrderDetails($order_id, 'billing_email');
-        $in3->BillingEmail             = !empty($get_billing_email) ? $get_billing_email : '';
-        $get_billing_phone             = getWCOrderDetails($order_id, 'billing_phone');
-        $number                        = $this->cleanup_phone($get_billing_phone);
-        $in3->BillingPhoneNumber       = $number['phone'];
+        
+        $in3 = $this->getBillingInfo($order_details, $in3, $birthdate);
+        
         $in3->InvoiceDate              = date("d-m-Y");
-
         $in3->CustomerIPAddress = getClientIpBuckaroo();
         $in3->Accept            = 'TRUE';
         $products               = array();
@@ -183,14 +160,32 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         }
 
         $in3->returnUrl = $this->notify_url;
-
-
-
         $in3->in3Version = $this->settings['in3version'];
         $action          = 'PayInInstallments';
 
         $response = $in3->PayIn3($products, $action);
         return fn_buckaroo_process_response($this, $response, $this->mode);
+    }
+    /**
+     * Get billing info for pay request
+     *
+     * @param Buckaroo_Order_Details $order_details
+     * @param BuckarooIn3 $method
+     * @param string $birthdate
+     *
+     * @return BuckarooIn3  $method
+     */
+    protected function getBillingInfo($order_details, $method, $birthdate)
+    {
+        /** @var BuckarooIn3 */
+        $method = $this->set_billing($method, $order_details);
+        $method->BillingGender    = $_POST['buckaroo-in3-gender'];
+        $method->BillingInitials  = $order_details->getInitials(
+            $order_details->getBilling('first_name')
+        );
+        $method->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
+
+        return $method;
     }
     /**
      * Add fields to the form_fields() array, specific to this page.

@@ -293,16 +293,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $afterpay = $this->createDebitRequest($order);
         $afterpay->setType($this->type);
 
-        $woocommerce = getWooCommerceObject();
-
-        $afterpay->BillingGender = $_POST['buckaroo-afterpay-gender'];
-
-        $get_billing_first_name = getWCOrderDetails($order_id, "billing_first_name");
-        $get_billing_last_name  = getWCOrderDetails($order_id, "billing_last_name");
-        $get_billing_email      = getWCOrderDetails($order_id, "billing_email");
-
-        $afterpay->BillingInitials = $this->getInitials($get_billing_first_name);
-        $afterpay->BillingLastName = $get_billing_last_name;
+        
         $birthdate                 = $this->parseDate($_POST['buckaroo-afterpay-birthdate']);
         if (!empty($_POST["buckaroo-afterpay-b2b"]) && $_POST["buckaroo-afterpay-b2b"] == 'ON') {
             $birthdate = '01-01-1990';
@@ -335,55 +326,11 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             $afterpay->CompanyCOCRegistration = $_POST["buckaroo-afterpay-CompanyCOCRegistration"];
             $afterpay->CompanyName            = $_POST["buckaroo-afterpay-CompanyName"];
         }
-        $afterpay->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
 
-        $get_billing_address_1              = getWCOrderDetails($order_id, 'billing_address_1');
-        $get_billing_address_2              = getWCOrderDetails($order_id, 'billing_address_2');
-        $address_components                 = fn_buckaroo_get_address_components($get_billing_address_1 . " " . $get_billing_address_2);
-        $afterpay->BillingStreet            = $address_components['street'];
-        $afterpay->BillingHouseNumber       = $address_components['house_number'];
-        $afterpay->BillingHouseNumberSuffix = $address_components['number_addition'];
-        $afterpay->BillingPostalCode        = getWCOrderDetails($order_id, 'billing_postcode');
-        $afterpay->BillingCity              = getWCOrderDetails($order_id, 'billing_city');
-        $afterpay->BillingCountry           = getWCOrderDetails($order_id, 'billing_country');
-        $get_billing_email                  = getWCOrderDetails($order_id, 'billing_email');
-        $afterpay->BillingEmail             = !empty($get_billing_email) ? $get_billing_email : '';
-        $afterpay->BillingLanguage          = 'nl';
-        $get_billing_phone                  = getWCOrderDetails($order_id, 'billing_phone');
-        $number                             = $this->cleanup_phone($get_billing_phone);
-        $afterpay->BillingPhoneNumber       = !empty($number['phone']) ? $number['phone'] : $_POST["buckaroo-afterpay-phone"];
-
-        $country = null;
-        if (!empty($woocommerce->customer)) {
-            $country = get_user_meta($woocommerce->customer->get_id(), 'shipping_country', true);
-        }
-
-        $afterpay->AddressesDiffer = 'FALSE';
-        if (isset($_POST["buckaroo-afterpay-shipping-differ"])) {
-            $afterpay->AddressesDiffer = 'TRUE';
-
-            $get_shipping_first_name             = getWCOrderDetails($order_id, 'shipping_first_name');
-            $afterpay->ShippingInitials          = $this->getInitials($get_shipping_first_name);
-            $get_shipping_last_name              = getWCOrderDetails($order_id, 'shipping_last_name');
-            $afterpay->ShippingLastName          = $get_shipping_last_name;
-            $get_shipping_address_1              = getWCOrderDetails($order_id, 'shipping_address_1');
-            $get_shipping_address_2              = getWCOrderDetails($order_id, 'shipping_address_2');
-            $address_components                  = fn_buckaroo_get_address_components($get_shipping_address_1 . " " . $get_shipping_address_2);
-            $afterpay->ShippingStreet            = $address_components['street'];
-            $afterpay->ShippingHouseNumber       = $address_components['house_number'];
-            $afterpay->ShippingHouseNumberSuffix = $address_components['number_addition'];
-
-            $afterpay->ShippingPostalCode  = getWCOrderDetails($order_id, 'shipping_postcode');
-            $afterpay->ShippingCity        = getWCOrderDetails($order_id, 'shipping_city');
-            $afterpay->ShippingCountryCode = getWCOrderDetails($order_id, 'shipping_country');
-
-            $get_shipping_email            = getWCOrderDetails($order_id, 'billing_email');
-            $afterpay->ShippingEmail       = !empty($get_shipping_email) ? $get_shipping_email : '';
-            $afterpay->ShippingLanguage    = 'nl';
-            $get_shipping_phone            = getWCOrderDetails($order_id, 'billing_phone');
-            $number                        = $this->cleanup_phone($get_shipping_phone);
-            $afterpay->ShippingPhoneNumber = $number['phone'];
-        }
+        $order_details = new Buckaroo_Order_Details($order);
+        $afterpay = $this->getBillingInfo($order_details, $afterpay, $birthdate);
+        $afterpay = $this->getShippingInfo($order_details, $afterpay);
+        
         if ($this->type == 'afterpayacceptgiro') {
             if (empty($_POST["buckaroo-afterpay-CustomerAccountNumber"])) {
                 wc_add_notice(__("IBAN is required", 'wc-buckaroo-bpe-gateway'), 'error');
@@ -391,8 +338,8 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             }
             $afterpay->CustomerAccountNumber = $_POST["buckaroo-afterpay-CustomerAccountNumber"];
         }
-
-        $this->handleThirdPartyShippings($afterpay, $order, $this->country);
+        /** @var BuckarooAfterPay */
+        $afterpay = $this->handleThirdPartyShippings($afterpay, $order, $this->country);
 
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept            = 'TRUE';
@@ -414,6 +361,51 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         //update_post_meta( $order->get_id(), '_wc_order_payment_original_transaction_key', $this->type);
 
         return fn_buckaroo_process_response($this, $response, $this->mode);
+    }
+    /**
+     * Get billing info for pay request
+     *
+     * @param Buckaroo_Order_Details $order_details
+     * @param BuckarooAfterPay $method
+     * @param string $birthdate
+     *
+     * @return BuckarooAfterPay  $method
+     */
+    protected function getBillingInfo($order_details, $method, $birthdate)
+    {
+        /** @var BuckarooAfterPay */
+        $method = $this->set_billing($method, $order_details);
+        $method->BillingGender    = $_POST['buckaroo-afterpay-gender'];
+        $method->BillingInitials  = $order_details->getInitials(
+            $order_details->getBilling('first_name')
+        );
+        $method->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
+        if (empty($method->BillingPhoneNumber)) {
+            $method->BillingPhoneNumber =  $_POST["buckaroo-afterpay-phone"];
+        }
+        return $method;
+    }
+    /**
+     * Get shipping info for pay request
+     *
+     * @param Buckaroo_Order_Details $order_details
+     * @param BuckarooAfterPay $method
+     *
+     * @return BuckarooAfterPay $method
+     */
+    protected function getShippingInfo($order_details, $method)
+    {
+        $method->AddressesDiffer = 'FALSE';
+        if (isset($_POST["buckaroo-afterpay-shipping-differ"])) {
+            $method->AddressesDiffer = 'TRUE';
+            /** @var BuckarooAfterPay */
+            $method = $this->set_shipping($method, $order_details);
+            $method->ShippingInitials = $order_details->getInitials(
+                $order_details->getShipping('first_name')
+            );
+
+        }
+        return $method;
     }
 
     /**

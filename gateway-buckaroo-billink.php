@@ -50,18 +50,13 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             preg_replace('/\./', '-', $order->get_order_number())
         );
 
-        $billink->B2B         = getWCOrderDetails($order_id, "billing_company");
-        $billink->BillingGender = $_POST['buckaroo-billink-gender'];
+        $order_details = new Buckaroo_Order_Details($order);
+        $billink->B2B  = $order_details->getBilling("company");
 
-        $get_billing_first_name = getWCOrderDetails($order_id, "billing_first_name");
-        $get_billing_last_name  = getWCOrderDetails($order_id, "billing_last_name");
 
-        $billink->setCategory($billink->B2B ? 'B2B': 'B2C');
-        $billink->setCompany($billink->B2B ? getWCOrderDetails($order_id, "billing_company"): '');
+        $billink->setCategory(!empty($billink->B2B) ? 'B2B': 'B2C');
+        $billink->setCompany(!empty($billink->B2B) ? $billink->B2B : '');
 
-        $billink->BillingInitials = strtoupper(substr($get_billing_first_name, 0, 1));
-        $billink->setBillingFirstName($get_billing_first_name);
-        $billink->BillingLastName = $get_billing_last_name;
 
         if ($billink->B2B) {
             if (!empty($_POST['buckaroo-billink-CompanyCOCRegistration'])) {
@@ -95,59 +90,64 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
             $billink->ShippingCostsTax = number_format(($shippingCostsTax * 100) / $shippingCosts);
         }
 
-        $get_billing_address_1             = getWCOrderDetails($order_id, 'billing_address_1');
-        $get_billing_address_2             = getWCOrderDetails($order_id, 'billing_address_2');
-        $address_components                = fn_buckaroo_get_address_components($get_billing_address_1 . " " . $get_billing_address_2);
-        $billink->BillingStreet            = $address_components['street'];
-        $billink->BillingHouseNumber       = $address_components['house_number'];
-        $billink->BillingHouseNumberSuffix = $address_components['number_addition'];
-        $billink->BillingPostalCode        = getWCOrderDetails($order_id, 'billing_postcode');
-        $billink->BillingCity              = getWCOrderDetails($order_id, 'billing_city');
-        $billink->BillingCountry           = getWCOrderDetails($order_id, 'billing_country');
-        $get_billing_email                 = getWCOrderDetails($order_id, 'billing_email');
-        $billink->BillingEmail             = !empty($get_billing_email) ? $get_billing_email : '';
-        $billink->BillingLanguage          = 'nl';
-        $get_billing_phone                 = getWCOrderDetails($order_id, 'billing_phone');
-        $number                            = $this->cleanup_phone($get_billing_phone);
-        $billink->BillingPhoneNumber       = $number['phone'];
-
-        $billink->AddressesDiffer = 'FALSE';
-        if (isset($_POST["buckaroo-billink-shipping-differ"])) {
-            $billink->AddressesDiffer = 'TRUE';
-
-            $get_shipping_first_name            = getWCOrderDetails($order_id, 'shipping_first_name');
-            $billink->ShippingInitials          = strtoupper(substr($get_shipping_first_name, 0, 1));
-            $billink->ShippingFirstName         = $get_shipping_first_name;
-            $get_shipping_last_name             = getWCOrderDetails($order_id, 'shipping_last_name');
-            $billink->ShippingLastName          = $get_shipping_last_name;
-            $get_shipping_address_1             = getWCOrderDetails($order_id, 'shipping_address_1');
-            $get_shipping_address_2             = getWCOrderDetails($order_id, 'shipping_address_2');
-            $address_components                 = fn_buckaroo_get_address_components($get_shipping_address_1 . " " . $get_shipping_address_2);
-            $billink->ShippingStreet            = $address_components['street'];
-            $billink->ShippingHouseNumber       = $address_components['house_number'];
-            $billink->ShippingHouseNumberSuffix = $address_components['number_addition'];
-
-            $billink->ShippingPostalCode  = getWCOrderDetails($order_id, 'shipping_postcode');
-            $billink->ShippingCity        = getWCOrderDetails($order_id, 'shipping_city');
-            $billink->ShippingCountryCode = getWCOrderDetails($order_id, 'shipping_country');
-            $billink->ShippingGender      = 'Male';
-
-            $get_shipping_email           = getWCOrderDetails($order_id, 'billing_email');
-            $billink->ShippingEmail       = !empty($get_shipping_email) ? $get_shipping_email : '';
-            $get_shipping_phone           = getWCOrderDetails($order_id, 'billing_phone');
-            $number                       = $this->cleanup_phone($get_shipping_phone);
-            $billink->ShippingPhoneNumber = $number['phone'];
-        }
+        
+        $billink = $this->getBillingInfo($order_details, $billink);
+        $billink = $this->getShippingInfo($order_details, $billink);
+        
 
         $billink->CustomerIPAddress = getClientIpBuckaroo();
         $billink->Accept            = 'TRUE';
         $products = $this->getProductsInfo($order, $billink->amountDedit, $billink->ShippingCosts);
         $billink->returnUrl = $this->notify_url;
 
-
-
         $response = $billink->PayOrAuthorizeBillink($products, 'Pay');
         return fn_buckaroo_process_response($this, $response, $this->mode);
+    }
+    /**
+     * Get billing info for pay request
+     *
+     * @param Buckaroo_Order_Details $order_details
+     * @param BuckarooBillink $method
+     * @param string $birthdate
+     *
+     * @return BuckarooBillink  $method
+     */
+    protected function getBillingInfo($order_details, $method)
+    {
+        /** @var BuckarooBillink */
+        $method = $this->set_billing($method, $order_details);
+        $method->BillingGender = $_POST['buckaroo-billink-gender'];
+        $method->setBillingFirstName(
+            $order_details->getBilling('first_name')
+        );
+        $method->BillingInitials = $order_details->getInitials(
+            $method->getBillingFirstName()
+        );
+
+        return $method;
+    }
+    /**
+     * Get shipping info for pay request
+     *
+     * @param Buckaroo_Order_Details $order_details
+     * @param BuckarooBillink $method
+     *
+     * @return BuckarooBillink $method
+     */
+    protected function getShippingInfo($order_details, $method)
+    {
+        $method->AddressesDiffer = 'FALSE';
+        if (isset($_POST["buckaroo-billink-shipping-differ"])) {
+            $method->AddressesDiffer = 'TRUE';
+
+             /** @var BuckarooBillink */
+            $method = $this->set_shipping($method, $order_details);
+            $method->ShippingFirstName = $order_details->getShipping('first_name');
+            $method->ShippingInitials  = $order_details->getInitials(
+                $method->ShippingFirstName
+            );
+        }
+        return $method;
     }
 
     /**

@@ -602,39 +602,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         return apply_filters('woocommerce_get_return_url', $return_url);
     }
 
-    public function getInitials($str)
-    {
-        $ret = '';
-        foreach (explode(' ', $str) as $word) {
-            $ret .= strtoupper($word[0]) . '.';
-        }
-        return $ret;
-    }
-
-    /**
-     * Cleanup a phonenumber handed to it as $phone.
-     *
-     * @access public
-     * @param string $phone phonenumber
-     * @return array
-     */
-    public static function cleanup_phone($phone)
-    {
-        $phone = preg_replace('/[^0-9]/', '', $phone);
-
-        // Cleaning up dutch mobile numbers being entered incorrectly
-        if (substr($phone, 0, 3) == '316' || substr($phone, 0, 5) == '00316' || substr($phone, 0, 6) == '003106' || substr($phone, 0, 2) == '06') {
-            if (substr($phone, 0, 6) == '003106') {
-                $phone = substr_replace($phone, '00316', 0, 6);
-            }
-            $response = ['type' => 'mobile', 'phone' => $phone];
-        } else {
-            $response = ['type' => 'landline', 'phone' => $phone];
-        }
-
-        return $response;
-    }
-
     /**
      *
      *
@@ -921,44 +888,44 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         return $payment;
     }
 
-    protected function handleThirdPartyShippings($afterpay, $order, $country)
+    protected function handleThirdPartyShippings($method, $order, $country)
     {
         if (!empty($_POST['shipping_method'][0]) && ($_POST['shipping_method'][0] == 'dhlpwc-parcelshop')) {
             $dhlConnectorData                    = $order->get_meta('_dhlpwc_order_connectors_data');
             $dhlCountry                          = !empty($country) ? $country : $_POST['billing_country'];
             $requestPart                         = $dhlCountry . '/' . $dhlConnectorData['id'];
             $dhlParcelShopAddressData            = $this->getDHLParcelShopLocation($requestPart);
-            $afterpay->AddressesDiffer           = 'TRUE';
-            $afterpay->ShippingStreet            = $dhlParcelShopAddressData->street;
-            $afterpay->ShippingHouseNumber       = $dhlParcelShopAddressData->number;
-            $afterpay->ShippingPostalCode        = $dhlParcelShopAddressData->postalCode;
-            $afterpay->ShippingHouseNumberSuffix = '';
-            $afterpay->ShippingCity              = $dhlParcelShopAddressData->city;
-            $afterpay->ShippingCountryCode       = $dhlParcelShopAddressData->countryCode;
+            $method->AddressesDiffer           = 'TRUE';
+            $method->ShippingStreet            = $dhlParcelShopAddressData->street;
+            $method->ShippingHouseNumber       = $dhlParcelShopAddressData->number;
+            $method->ShippingPostalCode        = $dhlParcelShopAddressData->postalCode;
+            $method->ShippingHouseNumberSuffix = '';
+            $method->ShippingCity              = $dhlParcelShopAddressData->city;
+            $method->ShippingCountryCode       = $dhlParcelShopAddressData->countryCode;
         }
 
         if (!empty($_POST['post-deliver-or-pickup']) && $_POST['post-deliver-or-pickup'] == 'post-pickup') {
             $postNL                              = $order->get_meta('_postnl_delivery_options');
-            $afterpay->AddressesDiffer           = 'TRUE';
-            $afterpay->ShippingStreet            = $postNL['street'];
-            $afterpay->ShippingHouseNumber       = $postNL['number'];
-            $afterpay->ShippingPostalCode        = $postNL['postal_code'];
-            $afterpay->ShippingHouseNumberSuffix = trim(str_replace('-', ' ', $postNL['number_suffix']));
-            $afterpay->ShippingCity              = $postNL['city'];
-            $afterpay->ShippingCountryCode       = $postNL['cc'];
+            $method->AddressesDiffer           = 'TRUE';
+            $method->ShippingStreet            = $postNL['street'];
+            $method->ShippingHouseNumber       = $postNL['number'];
+            $method->ShippingPostalCode        = $postNL['postal_code'];
+            $method->ShippingHouseNumberSuffix = trim(str_replace('-', ' ', $postNL['number_suffix']));
+            $method->ShippingCity              = $postNL['city'];
+            $method->ShippingCountryCode       = $postNL['cc'];
         }
 
         if (!empty($_POST['sendcloudshipping_service_point_selected'])) {
-            $afterpay->AddressesDiffer = 'TRUE';
+            $method->AddressesDiffer = 'TRUE';
             $sendcloudPointAddress     = $order->get_meta('sendcloudshipping_service_point_meta');
             $addressData               = $this->parseSendCloudPointAddress($sendcloudPointAddress['extra']);
 
-            $afterpay->ShippingStreet            = $addressData['street']['name'];
-            $afterpay->ShippingHouseNumber       = $addressData['street']['house_number'];
-            $afterpay->ShippingPostalCode        = $addressData['postal_code'];
-            $afterpay->ShippingHouseNumberSuffix = $addressData['street']['number_addition'];
-            $afterpay->ShippingCity              = $addressData['city'];
-            $afterpay->ShippingCountryCode       = $afterpay->BillingCountry;
+            $method->ShippingStreet            = $addressData['street']['name'];
+            $method->ShippingHouseNumber       = $addressData['street']['house_number'];
+            $method->ShippingPostalCode        = $addressData['postal_code'];
+            $method->ShippingHouseNumberSuffix = $addressData['street']['number_addition'];
+            $method->ShippingCity              = $addressData['city'];
+            $method->ShippingCountryCode       = $method->BillingCountry;
         }
 
         if (isset($_POST['_myparcel_delivery_options'])) {
@@ -966,17 +933,18 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             if (!empty($myparselDeliveryOptions)) {
                 if ($myparselDeliveryOptions = unserialize($myparselDeliveryOptions)) {
                     if ($myparselDeliveryOptions->isPickup()) {
-                        $afterpay->AddressesDiffer = 'TRUE';
+                        $method->AddressesDiffer = 'TRUE';
                         $pickupOptions = $myparselDeliveryOptions->getPickupLocation();
-                        $afterpay->ShippingStreet = $pickupOptions->getStreet();
-                        $afterpay->ShippingHouseNumber = $pickupOptions->getNumber();
-                        $afterpay->ShippingPostalCode = $pickupOptions->getPostalCode();
-                        $afterpay->ShippingCity = $pickupOptions->getCity();
-                        $afterpay->ShippingCountryCode = $pickupOptions->getCountry();
+                        $method->ShippingStreet = $pickupOptions->getStreet();
+                        $method->ShippingHouseNumber = $pickupOptions->getNumber();
+                        $method->ShippingPostalCode = $pickupOptions->getPostalCode();
+                        $method->ShippingCity = $pickupOptions->getCity();
+                        $method->ShippingCountryCode = $pickupOptions->getCountry();
                     }
                 }
             }
         }
+        return $method;
     }
 
     private function parseSendCloudPointAddress($addressData)
@@ -1133,7 +1101,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $shippingCostsToRefund = 0;
             foreach ($shipping_item as $item) {
                 if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                    $shippingCostsToRefund = $line_item_totals[$item->get_id()];
+                    if ($this->id == 'buckaroo_method') { 
+                        $shippingCostsToRefund = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
+                    } else { 
+                        $shippingCostsToRefund = $line_item_totals[$item->get_id()];
+                    }                    
                     $shippingIdToRefund    = $item->get_id();
                 }
             }
@@ -1389,5 +1361,65 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
 
         return $format;
+    }
+    /**
+     * Set common billing details
+     *
+     * @param BuckarooPaymentMethod $method
+     * @param Buckaroo_Order_Details $order_details
+     *
+     * @return BuckarooPaymentMethod $method
+     */
+    protected function set_billing(
+        BuckarooPaymentMethod $method,
+        Buckaroo_Order_Details $order_details
+    ) {
+        $address = $order_details->getBillingAddressComponents();
+
+        $method->BillingLastName           = $order_details->getBilling('last_name');
+
+        $method->BillingStreet             = $address['street'];
+        $method->BillingHouseNumber        = $address['house_number'];
+        $method->BillingHouseNumberSuffix  = $address['number_addition'];
+
+        $method->BillingPostalCode        = $order_details->getBilling('postcode');
+        $method->BillingCity              = $order_details->getBilling('city');
+        $method->BillingCountry           = $order_details->getBilling('country');
+
+        $method->BillingEmail             = $order_details->getBilling('email', '');
+        $method->BillingPhoneNumber       = $order_details->getBillingPhone();
+        $method->BillingLanguage          = 'nl';
+
+        return $method;
+    }
+    /**
+     * Set common shipping details
+     *
+     * @param BuckarooPaymentMethod $method
+     * @param Buckaroo_Order_Details $order_details
+     *
+     * @return BuckarooPaymentMethod $method
+     */
+    protected function set_shipping(
+        BuckarooPaymentMethod $method,
+        Buckaroo_Order_Details $order_details
+    ) {
+        $address = $order_details->getShippingAddressComponents();
+
+        $method->ShippingLastName          = $order_details->getShipping('last_name');
+
+        $method->ShippingStreet            = $address['street'];
+        $method->ShippingHouseNumber       = $address['house_number'];
+        $method->ShippingHouseNumberSuffix = $address['number_addition'];
+
+        $method->ShippingPostalCode        = $order_details->getShipping('postcode');
+        $method->ShippingCity              = $order_details->getShipping('city');
+        $method->ShippingCountryCode       = $order_details->getShipping('country');
+
+        $method->ShippingEmail             = $order_details->getBilling('email', '');
+        $method->ShippingPhoneNumber       = $order_details->getBillingPhone();
+        $method->ShippingLanguage          = 'nl';
+
+        return $method;
     }
 }
