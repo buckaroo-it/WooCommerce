@@ -1312,7 +1312,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         if ($amountDedit != $itemsTotalAmount) {
 
-            Buckaroo_Logger::log(__METHOD__ . "|2|".$this->id, ['amounDedit'=> $amountDedit, 'itemstotal'=>$itemsTotalAmount]);
             $tmp['ArticleDescription'] = 'Remaining Price';
             $tmp['ArticleId']          = 'remaining_price';
             $tmp['ArticleQuantity']    = 1;
