@@ -269,12 +269,29 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
             'options'     => array('TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway')),
             'default'     => 'TRUE',
         );
-
-        $this->form_fields['merchant_guid'] = array(
-            'title'       => __('Your merchant ID', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'text',
-            'description' => __('Your merchant ID as supplied by Buckaroo, can be found in the Buckaroo plaza.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '0');
+        $this->set_guid_after_usemaster();
+             
+    }
+    /**
+     * Set merchand_guid after master settings checkbox
+     *
+     * @return void
+     */
+    protected function set_guid_after_usemaster()
+    {
+        $new_form_fields = array();
+        foreach ($this->form_fields as $k => $value) {
+            $new_form_fields[$k] = $value;
+            if ($k === 'usemaster') {
+                $new_form_fields['merchant_guid'] = array(
+                    'title'       => __('GUID', 'wc-buckaroo-bpe-gateway'),
+                    'type'        => 'text',
+                    'description' => __('The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General.', 'wc-buckaroo-bpe-gateway'),
+                    'default'     => '0'
+                );
+            }
+        }
+        $this->form_fields =  $new_form_fields;
     }
 
     private static function createFakeCart($callback)
