@@ -148,20 +148,21 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
         $products = $mergedProducts;
 
         foreach(array_values($products) as $pos => $p) {
-
-            $this->setCustomVarsAtPosition(
-                [
+            $vars = [
                     "Description"=> $p["ArticleDescription"],
                     "Identifier"=> $p["ArticleId"],
                     "Quantity"=> $p["ArticleQuantity"],
                     "GrossUnitprice"=> $p["ArticleUnitprice"],
                     "VatPercentage"=> isset($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0,
-                    "Url"=> $p["ProductUrl"],
-                    "ImageUrl"=> $p["ImageUrl"],
-                ],
-                $pos,
-                'Article'
-            );
+                    "Url"=> $p["ProductUrl"]
+            ];
+            
+            if (!empty($p['ImageUrl'])) {
+                $vars["ImageUrl"] = $p["ImageUrl"];
+            }
+
+
+            $this->setCustomVarsAtPosition($vars, $pos, 'Article');
         }
         if (!empty($this->ShippingCosts)) {
             $this->setCustomVarsAtPosition(

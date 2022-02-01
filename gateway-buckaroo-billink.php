@@ -149,88 +149,6 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         }
         return $method;
     }
-    private function getFeeTax($fee)
-    {
-        $feeInfo    = WC_Tax::get_rates($fee->get_tax_class());
-        $feeInfo    = array_shift($feeInfo);
-        $feeTaxRate = $feeInfo['rate'] ?? 0;
-
-        return $feeTaxRate;
-    }
-
-    private function getProductsInfo($order, $amountDedit, $shippingCosts){
-        $products                   = array();
-        $items                      = $order->get_items();
-        $itemsTotalAmount           = 0;
-        $feeItemRate = 0;
-        
-        foreach ($items as $item) {
-
-            $product = new WC_Product($item['product_id']);
-
-            $tax      = new WC_Tax();
-            $taxes    = $tax->get_rates($product->get_tax_class());
-            $rates    = array_shift($taxes);
-            $itemRate = number_format(array_shift($rates), 2);
-
-            if ($product->get_tax_status() != 'taxable') {
-                $itemRate = 0;
-            }
-
-            $tmp["ArticleDescription"]   = $item['name'];
-            $tmp["ArticleId"]            = $item['product_id'];
-            $tmp["ArticleQuantity"]      = $item["qty"];
-            $tmp["ArticleUnitpriceExcl"] = number_format($item["line_total"] / $item["qty"], 2);
-            $tmp["ArticleUnitpriceIncl"] = number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
-            $itemsTotalAmount += number_format($tmp["ArticleUnitpriceIncl"] * $item["qty"], 2);
-
-            $tmp["ArticleVatcategory"] = $itemRate;
-            $products[]                = $tmp;
-            $feeItemRate               = $feeItemRate > $itemRate ? $feeItemRate : $itemRate;
-        }
-
-        $fees = $order->get_fees();
-        foreach ($fees as $key => $item) {
-
-            $feeTaxRate = $this->getFeeTax($fees[$key]);
-
-            $tmp["ArticleDescription"]   = $item['name'];
-            $tmp["ArticleId"]            = $key;
-            $tmp["ArticleQuantity"]      = 1;
-            $tmp["ArticleUnitpriceExcl"] = number_format($item["line_total"], 2);
-            $tmp["ArticleUnitpriceIncl"] = number_format(($item["line_total"] + $item["line_tax"]), 2);
-            $itemsTotalAmount += $tmp["ArticleUnitpriceIncl"];
-            $tmp["ArticleVatcategory"] = $feeTaxRate;
-            $products[]                = $tmp;
-        }
-        if (!empty($shippingCosts)) {
-            $itemsTotalAmount += $shippingCosts;
-        }
-
-        if ($amountDedit != $itemsTotalAmount) {
-            if (number_format($amountDedit - $itemsTotalAmount, 2) >= 0.01) {
-                $tmp["ArticleDescription"]   = 'Remaining Price';
-                $tmp["ArticleId"]            = 'remaining_price';
-                $tmp["ArticleQuantity"]      = 1;
-                $tmp["ArticleUnitpriceExcl"] = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleUnitpriceIncl"] = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"]   = 0;
-                $products[]                  = $tmp;
-                $itemsTotalAmount += 0.01;
-            } elseif (number_format($itemsTotalAmount - $amountDedit, 2) >= 0.01) {
-                $tmp["ArticleDescription"]   = 'Remaining Price';
-                $tmp["ArticleId"]            = 'remaining_price';
-                $tmp["ArticleQuantity"]      = 1;
-                $tmp["ArticleUnitpriceExcl"] = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleUnitpriceIncl"] = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"]   = 0;
-                $products[]                  = $tmp;
-                $itemsTotalAmount -= 0.01;
-            }
-        }
-
-        return $products;
-    }
 
     /**
      * Check that a date is valid.
@@ -256,5 +174,36 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
     public function process_refund($order_id, $amount = null, $reason = '')
     {
         return $this->processDefaultRefund($order_id, $amount, $reason);
+    }
+
+    public function getProductSpecific($product, $item, $tmp) {
+        //Product
+        $data['product_tmp'] = $tmp;        
+        $data['product_tmp']['ArticleUnitpriceExcl'] = number_format($item['line_total'] / $item['qty'], 2);
+        $data['product_tmp']['ArticleUnitpriceIncl'] = number_format(number_format($item['line_total'] + $item['line_tax'], 4) / $item['qty'], 2);
+        $data['product_itemsTotalAmount'] = number_format($data['product_tmp']['ArticleUnitpriceIncl'] * $item['qty'], 2);
+
+        return $data;
+    }
+
+    public function getFeeSpecific($item, $tmp, $fee){
+        unset($tmp['ArticleUnitprice']);
+        $data['product_tmp'] = $tmp;
+        $data['product_tmp']['ArticleUnitpriceExcl'] = number_format($item['line_total'], 2);
+        $data['product_tmp']['ArticleUnitpriceIncl'] = number_format(($item['line_total'] + $item['line_tax']), 2);
+        $data['product_itemsTotalAmount'] = $data['product_tmp']['ArticleUnitpriceIncl'];
+        
+        return $data;
+
+    }
+
+    public function getRemainingPriceSpecific($mode, $amountDedit, $itemsTotalAmount, $tmp) {
+        $articleUnitPrice = $tmp['ArticleUnitprice'];
+        unset($tmp["ArticleUnitprice"]);  
+        $data['product_tmp'] = $tmp;
+        $data['product_tmp']['ArticleUnitpriceExcl'] = $articleUnitPrice;
+        $data['product_tmp']['ArticleUnitpriceIncl'] = $articleUnitPrice;
+        
+        return $data;
     }
 }

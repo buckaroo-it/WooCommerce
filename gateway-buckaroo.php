@@ -1183,6 +1183,160 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
     }
 
+    public function getFeeTax($fee)
+    {
+        $feeInfo    = WC_Tax::get_rates($fee->get_tax_class());
+        $feeInfo    = array_shift($feeInfo);
+        $feeTaxRate = $feeInfo['rate'] ?? 0;
+
+        return $feeTaxRate;
+    }
+
+    public function getAfterPayShippingInfo($afterpay_version, $method, $order, $line_item_totals, $line_item_tax_totals){
+
+        $shipping_item = $order->get_items('shipping');
+        $shippingCosts = 0;
+
+        if ($afterpay_version == 'afterpay-new' && $method == 'partial_refunds'){
+            $shippingTaxClassKey = 0;
+
+            foreach ($shipping_item as $item) {
+                if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
+                    $shippingCosts   = $line_item_totals[$item->get_id()];
+                    $shippingTaxInfo = $item->get_taxes();
+                    if (isset($line_item_tax_totals[$item->get_id()])) {
+                        foreach ($shippingTaxInfo['total'] as $shippingTaxClass => $shippingTaxClassValue) {
+                            $shippingTaxClassKey = $shippingTaxClass;
+                            $shippingCosts += $shippingTaxClassValue;
+                        }
+                    }
+                }
+            }
+        } else {
+            foreach ($shipping_item as $item) {
+                if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
+                    $shippingCosts = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
+                }
+            }
+        }
+    
+        if ($shippingCosts > 0) {
+            // Add virtual shipping cost product
+            $tmp["ArticleDescription"] = "Shipping";
+            $tmp["ArticleId"]          = BuckarooConfig::SHIPPING_SKU;
+            $tmp["ArticleQuantity"]    = 1;
+            $tmp["ArticleUnitprice"]   = $shippingCosts;
+            
+            if ($afterpay_version == 'afterpay') {
+                $tmp["ArticleVatcategory"] = 1;
+            } elseif ($afterpay_version == 'afterpay-new' && $method == 'partial_refunds'){
+                $tmp["ArticleVatcategory"] = WC_Tax::_get_tax_rate($shippingTaxClassKey)['tax_rate'] ?? 0;
+            }
+
+            return ['costs' => $shippingCosts, 'shipping_virtual_product' => $tmp];
+        }
+        return ['costs' => 0];
+    }
+
+    public function getProductTaxRate($product) {
+        $tax      = new WC_Tax();
+        $taxes    = $tax->get_rates($product->get_tax_class());
+        $rates    = array_shift($taxes);
+        $itemRate = number_format(array_shift($rates), 2);
+        if ($product->get_tax_status() != 'taxable') {
+            $itemRate = 0;
+        } 
+        return ['rate' => $itemRate];
+    }
+
+    public function getProductsInfo($order, $amountDedit, $shippingCosts){
+        $products                    = array();
+        $items                       = $order->get_items();
+        $itemsTotalAmount            = 0;
+
+        //Loop trough products
+        foreach ($items as $item) {
+
+            $product   = new WC_Product($item['product_id']);
+            //Product details
+            $tmp['ArticleDescription'] = $item['name'];
+            $tmp['ArticleId'] = $item['product_id'];
+            $tmp['ArticleQuantity'] = $item['qty'];
+
+            //Get payment method product specific
+            $productArr = $this->getProductSpecific($product, $item, $tmp);
+            $tmp = $productArr['product_tmp'];            
+            $itemsTotalAmount += $productArr['product_itemsTotalAmount'];
+
+            //VAT
+            $productTaxRate = $this->getProductTaxRate($product, $feeItemRate);
+            $tmp['ArticleVatcategory'] = $productTaxRate['rate'];
+            if (!empty($productTaxRate['product_qty_loop'])) {                
+                for ($i = 0; $item['qty'] > $i; $i++) {
+                    $products[] = $tmp;
+                }
+            } else {
+                $feeItemRate = $feeItemRate > $productTaxRate['rate'] ? $feeItemRate : $productTaxRate['rate'];
+                $products[] = $tmp;
+            }
+
+        }
+        
+        $fees = $order->get_fees();
+        foreach ($fees as $key => $item) {
+
+            $tmp['ArticleDescription'] = $item['name'];
+            $tmp['ArticleId']          = $key;
+            $tmp['ArticleQuantity']    = 1;
+            $tmp['ArticleUnitprice']   = number_format(($item['line_total'] + $item['line_tax']), 2);
+            $tmp['ArticleVatcategory'] = 4;
+
+            //Payment method fee specific
+            if (method_exists($this, 'getFeeSpecific')) {
+                $feeArr = $this->getFeeSpecific($item, $tmp, $fees[$key]);
+                $tmp = $feeArr['product_tmp'];
+            }
+
+            if ($feeArr['product_itemsTotalAmount']) {
+                $itemsTotalAmount += $feeArr['product_itemsTotalAmount'];
+            } else {
+                $itemsTotalAmount += $tmp['ArticleUnitprice'];
+            }         
+
+            $products[] = $tmp;
+        }
+
+        if (!empty($shippingCosts)) {
+            $itemsTotalAmount += $shippingCosts;
+        }
+
+        if ($amountDedit != $itemsTotalAmount) {
+
+            $tmp['ArticleDescription'] = 'Remaining Price';
+            $tmp['ArticleId']          = 'remaining_price';
+            $tmp['ArticleQuantity']    = 1;
+            $tmp['ArticleUnitprice']   = number_format($amountDedit - $itemsTotalAmount, 2);
+            $tmp['ArticleVatcategory'] = 0;
+
+            if (number_format($amountDedit - $itemsTotalAmount, 2) >= 0.01) {
+                $diffMode = 1;
+            } elseif (number_format($itemsTotalAmount - $amountDedit, 2) >= 0.01) {
+                $diffMode = 2;
+            }
+
+            if ($diffMode) {
+                //Payment method remaining price specific
+                if (method_exists($this, 'getRemainingPriceSpecific')) {
+                    $feeArr = $this->getRemainingPriceSpecific($diffMode, $amountDedit, $itemsTotalAmount, $tmp);
+                    $tmp = $feeArr['product_tmp'];
+                }
+                $products[] = $tmp;
+            }
+            
+        }
+        return $products;
+    }
+
     public function formatStreet($street)
     {
         $format = [

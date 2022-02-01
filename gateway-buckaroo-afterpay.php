@@ -123,24 +123,10 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         }
 
         // Add shippingCosts
-        $shipping_item = $order->get_items('shipping');
-
-        $shippingCosts = 0;
-        foreach ($shipping_item as $item) {
-            if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                $shippingCosts = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
-            }
-        }
-
-        if ($shippingCosts > 0) {
-            // Add virtual shipping cost product
-            $tmp["ArticleDescription"] = "Shipping";
-            $tmp["ArticleId"]          = BuckarooConfig::SHIPPING_SKU;
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = $shippingCosts;
-            $tmp["ArticleVatcategory"] = 1;
-            $products[]                = $tmp;
-            $itemsTotalAmount += $shippingCosts;
+        $shippingInfo = $this->getAfterPayShippingInfo('afterpay', 'partial_refunds', $order, $line_item_totals, $line_item_tax_totals);
+        if ($shippingInfo['costs'] > 0) {
+            $products[] = $shippingInfo['shipping_virtual_product'];
+            $itemsTotalAmount += $shippingInfo['costs'];
         }
 
         // end add items
@@ -233,23 +219,9 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         }
 
         // Add shippingCosts
-        $shipping_item = $order->get_items('shipping');
-
-        $shippingCosts = 0;
-        foreach ($shipping_item as $item) {
-            if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                $shippingCosts = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
-            }
-        }
-
-        if ($shippingCosts > 0) {
-            // Add virtual shipping cost product
-            $tmp["ArticleDescription"] = "Shipping";
-            $tmp["ArticleId"]          = BuckarooConfig::SHIPPING_SKU;
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = $shippingCosts;
-            $tmp["ArticleVatcategory"] = 1;
-            $products[]                = $tmp;
+        $shippingInfo = $this->getAfterPayShippingInfo('afterpay', 'capture', $order, $line_item_totals, $line_item_tax_totals);
+        if ($shippingInfo['costs'] > 0) {
+            $products[] = $shippingInfo['shipping_virtual_product'];
         }
 
         // Merge products with same SKU
@@ -436,66 +408,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         return $method;
     }
 
-    private function getProductsInfo($order, $amountDedit, $shippingCosts){
-        $products                    = array();
-        $items                       = $order->get_items();
-        $itemsTotalAmount            = 0;
-
-        foreach ($items as $item) {
-            $product   = new WC_Product($item['product_id']);
-            $tax_class = $product->get_attribute("vat_category");
-            if (empty($tax_class)) {
-                $tax_class = $this->vattype;
-            }
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $item['product_id'];
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
-            $itemsTotalAmount += $tmp["ArticleUnitprice"] * $item["qty"];
-            $tmp["ArticleVatcategory"] = $tax_class;
-            for ($i = 0; $item["qty"] > $i; $i++) {
-                $products[] = $tmp;
-            }
-        }
-
-        $fees = $order->get_fees();
-        foreach ($fees as $key => $item) {
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $key;
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = number_format(($item["line_total"] + $item["line_tax"]), 2);
-            $itemsTotalAmount += $tmp["ArticleUnitprice"];
-            $tmp["ArticleVatcategory"] = '4';
-            $products[]                = $tmp;
-        }
-
-        if (!empty($shippingCosts)) {
-            $itemsTotalAmount += $shippingCosts;
-        }
-
-        if ($amountDedit != $itemsTotalAmount) {
-            if (number_format($amountDedit - $itemsTotalAmount, 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"] = 4;
-                $products[]                = $tmp;
-                $itemsTotalAmount += 0.01;
-            } elseif (number_format($itemsTotalAmount - $amountDedit, 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"] = 4;
-                $products[]                = $tmp;
-                $itemsTotalAmount -= 0.01;
-            }
-        }
-
-        return $products;
-    }
-
     /**
      * Check response data
      *
@@ -548,5 +460,40 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             'description' => __('Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway'),
             'options'     => ['pay' => 'Pay', 'authorize' => 'Authorize'],
             'default'     => 'pay'];
+    }
+
+    public function getProductTaxRate($product) {
+        //Tax
+        $tax_class = $product->get_attribute("vat_category");
+        if (empty($tax_class)) {
+            $tax_class = $this->vattype;
+        }
+
+        return ['rate' => $tax_class, 'product_qty_loop' => 1];
+    }
+
+    public function getProductSpecific($product, $item, $tmp) {
+        //Product
+        $data['product_tmp'] = $tmp;
+        $data['product_tmp']['ArticleUnitprice']   = number_format(number_format($item['line_total'] + $item['line_tax'], 4) / $item['qty'], 2);
+        $data['product_tmp']['ArticleQuantity'] = 1;
+        $data['product_itemsTotalAmount'] = $data['product_tmp']['ArticleUnitprice'] * $item['qty'];
+
+        return $data;
+    }
+
+    public function getFeeSpecific($item, $tmp, $fee){
+        $feeTaxRate = $this->getFeeTax($fee);
+        $data['product_tmp'] = $tmp;
+        $data['product_tmp']['ArticleVatcategory'] = $feeTaxRate;
+
+        return $data;
+    }
+
+    public function getRemainingPriceSpecific($mode, $amountDedit, $itemsTotalAmount, $tmp) { 
+        $data['product_tmp'] = $tmp;
+        $data['product_tmp']['ArticleVatcategory'] =  4;
+
+        return $data;
     }
 }
