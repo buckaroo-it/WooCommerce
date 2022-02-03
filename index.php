@@ -584,6 +584,9 @@ function buckaroo_idin_cart() {
 }
 
 function buckaroo_idin_checkout() {
+    if (!empty($_GET['bck_err']) && ($error = base64_decode($_GET['bck_err']))) {
+        wc_add_notice(__($error, 'wc-buckaroo-bpe-gateway'), 'error');
+    }
     if (BuckarooConfig::isIdin(BuckarooIdin::getCartProductIds())) {
         include 'templates/idin/checkout.php';
     }

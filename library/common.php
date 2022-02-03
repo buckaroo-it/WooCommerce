@@ -427,12 +427,8 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 
                 } else {
                     Buckaroo_Logger::log(__METHOD__ . "|50|");
-                    wc_add_notice(
-                        __(
-                            'Payment unsuccessful. Please try again or choose another payment method.',
-                            'wc-buckaroo-bpe-gateway'
-                        ), 'error'
-                    );
+                    $error_description = 'Payment unsuccessful. Please try again or choose another payment method.';
+                    wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
 
                     Buckaroo_Logger::log('wc session after: ' . var_export(WC()->session, true));
                     if (WooV3Plus()) {
@@ -450,6 +446,12 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                                 wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
                             }
                         }
+                    }
+                    if ($payment_method && $payment_method->get_failed_url()) {
+                        Buckaroo_Logger::log(__METHOD__ . "|70|");
+                        return [
+                            'redirect' => $payment_method->get_failed_url() . '?bck_err=' . base64_encode($error_description)
+                        ];
                     }
                 }
             }
