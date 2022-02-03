@@ -47,12 +47,4 @@ class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo
         $response = $kbc->Pay();
         return fn_buckaroo_process_response($this, $response);
     }
-
-    /**
-     * Payment form on checkout page
-     */
-    public function payment_fields()
-    {
-
-    }
 }

@@ -54,12 +54,4 @@ class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo
         );
         return fn_buckaroo_process_response($this, $response);
     }
-
-    /**
-     * Payment form on checkout page
-     */
-    public function payment_fields()
-    {
-
-    }
 }
