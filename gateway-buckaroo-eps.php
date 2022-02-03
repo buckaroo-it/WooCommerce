@@ -51,12 +51,4 @@ class WC_Gateway_Buckaroo_EPS extends WC_Gateway_Buckaroo
         $response = $eps->Pay($customVars);
         return fn_buckaroo_process_response($this, $response);
     }
-
-    /**
-     * Payment form on checkout page
-     */
-    public function payment_fields()
-    {
-
-    }
 }
