@@ -86,7 +86,7 @@ class Buckaroo_Logger_Storage
 
         if (method_exists($this, $method)) {
             $this->{$method}(
-                array($date, $this->getProcessId(), $message, $locationId)
+                array($date, $this->getProcessId(), $locationId, $message)
             );
         }
     }
