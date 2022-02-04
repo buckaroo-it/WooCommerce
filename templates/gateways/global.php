@@ -14,12 +14,8 @@
 
 defined('ABSPATH') || exit;
 
-
 if ($this->mode == 'test') {
 ?>
     <p> <?php echo _e('TEST MODE', 'wc-buckaroo-bpe-gateway');?></p>
 <?php
-}
-if (strlen($this->description)) {
-    echo wpautop(wptexturize($this->description));
 }
