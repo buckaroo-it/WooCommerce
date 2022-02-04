@@ -63,10 +63,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->title                  = $this->get_option('title', $this->title ?? '');
         $this->currency               = get_woocommerce_currency();
-        $this->description            = $this->get_option(
-            'description',
-            sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title)
-        );
+        $this->description            = sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $this->mode                   = $this->get_option('mode');
         $this->minvalue               = $this->get_option('minvalue', 0);
         $this->maxvalue               = $this->get_option('maxvalue', 0);
@@ -378,24 +375,15 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 ),   
                 'default'     => 'yes',
             ],
-            'title'                  => [
-                'title'       => __('Title'),
+            'title'           => [
+                'title'       => __('Front-end label', 'wc-buckaroo-bpe-gateway'),
                 'type'        => 'text',
                 'description' => __(
-                    'This controls the title which the user sees during checkout.',
+                    'Determines how the payment method is named in the checkout.',
                     'wc-buckaroo-bpe-gateway'
                 ),
                 'default'     => __($this->title, 'wc-buckaroo-bpe-gateway'),
                 'css'         => "width: 300px;",
-            ],
-            'description'            => [
-                'title'       => __('Description', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'textarea',
-                'description' => __(
-                    'This controls the description which the user sees during checkout.',
-                    'wc-buckaroo-bpe-gateway'
-                ),
-                'default'     => $this->description,
             ],
             'merchantkey'            => [
                 'title'       => __('Website key', 'wc-buckaroo-bpe-gateway'),
