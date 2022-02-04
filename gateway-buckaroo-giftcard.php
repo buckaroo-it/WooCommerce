@@ -19,7 +19,8 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo
         $this->setIcon('24x24/giftcard.gif', 'new/Giftcards.png');
 
         parent::__construct();
-        $this->addRefundSupport();
+        //disabled refunds by request see BP-1337
+        // $this->addRefundSupport();
     }
     /**  @inheritDoc */
     protected function setProperties()
