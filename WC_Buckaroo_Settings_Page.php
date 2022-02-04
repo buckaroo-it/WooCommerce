@@ -40,6 +40,9 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
         add_action(
             'woocommerce_admin_field_buckaroo_file', [$this, "render_file_field"]
         );
+        add_action(
+            'woocommerce_admin_field_buckaroo_submeniu', [$this, "render_submeniu_field"]
+        );
     }
     /**
      * @inheritDoc
@@ -112,6 +115,19 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
                     'title' => __(
                         'Buckaroo settings', 'wc-buckaroo-bpe-gateway'
                     ),
+                    'type'=>'buckaroo_submeniu',
+                    'links'=> [
+                        [
+                            "name" => __('Documentation', 'wc-buckaroo-bpe-gateway'),
+                            "href" => 'https://support.buckaroo.nl/categorieen/plugins/woocommerce'
+                        ],
+                        [
+                            "name" => __('FAQ', 'wc-buckaroo-bpe-gateway'),
+                            "href" => 'https://support.buckaroo.nl/categorieen/plugins/woocommerce/faq-woocommerce'
+                        ]
+                    ]
+                ),
+                array(
                     'type'  => 'title',
                     'id'    => 'buckaroo-page',
                     'desc' => __(
@@ -226,6 +242,21 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
                 value="<?php echo esc_attr($value['value']); ?>"
                 class="<?php echo esc_attr($value['class']); ?>"
                 />
+            <tr></td>
+        <?php
+    }
+    public function render_submeniu_field($value)
+    {
+        ?>
+            <h2><?php echo $value['title']; ?></h2>
+            <tr><td>
+                <ul class="subsubsub" style="width:100%;margin-bottom:10px">
+                    <?php foreach ($value['links'] as $key => $link) {
+                        $endSlash = $key === count($value['links']) - 1 ? '' : '|';
+                        echo '<li><b><a href="'.$link['href'].'"> '.$link['name'].' </a></b>'.$endSlash;
+                    }
+                    ?>
+                </ul>
             <tr></td>
         <?php
     }

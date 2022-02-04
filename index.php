@@ -418,21 +418,21 @@ function buckaroo_page_menu()
         __('Settings',  'wc-buckaroo-bpe-gateway'),
         __('Settings',  'wc-buckaroo-bpe-gateway'),
         'manage_options',
-        'admin.php?page=wc-settings&tab=buckaroo_settings',
+        'admin.php?page=wc-settings&tab=buckaroo_settings'
     );
     add_submenu_page(
         'admin.php?page=wc-settings&tab=buckaroo_settings',
         __('Payment methods',  'wc-buckaroo-bpe-gateway'),
         __('Payment methods',  'wc-buckaroo-bpe-gateway'),
         'manage_options',
-        'admin.php?page=wc-settings&tab=buckaroo_settings&section=methods',
+        'admin.php?page=wc-settings&tab=buckaroo_settings&section=methods'
     );
     add_submenu_page(
         'admin.php?page=wc-settings&tab=buckaroo_settings',
         __('Report',  'wc-buckaroo-bpe-gateway'),
         __('Report',  'wc-buckaroo-bpe-gateway'),
         'manage_options',
-        'admin.php?page=wc-settings&tab=buckaroo_settings&section=report',
+        'admin.php?page=wc-settings&tab=buckaroo_settings&section=report'
     );
 }
 

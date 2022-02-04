@@ -236,7 +236,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 $options['enabled'],
                 $options['title'],
                 $options['mode'],
-                $options['description'],
+                $options['description']
             );
             if (is_array($options)) {
                 $this->settings = array_replace($this->settings, $options);
@@ -368,6 +368,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 'description' => sprintf(
                     __(
                         'See <a href="%s">Buckaroo Settings</a> tab to setup your default certificate and keys',
+                        'wc-buckaroo-bpe-gateway'
                     ),
                     esc_url(
                         admin_url('admin.php?page=wc-settings&tab=buckaroo_settings')
