@@ -23,7 +23,7 @@ class BuckarooConfig extends BuckarooConfigCore {
     public static function get($key, $paymentId = null) {
         $val = null;
 
-        if (is_null($paymentId)){
+        if (is_null($paymentId)) {
             $paymentId = isset($GLOBALS['plugin_id']) ? $GLOBALS['plugin_id'] : '';
         } else {
             $paymentId = 'woocommerce_buckaroo_' . $paymentId . '_settings';
@@ -32,22 +32,14 @@ class BuckarooConfig extends BuckarooConfigCore {
         if (!empty($paymentId)) {
             $options = get_option($paymentId, null);
         }
-        if ((empty($options) || empty($options['usemaster']) || $options['usemaster'] != 'no') && !get_option('woocommerce_buckaroo_mastersettings_settings') != TRUE) {
-            $masterOptions = get_option('woocommerce_buckaroo_mastersettings_settings', null );
 
-            $enabled = isset($options['enabled'])?$options['enabled']:false;
-            if (is_array($options) && is_array($masterOptions)) {
-                $options = array_replace($options, $masterOptions);
-            }
-
-            if(!is_array($options) && is_array($masterOptions)) {
-                $options = $masterOptions;
-            }
-
-            if(is_array($options) && $enabled){
-                $options['enabled'] = $enabled;
-            }
+        $options['enabled'] = isset($options['enabled'])?$options['enabled']:false;
+        $masterOptions = get_option('woocommerce_buckaroo_mastersettings_settings', null );
+        if (is_array($masterOptions)) {
+            unset($masterOptions['enabled']);
+            $options = array_replace($options, $masterOptions);
         }
+
         switch ($key) {
             case 'CULTURE':
                 $val = $options['culture'] ?? null;
