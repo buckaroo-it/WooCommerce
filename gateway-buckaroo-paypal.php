@@ -8,6 +8,9 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/buckaroopaypal/buc
 class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
 {
     const PAYMENT_CLASS = BuckarooPayPal::class;
+
+    public $sellerprotection;
+
     public function __construct()
     {
         $this->id                     = 'buckaroo_paypal';
@@ -19,7 +22,16 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         parent::__construct();
         $this->addRefundSupport();
     }
-
+    /**
+     * Init class fields from settings
+     *
+     * @return void
+     */
+    protected function setProperties()
+    {
+        parent::setProperties();
+        $this->sellerprotection = $this->get_option('sellerprotection', 'TRUE');
+    }
     /**
      * Can the order be refunded
      * @param integer $order_id

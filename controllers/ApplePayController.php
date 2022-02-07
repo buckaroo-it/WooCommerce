@@ -39,20 +39,22 @@ Class ApplePayController
                 ];
             }, $cart->get_coupons());
 
-            $extra_charge = [];
-
-            if (self::hasExtraCharge()) {
-                $extra_charge = [[
-                    'type'       => 'extra_charge',
-                    'id'         => 99999,
-                    'name'       => __("Payment fee", 'wc-buckaroo-bpe-gateway'),
-                    'price'      => self::getExtracharge([$product], $coupons),
-                    'quantity'   => 1,
-                    'attributes' => ['taxable' => self::extraChargeIsTaxable()]
-                ]];
-            } 
-
-            return array_merge([$product], $coupons, $extra_charge);
+            $fees = array_map(
+                function ($fee) {
+                    return [
+                        'type'       => 'fee',
+                        'id'         => $fee->id,
+                        'name'       => $fee->name,
+                        'price'      => $fee->amount,
+                        'quantity'   => 1,
+                        'attributes' => [
+                            'taxable' => $fee->taxable
+                        ]
+                    ];
+                },
+                $cart->get_fees()
+            );
+            return array_merge([$product], $coupons, $fees);
         });
         
         echo json_encode(array_values($items), JSON_PRETTY_PRINT);
@@ -79,20 +81,25 @@ Class ApplePayController
             ];
         }, $cart->get_coupons());
 
-        $extra_charge = [];
-        
-        if (self::hasExtraCharge()) {
-            $extra_charge = [[
-                'type'       => 'extra_charge',
-                'id'         => 99999,
-                'name'       => __("Payment fee", 'wc-buckaroo-bpe-gateway'),
-                'price'      => self::getExtracharge($products, $coupons),
-                'quantity'   => 1,
-                'attributes' => ['taxable' => self::extraChargeIsTaxable()]
-            ]];
-        } 
+        self::calculate_fee($cart);
 
-        $items = array_merge($products, $coupons, $extra_charge);
+        $fees = array_map(
+            function ($fee) {
+                return [
+                    'type'       => 'fee',
+                    'id'         => $fee->id,
+                    'name'       => $fee->name,
+                    'price'      => $fee->amount,
+                    'quantity'   => 1,
+                    'attributes' => [
+                        'taxable' => $fee->taxable
+                    ]
+                ];
+            },
+            $cart->get_fees()
+        );
+
+        $items = array_merge($products, $coupons, $fees);
 
         echo json_encode(array_values($items), JSON_PRETTY_PRINT);
         exit;
@@ -157,42 +164,19 @@ Class ApplePayController
         exit;
     }
 
-    private static function getExtraCharge($products, $coupons)
-    {        
-        $settings = get_option('woocommerce_buckaroo_applepay_settings');
-        $extra_charge_amount = (float) $settings['extrachargeamount'];
-
-        if ($settings['extrachargetype'] === 'static') {
-            return (float) $settings['extrachargeamount'];
-        }
-
-        if ($settings['extrachargetype'] === 'percentage') {
-            $items = array_merge($products, $coupons);
-            
-            $item_prices = array_map(function ($item) {
-                return (float) $item['price'];
-            }, $items);
-
-            $total_items_prices = array_reduce($item_prices, function ($a, $b) {
-                return $a += $b;
-            }, 0);
-
-            return number_format($total_items_prices * $extra_charge_amount / 100, 2);
-        }
-
-        return 0;
-    }
+  
 
     /**
      * Some methods need to have a temporary cart if a user is on the product detail page
      * We empty the cart and put the current shown product + quantity in the cart and reapply the coupons
      * to determine the discounts, free shipping and other rules based on that cart
-     * @return callback
+     * @return array
      */
     private static function createTemporaryCart($callback) 
     {
         global $woocommerce;
 
+        /** @var WC_Cart */
         $cart = $woocommerce->cart;
 
         $current_shown_product = [
@@ -215,20 +199,32 @@ Class ApplePayController
                 'code'      => $coupon->get_code()
             ];
         }, $cart->get_coupons());
-        
+
         $cart->empty_cart();
-        $cart->add_to_cart(
-            $current_shown_product['product_id'],
-            $current_shown_product['quantity'],
-            $current_shown_product['variation_id']
-        );
+
+        if($current_shown_product['product_id'] != $current_shown_product['variation_id']) 
+        {
+            $cart->add_to_cart(
+                $current_shown_product['product_id'],
+                $current_shown_product['quantity'],
+                $current_shown_product['variation_id']
+            );
+        } else {
+            $cart->add_to_cart(
+                $current_shown_product['product_id'],
+                $current_shown_product['quantity'],
+            );
+        }
         
         foreach ($original_applied_coupons as $original_applied_coupon) {
             $cart->apply_coupon($original_applied_coupon['code']);
         }
         
-        $temporary_cart_result = call_user_func($callback); 
+        self::calculate_fee($cart);
         
+        $temporary_cart_result = call_user_func($callback); 
+
+        //restore previous cart
         $cart->empty_cart();
 
         foreach ($original_cart_products as $original_product) {
@@ -247,14 +243,24 @@ Class ApplePayController
 
         return $temporary_cart_result;
     }
-
-    private static function hasExtraCharge() 
+    public static function calculate_fee($cart)
     {
-        return (float) get_option('woocommerce_buckaroo_applepay_settings')['extrachargeamount'] > 0  ? true: false;
+        $cart->calculate_totals();
+
+        $feed_settings = self::get_extra_feed_settings();
+        do_action(
+            'buckaroo_applepay_cart_calculate_fees',
+            $cart,
+            $feed_settings['extrachargeamount'],
+            $feed_settings['feetax']
+        );
     }
-
-    private static function extraChargeIsTaxable()
+    private static function get_extra_feed_settings()
     {
-        return get_option('woocommerce_buckaroo_applepay_settings')['extrachargetaxtype'] === 'included'  ? true: false;
+        $settings = get_option('woocommerce_buckaroo_applepay_settings');
+        return [
+            "extrachargeamount" =>  isset($settings['extrachargeamount']) ? $settings['extrachargeamount']: 0,
+            "feetax" =>isset($settings['feetax']) ? $settings['feetax']: ''
+        ];
     }
 }

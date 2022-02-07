@@ -38,6 +38,7 @@ return new class implements Buckaroo_Migration
             update_option('woocommerce_buckaroo_exodus', 'a:1:{s:8:"covenant";b:1;}', true);
         }
         $this->create_log_table();
+        $this->update_extrachargeamount_with_percentage();
     }
     /**
      * Create table for logs if not exists
@@ -61,6 +62,42 @@ return new class implements Buckaroo_Migration
                 `location_id` VARCHAR(255) NOT NULL , 
                 PRIMARY KEY (`id`)
             )  $collate;"
+        );
+    }
+    protected function update_extrachargeamount_with_percentage()
+    {
+        
+        $gateways = $this->get_our_gateways();
+        /** @var WC_Gateway_Buckaroo */
+        foreach ($gateways as $gateway) {
+            $extrachargeamount = str_replace("%", "", $gateway->get_option('extrachargeamount', 0));
+            
+            if ($extrachargeamount !== 0 && 'percentage' === $gateway->get_option('extrachargetype')) {
+                $gateway->update_option(
+                    'extrachargeamount',
+                    $extrachargeamount."%"
+                );
+            }
+        }
+    }
+    /**
+     * Filter gateways to display only our gateways
+     *
+     * @return array
+     */
+    private function get_our_gateways()
+    {
+
+        if (!function_exists('WC')) {
+            return;
+        }
+        $gateways = WC()->payment_gateways->payment_gateways();
+
+        return array_filter(
+            $gateways,
+            function ($gateway) {
+                return $gateway instanceof WC_Gateway_Buckaroo;
+            }
         );
     }
     /**
