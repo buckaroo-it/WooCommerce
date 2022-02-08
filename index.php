@@ -84,13 +84,6 @@ function buckaroo_payment_setup_scripts()
         BuckarooConfig::VERSION,
         true
     );
-    wp_enqueue_script(
-        'buckaroo_display_local_settings',
-        plugin_dir_url(__FILE__) . 'library/js/9yards/display_local.js',
-        ['jquery'],
-        BuckarooConfig::VERSION,
-        true
-    );
 }
 add_action('wp_enqueue_scripts', 'buckaroo_payment_frontend_scripts');
 
