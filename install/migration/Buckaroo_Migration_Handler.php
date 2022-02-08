@@ -77,7 +77,7 @@ class Buckaroo_Migration_Handler
     {
         return version_compare(
             $this->databaseVersion,
-            BuckarooConfig::VERSION,
+            BuckarooConfig::VERSION
         );
     }
     /**
