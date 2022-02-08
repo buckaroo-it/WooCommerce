@@ -232,13 +232,13 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if (isset($this->settings['usemaster']) && $this->settings['usemaster'] == 'yes') {
             // merge with master settings
             $options            = get_option('woocommerce_buckaroo_mastersettings_settings', null);
-            unset(
-                $options['enabled'],
-                $options['title'],
-                $options['mode'],
-                $options['description']
-            );
             if (is_array($options)) {
+                unset(
+                    $options['enabled'],
+                    $options['title'],
+                    $options['mode'],
+                    $options['description'],
+                );
                 $this->settings = array_replace($this->settings, $options);
             }
         }
@@ -351,132 +351,59 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->title       = (!isset($this->title) ? '' : $this->title);
         $this->id          = (!isset($this->id) ? '' : $this->id);
         $this->form_fields = [
-            'enabled'                => [
-                'title'       => __('Enable/Disable', 'wc-buckaroo-bpe-gateway'),
-                'label'       => sprintf(__('Enable %s Payment Method', 'wc-buckaroo-bpe-gateway'), (isset($this->method_title) ? $this->method_title : '')),
-                'type'        => 'checkbox',
-                'description' => $addDescription,
-                'default'     => 'no',
+            'enabled'               => [
+                'title'             => __('Enable/Disable', 'wc-buckaroo-bpe-gateway'),
+                'label'             => sprintf(__('Enable %s Payment Method', 'wc-buckaroo-bpe-gateway'), (isset($this->method_title) ? $this->method_title : '')),
+                'type'              => 'checkbox',
+                'description'       => $addDescription,
+                'default'           => 'no',
             ],
-            'usemaster'              => [
-                'title'       => __('Use master settings', 'wc-buckaroo-bpe-gateway'),
-                'label'       => __(
-                    "Tick to use master settings for this payment method.",
-                    'wc-buckaroo-bpe-gateway'
-                ),
-                'type'        => 'checkbox',
-                'description' => sprintf(
-                    __(
-                        'See <a href="%s">Buckaroo Settings</a> tab to setup your default certificate and keys',
-                        'wc-buckaroo-bpe-gateway'
-                    ),
-                    esc_url(
-                        admin_url('admin.php?page=wc-settings&tab=buckaroo_settings')
-                    )
-                ),   
-                'default'     => 'yes',
+            'mode'                  => [
+                'title'             => __('Transaction mode', 'wc-buckaroo-bpe-gateway'),
+                'type'              => 'select',
+                'description'       => __('Transaction mode used for processing orders', 'wc-buckaroo-bpe-gateway'),
+                'options'           => ['live' => 'Live', 'test' => 'Test'],
+                'default'           => 'test',
             ],
-            'title'           => [
-                'title'       => __('Front-end label', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'text',
-                'description' => __(
+            'title'                 => [
+                'title'             => __('Front-end label', 'wc-buckaroo-bpe-gateway'),
+                'type'              => 'text',
+                'description'       => __(
                     'Determines how the payment method is named in the checkout.',
                     'wc-buckaroo-bpe-gateway'
                 ),
-                'default'     => __($this->title, 'wc-buckaroo-bpe-gateway'),
-                'css'         => "width: 300px;",
+                'default'           => __($this->title, 'wc-buckaroo-bpe-gateway'),
+                'css'               => "width: 300px;",
             ],
-            'merchantkey'            => [
-                'title'       => __('Website key', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'password',
-                'description' => __('This is your Buckaroo Payment Plaza website key (My Buckaroo -> Websites -> Choose website through Filter -> Key).', 'wc-buckaroo-bpe-gateway'),
-                'default'     => '',
-            ],
-            'secretkey'              => [
-                'title'       => __('Secret key', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'password',
-                'description' => __('The secret password to verify transactions (Configuration -> Security -> Secret key).', 'wc-buckaroo-bpe-gateway'),
-                'default'     => '',
-            ],
-            'thumbprint'             => [
-                'title'       => __('Fingerprint', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'text',
-                'description' => __('Certificate thumbprint (Configuration -> Security -> Certificates -> See "Fingerprint" after a certificate has been generated).', 'wc-buckaroo-bpe-gateway'),
-                'default'     => '',
-            ],
-            'upload'                 => [
-                'title'       => __('Upload certificate', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'button',
-                'description' => __('Click to select and upload your certificate. Note: Please save after uploading.', 'wc-buckaroo-bpe-gateway'),
-                'default'     => '',
-            ],
-        ];
-
-
-        $this->initCerificateFields();
-
-        $this->form_fields['test_credentials'] = array(
-            'title'       => __('Test credentials', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'button',
-            'description' => __('Click here to verify website key & secret key.', 'wc-buckaroo-bpe-gateway'),
-            'custom_attributes' => [
-                'title' => __('Test', 'wc-buckaroo-bpe-gateway'),
-            ],
-            'default'     => ''
-        );
-
-        
-        $this->form_fields = array_merge($this->form_fields, [
-
-            'mode'                   => [
-                'title'       => __('Transaction mode', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'select',
-                'description' => __('Transaction mode used for processing orders', 'wc-buckaroo-bpe-gateway'),
-                'options'     => ['live' => 'Live', 'test' => 'Test'],
-                'default'     => 'test',
-            ],
-            'transactiondescription' => [
-                'title'       => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'textarea',
-                'description' => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
-                'default'     => '',
-            ],
-            'culture'                => [
-                'title'       => __('Language', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'select',
-                'description' => __('Buckaroo payment engine culture', 'wc-buckaroo-bpe-gateway'),
-                'options'     => ['en-US' => 'English', 'nl-NL' => 'Dutch', 'fr-FR' => 'French', 'de-DE' => 'German'],
-                'default'     => 'nl-NL',
-            ],
-            'extrachargeamount'      => [
+            'extrachargeamount'     => [
                 'title'             => __('Extra charge amount', 'wc-buckaroo-bpe-gateway'),
                 'type'              => 'number',
                 'custom_attributes' => ["step" => "0.01"],
                 'description'       => __('Specify static or percentage amount.', 'wc-buckaroo-bpe-gateway') . ' ' . __('Decimals must be seperated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
                 'default'           => '0',
             ],
-            'extrachargetype'        => [
-                'title'       => __('Extra charge type', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'select',
-                'options'     => ['static' => 'Static', 'percentage' => 'Percentage'],
-                'description' => __('Percentage or static', 'wc-buckaroo-bpe-gateway'),
-                'default'     => 'static',
+            'extrachargetype'       => [
+                'title'             => __('Extra charge type', 'wc-buckaroo-bpe-gateway'),
+                'type'              => 'select',
+                'options'           => ['static' => 'Static', 'percentage' => 'Percentage'],
+                'description'       => __('Percentage or static', 'wc-buckaroo-bpe-gateway'),
+                'default'           => 'static',
             ],
-            'minvalue'      => [
+            'minvalue'              => [
                 'title'             => __('Minimum order amount allowed', 'wc-buckaroo-bpe-gateway'),
                 'type'              => 'number',
                 'custom_attributes' => ['step' => '0.01'],
                 'description'       => __('Specify minimum order amount allowed to show the current method. Zero or empty value means no rule will be applied.', 'wc-buckaroo-bpe-gateway'),
                 'default'           => '0',
             ],
-            'maxvalue'      => [
+            'maxvalue'              => [
                 'title'             => __('Maximum order amount allowed', 'wc-buckaroo-bpe-gateway'),
                 'type'              => 'number',
                 'custom_attributes' => ['step' => '0.01'],
                 'description'       => __('Specify maximum order amount allowed to show the current method. Zero or empty value means no rule will be applied.', 'wc-buckaroo-bpe-gateway'),
                 'default'           => '0',
-            ],
-        ]);
+            ]
+        ];
     }
     /**
      * Add certificate fields to the gateway settings page
