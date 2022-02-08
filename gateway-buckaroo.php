@@ -10,10 +10,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     const BUCKAROO_TEMPLATE_LOCATION = '/templates/gateways/';
 
     public $notify_url;
-    public $extrachargeamount;
-    public $extrachargetype;
-    public $extrachargetaxtype;
-    public $sellerprotection;
     public $minvalue;
     public $maxvalue;
 
@@ -37,7 +33,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
 
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action('woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
             add_filter('woocommerce_available_payment_gateways', array($this, 'payment_gateway_disable'));
             add_filter('woocommerce_order_button_html', array($this, 'replace_order_button_html'));
         }
@@ -67,10 +62,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->mode                   = $this->get_option('mode');
         $this->minvalue               = $this->get_option('minvalue', 0);
         $this->maxvalue               = $this->get_option('maxvalue', 0);
-        $this->sellerprotection       = $this->get_option('sellerprotection', 'TRUE');
-        $this->extrachargetype        = $this->get_option('extrachargetype', 'static');
-        $this->extrachargeamount      = $this->get_option('extrachargeamount', 0);
-        $this->extrachargetaxtype     = $this->get_option('extrachargetaxtype', 'included');
     }
     /**
      * Set gateway icon
@@ -243,90 +234,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             }
         }
     }
-    /**
-     * Calculates fees on items in shopping cart. (e.g. Taxes)
-     *
-     * @access public
-     * @param string $cart
-     * @return void
-     *
-     */
-    public function calculate_order_fees($cart)
-    {
-        if (!defined('WOOCOMMERCE_CHECKOUT')) {
-            return;
-        }
-        $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
-        $current_gateway    = WC()->session->chosen_payment_method;
-        $subtotal           = $cart->cart_contents_total;
-
-        if (!empty($available_gateways)) {
-            if (isset($current_gateway) && isset($available_gateways[$current_gateway])) {
-                $current_gateway = $available_gateways[$current_gateway];
-            } elseif (isset($available_gateways[get_option('woocommerce_default_gateway')])) {
-                $current_gateway = $available_gateways[get_option('woocommerce_default_gateway')];
-            } else {
-                $current_gateway = current($available_gateways);
-            }
-        }
-
-        if (!empty($current_gateway->extrachargeamount) && !empty($current_gateway->extrachargeamount) && $current_gateway->extrachargeamount != 0) {
-            $extra_charge_amount   = $current_gateway->extrachargeamount;
-            $extra_charge_type     = $current_gateway->extrachargetype;
-            $extra_charge_tax_type = $current_gateway->extrachargetaxtype;
-            if ($extra_charge_type == 'percentage') {
-                $extra_charge_amount = number_format($subtotal * $extra_charge_amount / 100, 2);
-            }
-            if ($extra_charge_tax_type == 'excluded') {
-                $taxable = true;
-            } else {
-                $taxable = false;
-            }
-
-            $extra_charge_amount = apply_filters(
-                'woocommerce_wc_pf_' . $current_gateway->id . '_amount',
-                $extra_charge_amount,
-                $subtotal,
-                $current_gateway
-            );
-            $do_apply = $extra_charge_amount != 0;
-            $do_apply = apply_filters(
-                'woocommerce_wc_pf_apply',
-                $do_apply,
-                $extra_charge_amount,
-                $subtotal,
-                $current_gateway
-            );
-            $do_apply = apply_filters(
-                'woocommerce_wc_pf_apply_for_' . $current_gateway->id,
-                $do_apply,
-                $extra_charge_amount,
-                $subtotal,
-                $current_gateway
-            );
-            $taxFeeClass = $this->settings['feetax'];
-            if ($do_apply) {
-                $already_exists = false;
-                $fees           = $cart->get_fees();
-                for ($i = 0; $i < count($fees); $i++) {
-                    if ($fees[$i]->id == 'payment-method-fee') {
-                        $already_exists = true;
-                        $fee_id         = $i;
-                    }
-                }
-
-                if (!$already_exists) {
-                    $cart->add_fee(__("Payment fee", 'wc-buckaroo-bpe-gateway'), $extra_charge_amount, true, $taxFeeClass);
-                } else {
-                    $fees[$fee_id]->amount = $extra_charge_amount;
-                }
-            }
-
-            $this->current_extra_charge_amount = $extra_charge_amount;
-            $this->current_extra_charge_type   = $taxable;
-            $this->current_extra_charge_tax    = $taxFeeClass;
-        }
-    }
+    
 
     /**
      * Initialize Gateway Settings Form Fields
@@ -376,18 +284,10 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 'css'               => "width: 300px;",
             ],
             'extrachargeamount'     => [
-                'title'             => __('Extra charge amount', 'wc-buckaroo-bpe-gateway'),
-                'type'              => 'number',
-                'custom_attributes' => ["step" => "0.01"],
-                'description'       => __('Specify static or percentage amount.', 'wc-buckaroo-bpe-gateway') . ' ' . __('Decimals must be seperated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
+                'title'             => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
+                'type'              => 'text',
+                'description'       => __('Specify static or percentage amount. Decimals must be seperated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
                 'default'           => '0',
-            ],
-            'extrachargetype'       => [
-                'title'             => __('Extra charge type', 'wc-buckaroo-bpe-gateway'),
-                'type'              => 'select',
-                'options'           => ['static' => 'Static', 'percentage' => 'Percentage'],
-                'description'       => __('Percentage or static', 'wc-buckaroo-bpe-gateway'),
-                'default'           => 'static',
             ],
             'minvalue'              => [
                 'title'             => __('Minimum order amount allowed', 'wc-buckaroo-bpe-gateway'),
@@ -517,7 +417,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         return apply_filters('woocommerce_get_return_url', $return_url);
     }
-
     /**
      *
      *
@@ -527,7 +426,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     public function validate_number_field($key, $text)
     {
-        if (in_array($key, ['extrachargeamount', 'minvalue', 'maxvalue'])) {
+        if (in_array($key, ['minvalue', 'maxvalue'])) {
             //[9Yrds][2017-05-03][JW] WooCommerce 2.2 & 2.3 compatability
             $field = $this->plugin_id . $this->id . '_' . $key;
 

@@ -23,15 +23,19 @@ if(isset($_GET['buckaroo_download_log_file'])) {
 }
 
 require_once dirname(__FILE__). "/library/Buckaroo_Logger.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Order_Fee.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Cron_Events.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Order_Details.php";
 require_once dirname(__FILE__). "/install/class-wcb-install.php";
 require_once dirname(__FILE__). "/install/migration/Buckaroo_Migration_Handler.php";
 
-//do a install if the plugin was installed prior to 2.24.1 
-WC_Buckaroo_Install::installUntrackedInstalation();
 
 
+
+/**
+ * Register additional fee hook
+ */
+new Buckaroo_Order_Fee();
 /**
  * Start runing buckaroo events
  */
@@ -560,6 +564,10 @@ function buckaroo_init_gateway()
     add_action('woocommerce_api_wc_gateway_buckaroo_idin-identify', [$idinController, 'identify']);
     add_action('woocommerce_api_wc_gateway_buckaroo_idin-reset', [$idinController, 'reset']);
     add_action('woocommerce_api_wc_gateway_buckaroo_idin-return', [$idinController, 'returnHandler']);
+
+    //do a install if the plugin was installed prior to 2.24.1 
+    //make sure we have all our plugin files loaded
+    WC_Buckaroo_Install::installUntrackedInstalation();
 }
 
 function buckaroo_idin_product() {
@@ -637,4 +645,3 @@ function buckaroo_admin_notice() {
 add_action('admin_notices', 'buckaroo_admin_notice');
 
 //test
- 
