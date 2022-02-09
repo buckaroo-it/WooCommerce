@@ -360,8 +360,8 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
             $gateways,
             function ($a, $b) {
                 return strcmp(
-                    strtolower($a->title), 
-                    strtoLower($b->title)
+                    strtolower($a->id), 
+                    strtoLower($b->id)
                 );
             }
         );

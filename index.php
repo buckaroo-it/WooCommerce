@@ -304,10 +304,6 @@ function generateGateways()
             'filename' => 'gateway-buckaroo-billink.php',
             'classname' => 'WC_Gateway_Buckaroo_Billink'
         ),
-        'PayPal' => array(
-            'filename' => 'gateway-buckaroo-paypal.php',
-            'classname' => 'WC_Gateway_Buckaroo_Paypal'
-        ),
         'Creditcards' => array(
             'filename' => 'gateway-buckaroo-creditcard.php',
             'classname' => 'WC_Gateway_Buckaroo_Creditcard'
@@ -365,6 +361,10 @@ function generateGateways()
         'Payconiq' => array(
             'filename' => 'gateway-buckaroo-payconiq.php',
             'classname' => 'WC_Gateway_Buckaroo_Payconiq'
+        ),
+        'PayPal' => array(
+            'filename' => 'gateway-buckaroo-paypal.php',
+            'classname' => 'WC_Gateway_Buckaroo_Paypal'
         ),
         'PayPerEmail' => array(
             'filename' => 'gateway-buckaroo-payperemail.php',
