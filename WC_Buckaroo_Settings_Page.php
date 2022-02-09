@@ -339,12 +339,33 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
     protected function getBuckarooGateways()
     {
         $gateways = WC()->payment_gateways->payment_gateways();
-        return array_filter(
+        $gateways = array_filter(
             $gateways,
             function ($gateway) {
                 return $gateway instanceof WC_Gateway_Buckaroo;
             }
         );
+        return $this->sortGatewaysAlfa($gateways);
+    }
+    /**
+     * Sort payment gateway alphabetically by name
+     *
+     * @param array $gateway
+     *
+     * @return array
+     */
+    protected function sortGatewaysAlfa($gateways)
+    {
+        uasort(
+            $gateways,
+            function ($a, $b) {
+                return strcmp(
+                    strtolower($a->title), 
+                    strtoLower($b->title)
+                );
+            }
+        );
+        return $gateways;
     }
     /**
      * Render the gateway list

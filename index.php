@@ -276,107 +276,117 @@ function generateGateways()
 
     $buckaroo_enabled_payment_methods_pre = array(
         //comment payment methods you do not want to use
-        'PayPal' => array(
-            'filename' => 'gateway-buckaroo-paypal.php',
-            'classname' => 'WC_Gateway_Buckaroo_Paypal',),
-        'iDeal' => array('filename' =>
-            'gateway-buckaroo-ideal.php',
-            'classname' => 'WC_Gateway_Buckaroo_Ideal',),
-        'Creditcards' => array(
-            'filename' => 'gateway-buckaroo-creditcard.php',
-            'classname' => 'WC_Gateway_Buckaroo_Creditcard',
-        ),
-        'Bancontact / MisterCash' => array(
-            'filename' => 'gateway-buckaroo-mistercash.php',
-            'classname' => 'WC_Gateway_Buckaroo_MisterCash',
-        ),
-        'Giropay' => array('filename' =>
-            'gateway-buckaroo-giropay.php',
-            'classname' => 'WC_Gateway_Buckaroo_Giropay',),
-        'Bank Transfer' => array(
-            'filename' => 'gateway-buckaroo-transfer.php',
-            'classname' => 'WC_Gateway_Buckaroo_Transfer',
-        ),
-        'Giftcards' => array('filename' =>
-            'gateway-buckaroo-giftcard.php',
-            'classname' => 'WC_Gateway_Buckaroo_Giftcard',
-        ),
-        'eMaestro' => array('filename' =>
-            'gateway-buckaroo-emaestro.php',
-            'classname' => 'WC_Gateway_Buckaroo_EMaestro',
-        ),
-        'Nexi' => array('filename' =>
-            'gateway-buckaroo-nexi.php',
-            'classname' => 'WC_Gateway_Buckaroo_Nexi',
-        ),
-        'PostePay' => array('filename' =>
-            'gateway-buckaroo-postepay.php',
-            'classname' => 'WC_Gateway_Buckaroo_PostePay',
-        ),
-        'P24' => array('filename' =>
-            'gateway-buckaroo-p24.php',
-            'classname' => 'WC_Gateway_Buckaroo_P24',
-        ),
-        'Sofortbanking' => array(
-            'filename' => 'gateway-buckaroo-sofort.php',
-            'classname' => 'WC_Gateway_Buckaroo_Sofortbanking',
-        ),
-        'Belfius' => array(
-            'filename' => 'gateway-buckaroo-belfius.php',
-            'classname' => 'WC_Gateway_Buckaroo_Belfius',
-        ),
-        'SepaDirectDebit' => array(
-            'filename' => 'gateway-buckaroo-sepadirectdebit.php',
-            'classname' => 'WC_Gateway_Buckaroo_SepaDirectDebit',
-        ),
         'AfterPay' => array(
             'filename' => 'gateway-buckaroo-afterpay.php',
-            'classname' => 'WC_Gateway_Buckaroo_AfterPay',
+            'classname' => 'WC_Gateway_Buckaroo_AfterPay'
         ),
         'AfterPayNew' => array(
             'filename' => 'gateway-buckaroo-afterpaynew.php',
-            'classname' => 'WC_Gateway_Buckaroo_AfterPaynew',
-        ),
-        'Payconiq' => array(
-            'filename' => 'gateway-buckaroo-payconiq.php',
-            'classname' => 'WC_Gateway_Buckaroo_Payconiq',
+            'classname' => 'WC_Gateway_Buckaroo_AfterPaynew'
         ),
         'Applepay' => array(
             'filename' => 'gateway-buckaroo-applepay.php',
-            'classname' => 'WC_Gateway_Buckaroo_Applepay',
+            'classname' => 'WC_Gateway_Buckaroo_Applepay'
         ),
-        'KBC' => array(
-            'filename' => 'gateway-buckaroo-kbc.php',
-            'classname' => 'WC_Gateway_Buckaroo_KBC',
+        'Bancontact / MisterCash' => array(
+            'filename' => 'gateway-buckaroo-mistercash.php',
+            'classname' => 'WC_Gateway_Buckaroo_MisterCash'
         ),
-        'RequestToPay' => array(
-            'filename' => 'gateway-buckaroo-requesttopay.php',
-            'classname' => 'WC_Gateway_Buckaroo_RequestToPay',
+        'Bank Transfer' => array(
+            'filename' => 'gateway-buckaroo-transfer.php',
+            'classname' => 'WC_Gateway_Buckaroo_Transfer'
         ),
-        'In3' => array(
-            'filename' => 'gateway-buckaroo-in3.php',
-            'classname' => 'WC_Gateway_Buckaroo_In3',
+        'Belfius' => array(
+            'filename' => 'gateway-buckaroo-belfius.php',
+            'classname' => 'WC_Gateway_Buckaroo_Belfius'
         ),
         'Billink' => array(
             'filename' => 'gateway-buckaroo-billink.php',
-            'classname' => 'WC_Gateway_Buckaroo_Billink',
+            'classname' => 'WC_Gateway_Buckaroo_Billink'
         ),
-        'PayPerEmail' => array(
-            'filename' => 'gateway-buckaroo-payperemail.php',
-            'classname' => 'WC_Gateway_Buckaroo_PayPerEmail',
+        'PayPal' => array(
+            'filename' => 'gateway-buckaroo-paypal.php',
+            'classname' => 'WC_Gateway_Buckaroo_Paypal'
         ),
-        'KlarnaPay' => array(
-            'filename' => 'gateway-buckaroo-klarnapay.php',
-            'classname' => 'WC_Gateway_Buckaroo_KlarnaPay',
+        'Creditcards' => array(
+            'filename' => 'gateway-buckaroo-creditcard.php',
+            'classname' => 'WC_Gateway_Buckaroo_Creditcard'
         ),
-        'KlarnaPII' => array(
-            'filename' => 'gateway-buckaroo-klarnapii.php',
-            'classname' => 'WC_Gateway_Buckaroo_KlarnaPII',
+        'eMaestro' => array(
+            'filename' =>
+            'gateway-buckaroo-emaestro.php',
+            'classname' => 'WC_Gateway_Buckaroo_EMaestro'
         ),
         'EPS' => array(
             'filename' => 'gateway-buckaroo-eps.php',
-            'classname' => 'WC_Gateway_Buckaroo_EPS',
+            'classname' => 'WC_Gateway_Buckaroo_EPS'
         ),
+        'Giftcards' => array(
+            'filename' =>
+            'gateway-buckaroo-giftcard.php',
+            'classname' => 'WC_Gateway_Buckaroo_Giftcard'
+        ),
+        'Giropay' => array(
+            'filename' =>
+            'gateway-buckaroo-giropay.php',
+            'classname' => 'WC_Gateway_Buckaroo_Giropay'
+        ),
+        'iDeal' => array(
+            'filename' =>
+            'gateway-buckaroo-ideal.php',
+            'classname' => 'WC_Gateway_Buckaroo_Ideal'
+        ),
+        'In3' => array(
+            'filename' => 'gateway-buckaroo-in3.php',
+            'classname' => 'WC_Gateway_Buckaroo_In3'
+        ),
+        'KBC' => array(
+            'filename' => 'gateway-buckaroo-kbc.php',
+            'classname' => 'WC_Gateway_Buckaroo_KBC'
+        ),
+        'KlarnaPay' => array(
+            'filename' => 'gateway-buckaroo-klarnapay.php',
+            'classname' => 'WC_Gateway_Buckaroo_KlarnaPay'
+        ),
+        'KlarnaPII' => array(
+            'filename' => 'gateway-buckaroo-klarnapii.php',
+            'classname' => 'WC_Gateway_Buckaroo_KlarnaPII'
+        ),
+        'Nexi' => array(
+            'filename' =>
+            'gateway-buckaroo-nexi.php',
+            'classname' => 'WC_Gateway_Buckaroo_Nexi'
+        ),
+        'P24' => array(
+            'filename' =>
+            'gateway-buckaroo-p24.php',
+            'classname' => 'WC_Gateway_Buckaroo_P24'
+        ),
+        'Payconiq' => array(
+            'filename' => 'gateway-buckaroo-payconiq.php',
+            'classname' => 'WC_Gateway_Buckaroo_Payconiq'
+        ),
+        'PayPerEmail' => array(
+            'filename' => 'gateway-buckaroo-payperemail.php',
+            'classname' => 'WC_Gateway_Buckaroo_PayPerEmail'
+        ),
+        'PostePay' => array(
+            'filename' =>
+            'gateway-buckaroo-postepay.php',
+            'classname' => 'WC_Gateway_Buckaroo_PostePay'
+        ),
+        'RequestToPay' => array(
+            'filename' => 'gateway-buckaroo-requesttopay.php',
+            'classname' => 'WC_Gateway_Buckaroo_RequestToPay'
+        ),
+        'SepaDirectDebit' => array(
+            'filename' => 'gateway-buckaroo-sepadirectdebit.php',
+            'classname' => 'WC_Gateway_Buckaroo_SepaDirectDebit'
+        ),
+        'Sofortbanking' => array(
+            'filename' => 'gateway-buckaroo-sofort.php',
+            'classname' => 'WC_Gateway_Buckaroo_Sofortbanking'
+        )
     );
     $buckaroo_enabled_payment_methods = array();
     if (file_exists(dirname(__FILE__) . '/gateway-buckaroo-testscripts.php')) {
