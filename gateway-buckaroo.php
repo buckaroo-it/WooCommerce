@@ -319,7 +319,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'extrachargeamount'     => [
                 'title'             => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
                 'type'              => 'text',
-                'description'       => __('Specify static or percentage amount. Decimals must be seperated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
+                'description'       => __('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
                 'default'           => '0',
             ],
             'minvalue'              => [
