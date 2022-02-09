@@ -33,7 +33,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
 
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_filter('woocommerce_available_payment_gateways', array($this, 'payment_gateway_disable'));
             add_filter('woocommerce_order_button_html', array($this, 'replace_order_button_html'));
         }
 
@@ -160,47 +159,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     {
         //not implemented
     }
-    public function payment_gateway_disable($available_gateways)
-    {
-        global $woocommerce;
-
-        if (!BuckarooIdin::checkCurrentUserIsVerified()) {
-            return [];
-        }
-
-        if ($available_gateways) {
-            if (!empty(WC()->cart)) {
-                $totalCartAmount = WC()->cart->get_total(null);
-                foreach ($available_gateways as $key => $gateway) {
-                    if (
-                        (substr($key, 0, 8) === 'buckaroo')
-                        && (
-                            !empty($gateway->minvalue)
-                            ||
-                            !empty($gateway->maxvalue)
-                        )
-                    ) {
-                        if (!empty($gateway->maxvalue) && $totalCartAmount > $gateway->maxvalue) {
-                            unset($available_gateways[$key]);
-                        }
-
-                        if (!empty($gateway->minvalue) && $totalCartAmount < $gateway->minvalue) {
-                            unset($available_gateways[$key]);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (isset($available_gateways['buckaroo_applepay'])) {
-            unset($available_gateways['buckaroo_applepay']);
-        }
-        if (isset($available_gateways['buckaroo_payperemail']) && $available_gateways['buckaroo_payperemail']->frontendVisible === "no") {
-            unset($available_gateways['buckaroo_payperemail']);
-        }
-        return $available_gateways;
-    }
-
     public function replace_order_button_html($button)
     {
         if (!BuckarooIdin::checkCurrentUserIsVerified()) {
@@ -281,7 +239,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                     'wc-buckaroo-bpe-gateway'
                 ),
                 'default'           => __($this->title, 'wc-buckaroo-bpe-gateway'),
-                'css'               => "width: 300px;",
             ],
             'extrachargeamount'     => [
                 'title'             => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
