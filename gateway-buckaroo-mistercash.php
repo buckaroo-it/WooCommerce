@@ -11,9 +11,9 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
     public function __construct()
     {
         $this->id                     = 'buckaroo_bancontactmrcash';
-        $this->title                  = 'Bancontact / MisterCash';
+        $this->title                  = 'Bancontact';
         $this->has_fields             = false;
-        $this->method_title           = 'Buckaroo Bancontact / MisterCash';
+        $this->method_title           = 'Buckaroo Bancontact';
         $this->setIcon('24x24/mistercash.png', 'new/Bancontact.png');
         $this->migrateOldSettings('woocommerce_buckaroo_mistercash_settings');
 
