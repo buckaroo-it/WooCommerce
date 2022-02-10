@@ -143,6 +143,8 @@ table.woocommerce_order_items tbody tr:first-child td {
     padding: 15px;
     display: flex;
     flex-wrap: wrap;
+    flex-direction: column;
+    height: 380px;
 }
 .buckaroo-payment-list li {
     flex: 0 0 auto;
@@ -168,6 +170,9 @@ table.woocommerce_order_items tbody tr:first-child td {
     color: #dc3545;
 }
 @media (max-width: 1024px) {
+    .buckaroo-payment-list {
+        height: 570px;
+    }
     .buckaroo-payment-list li {
         width: 50%;
     }
