@@ -11,9 +11,9 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo
     public function __construct()
     {
         $this->id                     = 'buckaroo_sofortueberweisung';
-        $this->title                  = 'Sofortbanking';
+        $this->title                  = 'Sofort';
         $this->has_fields             = false;
-        $this->method_title           = "Buckaroo Sofortbanking";
+        $this->method_title           = "Buckaroo Sofort";
         $this->setIcon('24x24/sofort.png', 'new/Sofort.png');
         
         $this->migrateOldSettings('woocommerce_buckaroo_sofortbanking_settings');

@@ -14,7 +14,7 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
     public function __construct()
     {
         $this->id                     = 'buckaroo_paypal';
-        $this->title                  = 'Buckaroo PayPal';
+        $this->title                  = 'PayPal';
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo PayPal";
         $this->setIcon('24x24/paypal.gif', 'new/PayPal.png');

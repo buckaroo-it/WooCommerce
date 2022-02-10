@@ -15,9 +15,9 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     public function __construct()
     {
         $this->id                     = 'buckaroo_in3';
-        $this->title                  = 'In3';
+        $this->title                  = 'in3';
         $this->has_fields             = false;
-        $this->method_title           = 'Buckaroo In3';
+        $this->method_title           = 'Buckaroo in3';
         $this->setIcon('24x24/in3.png', 'new/In3.png');
 
         $this->setCountry();

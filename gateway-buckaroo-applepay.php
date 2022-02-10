@@ -12,9 +12,9 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
     public function __construct()
     {
         $this->id                     = 'buckaroo_applepay';
-        $this->title                  = 'Applepay';
+        $this->title                  = 'Apple Pay';
         $this->has_fields             = true;
-        $this->method_title           = "Buckaroo Applepay";
+        $this->method_title           = "Buckaroo Apple Pay";
         $this->CustomerCardName       = '';
         $this->setIcon('new/ApplePay.png', 'new/ApplePay.png');
 
