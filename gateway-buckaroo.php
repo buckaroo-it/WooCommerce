@@ -55,12 +55,45 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     protected function setProperties()
     {
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->title                  = $this->get_option('title', $this->title ?? '');
+        $this->setTitle();
         $this->currency               = get_woocommerce_currency();
         $this->description            = sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $this->mode                   = $this->get_option('mode');
         $this->minvalue               = $this->get_option('minvalue', 0);
         $this->maxvalue               = $this->get_option('maxvalue', 0);
+    }
+    /**
+     * Set title with fee
+     *
+     * @return void
+     */
+    public function setTitle()
+    {
+        $feeText = '';
+
+        $fee = $this->get_option('extrachargeamount', 0);
+        $is_percentage = strpos($fee, "%") !== false;
+        $fee = str_replace("%","",$fee);
+        
+        if($fee != 0) {
+           
+
+            if($is_percentage) {
+                $fee = str_replace("&nbsp;", "", wc_price(
+                    $fee,
+                    [
+                        "currency" => 'null',
+                    ]
+                )). '%';
+            } else {
+                $fee = wc_price($fee);
+            }
+            
+            $feeText = " (+ ".$fee.")";
+        }
+
+        
+        $this->title = $this->get_option('title', $this->title ?? '').$feeText;
     }
     /**
      * Set gateway icon
@@ -243,7 +276,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'extrachargeamount'     => [
                 'title'             => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
                 'type'              => 'text',
-                'description'       => __('Specify static or percentage amount. Decimals must be seperated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
+                'description'       => __('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
                 'default'           => '0',
             ],
             'minvalue'              => [
