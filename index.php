@@ -29,6 +29,7 @@ require_once dirname(__FILE__). "/library/Buckaroo_Order_Details.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Disable_Gateways.php";
 require_once dirname(__FILE__). "/install/class-wcb-install.php";
 require_once dirname(__FILE__). "/install/migration/Buckaroo_Migration_Handler.php";
+require_once dirname(__FILE__). "/Buckaroo_Load_Gateways.php";
 
 /**
  * Remove gateways based on min/max value or idin verificaiton
@@ -273,143 +274,6 @@ function buckaroo_push_class_init()
 }
 
 
-function generateGateways()
-{
-
-    $buckaroo_enabled_payment_methods_pre = array(
-        //comment payment methods you do not want to use
-        'AfterPay' => array(
-            'filename' => 'gateway-buckaroo-afterpay.php',
-            'classname' => 'WC_Gateway_Buckaroo_AfterPay'
-        ),
-        'AfterPayNew' => array(
-            'filename' => 'gateway-buckaroo-afterpaynew.php',
-            'classname' => 'WC_Gateway_Buckaroo_AfterPaynew'
-        ),
-        'Applepay' => array(
-            'filename' => 'gateway-buckaroo-applepay.php',
-            'classname' => 'WC_Gateway_Buckaroo_Applepay'
-        ),
-        'Bancontact / MisterCash' => array(
-            'filename' => 'gateway-buckaroo-mistercash.php',
-            'classname' => 'WC_Gateway_Buckaroo_MisterCash'
-        ),
-        'Bank Transfer' => array(
-            'filename' => 'gateway-buckaroo-transfer.php',
-            'classname' => 'WC_Gateway_Buckaroo_Transfer'
-        ),
-        'Belfius' => array(
-            'filename' => 'gateway-buckaroo-belfius.php',
-            'classname' => 'WC_Gateway_Buckaroo_Belfius'
-        ),
-        'Billink' => array(
-            'filename' => 'gateway-buckaroo-billink.php',
-            'classname' => 'WC_Gateway_Buckaroo_Billink'
-        ),
-        'Creditcards' => array(
-            'filename' => 'gateway-buckaroo-creditcard.php',
-            'classname' => 'WC_Gateway_Buckaroo_Creditcard'
-        ),
-        'eMaestro' => array(
-            'filename' =>
-            'gateway-buckaroo-emaestro.php',
-            'classname' => 'WC_Gateway_Buckaroo_EMaestro'
-        ),
-        'EPS' => array(
-            'filename' => 'gateway-buckaroo-eps.php',
-            'classname' => 'WC_Gateway_Buckaroo_EPS'
-        ),
-        'Giftcards' => array(
-            'filename' =>
-            'gateway-buckaroo-giftcard.php',
-            'classname' => 'WC_Gateway_Buckaroo_Giftcard'
-        ),
-        'Giropay' => array(
-            'filename' =>
-            'gateway-buckaroo-giropay.php',
-            'classname' => 'WC_Gateway_Buckaroo_Giropay'
-        ),
-        'iDeal' => array(
-            'filename' =>
-            'gateway-buckaroo-ideal.php',
-            'classname' => 'WC_Gateway_Buckaroo_Ideal'
-        ),
-        'In3' => array(
-            'filename' => 'gateway-buckaroo-in3.php',
-            'classname' => 'WC_Gateway_Buckaroo_In3'
-        ),
-        'KBC' => array(
-            'filename' => 'gateway-buckaroo-kbc.php',
-            'classname' => 'WC_Gateway_Buckaroo_KBC'
-        ),
-        'KlarnaPay' => array(
-            'filename' => 'gateway-buckaroo-klarnapay.php',
-            'classname' => 'WC_Gateway_Buckaroo_KlarnaPay'
-        ),
-        'KlarnaPII' => array(
-            'filename' => 'gateway-buckaroo-klarnapii.php',
-            'classname' => 'WC_Gateway_Buckaroo_KlarnaPII'
-        ),
-        'Nexi' => array(
-            'filename' =>
-            'gateway-buckaroo-nexi.php',
-            'classname' => 'WC_Gateway_Buckaroo_Nexi'
-        ),
-        'P24' => array(
-            'filename' =>
-            'gateway-buckaroo-p24.php',
-            'classname' => 'WC_Gateway_Buckaroo_P24'
-        ),
-        'Payconiq' => array(
-            'filename' => 'gateway-buckaroo-payconiq.php',
-            'classname' => 'WC_Gateway_Buckaroo_Payconiq'
-        ),
-        'PayPal' => array(
-            'filename' => 'gateway-buckaroo-paypal.php',
-            'classname' => 'WC_Gateway_Buckaroo_Paypal'
-        ),
-        'PayPerEmail' => array(
-            'filename' => 'gateway-buckaroo-payperemail.php',
-            'classname' => 'WC_Gateway_Buckaroo_PayPerEmail'
-        ),
-        'PostePay' => array(
-            'filename' =>
-            'gateway-buckaroo-postepay.php',
-            'classname' => 'WC_Gateway_Buckaroo_PostePay'
-        ),
-        'RequestToPay' => array(
-            'filename' => 'gateway-buckaroo-requesttopay.php',
-            'classname' => 'WC_Gateway_Buckaroo_RequestToPay'
-        ),
-        'SepaDirectDebit' => array(
-            'filename' => 'gateway-buckaroo-sepadirectdebit.php',
-            'classname' => 'WC_Gateway_Buckaroo_SepaDirectDebit'
-        ),
-        'Sofortbanking' => array(
-            'filename' => 'gateway-buckaroo-sofort.php',
-            'classname' => 'WC_Gateway_Buckaroo_Sofortbanking'
-        )
-    );
-    $buckaroo_enabled_payment_methods = array();
-    if (file_exists(dirname(__FILE__) . '/gateway-buckaroo-testscripts.php')) {
-        $buckaroo_enabled_payment_methods['Test Scripts'] = array(
-            'filename' => 'gateway-buckaroo-testscripts.php',
-            'classname' => 'WC_Gateway_Buckaroo_TestScripts',
-            );
-    }
-    if (file_exists(dirname(__FILE__) . '/buckaroo-exodus.php') && !get_option('woocommerce_buckaroo_exodus')) {
-        $buckaroo_enabled_payment_methods['Exodus Script'] = array(
-            'filename' => 'buckaroo-exodus.php',
-            'classname' => 'WC_Gateway_Buckaroo_Exodus',
-            );
-    }
-    foreach ($buckaroo_enabled_payment_methods_pre as $key => $value) {
-        $buckaroo_enabled_payment_methods[$key] = $value;
-    }
-    return $buckaroo_enabled_payment_methods;
-}
-
-$buckaroo_enabled_payment_methods = generateGateways();
 
 function buckaroo_page_menu()
 {
@@ -475,6 +339,7 @@ function buckaroo_add_woocommerce_settings_page($settings)
     $settings[] = include_once plugin_dir_path(__FILE__). "WC_Buckaroo_Settings_Page.php";
     return $settings;
 }
+
 function buckaroo_init_gateway()
 {
     //no code should be implemented before testing for active woocommerce
@@ -493,32 +358,19 @@ function buckaroo_init_gateway()
     add_action('admin_menu', 'buckaroo_page_menu');
 
     require_once 'library/include.php';
-    load_plugin_textdomain('wc-buckaroo-bpe-gateway', false, dirname(plugin_basename(__FILE__)) . '/languages/');
-    global $buckaroo_enabled_payment_methods;
-    $buckaroo_enabled_payment_methods = (count($buckaroo_enabled_payment_methods)) ? $buckaroo_enabled_payment_methods : generateGateways();
-    
-    $plugin_dir = plugin_dir_path(__FILE__);
+  
 
-    foreach ($buckaroo_enabled_payment_methods as $method) {
-        require_once $plugin_dir . $method['filename'];
-    }
-    require_once $plugin_dir . 'push-buckaroo.php';
-    /**
-     * Add the Gateway to WooCommerce
-     **/
-    function add_buckaroo_gateway($methods)
-    {
-        global $buckaroo_enabled_payment_methods;
-        foreach ($buckaroo_enabled_payment_methods as $method) {
-            $methods[] = $method['classname'];
-        }
-        return $methods;
-    }
+    load_plugin_textdomain('wc-buckaroo-bpe-gateway', false, dirname(plugin_basename(__FILE__)) . '/languages/');
+    
+    $gateway_loader = new Buckaroo_Load_Gateways();
+    $gateway_loader->load();
+
+    add_filter('woocommerce_payment_gateways', [$gateway_loader, 'hook_gateways_to_woocommerce']);
+
 
     require_once __DIR__ . '/library/wp-actions/ApplePayButtons.php';
     (new ApplePayButtons)->loadActions();   
     
-    add_filter('woocommerce_payment_gateways', 'add_buckaroo_gateway');
 
     if (!file_exists(__DIR__.'/../../../.well-known/apple-developer-merchantid-domain-association')) {
         if (!file_exists(__DIR__.'/../../../.well-known')) {

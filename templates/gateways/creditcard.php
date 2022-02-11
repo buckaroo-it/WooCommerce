@@ -24,35 +24,48 @@ $customerName.= " ".$this->geCheckoutField('billing_last_name');
 
 <fieldset>
     <div class="method--bankdata">
-        <p class="form-row form-row-wide">
-            <select
-            name='buckaroo-creditcard-issuer'
-            id='buckaroo-creditcard-issuer'>
-                <option value='0' style='color: grey !important'>
-                    <?php echo __('Select your credit card:', 'wc-buckaroo-bpe-gateway') ?>
-                </option>
-                <?php foreach ($this->getCardsList() as $issuer): ?>
-                <div>
-                    <option value='<?php echo $issuer['servicename']; ?>'>
-                        <?php echo _e($issuer['displayname'], 'wc-buckaroo-bpe-gateway') ?>
+        <?php 
+            if ($this instanceof Buckaroo_Creditcard_Single) {
+        ?>
+        <input 
+        type="hidden" 
+        name="<?php echo  $this->id ?>-creditcard-issuer" 
+        value="<?php echo str_replace("buckaroo_creditcard_", "", $this->id) ?>"
+        />
+        <?php 
+        } else {
+            ?>
+            <p class="form-row form-row-wide">
+                <select
+                name='<?php echo  $this->id ?>-creditcard-issuer'
+                id='buckaroo-creditcard-issuer'>
+                    <option value='0' style='color: grey !important'>
+                        <?php echo __('Select your credit card:', 'wc-buckaroo-bpe-gateway') ?>
                     </option>
-                </div>
-                <?php endforeach?>
-            </select>
-        </p>
-
-        <?php if ($creditCardMethod == 'encrypt' && $this->isSecure()) : ?>
+                    <?php foreach ($this->getCardsList() as $issuer): ?>
+                    <div>
+                        <option value='<?php echo $issuer['servicename']; ?>'>
+                            <?php echo _e($issuer['displayname'], 'wc-buckaroo-bpe-gateway') ?>
+                        </option>
+                    </div>
+                    <?php endforeach?>
+                </select>
+            </p>
+            <?php 
+        }
+        if ($creditCardMethod == 'encrypt' && $this->isSecure()) : 
+        ?>
 
         <p class="form-row">
-            <label class="buckaroo-label" for="buckaroo-creditcard-cardname">
+            <label class="buckaroo-label" for="<?php echo  $this->id ?>-cardname">
                 <?php echo _e('Cardholder Name:', 'wc-buckaroo-bpe-gateway') ?>
                 <span class="required">*</span>
             </label>
 
             <input
             type="text"
-            name="buckaroo-creditcard-cardname"
-            id="buckaroo-creditcard-cardname"
+            name="<?php echo  $this->id ?>-cardname"
+            id="<?php echo  $this->id ?>-cardname"
             placeholder="<?php echo __('Cardholder Name:', 'wc-buckaroo-bpe-gateway') ?>"
             class="cardHolderName input-text"
             maxlength="250"
@@ -61,15 +74,15 @@ $customerName.= " ".$this->geCheckoutField('billing_last_name');
         </p>
 
         <p class="form-row">
-            <label class="buckaroo-label" for="buckaroo-creditcard-cardnumber">
+            <label class="buckaroo-label" for="<?php echo  $this->id ?>-cardnumber">
                 <?php echo _e('Card Number:', 'wc-buckaroo-bpe-gateway') ?>
                 <span class="required">*</span>
             </label>
 
             <input
             type="text"
-            name="buckaroo-creditcard-cardnumber"
-            id="buckaroo-creditcard-cardnumber"
+            name="<?php echo  $this->id ?>-cardnumber"
+            id="<?php echo  $this->id ?>-cardnumber"
             placeholder="<?php echo __('Card Number:', 'wc-buckaroo-bpe-gateway') ?>"
             class="cardNumber input-text"
             maxlength="250"
@@ -78,7 +91,7 @@ $customerName.= " ".$this->geCheckoutField('billing_last_name');
         </p>
 
         <p class="form-row">
-            <label class="buckaroo-label" for="buckaroo-creditcard-cardmonth">
+            <label class="buckaroo-label" for="<?php echo  $this->id ?>-cardmonth">
                 <?php echo _e('Expiration Month:', 'wc-buckaroo-bpe-gateway') ?>
                 <span class="required">*</span>
             </label>
@@ -86,8 +99,8 @@ $customerName.= " ".$this->geCheckoutField('billing_last_name');
             <input
             type="text"
             maxlength="2"
-            name="buckaroo-creditcard-cardmonth"
-            id="buckaroo-creditcard-cardmonth"
+            name="<?php echo  $this->id ?>-cardmonth"
+            id="<?php echo  $this->id ?>-cardmonth"
             placeholder="<?php echo __('Expiration Month:', 'wc-buckaroo-bpe-gateway') ?>"
             class="expirationMonth input-text"
             maxlength="250"
@@ -96,15 +109,15 @@ $customerName.= " ".$this->geCheckoutField('billing_last_name');
         </p>
 
         <p class="form-row">
-            <label class="buckaroo-label" for="buckaroo-creditcard-cardyear">
+            <label class="buckaroo-label" for="<?php echo  $this->id ?>-cardyear">
                 <?php echo _e('Expiration Year:', 'wc-buckaroo-bpe-gateway') ?>
                 <span class="required">*</span>
             </label>
             <input
             type="text"
             maxlength="4"
-            name="buckaroo-creditcard-cardyear"
-            id="buckaroo-creditcard-cardyear"
+            name="<?php echo  $this->id ?>-cardyear"
+            id="<?php echo  $this->id ?>-cardyear"
             placeholder="<?php echo __('Expiration Year:', 'wc-buckaroo-bpe-gateway') ?>"
             class="expirationYear input-text"
             maxlength="250"
@@ -113,15 +126,15 @@ $customerName.= " ".$this->geCheckoutField('billing_last_name');
         </p>
 
         <p class="form-row">
-            <label class="buckaroo-label" for="buckaroo-creditcard-cardcvc">
+            <label class="buckaroo-label" for="<?php echo  $this->id ?>-cardcvc">
                 <?php echo _e('CVC:', 'wc-buckaroo-bpe-gateway') ?>
                 <span class="required">*</span>
             </label>
             <input
             type="password"
             maxlength="4"
-            name="buckaroo-creditcard-cardcvc"
-            id="buckaroo-creditcard-cardcvc"
+            name="<?php echo  $this->id ?>-cardcvc"
+            id="<?php echo  $this->id ?>-cardcvc"
             placeholder="<?php echo __('CVC:', 'wc-buckaroo-bpe-gateway') ?>"
             class="cvc input-text"
             maxlength="250"
@@ -136,8 +149,8 @@ $customerName.= " ".$this->geCheckoutField('billing_last_name');
 
         <input
         type="hidden"
-        id="buckaroo-encrypted-data"
-        name="buckaroo-encrypted-data"
+        id="<?php echo  $this->id ?>-encrypted-data"
+        name="<?php echo  $this->id ?>-encrypted-data"
         class="encryptedCardData input-text">
         <?php endif;?>
 

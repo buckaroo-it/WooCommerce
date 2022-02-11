@@ -91,7 +91,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             
             $feeText = " (+ ".$fee.")";
         }
-
         
         $this->title = $this->get_option('title', $this->title ?? '').$feeText;
     }

@@ -8,18 +8,24 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/creditcard/creditc
 class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 {
     const PAYMENT_CLASS = BuckarooCreditCard::class;
+    public const SHOW_IN_CHECKOUT_FIELD = 'show_in_checkout';
     public $creditCardProvider = [];
     public function __construct()
     {
-        $this->id                     = 'buckaroo_creditcard';
-        $this->title                  = 'Creditcards';
+        $this->setParameters();
         $this->has_fields             = true;
-        $this->method_title           = "Buckaroo Creditcards";
         $this->setIcon('24x24/cc.gif', 'new/CreditCards.png');
 
         parent::__construct();
 
         $this->addRefundSupport();
+    }
+    public function setParameters()
+    {
+        $this->id                     = 'buckaroo_creditcard';
+        $this->title                  = 'Creditcards';
+        $this->method_title           = "Buckaroo Creditcards";
+
     }
     /**  @inheritDoc */
     protected function setProperties()
@@ -196,7 +202,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     {
         parent::validate_fields();
         
-        if (empty($_POST['buckaroo-creditcard-issuer'])) {
+        if (empty($_POST[$this->id.'-creditcard-issuer'])) {
             wc_add_notice(__("Select a credit card.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
         if ($this->get_option('creditcardmethod') == 'encrypt') {
@@ -230,7 +236,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         $this->setOrderCapture(
             $order_id,
             'Creditcard',
-            $_POST["buckaroo-creditcard-issuer"]
+            $_POST[$this->id."-creditcard-issuer"]
         );
         $order = getWCOrder($order_id);
         /** @var BuckarooCreditCard */
@@ -241,14 +247,14 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 
         $customVars = array();
 
-        if (isset($_POST["buckaroo-encrypted-data"])) {
-            $customVars['CreditCardDataEncrypted'] = $_POST["buckaroo-encrypted-data"];
+        if (isset($_POST[$this->id."-encrypted-data"])) {
+            $customVars['CreditCardDataEncrypted'] = $_POST[$this->id."-encrypted-data"];
         } else {
             $customVars['CreditCardDataEncrypted'] = null;
         }
 
-        if (isset($_POST["buckaroo-creditcard-issuer"])) {
-            $customVars['CreditCardIssuer'] = $_POST["buckaroo-creditcard-issuer"];
+        if (isset($_POST[$this->id."-creditcard-issuer"])) {
+            $customVars['CreditCardIssuer'] = $_POST[$this->id."-creditcard-issuer"];
         } else {
             $customVars['CreditCardIssuer'] = null;
         }
@@ -257,17 +263,17 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             // In this case we only send the encrypted card data.
 
             // If not then send an error.
-            if (empty($_POST["buckaroo-encrypted-data"])) {
+            if (empty($_POST[$this->id."-encrypted-data"])) {
                 wc_add_notice(__("The credit card data is incorrect, please check the values", 'wc-buckaroo-bpe-gateway'), 'error');
                 return;
             }
 
-            if (empty($_POST["buckaroo-creditcard-issuer"])) {
+            if (empty($_POST[$this->id."-creditcard-issuer"])) {
                 wc_add_notice(__("You havent selected your credit card issuer", 'wc-buckaroo-bpe-gateway'), 'error');
                 return;
             }
 
-            $creditcard->CreditCardDataEncrypted = $_POST["buckaroo-encrypted-data"];
+            $creditcard->CreditCardDataEncrypted = $_POST[$this->id."-encrypted-data"];
 
             if ($creditCardPayAuthorize == 'pay') {
                 $response = $creditcard->PayEncrypt($customVars);
@@ -319,16 +325,19 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     public function getCardsList()
     {
         $cards     = array();
-        $cardsDesc = array("amex" => "American Express",
-            "cartebancaire"           => "Carte Bancaire",
-            "cartebleuevisa"          => "Carte Bleue",
-            "dankort"                 => "Dankort",
-            "mastercard"              => "Mastercard",
-            "postepay"                => "PostePay",
-            "visa"                    => "Visa",
-            "visaelectron"            => "Visa Electron",
-            "vpay"                    => "Vpay",
-            "maestro"                 => "Maestro");
+        $cardsDesc = array(
+            "amex"           => "American Express",
+            "cartebancaire"  => "Carte Bancaire",
+            "cartebleuevisa" => "Carte Bleue",
+            "dankort"        => "Dankort",
+            "maestro"        => "Maestro",
+            "mastercard"     => "Mastercard",
+            "nexi"           => "Nexi",
+            "postepay"       => "PostePay",
+            "visa"           => "Visa",
+            "visaelectron"   => "Visa Electron",
+            "vpay"           => "Vpay"
+        );
         if (is_array($this->creditCardProvider)) {
             foreach ($this->creditCardProvider as $value) {
                 $cards[] = array("servicename" => $value, "displayname" => $cardsDesc[$value]);
@@ -362,24 +371,57 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             'description' => __('Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('pay' => 'Pay', 'authorize' => 'Authorize'),
             'default'     => 'pay');
-        $this->form_fields['AllowedProvider'] = array(
-            'title'       => __('Allowed provider', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'multiselect',
-            'options'     => array(
-                'amex'           => 'American Express',
-                'cartebancaire'  => 'Carte Bancaire',
-                'cartebleuevisa' => 'Carte Bleue',
-                'dankort'        => 'Dankort',
-                'mastercard'     => 'Mastercard',
-                'postepay'       => 'PostePay',
-                'visa'           => 'Visa',
-                'visaelectron'   => 'Visa Electron',
-                'vpay'           => 'Vpay',
-                'maestro'        => "Maestro",
-            ),
-            'description' => __('select which Creditecard providers  will be appear to customer', 'wc-buckaroo-bpe-gateway'),
-            'default'     => array('amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard', 'postepay', 'visa', 'visaelectron', 'vpay', 'maestro'),
-        );
+            $this->form_fields['AllowedProvider'] = array(
+                'title'       => __('Allowed provider', 'wc-buckaroo-bpe-gateway'),
+                'type'        => 'multiselect',
+                'options'     => array(
+                    'amex'           => 'American Express',
+                    'cartebancaire'  => 'Carte Bancaire',
+                    'cartebleuevisa' => 'Carte Bleue',
+                    'dankort'        => 'Dankort',
+                    'maestro'        => 'Maestro',
+                    'mastercard'     => 'Mastercard',
+                    'nexi'           => 'Nexi',
+                    'postepay'       => 'PostePay',
+                    'visa'           => 'Visa',
+                    'visaelectron'   => 'Visa Electron',
+                    'vpay'           => 'Vpay'
+                ),
+                'description' => __('select which Creditecard providers  will be appear to customer', 'wc-buckaroo-bpe-gateway'),
+                'default'     => array(
+                    'amex',
+                    'cartebancaire',
+                    'cartebleuevisa',
+                    'dankort',
+                    'mastercard',
+                    'maestro',
+                    'nexi',
+                    'postepay',
+                    'visa',
+                    'visaelectron',
+                    'vpay'
+                ),
+            );
+            $this->form_fields[self::SHOW_IN_CHECKOUT_FIELD] = array(
+                'title'       => __('Show separate in checkout', 'wc-buckaroo-bpe-gateway'),
+                'type'        => 'multiselect',
+                'options'     => array(
+                    ''               => __('None', 'wc-buckaroo-bpe-gateway'),
+                    'amex'           => 'American Express',
+                    'cartebancaire'  => 'Carte Bancaire',
+                    'cartebleuevisa' => 'Carte Bleue',
+                    'dankort'        => 'Dankort',
+                    'maestro'        => 'Maestro',
+                    'mastercard'     => 'Mastercard',
+                    'nexi'           => 'Nexi',
+                    'postepay'       => 'PostePay',
+                    'visa'           => 'Visa',
+                    'visaelectron'   => 'Visa Electron',
+                    'vpay'           => 'Vpay'
+                ),
+                'description' => __('Select which Creditecard providers will be shown separate in checkout', 'wc-buckaroo-bpe-gateway'),
+                'default'     => array(),
+            );
 
     }
 
@@ -391,6 +433,27 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         return
             (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
             || $_SERVER['SERVER_PORT'] == 443;
+    }
+    /**
+     * Save only creditcards that are allowed
+     *
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    public function validate_show_in_checkout_field($key, $value)
+    {
+        $allowed = $this->settings['AllowedProvider'];
+        if(is_array($value)) {
+            return array_filter(
+                $value,
+                function ($provider) use ($allowed) {
+                    return in_array($provider, $allowed);
+                }
+            );
+        }
+        return $value;
     }
 
 }

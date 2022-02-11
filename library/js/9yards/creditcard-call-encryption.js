@@ -1,96 +1,85 @@
-(function(jQuery) {
+buckarooValidateCreditCards = {
+    form: jQuery('form[name=checkout]'),
+    validator: BuckarooClientSideEncryption.V001,
 
-    var checkCardnumberexists = setInterval(function() {
-        if(typeof(jQuery(".cardNumber").html()) != 'undefined' && !jQuery(".cardNumber").hasClass("hasRun")) {
+    listen: function() {
+        var validator = this.validator;
+        var self = this;
+        this.form.on('input', ".cardNumber", function(e) {
+            self.toggleClasses(
+                validator.validateCardNumber(e.target.value),
+                e.target
+            );
+        });
 
-            jQuery(".cardNumber").on('input', function (e) {
-                if (!BuckarooClientSideEncryption.V001.validateCardNumber(e.target.value)) {
-                    jQuery(".cardNumber").addClass("error");
-                    jQuery(".cardNumber").removeClass("validated");
-                } else {
-                    jQuery(".cardNumber").addClass("validated");
-                    jQuery(".cardNumber").removeClass("error");
-                }
-                submit();
-            });
+        this.form.on('input', ".cvc", function(e) {
+            self.toggleClasses(
+                validator.validateCvc(e.target.value),
+                e.target
+            );
+        });
+        this.form.on('input', ".cardHolderName", function(e) {
+            self.toggleClasses(
+                validator.validateCardholderName(e.target.value),
+                e.target
+            );
+        });
+        this.form.on('input', ".expirationYear", function(e) {
+            self.toggleClasses(
+                validator.validateYear(e.target.value),
+                e.target
+            );
+        }),
 
-            jQuery(".cvc").on('input', function (e) {
-                if (!BuckarooClientSideEncryption.V001.validateCvc(e.target.value)) {
-                    jQuery(".cvc").addClass("error");
-                    jQuery(".cvc").removeClass("validated");
-                } else {
-                    jQuery(".cvc").addClass("validated");
-                    jQuery(".cvc").removeClass("error");
-                }
-                submit();
-            });
-            jQuery(".cardHolderName").on('input', function (e) {
-                if (!BuckarooClientSideEncryption.V001.validateCardholderName(e.target.value)) {
-                    jQuery(".cardHolderName").addClass("error");
-                    jQuery(".cardHolderName").removeClass("validated");
-                } else {
-                    jQuery(".cardHolderName").addClass("validated");
-                    jQuery(".cardHolderName").removeClass("error");
-                }
-                submit();
-            });
-            jQuery(".expirationYear").on('input', function (e) {
-                if (!BuckarooClientSideEncryption.V001.validateYear(e.target.value)) {
-                    jQuery(".expirationYear").addClass("error");
-                    jQuery(".expirationYear").removeClass("validated");
-                } else {
-                    jQuery(".expirationYear").addClass("validated");
-                    jQuery(".expirationYear").removeClass("error");
-                }
-                submit();
-            });
+        this.form.on('input', ".expirationMonth", function(e) {
+            self.toggleClasses(
+                validator.validateMonth(e.target.value),
+                e.target
+            );
+        });
+        this.form.submit(this.submit);
+    },
 
-            jQuery(".expirationMonth").on('input', function (e) {
-                if (!BuckarooClientSideEncryption.V001.validateMonth(e.target.value)) {
-                    jQuery(".expirationMonth").addClass("error");
-                    jQuery(".expirationMonth").removeClass("validated");
-                } else {
-                    jQuery(".expirationMonth").addClass("validated");
-                    jQuery(".expirationMonth").removeClass("error");
-                }
-                submit();
-            });
+    toggleClasses: function(valid, target) {
+        target = $(target);
 
-            jQuery('form[name=checkout]').submit(submit);
+        target.toggleClass("error", !valid);
+        target.toggleClass("validated", valid);
 
-            jQuery(".cardNumber").addClass("hasRun");
-        }
-    }, 100);
+        this.submit();
+    },
 
-
-    var submit = function(e) {
-        var cardNumber = jQuery(".cardNumber").val();
-        var cvc = jQuery(".cvc").val();
-        var cardHolderName = jQuery(".cardHolderName").val();
-        var expirationYear = jQuery(".expirationYear").val();
-        var expirationMonth = jQuery(".expirationMonth").val();
+    submit: function(e) {
+        var parent = jQuery('input[name="payment_method"]:checked').parent();
+        parent.find(".encryptedCardData").val('');
+        var cardNumber = parent.find(".cardNumber").val();
+        var cvc = parent.find(".cvc").val();
+        var cardHolderName = parent.find(".cardHolderName").val();
+        var expirationYear = parent.find(".expirationYear").val();
+        var expirationMonth = parent.find(".expirationMonth").val();
         var cardNumberValid = BuckarooClientSideEncryption.V001.validateCardNumber(cardNumber);
         var cvcValid = BuckarooClientSideEncryption.V001.validateCvc(cvc);
         var cardHolderNameValid = BuckarooClientSideEncryption.V001.validateCardholderName(cardHolderName);
         var expirationYearValid = BuckarooClientSideEncryption.V001.validateYear(expirationYear);
         var expirationMonthValid = BuckarooClientSideEncryption.V001.validateMonth(expirationMonth);
         if (cardNumberValid && cvcValid && cardHolderNameValid && expirationYearValid && expirationMonthValid) {
-            getEncryptedData(cardNumber, expirationYear, expirationMonth, cvc, cardHolderName);
-        } else {
-            // Show user that data is incomplete
+            this.getEncryptedData(cardNumber, expirationYear, expirationMonth, cvc, cardHolderName, parent);
         }
-    }
+    },
 
-    var getEncryptedData = function(cardNumber, year, month, cvc, cardholder) {
+    getEncryptedData: function(cardNumber, year, month, cvc, cardholder, parent) {
         BuckarooClientSideEncryption.V001.encryptCardData(cardNumber,
             year,
             month,
             cvc,
             cardholder,
             function(encryptedCardData) {
-                jQuery(".encryptedCardData").val(encryptedCardData);
-                console.log(encryptedCardData);
+                parent.find(".encryptedCardData").val(encryptedCardData);
             });
     }
-    
-})(jQuery);
+};
+
+
+jQuery(function() {
+    buckarooValidateCreditCards.listen();
+})
