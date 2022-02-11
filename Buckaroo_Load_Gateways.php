@@ -204,7 +204,7 @@
 
 
         foreach ($this->get_creditcards_to_show() as $creditcard) {
-            $creditcardMethods['creditcard_'.$creditcard] = array(
+            $creditcardMethods[$creditcard.'_creditcard'] = array(
                 'filename' => "gateways-creditcard/gateway-buckaroo-${creditcard}.php",
                 'classname' => 'WC_Gateway_Buckaroo_'.ucfirst($creditcard)
             );
@@ -238,12 +238,12 @@
      */
     protected function sort_gateways_alfa($gateways)
     {
-        uasort(
+        uksort(
             $gateways,
             function ($a, $b) {
                 return strcmp(
-                    strtolower($a['classname']), 
-                    strtoLower($b['classname'])
+                    strtolower($a), 
+                    strtoLower($b)
                 );
             }
         );
