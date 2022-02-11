@@ -302,22 +302,13 @@ function generateGateways()
             'filename' => 'gateway-buckaroo-belfius.php',
             'classname' => 'WC_Gateway_Buckaroo_Belfius'
         ),
-        'Billink' => array(
-            'filename' => 'gateway-buckaroo-billink.php',
-            'classname' => 'WC_Gateway_Buckaroo_Billink'
+        'Giftcards' => array('filename' =>
+            'gateway-buckaroo-giftcard.php',
+            'classname' => 'WC_Gateway_Buckaroo_Giftcard',
         ),
-        'Creditcards' => array(
-            'filename' => 'gateway-buckaroo-creditcard.php',
-            'classname' => 'WC_Gateway_Buckaroo_Creditcard'
-        ),
-        'eMaestro' => array(
-            'filename' =>
-            'gateway-buckaroo-emaestro.php',
-            'classname' => 'WC_Gateway_Buckaroo_EMaestro'
-        ),
-        'EPS' => array(
-            'filename' => 'gateway-buckaroo-eps.php',
-            'classname' => 'WC_Gateway_Buckaroo_EPS'
+        'P24' => array('filename' =>
+            'gateway-buckaroo-p24.php',
+            'classname' => 'WC_Gateway_Buckaroo_P24',
         ),
         'Giftcards' => array(
             'filename' =>
@@ -475,6 +466,21 @@ function buckaroo_add_woocommerce_settings_page($settings)
     $settings[] = include_once plugin_dir_path(__FILE__). "WC_Buckaroo_Settings_Page.php";
     return $settings;
 }
+/**
+ * Lod credicard payment classes
+ *
+ * @return void
+ */
+function load_buckaroo_creditcard_gateway_classes()
+{
+    $plugin_dir = plugin_dir_path(__FILE__);
+
+    require_once $plugin_dir. "gateways-creditcard/gateway-buckaroo-creditcard-single.php";
+
+    foreach (WC_Gateway_Buckaroo_Creditcard::getList() as $creditcard) {
+        require_once $plugin_dir .  "gateways-creditcard/gateway-buckaroo-${creditcard}.php";
+    }
+}
 function buckaroo_init_gateway()
 {
     //no code should be implemented before testing for active woocommerce
@@ -503,6 +509,8 @@ function buckaroo_init_gateway()
         require_once $plugin_dir . $method['filename'];
     }
     require_once $plugin_dir . 'push-buckaroo.php';
+    load_buckaroo_creditcard_gateway_classes();
+    
     /**
      * Add the Gateway to WooCommerce
      **/
@@ -512,7 +520,22 @@ function buckaroo_init_gateway()
         foreach ($buckaroo_enabled_payment_methods as $method) {
             $methods[] = $method['classname'];
         }
-        return $methods;
+        return array_merge($methods, get_buckaroo_creditcard_gateways());
+    }
+ 
+    /**
+     * Get credicard payment methods class names
+     *
+     * @return array
+     */
+    function get_buckaroo_creditcard_gateways() {
+        return array_map(
+            function($creditcard) {
+                return 'WC_Gateway_Buckaroo_'.ucfirst($creditcard);
+            },
+            WC_Gateway_Buckaroo_Creditcard::getList()
+        );
+
     }
 
     require_once __DIR__ . '/library/wp-actions/ApplePayButtons.php';

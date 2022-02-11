@@ -319,16 +319,19 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     public function getCardsList()
     {
         $cards     = array();
-        $cardsDesc = array("amex" => "American Express",
-            "cartebancaire"           => "Carte Bancaire",
-            "cartebleuevisa"          => "Carte Bleue",
-            "dankort"                 => "Dankort",
-            "mastercard"              => "Mastercard",
-            "postepay"                => "PostePay",
-            "visa"                    => "Visa",
-            "visaelectron"            => "Visa Electron",
-            "vpay"                    => "Vpay",
-            "maestro"                 => "Maestro");
+        $cardsDesc = array(
+            "amex"           => "American Express",
+            "cartebancaire"  => "Carte Bancaire",
+            "cartebleuevisa" => "Carte Bleue",
+            "dankort"        => "Dankort",
+            "maestro"        => "Maestro",
+            "mastercard"     => "Mastercard",
+            "nexi"           => "Nexi",
+            "postepay"       => "PostePay",
+            "visa"           => "Visa",
+            "visaelectron"   => "Visa Electron",
+            "vpay"           => "Vpay"
+        );
         if (is_array($this->creditCardProvider)) {
             foreach ($this->creditCardProvider as $value) {
                 $cards[] = array("servicename" => $value, "displayname" => $cardsDesc[$value]);
@@ -370,17 +373,46 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
                 'cartebancaire'  => 'Carte Bancaire',
                 'cartebleuevisa' => 'Carte Bleue',
                 'dankort'        => 'Dankort',
+                'maestro'        => 'Maestro',
                 'mastercard'     => 'Mastercard',
+                'nexi'           => 'Nexi',
                 'postepay'       => 'PostePay',
                 'visa'           => 'Visa',
                 'visaelectron'   => 'Visa Electron',
-                'vpay'           => 'Vpay',
-                'maestro'        => "Maestro",
+                'vpay'           => 'Vpay'
             ),
             'description' => __('select which Creditecard providers  will be appear to customer', 'wc-buckaroo-bpe-gateway'),
-            'default'     => array('amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard', 'postepay', 'visa', 'visaelectron', 'vpay', 'maestro'),
+            'default'     => array(
+                'amex',
+                'cartebancaire',
+                'cartebleuevisa',
+                'dankort',
+                'mastercard',
+                'maestro',
+                'nexi',
+                'postepay',
+                'visa',
+                'visaelectron',
+                'vpay'
+            ),
         );
 
+    }
+    public static function getList()
+    {
+        return array(
+            'amex',
+            'cartebancaire',
+            'cartebleuevisa',
+            'dankort',
+            'mastercard',
+            'maestro',
+            'nexi',
+            'postepay',
+            'visa',
+            'visaelectron',
+            'vpay'
+        );
     }
 
     /**
