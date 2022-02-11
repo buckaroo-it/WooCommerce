@@ -361,8 +361,8 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
             $gateways,
             function ($a, $b) {
                 return strcmp(
-                    strtolower($a->title), 
-                    strtoLower($b->title)
+                    strtolower(str_replace("Buckaroo ", "", $a->get_method_title())), 
+                    strtoLower(str_replace("Buckaroo ", "", $b->get_method_title()))
                 );
             }
         );
