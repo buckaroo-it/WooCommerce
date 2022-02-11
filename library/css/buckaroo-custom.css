@@ -8,11 +8,11 @@
 .wc_payment_method.payment_method_ {
     display: none;
 }
-
+input[type="password"].error,
 input[type="text"].error {
     border-color: red;
 }
-
+input[type="password"].validated,
 input[type="text"].validated {
     border-color: green;
 }
@@ -105,11 +105,12 @@ table.woocommerce_order_items tbody tr:first-child td {
     margin-bottom: 20px;
 }
 
-#woocommerce_buckaroo_creditcard_AllowedProvider {
+#woocommerce_buckaroo_creditcard_AllowedProvider,
+#woocommerce_buckaroo_creditcard_show_in_checkout {
     width: 400px;
     margin: 0;
     box-sizing: border-box;
-    height: 170px;
+    height: 220px;
     line-height: 32px;
     vertical-align: top;
 }
@@ -144,7 +145,7 @@ table.woocommerce_order_items tbody tr:first-child td {
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
-    height: 380px;
+    height: 500px;
 }
 .buckaroo-payment-list li {
     flex: 0 0 auto;
@@ -171,7 +172,7 @@ table.woocommerce_order_items tbody tr:first-child td {
 }
 @media (max-width: 1024px) {
     .buckaroo-payment-list {
-        height: 570px;
+        height: 700px;
     }
     .buckaroo-payment-list li {
         width: 50%;

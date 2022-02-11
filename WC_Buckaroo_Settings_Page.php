@@ -190,8 +190,9 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
     public function render_payment_list()
     {
         $gateways = $this->getBuckarooGateways();
+        $containerHeight = ceil(count($gateways) / 3) * 45
         ?>
-        <ul class="buckaroo-payment-list">
+        <ul class="buckaroo-payment-list" style="height:<?php echo $containerHeight; ?>px">
         <?php foreach ($gateways as $gateway) {
             $method_title = $gateway->get_method_title() ? $gateway->get_method_title() : $gateway->get_title();
         ?>
