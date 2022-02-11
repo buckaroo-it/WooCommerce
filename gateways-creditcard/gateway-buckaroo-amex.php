@@ -18,5 +18,7 @@ class WC_Gateway_Buckaroo_Amex extends Buckaroo_Creditcard_Single
         $this->id                     = 'buckaroo_creditcard_amex';
         $this->title                  = 'Amex';
         $this->method_title           = "Buckaroo Amex";
+        $icon = "creditcards/".str_replace("buckaroo_creditcard_", "", $this->id).".svg";
+        $this->setIcon($icon, $icon);
     }
 }

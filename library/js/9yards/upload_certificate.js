@@ -2,25 +2,8 @@
 // and management of Buckaroo certificates, for the 
 // master settings page & all buckaroo payment methods.
 jQuery(document).ready(function() {
-    let buckarooTestButton = jQuery('[id$="test_credentials"]');
-    buckarooTestButton.addClass('button-primary');
-    buckarooTestButton.val(buckarooTestButton.attr('title'));
+    
 
-    buckarooTestButton.on('click', function() {
-            let website_key = jQuery('[name^="woocommerce_buckaroo_"][name$="_merchantkey"]').val();
-            let secret_key = jQuery('[name^="woocommerce_buckaroo_"][name$="_secretkey"]').val();
-            jQuery.post(
-                ajaxurl,
-                {
-                    action:'buckaroo_test_credentials',
-                    website_key,
-                    secret_key
-                },
-                function(response) {
-                    alert(response);
-                }
-            )
-    });
     if (jQuery('.wrap.woocommerce label').first().attr("for") && jQuery('.wrap.woocommerce label').first().attr("for").lastIndexOf('_')) {
         //Get Location
         var label = jQuery('.wrap.woocommerce label').first().attr("for");
@@ -32,7 +15,7 @@ jQuery(document).ready(function() {
                 this.style.padding = "2px";
             });
         }
-        if (ifbuck == 'woocommerce_buckaroo' && locationName != '_testscripts'){
+        if (ifbuck == 'woocommerce_buckaroo' && locationName == '_mastersettings'){
 
             //Setup listeners for both buttons
             document.getElementById("woocommerce_buckaroo"+locationName+"_upload").addEventListener("click", imitateChoose);
@@ -140,4 +123,49 @@ jQuery(document).ready(function() {
             }
         }
     }
+    buckarooAdmin.init();
 });
+
+buckarooAdmin = {
+    testButton: function () {
+        let buckarooTestButton = jQuery('[id$="test_credentials"]');
+        buckarooTestButton.addClass('button-primary');
+        buckarooTestButton.val(buckarooTestButton.attr('title'));
+    
+        buckarooTestButton.on('click', function() {
+                let website_key = jQuery('[name^="woocommerce_buckaroo_"][name$="_merchantkey"]').val();
+                let secret_key = jQuery('[name^="woocommerce_buckaroo_"][name$="_secretkey"]').val();
+                jQuery.post(
+                    ajaxurl,
+                    {
+                        action:'buckaroo_test_credentials',
+                        website_key,
+                        secret_key
+                    },
+                    function(response) {
+                        alert(response);
+                    }
+                )
+        });
+    },
+    credicardToggleSelect: function() {
+        this.setCredicardSeparate(
+            jQuery('#woocommerce_buckaroo_creditcard_creditcardmethod').val()
+        );
+        var self = this;
+        jQuery('#woocommerce_buckaroo_creditcard_creditcardmethod')
+        .on('change', function() {
+            self.setCredicardSeparate(
+                jQuery(this).val()
+            );
+            
+        })
+    },
+    setCredicardSeparate(value) {
+        jQuery('#woocommerce_buckaroo_creditcard_show_in_checkout').closest('tr').toggle(value === 'encrypt');
+    },
+    init: function() {
+        this.testButton();
+        this.credicardToggleSelect();
+    }
+}

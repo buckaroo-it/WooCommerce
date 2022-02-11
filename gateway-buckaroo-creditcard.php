@@ -14,7 +14,6 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     {
         $this->setParameters();
         $this->has_fields             = true;
-        $this->setIcon('24x24/cc.gif', 'new/CreditCards.png');
 
         parent::__construct();
 
@@ -25,7 +24,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         $this->id                     = 'buckaroo_creditcard';
         $this->title                  = 'Creditcards';
         $this->method_title           = "Buckaroo Creditcards";
-
+        $this->setIcon('24x24/cc.gif', 'new/CreditCards.png');
     }
     /**  @inheritDoc */
     protected function setProperties()
@@ -423,6 +422,22 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
                 'default'     => array(),
             );
 
+    }
+    /** @inheritDoc */
+    public function process_admin_options()
+    {
+        parent::process_admin_options();
+        $this->after_admin_options_update();
+    }
+
+    /**
+     * Do code after admin options update
+     *
+     * @return void
+     */
+    public function after_admin_options_update()
+    {
+        set_transient('buckaroo_credicard_updated', true);
     }
 
     /**

@@ -18,5 +18,7 @@ class WC_Gateway_Buckaroo_Cartebleuevisa extends Buckaroo_Creditcard_Single
         $this->id                     = 'buckaroo_creditcard_cartebleuevisa';
         $this->title                  = 'Carte Bleue';
         $this->method_title           = "Buckaroo Carte Bleue";
+        $icon = "creditcards/".str_replace("buckaroo_creditcard_", "", $this->id).".svg";
+        $this->setIcon($icon, $icon);
     }
 }
