@@ -219,17 +219,17 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             wc_add_notice(__("Select a credit card.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
         if ($this->get_option('creditcardmethod') == 'encrypt') {
-            if (empty($_POST['buckaroo-creditcard-cardyear'])) {
+            if (empty($_POST[$this->id.'-cardyear'])) {
                 wc_add_notice(__("Enter expiration year field", 'wc-buckaroo-bpe-gateway'), 'error');
                 return;
             }
             $fullYear = date('Y');
             $year     = date('y');
-            if ((int) $_POST['buckaroo-creditcard-cardyear'] < (int) $fullYear && strlen($_POST['buckaroo-creditcard-cardyear']) === 4) {
+            if ((int) $_POST[$this->id.'-cardyear'] < (int) $fullYear && strlen($_POST[$this->id.'-cardyear']) === 4) {
                 wc_add_notice(__("Enter valid expiration year", 'wc-buckaroo-bpe-gateway'), 'error');
                 return;
             }
-            if ((int) $_POST['buckaroo-creditcard-cardyear'] < (int) $year && strlen($_POST['buckaroo-creditcard-cardyear']) !== 4) {
+            if ((int) $_POST[$this->id.'-cardyear'] < (int) $year && strlen($_POST[$this->id.'-cardyear']) !== 4) {
                 wc_add_notice(__("Enter valid expiration year", 'wc-buckaroo-bpe-gateway'), 'error');
                 return;
             }
