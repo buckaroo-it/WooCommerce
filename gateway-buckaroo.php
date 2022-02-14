@@ -1035,7 +1035,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     /**
      * Get product tax(VAT) rate
      *
-     * @param WC_Product $product
+     * @param WC_Product|WC_Order_Item_Product $product
      *
      * @return void
      */
@@ -1078,11 +1078,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 $itemsTotalAmount += $productArr['product_itemsTotalAmount'];
             }
 
-            $tmp['ArticleVatcategory'] = $this->getProductTaxRate($product);
+            $tmp['ArticleVatcategory'] = $this->getProductTaxRate($item);
             $products[] = $tmp;
         }
-
-            
         
         $fees = $order->get_fees();
         foreach ($fees as $key => $item) {
@@ -1099,7 +1097,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 $tmp = $feeArr['product_tmp'];
             }
 
-            if ($feeArr['product_itemsTotalAmount']) {
+            if (isset($feeArr['product_itemsTotalAmount'])) {
                 $itemsTotalAmount += $feeArr['product_itemsTotalAmount'];
             } else {
                 $itemsTotalAmount += $tmp['ArticleUnitprice'];
