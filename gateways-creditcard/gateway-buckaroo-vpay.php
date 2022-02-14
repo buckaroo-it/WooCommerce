@@ -18,7 +18,5 @@ class WC_Gateway_Buckaroo_Vpay extends Buckaroo_Creditcard_Single
         $this->id                     = 'buckaroo_creditcard_vpay';
         $this->title                  = 'Vpay';
         $this->method_title           = "Buckaroo Vpay";
-        $icon = "creditcards/".str_replace("buckaroo_creditcard_", "", $this->id).".svg";
-        $this->setIcon($icon, $icon);
     }
 }

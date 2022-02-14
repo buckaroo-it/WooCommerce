@@ -18,7 +18,5 @@ class WC_Gateway_Buckaroo_Nexi extends Buckaroo_Creditcard_Single
         $this->id                     = 'buckaroo_creditcard_nexi';
         $this->title                  = 'Nexi';
         $this->method_title           = "Buckaroo Nexi";
-        $icon = "creditcards/".str_replace("buckaroo_creditcard_", "", $this->id).".svg";
-        $this->setIcon($icon, $icon);
     }
 }

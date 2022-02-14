@@ -16,6 +16,12 @@ class Buckaroo_Creditcard_Single extends WC_Gateway_Buckaroo_Creditcard
     public function __construct() {
         parent::__construct();
     }
+    /** @inheritDoc */
+    public function setCreditcardIcon()
+    {
+        $icon = "creditcards/".str_replace("buckaroo_creditcard_", "", $this->id).".svg";
+        $this->setIcon($icon, $icon);
+    }
     /**
      * Payment form on checkout page
      *

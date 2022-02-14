@@ -17,7 +17,5 @@ class WC_Gateway_Buckaroo_Dankort extends Buckaroo_Creditcard_Single
         $this->id                     = 'buckaroo_creditcard_dankort';
         $this->title                  = 'Dankort';
         $this->method_title           = "Buckaroo Dankort";
-        $icon = "creditcards/".str_replace("buckaroo_creditcard_", "", $this->id).".svg";
-        $this->setIcon($icon, $icon);
     }
 }

@@ -13,17 +13,31 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     public function __construct()
     {
         $this->setParameters();
+        $this->setCreditcardIcon();
         $this->has_fields             = true;
 
         parent::__construct();
 
         $this->addRefundSupport();
     }
+    /**
+     * Set gateway parameters
+     *
+     * @return void
+     */
     public function setParameters()
     {
         $this->id                     = 'buckaroo_creditcard';
         $this->title                  = 'Creditcards';
         $this->method_title           = "Buckaroo Creditcards";
+    }
+    /**
+     * Set credicard icon
+     *
+     * @return void
+     */
+    public function setCreditcardIcon()
+    {
         $this->setIcon('24x24/cc.gif', 'new/CreditCards.png');
     }
     /**  @inheritDoc */

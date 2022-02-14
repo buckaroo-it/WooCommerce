@@ -18,7 +18,5 @@ class WC_Gateway_Buckaroo_Postepay extends Buckaroo_Creditcard_Single
         $this->id                     = 'buckaroo_creditcard_postepay';
         $this->title                  = 'PostePay';
         $this->method_title           = "Buckaroo PostePay";
-        $icon = "creditcards/".str_replace("buckaroo_creditcard_", "", $this->id).".svg";
-        $this->setIcon($icon, $icon);
     }
 }
