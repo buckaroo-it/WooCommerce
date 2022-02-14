@@ -18,6 +18,5 @@ class WC_Gateway_Buckaroo_Maestro extends Buckaroo_Creditcard_Single
         $this->id                     = 'buckaroo_creditcard_maestro';
         $this->title                  = 'Maestro';
         $this->method_title           = "Buckaroo Maestro";
-        $this->setIcon('24x24/emaestro.png', 'new/Maestro.png');
     }
 }

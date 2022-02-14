@@ -131,7 +131,34 @@
         $this->load_before();
         $this->load_gateways();
         $this->load_after();
+        $this->enable_creditcards_in_checkout();
      }
+     /**
+     * Enable credicard method when set to be shown individually in checkout page
+     *
+     * @return void
+     */
+    public function enable_creditcards_in_checkout()
+    {
+        if (!get_transient('buckaroo_credicard_updated')) {
+            return;
+        }
+
+        $gatewayNames = $this->get_creditcards_to_show();
+
+        if (!is_array($gatewayNames)) {
+            return;
+        }
+
+        foreach($gatewayNames as $name) {
+            $class = 'WC_Gateway_Buckaroo_'.ucfirst($name);
+            if (class_exists($class)) {
+                var_dump(class_exists($class));
+                (new $class())->update_option('enabled', 'yes');
+            }
+        }
+        delete_transient('buckaroo_credicard_updated');
+    }
      /**
       * Hook function for `woocommerce_payment_gateways` hook
       *
@@ -204,7 +231,7 @@
 
 
         foreach ($this->get_creditcards_to_show() as $creditcard) {
-            $creditcardMethods['creditcard_'.$creditcard] = array(
+            $creditcardMethods[$creditcard.'_creditcard'] = array(
                 'filename' => "gateways-creditcard/gateway-buckaroo-${creditcard}.php",
                 'classname' => 'WC_Gateway_Buckaroo_'.ucfirst($creditcard)
             );
@@ -222,7 +249,8 @@
 
         if(
             $credit_settings !== null &&
-            isset($credit_settings['show_in_checkout']) &&
+            isset($credit_settings['creditcardmethod']) &&
+            $credit_settings['creditcardmethod'] === 'encrypt' &&
             is_array($credit_settings['show_in_checkout'])
             ) {
             return $credit_settings['show_in_checkout'];
@@ -238,12 +266,12 @@
      */
     protected function sort_gateways_alfa($gateways)
     {
-        uasort(
+        uksort(
             $gateways,
             function ($a, $b) {
                 return strcmp(
-                    strtolower($a['classname']), 
-                    strtoLower($b['classname'])
+                    strtolower($a), 
+                    strtoLower($b)
                 );
             }
         );

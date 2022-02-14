@@ -13,7 +13,6 @@
  */
 class WC_Gateway_Buckaroo_Dankort extends Buckaroo_Creditcard_Single
 {
-
     public function setParameters() {
         $this->id                     = 'buckaroo_creditcard_dankort';
         $this->title                  = 'Dankort';
