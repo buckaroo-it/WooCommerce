@@ -138,7 +138,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         foreach ($fees as $key => $item) {
             if (!empty($line_item_totals[$key])) {
-                $feeTaxRate = $this->getFeeTax($fees[$key]);
+                $feeTaxRate = $this->getProductTaxRate($item);
 
                 $tmp["ArticleDescription"] = $item['name'];
                 $tmp["ArticleId"]          = $key;
@@ -256,7 +256,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         if (!$previous_captures) {
             $fees = $order->get_fees();
             foreach ($fees as $key => $item) {
-                $feeTaxRate = $this->getFeeTax($fees[$key]);
+                $feeTaxRate = $this->getProductTaxRate($item);
                 $tmp["ArticleDescription"] = $item['name'];
                 $tmp["ArticleId"] = $key;
                 $tmp["ArticleQuantity"] = 1;
