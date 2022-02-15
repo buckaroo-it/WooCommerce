@@ -462,14 +462,25 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             'default'     => 'pay'];
     }
 
+    /**
+     * Get VAT type from settings page
+     *
+     * @param mixed $product
+     *
+     * @return string
+     */
     public function getProductTaxRate($product) {
-        //Tax
+        if ($product instanceof WC_Order_Item_Product) {
+            $product = new WC_Product($product->get_product_id());
+        }
+
         $tax_class = $product->get_attribute("vat_category");
+        
         if (empty($tax_class)) {
             $tax_class = $this->vattype;
         }
-
-        return ['rate' => $tax_class, 'product_qty_loop' => 1];
+        
+        return $tax_class;
     }
 
     public function getProductSpecific($product, $item, $tmp) {
@@ -481,15 +492,12 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
         return $data;
     }
-
     public function getFeeSpecific($item, $tmp, $fee){
-        $feeTaxRate = $this->getFeeTax($fee);
         $data['product_tmp'] = $tmp;
-        $data['product_tmp']['ArticleVatcategory'] = $feeTaxRate;
+        $data['product_tmp']['ArticleVatcategory'] = '4';
 
         return $data;
     }
-
     public function getRemainingPriceSpecific($mode, $amountDedit, $itemsTotalAmount, $tmp) { 
         $data['product_tmp'] = $tmp;
         $data['product_tmp']['ArticleVatcategory'] =  4;

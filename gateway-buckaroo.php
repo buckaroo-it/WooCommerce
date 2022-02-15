@@ -986,16 +986,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             return $this->process_partial_refunds($order_id, $amount, $reason);
         }
     }
-
-    public function getFeeTax($fee)
-    {
-        $feeInfo    = WC_Tax::get_rates($fee->get_tax_class());
-        $feeInfo    = array_shift($feeInfo);
-        $feeTaxRate = $feeInfo['rate'] ?? 0;
-
-        return $feeTaxRate;
-    }
-
     public function getAfterPayShippingInfo($afterpay_version, $method, $order, $line_item_totals, $line_item_tax_totals){
 
         $shipping_item = $order->get_items('shipping');
@@ -1042,15 +1032,29 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         return ['costs' => 0];
     }
 
+    /**
+     * Get product tax(VAT) rate
+     *
+     * @param WC_Product|WC_Order_Item_Product $product
+     *
+     * @return void
+     */
     public function getProductTaxRate($product) {
+        if ($product->get_tax_status() != 'taxable') {
+            return 0;
+        }
+
         $tax      = new WC_Tax();
         $taxes    = $tax->get_rates($product->get_tax_class());
-        $rates    = array_shift($taxes);
-        $itemRate = number_format(array_shift($rates), 2);
-        if ($product->get_tax_status() != 'taxable') {
-            $itemRate = 0;
-        } 
-        return ['rate' => $itemRate];
+        if (!count($taxes)) {
+            return 0;
+        }
+        $taxRate    = array_shift($taxes);
+        if(!isset($taxRate['rate'])) {
+            return 0;
+        }
+
+        return number_format($taxRate['rate'], 2);
     }
 
     public function getProductsInfo($order, $amountDedit, $shippingCosts){
@@ -1068,22 +1072,14 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $tmp['ArticleQuantity'] = $item['qty'];
 
             //Get payment method product specific
-            $productArr = $this->getProductSpecific($product, $item, $tmp);
-            $tmp = $productArr['product_tmp'];            
-            $itemsTotalAmount += $productArr['product_itemsTotalAmount'];
-
-            //VAT
-            $productTaxRate = $this->getProductTaxRate($product, $feeItemRate);
-            $tmp['ArticleVatcategory'] = $productTaxRate['rate'];
-            if (!empty($productTaxRate['product_qty_loop'])) {                
-                for ($i = 0; $item['qty'] > $i; $i++) {
-                    $products[] = $tmp;
-                }
-            } else {
-                $feeItemRate = $feeItemRate > $productTaxRate['rate'] ? $feeItemRate : $productTaxRate['rate'];
-                $products[] = $tmp;
+            if (method_exists($this, 'getProductSpecific')) {
+                $productArr = $this->getProductSpecific($product, $item, $tmp);
+                $tmp = $productArr['product_tmp'];
+                $itemsTotalAmount += $productArr['product_itemsTotalAmount'];
             }
 
+            $tmp['ArticleVatcategory'] = $this->getProductTaxRate($item);
+            $products[] = $tmp;
         }
         
         $fees = $order->get_fees();
@@ -1093,7 +1089,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $tmp['ArticleId']          = $key;
             $tmp['ArticleQuantity']    = 1;
             $tmp['ArticleUnitprice']   = number_format(($item['line_total'] + $item['line_tax']), 2);
-            $tmp['ArticleVatcategory'] = 4;
+            $tmp['ArticleVatcategory'] = $this->getProductTaxRate($product);
 
             //Payment method fee specific
             if (method_exists($this, 'getFeeSpecific')) {
@@ -1101,7 +1097,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 $tmp = $feeArr['product_tmp'];
             }
 
-            if ($feeArr['product_itemsTotalAmount']) {
+            if (isset($feeArr['product_itemsTotalAmount'])) {
                 $itemsTotalAmount += $feeArr['product_itemsTotalAmount'];
             } else {
                 $itemsTotalAmount += $tmp['ArticleUnitprice'];
