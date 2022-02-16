@@ -14,6 +14,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     public $maxvalue;
 
     public $showpayproc = false;
+    public $productQtyLoop = false;
 
     public function __construct()
     {
@@ -1079,7 +1080,15 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             }
 
             $tmp['ArticleVatcategory'] = $this->getProductTaxRate($item);
-            $products[] = $tmp;
+
+            if ($this->productQtyLoop) {                
+                for ($i = 0; $item['qty'] > $i; $i++) {
+                    $products[] = $tmp;
+                }
+            } else { 
+                $products[] = $tmp;
+            }
+           
         }
         
         $fees = $order->get_fees();
