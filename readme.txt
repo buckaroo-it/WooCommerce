@@ -99,7 +99,7 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 
 = 3.0.0 =
 
-3.0.0 is a MAJOR release, it may break think so we advice to do additional testing and treat it with caution.
+3.0.0 is a MAJOR release, it may break things so we advice to do additional testing and treat it with caution.
 
 With 3.0.0 we are taking a big step in improving our services within WooCommerce. We have technically improved our installation and configuration process and made it more understandable for everyone. Below are some highlights of our improvements:
 
