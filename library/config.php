@@ -7,7 +7,7 @@ require_once dirname(__FILE__).'/api/config/configcore.php';
 class BuckarooConfig extends BuckarooConfigCore {
     const NAME = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-    const VERSION = '2.24.1';
+    const VERSION = '3.0.0';
 
     const SHIPPING_SKU = "WC8888";
 

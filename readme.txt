@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 5.8
-Stable tag: 2.24.1
+Stable tag: 3.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,71 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.0.0 =
+
+- Moved certificate selector in Master Settings
+- Improved NL translations [BP-1126]
+- Fix multiple refund transactions into a single one, shipping amount fix [BP-1061]
+- Use constants for statuses and codes everywhere [BP 851]
+- Belfiusg -> Belfius typo fix
+- Payment fee refund fix for Afterpay [BP-1166]
+- Applepay and Idin don't work if wordpress is located outside root folder [BP-1168]
+- Move can_refund_order, validate_fields methods to parent class [BP-1198]
+- validate_fields improvment [BP-1198]
+- remove duplicate code from gateway class constructor [BP-1167]
+- Remove duplicate code from response_handler methods [BP-1197]
+- Remove 'Notification Service' [BP-1170]
+- Common rounding function [BP-850]
+- New Sofort logo added [BP-1189]
+- Remove duplicate code from the process_payment method [BP-1169]
+- CSE tooltip [BP-1194]
+- Remove CreditManagement from WooCommerce [BP-1220]
+- Remove duplicate code from init_form_fields methods [BP-1199]
+- remove duplicate code from process refund methods [BP-1200]
+- No error message is shown [BP-1206]
+- remove duplicate code from process capture methods [BP-1201]
+- Remove duplicate code from payment classes [BP-1202]
+- Billink initials can not be longer than 6 characters [BP-1205]
+- Paylink results in a error: services paramater is missing [BP-1228]
+- Klarna - failed Pay action for certain amounts [BP-1249]
+- per payment method settings are not saved [BP-1247]
+- can not do capture when payment fee is set [BP-1248]
+- Reduce long methods size [BP-848]
+- remove duplicated code [BP-1261]
+- UI changes [BP-855]
+- Bilink additional house number fix [BP-1230]
+- Remove unused code [BP-844]
+- Afterpay checkout is not working (unable to place a order) [BP-1253]
+- Rename tab to 'Buckaroo Settings' [BP-1271]
+- hide merchant credentials, add test connection functionality [BP-1273]
+- Payconiq cancel order link fix [BP-1276]
+- IN3 error [BP-1277]
+- Refactor logging [BP-852]
+- Add introduction + smart click true buttons [BP-1272]
+- Klarna not redirecting to success page [BP-1275]
+- Giftcards error [BP-1278]
+- Broken page when installing Plugin without woocommerce [BP-1287]
+- Removed duplicate code [BP-1262]
+- DB migrations [BP-856]
+- AfterPay shipping fee refund amount fix [BP-1284]
+- Remove duplicate code from billing & shipping [BP-1298]
+- Payment method icons are missed or not properly scaled [BP-1309]
+- Rename MerchantID to GUID [BP-1300]
+- "Pay with" text not shown in checkout for some methods [BP-1342]
+- Giftcards refund issue [BP-1337]
+- Change Title & description to 1 field: Front-end label [BP-1349]
+- Remove 'use master settings' from payment methods [BP-1347]
+- Rename & combine payment fee [BP-1350]
+- Add fee to payment title
+- Rename Payment Methods [BP-1363]
+- Set methods into alphabetical order [BP-1362]
+- remove creditcards as seperate methods and show seperate function, added icons [BP-1364]
+- Creditcards errors fix [BP-1366]
+- Enable giropay refunds
+- Fix billink vat error
+- Update README.md
+- AfterPay Qty Fix
 
 = 2.24.1 =
 
