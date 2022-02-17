@@ -7,7 +7,7 @@ require_once dirname(__FILE__).'/api/config/configcore.php';
 class BuckarooConfig extends BuckarooConfigCore {
     const NAME = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-    const VERSION = '2.24.1';
+    const VERSION = '3.0.0';
 
     const SHIPPING_SKU = "WC8888";
 
@@ -23,7 +23,7 @@ class BuckarooConfig extends BuckarooConfigCore {
     public static function get($key, $paymentId = null) {
         $val = null;
 
-        if (is_null($paymentId)){
+        if (is_null($paymentId)) {
             $paymentId = isset($GLOBALS['plugin_id']) ? $GLOBALS['plugin_id'] : '';
         } else {
             $paymentId = 'woocommerce_buckaroo_' . $paymentId . '_settings';
@@ -32,38 +32,20 @@ class BuckarooConfig extends BuckarooConfigCore {
         if (!empty($paymentId)) {
             $options = get_option($paymentId, null);
         }
-        if ((empty($options) || empty($options['usemaster']) || $options['usemaster'] != 'no') && !get_option('woocommerce_buckaroo_mastersettings_settings') != TRUE) {
-            $masterOptions = get_option('woocommerce_buckaroo_mastersettings_settings', null );
 
-            $enabled = isset($options['enabled'])?$options['enabled']:false;
-            if (is_array($options) && is_array($masterOptions)) {
-                $options = array_replace($options, $masterOptions);
-            }
-
-            if(!is_array($options) && is_array($masterOptions)) {
-                $options = $masterOptions;
-            }
-
-            if(is_array($options) && $enabled){
-                $options['enabled'] = $enabled;
-            }
+        $options['enabled'] = isset($options['enabled'])?$options['enabled']:false;
+        $masterOptions = get_option('woocommerce_buckaroo_mastersettings_settings', null );
+        if (is_array($masterOptions)) {
+            unset($masterOptions['enabled']);
+            $options = array_replace($options, $masterOptions);
         }
+
         switch ($key) {
             case 'CULTURE':
                 $val = $options['culture'] ?? null;
                 break;
             case 'BUCKAROO_TRANSDESC':
                 $val = empty($options['transactiondescription']) ? "Buckaroo": $options['transactiondescription'];
-                break;
-            case 'BUCKAROO_USE_NOTIFICATION':
-                $val = (empty($options['usenotification']) ?  FALSE : $options['usenotification']);
-                break;
-            case 'BUCKAROO_NOTIFICATION_DELAY':
-                if (!empty($options['usenotification'])) {
-                    $val = $options['notificationdelay'];
-                } else {
-                    $val = '0';
-                }
                 break;
             case 'BUCKAROO_CERTIFICATE_PATH':
                 $val = "";

@@ -7,10 +7,9 @@ abstract class BuckarooConfigCore {
     const WSDL_URL = 'https://checkout.buckaroo.nl/soap/soap.svc?wsdl';
     const WSDL_FILE = '/wsdl/Buckaroo.wsdl';
     const CHANNEL = 'Web';
+    const CHANNEL_BACKOFFICE = 'BackOffice';
     const LOCATION = 'https://checkout.buckaroo.nl/soap/';
     const LOCATION_TEST = 'https://testcheckout.buckaroo.nl/soap/';
-    const LOG = false;
-    const LOG_DIR = '/log/';
     const CERTIFICATE_PATH = 'certificate/';
    
     public static function get($key) {

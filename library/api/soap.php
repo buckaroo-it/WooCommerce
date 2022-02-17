@@ -1,7 +1,6 @@
 <?php
     if (!class_exists('SoapClient')) {
-        $logger = new BuckarooLogger(1);
-        $logger->logForUser('SoapClient is not installed. Please ask your hosting provider to install SoapClient <a style="text-decoration: underline; color: #0000FF" href="http://php.net/manual/en/soap.installation.php">http://php.net/manual/en/soap.installation.php</a>');
+        Buckaroo_Logger::log('SoapClient is not installed. Please ask your hosting provider to install SoapClient <a style="text-decoration: underline; color: #0000FF" href="http://php.net/manual/en/soap.installation.php">http://php.net/manual/en/soap.installation.php</a>');
     } else { 
         final class BuckarooSoap extends BuckarooAbstract {
         
@@ -44,6 +43,7 @@
                                     'cache_wsdl' => WSDL_CACHE_NONE,
                             ));
                         } catch (Exception $e){ //(SoapFault $e) {
+                            Buckaroo_Logger::log(__METHOD__, $e->getMessage());
                             return $this->_error($e);
                         }
                     }
@@ -65,8 +65,8 @@
                     $TransactionRequest->AmountVat = $this->_vars['AmountVat'];
                 }
 
-                $debit = round($this->_vars['amountDebit'], 2);
-                $credit = round($this->_vars['amountCredit'], 2);
+                $debit = roundAmount($this->_vars['amountDebit']);
+                $credit = roundAmount($this->_vars['amountCredit']);
                 $TransactionRequest->AmountDebit = str_replace($search, $replace, $debit);
                 $TransactionRequest->AmountCredit = str_replace($search, $replace, $credit);
                 $TransactionRequest->Invoice = $this->_vars['invoice'] ?? null;
@@ -82,13 +82,8 @@
                     $TransactionRequest->ServicesSelectableByClient = $this->_vars['customVars']['servicesSelectableByClient'];
                     $TransactionRequest->ContinueOnIncomplete       = $this->_vars['customVars']['continueOnIncomplete'];
                 }
-                /*
-                if (array_key_exists('OriginalTransactionKey', $this->_vars)) {
-                    $TransactionRequest->OriginalTransactionKey = $this->_vars['OriginalTransactionKey'];
-                }
-                */
+
                 if (isset($this->_vars['customParameters'])) {
-                    // $TransactionRequest = $this->_addCustomParameters($TransactionRequest);
                     foreach ($this->_vars['customParameters'] as $key => $value) {
                         $TransactionRequest->AdditionalParameters->AdditionalParameter->Name = $key;
                         $TransactionRequest->AdditionalParameters->AdditionalParameter->_ = $value;
@@ -97,14 +92,7 @@
 
                 $TransactionRequest->Services = new Services();
                 $this->_addServices($TransactionRequest);
-                /*
-                $TransactionRequest->Services = new Services();
-                 
-                $TransactionRequest->Services->Service = new Service();
-                $TransactionRequest->Services->Service->Name= $this->_vars['service']['type'];
-                $TransactionRequest->Services->Service->Action = $this->_vars['service']['action'];;
-                $TransactionRequest->Services->Service->Version = $this->_vars['service']['version'];;
-                */
+
                 $TransactionRequest->ClientIP = new IPAddress();
                 $TransactionRequest->ClientIP->Type = 'IPv4';
                 $TransactionRequest->ClientIP->_ = $_SERVER['REMOTE_ADDR'];
@@ -181,14 +169,10 @@
                 try {
                     $response = $client->{$type}($TransactionRequest);
                 } catch (SoapFault $e) {
-                    $logger = new BuckarooLogger(1);
-                    $logger->logForUser($e->getMessage());
-                    //$this->logException($e->getMessage());
+                    Buckaroo_Logger::log($e->getMessage());
                     return $this->_error($client);
                 } catch (Exception $e) {
-                    $logger = new BuckarooLogger(1);
-                    $logger->logForUser($e->getMessage());
-                    //$this->logException($e->getMessage());
+                    Buckaroo_Logger::log($e->getMessage());
                     return $this->_error($client);
                 }
                 
@@ -494,8 +478,7 @@
                 //[9yards][JW][2017-04-20] Start edit access to certificate
                 //****Old method of accessing certificate****\\
                 // if (!file_exists($this->privateKey)) {
-                //     $logger = new BuckarooLogger(1);
-                //     $logger->logForUser($this->privateKey.' do not exists');
+                //     Buckaroo_Logger::log($this->privateKey.' do not exists');
                 // }
                 // $fp = fopen($this->privateKey, "r");
                 // $priv_key = fread($fp, 8192);
@@ -503,8 +486,7 @@
 
                 //****New method of accessing certificate****\\
                 if ($this->privateKey == ''){   
-                    $logger = new BuckarooLogger(1);
-                    $logger->logForUser('Certificate has not been uploaded');
+                    Buckaroo_Logger::log('Certificate has not been uploaded');
                 }
                 $priv_key = substr($this->privateKey, 0, 8192);
                 //[9yards][JW][2017-04-20] End edit access to certificate

@@ -1,39 +1,6 @@
 <?php
+require_once dirname(__FILE__) . '/api/abstract.php';
 
-/**
- * Make status codes reader friendly
- *
- * @param  String $status_code
- * @return String
- */
-function fn_buckaroo_resolve_status_code($status_code)
-{
-    require_once dirname(__FILE__) . '/api/abstract.php';
-    switch ($status_code) {
-
-        case BuckarooAbstract::BUCKAROO_SUCCESS:
-            {
-                return 'completed';
-            }
-            break;
-
-        case BuckarooAbstract::BUCKAROO_PENDING_PAYMENT:
-            {
-                return 'on-hold';
-            }
-            break;
-        case BuckarooAbstract::BUCKAROO_CANCELED:
-            return 'cancelled';
-            break;
-        case BuckarooAbstract::BUCKAROO_ERROR:
-        case BuckarooAbstract::BUCKAROO_FAILED:
-        case BuckarooAbstract::BUCKAROO_INCORRECT_PAYMENT:
-        default:
-            {
-                return 'failed';
-            }
-    }
-}
 
 /**
  * Can the order be refunded.
@@ -59,6 +26,8 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
         return true;
     }
     if (!empty($response->ChannelError)) {
+        Buckaroo_Logger::log(__METHOD__, $response->ChannelError);
+
         $order->add_order_note(
             sprintf(
                 __(
@@ -143,8 +112,6 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
             )
         );
 
-        $response->status = 'fully_captured';
-
         // Store the transaction_key together with captured products, we need this for refunding
         if ($products != null) {
             $capture_data = json_encode(['OriginalTransactionKey' => $response->transactions, 'products' => $products]);
@@ -154,6 +121,7 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
 
     }
     if (!empty($response->ChannelError)) {
+        Buckaroo_Logger::log(__METHOD__, $response->ChannelError);
         $order->add_order_note(
             sprintf(
                 __(
@@ -176,30 +144,35 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
         return false;
     }
 }
-
+/**
+ * Process push response
+ *
+ * @param WC_Push_Buckaroo $payment_method
+ * @param string $response
+ *
+ * @return void
+ */
 function fn_buckaroo_process_response_push($payment_method = null, $response = '')
 {
     $woocommerce = getWooCommerceObject();
     $wpdb        = getWpdbObject();
-    require_once dirname(__FILE__) . '/logger.php';
     require_once dirname(__FILE__) . '/api/paymentmethods/responsefactory.php';
     if (!session_id()) {
         @session_start();
     }
     $_SESSION['buckaroo_response'] = '';
-    $logger                        = new BuckarooLogger(BuckarooLogger::INFO, 'return');
-    $logger->logInfo("\n\n\n\n***************** Return start / fn_buckaroo_process_response_push ***********************");
+    Buckaroo_Logger::log("Return start / fn_buckaroo_process_response_push");
     if ($response == '') {
         $response = BuckarooResponseFactory::getResponse();
     }
 
-    $logger->logInfo('Parse response:\n', $response);
+    Buckaroo_Logger::log('Parse response:\n', $response);
     $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, 'test');
     $order_id                =
         $response->add_order_id ?
         $response->add_order_id :
         ($response->brq_ordernumber ? $response->brq_ordernumber : $response->invoicenumber);
-    $logger->logInfo(__METHOD__ . "|5|", $order_id);
+    Buckaroo_Logger::log(__METHOD__ . "|5|", $order_id);
 
     $order = new WC_Order($order_id);
     if ((int) $order_id > 0) {
@@ -209,195 +182,54 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         }
     }
     if ($response->isValid()) {
-        if ($response->isRedirectRequired()) {
-            return array(
-                'result'   => 'success',
-                'redirect' => $response->getRedirectUrl(),
-            );
+        //Check if redirect required
+        $checkIfRedirectRequired = fn_process_check_redirect_required($response);
+        if ($checkIfRedirectRequired){
+            return $checkIfRedirectRequired;
         }
 
-        $giftCardPartialPayment = ($response->statuscode == 792 && $response->brq_transaction_type == 'I150');
+        $giftCardPartialPayment = ($response->statuscode == BuckarooAbstract::CODE_AWAITING_CONSUMER && $response->brq_transaction_type == 'I150');
 
         if ($response->brq_relatedtransaction_partialpayment != null || $giftCardPartialPayment) {
-            $logger->logInfo('PUSH', "Partial payment PUSH received " . $response->status);
+            Buckaroo_Logger::log('PUSH', "Partial payment PUSH received " . $response->status);
             exit();
         }
         if ($response->brq_relatedtransaction_refund != null) {
-            $logger->logInfo('PUSH', "Refund payment PUSH received " . $response->status);
-            $allowedPush = get_post_meta($order_id, '_pushallowed', true);
-            $logger->logInfo(__METHOD__ . "|10|", $allowedPush);
-            if ($response->hasSucceeded() && $allowedPush == 'ok') {
-                $tmp = get_post_meta($order_id, '_refundbuckaroo' . $response->transactions, true);
-                if (empty($tmp)) {
-                    add_post_meta($order_id, '_refundbuckaroo' . $response->transactions, 'ok', true);
-                    $refund = wc_create_refund(
-                        array(
-                            'amount'     => $response->amount_credit,
-                            'reason'     => 'Push automatic refund from BPE; Please restock items manually',
-                            'order_id'   => $order_id,
-                            'line_items' => array(),
-                        )
-                    );
-                }
+            fn_process_push_refund($order_id, $response);
+        }
+        Buckaroo_Logger::log('Order status: ' . $order->get_status());
+        if (($response->status == BuckarooAbstract::STATUS_ON_HOLD) && ($order->get_payment_method() == 'buckaroo_paypal')) {
+            $response->status = BuckarooAbstract::STATUS_CANCELED;
+        }
+        Buckaroo_Logger::log('Response order status: ' . $response->status);
+        Buckaroo_Logger::log('Status message: ' . $response->statusmessage);
 
-            }
-            exit();
-        }
-        $logger->logInfo('Order status: ' . $order->get_status());
-        $response_status = fn_buckaroo_resolve_status_code($response->status);
-        if (($response_status == 'on-hold') && ($order->get_payment_method() == 'buckaroo_paypal')) {
-            $response_status = 'cancelled';
-        }
-        $logger->logInfo('Response order status: ' . $response_status);
-        $logger->logInfo('Status message: ' . $response->statusmessage);
-        if (strtolower($order->get_payment_method()) === 'buckaroo_payperemail') {
-            $transactionsArray = parsePPENewTransactionId($response->transactions);
-            if (!empty($transactionsArray) && $response->statuscode == 190) {
-                $creditcardProvider = checkCreditcardProvider($response->payment_method);
-                update_post_meta($order_id, '_transaction_id', $transactionsArray[count($transactionsArray) - 1]);
-                if ($creditcardProvider) {
-                    update_post_meta($order_id, '_payment_method', 'buckaroo_creditcard');
-                    update_post_meta($order_id, '_payment_method_title', 'Creditcards');
-                    update_post_meta($order_id, '_payment_method_transaction', $response->payment_method);
-                    update_post_meta($order_id, '_wc_order_payment_issuer', $response->payment_method);
-                } else {
-                    update_post_meta($order_id, '_payment_method', 'buckaroo_' . strtolower($response->payment_method));
-                    $responsePaymentMethod = $response->payment_method !== 'payperemail' ? ' + ' . $response->payment_method : '';
-                    update_post_meta($order_id, '_payment_method_title', 'PayperEmail' . $responsePaymentMethod);
-                    update_post_meta($order_id, '_payment_method_transaction', $response->payment_method);
-                }
-            }
-        } elseif (strtolower($order->get_payment_method()) === 'buckaroo_sepadirectdebit' && $response->payment_method === 'payperemail') {
+        if (!fn_process_push_meta_update($order_id, $order, $response)){
             return;
         }
+
         if ($response->hasSucceeded()) {
-            if (in_array($order->get_status(), array('completed', 'processing'))) {
-                $logger->logInfo(
-                    'Push message. Order already in final state or have the same status as response. Order status: ' . $order->get_status()
-                );
-                switch ($response_status) {
-                    case 'completed':
-                        if (!is_null($payment_method)) {
-                            return array(
-                                'result'   => 'success',
-                                'redirect' => $payment_method->get_return_url($order),
-                            );
-                        }
-                        break;
-                    default:
-                        return;
-                }
-            } else {
-                switch ($response_status) {
-                    case 'completed':
-                        $transaction        = $response->transactions;
-                        $payment_methodname = $response->payment_method;
-                        if ($response->brq_relatedtransaction_partialpayment != null) {
-                            $transaction        = $response->brq_relatedtransaction_partialpayment;
-                            $payment_methodname = 'grouptransaction';
-                        }
-
-                        if ((int) $order_id > 0) {
-                            $row = $wpdb->get_row(
-                                "SELECT wc_orderid FROM {$wpdb->prefix}woocommerce_buckaroo_transactions WHERE wc_orderid = " . intval($order_id)
-                            );
-                            if (empty($row->wc_orderid)) {
-                                $wpdb->query(
-                                    $wpdb->prepare(
-                                        "
-                                INSERT INTO {$wpdb->prefix}woocommerce_buckaroo_transactions VALUES (" . intval(
-                                            $order_id
-                                        ) . ", %s)",
-                                        $transaction
-                                    )
-                                );
-                            }
-                        }
-                        $clean_order_no = (int) str_replace('#', '', $order_id);
-                        add_post_meta($clean_order_no, '_payment_method_transaction', $payment_methodname, true);
-
-                        // Calc total received amount
-                        $prefix     = "buckaroo_settlement_";
-                        $settlement = $prefix . $response->payment;
-
-                        $orderAmount            = (float) $order->get_total();
-                        $paidAmount             = (float) $response->amount;
-                        $alreadyPaidSettlements = 0;
-                        $isNewPayment           = true;
-                        if ($items = get_post_meta($order_id)) {
-                            foreach ($items as $key => $meta) {
-                                if (strstr($key, $prefix) !== false && strstr($key, $response->payment) === false) {
-                                    $alreadyPaidSettlements += (float)$meta[0];
-                                }
-
-                                // check if push is a new payment
-                                if (strstr($key, $prefix) !== false && strstr($key, $response->payment) !== false) {
-                                    $isNewPayment = false;
-                                }
-                            }
-                        }
-
-                        $totalPaid = $paidAmount + $alreadyPaidSettlements;
-
-                        add_post_meta($order_id, $settlement, $paidAmount, true);
-
-                        // order is completely paid
-                        if ($totalPaid >= $orderAmount) {
-                            $order->payment_complete($transaction);
-                        }
-
-                        $message = 'Received Buckaroo payment push notification.<br>';
-                        $message .= 'Paid amount: ' . wc_price($paidAmount);
-                        $message .= '<br>Total amount paid (incl previous payments): ' . wc_price(($totalPaid));
-                        $message .= '<br>Order total: ' . wc_price($orderAmount);
-                        $message .= '<br>Open amount: ' . wc_price(($orderAmount - $totalPaid));
-
-                        if ($paidAmount > 0 && $isNewPayment) {
-                            $order->add_order_note($message);
-                        }
-
-                        add_post_meta($order_id, '_pushallowed', 'ok', true);
-
-                        break;
-                    default:
-                        $logger->logInfo('Update status 1. Order status: on-hold');
-                        $order->update_status('on-hold', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
-                        // Reduce stock levels
-                        break;
-                }
-                // Remove cart
-                $woocommerce->cart->empty_cart();
-                if (isset($response->consumerMessage['HtmlText'])) {
-                    $_SESSION['buckaroo_response'] = $response->consumerMessage['HtmlText'];
-                }
-                // Return thank you page redirect
-                if (!is_null($payment_method)) {
-                    return array(
-                        'result'   => 'success',
-                        'redirect' => $payment_method->get_return_url($order),
-                    );
-                }
-            }
+            processPushTransactionSucceeded($order_id, $order, $response, $payment_method);
 
         } else {
-            $logger->logInfo('Payment request failed/canceled. Order status: ' . $order->get_status());
+            Buckaroo_Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
             if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled'))) {
                 //We receive a valid response that the payment is canceled/failed.
-                $logger->logInfo('Update status 2. Order status: failed');
+                Buckaroo_Logger::log('Update status 2. Order status: failed');
                 $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
             } else {
-                $logger->logInfo('Push message. Order status cannot be changed.');
+                Buckaroo_Logger::log('Push message. Order status cannot be changed.');
             }
-            if ($response_status == 'cancelled') {
-                $logger->logInfo('Update status 3. Order status: cancelled');
+            if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
+                Buckaroo_Logger::log('Update status 3. Order status: cancelled');
                 if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled'))) {
                     $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                 } else {
-                    $logger->logInfo('Push message. Order status cannot be changed.');
+                    Buckaroo_Logger::log('Push message. Order status cannot be changed.');
                 }
                 wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
             } else {
-                if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == 690) {
+                if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == BuckarooAbstract::CODE_REJECTED) {
                     wc_add_notice(
                         __(
                             "We are sorry to inform you that the request to pay afterwards with AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of AfterPay. Or you can visit the website of AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
@@ -418,9 +250,9 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
             return;
         }
     } else {
-        $logger->logInfo('Response not valid!');
-        $logger->logInfo('Parse response:\n', $response);
-        if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == 690) {
+        Buckaroo_Logger::log('Response not valid!');
+        Buckaroo_Logger::log('Parse response:\n', $response);
+        if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == BuckarooAbstract::CODE_REJECTED) {
             wc_add_notice(
                 __(
                     "We are sorry to inform you that the request to pay afterwards with AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of AfterPay. Or you can visit the website of AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
@@ -445,7 +277,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 /**
  * Process response from buckaroo
  *
- * @param object $payment_method defaults to NULL
+ * @param  WC_Payment_Gateway|null $payment_method defaults to NULL
  * @param string $response
  * @param string $mode
  * @return void|array
@@ -454,20 +286,18 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 {
     $woocommerce = getWooCommerceObject();
     $wpdb        = getWpdbObject();
-    require_once dirname(__FILE__) . '/logger.php';
     require_once dirname(__FILE__) . '/api/paymentmethods/responsefactory.php';
     if (!session_id()) {
         @session_start();
     }
     $_SESSION['buckaroo_response'] = '';
-    $logger                        = new BuckarooLogger(BuckarooLogger::INFO, 'return');
-    $logger->logInfo("\n\n\n\n***************** Return start / fn_buckaroo_process_response***********************");
-    $logger->logInfo("Server : " . var_export($_SERVER, true));
+    Buckaroo_Logger::log(" Return start / fn_buckaroo_process_response");
+    Buckaroo_Logger::log("Server : " . var_export($_SERVER, true));
     if ($response == '') {
         $response = BuckarooResponseFactory::getResponse();
     }
 
-    $logger->logInfo('Parse response:\n', $response);
+    Buckaroo_Logger::log('Parse response:\n', $response);
     $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, $mode);
 
     if (empty($response->brq_ordernumber)) {
@@ -484,101 +314,44 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             }
         }
     } catch (\Exception $e) {
-        $logger->logInfo(__METHOD__ . "|10|");
+        Buckaroo_Logger::log(__METHOD__ . "|10|");
     }
 
     if ($response->isValid()) {
-        if ($response->isRedirectRequired()) {
-            if ($payment_method->id == 'buckaroo_payconiq') {
-                $key           = $response->transactionId;
-                $invoiceNumber = $response->invoicenumber;
-                $amount        = $response->amount;
-                $currency      = get_woocommerce_currency();
-                return array(
-                    'result'   => 'success',
-                    'redirect' => home_url('/') . 'payconiqQrcode?' .
-                    "transactionKey=" . $key .
-                    "&invoicenumber=" . $invoiceNumber .
-                    "&amount=" . $amount .
-                    "&returnUrl=" . $payment_method->notify_url .
-                    "&order_id=" . (int) $order_id .
-                    "&currency=" . $currency,
-                );
-            } else {
-                return array(
-                    'result'   => 'success',
-                    'redirect' => $response->getRedirectUrl(),
-                );
-            }
+        
+        //Check if redirect required
+        $checkIfRedirectRequired = fn_process_check_redirect_required($response, 'response', $payment_method, $order_id);
+        if ($checkIfRedirectRequired){
+            return $checkIfRedirectRequired;
         }
-        $logger->logInfo(__METHOD__ . "|20|", [$order_id, $response->payment_method,$response->hasSucceeded()]);
-        if (!$order_id && ($response->payment_method == 'IDIN') && !$response->hasSucceeded()) {
-            $logger->logInfo(__METHOD__ . "|25|");
-            $message = '';
-            if (isset($response->getResponse()->Status->SubCode->_)) {
-                $message = $response->getResponse()->Status->SubCode->_;
-            }
-            $logger->logInfo(__METHOD__ . "|30|", $message);
 
-            return array(
-                'result'   => 'error',
-                'message' => $message
-            );
+        Buckaroo_Logger::log(__METHOD__ . "|20|", [$order_id, $response->payment_method,$response->hasSucceeded()]);
+        
+        $process_response_idin = fn_process_response_idin($response, $order_id);
+        if (is_array($process_response_idin)){
+            return $process_response_idin;
         }
-        $logger->logInfo('Order status: ' . $order->get_status());
-        $response_status = fn_buckaroo_resolve_status_code($response->status);
-        if (($response_status == 'on-hold') && ($payment_method->id == 'buckaroo_paypal')) {
-            $response_status = 'cancelled';
+        
+        Buckaroo_Logger::log('Order status: ' . $order->get_status());
+        if (($response->status == BuckarooAbstract::STATUS_ON_HOLD) && ($payment_method->id == 'buckaroo_paypal')) {
+            $response->status = BuckarooAbstract::STATUS_CANCELED;
         }
-        $logger->logInfo('Response order status: ' . $response_status);
-        $logger->logInfo('Status message: ' . $response->statusmessage);
+        Buckaroo_Logger::log('Response order status: ' . $response->status);
+        Buckaroo_Logger::log('Status message: ' . $response->statusmessage);
 
-        if ($payment_method->id == 'buckaroo_payperemail') {
-            if (is_admin()) {
-                if ($response->hasSucceeded()) {
-                    if (!isset($response->getResponse()->ConsumerMessage)) {
-                        $buckaroo_admin_notice = array(
-                            'type'    => 'success',
-                            'message' => 'Your paylink: <a target="_blank" href="' . $response->getPayLink() . '">' . $response->getPayLink() . '</a>',
-                        );
-                    }
-                } else {
-                    $parameterError = '';
-                    if (isset($response->getResponse()->RequestErrors->ParameterError)) {
-                        $parameterErrorArray = $response->getResponse()->RequestErrors->ParameterError;
-                        if (is_array($parameterErrorArray)) {
-                            foreach ($parameterErrorArray as $key => $value) {
-                                $parameterError .= '<br/>' . $value->_;
-                            }
-                        }
-                    }
-                    $buckaroo_admin_notice = array(
-                        'type'    => 'error',
-                        'message' => $response->statusmessage . ' ' . $parameterError,
-                    );
-                }
-                set_transient(get_current_user_id() . 'buckarooAdminNotice', $buckaroo_admin_notice);
-                return;
-            }
+        //Payperemail response
+        if(fn_process_response_payperemail($payment_method, $response)){
+            return;
         }
 
         if ($response->hasSucceeded()) {
-            $logger->logInfo(
+            Buckaroo_Logger::log(
                 'Order already in final state or  have the same status as response. Order status: ' . $order->get_status()
             );
 
-            if ($response->payment_method == 'SepaDirectDebit') {
-                /* @var $response Response */
-                foreach ($response->getResponse()->Services->Service->ResponseParameter as $param) {
-                    if ($param->Name == 'MandateReference') {
-                        $order->add_order_note('MandateReference: ' . $param->_, 1);
-                    }
-                    if ($param->Name == 'MandateDate') {
-                        $order->add_order_note('MandateDate: ' . $param->_, 1);
-                    }
-                }
-            }
-            switch ($response_status) {
+            addSepaDirectOrderNote($response, $order);
+
+            switch ($response->status) {
                 case 'completed':
                 case 'processing':
                 case 'pending':
@@ -596,31 +369,31 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             }
         } else {
 
-            $logger->logInfo('Payment request failed/canceled. Order status: ' . $order->get_status());
-            $logger->logInfo('||| infoLog ' . $response_status);
+            Buckaroo_Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
+            Buckaroo_Logger::log('||| infoLog ' . $response->status);
             if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                 //We receive a valid response that the payment is canceled/failed.
-                $logger->logInfo('Update status 4. Order status: failed');
+                Buckaroo_Logger::log('Update status 4. Order status: failed');
                 $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
             } else {
-                $logger->logInfo('Order status cannot be changed.');
+                Buckaroo_Logger::log('Order status cannot be changed.');
             }
-            if ($response_status == 'cancelled') {
-                $logger->logInfo('Update status 5. Order status: cancelled');
+            if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
+                Buckaroo_Logger::log('Update status 5. Order status: cancelled');
                 if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                     $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                 } else {
-                    $logger->logInfo('Response. Order status cannot be changed.');
+                    Buckaroo_Logger::log('Response. Order status cannot be changed.');
                 }
                 wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
             } else {
                 if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
-                    $logger->logInfo('Update status 6. Order status: failed');
+                    Buckaroo_Logger::log('Update status 6. Order status: failed');
                     $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                 } else {
-                    $logger->logInfo('Order status cannot be changed.');
+                    Buckaroo_Logger::log('Order status cannot be changed.');
                 }
-                if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == 690) {
+                if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == BuckarooAbstract::CODE_REJECTED) {
                     wc_add_notice(
                         __(
                             "We are sorry to inform you that the request to pay afterwards with AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of AfterPay. Or you can visit the website of AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
@@ -628,7 +401,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                         ),
                         'error'
                     );
-                } elseif ($payment_method instanceof WC_Gateway_Buckaroo_Giftcard && $response->statuscode == 490) {
+                } elseif ($payment_method instanceof WC_Gateway_Buckaroo_Giftcard && $response->statuscode == BuckarooAbstract::CODE_FAILED) {
                     if ($response->statusmessage == 'Failed') {
                         wc_add_notice(
                             sprintf(
@@ -643,7 +416,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                             'error'
                         );
                     }
-                } elseif (($response->payment_method == "afterpay") && ($response->statuscode == 690)) {
+                } elseif (($response->payment_method == "afterpay") && ($response->statuscode == BuckarooAbstract::CODE_REJECTED)) {
                     wc_add_notice(
                         __(
                             $response->ChannelError,
@@ -653,35 +426,43 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     );
 
                 } else {
-                    wc_add_notice(
-                        __(
-                            'Payment unsuccessful. Please try again or choose another payment method.',
-                            'wc-buckaroo-bpe-gateway'
-                        ), 'error'
-                    );
-                    $logger->logInfo('wc session after: ' . var_export(WC()->session, true));
+                    Buckaroo_Logger::log(__METHOD__ . "|50|");
+                    $error_description = 'Payment unsuccessful. Please try again or choose another payment method.';
+                    wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
+
+                    Buckaroo_Logger::log('wc session after: ' . var_export(WC()->session, true));
                     if (WooV3Plus()) {
                         if ($order->get_billing_country() == 'NL') {
-                            $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
-                            $logger->logInfo('||| failed status message: ' . $error_description);
-                            wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
+                            if (strrpos($response->ChannelError, ': ') !== false) {
+                                $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
+                                Buckaroo_Logger::log('||| failed status message: ' . $error_description);
+                                wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
+                            }
                         }
                     } else {
                         if ($order->billing_country == 'NL') {
-                            $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
-                            wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
+                            if (strrpos($response->ChannelError, ': ') !== false) {
+                                $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
+                                wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
+                            }
                         }
+                    }
+                    if ($payment_method && $payment_method->get_failed_url()) {
+                        Buckaroo_Logger::log(__METHOD__ . "|70|");
+                        return [
+                            'redirect' => $payment_method->get_failed_url() . '?bck_err=' . base64_encode($error_description)
+                        ];
                     }
                 }
             }
             return;
         }
     } else {
-        $logger->logForUser(
+        Buckaroo_Logger::log(
             'Response not valid for order. Signature calculation failed. Order id: ' . (!empty($order_id) ? $order_id : 'order not created')
         );
-        $logger->logInfo('Response not valid!');
-        $logger->logInfo('Parse response:\n', $response);
+        Buckaroo_Logger::log('Response not valid!');
+        Buckaroo_Logger::log('Parse response:\n', $response);
 
         return;
     }
@@ -749,8 +530,7 @@ function resetOrder()
             }
 
             if (version_compare(WC()->version, '3.6', '>=')) {
-                $logger = new BuckarooLogger(BuckarooLogger::INFO, 'return');
-                $logger->logInfo('Update status 7. Order status: cancelled');
+                Buckaroo_Logger::log('Update status 7. Order status: cancelled');
                 $order->update_status('cancelled', __($response->statusmessage ?? '', 'wc-buckaroo-bpe-gateway'));
             } else {
                 $newOrder                             = wc_create_order($order);
@@ -794,11 +574,8 @@ function getOrderIdFromInvoiceId($invoice_id, $mode = 'live')
     if ($mode == 'test') {
         $invoice_id = str_replace("WP_", "", $invoice_id);
     }
-    $order_id = preg_replace('/_i(.*)/', '', $invoice_id);
 
-    $order_id = preg_replace('/(\-[0-9]{1,3})$/', '', $invoice_id);
-
-    return $order_id;
+    return $invoice_id;
 }
 
 /**
@@ -867,52 +644,6 @@ function writeToDebug($request, $type)
     return;
 }
 
-/**
- * Write a message to the buckaroo debug log
- *
- * @param string $message, string $file, int $line
- * @return void
- */
-function writeToTestscriptsLog($method, $type, $event, $json)
-{
-    $time = date('Y-m-d@H:i:s', time());
-    $log  = fopen('/var/log/buckaroo/testscripts.log', "a") or die("Unable to open testscripts.log!");
-    $wcv  = WC()->version;
-    $wpv  = get_bloginfo('version');
-    if ($json != 'no json') {
-        fwrite($log, "$time, WC: $wcv, WP: $wpv - $event from $type - $method: $json" . "\n");
-    } else {
-        fwrite($log, "$time, WC: $wcv, WP: $wpv - $event of type $type - $method" . "\n");
-    }
-    fclose($log);
-    return;
-}
-
-function getWCOrderDetails($order_id, $field)
-{
-    $order        = (WooV3Plus()) ? wc_get_order($order_id) : new WC_Order($order_id);
-    $shipping_arr = array(
-        'shipping_phone',
-        'shipping_email',
-        'shipping_country',
-        'shipping_city',
-        'shipping_postcode',
-        'shipping_address_1',
-        'shipping_address_2',
-        'shipping_first_name',
-        'shipping_last_name',
-    );
-    if (in_array($field, $shipping_arr)) {
-        $pickAddress = pickAddress($order);
-        $offset      = str_replace('shipping_', '', $field);
-        return $pickAddress[$offset];
-    } elseif (WooV3Plus()) {
-        return $order->{"get_" . $field}();
-    } else {
-        return $order->{$field};
-    }
-}
-
 function getWCOrder($order_id)
 {
     if (WooV3Plus()) {
@@ -924,59 +655,7 @@ function getWCOrder($order_id)
     }
 }
 
-/**
- * Checks if there is a shipping address & Returns
- *
- * @param object $order
- * @return array $result
- */
-function pickAddress($order)
-{
-    //There is no shipping phone
-    $get_billing_phone = (WooV3Plus()) ? $order->get_billing_phone() : $order->billing_phone;
-    $result['phone']   = (!empty($get_billing_phone)) ? $get_billing_phone : '';
 
-    //There is no shipping email
-    $get_billing_email = (WooV3Plus()) ? $order->get_billing_email() : $order->billing_email;
-    $result['email']   = (!empty($get_billing_email)) ? $get_billing_email : '';
-
-    $get_shipping_country = (WooV3Plus()) ? $order->get_shipping_country() : $order->shipping_country;
-    $get_billing_country  = (WooV3Plus()) ? $order->get_billing_country() : $order->billing_country;
-    $country              = (!empty($get_shipping_country)) ? $get_shipping_country : $get_billing_country;
-    $result['country']    = (!empty($country) && $country != '') ? $country : '';
-
-    $get_shipping_city = (WooV3Plus()) ? $order->get_shipping_city() : $order->shipping_city;
-    $get_billing_city  = (WooV3Plus()) ? $order->get_billing_city() : $order->billing_city;
-    $city              = (!empty($get_shipping_city)) ? $get_shipping_city : $get_billing_city;
-    $result['city']    = (!empty($city) && $city != '') ? $city : '';
-
-    $get_shipping_postcode = (WooV3Plus()) ? $order->get_shipping_postcode() : $order->shipping_postcode;
-    $get_billing_postcode  = (WooV3Plus()) ? $order->get_billing_postcode() : $order->billing_postcode;
-    $postcode              = (!empty($get_shipping_postcode)) ? $get_shipping_postcode : $get_billing_postcode;
-    $result['postcode']    = (!empty($postcode) && $postcode != '') ? $postcode : '';
-
-    $get_shipping_address_1 = (WooV3Plus()) ? $order->get_shipping_address_1() : $order->shipping_address_1;
-    $get_billing_address_1  = (WooV3Plus()) ? $order->get_billing_address_1() : $order->billing_address_1;
-    $address_1              = (!empty($get_shipping_address_1)) ? $get_shipping_address_1 : $get_billing_address_1;
-    $result['address_1']    = (!empty($address_1) && $address_1 != '') ? $address_1 : '';
-
-    $get_shipping_address_2 = (WooV3Plus()) ? $order->get_shipping_address_2() : $order->shipping_address_2;
-    $get_billing_address_2  = (WooV3Plus()) ? $order->get_billing_address_2() : $order->billing_address_2;
-    $address_2              = (!empty($get_shipping_address_2)) ? $get_shipping_address_2 : $get_billing_address_2;
-    $result['address_2']    = (!empty($address_2) && $address_2 != '') ? $address_2 : '';
-
-    $get_shipping_first_name = (WooV3Plus()) ? $order->get_shipping_first_name() : $order->shipping_first_name;
-    $get_billing_first_name  = (WooV3Plus()) ? $order->get_billing_first_name() : $order->billing_first_name;
-    $first_name              = (!empty($get_shipping_first_name)) ? $get_shipping_first_name : $get_billing_first_name;
-    $result['first_name']    = (!empty($first_name) && $first_name != '') ? $first_name : '';
-
-    $get_shipping_last_name = (WooV3Plus()) ? $order->get_shipping_last_name() : $order->shipping_last_name;
-    $get_billing_last_name  = (WooV3Plus()) ? $order->get_billing_last_name() : $order->billing_last_name;
-    $last_name              = (!empty($get_shipping_last_name)) ? $get_shipping_last_name : $get_billing_last_name;
-    $result['last_name']    = (!empty($last_name) && $last_name != '') ? $last_name : '';
-
-    return $result;
-}
 
 function checkCurrencySupported($payment_method = '')
 {
@@ -1079,6 +758,297 @@ function checkCreditcardProvider($creditcardProvider)
     foreach ($creditcardsProvidersList as $provider) {
         if ($provider['servicename'] === $creditcardProvider) {
             return $provider;
+        }
+    }
+    return false;
+}
+function getClientIpBuckaroo()
+{
+    $ipaddress = '';
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED'])) {
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+    } elseif (!empty($_SERVER['HTTP_FORWARDED_FOR'])) {
+        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+    } elseif (!empty($_SERVER['HTTP_FORWARDED'])) {
+        $ipaddress = $_SERVER['HTTP_FORWARDED'];
+    } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+        $ipaddress = $_SERVER['REMOTE_ADDR'];
+    } else {
+        $ipaddress = 'UNKNOWN';
+    }
+    $ex = explode(",", $ipaddress);
+    return trim($ex[0]);
+}
+
+function roundAmount($amount) {
+
+    $precision = 2;
+    return round($amount, $precision);
+}
+
+function fn_process_push_refund($order_id, $response){
+        //Logger
+
+        Buckaroo_Logger::log('PUSH', "Refund payment PUSH received " . $response->status);
+        $allowedPush = get_post_meta($order_id, '_pushallowed', true);
+        Buckaroo_Logger::log(__METHOD__ . "|10|", $allowedPush);
+        if ($response->hasSucceeded() && $allowedPush == 'ok') {
+            $tmp = get_post_meta($order_id, '_refundbuckaroo' . $response->transactions, true);
+            if (empty($tmp)) {
+                add_post_meta($order_id, '_refundbuckaroo' . $response->transactions, 'ok', true);
+                $refund = wc_create_refund(
+                    array(
+                        'amount'     => $response->amount_credit,
+                        'reason'     => 'Push automatic refund from BPE; Please restock items manually',
+                        'order_id'   => $order_id,
+                        'line_items' => array(),
+                    )
+                );
+            }
+
+        }
+        exit();
+}
+
+function fn_process_push_meta_update($order_id, $order, $response){
+
+    if (strtolower($order->get_payment_method()) === 'buckaroo_payperemail') {
+        $transactionsArray = parsePPENewTransactionId($response->transactions);
+        if (!empty($transactionsArray) && $response->statuscode == BuckarooAbstract::CODE_SUCCESS) {
+            $creditcardProvider = checkCreditcardProvider($response->payment_method);
+            update_post_meta($order_id, '_transaction_id', $transactionsArray[count($transactionsArray) - 1]);
+            if ($creditcardProvider) {
+                update_post_meta($order_id, '_payment_method', 'buckaroo_creditcard');
+                update_post_meta($order_id, '_payment_method_title', 'Creditcards');
+                update_post_meta($order_id, '_payment_method_transaction', $response->payment_method);
+                update_post_meta($order_id, '_wc_order_payment_issuer', $response->payment_method);
+            } else {
+                update_post_meta($order_id, '_payment_method', 'buckaroo_' . strtolower($response->payment_method));
+                $responsePaymentMethod = $response->payment_method !== 'payperemail' ? ' + ' . $response->payment_method : '';
+                update_post_meta($order_id, '_payment_method_title', 'PayperEmail' . $responsePaymentMethod);
+                update_post_meta($order_id, '_payment_method_transaction', $response->payment_method);
+            }
+        }
+    } elseif (strtolower($order->get_payment_method()) === 'buckaroo_sepadirectdebit' && $response->payment_method === 'payperemail') {
+        return false;
+    }
+    return true;
+}
+
+function processPushTransactionSucceeded($order_id, $order, $response, $payment_method){
+
+    $woocommerce = getWooCommerceObject();
+    $wpdb        = getWpdbObject();
+
+    if (!session_id()) {
+        @session_start();
+    }
+
+    //Logger
+
+    if (in_array($order->get_status(), array('completed', 'processing'))) {
+        Buckaroo_Logger::log(
+            'Push message. Order already in final state or have the same status as response. Order status: ' . $order->get_status()
+        );
+        switch ($response->status) {
+            case 'completed':
+                if (!is_null($payment_method)) {
+                    return array(
+                        'result'   => 'success',
+                        'redirect' => $payment_method->get_return_url($order),
+                    );
+                }
+                break;
+            default:
+                return;
+        }
+    } else {
+        switch ($response->status) {
+            case 'completed':
+                $transaction        = $response->transactions;
+                $payment_methodname = $response->payment_method;
+                if ($response->brq_relatedtransaction_partialpayment != null) {
+                    $transaction        = $response->brq_relatedtransaction_partialpayment;
+                    $payment_methodname = 'grouptransaction';
+                }
+
+                if ((int) $order_id > 0) {
+                    $row = $wpdb->get_row(
+                        "SELECT wc_orderid FROM {$wpdb->prefix}woocommerce_buckaroo_transactions WHERE wc_orderid = " . intval($order_id)
+                    );
+                    if (empty($row->wc_orderid)) {
+                        $wpdb->query(
+                            $wpdb->prepare(
+                                "
+                        INSERT INTO {$wpdb->prefix}woocommerce_buckaroo_transactions VALUES (" . intval(
+                                    $order_id
+                                ) . ", %s)",
+                                $transaction
+                            )
+                        );
+                    }
+                }
+                $clean_order_no = (int) str_replace('#', '', $order_id);
+                add_post_meta($clean_order_no, '_payment_method_transaction', $payment_methodname, true);
+
+                // Calc total received amount
+                $prefix     = "buckaroo_settlement_";
+                $settlement = $prefix . $response->payment;
+
+                $orderAmount            = (float) $order->get_total();
+                $paidAmount             = (float) $response->amount;
+                $alreadyPaidSettlements = 0;
+                $isNewPayment           = true;
+                if ($items = get_post_meta($order_id)) {
+                    foreach ($items as $key => $meta) {
+                        if (strstr($key, $prefix) !== false && strstr($key, $response->payment) === false) {
+                            $alreadyPaidSettlements += (float)$meta[0];
+                        }
+
+                        // check if push is a new payment
+                        if (strstr($key, $prefix) !== false && strstr($key, $response->payment) !== false) {
+                            $isNewPayment = false;
+                        }
+                    }
+                }
+
+                $totalPaid = $paidAmount + $alreadyPaidSettlements;
+
+                add_post_meta($order_id, $settlement, $paidAmount, true);
+
+                // order is completely paid
+                if ($totalPaid >= $orderAmount) {
+                    $order->payment_complete($transaction);
+                }
+
+                $message = 'Received Buckaroo payment push notification.<br>';
+                $message .= 'Paid amount: ' . wc_price($paidAmount);
+                $message .= '<br>Total amount paid (incl previous payments): ' . wc_price(($totalPaid));
+                $message .= '<br>Order total: ' . wc_price($orderAmount);
+                $message .= '<br>Open amount: ' . wc_price(($orderAmount - $totalPaid));
+
+                if ($paidAmount > 0 && $isNewPayment) {
+                    $order->add_order_note($message);
+                }
+
+                add_post_meta($order_id, '_pushallowed', 'ok', true);
+
+                break;
+            default:
+                Buckaroo_Logger::log('Update status 1. Order status: on-hold');
+                $order->update_status('on-hold', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
+                // Reduce stock levels
+                break;
+        }
+        // Remove cart
+        $woocommerce->cart->empty_cart();
+        if (isset($response->consumerMessage['HtmlText'])) {
+            $_SESSION['buckaroo_response'] = $response->consumerMessage['HtmlText'];
+        }
+        // Return thank you page redirect
+        if (!is_null($payment_method)) {
+            return array(
+                'result'   => 'success',
+                'redirect' => $payment_method->get_return_url($order),
+            );
+        }
+
+    } 
+
+}
+
+function fn_process_response_payperemail($payment_method, $response){
+    if ($payment_method->id == 'buckaroo_payperemail') {
+        Buckaroo_Logger::log(__METHOD__, "Process paypermail");
+        if (is_admin()) {
+            if ($response->hasSucceeded()) {
+                if (!isset($response->getResponse()->ConsumerMessage)) {
+                    $buckaroo_admin_notice = array(
+                        'type'    => 'success',
+                        'message' => 'Your paylink: <a target="_blank" href="' . $response->getPayLink() . '">' . $response->getPayLink() . '</a>',
+                    );
+                }
+            } else {
+                $parameterError = '';
+                if (isset($response->getResponse()->RequestErrors->ParameterError)) {
+                    $parameterErrorArray = $response->getResponse()->RequestErrors->ParameterError;
+                    if (is_array($parameterErrorArray)) {
+                        foreach ($parameterErrorArray as $key => $value) {
+                            $parameterError .= '<br/>' . $value->_;
+                        }
+                    }
+                }
+                $buckaroo_admin_notice = array(
+                    'type'    => 'error',
+                    'message' => $response->statusmessage . ' ' . $parameterError,
+                );
+            }
+             Buckaroo_Logger::log(__METHOD__."|10|", $parameterError);
+
+            set_transient(get_current_user_id() . 'buckarooAdminNotice', $buckaroo_admin_notice);
+            return true;
+        }
+    }
+}
+
+function addSepaDirectOrderNote($response, $order){
+    if ($response->payment_method == 'SepaDirectDebit') {
+        /* @var $response Response */
+        foreach ($response->getResponse()->Services->Service->ResponseParameter as $param) {
+            if ($param->Name == 'MandateReference') {
+                $order->add_order_note('MandateReference: ' . $param->_, 1);
+            }
+            if ($param->Name == 'MandateDate') {
+                $order->add_order_note('MandateDate: ' . $param->_, 1);
+            }
+        }
+    }
+}
+
+function fn_process_response_idin($response, $order_id = null){
+    if (!$order_id && ($response->payment_method == 'IDIN') && !$response->hasSucceeded()) {
+        Buckaroo_Logger::log(__METHOD__ . "|25|");
+        $message = '';
+        if (isset($response->getResponse()->Status->SubCode->_)) {
+            $message = $response->getResponse()->Status->SubCode->_;
+        }
+        Buckaroo_Logger::log(__METHOD__ . "|30|", $message);
+
+        return array(
+            'result'   => 'error',
+            'message' => $message
+        );
+    }else{
+        return false;
+    }
+}
+
+function fn_process_check_redirect_required($response, $mode = null, $payment_method = null, $order_id = null){
+    if ($response->isRedirectRequired()) {
+        if ($payment_method->id == 'buckaroo_payconiq' && $mode == 'response' && !empty($order_id)) {
+            $key           = $response->transactionId;
+            $invoiceNumber = $response->invoicenumber;
+            $amount        = $response->amount;
+            $currency      = get_woocommerce_currency();
+            return array(
+                'result'   => 'success',
+                'redirect' => home_url('/') . 'payconiqQrcode?' .
+                "transactionKey=" . $key .
+                "&invoicenumber=" . $invoiceNumber .
+                "&amount=" . $amount .
+                "&returnUrl=" . $payment_method->notify_url .
+                "&order_id=" . (int) $order_id .
+                "&currency=" . $currency,
+            );
+        } else {
+            return array(
+                'result'   => 'success',
+                'redirect' => $response->getRedirectUrl(),
+            );
         }
     }
     return false;

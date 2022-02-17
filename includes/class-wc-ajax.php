@@ -200,19 +200,24 @@ class BK_AJAX {
 
 		wc_maybe_define_constant( 'WOOCOMMERCE_CART', true );
 
-		$chosen_shipping_methods = WC()->session->get( 'chosen_shipping_methods' );
-		$posted_shipping_methods = isset( $_POST['shipping_method'] ) ? wc_clean( wp_unslash( $_POST['shipping_method'] ) ) : array();
-
-		if ( is_array( $posted_shipping_methods ) ) {
-			foreach ( $posted_shipping_methods as $i => $value ) {
-				$chosen_shipping_methods[ $i ] = $value;
-			}
-		}
-
-		WC()->session->set( 'chosen_shipping_methods', $chosen_shipping_methods );
+		self::setChosenShippingMethods();
 
 		self::get_cart_totals();
 	}
+
+	private static function setChosenShippingMethods()
+    {
+        $chosen_shipping_methods = WC()->session->get( 'chosen_shipping_methods' );
+        $posted_shipping_methods = isset( $_POST['shipping_method'] ) ? wc_clean( wp_unslash( $_POST['shipping_method'] ) ) : array();
+
+        if ( is_array( $posted_shipping_methods ) ) {
+            foreach ( $posted_shipping_methods as $i => $value ) {
+                $chosen_shipping_methods[ $i ] = $value;
+            }
+        }
+
+        WC()->session->set( 'chosen_shipping_methods', $chosen_shipping_methods );
+    }
 
 	/**
 	 * AJAX receive updated cart_totals div.
@@ -254,16 +259,7 @@ class BK_AJAX {
 
 		do_action( 'woocommerce_checkout_update_order_review', isset( $_POST['post_data'] ) ? wp_unslash( $_POST['post_data'] ) : '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
-		$chosen_shipping_methods = WC()->session->get( 'chosen_shipping_methods' );
-		$posted_shipping_methods = isset( $_POST['shipping_method'] ) ? wc_clean( wp_unslash( $_POST['shipping_method'] ) ) : array();
-
-		if ( is_array( $posted_shipping_methods ) ) {
-			foreach ( $posted_shipping_methods as $i => $value ) {
-				$chosen_shipping_methods[ $i ] = $value;
-			}
-		}
-
-		WC()->session->set( 'chosen_shipping_methods', $chosen_shipping_methods );
+        self::setChosenShippingMethods();
 		WC()->session->set( 'chosen_payment_method', empty( $_POST['payment_method'] ) ? '' : wc_clean( wp_unslash( $_POST['payment_method'] ) ) );
 		WC()->customer->set_props(
 			array(
@@ -952,12 +948,7 @@ class BK_AJAX {
 
 			$amount = isset( $_POST['amount'] ) ? wc_clean( wp_unslash( $_POST['amount'] ) ) : 0;
 
-			$calculate_tax_args = array(
-				'country'  => isset( $_POST['country'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['country'] ) ) ) : '',
-				'state'    => isset( $_POST['state'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['state'] ) ) ) : '',
-				'postcode' => isset( $_POST['postcode'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['postcode'] ) ) ) : '',
-				'city'     => isset( $_POST['city'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['city'] ) ) ) : '',
-			);
+			$calculate_tax_args = self::calculateTaxArgs();
 
 			if ( strstr( $amount, '%' ) ) {
 				$formatted_amount = $amount;
@@ -989,6 +980,16 @@ class BK_AJAX {
 		// wp_send_json_success must be outside the try block not to break phpunit tests.
 		wp_send_json_success( $response );
 	}
+
+	private static function calculateTaxArgs()
+    {
+        return array(
+            'country'  => isset( $_POST['country'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['country'] ) ) ) : '',
+            'state'    => isset( $_POST['state'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['state'] ) ) ) : '',
+            'postcode' => isset( $_POST['postcode'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['postcode'] ) ) ) : '',
+            'city'     => isset( $_POST['city'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['city'] ) ) ) : '',
+        );
+    }
 
 	/**
 	 * Add order shipping cost via ajax.
@@ -1096,12 +1097,7 @@ class BK_AJAX {
 		try {
 			$order_id           = isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
 			$order              = wc_get_order( $order_id );
-			$calculate_tax_args = array(
-				'country'  => isset( $_POST['country'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['country'] ) ) ) : '',
-				'state'    => isset( $_POST['state'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['state'] ) ) ) : '',
-				'postcode' => isset( $_POST['postcode'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['postcode'] ) ) ) : '',
-				'city'     => isset( $_POST['city'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['city'] ) ) ) : '',
-			);
+            $calculate_tax_args = self::calculateTaxArgs();
 
 			if ( ! $order ) {
 				throw new Exception( __( 'Invalid order', 'woocommerce' ) );
@@ -1155,12 +1151,7 @@ class BK_AJAX {
 		try {
 			$order_id           = isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
 			$order              = wc_get_order( $order_id );
-			$calculate_tax_args = array(
-				'country'  => isset( $_POST['country'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['country'] ) ) ) : '',
-				'state'    => isset( $_POST['state'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['state'] ) ) ) : '',
-				'postcode' => isset( $_POST['postcode'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['postcode'] ) ) ) : '',
-				'city'     => isset( $_POST['city'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['city'] ) ) ) : '',
-			);
+            $calculate_tax_args = self::calculateTaxArgs();
 
 			if ( ! $order ) {
 				throw new Exception( __( 'Invalid order', 'woocommerce' ) );
@@ -1213,12 +1204,7 @@ class BK_AJAX {
 
 			$order_item_ids     = wp_unslash( $_POST['order_item_ids'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$items              = ( ! empty( $_POST['items'] ) ) ? wp_unslash( $_POST['items'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$calculate_tax_args = array(
-				'country'  => isset( $_POST['country'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['country'] ) ) ) : '',
-				'state'    => isset( $_POST['state'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['state'] ) ) ) : '',
-				'postcode' => isset( $_POST['postcode'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['postcode'] ) ) ) : '',
-				'city'     => isset( $_POST['city'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['city'] ) ) ) : '',
-			);
+            $calculate_tax_args = self::calculateTaxArgs();
 
 			if ( ! is_array( $order_item_ids ) && is_numeric( $order_item_ids ) ) {
 				$order_item_ids = array( $order_item_ids );
@@ -1328,12 +1314,7 @@ class BK_AJAX {
 		}
 
 		$order_id           = absint( $_POST['order_id'] );
-		$calculate_tax_args = array(
-			'country'  => isset( $_POST['country'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['country'] ) ) ) : '',
-			'state'    => isset( $_POST['state'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['state'] ) ) ) : '',
-			'postcode' => isset( $_POST['postcode'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['postcode'] ) ) ) : '',
-			'city'     => isset( $_POST['city'] ) ? wc_strtoupper( wc_clean( wp_unslash( $_POST['city'] ) ) ) : '',
-		);
+        $calculate_tax_args = self::calculateTaxArgs();
 
 		// Parse the jQuery serialized items.
 		$items = array();
@@ -2403,7 +2384,7 @@ class BK_AJAX {
 
 			if ( '%' === substr( $value, -1 ) ) {
 				$percent      = wc_format_decimal( substr( $value, 0, -1 ) );
-				$field_value += round( ( $field_value / 100 ) * $percent, wc_get_price_decimals() ) * "{$operator}1";
+				$field_value += roundAmount( ( $field_value / 100 ) * $percent ) * "{$operator}1";
 			} else {
 				$field_value += $value * "{$operator}1";
 			}

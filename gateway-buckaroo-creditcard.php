@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once dirname(__FILE__) . '/library/api/paymentmethods/creditcard/creditcard.php';
 
 /**
@@ -7,58 +7,46 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/creditcard/creditc
  */
 class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooCreditCard::class;
+    public const SHOW_IN_CHECKOUT_FIELD = 'show_in_checkout';
     public $creditCardProvider = [];
     public function __construct()
     {
-        $woocommerce                  = getWooCommerceObject();
-        $this->id                     = 'buckaroo_creditcard';
-        $this->title                  = 'Creditcards';
-        $this->icon = apply_filters('woocommerce_buckaroo_creditcard_icon', BuckarooConfig::getIconPath('24x24/cc.gif', 'new/CreditCards.png'));
+        $this->setParameters();
+        $this->setCreditcardIcon();
         $this->has_fields             = true;
-        $this->method_title           = "Buckaroo Creditcards";
-        $this->description            =  sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
-        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->currency               = get_woocommerce_currency();
-        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode                   = BuckarooConfig::getMode();
-        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture                = BuckarooConfig::get('CULTURE');
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
 
         parent::__construct();
 
-        if (isset($this->settings['AllowedProvider'])) {
-            $this->creditCardProvider = $this->settings['AllowedProvider'];
-        } else {
-            $this->creditCardProvider = [];
-        }
-
-        $this->creditcardmethod       = (isset($this->settings['creditcardmethod']) ? $this->settings['creditcardmethod'] : "redirect");
-        $this->creditcardpayauthorize = (isset($this->settings['creditcardpayauthorize']) ? $this->settings['creditcardpayauthorize'] : "Pay");
-
-        $this->supports = array(
-            'products',
-            'refunds',
-        );
-        $this->notify_url = home_url('/');
-
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-            add_action('woocommerce_api_wc_gateway_buckaroo_creditcard', array($this, 'response_handler'));
-            $this->notify_url = add_query_arg('wc-api', 'WC_Gateway_Buckaroo_Creditcard', $this->notify_url);
-        }
+        $this->addRefundSupport();
     }
-
     /**
-     * Can the order be refunded
-     * @param object $order WC_Order
-     * @return object & string
+     * Set gateway parameters
+     *
+     * @return void
      */
-    public function can_refund_order($order)
+    public function setParameters()
     {
-        return $order && $order->get_transaction_id();
+        $this->id                     = 'buckaroo_creditcard';
+        $this->title                  = 'Creditcards';
+        $this->method_title           = "Buckaroo Creditcards";
+    }
+    /**
+     * Set credicard icon
+     *
+     * @return void
+     */
+    public function setCreditcardIcon()
+    {
+        $this->setIcon('24x24/cc.gif', 'new/CreditCards.png');
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
+        $this->creditCardProvider     = $this->get_option('AllowedProvider', []);
+        $this->creditcardmethod       = $this->get_option('creditcardmethod', "redirect");
+        $this->creditcardpayauthorize = $this->get_option('creditcardpayauthorize', "Pay");
     }
 
     /**
@@ -168,9 +156,9 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
         }
         update_post_meta($order_id, '_pushallowed', 'busy');
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-
-        $orderRefundData = [];
+        
+        /** @var BuckarooCreditCard */
+        $creditcard = $this->createCreditRequest($order, $amount, $reason);
 
         if ($line_item_qtys === null) {
             $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
@@ -184,37 +172,30 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
         }
 
-        $creditcard               = new BuckarooCreditCard();
-        $creditcard->amountDedit  = 0;
-        $creditcard->amountCredit = $amount;
-        $creditcard->currency     = $order->get_currency();
-        $creditcard->description  = $reason;
-        $creditcard->invoiceId    = $order->get_order_number();
-        $creditcard->orderId      = $order_id;
 
         if ($OriginalTransactionKey !== null) {
             $creditcard->OriginalTransactionKey = $OriginalTransactionKey;
-        } else {
-            $creditcard->OriginalTransactionKey = $order->get_transaction_id();
         }
-        $creditcard->returnUrl = $this->notify_url;
-        $clean_order_no        = (int) str_replace('#', '', $order->get_order_number());
-        $creditcard->setType(get_post_meta($clean_order_no, '_payment_method_transaction', true));
-        $payment_type        = str_replace('buckaroo_', '', strtolower($this->id));
-        $creditcard->channel = BuckarooConfig::getChannel($payment_type, 'process_refund');
-        $response            = null;
 
-        $orderDataForChecking = $creditcard->getOrderRefundData();
+        $creditcard->setType(
+            get_post_meta(
+                (int) str_replace('#', '', $order->get_order_number()),
+                '_payment_method_transaction',
+                true
+            )
+        );
 
         try {
-            $creditcard->checkRefundData($orderDataForChecking);
+            $creditcard->checkRefundData(
+                $creditcard->getOrderRefundData()
+            );
             $response = $creditcard->Refund();
         } catch (exception $e) {
             update_post_meta($order_id, '_pushallowed', 'ok');
             return new WP_Error('refund_error', __($e->getMessage()));
         }
 
-        $final_response = fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
+        $final_response = fn_buckaroo_process_refund($response ?? null, $order, $amount, $this->currency);
 
         if ($final_response === true) {
             // Store the transaction_key together with refunded products, we need this for later refunding actions
@@ -232,24 +213,23 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
      */
     public function validate_fields()
     {
-        if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
-        }
-        if (empty($_POST['buckaroo-creditcard-issuer'])) {
+        parent::validate_fields();
+        
+        if (empty($_POST[$this->id.'-creditcard-issuer'])) {
             wc_add_notice(__("Select a credit card.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
         if ($this->get_option('creditcardmethod') == 'encrypt') {
-            if (empty($_POST['buckaroo-creditcard-cardyear'])) {
+            if (empty($_POST[$this->id.'-cardyear'])) {
                 wc_add_notice(__("Enter expiration year field", 'wc-buckaroo-bpe-gateway'), 'error');
                 return;
             }
             $fullYear = date('Y');
             $year     = date('y');
-            if ((int) $_POST['buckaroo-creditcard-cardyear'] < (int) $fullYear && strlen($_POST['buckaroo-creditcard-cardyear']) === 4) {
+            if ((int) $_POST[$this->id.'-cardyear'] < (int) $fullYear && strlen($_POST[$this->id.'-cardyear']) === 4) {
                 wc_add_notice(__("Enter valid expiration year", 'wc-buckaroo-bpe-gateway'), 'error');
                 return;
             }
-            if ((int) $_POST['buckaroo-creditcard-cardyear'] < (int) $year && strlen($_POST['buckaroo-creditcard-cardyear']) !== 4) {
+            if ((int) $_POST[$this->id.'-cardyear'] < (int) $year && strlen($_POST[$this->id.'-cardyear']) !== 4) {
                 wc_add_notice(__("Enter valid expiration year", 'wc-buckaroo-bpe-gateway'), 'error');
                 return;
             }
@@ -266,60 +246,47 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        $woocommerce            = getWooCommerceObject();
+        $this->setOrderCapture(
+            $order_id,
+            'Creditcard',
+            $_POST[$this->id."-creditcard-issuer"]
+        );
+        $order = getWCOrder($order_id);
+        /** @var BuckarooCreditCard */
+        $creditcard = $this->createDebitRequest($order);
+
         $creditCardMethod       = isset($this->creditcardmethod) ? $this->creditcardmethod : 'redirect';
         $creditCardPayAuthorize = isset($this->creditcardpayauthorize) ? $this->creditcardpayauthorize : 'pay';
 
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = getWCOrder($order_id);
-        $creditcard           = new BuckarooCreditCard();
-
-        if (method_exists($order, 'get_order_total')) {
-            $creditcard->amountDedit = $order->get_order_total();
-        } else {
-            $creditcard->amountDedit = $order->get_total();
-        }
-
-        $payment_type            = str_replace('buckaroo_', '', strtolower($this->id));
-        $creditcard->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $creditcard->currency    = $this->currency;
-        $creditcard->description = $this->transactiondescription;
-        $creditcard->invoiceId   = (string) getUniqInvoiceId($order->get_order_number());
-        $creditcard->orderId     = (string) $order_id;
-        $creditcard->returnUrl   = $this->notify_url;
-
         $customVars = array();
 
-        if (isset($_POST["buckaroo-encrypted-data"])) {
-            $customVars['CreditCardDataEncrypted'] = $_POST["buckaroo-encrypted-data"];
+        if (isset($_POST[$this->id."-encrypted-data"])) {
+            $customVars['CreditCardDataEncrypted'] = $_POST[$this->id."-encrypted-data"];
         } else {
             $customVars['CreditCardDataEncrypted'] = null;
         }
 
-        if (isset($_POST["buckaroo-creditcard-issuer"])) {
-            $customVars['CreditCardIssuer'] = $_POST["buckaroo-creditcard-issuer"];
+        if (isset($_POST[$this->id."-creditcard-issuer"])) {
+            $customVars['CreditCardIssuer'] = $_POST[$this->id."-creditcard-issuer"];
         } else {
             $customVars['CreditCardIssuer'] = null;
         }
-        // Save this meta that is used later for the Capture call
-        update_post_meta($order->get_id(), '_wc_order_payment_issuer', $_POST["buckaroo-creditcard-issuer"]);
-        update_post_meta($order->get_id(), '_wc_order_selected_payment_method', 'Creditcard');
 
         if ($creditCardMethod == 'encrypt' && $this->isSecure()) {
             // In this case we only send the encrypted card data.
 
             // If not then send an error.
-            if (empty($_POST["buckaroo-encrypted-data"])) {
+            if (empty($_POST[$this->id."-encrypted-data"])) {
                 wc_add_notice(__("The credit card data is incorrect, please check the values", 'wc-buckaroo-bpe-gateway'), 'error');
                 return;
             }
 
-            if (empty($_POST["buckaroo-creditcard-issuer"])) {
+            if (empty($_POST[$this->id."-creditcard-issuer"])) {
                 wc_add_notice(__("You havent selected your credit card issuer", 'wc-buckaroo-bpe-gateway'), 'error');
                 return;
             }
 
-            $creditcard->CreditCardDataEncrypted = $_POST["buckaroo-encrypted-data"];
+            $creditcard->CreditCardDataEncrypted = $_POST[$this->id."-encrypted-data"];
 
             if ($creditCardPayAuthorize == 'pay') {
                 $response = $creditcard->PayEncrypt($customVars);
@@ -333,20 +300,8 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             return fn_buckaroo_process_response($this, $response);
         }
 
-        if ($this->usenotification == 'TRUE') {
-            $creditcard->usenotification  = 1;
-            $customVars['Customergender'] = 0;
-
-            $get_billing_first_name          = getWCOrderDetails($order_id, 'billing_first_name');
-            $get_billing_last_name           = getWCOrderDetails($order_id, 'billing_last_name');
-            $get_billing_email               = getWCOrderDetails($order_id, 'billing_email');
-            $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-            $customVars['CustomerLastName']  = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-            $customVars['Customeremail']     = !empty($get_billing_email) ? $get_billing_email : '';
-
-            $customVars['Notificationtype']  = 'PaymentComplete';
-            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->notificationdelay . ' day'))));
-        }
+    
+        
         if ($creditCardPayAuthorize == 'pay') {
             $response = $creditcard->Pay($customVars);
         } else if ($creditCardPayAuthorize == 'authorize') {
@@ -362,24 +317,15 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     public function process_capture()
     {
         $order_id             = $_POST['order_id'];
-        $woocommerce          = getWooCommerceObject();
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $creditcard           = new BuckarooCreditCard();
-
+        
         $order = getWCOrder($order_id);
-
-        $customVars['CreditCardIssuer'] = get_post_meta($order->get_id(), '_wc_order_payment_issuer', true);
-
+        /** @var BuckarooCreditCard */
+        $creditcard = $this->createDebitRequest($order);
         $creditcard->amountDedit            = str_replace(',', '.', $_POST['capture_amount']);
-        $payment_type                       = str_replace('buckaroo_', '', strtolower($this->id));
         $creditcard->OriginalTransactionKey = $order->get_transaction_id();
-        $creditcard->channel                = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $creditcard->currency               = $this->currency;
-        $creditcard->description            = $this->transactiondescription;
-        $creditcard->invoiceId              = (string) getUniqInvoiceId($order->get_order_number());
-        $creditcard->orderId                = (string) $order_id;
-        $creditcard->returnUrl              = $this->notify_url;
-
+        $creditcard->channel                = BuckarooConfig::CHANNEL_BACKOFFICE;
+        
+        $customVars['CreditCardIssuer'] = get_post_meta($order->get_id(), '_wc_order_payment_issuer', true);
         $response = $creditcard->Capture($customVars);
 
         // Store the transaction_key together with captured amount, we need this for refunding
@@ -389,154 +335,22 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         return fn_buckaroo_process_capture($response, $order, $this->currency);
 
     }
-
-    /**
-     * Payment form on checkout page
-     */
-    public function payment_fields()
-    {
-        $creditCardMethod       = isset($this->creditcardmethod) ? $this->creditcardmethod : 'redirect';
-        $creditCardPayAuthorize = isset($this->creditcardpayauthorize) ? $this->creditcardpayauthorize : 'pay';
-
-        $customerName = '';
-        $customerId   = get_current_user_id();
-        if (!empty($customerId)) {
-            $customerName = get_user_meta($customerId, 'billing_first_name', true) . ' ' . get_user_meta($customerId, 'billing_last_name', true);
-        }
-
-        $post_data = array();
-        if (!empty($_POST["post_data"])) {
-            parse_str($_POST["post_data"], $post_data);
-        }
-
-        ?>
-
-        <?php if ($this->mode == 'test'): ?><p><?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway');?></p><?php endif;?>
-        <?php if (!empty($this->description)): ?>
-            <p>
-                <?php echo wpautop(wptexturize($this->description)); ?>
-            </p>
-        <?php endif;?>
-
-                <fieldset>
-                <div class="method--bankdata">
-
-                <p class="form-row form-row-wide">
-                <select name='buckaroo-creditcard-issuer' id='buckaroo-creditcard-issuer'>
-                    <?php $first = true;?>
-                    <option value='0'  style='color: grey !important'>
-                        <?php echo __('Select your credit card:', 'wc-buckaroo-bpe-gateway') ?>
-                    </option>
-                    <?php foreach ($this::getCardsList() as $issuer): ?>
-                        <div>
-                            <option value='<?php echo $issuer['servicename']; ?>'>
-                                <?php echo _e($issuer['displayname'], 'wc-buckaroo-bpe-gateway') ?>
-                            </option>
-                        </div>
-                        <?php $first = false;?>
-                    <?php endforeach?>
-                </select>
-                </p>
-
-                <?php if ($creditCardMethod == 'encrypt' && $this->isSecure()): ?>
-
-                    <p class="form-row">
-                        <label class="buckaroo-label" for="buckaroo-creditcard-cardname">
-                            <?php echo _e('Cardholder Name:', 'wc-buckaroo-bpe-gateway') ?>
-                            <span class="required">*</span>
-                        </label>
-                        <input type="text" name="buckaroo-creditcard-cardname" id="buckaroo-creditcard-cardname"
-                               placeholder="<?php echo __('Cardholder Name:', 'wc-buckaroo-bpe-gateway') ?>"
-                               class="cardHolderName input-text" maxlength="250" autocomplete="off" value="<?php echo $customerName ?? '' ?>">
-                    </p>
-
-                    <p class="form-row">
-                        <label class="buckaroo-label" for="buckaroo-creditcard-cardnumber">
-                            <?php echo _e('Card Number:', 'wc-buckaroo-bpe-gateway') ?>
-                            <span class="required">*</span>
-                        </label>
-                        <input type="text" name="buckaroo-creditcard-cardnumber" id="buckaroo-creditcard-cardnumber"
-                               placeholder="<?php echo __('Card Number:', 'wc-buckaroo-bpe-gateway') ?>"
-                               class="cardNumber input-text" maxlength="250" autocomplete="off" value="">
-                    </p>
-
-                    <p class="form-row">
-                        <label class="buckaroo-label" for="buckaroo-creditcard-cardmonth">
-                            <?php echo _e('Expiration Month:', 'wc-buckaroo-bpe-gateway') ?>
-                            <span class="required">*</span>
-                        </label>
-                        <input type="text" maxlength="2" name="buckaroo-creditcard-cardmonth"
-                               id="buckaroo-creditcard-cardmonth"
-                               placeholder="<?php echo __('Expiration Month:', 'wc-buckaroo-bpe-gateway') ?>"
-                               class="expirationMonth input-text" maxlength="250" autocomplete="off" value="">
-                    </p>
-
-                    <p class="form-row">
-                        <label class="buckaroo-label" for="buckaroo-creditcard-cardyear">
-                            <?php echo _e('Expiration Year:', 'wc-buckaroo-bpe-gateway') ?>
-                            <span class="required">*</span>
-                        </label>
-                        <input type="text" maxlength="4" name="buckaroo-creditcard-cardyear"
-                               id="buckaroo-creditcard-cardyear"
-                               placeholder="<?php echo __('Expiration Year:', 'wc-buckaroo-bpe-gateway') ?>"
-                               class="expirationYear input-text" maxlength="250" autocomplete="off" value="">
-                    </p>
-
-                    <p class="form-row">
-                        <label class="buckaroo-label" for="buckaroo-creditcard-cardcvc">
-                            <?php echo _e('CVC:', 'wc-buckaroo-bpe-gateway') ?>
-                            <span class="required">*</span>
-                        </label>
-                        <input type="password" maxlength="4" name="buckaroo-creditcard-cardcvc"
-                               id="buckaroo-creditcard-cardcvc"
-                               placeholder="<?php echo __('CVC:', 'wc-buckaroo-bpe-gateway') ?>" class="cvc input-text"
-                               maxlength="250" autocomplete="off" value="">
-                    </p>
-
-                <p class="form-row form-row-wide validate-required"></p>
-                <p class="required" style="float:right;">* <?php echo _e('Obligatory fields', 'wc-buckaroo-bpe-gateway') ?></p>
-
-                <input type="hidden" id="buckaroo-encrypted-data" name="buckaroo-encrypted-data" class="encryptedCardData input-text">
-            <?php endif;?>
-
-                </div>
-                </fieldset>
-
-        <?php
-}
-
-    /**
-     * Check response data
-     *
-     * @access public
-     */
-    public function response_handler()
-    {
-        $woocommerce          = getWooCommerceObject();
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $result               = fn_buckaroo_process_response($this);
-        if (!is_null($result)) {
-            wp_safe_redirect($result['redirect']);
-        } else {
-            wp_safe_redirect($this->get_failed_url());
-        }
-
-        exit;
-    }
-
     public function getCardsList()
     {
         $cards     = array();
-        $cardsDesc = array("amex" => "American Express",
-            "cartebancaire"           => "Carte Bancaire",
-            "cartebleuevisa"          => "Carte Bleue",
-            "dankort"                 => "Dankort",
-            "mastercard"              => "Mastercard",
-            "postepay"                => "PostePay",
-            "visa"                    => "Visa",
-            "visaelectron"            => "Visa Electron",
-            "vpay"                    => "Vpay",
-            "maestro"                 => "Maestro");
+        $cardsDesc = array(
+            "amex"           => "American Express",
+            "cartebancaire"  => "Carte Bancaire",
+            "cartebleuevisa" => "Carte Bleue",
+            "dankort"        => "Dankort",
+            "maestro"        => "Maestro",
+            "mastercard"     => "Mastercard",
+            "nexi"           => "Nexi",
+            "postepay"       => "PostePay",
+            "visa"           => "Visa",
+            "visaelectron"   => "Visa Electron",
+            "vpay"           => "Vpay"
+        );
         if (is_array($this->creditCardProvider)) {
             foreach ($this->creditCardProvider as $value) {
                 $cards[] = array("servicename" => $value, "displayname" => $cardsDesc[$value]);
@@ -555,119 +369,89 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 
         parent::init_form_fields();
 
-        add_filter('woocommerce_settings_api_form_fields_' . $this->id, array($this, 'enqueue_script_certificate'));
-        add_filter('woocommerce_settings_api_form_fields_' . $this->id, array($this, 'enqueue_script_hide_local'));
-
-        //Start Dynamic Rendering of Hidden Fields
-        $options      = get_option("woocommerce_" . $this->id . "_settings", null);
-        $ccontent_arr = array();
-        $keybase      = 'certificatecontents';
-        $keycount     = 1;
-        if (!empty($options["$keybase$keycount"])) {
-            while (!empty($options["$keybase$keycount"])) {
-                $ccontent_arr[] = "$keybase$keycount";
-                $keycount++;
-            }
-        }
-        $while_key                 = 1;
-        $selectcertificate_options = array('none' => 'None selected');
-        while ($while_key != $keycount) {
-            $this->form_fields["certificatecontents$while_key"] = array(
-                'title'       => '',
-                'type'        => 'hidden',
-                'description' => '',
-                'default'     => '',
-            );
-            $this->form_fields["certificateuploadtime$while_key"] = array(
-                'title'       => '',
-                'type'        => 'hidden',
-                'description' => '',
-                'default'     => '');
-            $this->form_fields["certificatename$while_key"] = array(
-                'title'       => '',
-                'type'        => 'hidden',
-                'description' => '',
-                'default'     => '');
-            $selectcertificate_options["$while_key"] = $options["certificatename$while_key"];
-
-            $while_key++;
-        }
-        $final_ccontent                                          = $keycount;
-        $this->form_fields["certificatecontents$final_ccontent"] = array(
-            'title'       => '',
-            'type'        => 'hidden',
-            'description' => '',
-            'default'     => '');
-        $this->form_fields["certificateuploadtime$final_ccontent"] = array(
-            'title'       => '',
-            'type'        => 'hidden',
-            'description' => '',
-            'default'     => '');
-        $this->form_fields["certificatename$final_ccontent"] = array(
-            'title'       => '',
-            'type'        => 'hidden',
-            'description' => '',
-            'default'     => '');
-
-        $this->form_fields['selectcertificate'] = array(
-            'title'       => __('Select Certificate', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('Select your certificate by name.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => $selectcertificate_options,
-            'default'     => 'none',
-        );
-        $this->form_fields['choosecertificate'] = array(
-            'title'       => __('', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'file',
-            'description' => __(''),
-            'default'     => '');
-
         $this->form_fields['creditcardmethod'] = array(
             'title'       => __('Credit card method', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Redirect user to Buckaroo or enter creditcard information inline in the checkout. SSL is required to enable inline creditcard information', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('redirect' => 'Redirect', 'encrypt' => 'Inline'),
-            'default'     => 'encrypt');
-
+            'default'     => 'encrypt',
+            'desc_tip'    =>__('Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.', 'wc-buckaroo-bpe-gateway'),
+        
+        );
         $this->form_fields['creditcardpayauthorize'] = array(
             'title'       => __('Credit card Pay or Capture', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('pay' => 'Pay', 'authorize' => 'Authorize'),
             'default'     => 'pay');
+            $this->form_fields['AllowedProvider'] = array(
+                'title'       => __('Allowed provider', 'wc-buckaroo-bpe-gateway'),
+                'type'        => 'multiselect',
+                'options'     => array(
+                    'amex'           => 'American Express',
+                    'cartebancaire'  => 'Carte Bancaire',
+                    'cartebleuevisa' => 'Carte Bleue',
+                    'dankort'        => 'Dankort',
+                    'maestro'        => 'Maestro',
+                    'mastercard'     => 'Mastercard',
+                    'nexi'           => 'Nexi',
+                    'postepay'       => 'PostePay',
+                    'visa'           => 'Visa',
+                    'visaelectron'   => 'Visa Electron',
+                    'vpay'           => 'Vpay'
+                ),
+                'description' => __('select which Creditecard providers  will be appear to customer', 'wc-buckaroo-bpe-gateway'),
+                'default'     => array(
+                    'amex',
+                    'cartebancaire',
+                    'cartebleuevisa',
+                    'dankort',
+                    'mastercard',
+                    'maestro',
+                    'nexi',
+                    'postepay',
+                    'visa',
+                    'visaelectron',
+                    'vpay'
+                ),
+            );
+            $this->form_fields[self::SHOW_IN_CHECKOUT_FIELD] = array(
+                'title'       => __('Show separate in checkout', 'wc-buckaroo-bpe-gateway'),
+                'type'        => 'multiselect',
+                'options'     => array(
+                    ''               => __('None', 'wc-buckaroo-bpe-gateway'),
+                    'amex'           => 'American Express',
+                    'cartebancaire'  => 'Carte Bancaire',
+                    'cartebleuevisa' => 'Carte Bleue',
+                    'dankort'        => 'Dankort',
+                    'maestro'        => 'Maestro',
+                    'mastercard'     => 'Mastercard',
+                    'nexi'           => 'Nexi',
+                    'postepay'       => 'PostePay',
+                    'visa'           => 'Visa',
+                    'visaelectron'   => 'Visa Electron',
+                    'vpay'           => 'Vpay'
+                ),
+                'description' => __('Select which Creditecard providers will be shown separate in checkout', 'wc-buckaroo-bpe-gateway'),
+                'default'     => array(),
+            );
 
-        $this->form_fields['usenotification'] = array(
-            'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
-            'default'     => 'FALSE');
+    }
+    /** @inheritDoc */
+    public function process_admin_options()
+    {
+        parent::process_admin_options();
+        $this->after_admin_options_update();
+    }
 
-        $this->form_fields['notificationdelay'] = array(
-            'title'       => __('Notification delay', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'text',
-            'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '0');
-
-        $this->form_fields['AllowedProvider'] = array(
-            'title'       => __('Allowed provider', 'Allowed provider'),
-            'type'        => 'multiselect',
-            'options'     => array(
-                'amex'           => 'American Express',
-                'cartebancaire'  => 'Carte Bancaire',
-                'cartebleuevisa' => 'Carte Bleue',
-                'dankort'        => 'Dankort',
-                'mastercard'     => 'Mastercard',
-                'postepay'       => 'PostePay',
-                'visa'           => 'Visa',
-                'visaelectron'   => 'Visa Electron',
-                'vpay'           => 'Vpay',
-                'maestro'        => "Maestro",
-            ),
-            'description' => __('select which Creditecard providers  will be appear to customer', 'wc-buckaroo-bpe-gateway'),
-            'default'     => array('amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard', 'postepay', 'visa', 'visaelectron', 'vpay', 'maestro'),
-        );
-
+    /**
+     * Do code after admin options update
+     *
+     * @return void
+     */
+    public function after_admin_options_update()
+    {
+        set_transient('buckaroo_credicard_updated', true);
     }
 
     /**
@@ -678,6 +462,27 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         return
             (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
             || $_SERVER['SERVER_PORT'] == 443;
+    }
+    /**
+     * Save only creditcards that are allowed
+     *
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    public function validate_show_in_checkout_field($key, $value)
+    {
+        $allowed = $this->settings['AllowedProvider'];
+        if(is_array($value)) {
+            return array_filter(
+                $value,
+                function ($provider) use ($allowed) {
+                    return in_array($provider, $allowed);
+                }
+            );
+        }
+        return $value;
     }
 
 }

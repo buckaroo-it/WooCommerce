@@ -1,5 +1,5 @@
 <?php
-require_once 'library/include.php';
+
 require_once dirname(__FILE__) . '/library/api/paymentmethods/klarna/klarna.php';
 
 /**
@@ -7,64 +7,35 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/klarna/klarna.php'
  */
 class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 {
+    const PAYMENT_CLASS = BuckarooKlarna::class;
     protected $type;
     protected $currency;
     protected $klarnaPaymentFlowId = '';
-    protected $klarnaSelector      = '';
 
     public function __construct()
     {
-        $woocommerce      = getWooCommerceObject();
-        $this->icon = apply_filters('woocommerce_buckaroo_klarnapay_icon', BuckarooConfig::getIconPath('24x24/klarna.svg', 'new/Klarna.png'));
         $this->has_fields = true;
-
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $this->currency       = get_woocommerce_currency();
-
-        $this->transactiondescription = BuckarooConfig::get('BUCKAROO_TRANSDESC');
-        $this->secretkey              = BuckarooConfig::get('BUCKAROO_SECRET_KEY');
-        $this->mode                   = BuckarooConfig::getMode();
-        $this->thumbprint             = BuckarooConfig::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $this->culture                = BuckarooConfig::get('CULTURE');
-        $this->usenotification        = BuckarooConfig::get('BUCKAROO_USE_NOTIFICATION');
-        $this->notificationdelay      = BuckarooConfig::get('BUCKAROO_NOTIFICATION_DELAY');
-
-        $country = null;
-        if (!empty($woocommerce->customer)) {
-            $country = get_user_meta($woocommerce->customer->get_id(), 'shipping_country', true);
-        }
-
-        $this->country = $country;
-        parent::__construct();
-
-        $this->supports = array(
-            'products',
-            'refunds',
-        );
-
         $this->type       = 'klarna';
-        $this->vattype    = (isset($this->settings['vattype']) ? $this->settings['vattype'] : null);
-        $this->notify_url = home_url('/');
-    }
+        $this->setIcon('24x24/klarna.svg', 'new/Klarna.png');
+        $this->setCountry();
 
+        parent::__construct();
+        $this->addRefundSupport();
+    }
+    /**  @inheritDoc */
+    protected function setProperties()
+    {
+        parent::setProperties();
+        $this->vattype = $this->get_option('vattype');
+    }
     public function getKlarnaSelector()
     {
-        return $this->klarnaSelector;
+        return str_replace("_", "-", $this->id);
     }
 
     public function getKlarnaPaymentFlow()
     {
         return $this->klarnaPaymentFlowId;
-    }
-    /**
-     * Can the order be refunded
-     * @access public
-     * @param object $order WC_Order
-     * @return object & string
-     */
-    public function can_refund_order($order)
-    {
-        return $order && $order->get_transaction_id();
     }
 
     /**
@@ -76,37 +47,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
      */
     public function process_refund($order_id, $amount = null, $reason = '')
     {
-        $order = wc_get_order($order_id);
-        if (!$this->can_refund_order($order)) {
-            return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
-        }
-        update_post_meta($order_id, '_pushallowed', 'busy');
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $order                = wc_get_order($order_id);
-
-        $klarna                         = new BuckarooKlarna();
-        $klarna->amountDedit            = 0;
-        $klarna->amountCredit           = $amount;
-        $klarna->currency               = $this->currency;
-        $klarna->description            = $reason;
-        $klarna->invoiceId              = $order->get_order_number();
-        $klarna->orderId                = $order_id;
-        $klarna->OriginalTransactionKey = $order->get_transaction_id();
-        $klarna->returnUrl              = $this->notify_url;
-        $payment_type                   = str_replace('buckaroo_', '', strtolower($this->id));
-        $klarna->channel                = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $response                       = null;
-
-        $orderDataForChecking = $klarna->getOrderRefundData();
-
-        try {
-            $klarna->checkRefundData($orderDataForChecking);
-            $response = $klarna->Refund();
-        } catch (exception $e) {
-            update_post_meta($order_id, '_pushallowed', 'ok');
-            return new WP_Error('refund_error', __($e->getMessage()));
-        }
-        return fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
+        return $this->processDefaultRefund($order_id, $amount, $reason);
     }
 
     /**
@@ -142,36 +83,16 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        // Save this meta that is used later for the Capture call
-        update_post_meta($order_id, '_wc_order_selected_payment_method', 'Klarna');
-        update_post_meta($order_id, '_wc_order_payment_issuer', $this->type);
+        $this->setOrderCapture($order_id, 'Klarna');
 
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        $order = getWCOrder($order_id);
+        /** @var BuckarooKlarna */
+        $klarna = $this->createDebitRequest($order);
+        $klarna->invoiceId = (string)getUniqInvoiceId(
+            preg_replace('/\./', '-', $order->get_order_number())
+        );
 
-        $order  = new WC_Order($order_id);
-        $klarna = new BuckarooKlarna($this->type);
-
-        if (method_exists($order, 'get_order_total')) {
-            $klarna->amountDedit = $order->get_order_total();
-        } else {
-            $klarna->amountDedit = $order->get_total();
-        }
-        $payment_type = str_replace('buckaroo_', '', strtolower($this->id));
-
-        $klarna->channel     = BuckarooConfig::getChannel($payment_type, __FUNCTION__);
-        $klarna->currency    = $this->currency;
-        $klarna->description = $this->transactiondescription;
-        $klarna->invoiceId   = getUniqInvoiceId(preg_replace('/\./', '-', $order->get_order_number()), $this->mode);
-
-        $klarna->orderId = !empty($order_sequential_id) ? $order_sequential_id : (string) $order_id;
-
-        $klarna->BillingGender = $_POST[$this->klarnaSelector . '-gender'] ?? 'Unknown';
-
-        $get_billing_first_name = getWCOrderDetails($order_id, "billing_first_name");
-        $get_billing_last_name  = getWCOrderDetails($order_id, "billing_last_name");
-
-        $klarna->BillingFirstName = $get_billing_first_name;
-        $klarna->BillingLastName  = $get_billing_last_name;
+      
 
         $shippingCosts    = $order->get_total_shipping();
         $shippingCostsTax = $order->get_shipping_tax();
@@ -182,408 +103,95 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
             $klarna->ShippingCostsTax = number_format(($shippingCostsTax * 100) / $shippingCosts);
         }
 
-        $get_billing_address_1 = getWCOrderDetails($order_id, 'billing_address_1');
-        $get_billing_address_2 = getWCOrderDetails($order_id, 'billing_address_2');
-
-        $billingCompany = getWCOrderDetails($order_id, 'billing_company');
-        $klarna->setBillingCategory($billingCompany);
-        $klarna->setShippingCategory($billingCompany);
-
-        $address_components               = fn_buckaroo_get_address_components($get_billing_address_1 . " " . $get_billing_address_2);
-        $klarna->BillingStreet            = $address_components['street'];
-        $klarna->BillingHouseNumber       = $address_components['house_number'];
-        $klarna->BillingHouseNumberSuffix = $address_components['number_addition'] ?? null;
-        $klarna->BillingPostalCode        = getWCOrderDetails($order_id, 'billing_postcode');
-        $klarna->BillingCity              = getWCOrderDetails($order_id, 'billing_city');
-        $klarna->BillingCountry           = getWCOrderDetails($order_id, 'billing_country');
-        $get_billing_email                = getWCOrderDetails($order_id, 'billing_email');
-        $klarna->BillingEmail             = !empty($get_billing_email) ? $get_billing_email : '';
-        $klarna->BillingLanguage          = 'nl';
-        $get_billing_phone                = getWCOrderDetails($order_id, 'billing_phone');
-        $number                           = $this->cleanup_phone($get_billing_phone);
-        $klarna->BillingPhoneNumber       = !empty($number['phone']) ? $number['phone'] : $_POST[$this->getKlarnaSelector() . "-phone"];
-
-        $klarna->AddressesDiffer = 'FALSE';
-        if (isset($_POST[$this->getKlarnaSelector() . "-shipping-differ"])) {
-            $klarna->AddressesDiffer = 'TRUE';
-
-            $shippingCompany = getWCOrderDetails($order_id, 'shipping_company');
-            $klarna->setShippingCategory($shippingCompany);
-
-            $get_shipping_first_name           = getWCOrderDetails($order_id, 'shipping_first_name');
-            $klarna->ShippingFirstName         = $get_shipping_first_name;
-            $get_shipping_last_name            = getWCOrderDetails($order_id, 'shipping_last_name');
-            $klarna->ShippingLastName          = $get_shipping_last_name;
-            $get_shipping_address_1            = getWCOrderDetails($order_id, 'shipping_address_1');
-            $get_shipping_address_2            = getWCOrderDetails($order_id, 'shipping_address_2');
-            $address_components                = fn_buckaroo_get_address_components($get_shipping_address_1 . " " . $get_shipping_address_2);
-            $klarna->ShippingStreet            = $address_components['street'];
-            $klarna->ShippingHouseNumber       = $address_components['house_number'];
-            $klarna->ShippingHouseNumberSuffix = $address_components['number_addition'];
-
-            $klarna->ShippingPostalCode  = getWCOrderDetails($order_id, 'shipping_postcode');
-            $klarna->ShippingCity        = getWCOrderDetails($order_id, 'shipping_city');
-            $klarna->ShippingCountryCode = getWCOrderDetails($order_id, 'shipping_country');
-
-            $get_shipping_email          = getWCOrderDetails($order_id, 'billing_email');
-            $klarna->ShippingEmail       = !empty($get_shipping_email) ? $get_shipping_email : '';
-            $klarna->ShippingLanguage    = 'nl';
-            $get_shipping_phone          = getWCOrderDetails($order_id, 'billing_phone');
-            $number                      = $this->cleanup_phone($get_shipping_phone);
-            $klarna->ShippingPhoneNumber = $number['phone'];
-        }
-
-        if ($_POST['shipping_method'][0] == 'dhlpwc-parcelshop') {
-            $dhlConnectorData                  = $order->get_meta('_dhlpwc_order_connectors_data');
-            $dhlCountry                        = !empty($this->country) ? $this->country : $_POST['billing_country'];
-            $requestPart                       = $dhlCountry . '/' . $dhlConnectorData['id'];
-            $dhlParcelShopAddressData          = $this->getDHLParcelShopLocation($requestPart);
-            $klarna->AddressesDiffer           = 'TRUE';
-            $klarna->ShippingStreet            = $dhlParcelShopAddressData->street;
-            $klarna->ShippingHouseNumber       = $dhlParcelShopAddressData->number;
-            $klarna->ShippingPostalCode        = $dhlParcelShopAddressData->postalCode;
-            $klarna->ShippingHouseNumberSuffix = '';
-            $klarna->ShippingCity              = $dhlParcelShopAddressData->city;
-            $klarna->ShippingCountryCode       = $dhlParcelShopAddressData->countryCode;
-        }
-
-        if (!empty($_POST['post-deliver-or-pickup']) && $_POST['post-deliver-or-pickup'] == 'post-pickup') {
-            $postNL                            = $order->get_meta('_postnl_delivery_options');
-            $klarna->AddressesDiffer           = 'TRUE';
-            $klarna->ShippingStreet            = $postNL['street'];
-            $klarna->ShippingHouseNumber       = $postNL['number'];
-            $klarna->ShippingPostalCode        = $postNL['postal_code'];
-            $klarna->ShippingHouseNumberSuffix = trim(str_replace('-', ' ', $postNL['number_suffix']));
-            $klarna->ShippingCity              = $postNL['city'];
-            $klarna->ShippingCountryCode       = $postNL['cc'];
-        }
-
-        if (!empty($_POST['sendcloudshipping_service_point_selected'])) {
-            $klarna->AddressesDiffer = 'TRUE';
-            $sendcloudPointAddress   = $order->get_meta('sendcloudshipping_service_point_meta');
-            $addressData             = $this->parseSendCloudPointAddress($sendcloudPointAddress['extra']);
-
-            $klarna->ShippingStreet            = $addressData['street']['name'];
-            $klarna->ShippingHouseNumber       = $addressData['street']['house_number'];
-            $klarna->ShippingPostalCode        = $addressData['postal_code'];
-            $klarna->ShippingHouseNumberSuffix = $addressData['street']['number_addition'];
-            $klarna->ShippingCity              = $addressData['city'];
-            $klarna->ShippingCountryCode       = $klarna->BillingCountry;
-        }
-
-        if (isset($_POST['_myparcel_delivery_options'])) {
-            $myparselDeliveryOptions = $order->get_meta('_myparcel_delivery_options');
-            if (!empty($myparselDeliveryOptions)) {
-                if ($myparselDeliveryOptions = unserialize($myparselDeliveryOptions)) {
-                    if ($myparselDeliveryOptions->isPickup()) {
-                        $klarna->AddressesDiffer = 'TRUE';
-                        $pickupOptions = $myparselDeliveryOptions->getPickupLocation();
-                        $klarna->ShippingStreet = $pickupOptions->getStreet();
-                        $klarna->ShippingHouseNumber = $pickupOptions->getNumber();
-                        $klarna->ShippingPostalCode = $pickupOptions->getPostalCode();
-                        $klarna->ShippingCity = $pickupOptions->getCity();
-                        $klarna->ShippingCountryCode = $pickupOptions->getCountry();
-                    }
-                }
-            }
-        }
+        $order_details = new Buckaroo_Order_Details($order);
+        
+        $klarna = $this->getBillingInfo($order_details, $klarna);
+        $klarna = $this->getShippingInfo($order_details, $klarna);
+        $klarna = $this->handleThirdPartyShippings($klarna, $order, $this->country);
 
         $klarna->CustomerIPAddress = getClientIpBuckaroo();
         $klarna->Accept            = 'TRUE';
-        $products                  = array();
-        $items                     = $order->get_items();
-        $itemsTotalAmount          = 0;
-
-        $feeItemRate = 0;
-        foreach ($items as $item) {
-            $product = new WC_Product($item['product_id']);
-            $imgTag  = $product->get_image();
-            $doc = new DOMDocument();
-            $doc->loadHTML($imgTag);
-            $xpath   = new DOMXPath($doc);
-            $src     = $xpath->evaluate("string(//img/@src)");
-
-            $tax      = new WC_Tax();
-            $taxes    = $tax->get_rates($product->get_tax_class());
-            $rates    = array_shift($taxes);
-            $itemRate = number_format(array_shift($rates), 2);
-
-            if ($product->get_tax_status() != 'taxable') {
-                $itemRate = 0;
-            }
-
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $item['product_id'];
-            $tmp["ArticleQuantity"]    = $item["qty"];
-            $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
-            $itemsTotalAmount += number_format($tmp["ArticleUnitprice"] * $item["qty"], 2);
-
-            $tmp["ArticleVatcategory"] = $itemRate;
-            $tmp["ProductUrl"]         = get_permalink($item['product_id']);
-            $tmp["ImageUrl"]           = $src;
-            $products[]                = $tmp;
-            $feeItemRate               = $feeItemRate > $itemRate ? $feeItemRate : $itemRate;
-        }
-
-        $fees = $order->get_fees();
-        foreach ($fees as $key => $item) {
-            $feeTaxRate                = $this->getFeeTax($fees[$key]);
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $key;
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = number_format(($item["line_total"] + $item["line_tax"]), 2);
-            $itemsTotalAmount += $tmp["ArticleUnitprice"];
-            $tmp["ArticleVatcategory"] = $feeTaxRate;
-            $products[]                = $tmp;
-        }
-        if (!empty($klarna->ShippingCosts)) {
-            $itemsTotalAmount += $klarna->ShippingCosts;
-        }
-
-        if ($klarna->amountDedit != $itemsTotalAmount) {
-            if (number_format($klarna->amountDedit - $itemsTotalAmount, 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($klarna->amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"] = 0;
-                $products[]                = $tmp;
-                $itemsTotalAmount += 0.01;
-            } elseif (number_format($itemsTotalAmount - $klarna->amountDedit, 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($klarna->amountDedit - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"] = 0;
-                $products[]                = $tmp;
-                $itemsTotalAmount -= 0.01;
-            }
-        }
+        $products = $this->getProductsInfo($order, $klarna->amountDedit, $klarna->ShippingCosts);
 
         $klarna->returnUrl = $this->notify_url;
-
-        if ($this->usenotification == 'TRUE') {
-            $klarna->usenotification      = 1;
-            $customVars['Customergender'] = $_POST[$this->getKlarnaSelector() . '-gender'];
-
-            $get_billing_first_name          = getWCOrderDetails($order_id, 'billing_first_name');
-            $get_billing_last_name           = getWCOrderDetails($order_id, 'billing_last_name');
-            $get_billing_email               = getWCOrderDetails($order_id, 'billing_email');
-            $customVars['CustomerFirstName'] = !empty($get_billing_first_name) ? $get_billing_first_name : '';
-            $customVars['CustomerLastName']  = !empty($get_billing_last_name) ? $get_billing_last_name : '';
-            $customVars['Customeremail']     = !empty($get_billing_email) ? $get_billing_email : '';
-            $customVars['Notificationtype']  = 'PaymentComplete';
-            $customVars['Notificationdelay'] = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now + ' . (int) $this->invoicedelay . ' day')) . ' + ' . (int) $this->notificationdelay . ' day'));
-        }
 
         $klarna->setPaymnetFlow($this->getKlarnaPaymentFlow());
         $response = $klarna->paymentAction($products);
         return fn_buckaroo_process_response($this, $response, $this->mode);
     }
-
     /**
-     * Check response data
+     * Get billing info for pay request
      *
-     * @access public
-     */
-    public function response_handler()
-    {
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $result               = fn_buckaroo_process_response($this);
-        if (!is_null($result)) {
-            wp_safe_redirect($result['redirect']);
-        } else {
-            wp_safe_redirect($this->get_failed_url());
-        }
-    }
-
-    private function getFeeTax($fee)
-    {
-        $feeInfo    = WC_Tax::get_rates($fee->get_tax_class());
-        $feeInfo    = array_shift($feeInfo);
-        $feeTaxRate = $feeInfo['rate'] ?? 0;
-
-        return $feeTaxRate;
-    }
-
-    public function formatStreet($street)
-    {
-        $format = [
-            'house_number'    => '',
-            'number_addition' => '',
-            'name'            => $street,
-        ];
-
-        if (preg_match('#^(.*?)([0-9\-]+)(.*)#s', $street, $matches)) {
-            // Check if the number is at the beginning of streetname
-            if ('' == $matches[1]) {
-                $format['house_number'] = trim($matches[2]);
-                $format['name']         = trim($matches[3]);
-            } else {
-                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
-                    $format['name']            = trim($matches[1]);
-                    $format['house_number']    = trim($matches[2]);
-                    $format['number_addition'] = trim($matches[3]);
-                }
-            }
-        }
-
-        return $format;
-    }
-
-    /**
-     * Payment form on checkout page
-     */
-    public function payment_fields()
-    {
-        $post_data = array();
-
-        $customerId    = get_current_user_id();
-        $customerPhone = '';
-        if (!empty($customerId)) {
-            $customerPhone = get_user_meta($customerId, 'billing_phone', true);
-        }
-
-        if (!empty($_POST["post_data"])) {
-            parse_str($_POST["post_data"], $post_data);
-        }
-
-        $country = $this->country ?? '';
-
-        if (strtoupper($country) == 'NL' && strtolower($this->klarnaPaymentFlowId) !== 'pay'):
-        ?>
-            <div class="woocommerce-error">
-                <p><?php
-echo __('Payment method is not supported for country ', 'wc-buckaroo-bpe-gateway') . '(' . $this->country . ')'; ?>
-                </p>
-            </div>
-        <?php
-endif;
-        if ($this->mode == 'test'): ?><p><?php _e('TEST MODE', 'wc-buckaroo-bpe-gateway');?></p><?php endif;?>
-        <?php if ($this->description): ?><p><?php echo wpautop(wptexturize($this->description)); ?></p><?php endif;?>
-
-        <fieldset>
-            <p class="form-row">
-                <label for="<?php echo $this->getKlarnaSelector() ?>-gender"><?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway') ?><span
-                            class="required">*</span></label>
-                <input id="<?php echo $this->getKlarnaSelector() ?>-genderm" name="<?php echo $this->getKlarnaSelector() ?>-gender" class="" type="radio"
-                       value="Male" checked
-                       style="float:none; display: inline !important;"/> <?php echo _e('Male', 'wc-buckaroo-bpe-gateway') ?>
-                &nbsp;
-                <input id="<?php echo $this->getKlarnaSelector() ?>-genderf" name="<?php echo $this->getKlarnaSelector() ?>-gender" class="" type="radio"
-                       value="Female"
-                       style="float:none; display: inline !important;"/> <?php echo _e('Female', 'wc-buckaroo-bpe-gateway') ?>
-            </p>
-            <p class="form-row validate-required">
-                <label for="<?php echo $this->getKlarnaSelector() ?>-phone"><?php echo _e('Phone:', 'wc-buckaroo-bpe-gateway') ?><span
-                            class="required">*</span></label>
-                <input id="<?php echo $this->getKlarnaSelector() ?>-phone" name="<?php echo $this->getKlarnaSelector() ?>-phone" class="input-tel"
-                       type="tel" autocomplete="off" value="<?php echo $customerPhone ?? '' ?>">
-            </p>
-
-            <script>
-                if (document.querySelector('input[name=billing_phone]')) {
-                    document.getElementById('<?php echo $this->getKlarnaSelector() ?>-phone').parentElement.style.display = 'none';
-                }
-            </script>
-
-            <?php if (!empty($post_data["ship_to_different_address"])) {?>
-                <input id="<?php echo $this->getKlarnaSelector() ?>-shipping-differ" name="<?php echo $this->getKlarnaSelector() ?>-shipping-differ" class=""
-                       type="hidden" value="1"/>
-            <?php }?>
-
-            <p class="required" style="float:right;">* <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?></p>
-        </fieldset>
-        <?php
-}
-
-    /**
-     * Add fields to the form_fields() array, specific to this page.
+     * @param Buckaroo_Order_Details $order_details
+     * @param BuckarooKlarna $method
+     * @param string $birthdate
      *
-     * @access public
+     * @return BuckarooKlarna  $method
      */
-    public function init_form_fields()
+    protected function getBillingInfo($order_details, $method)
     {
-        parent::init_form_fields();
-
-        add_filter('woocommerce_settings_api_form_fields_' . $this->id, array($this, 'enqueue_script_certificate'));
-        add_filter('woocommerce_settings_api_form_fields_' . $this->id, array($this, 'enqueue_script_hide_local'));
-
-        //Start Dynamic Rendering of Hidden Fields
-        $options      = get_option("woocommerce_" . $this->id . "_settings", null);
-        $ccontent_arr = array();
-        $keybase      = 'certificatecontents';
-        $keycount     = 1;
-        if (!empty($options["$keybase$keycount"])) {
-            while (!empty($options["$keybase$keycount"])) {
-                $ccontent_arr[] = "$keybase$keycount";
-                $keycount++;
-            }
+        /** @var BuckarooKlarna */
+        $method = $this->set_billing($method, $order_details);
+        $method->BillingGender = $_POST[$this->getKlarnaSelector() . '-gender'] ?? 'Unknown';
+        $method->BillingFirstName = $order_details->getBilling('first_name');
+        if (empty($method->BillingPhoneNumber)) {
+            $method->BillingPhoneNumber =  $_POST[$this->getKlarnaSelector() . "-phone"];
         }
-        $while_key                 = 1;
-        $selectcertificate_options = array('none' => 'None selected');
-        while ($while_key != $keycount) {
-            $this->form_fields["certificatecontents$while_key"] = array(
-                'title'       => '',
-                'type'        => 'hidden',
-                'description' => '',
-                'default'     => '',
-            );
-            $this->form_fields["certificateuploadtime$while_key"] = array(
-                'title'       => '',
-                'type'        => 'hidden',
-                'description' => '',
-                'default'     => '');
-            $this->form_fields["certificatename$while_key"] = array(
-                'title'       => '',
-                'type'        => 'hidden',
-                'description' => '',
-                'default'     => '');
-            $selectcertificate_options["$while_key"] = $options["certificatename$while_key"];
 
-            $while_key++;
+
+        $billingCompany =$order_details->getBilling('company');
+        $method->setBillingCategory($billingCompany);
+        $method->setShippingCategory($billingCompany);
+
+        return $method;
+    }
+    /**
+     * Get shipping info for pay request
+     *
+     * @param Buckaroo_Order_Details $order_details
+     * @param BuckarooKlarna $method
+     *
+     * @return BuckarooKlarna $method
+     */
+    protected function getShippingInfo($order_details, $method)
+    {
+        $method->AddressesDiffer = 'FALSE';
+        if (isset($_POST[$this->getKlarnaSelector() . "-shipping-differ"])) {
+            $method->AddressesDiffer = 'TRUE';
+
+            $shippingCompany = $order_details->getShipping('company');
+            $method->setShippingCategory($shippingCompany);
+
+            /** @var BuckarooKlarna */
+            $method = $this->set_shipping($method, $order_details);
+            $method->ShippingFirstName = $order_details->getShipping('first_name');
         }
-        $final_ccontent                                          = $keycount;
-        $this->form_fields["certificatecontents$final_ccontent"] = array(
-            'title'       => '',
-            'type'        => 'hidden',
-            'description' => '',
-            'default'     => '');
-        $this->form_fields["certificateuploadtime$final_ccontent"] = array(
-            'title'       => '',
-            'type'        => 'hidden',
-            'description' => '',
-            'default'     => '');
-        $this->form_fields["certificatename$final_ccontent"] = array(
-            'title'       => '',
-            'type'        => 'hidden',
-            'description' => '',
-            'default'     => '');
+        return $method;
+    }
+  
+    public function getProductImage($product) {
+        $imgTag = $product->get_image();	
+        $doc = new DOMDocument();	
+        $doc->loadHTML($imgTag);	
+        $xpath = new DOMXPath($doc);	
+        $imageUrl = $xpath->evaluate("string(//img/@src)");
+        
+        return $imageUrl;
+    }
 
-        $this->form_fields['selectcertificate'] = array(
-            'title'       => __('Select Certificate', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('Select your certificate by name.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => $selectcertificate_options,
-            'default'     => 'none',
-        );
-        $this->form_fields['choosecertificate'] = array(
-            'title'       => __('', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'file',
-            'description' => __(''),
-            'default'     => '');
+    public function getProductSpecific($product, $item, $tmp) { 
+        //Product
+        $data['product_tmp'] = $tmp;
+        $data['product_tmp']['ArticleUnitprice'] = number_format(number_format($item['line_total'] + $item['line_tax'], 4) / $item['qty'], 2);
+        $data['product_tmp']['ProductUrl'] = get_permalink($item['product_id']);
+        $imgUrl = $this->getProductImage($product);
+        //Don't send the tag if imgurl not set
+        if(!empty($imgUrl)){
+            $data['product_tmp']['ImageUrl'] = $imgUrl;
+        }
+        
+        $data['product_itemsTotalAmount'] = number_format($data['product_tmp']['ArticleUnitprice'] * $item['qty'], 2);
 
-        $this->form_fields['usenotification'] = array(
-            'title'       => __('Use Notification Service', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('The notification service can be used to have the payment engine sent additional notifications.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('TRUE' => 'Yes', 'FALSE' => 'No'),
-            'default'     => 'FALSE');
-
-        $this->form_fields['notificationdelay'] = array(
-            'title'       => __('Notification delay', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'text',
-            'description' => __('The time at which the notification should be sent. If this is not specified, the notification is sent immediately.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '0');
+        return $data;
     }
 }

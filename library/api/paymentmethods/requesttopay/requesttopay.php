@@ -6,7 +6,6 @@ class BuckarooRequestToPay extends BuckarooPaymentMethod {
     public function __construct() {
         $this->type = "RequestToPay";
         $this->version = 1;
-        $this->mode = BuckarooConfig::getMode($this->type);
     }
 
     /**
@@ -14,41 +13,20 @@ class BuckarooRequestToPay extends BuckarooPaymentMethod {
      * @param array $customVars
      * @return callable parent::Pay()
      */
-    public function Pay($customVars = Array()){
-        $this->data['services'][$this->type]['action'] = 'Pay';
-        $this->data['services'][$this->type]['version'] = $this->version;
-
-        $this->data['customVars'][$this->type]['DebtorName'][0]['value'] = $customVars['CustomerFirstName'] . ' ' . $customVars['CustomerLastName'] ;
-        $this->data['customVars'][$this->type]['DebtorName'][0]['group'] = '';
-//        $this->data['customVars'][$this->type]['GroupType'] = '';
-//        $this->data['customVars'][$this->type]['GroupId'] = '';
-//        $this->data['customVars'][$this->type]['Value'] = 'TestValue';
-
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action'] = 'ExtraInfo';
-            $this->data['services']['notification']['version'] = '1';
-            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender'] = $customVars['Customergender'];
-
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
-
+    public function Pay($customVars = array())
+    {
+        $this->setCustomVar(
+            [
+                'DebtorName'=>
+                [
+                    [
+                        'value'=> $customVars['CustomerFirstName'] . ' ' . $customVars['CustomerLastName'],
+                        'group'=>''
+                    ]
+                ]
+            ]
+        );
         return parent::Pay();
-    }
-
-    /**
-     * @access public
-     * @return callable parent::Refund();
-     * @throws Exception
-     */
-    public function Refund() {
-        return parent::Refund();
     }
 
     /**
@@ -67,7 +45,7 @@ class BuckarooRequestToPay extends BuckarooPaymentMethod {
         $productRefund = $order->get_item_count_refunded();
         $orderFeeRefund = $order->get_item_count_refunded('fee');
 
-        $shippingCosts = round(floatval($order->get_shipping_total()) + floatval($order->get_shipping_tax()), 2);
+        $shippingCosts = roundAmount(floatval($order->get_shipping_total()) + floatval($order->get_shipping_tax()));
 
         $shippingRefundedCosts = $order->get_total_shipping_refunded();
 
@@ -96,7 +74,7 @@ class BuckarooRequestToPay extends BuckarooPaymentMethod {
                 throw new Exception('Payment fee already refunded');
             }
             if (!empty($data[$item_id]['total'])) {
-                if (round($data[$item_id]['total']+$data[$item_id]['tax'],2) > $feeCost) {
+                if (roundAmount($data[$item_id]['total']+$data[$item_id]['tax']) > $feeCost) {
                     throw new Exception('Enter valid payment fee:' . $feeCost . esc_attr(get_woocommerce_currency()) );
                 } elseif(round($data[$item_id]['total']+$data[$item_id]['tax']) < $feeCost) {
                     $balance = $feeCost - round($data[$item_id]['total']+$data[$item_id]['tax']);

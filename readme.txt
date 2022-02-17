@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 5.8
-Stable tag: 2.24.1
+Tested up to: 5.9
+Stable tag: 3.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,20 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.0.0 =
+
+3.0.0 is a MAJOR release, it may break think so we advice to do additional testing and treat it with caution.
+
+With 3.0.0 we are taking a big step in improving our services within WooCommerce. We have technically improved our installation and configuration process and made it more understandable for everyone. Below are some highlights of our improvements:
+
+- Code upgrade: Removed a lot of duplication, started using constants for statuses and codes everywhere, removed unused services and code, started using code into common/single places, reduced long methods sizes.
+
+- Improved logging: We upgraded our logging service and made it more flexible. Option to store in in files or database (or both).
+
+- Improved our UI: We changed a lot, we improved and simplified our configuration process. Added a option to check you filled credentials, moved some advanced configuration to specific methods and changed icons for the payment methods to a single style/design.
+
+For more details about this release: https://support.buckaroo.nl/categorieen/plugins/woocommerce/release-notes
 
 = 2.24.1 =
 
