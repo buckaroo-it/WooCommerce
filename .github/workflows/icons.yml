@@ -17,8 +17,8 @@ jobs:
           ls -l
           echo ${{ github.workspace }}/library/buckaroo_images/svg
           mkdir -p ${{ github.workspace }}/library/buckaroo_images/svg
+          cp "Payment methods/SVG/iDEAL.svg" ${{ github.workspace }}/library/buckaroo_images/svg/iDEAL.svg
           ls -l ${{ github.workspace }}/library/buckaroo_images/svg
-          cp Payment methods/SVG/iDEAL.svg ${{ github.workspace }}/library/buckaroo_images/svg/iDEAL.svg
           cd ${{ github.workspace }}
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "test@example.com"
