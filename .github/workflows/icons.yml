@@ -1,0 +1,28 @@
+name: Embed icons automatically
+on:
+  push:
+jobs:
+  icons_embedding:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Embed icons automatically
+        run: |
+          ls -l
+          mkdir ~/tmp
+          cd ~/tmp
+          ls -l
+          git clone https://github.com/buckaroo-it/Media
+          cd Media
+          ls -l
+          mkdir -p ${{ github.workspace }}/library/buckaroo_images/svg
+          cp Payment methods/SVG/iDEAL.svg ${{ github.workspace }}/library/buckaroo_images/svg/iDEAL.svg
+          cd ${{ github.workspace }}
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "test@example.com"
+          git fetch
+          git add library/buckaroo_images/svg
+          if git commit -m 'Embed icons automatically' svg; then
+              echo ${GITHUB_REF}
+              git push origin HEAD:${GITHUB_REF}
+          fi
