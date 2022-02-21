@@ -257,7 +257,12 @@ class Buckaroo_Report_Page extends WP_List_Table
             $itemsWithIndex[] = $item;
         }
         $pages = array_chunk($itemsWithIndex, $this->per_page);
-        return $pages[$current_page-1];
+
+        if(isset($pages[$current_page-1])) {
+            return $pages[$current_page-1];
+        }
+        
+        return [];
     }
     public function display_log_file($fileName)
     {
