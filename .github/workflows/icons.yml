@@ -23,7 +23,7 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "test@example.com"
           git fetch
-          git add library/buckaroo_images/svg
+          git add --all library/buckaroo_images/svg/
           if git commit -m 'Embed icons automatically' svg; then
               echo ${GITHUB_REF}
               git push origin HEAD:${GITHUB_REF}
