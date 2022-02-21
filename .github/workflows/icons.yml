@@ -15,7 +15,9 @@ jobs:
           git clone https://github.com/buckaroo-it/Media
           cd Media
           ls -l
+          echo ${{ github.workspace }}/library/buckaroo_images/svg
           mkdir -p ${{ github.workspace }}/library/buckaroo_images/svg
+          ls -l ${{ github.workspace }}/library/buckaroo_images/svg
           cp Payment methods/SVG/iDEAL.svg ${{ github.workspace }}/library/buckaroo_images/svg/iDEAL.svg
           cd ${{ github.workspace }}
           git config --global user.name "GitHub Actions Bot"
