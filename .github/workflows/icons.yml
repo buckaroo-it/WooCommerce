@@ -35,6 +35,7 @@ jobs:
           cp "Payment methods/SVG/Klarna.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           cp "Payment methods/SVG/PayPal.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           cp "Payment methods/SVG/PayPerEmail.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Payconiq.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           cp "Payment methods/SVG/Przelewy24.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           cp "Payment methods/SVG/RequestToPay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           cp "Payment methods/SVG/SEPA-directdebit.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
