@@ -20,7 +20,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $this->title                  = 'Billink - postpay';
         $this->has_fields             = true;
         $this->method_title           = 'Buckaroo Billink';
-        $this->setIcon('24x24/billink.png', 'new/Billink.png');
+        $this->setIcon('24x24/billink.png', 'new/Billink.png', 'svg/Billink.svg');
         $this->setCountry();
 
         parent::__construct();

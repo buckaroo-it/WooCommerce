@@ -21,7 +21,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $this->title                  = 'Afterpay (by Buckaroo)';
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo AfterPay New';
-        $this->setIcon('24x24/afterpaynew.png', 'new/AfterPay.png');
+        $this->setIcon('24x24/afterpaynew.png', 'new/AfterPay.png', 'svg/AfterPay.svg');
         $this->setCountry();
 
         parent::__construct();
