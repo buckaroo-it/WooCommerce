@@ -212,6 +212,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
         }
 
         $this->order         = $this->_response->Order;
+        $this->brq_ordernumber = $this->_response->Order;
         $this->invoicenumber = $this->invoice;
         $this->amount        = 0;
         if (isset($this->_response->AmountDebit)) {
