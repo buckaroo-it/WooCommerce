@@ -300,7 +300,11 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     Buckaroo_Logger::log('Parse response:\n', $response);
     $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, $mode);
 
-    $order_id = $response->brq_ordernumber;
+    if (empty($response->brq_ordernumber)) {
+        $order_id = $response->invoicenumber;
+    } else {
+        $order_id = $response->brq_ordernumber;
+    }
 
     try {
         $order = new WC_Order($order_id);
