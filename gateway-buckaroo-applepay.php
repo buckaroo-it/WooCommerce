@@ -282,7 +282,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         $new_form_fields = array();
         foreach ($this->form_fields as $k => $value) {
             $new_form_fields[$k] = $value;
-            if ($k === 'usemaster') {
+            if ($k === 'mode') {
                 $new_form_fields['merchant_guid'] = array(
                     'title'       => __('GUID', 'wc-buckaroo-bpe-gateway'),
                     'type'        => 'text',
