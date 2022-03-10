@@ -56,6 +56,15 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
         );
     }
     /**
+     * Version lower than 5.5 section compatibility
+     *
+     * @return void
+     */
+    public function get_sections()
+    {
+        return $this->get_own_sections();
+    }
+    /**
      * @inheritDoc
      */
     public function output()
