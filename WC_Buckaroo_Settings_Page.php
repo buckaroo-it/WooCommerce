@@ -60,9 +60,18 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
      */
     public function output()
     {
+        
         global $current_section, $hide_save_button;
 
+
+        if (version_compare(WOOCOMMERCE_VERSION, '5.5.0', '<')) {
+            if ($current_section === '') {
+                WC_Admin_Settings::output_fields($this->get_settings_for_default_section());
+            }
+        }
+
         parent::output();
+        
 
         if ($current_section === 'report') {
             (new Buckaroo_Report_Page())->output_report();
@@ -76,6 +85,13 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
             (new Buckaroo_Report_Page())->display_log_file($_GET['log_file']);
             $hide_save_button = true;
         }
+    }
+    public function save()
+    {
+        if (version_compare(WOOCOMMERCE_VERSION, '5.5.0', '<')) {
+            $this->save_settings_for_current_section();
+        }
+        parent::save();
     }
     /** 
      * @inheritDoc 
