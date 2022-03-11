@@ -10,43 +10,7 @@ jQuery(document).ready(function ($) {
             buckaroo_paypal_express.ajaxurl
         )
         buckaroo_paypal_express_class.init();
-        $('body').prepend("<button class='test'>test</button>");
-        $('body').on('click', '.test', function () {
-            buckaroo_paypal_express_class.setShipping({
-                "orderID": "4TA39519HU892641B",
-                "paymentToken": "4TA39519HU892641B",
-                "paymentId": "",
-                "amount": {
-                    "breakdown": {
-                        "item_total": {
-                            "currency_code": "EUR",
-                            "value": "0.00"
-                        },
-                        "shipping": {
-                            "currency_code": "EUR",
-                            "value": "0.00"
-                        },
-                        "tax_total": {
-                            "currency_code": "EUR",
-                            "value": "0.00"
-                        }
-                    },
-                    "currency_code": "EUR",
-                    "value": "0.00"
-                },
-                "shipping_address": {
-                    "city": "Den Haag",
-                    "state": "2585",
-                    "country_code": "NL",
-                    "postal_code": "1015 CS"
-                },
-                "selected_shipping_option": ""
-            }).then((res) => {
-                console.log(res);
-            });
-        })
     }
-
 })
 
 class BuckarooPaypalExpress {
@@ -241,6 +205,7 @@ class BuckarooPaypalExpress {
      * @param {string} message 
      */
     displayErrorMessage(message) {
+        $('.buckaroo-paypal-express-error').remove();
         if (typeof message === 'object') {
             console.log(message);
             message = buckaroo_paypal_express.i18n.cannot_create_payment;

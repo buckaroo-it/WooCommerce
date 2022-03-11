@@ -238,10 +238,16 @@ class Buckaroo_Paypal_Express
             );
         }
         try {
+            $response = $this->create_and_send_order($_POST['orderId']);
+            
+            if ($response === null) {
+                $this->display_any_notices();
+            }
+
             wp_die(
                 json_encode([
                     "error"=>false,
-                    "data" => $this->create_and_send_order($_POST['orderId'])
+                    "data" => $response
                 ])
             );
         } catch (\Throwable $th) {
@@ -250,6 +256,23 @@ class Buckaroo_Paypal_Express
                 json_encode([
                     "error"=>true,
                     "message" => "Cannot process buckaroo payment"
+                ])
+            );
+        }
+    }
+    /**
+     * Display any error notices that we may have if the payment fails
+     *
+     * @return void
+     */
+    protected function display_any_notices()
+    {
+        $notices = wc_get_notices('error');
+        if (count($notices)) {
+            wp_die(
+                json_encode([
+                "error"=>true,
+                "message" => implode("</br>", $notices)
                 ])
             );
         }
