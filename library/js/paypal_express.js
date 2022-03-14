@@ -1,5 +1,5 @@
 jQuery(document).ready(function ($) {
-    if ($(".buckaroo-paypal-express").length) {
+    if ($(".buckaroo-paypal-express").length && buckaroo_paypal_express.websiteKey.length) {
         let buckaroo_paypal_express_class = new BuckarooPaypalExpress(
             BuckarooSdk.PayPal,
             buckaroo_paypal_express.page,
@@ -80,6 +80,8 @@ class BuckarooPaypalExpress {
         } else {
             if(this.result.data.redirect) {
                 window.location = this.result.data.redirect;
+            } else {
+                this.displayErrorMessage(buckaroo_paypal_express.i18n.cannot_create_payment);
             }
         }
         console.log('onSuccessCallback');
@@ -88,8 +90,6 @@ class BuckarooPaypalExpress {
     onErrorCallback(reason) {
         // custom error behavior
         this.displayErrorMessage(reason);
-
-        console.log('onErrorCallback', reason);
     }
     onInitCallback() {
         this.get_cart_total();
@@ -99,10 +99,8 @@ class BuckarooPaypalExpress {
     }
 
     onClickCallback() {
-        console.log('onClickCallback');
         //reset any previous payment response;
         this.result = null;
-        // additional behavior after click}
     }
 
 
