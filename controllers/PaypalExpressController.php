@@ -223,7 +223,7 @@ class Buckaroo_Paypal_Express
                 json_encode([
                     "error" => false,
                     "data" => [
-                        "total" => $total,
+                        "total" => number_format($total, 2),
                     ]
                 ])
             );
