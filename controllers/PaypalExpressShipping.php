@@ -68,20 +68,31 @@ class Buckaroo_Paypal_Express_Shipping
             "breakdown" => [
                 "item_total" => [
                     "currency_code" => $currency,
-                    "value" => $item_total
+                    "value" => $this->number_format($item_total)
                 ],
                 "shipping" => [
                     "currency_code" => $currency,
-                    "value" => $shipping
+                    "value" => $this->number_format($shipping)
                 ],
                 "tax_total" => [
                     "currency_code" => $currency,
-                    "value" => $tax_total
+                    "value" => $this->number_format($tax_total)
                 ]
             ],
             "currency_code" => $currency,
-            "value" => $total
+            "value" => $this->number_format($total)
         ];
+    }
+    /**
+     * Format numbers to 2 decimals
+     *
+     * @param float|string $value
+     *
+     * @return float
+     */
+    public function number_format($value)
+    {
+        return number_format($value, 2);
     }
     /**
      * Apply payment fee on cart
@@ -113,8 +124,10 @@ class Buckaroo_Paypal_Express_Shipping
     protected function store_fee_for_order($cart)
     {
         $fee = null;
-        if (count($cart->get_fees())) {
-            $fee = array_pop($cart->get_fees());
+
+        $fees = $cart->get_fees();
+        if (count($fees)) {
+            $fee = array_pop($fees);
         }
         WC()->session->set('buckaroo_paypal_fee', $fee);
     }
