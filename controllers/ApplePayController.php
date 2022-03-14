@@ -249,7 +249,7 @@ Class ApplePayController
 
         $feed_settings = self::get_extra_feed_settings();
         do_action(
-            'buckaroo_applepay_cart_calculate_fees',
+            'buckaroo_cart_calculate_fees',
             $cart,
             $feed_settings['extrachargeamount'],
             $feed_settings['feetax']

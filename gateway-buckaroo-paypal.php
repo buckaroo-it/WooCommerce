@@ -11,6 +11,8 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
 
     public $sellerprotection;
 
+    protected $express_order_id = null;
+
     public function __construct()
     {
         $this->id                     = 'buckaroo_paypal';
@@ -56,10 +58,19 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         /** @var BuckarooPayPal */
         $paypal = $this->createDebitRequest($order);
         $order_details = new Buckaroo_Order_Details($order);
-        
+
         $customVars = array(
             'CustomerLastName' => $order_details->getBilling('last_name')
         );
+
+        //set paypal express
+        if($this->express_order_id !== null) {
+            $customVars = array_merge(
+                $customVars,
+                ["PayPalOrderId" => $this->express_order_id]
+            );
+        }
+
         if ($this->sellerprotection == 'TRUE') {
             $paypal->sellerprotection = 1;
             $address =  $order_details->getBillingAddressComponents();
@@ -67,12 +78,12 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
             $customVars = array_merge(
                 $customVars,
                 array(
-                   'ShippingPostalCode' => $order_details->getShipping('postcode'),
-                   'ShippingCity'       => $order_details->getShipping('city'),
-                   'ShippingStreet'     => $address['street'],
-                   'ShippingHouse'      => $address['house_number'],
-                   'StateOrProvince'    => $order_details->getBilling('state'),
-                   'Country'            => $order_details->getBilling('country')
+                    'ShippingPostalCode' => $order_details->getShipping('postcode'),
+                    'ShippingCity'       => $order_details->getShipping('city'),
+                    'ShippingStreet'     => $address['street'],
+                    'ShippingHouse'      => $address['house_number'],
+                    'StateOrProvince'    => $order_details->getBilling('state'),
+                    'Country'            => $order_details->getBilling('country')
                 )
             );
         }
@@ -94,6 +105,30 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
             'type'        => 'select',
             'description' => __('Sends customer address information to PayPal to enable PayPal seller protection.', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('TRUE' => __('Enabled', 'wc-buckaroo-bpe-gateway'), 'FALSE' => __('Disabled', 'wc-buckaroo-bpe-gateway')),
-            'default'     => 'TRUE');
+            'default'     => 'TRUE'
+        );
+        $this->form_fields['express'] = array(
+            'title'       => __('Paypal express', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'multiselect',
+            'description' => __('Enable paypal express for the following pages.', 'wc-buckaroo-bpe-gateway'),
+            'options'     => array(
+                Buckaroo_Paypal_Express::LOCATION_NONE     => __('None', 'wc-buckaroo-bpe-gateway'),
+                Buckaroo_Paypal_Express::LOCATION_PRODUCT  => __('Product page', 'wc-buckaroo-bpe-gateway'),
+                Buckaroo_Paypal_Express::LOCATION_CART     => __('Cart page', 'wc-buckaroo-bpe-gateway'),
+                Buckaroo_Paypal_Express::LOCATION_CHECKOUT => __('Checkout page', 'wc-buckaroo-bpe-gateway'),
+            ),
+            'default'     => 'none'
+        );
+    }
+    /**
+     * Set paypal express id
+     *
+     * @param string $express_order_id
+     *
+     * @return void
+     */
+    public function set_express_order_id($express_order_id)
+    {
+        $this->express_order_id = $express_order_id;
     }
 }

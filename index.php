@@ -30,6 +30,7 @@ require_once dirname(__FILE__). "/library/Buckaroo_Disable_Gateways.php";
 require_once dirname(__FILE__). "/install/class-wcb-install.php";
 require_once dirname(__FILE__). "/install/migration/Buckaroo_Migration_Handler.php";
 require_once dirname(__FILE__). "/Buckaroo_Load_Gateways.php";
+require_once dirname(__FILE__). "/controllers/PaypalExpress.php";
 
 /**
  * Remove gateways based on min/max value or idin verificaiton
@@ -47,8 +48,14 @@ new Buckaroo_Cron_Events();
  * Handle plugin updates
  */
 new Buckaroo_Migration_Handler();
-
-
+/**
+ * Handles paypal express buttons when active
+ */
+new Buckaroo_Paypal_Express(
+    new Buckaroo_Paypal_Express_Shipping(),
+    new Buckaroo_Paypal_Express_Order(),
+    new Buckaroo_Paypal_Express_Cart()
+);
 
 add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
 
