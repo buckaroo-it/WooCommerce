@@ -92,8 +92,10 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             
             $feeText = " (+ ".$fee.")";
         }
-        
-        $this->title = $this->get_option('title', $this->title ?? '').$feeText;
+        $this->title = $this->get_option('title', $this->title ?? '');
+        if (is_checkout()) {
+            $this->title = $this->title.$feeText;
+        }
     }
     /**
      * Set gateway icon
@@ -103,11 +105,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return void
      */
-    protected function setIcon($oldPath, $newPath)
+    protected function setIcon($oldPath, $newPath, $svgPath = '')
     {
         $this->icon = apply_filters(
             'woocommerce_'.$this->id.'_icon',
-            BuckarooConfig::getIconPath($oldPath, $newPath)
+            BuckarooConfig::getIconPath($oldPath, $newPath, $svgPath)
         );
     }
     /**

@@ -14,7 +14,7 @@ class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo
         $this->title                  = 'KBC';
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo KBC";
-        $this->setIcon('24x24/kbc.png', 'new/KBC.png');
+        $this->setIcon('24x24/kbc.png', 'new/KBC.png', 'svg/KBC.svg');
         
         parent::__construct();
         $this->addRefundSupport();

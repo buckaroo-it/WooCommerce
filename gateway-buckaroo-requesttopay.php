@@ -14,7 +14,7 @@ class WC_Gateway_Buckaroo_RequestToPay extends WC_Gateway_Buckaroo
         $this->title                  = 'Request To Pay';
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Request To Pay";
-        $this->setIcon('24x24/requesttopay.png', 'new/RequestToPay.png');
+        $this->setIcon('24x24/requesttopay.png', 'new/RequestToPay.png', 'svg/RequestToPay.svg');
 
         parent::__construct();
         $this->addRefundSupport();

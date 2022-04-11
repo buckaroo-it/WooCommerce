@@ -19,7 +19,7 @@ class Buckaroo_Order_Fee
     {
         add_action('woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
         add_action(
-            'buckaroo_applepay_cart_calculate_fees',
+            'buckaroo_cart_calculate_fees',
             [$this, 'add_fee_to_cart'],
             10,
             3

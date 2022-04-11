@@ -1,0 +1,57 @@
+name: Embed icons automatically
+on:
+  push:
+jobs:
+  icons_embedding:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Embed icons automatically
+        run: |
+          ls -l
+          mkdir ~/tmp
+          cd ~/tmp
+          ls -l
+          git clone https://github.com/buckaroo-it/Media
+          cd Media
+          ls -l
+          echo ${{ github.workspace }}/library/buckaroo_images/svg
+          mkdir -p ${{ github.workspace }}/library/buckaroo_images/svg
+          cp "Payment methods/SVG/AfterPay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Alipay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Apple Pay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Bancontact.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Belfius.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Billink.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/CBC.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/CreditClick.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Creditcards.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/EPS.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Giftcards.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Giropay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/INGHomePay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/In3.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/KBC.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Klarna.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/PayPal.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/PayPerEmail.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Payconiq.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Przelewy24.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/RequestToPay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/SEPA-directdebit.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/SEPACreditTransfer.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Sofort.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Tinka.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Trustly.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/WeChat Pay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/iDEAL.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          ls -l ${{ github.workspace }}/library/buckaroo_images/svg
+          cd ${{ github.workspace }}
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "test@example.com"
+          git fetch
+          git add --all library/buckaroo_images/svg/
+          if git commit -m 'Embed icons automatically' library/buckaroo_images/svg; then
+              echo ${GITHUB_REF}
+              git push origin HEAD:${GITHUB_REF}
+          fi

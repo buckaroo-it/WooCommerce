@@ -18,6 +18,11 @@ class BuckarooPayPal extends BuckarooPaymentMethod {
      */
     public function Pay($customVars = array()) 
     {
+        if(isset($customVars['PayPalOrderId'])) {
+            $this->setCustomVar('PayPalOrderId', $customVars['PayPalOrderId']);
+            return parent::Pay();
+        }
+
         if ($this->sellerprotection) {
             $this->setService('action2', 'extraInfo');
             $this->setService('version2', $this->version);

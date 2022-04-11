@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 5.9
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,16 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.1.0 =
+
+- Support for Wordpress: 5.9.3 and WooCommerce: 6.3.1
+- Log report notice when no log file present
+- Add new .SVG icons to all plugins [BP-1267]
+- Fix for error when creating PayPerEmail [BP-1352]
+- Apple Guid field missing form settings page [BP-1430]
+- Buckaroo plugin settings are not visible for a specific merchant [BP-1431]
+- Add PayPal express button [BP-209]
 
 = 3.0.0 =
 

@@ -86,7 +86,7 @@ export default class Woocommerce {
 
         var methods;
         $.ajax({
-                url: '/',
+                url: this.url,
                 data: Object.assign(default_params, product_params),
                 dataType: "json",
                 async: false

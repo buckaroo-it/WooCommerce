@@ -38,7 +38,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
      */
     public function setCreditcardIcon()
     {
-        $this->setIcon('24x24/cc.gif', 'new/CreditCards.png');
+        $this->setIcon('24x24/cc.gif', 'new/CreditCards.png', 'svg/Creditcards.svg');
     }
     /**  @inheritDoc */
     protected function setProperties()

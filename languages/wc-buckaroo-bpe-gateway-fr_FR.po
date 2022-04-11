@@ -922,6 +922,10 @@ msgstr ""
 msgid "Use new icons"
 msgstr "Utiliser de nouvelles icônes"
 
+#: gateway-buckaroo-mastersettings.php:210
+msgid "Use PNG instead of SVG icons"
+msgstr "Utilisez PNG au lieu d'icônes SVG"
+
 #: gateway-buckaroo-afterpay.php:1193 gateway-buckaroo-afterpaynew.php:1225
 #: gateway-buckaroo-applepay.php:439 gateway-buckaroo-belfius.php:262
 #: gateway-buckaroo-billink.php:460 gateway-buckaroo-creditcard.php:640
