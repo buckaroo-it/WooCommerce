@@ -18,6 +18,7 @@ class BuckarooBillink extends BuckarooPaymentMethod
     public $AddressesDiffer;
     public $ShippingGender;
     public $ShippingInitials;
+    public $ShippingFirstName;
     public $ShippingLastName;
     public $ShippingStreet;
     public $ShippingHouseNumber;
