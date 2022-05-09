@@ -101,6 +101,7 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 = 3.1.1 =
 
 - Support for Wordpress: 6.0 and WooCommerce: 6.4.1
+- Limit payment logo size [BP-1459]
 
 = 3.1.0 =
 
