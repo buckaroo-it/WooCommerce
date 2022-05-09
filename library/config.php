@@ -176,8 +176,8 @@ class BuckarooConfig extends BuckarooConfigCore {
         return $Software;
     }
 
-    public static function getIconPath($oldIcon, $newIcon, $svgPath = '') {
-        $icon = self::get('BUCKAROO_USE_NEW_ICONS') ? ($svgPath && !self::get('BUCKAROO_USE_NONSVG_ICONS') ? $svgPath : $newIcon) : $oldIcon;
+    public static function getIconPath($oldIcon, $newIcon) {
+        $icon = self::get('BUCKAROO_USE_NEW_ICONS') ? $newIcon : $oldIcon;
         return plugins_url('buckaroo_images/' . $icon, __FILE__);
     }
 

@@ -103,11 +103,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return void
      */
-    protected function setIcon($oldPath, $newPath, $svgPath = '')
+    protected function setIcon($oldPath, $newPath)
     {
         $this->icon = apply_filters(
             'woocommerce_'.$this->id.'_icon',
-            BuckarooConfig::getIconPath($oldPath, $newPath, $svgPath)
+            BuckarooConfig::getIconPath($oldPath, $newPath)
         );
     }
     /**

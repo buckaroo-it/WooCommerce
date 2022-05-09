@@ -981,10 +981,6 @@ msgstr "Gebruik master settings"
 msgid "Use new icons"
 msgstr "Nieuwe icons gebruiken"
 
-#: gateway-buckaroo-mastersettings.php:210
-msgid "Use PNG instead of SVG icons"
-msgstr "Gebruik PNG in plaats van SVG-pictogrammen"
-
 #: templates/gateways/billink.php:41
 msgid "VAT number:"
 msgstr "BTW-nummer:"

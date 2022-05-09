@@ -134,14 +134,6 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'default'     => 0
         );
 
-        $this->form_fields['usenonsvg'] = array(
-            'title'       => __('Use PNG instead of SVG icons', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('By turning on this setting in checkout PNG payment method icons will be in use', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array(0 => 'No', 1 => 'Yes'),
-            'default'     => 0
-        );
-
         $this->form_fields['useidin'] = array(
             'title'       => __('iDIN mode', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
