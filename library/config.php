@@ -79,9 +79,6 @@ class BuckarooConfig extends BuckarooConfigCore {
             case 'BUCKAROO_USE_NEW_ICONS':
                 $val = (empty($options['usenewicons']) ?  FALSE : $options['usenewicons']);
                 break;
-            case 'BUCKAROO_USE_NONSVG_ICONS':
-                $val = (empty($options['usenonsvg']) ?  FALSE : $options['usenonsvg']);
-                break;
             case 'BUCKAROO_USE_IDIN':
                 $val = (empty($options['useidin']) ?  FALSE : $options['useidin']);
                 break;
