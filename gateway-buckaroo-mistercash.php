@@ -14,7 +14,7 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
         $this->title                  = 'Bancontact';
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Bancontact';
-        $this->setIcon('24x24/mistercash.png', 'new/Bancontact.png', 'svg/Bancontact.svg');
+        $this->setIcon('24x24/mistercash.png', 'svg/Bancontact.svg');
         $this->migrateOldSettings('woocommerce_buckaroo_mistercash_settings');
 
         parent::__construct();
