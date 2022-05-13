@@ -19,7 +19,7 @@ jobs:
           mkdir -p ${{ github.workspace }}/library/buckaroo_images/svg
           cp "Payment methods/SVG/AfterPay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           cp "Payment methods/SVG/Alipay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
-          cp "Payment methods/SVG/Apple Pay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/Apple Pay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/ApplePay.svg
           cp "Payment methods/SVG/Bancontact.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           cp "Payment methods/SVG/Belfius.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           cp "Payment methods/SVG/Billink.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
@@ -38,12 +38,12 @@ jobs:
           cp "Payment methods/SVG/Payconiq.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           cp "Payment methods/SVG/Przelewy24.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           cp "Payment methods/SVG/RequestToPay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
-          cp "Payment methods/SVG/SEPA-directdebit.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/SEPA-directdebit.svg" ${{ github.workspace }}/library/buckaroo_images/svg/SEPAdirectdebit.svg
           cp "Payment methods/SVG/SEPACreditTransfer.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           cp "Payment methods/SVG/Sofort.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           cp "Payment methods/SVG/Tinka.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           cp "Payment methods/SVG/Trustly.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
-          cp "Payment methods/SVG/WeChat Pay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
+          cp "Payment methods/SVG/WeChat Pay.svg" ${{ github.workspace }}/library/buckaroo_images/svg/WeChatPay.svg
           cp "Payment methods/SVG/iDEAL.svg" ${{ github.workspace }}/library/buckaroo_images/svg/
           ls -l ${{ github.workspace }}/library/buckaroo_images/svg
           cd ${{ github.workspace }}
