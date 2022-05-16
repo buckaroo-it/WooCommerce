@@ -72,14 +72,6 @@ function buckaroo_payment_setup_scripts()
         [],
         BuckarooConfig::VERSION
     );
-
-    wp_enqueue_script(
-        'initiate_jquery_if_not_loaded',
-        plugin_dir_url(__FILE__) . 'library/js/loadjquery.js',
-        ['jquery'],
-        BuckarooConfig::VERSION,
-        true
-    );
     wp_enqueue_script(
         'creditcard_capture',
         plugin_dir_url( __FILE__ ) . 'library/js/9yards/creditcard-capture-form.js',
@@ -110,14 +102,6 @@ function buckaroo_payment_frontend_scripts()
         [],
         BuckarooConfig::VERSION
     );
-    
-    wp_enqueue_script(
-        'initiate_jquery_if_not_loaded',
-        plugin_dir_url(__FILE__) . 'library/js/loadjquery.js',
-        ['jquery'],
-        BuckarooConfig::VERSION,
-        true
-    );
     wp_enqueue_script(
         'creditcard_encryption_sdk',
         plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-encryption-sdk.js',
@@ -131,6 +115,13 @@ function buckaroo_payment_frontend_scripts()
         ['jquery'],
         BuckarooConfig::VERSION,
         true
+    );
+    wp_enqueue_script(
+        'buckaroo_sdk',
+        'https://checkout.buckaroo.nl/api/buckaroosdk/script',
+        //'https://testcheckout.buckaroo.nl/api/buckaroosdk/script',
+        array('jquery'),
+        BuckarooConfig::VERSION
     );
 
     if (class_exists('WC_Order') && is_checkout()) {

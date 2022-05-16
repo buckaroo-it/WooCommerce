@@ -69,7 +69,6 @@ class Buckaroo_Paypal_Express
      */
     public function enqueue_scripts()
     {
-        $this->enqueue_sdk();
         wp_enqueue_script(
             'buckaroo_paypal_express',
             plugin_dir_url(BK_PLUGIN_FILE) . '/library/js/paypal_express.js',
@@ -90,24 +89,6 @@ class Buckaroo_Paypal_Express
                     'cannot_create_payment' => __("Cannot create payment" , 'wc-buckaroo-bpe-gateway')
                 ]
             )
-        );
-    }
-    /**
-     * enqueue buckaroo sdk
-     *
-     * @return void
-     */
-    protected function enqueue_sdk()
-    {
-        $path = "https://testcheckout.buckaroo.nl/api/buckaroosdk/script";
-        if ($this->settings['mode'] === 'live') {
-            $path = "https://checkout.buckaroo.nl/api/buckaroosdk/script";
-        }
-        wp_enqueue_script(
-            'buckaroo_sdk',
-            $path,
-            array('jquery'),
-            BuckarooConfig::VERSION
         );
     }
     /**
