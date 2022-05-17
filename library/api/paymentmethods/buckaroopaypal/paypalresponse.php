@@ -35,22 +35,22 @@ class BuckarooPayPalResponse extends BuckarooResponse {
      */
     protected function _parsePostResponseChild() {
         if (isset($_POST['brq_service_paypal_payerEmail'])) {
-            $this->payerEmail = $_POST['brq_service_paypal_payerEmail'];
+            $this->payerEmail = $this->_setPostVariable('brq_service_paypal_payerEmail');
         }
         if (isset($_POST['brq_service_paypal_payerCountry'])) {
-            $this->payerCountry = $_POST['brq_service_paypal_payerCountry'];
+            $this->payerCountry = $this->_setPostVariable('brq_service_paypal_payerCountry');
         }
         if (isset($_POST['brq_service_paypal_payerStatus'])) {
-            $this->payerStatus = $_POST['brq_service_paypal_payerStatus'];
+            $this->payerStatus = $this->_setPostVariable('brq_service_paypal_payerStatus');
         }
         if (isset($_POST['brq_service_paypal_payerFirstname'])) {
-            $this->payerFirstname = $_POST['brq_service_paypal_payerFirstname'];
+            $this->payerFirstname = $this->_setPostVariable('brq_service_paypal_payerFirstname');
         }
         if (isset($_POST['brq_service_paypal_payerLastname'])) {
-            $this->payerLastname = $_POST['brq_service_paypal_payerLastname'];
+            $this->payerLastname = $this->_setPostVariable('brq_service_paypal_payerLastname');
         }
         if (isset($_POST['brq_service_paypal_paypalTransactionID'])) {
-            $this->paypalTransactionID = $_POST['brq_service_paypal_paypalTransactionID'];
+            $this->paypalTransactionID = $this->_setPostVariable('brq_service_paypal_paypalTransactionID');
         }
     }
 

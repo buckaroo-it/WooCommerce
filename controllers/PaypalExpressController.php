@@ -256,7 +256,7 @@ class Buckaroo_Paypal_Express
             );
         }
         try {
-            $response = $this->order->create_and_send($_POST['orderId']);
+            $response = $this->order->create_and_send(sanitize_text_field($_POST['orderId']));
             
             if ($response === null) {
                 $this->display_any_notices();
@@ -304,7 +304,7 @@ class Buckaroo_Paypal_Express
      */
     protected function on_product_page()
     {
-        return isset($_POST['page']) && $_POST['page'] === self::LOCATION_PRODUCT;
+        return isset($_POST['page']) && sanitize_text_field($_POST['page']) === self::LOCATION_PRODUCT;
     }
 
     /**

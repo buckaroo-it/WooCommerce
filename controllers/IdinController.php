@@ -7,9 +7,9 @@ class IdinController
 
     public function returnHandler()
     {
-        Buckaroo_Logger::log(__METHOD__ . "|1|", $_POST);
+        Buckaroo_Logger::log(__METHOD__ . "|1|", wc_clean($_POST));
 
-        $response = new BuckarooResponseDefault($_POST);
+        $response = new BuckarooResponseDefault(wc_clean($_POST));
 
         if ($response && $response->isValid() && $response->hasSucceeded()) {
             $bin = !empty($response->brq_service_idin_consumerbin) ? $response->brq_service_idin_consumerbin : 0;
@@ -56,7 +56,7 @@ class IdinController
         $data['services']['idin']['action']  = 'verify';
         $data['services']['idin']['version'] = '0';
         $data['customVars']['idin']['issuerId'] =
-            (isset($_GET['issuer']) && BuckarooIdin::checkIfValidIssuer($_GET['issuer'])) ? $_GET['issuer'] : '';
+            (isset($_GET['issuer']) && is_string($_GET['issuer']) && BuckarooIdin::checkIfValidIssuer($_GET['issuer'])) ? $_GET['issuer'] : '';
 
         $soap = new BuckarooSoap($data);
 

@@ -40,7 +40,7 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
      */
     public function validate_fields()
     {
-        if (empty($_POST['buckaroo-giropay-bancaccount'])) {
+        if ($this->request('buckaroo-giropay-bancaccount') === null) {
             wc_add_notice(__('Please provide correct BIC', 'wc-buckaroo-bpe-gateway'), 'error');
         }
         
@@ -55,15 +55,10 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        if (empty($_POST['buckaroo-giropay-bancaccount'])) {
-            wc_add_notice(__('Please provide correct BIC', 'wc-buckaroo-bpe-gateway'), 'error');
-            return;
-        }
-
         $order = getWCOrder($order_id);
         /** @var BuckarooGiropay */
         $giropay = $this->createDebitRequest($order);
-        $giropay->bic         = $_POST['buckaroo-giropay-bancaccount'];
+        $giropay->bic         = $this->request('buckaroo-giropay-bancaccount');
         $response = $giropay->Pay();
         return fn_buckaroo_process_response($this, $response);
     }

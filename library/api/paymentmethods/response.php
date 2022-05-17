@@ -54,7 +54,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
         Buckaroo_Logger::log("Start Response");
         if ($this->isHttpRequest()) {
             Buckaroo_Logger::log("Type: HTTP");
-            Buckaroo_Logger::log("POST", print_r($_POST, true));
+            Buckaroo_Logger::log("POST", print_r(wc_clean($_POST), true));
         } else {
             Buckaroo_Logger::log("Type: SOAP");
             if (!is_null($data)) {
@@ -254,10 +254,10 @@ abstract class BuckarooResponse extends BuckarooAbstract
 
     abstract protected function _parseSoapResponseChild();
 
-    private function _setPostVariable($key)
+    protected function _setPostVariable($key)
     {
         if (isset($_POST[$key])) {
-            return $_POST[$key];
+            return wc_clean($_POST[$key]);
         } else {
             return null;
         }
@@ -268,9 +268,9 @@ abstract class BuckarooResponse extends BuckarooAbstract
     {
         $this->payment = $this->_setPostVariable('brq_payment');
         if (isset($_POST['brq_payment_method'])) {
-            $this->payment_method = $_POST['brq_payment_method'];
+            $this->payment_method = $this->_setPostVariable('brq_payment_method');
         } elseif (isset($_POST['brq_transaction_method'])) {
-            $this->payment_method = $_POST['brq_transaction_method'];
+            $this->payment_method = $this->_setPostVariable('brq_transaction_method');
         }
 
         $this->statuscode                            = $this->_setPostVariable('brq_statuscode');
@@ -288,7 +288,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
         $this->invoicenumber   = $this->_setPostVariable('brq_invoicenumber');
         $this->amount          = $this->_setPostVariable('brq_amount');
         if (isset($_POST['brq_amount_credit'])) {
-            $this->amount_credit = $_POST['brq_amount_credit'];
+            $this->amount_credit =$this->_setPostVariable('brq_amount_credit');
         }
 
         $this->currency     = $this->_setPostVariable('brq_currency');
@@ -444,7 +444,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
     {
         $correctSignature = false;
         $signature = $this->_calculateSignature();
-        if ($signature === $_POST['brq_signature']) {
+        if (is_string($_POST['brq_signature']) && $signature === $_POST['brq_signature']) {
             $correctSignature = true;
         }
         return $correctSignature;
@@ -512,7 +512,28 @@ abstract class BuckarooResponse extends BuckarooAbstract
         //turn into string and add the secret key to the end
         $signatureString = '';
         foreach ($sortableArray as $key => $value) {
-            if (in_array(strtolower($key), array('brq_customer_name', 'brq_service_ideal_consumername', 'brq_service_transfer_consumername', 'brq_service_payconiq_payconiqandroidurl', 'brq_service_paypal_payeremail', 'brq_service_paypal_payerfirstname', 'brq_service_paypal_payerlastname', 'brq_service_payconiq_payconiqiosurl', 'brq_service_payconiq_payconiqurl', 'brq_service_payconiq_qrurl', 'brq_service_masterpass_customerphonenumber', 'brq_service_masterpass_shippingrecipientphonenumber', 'brq_invoicedate', 'brq_duedate', 'brq_previousstepdatetime', 'brq_eventdatetime', 'brq_service_transfer_accountholdername'))) {
+            if (in_array(
+                strtolower($key),
+                array(
+                    'brq_customer_name',
+                    'brq_service_ideal_consumername',
+                    'brq_service_transfer_consumername',
+                    'brq_service_payconiq_payconiqandroidurl',
+                    'brq_service_paypal_payeremail',
+                    'brq_service_paypal_payerfirstname',
+                    'brq_service_paypal_payerlastname',
+                    'brq_service_payconiq_payconiqiosurl',
+                    'brq_service_payconiq_payconiqurl',
+                    'brq_service_payconiq_qrurl',
+                    'brq_service_masterpass_customerphonenumber',
+                    'brq_service_masterpass_shippingrecipientphonenumber',
+                    'brq_invoicedate',
+                    'brq_duedate',
+                    'brq_previousstepdatetime',
+                    'brq_eventdatetime',
+                    'brq_service_transfer_accountholdername'
+                )
+            )) {
                 $signatureString .= $key . '=' . $value;
                 continue;
             }

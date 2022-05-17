@@ -18,8 +18,8 @@ if (!defined('BK_PLUGIN_FILE')) {
 
 require_once dirname(__FILE__). "/library/Buckaroo_Logger_Storage.php";
 
-if(isset($_GET['buckaroo_download_log_file'])) {
-    Buckaroo_Logger_Storage::downloadFile($_GET['buckaroo_download_log_file']);
+if(isset($_GET['buckaroo_download_log_file']) && is_string($_GET['buckaroo_download_log_file'])) {
+    Buckaroo_Logger_Storage::downloadFile(sanitize_text_field($_GET['buckaroo_download_log_file']));
 }
 
 require_once dirname(__FILE__). "/library/Buckaroo_Logger.php";
@@ -177,8 +177,8 @@ function buckaroo_test_credentials()
     $timeStamp = time();
     $nonce = bin2hex(random_bytes(8));
 
-    $website_key = $_POST['website_key'];
-    $secret_key = $_POST['secret_key'];
+    $website_key = sanitize_text_field($_POST['website_key']);
+    $secret_key = sanitize_text_field($_POST['secret_key']);
 
     $body = implode(
         "",
@@ -457,7 +457,7 @@ function buckaroo_idin_cart() {
 
 function buckaroo_idin_checkout() {
     if (!empty($_GET['bck_err']) && ($error = base64_decode($_GET['bck_err']))) {
-        wc_add_notice(__($error, 'wc-buckaroo-bpe-gateway'), 'error');
+        wc_add_notice(__(sanitize_text_field($error), 'wc-buckaroo-bpe-gateway'), 'error');
     }
     if (BuckarooConfig::isIdin(BuckarooIdin::getCartProductIds())) {
         include 'templates/idin/checkout.php';
@@ -471,8 +471,11 @@ function buckaroo_idin_checkout() {
  */
 function orderCapture()
 {
+    if (isset($_POST['order_id'])) {
+        exit;
+    }
 
-    $paymentMethod = get_post_meta( $_POST['order_id'], '_wc_order_selected_payment_method', true);
+    $paymentMethod = get_post_meta( (int)sanitize_text_field($_POST['order_id']), '_wc_order_selected_payment_method', true);
 
     switch ($paymentMethod) {
         case "Afterpay":
@@ -491,7 +494,7 @@ function orderCapture()
    
     if (isset($gateway)) {
         echo json_encode(
-            $gateway->process_capture($_POST)
+            $gateway->process_capture()
         );
     }
     exit;
@@ -504,11 +507,11 @@ function orderCapture()
 function buckaroo_admin_notice() {
     if($message = get_transient( get_current_user_id().'buckarooAdminNotice' ) ) {
         delete_transient( get_current_user_id().'buckarooAdminNotice' );
-        echo '<div class="notice notice-'.$message['type'].' is-dismissible"><p>'.$message['message'].'</p></div>';
+        echo '<div class="notice notice-'.esc_attr($message['type']).' is-dismissible"><p>'.wp_kses($message['message'],array("b"=>array(),"p"=>array())).'</p></div>';
     }
     if(get_transient( get_current_user_id().'buckaroo_require_woocommerce') ) {
         delete_transient( get_current_user_id().'buckaroo_require_woocommerce' );
-        echo '<div class="notice notice-error"><p>'.__(
+        echo '<div class="notice notice-error"><p>'.esc_html__(
             'Buckaroo BPE requires WooCommerce to be installed and active',  'wc-buckaroo-bpe-gateway'
         ).'</p></div>';
     }
