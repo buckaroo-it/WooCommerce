@@ -14,15 +14,15 @@
 
 defined('ABSPATH') || exit;
 
-$customerName = $this->geCheckoutField('billing_first_name');
-$customerName.= " ".$this->geCheckoutField('billing_last_name');
+$customer_name = $this->geCheckoutField('billing_first_name');
+$customer_name.= " ".$this->geCheckoutField('billing_last_name');
 
 ?>
 
 <fieldset>
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-sepadirectdebit-accountname">
-            <?php echo _e('Bank account holder:', 'wc-buckaroo-bpe-gateway') ?>
+            <?php echo esc_html_e('Bank account holder:', 'wc-buckaroo-bpe-gateway'); ?>
             <span class="required">*</span>
         </label>
         <input
@@ -32,11 +32,11 @@ $customerName.= " ".$this->geCheckoutField('billing_last_name');
         type="text"
         maxlength="250"
         autocomplete="off"
-        value="<?php echo $customerName; ?>" />
+        value="<?php echo $customer_name; ?>" />
     </p>
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-sepadirectdebit-iban">
-            <?php echo _e('IBAN:', 'wc-buckaroo-bpe-gateway') ?>
+            <?php echo esc_html_e('IBAN:', 'wc-buckaroo-bpe-gateway'); ?>
             <span class="required">*</span>
         </label>
         <input
@@ -51,7 +51,7 @@ $customerName.= " ".$this->geCheckoutField('billing_last_name');
     </p>
     <p class="form-row form-row-wide">
         <label for="buckaroo-sepadirectdebit-bic">
-            <?php echo _e('BIC:', 'wc-buckaroo-bpe-gateway') ?>
+            <?php echo esc_html_e('BIC:', 'wc-buckaroo-bpe-gateway'); ?>
         </label>
         <input
         id="buckaroo-sepadirectdebit-bic"
@@ -63,6 +63,6 @@ $customerName.= " ".$this->geCheckoutField('billing_last_name');
         value=""/>
     </p>
     <p class="required" style="float:right;">
-        * <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?>
+        * <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
     </p>
 </fieldset>

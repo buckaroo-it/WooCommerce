@@ -48,18 +48,18 @@ $tos = $tosLinks[$country];
 if (!is_array($tos)) {
     ?>
     <a 
-    href="<?php echo $tos ?>"
+    href="<?php echo esc_url($tos) ?>"
     target="_blank">
-        <?php echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway'); ?>
+        <?php echo esc_html_e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway'); ?>
     </a>
     <?php
 } else {
-    echo _e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway');
+    echo esc_html_e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway');
 }
 ?>
     <span class="required">*</span> 
-    <input id="<?php echo $fieldName; ?>"
-    name="<?php echo $fieldName; ?>"
+    <input id="<?php echo esc_attr($fieldName); ?>"
+    name="<?php echo esc_attr($fieldName); ?>"
     type="checkbox"
     value="ON" />
     <?php
@@ -67,8 +67,8 @@ if (!is_array($tos)) {
         foreach ($tos as $tosElement) {                
             ?>
             <br>
-            <a href="<?php echo $tosElement['link']; ?>" target="_blank">
-                <?php echo _e($tosElement['label'], 'wc-buckaroo-bpe-gateway'); ?>
+            <a href="<?php echo esc_url($tosElement['link']); ?>" target="_blank">
+                <?php echo esc_html_e($tosElement['label'], 'wc-buckaroo-bpe-gateway'); ?>
             </a>
             <?php
         }
@@ -77,5 +77,5 @@ if (!is_array($tos)) {
 </p>
     
 <p class="required" style="float:right;">*
-    <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?>
+    <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway') ?>
 </p>

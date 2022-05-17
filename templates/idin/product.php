@@ -7,7 +7,7 @@ require_once(dirname(__FILE__) . '/../../library/api/idin.php');
             <img class="buckaroo_idin_logo" src="<?php echo plugin_dir_url(__DIR__) . '../library/buckaroo_images/idin_logo.svg'; ?>" />
             <p class="buckaroo_idin_prompt">
                 <?php
-                    _e('You must be 18 years or older to order this product', 'wc-buckaroo-bpe-gateway');
+                    esc_html_e('You must be 18 years or older to order this product', 'wc-buckaroo-bpe-gateway');
                 ?>
             </p>
         </div>

@@ -22,7 +22,7 @@ if (strtoupper($country) == 'NL' && strtolower($this->klarnaPaymentFlowId) !== '
     <div class="woocommerce-error">
         <p>
             <?php 
-                echo __('Payment method is not supported for country ', 'wc-buckaroo-bpe-gateway') . '(' . $country . ')'; 
+                echo esc_html_e('Payment method is not supported for country ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html_e($country) . ')'; 
             ?>
         </p>
     </div>
@@ -36,7 +36,7 @@ endif;?>
 
     <p class="form-row validate-required">
         <label for="<?php echo $this->getKlarnaSelector() ?>-phone">
-            <?php echo _e('Phone:', 'wc-buckaroo-bpe-gateway') ?>
+            <?php echo esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
         <input id="<?php echo $this->getKlarnaSelector() ?>-phone"
@@ -57,6 +57,6 @@ endif;?>
     <?php }?>
 
     <p class="required" style="float:right;">*
-        <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?>
+        <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway') ?>
     </p>
 </fieldset>
