@@ -471,7 +471,16 @@ function buckaroo_idin_checkout() {
  */
 function orderCapture()
 {
-    if (isset($_POST['order_id'])) {
+    if (!isset($_POST['order_id'])) {
+        echo json_encode(
+            [
+                "errors" => [
+                    "error_capture"=>[
+                        [__('A valid order number is required')]
+                    ]
+                ]
+            ]
+        );
         exit;
     }
 
@@ -493,6 +502,7 @@ function orderCapture()
     }
    
     if (isset($gateway)) {
+        
         echo json_encode(
             $gateway->process_capture()
         );

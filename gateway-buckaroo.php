@@ -1273,4 +1273,22 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         return $method;
     }
+
+    /**
+     * Return properly formated capture error
+     *
+     * @param string $message
+     *
+     * @return array
+     */
+    protected function create_capture_error($message)
+    {
+        return [
+            "errors" => [
+                "error_capture"=>[
+                    [$message]
+                ]
+            ]
+        ];
+    }
 }

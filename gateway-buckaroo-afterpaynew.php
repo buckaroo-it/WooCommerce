@@ -215,12 +215,12 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $order_id = $this->request('order_id');
         
         if ($order_id === null || !is_numeric($order_id)) {
-            return new WP_Error(__('A valid order number is required'));
+            return $this->create_capture_error(__('A valid order number is required'));
         }
 
         $capture_amount = $this->request('capture_amount');
         if($capture_amount === null || !is_scalar($capture_amount)) {
-            return new WP_Error(__('A valid capture amount is required'));
+            return $this->create_capture_error(__('A valid capture amount is required'));
         }
 
 

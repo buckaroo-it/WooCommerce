@@ -322,14 +322,13 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     public function process_capture()
     {
         $order_id             = $this->request('order_id');
-        $capture_amount       = $this->request('capture_amount');
-
         if ($order_id === null || !is_numeric($order_id)) {
-           return new WP_Error(__('A valid order number is required'));
+            return $this->create_capture_error(__('A valid order number is required'));
         }
 
-        if($capture_amount === null) {
-            return new WP_Error(__('A valid capture amount is required'));
+        $capture_amount = $this->request('capture_amount');
+        if($capture_amount === null || !is_scalar($capture_amount)) {
+            return $this->create_capture_error(__('A valid capture amount is required'));
         }
 
        
