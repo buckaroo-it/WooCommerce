@@ -101,9 +101,9 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
             'currency'             => $currency,
             'id'                   => $order->get_id() . $str,
             'amount'               => $capture_amount,
-            'line_item_qtys'       => wc_clean($_POST['line_item_qtys']),
-            'line_item_totals'     => wc_clean($_POST['line_item_totals']),
-            'line_item_tax_totals' => wc_clean($_POST['line_item_tax_totals']),
+            'line_item_qtys'         => isset( $_POST['line_item_qtys'] ) ?  sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ), true ) :'',
+            'line_item_totals'       => isset( $_POST['line_item_totals'] ) ?  sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ), true ) :'',
+            'line_item_tax_totals'   => isset( $_POST['line_item_tax_totals'] ) ?  sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ), true ) :'',
         ));
 
         add_post_meta($order->get_order_number(), '_capturebuckaroo' . $response->transactions, 'ok', true);
@@ -555,7 +555,7 @@ function resetOrder()
 function getUniqInvoiceId($order_id, $mode = 'live')
 {
     if (isset($_REQUEST['payment_method'])) {
-        $paymentMethod = wc_clean($_REQUEST['payment_method']);
+        $paymentMethod = sanitize_text_field($_REQUEST['payment_method']);
     }
     $time = time();
     if (!empty($paymentMethod) && $paymentMethod == 'buckaroo_afterpay') {
@@ -785,7 +785,7 @@ function getClientIpBuckaroo()
     } else {
         $ipaddress = 'UNKNOWN';
     }
-    $ex = explode(",", $ipaddress);
+    $ex = explode(",", sanitize_text_field($ipaddress));
     if (filter_var($ex[0], FILTER_VALIDATE_IP)) {
         return trim($ex[0]);
     }

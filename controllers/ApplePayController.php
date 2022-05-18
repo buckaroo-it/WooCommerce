@@ -134,7 +134,7 @@ Class ApplePayController
 
             $country_code = '';
             if (isset($_GET['country_code']) && is_string($_GET['country_code'])) {
-                $country_code = strtoupper($_GET['country_code']);
+                $country_code = strtoupper(sanitize_text_field($_GET['country_code']));
             }
 
             $customer = $woocommerce->customer;

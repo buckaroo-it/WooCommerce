@@ -183,7 +183,7 @@ class Buckaroo_Paypal_Express_Shipping
      */
     protected function get_address_data()
     {
-        if (!isset($_POST['shipping_data']) && !isset($_POST['shipping_data']['shipping_address'])) {
+        if (!isset($_POST['shipping_data']) || !isset($_POST['shipping_data']['shipping_address'])) {
             throw new Buckaroo_Paypal_Express_Exception("Shipping address is required");
         }
         return wc_clean($_POST['shipping_data']['shipping_address']);

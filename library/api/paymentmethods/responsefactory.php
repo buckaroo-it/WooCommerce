@@ -21,11 +21,11 @@ class BuckarooResponseFactory {
             if (isset($data[0]->ServiceCode))
                 $paymentMethod = $data[0]->ServiceCode;
         }//2) HTTP ???
-        else if (isset($_POST['brq_payment_method'])) { //brq_payment_method - The service code identifying the type of payment that has occurred.
-            $paymentMethod = wc_clean($_POST['brq_payment_method']);
+        else if (isset($_POST['brq_payment_method']) && is_string($_POST['brq_payment_method'])) { //brq_payment_method - The service code identifying the type of payment that has occurred.
+            $paymentMethod = sanitize_text_field($_POST['brq_payment_method']);
         } // HTTP ???
-        else if (isset($_POST['brq_transaction_method'])) { //brq_ transaction_method The service code identifying the type of transaction that has occurred. (If no payment has occurred, for example when a customer cancels on the redirect page.
-            $paymentMethod = wc_clean($_POST['brq_transaction_method']);
+        else if (isset($_POST['brq_transaction_method']) && is_string($_POST['brq_transaction_method'])) { //brq_ transaction_method The service code identifying the type of transaction that has occurred. (If no payment has occurred, for example when a customer cancels on the redirect page.
+            $paymentMethod = sanitize_text_field($_POST['brq_transaction_method']);
         }
         
         return $paymentMethod;

@@ -442,7 +442,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if (!isset($_POST[$key])) {
            return;
         }
-        $value = wc_clean($_POST[$key]);
+        $value = map_deep( $_POST[$key], 'sanitize_text_field' );
         if (is_string($value) && strlen($value) === 0) {
             return;
         }
@@ -460,7 +460,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if (!isset($_GET[$key])) {
            return;
         }
-        $value = wc_clean($_GET[$key]);
+        $value = map_deep( $_GET[$key], 'sanitize_text_field' );
         if (is_string($value) && strlen($value) === 0) {
             return;
         }
@@ -572,7 +572,10 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $value = '';
         $post_data   = array();
         if (!empty($_POST["post_data"])) {
-            parse_str($_POST["post_data"], $post_data);
+            parse_str(
+                sanitize_text_field( $_POST["post_data"] ),
+                $post_data
+            );
         }
 
         if (isset($post_data[$key])) {
@@ -886,9 +889,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
             $captures = json_decode(json_encode($captures), true);
 
-            $line_item_qtys       = wc_clean(json_decode(stripslashes($_POST['line_item_qtys']), true));
-            $line_item_totals     = wc_clean(json_decode(stripslashes($_POST['line_item_totals']), true));
-            $line_item_tax_totals = wc_clean(json_decode(stripslashes($_POST['line_item_tax_totals']), true));
+            $line_item_qtys         = isset( $_POST['line_item_qtys'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ) ), true ) : array();
+            $line_item_totals       = isset( $_POST['line_item_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ) ), true ) : array();
+            $line_item_tax_totals   = isset( $_POST['line_item_tax_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ) ), true ) : array();
 
             $line_item_qtys_new                 = array();
             $line_item_totals_new               = array();

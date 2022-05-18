@@ -81,15 +81,16 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $itemsTotalAmount = 0;
 
         if ($line_item_qtys === null) {
-            $line_item_qtys = wc_clean(json_decode(stripslashes($_POST['line_item_qtys']), true));
+            $line_item_qtys = isset( $_POST['line_item_qtys'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ) ), true ) : array();
         }
-
+        
+        
         if ($line_item_totals === null) {
-            $line_item_totals = wc_clean(json_decode(stripslashes($_POST['line_item_totals']), true));
+            $line_item_totals = isset( $_POST['line_item_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ) ), true ) : array();
         }
-
+        
         if ($line_item_tax_totals === null) {
-            $line_item_tax_totals = wc_clean(json_decode(stripslashes($_POST['line_item_tax_totals']), true));
+            $line_item_tax_totals  = isset( $_POST['line_item_tax_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ) ), true ) : array();
         }
 
         $orderDataForChecking = $afterpay->getOrderRefundData($order);
@@ -223,7 +224,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             return $this->create_capture_error(__('A valid capture amount is required'));
         }
 
-
         $previous_captures = get_post_meta($order_id, '_wc_order_captures') ? get_post_meta($order_id, '_wc_order_captures') : false;
 
         $woocommerce          = getWooCommerceObject();
@@ -242,9 +242,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $items            = $order->get_items();
         $itemsTotalAmount = 0;
 
-        $line_item_qtys       = wc_clean(json_decode(stripslashes($_POST['line_item_qtys']), true));
-        $line_item_totals     = wc_clean(json_decode(stripslashes($_POST['line_item_totals']), true));
-        $line_item_tax_totals = wc_clean(json_decode(stripslashes($_POST['line_item_tax_totals']), true));
+        $line_item_qtys         = isset( $_POST['line_item_qtys'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ) ), true ) : array();
+		$line_item_totals       = isset( $_POST['line_item_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ) ), true ) : array();
+		$line_item_tax_totals   = isset( $_POST['line_item_tax_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ) ), true ) : array();
 
         foreach ($items as $item) {
             if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {

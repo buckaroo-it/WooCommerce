@@ -444,7 +444,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
     {
         $correctSignature = false;
         $signature = $this->_calculateSignature();
-        if (is_string($_POST['brq_signature']) && $signature === $_POST['brq_signature']) {
+        if (isset($_POST['brq_signature']) && is_string($_POST['brq_signature']) && $signature === $_POST['brq_signature']) {
             $correctSignature = true;
         }
         return $correctSignature;

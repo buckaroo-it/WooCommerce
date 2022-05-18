@@ -132,6 +132,11 @@ class Buckaroo_Paypal_Express
             "express" => ["none"]
         );
         $settings = get_option('woocommerce_buckaroo_paypal_settings', []);
+        
+        if (!is_array($settings["express"])) {
+            $settings["express"] = ["none"];
+        }
+
         $this->settings = array_merge($default, $settings);
     }
     /**

@@ -95,7 +95,7 @@
 
                 $TransactionRequest->ClientIP = new IPAddress();
                 $TransactionRequest->ClientIP->Type = 'IPv4';
-                $TransactionRequest->ClientIP->_ = $_SERVER['REMOTE_ADDR'];
+                $TransactionRequest->ClientIP->_ = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']): '0.0.0.0';
 
                 $sellerProtectionEnabled = false;
                 foreach ($TransactionRequest->Services->Service as $key => $service) {
