@@ -63,6 +63,11 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
 function fn_buckaroo_process_capture($response, $order, $currency, $products = null)
 {
 
+    if (!isset($_POST['capture_amount']) || !is_scalar($_POST['capture_amount'])) {
+        return false;
+    }
+
+    $capture_amount = sanitize_text_field($_POST['capture_amount']);
     if ($response && $response->isValid() && $response->hasSucceeded()) {
 
         // SET the flags
@@ -72,7 +77,7 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
             // Order already captured
             // Add the other values of the capture so we have the full value captured
             $previousCaptures = (float) get_post_meta($order->get_id(), '_wc_order_amount_captured', true);
-            $total            = $previousCaptures + (float) $_POST['capture_amount'];
+            $total            = $previousCaptures + (float) $capture_amount;
             update_post_meta($order->get_id(), '_wc_order_amount_captured', $total);
 
         } else {
@@ -80,7 +85,7 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
             // Order not captured yet
             // Set first amout_captured and is_captured flag
             update_post_meta($order->get_id(), '_wc_order_is_captured', true);
-            update_post_meta($order->get_id(), '_wc_order_amount_captured', $_POST['capture_amount']);
+            update_post_meta($order->get_id(), '_wc_order_amount_captured', $capture_amount);
         }
 
         $str        = "";
@@ -95,10 +100,10 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
         add_post_meta($order->get_id(), '_wc_order_captures', array(
             'currency'             => $currency,
             'id'                   => $order->get_id() . $str,
-            'amount'               => $_POST['capture_amount'],
-            'line_item_qtys'       => $_POST['line_item_qtys'],
-            'line_item_totals'     => $_POST['line_item_totals'],
-            'line_item_tax_totals' => $_POST['line_item_tax_totals'],
+            'amount'               => $capture_amount,
+            'line_item_qtys'         => isset( $_POST['line_item_qtys'] ) ?  sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ), true ) :'',
+            'line_item_totals'       => isset( $_POST['line_item_totals'] ) ?  sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ), true ) :'',
+            'line_item_tax_totals'   => isset( $_POST['line_item_tax_totals'] ) ?  sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ), true ) :'',
         ));
 
         add_post_meta($order->get_order_number(), '_capturebuckaroo' . $response->transactions, 'ok', true);
@@ -107,7 +112,7 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
         $order->add_order_note(
             sprintf(
                 __('Captured %s - Capture transaction ID: %s', 'wc-buckaroo-bpe-gateway'),
-                $_POST['capture_amount'] . ' ' . $currency,
+                $capture_amount . ' ' . $currency,
                 $response->transactions
             )
         );
@@ -550,7 +555,7 @@ function resetOrder()
 function getUniqInvoiceId($order_id, $mode = 'live')
 {
     if (isset($_REQUEST['payment_method'])) {
-        $paymentMethod = $_REQUEST['payment_method'];
+        $paymentMethod = sanitize_text_field($_REQUEST['payment_method']);
     }
     $time = time();
     if (!empty($paymentMethod) && $paymentMethod == 'buckaroo_afterpay') {
@@ -780,14 +785,18 @@ function getClientIpBuckaroo()
     } else {
         $ipaddress = 'UNKNOWN';
     }
-    $ex = explode(",", $ipaddress);
-    return trim($ex[0]);
+    $ex = explode(",", sanitize_text_field($ipaddress));
+    if (filter_var($ex[0], FILTER_VALIDATE_IP)) {
+        return trim($ex[0]);
+    }
+    return "";
 }
 
 function roundAmount($amount) {
-
-    $precision = 2;
-    return round($amount, $precision);
+    if(is_scalar($amount)) {
+        return round(floatval($amount), 2);
+    }
+    return 0;
 }
 
 function fn_process_push_refund($order_id, $response){

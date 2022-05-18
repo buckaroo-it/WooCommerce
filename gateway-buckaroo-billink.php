@@ -34,6 +34,31 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $this->vattype    = $this->get_option('vattype');
     }
     /**
+     * Validate fields
+     * @return void;
+     */
+    public function validate_fields()
+    {
+        if ($this->request('billing_company') !== null) {
+            if ($this->request('buckaroo-billink-CompanyCOCRegistration')=== null) {
+                wc_add_notice(__("Please enter correct COC (KvK) number", 'wc-buckaroo-bpe-gateway'), 'error');
+            }
+        } else {
+            if (!$this->validateDate($this->request('buckaroo-billink-birthdate'), 'd-m-Y')
+             ) {
+                wc_add_notice(__("Please enter correct birth date", 'wc-buckaroo-bpe-gateway'), 'error');
+            }
+            if(!in_array($this->request('buckaroo-billink-gender'), ["1","2"])) {
+                wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
+            }
+        }
+
+        if ($this->request("buckaroo-billink-accept") === null) {
+            wc_add_notice(__("Please accept license agreements", 'wc-buckaroo-bpe-gateway'), 'error');
+        }
+        parent::validate_fields();
+    }
+    /**
      * Process payment
      *
      * @param integer $order_id
@@ -59,28 +84,16 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
 
 
         if ($billink->B2B) {
-            if (!empty($_POST['buckaroo-billink-CompanyCOCRegistration'])) {
-                $billink->CompanyCOCRegistration = $_POST['buckaroo-billink-CompanyCOCRegistration'];
-            } else {
-                wc_add_notice(__("Please enter correct COC (KvK) number", 'wc-buckaroo-bpe-gateway'), 'error');
-                return;
-            }
-
-            if (!empty($_POST['buckaroo-billink-VatNumber'])) {
-                $billink->VatNumber = $_POST['buckaroo-billink-VatNumber'];
+            $billink->CompanyCOCRegistration = $this->request('buckaroo-billink-CompanyCOCRegistration');
+            $var_number = $this->request('buckaroo-billink-VatNumber');
+            if ($var_number !== null) {
+                $billink->VatNumber = $var_number;
             }
         } else {
-            if (!empty($_POST['buckaroo-billink-birthdate']) && $this->validateDate($_POST['buckaroo-billink-birthdate'], 'd-m-Y')) {
-                $billink->BillingBirthDate = $_POST['buckaroo-billink-birthdate'];
-            } else {
-                wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
-                return;
-            }
+            $billink->BillingBirthDate = $this->request('buckaroo-billink-birthdate');
+
         }
-        if (empty($_POST["buckaroo-billink-accept"])) {
-            wc_add_notice(__("Please accept licence agreements", 'wc-buckaroo-bpe-gateway'), 'error');
-            return;
-        }
+        
         $shippingCosts    = $order->get_total_shipping();
         $shippingCostsTax = $order->get_shipping_tax();
         if (floatval($shippingCosts) > 0) {
@@ -116,7 +129,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
     {
         /** @var BuckarooBillink */
         $method = $this->set_billing($method, $order_details);
-        $method->BillingGender = $_POST['buckaroo-billink-gender'];
+        $method->BillingGender = $this->request('buckaroo-billink-gender');
         $method->setBillingFirstName(
             $order_details->getBilling('first_name')
         );
@@ -137,7 +150,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
     protected function getShippingInfo($order_details, $method)
     {
         $method->AddressesDiffer = 'FALSE';
-        if (isset($_POST["buckaroo-billink-shipping-differ"])) {
+        if ($this->request("buckaroo-billink-shipping-differ") !== null) {
             $method->AddressesDiffer = 'TRUE';
 
              /** @var BuckarooBillink */

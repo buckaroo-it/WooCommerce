@@ -161,15 +161,16 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         $creditcard = $this->createCreditRequest($order, $amount, $reason);
 
         if ($line_item_qtys === null) {
-            $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
+            $line_item_qtys = isset( $_POST['line_item_qtys'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ) ), true ) : array();
         }
-
+        
+        
         if ($line_item_totals === null) {
-            $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true);
+            $line_item_totals = isset( $_POST['line_item_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ) ), true ) : array();
         }
-
+        
         if ($line_item_tax_totals === null) {
-            $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
+            $line_item_tax_totals  = isset( $_POST['line_item_tax_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ) ), true ) : array();
         }
 
 
@@ -215,21 +216,42 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     {
         parent::validate_fields();
         
-        if (empty($_POST[$this->id.'-creditcard-issuer'])) {
+        $issuer = $this->request($this->id.'-creditcard-issuer');
+        if ($issuer === null) {
             wc_add_notice(__("Select a credit card.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
+
+
+        if (!in_array($issuer, array(
+            "amex",
+            "cartebancaire",
+            "cartebleuevisa",
+            "dankort",
+            "maestro",
+            "mastercard",
+            "nexi",
+            "postepay",
+            "visa",
+            "visaelectron",
+            "vpay",
+        ))) {
+            wc_add_notice(__("A valid credit card is required.", 'wc-buckaroo-bpe-gateway'), 'error');
+        }
         if ($this->get_option('creditcardmethod') == 'encrypt') {
-            if (empty($_POST[$this->id.'-cardyear'])) {
+            $card_year = $this->request($this->id.'-cardyear');
+
+            if ($card_year === null) {
                 wc_add_notice(__("Enter expiration year field", 'wc-buckaroo-bpe-gateway'), 'error');
                 return;
             }
             $fullYear = date('Y');
             $year     = date('y');
-            if ((int) $_POST[$this->id.'-cardyear'] < (int) $fullYear && strlen($_POST[$this->id.'-cardyear']) === 4) {
+
+            if ((int) $card_year < (int) $fullYear && strlen($card_year) === 4) {
                 wc_add_notice(__("Enter valid expiration year", 'wc-buckaroo-bpe-gateway'), 'error');
                 return;
             }
-            if ((int) $_POST[$this->id.'-cardyear'] < (int) $year && strlen($_POST[$this->id.'-cardyear']) !== 4) {
+            if ((int) $card_year < (int) $year && strlen($card_year) !== 4) {
                 wc_add_notice(__("Enter valid expiration year", 'wc-buckaroo-bpe-gateway'), 'error');
                 return;
             }
@@ -249,7 +271,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         $this->setOrderCapture(
             $order_id,
             'Creditcard',
-            $_POST[$this->id."-creditcard-issuer"]
+            $this->request($this->id."-creditcard-issuer")
         );
         $order = getWCOrder($order_id);
         /** @var BuckarooCreditCard */
@@ -260,33 +282,19 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 
         $customVars = array();
 
-        if (isset($_POST[$this->id."-encrypted-data"])) {
-            $customVars['CreditCardDataEncrypted'] = $_POST[$this->id."-encrypted-data"];
+        if ($this->request($this->id."-encrypted-data") !== null) {
+            $customVars['CreditCardDataEncrypted'] = $this->request($this->id."-encrypted-data");
         } else {
             $customVars['CreditCardDataEncrypted'] = null;
         }
 
-        if (isset($_POST[$this->id."-creditcard-issuer"])) {
-            $customVars['CreditCardIssuer'] = $_POST[$this->id."-creditcard-issuer"];
+        if ($this->request($this->id."-creditcard-issuer") !== null) {
+            $customVars['CreditCardIssuer'] = $this->request($this->id."-creditcard-issuer");
         } else {
             $customVars['CreditCardIssuer'] = null;
         }
 
         if ($creditCardMethod == 'encrypt' && $this->isSecure()) {
-            // In this case we only send the encrypted card data.
-
-            // If not then send an error.
-            if (empty($_POST[$this->id."-encrypted-data"])) {
-                wc_add_notice(__("The credit card data is incorrect, please check the values", 'wc-buckaroo-bpe-gateway'), 'error');
-                return;
-            }
-
-            if (empty($_POST[$this->id."-creditcard-issuer"])) {
-                wc_add_notice(__("You havent selected your credit card issuer", 'wc-buckaroo-bpe-gateway'), 'error');
-                return;
-            }
-
-            $creditcard->CreditCardDataEncrypted = $_POST[$this->id."-encrypted-data"];
 
             if ($creditCardPayAuthorize == 'pay') {
                 $response = $creditcard->PayEncrypt($customVars);
@@ -300,8 +308,6 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             return fn_buckaroo_process_response($this, $response);
         }
 
-    
-        
         if ($creditCardPayAuthorize == 'pay') {
             $response = $creditcard->Pay($customVars);
         } else if ($creditCardPayAuthorize == 'authorize') {
@@ -316,12 +322,22 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 
     public function process_capture()
     {
-        $order_id             = $_POST['order_id'];
+        $order_id             = $this->request('order_id');
+        if ($order_id === null || !is_numeric($order_id)) {
+            return $this->create_capture_error(__('A valid order number is required'));
+        }
+
+        $capture_amount = $this->request('capture_amount');
+        if($capture_amount === null || !is_scalar($capture_amount)) {
+            return $this->create_capture_error(__('A valid capture amount is required'));
+        }
+
+       
         
         $order = getWCOrder($order_id);
         /** @var BuckarooCreditCard */
         $creditcard = $this->createDebitRequest($order);
-        $creditcard->amountDedit            = str_replace(',', '.', $_POST['capture_amount']);
+        $creditcard->amountDedit            = str_replace(',', '.', $capture_amount);
         $creditcard->OriginalTransactionKey = $order->get_transaction_id();
         $creditcard->channel                = BuckarooConfig::CHANNEL_BACKOFFICE;
         

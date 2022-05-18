@@ -91,7 +91,9 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
             $hide_save_button = true;
         }
         if ($current_section === 'logs' && isset($_GET['log_file'])) {
-            (new Buckaroo_Report_Page())->display_log_file($_GET['log_file']);
+            (new Buckaroo_Report_Page())->display_log_file(
+                sanitize_text_field($_GET['log_file'])
+            );
             $hide_save_button = true;
         }
     }
@@ -217,7 +219,7 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
         $gateways = $this->getBuckarooGateways();
         $containerHeight = ceil(count($gateways) / 3) * 45
         ?>
-        <ul class="buckaroo-payment-list" style="height:<?php echo $containerHeight; ?>px">
+        <ul class="buckaroo-payment-list" style="height:<?php echo esc_attr($containerHeight); ?>px">
         <?php foreach ($gateways as $gateway) {
             $method_title = $gateway->get_method_title() ? $gateway->get_method_title() : $gateway->get_title();
         ?>
@@ -225,7 +227,7 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
                 <?php 
                 if ($gateway->icon !== null) {
                     ?>
-                    <img class="buckaroo-payment-list-icon" src="<?php echo $gateway->icon; ?>">
+                    <img class="buckaroo-payment-list-icon" src="<?php echo esc_url($gateway->icon); ?>">
                     <?php 
                 }
                 echo wp_kses_post(str_replace("Buckaroo ", "", $method_title));

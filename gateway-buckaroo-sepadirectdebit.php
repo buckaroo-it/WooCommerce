@@ -50,12 +50,15 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
      */
     public function validate_fields()
     {
-        if (empty($_POST['buckaroo-sepadirectdebit-accountname'])
-            || empty($_POST['buckaroo-sepadirectdebit-iban'])) {
+        $iban = $this->request('buckaroo-sepadirectdebit-iban');
+        if (
+            $this->request('buckaroo-sepadirectdebit-accountname') === null ||
+            $iban === null
+            ) {
             wc_add_notice(__("Please fill in all required fields", 'wc-buckaroo-bpe-gateway'), 'error');
         }
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        if (!BuckarooSepaDirectDebit::isIBAN($_POST['buckaroo-sepadirectdebit-iban'])) {
+        if (!BuckarooSepaDirectDebit::isIBAN($iban)) {
             wc_add_notice(__("Wrong IBAN number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
@@ -70,23 +73,19 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
      */
     public function process_payment($order_id)
     {
-        if (empty($_POST['buckaroo-sepadirectdebit-accountname'])
-            || empty($_POST['buckaroo-sepadirectdebit-iban'])) {
-            wc_add_notice(__("Please fill in all required fields", 'wc-buckaroo-bpe-gateway'), 'error');
-            return;
-        };
+
         $order = getWCOrder($order_id);
         /** @var BuckarooSepaDirectDebit */
         $sepadirectdebit = $this->createDebitRequest($order);
 
-        if (!$sepadirectdebit->isIBAN($_POST['buckaroo-sepadirectdebit-iban'])) {
+        if (!$sepadirectdebit->isIBAN($this->request('buckaroo-sepadirectdebit-iban'))) {
             wc_add_notice(__("Wrong IBAN number", 'wc-buckaroo-bpe-gateway'), 'error');
             return;
         }
 
-        $sepadirectdebit->customeraccountname = $_POST['buckaroo-sepadirectdebit-accountname'];
-        $sepadirectdebit->CustomerBIC         = $_POST['buckaroo-sepadirectdebit-bic'];
-        $sepadirectdebit->CustomerIBAN        = $_POST['buckaroo-sepadirectdebit-iban'];
+        $sepadirectdebit->customeraccountname = $this->request('buckaroo-sepadirectdebit-accountname');
+        $sepadirectdebit->CustomerBIC         = $this->request('buckaroo-sepadirectdebit-bic');
+        $sepadirectdebit->CustomerIBAN        = $this->request('buckaroo-sepadirectdebit-iban');
 
     
         $sepadirectdebit->returnUrl = $this->notify_url;

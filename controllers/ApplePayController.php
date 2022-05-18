@@ -114,7 +114,7 @@ Class ApplePayController
                 : $product['product_id'];
             return [
                 'type'       => 'product',
-                'id'         => $id,
+                'id'         => absint($id),
                 'name'       => wc_get_product($id)->get_name(),
                 'price'      => $product['line_total'] + $product['line_tax'],
                 'quantity'   => $product['quantity'],
@@ -131,7 +131,11 @@ Class ApplePayController
             global $woocommerce;
     
             $cart = $woocommerce->cart;
-            $country_code = strtoupper($_GET['country_code']);
+
+            $country_code = '';
+            if (isset($_GET['country_code']) && is_string($_GET['country_code'])) {
+                $country_code = strtoupper(sanitize_text_field($_GET['country_code']));
+            }
 
             $customer = $woocommerce->customer;
             $customer->set_shipping_country($country_code);
@@ -142,8 +146,7 @@ Class ApplePayController
                 ->calculate_shipping_for_package(current($packages))['rates']
             ;
         }
-        
-        if (isset($_GET['product_id'])) {
+        if (isset($_GET['product_id']) && is_numeric($_GET['product_id'])) {
             $wc_methods = self::createTemporaryCart(function () {
                 return wcMethods();
             });
@@ -174,14 +177,26 @@ Class ApplePayController
      */
     private static function createTemporaryCart($callback) 
     {
+        if (!(isset($_GET['product_id']) && is_numeric($_GET['product_id']))) {
+            throw new \Exception('Invalid product_id');
+        }
+
+        if (isset($_GET['variation_id']) && !is_numeric($_GET['variation_id'])) {
+            throw new \Exception('Invalid variation_id');
+        }
+
+        if (!(isset($_GET['quantity']) && is_numeric($_GET['quantity']) && $_GET['quantity'] > 0)) {
+            throw new \Exception('Invalid quantity');
+        }
+        
         global $woocommerce;
 
         /** @var WC_Cart */
         $cart = $woocommerce->cart;
 
         $current_shown_product = [
-            'product_id'   => $_GET['product_id'],
-            'variation_id' => $_GET['variation_id'],
+            'product_id'   => absint($_GET['product_id']),
+            'variation_id' => absint($_GET['variation_id']),
             'quantity'     => (int) $_GET['quantity'],
         ];
 

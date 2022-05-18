@@ -25,16 +25,16 @@ class BuckarooIDealResponse extends BuckarooResponse {
      */
     protected function _parsePostResponseChild() {
         if (isset($_POST['brq_service_ideal_consumerIssuer'])) {
-            $this->consumerIssuer = $_POST['brq_service_ideal_consumerIssuer'];
+            $this->consumerIssuer = $this->_setPostVariable('brq_service_ideal_consumerIssuer');
         }
         if (isset($_POST['brq_service_ideal_consumerName'])) {
-            $this->consumerName = $_POST['brq_service_ideal_consumerName'];
+            $this->consumerName = $this->_setPostVariable('brq_service_ideal_consumerName');
         }
         if (isset($_POST['brq_service_ideal_consumerAccountNumber'])) {
-            $this->consumerAccountNumber = $_POST['brq_service_ideal_consumerAccountNumber'];
+            $this->consumerAccountNumber = $this->_setPostVariable('brq_service_ideal_consumerAccountNumber');
         }
         if (isset($_POST['brq_service_ideal_consumerCity'])) {
-            $this->consumerCity = $_POST['brq_service_ideal_consumerCity'];
+            $this->consumerCity = $this->_setPostVariable('brq_service_ideal_consumerCity');
         }
     }
 }
