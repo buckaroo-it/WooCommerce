@@ -17,32 +17,32 @@ defined('ABSPATH') || exit;
 $id = str_replace("_", "-", $this->id);
 ?>
 <p class="form-row">
-    <label for="<?php echo $id?>-gender">
-        <?php echo _e('Gender:', 'wc-buckaroo-bpe-gateway') ?>
+    <label for="<?php echo esc_attr($id)?>-gender">
+        <?php echo esc_html_e('Gender:', 'wc-buckaroo-bpe-gateway') ?>
         <span class="required">*</span>
     </label>
     <input
-    id="<?php echo $id?>-genderm"
-    name="<?php echo $id?>-gender"
+    id="<?php echo esc_attr($id)?>-genderm"
+    name="<?php echo esc_attr($id)?>-gender"
     class=""
     type="radio"
     value="1"
     checked
     />
     <label 
-    for="<?php echo $id?>-genderm" 
+    for="<?php echo esc_attr($id)?>-genderm" 
     style="display:inline; margin-right:15px;">
-        <?php echo _e('Male', 'wc-buckaroo-bpe-gateway') ?>
+        <?php echo esc_html_e('Male', 'wc-buckaroo-bpe-gateway') ?>
     </label>
 
     <input
-    id="<?php echo $id?>-genderf"
-    name="<?php echo $id?>-gender"
+    id="<?php echo esc_attr($id)?>-genderf"
+    name="<?php echo esc_attr($id)?>-gender"
     class=""
     type="radio"
     value="2"
     />
-    <label for="<?php echo $id?>-genderf" style="display:inline;">
-        <?php echo _e('Female', 'wc-buckaroo-bpe-gateway') ?>
+    <label for="<?php echo esc_attr($id)?>-genderf" style="display:inline;">
+        <?php echo esc_html_e('Female', 'wc-buckaroo-bpe-gateway') ?>
     </label>
 </p>

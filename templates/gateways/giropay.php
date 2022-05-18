@@ -18,7 +18,7 @@ defined('ABSPATH') || exit;
 <fieldset>
     <p class="form-row form-row-wide">
         <label for="buckaroo-giropay-bancaccount">
-            <?php echo _e('BIC:', 'wc-buckaroo-bpe-gateway') ?>
+            <?php echo esc_html_e('BIC:', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
         <input
@@ -32,6 +32,6 @@ defined('ABSPATH') || exit;
         />
     </p>
     <p class="required" style="float:right;">
-        * <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?>
+        * <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway') ?>
     </p>
 </fieldset>

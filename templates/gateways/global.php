@@ -16,6 +16,6 @@ defined('ABSPATH') || exit;
 
 if ($this->mode == 'test') {
 ?>
-    <p> <?php echo _e('TEST MODE', 'wc-buckaroo-bpe-gateway');?></p>
+    <p> <?php echo esc_html_e('TEST MODE', 'wc-buckaroo-bpe-gateway');?></p>
 <?php
 }

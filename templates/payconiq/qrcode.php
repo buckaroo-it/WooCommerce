@@ -306,7 +306,7 @@
         <input type="hidden" name="brq_service_Payconiq_action" id="brq_service_Payconiq_action" value="Pay"/>
         <input type="hidden" name="bst" id="bst" value="EE37015BF28744BA9866FA2321487F10"/>
         <div class="amountWrapper">
-            <span class="amount"><?php echo $_GET['currency'] . ' ' .$_GET['amount'] ?></span>
+            <span class="amount"><?php echo esc_html($_GET['currency'] . ' ' .$_GET['amount']) ?></span>
         </div>
 
         <div id="payconiqQrWrapper">
@@ -314,11 +314,11 @@
         </div>
         <div class="payconiq-footer">
             <div id="instruction" class="payconiq-qr__footer__texts">
-                <span class="payconiq-qr__container__header--text">1. <?php echo __("Open your Payconiq app. ", 'wc-buckaroo-bpe-gateway')?></span> <br>
-                <span class="payconiq-qr__container__header--text">2. <?php echo __("Point your camera at this QR code. ", 'wc-buckaroo-bpe-gateway')?></span> <br>
-                <span class="payconiq-qr__container__header--text">3. <?php echo __("Confirm payment with your PIN or fingerprint. ", 'wc-buckaroo-bpe-gateway')?> </span>
+                <span class="payconiq-qr__container__header--text">1. <?php echo esc_html_e("Open your Payconiq app. ", 'wc-buckaroo-bpe-gateway')?></span> <br>
+                <span class="payconiq-qr__container__header--text">2. <?php echo esc_html_e("Point your camera at this QR code. ", 'wc-buckaroo-bpe-gateway')?></span> <br>
+                <span class="payconiq-qr__container__header--text">3. <?php echo esc_html_e("Confirm payment with your PIN or fingerprint. ", 'wc-buckaroo-bpe-gateway')?> </span>
             </div>
-            <div class="payconiq-cancel"><a href="<?php echo $_GET["returnUrl"] ?>&order_id=<?php echo $_GET["order_id"] ?>">Cancel payment</a></div>
+            <div class="payconiq-cancel"><a href="<?php echo esc_url($_GET["returnUrl"]) ?>&order_id=<?php echo esc_html($_GET["order_id"]) ?>">Cancel payment</a></div>
         </div>
     </form>
 
@@ -326,7 +326,7 @@
 
 <script>
     $(document).ready(function () {
-        BuckarooSdk.Payconiq.initiate("#payconiqQr", "<?php echo $_GET["transactionKey"] ?>", function(status, params) {
+        BuckarooSdk.Payconiq.initiate("#payconiqQr", "<?php echo esc_html($_GET["transactionKey"]) ?>", function(status, params) {
             if (status == 'PROCESSING'){
                 $('.payconiq-cancel').hide();
             }

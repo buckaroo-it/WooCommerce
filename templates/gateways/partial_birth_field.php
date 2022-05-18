@@ -17,14 +17,14 @@ defined('ABSPATH') || exit;
 $id = str_replace("_", "-", $this->id);
 ?>
 <p class="form-row form-row-wide validate-required">
-    <label for="<?php echo $id?>-birthdate">
-        <?php echo _e('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway') ?>
+    <label for="<?php echo esc_attr($id)?>-birthdate">
+        <?php echo esc_html_e('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway') ?>
         <span class="required">*</span>
     </label>
 
     <input
-    id="<?php echo $id?>-birthdate"
-    name="<?php echo $id?>-birthdate"
+    id="<?php echo esc_attr($id)?>-birthdate"
+    name="<?php echo esc_attr($id)?>-birthdate"
     class="input-text"
     type="text"
     maxlength="250"
