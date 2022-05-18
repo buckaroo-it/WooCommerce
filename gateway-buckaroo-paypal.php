@@ -59,9 +59,7 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         $paypal = $this->createDebitRequest($order);
         $order_details = new Buckaroo_Order_Details($order);
 
-        $customVars = array(
-            'CustomerLastName' => $order_details->getBilling('last_name')
-        );
+        $customVars = array();
 
         //set paypal express
         if($this->express_order_id !== null) {
@@ -73,17 +71,18 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
 
         if ($this->sellerprotection == 'TRUE') {
             $paypal->sellerprotection = 1;
-            $address =  $order_details->getBillingAddressComponents();
+            $address =  $order_details->getShippingAddressComponents();
 
             $customVars = array_merge(
                 $customVars,
                 array(
+                    'CustomerName'       => $order_details->getShipping('first_name')." ".$order_details->getShipping('last_name'),
                     'ShippingPostalCode' => $order_details->getShipping('postcode'),
                     'ShippingCity'       => $order_details->getShipping('city'),
                     'ShippingStreet'     => $address['street'],
                     'ShippingHouse'      => $address['house_number'],
-                    'StateOrProvince'    => $order_details->getBilling('state'),
-                    'Country'            => $order_details->getBilling('country')
+                    'StateOrProvince'    => $order_details->getShipping('state'),
+                    'Country'            => $order_details->getShipping('country')
                 )
             );
         }

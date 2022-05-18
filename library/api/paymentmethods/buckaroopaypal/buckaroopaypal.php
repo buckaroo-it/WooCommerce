@@ -29,11 +29,11 @@ class BuckarooPayPal extends BuckarooPaymentMethod {
 
             $this->setCustomVar(
                 [
-                'Name'=>$customVars['CustomerLastName'],
-                'Street1'=>$customVars['ShippingStreet'] . ' '. $customVars['ShippingHouse'],
-                'CityName'=>$customVars['ShippingCity'],
+                'Name'=> mb_substr($customVars['CustomerName'], 0, 32),
+                'Street1'=> mb_substr($customVars['ShippingStreet'] . ' '. $customVars['ShippingHouse'], 0, 100),
+                'CityName'=>mb_substr($customVars['ShippingCity'], 0, 40),
                 'StateOrProvince'=>$customVars['StateOrProvince'],
-                'PostalCode'=>$customVars['ShippingPostalCode'],
+                'PostalCode'=>mb_substr($customVars['ShippingPostalCode'],0, 20),
                 'Country'=>$customVars['Country'],
                 'AddressOverride'=>'TRUE'
                 ]
