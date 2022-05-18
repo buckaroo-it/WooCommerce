@@ -44,42 +44,6 @@ xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_C
     </rule>
 
 
-    <!-- Exclude all gateways and giftcards classes from this rule -->
-    <rule ref="Squiz.Commenting.ClassComment.Missing">
-        <exclude-pattern>*/src/PaymentMethods/*</exclude-pattern>
-    </rule>
-
-    <!-- Exclude nonce verification for uninstall.php file. According with documentation this is not required. -->
-    <rule ref="WordPress.Security.NonceVerification.Missing">
-        <exclude-pattern>uninstall.php</exclude-pattern>
-        <exclude-pattern>*/src/PaymentMethods/Base/BasePaymentMethod.php</exclude-pattern>
-        <exclude-pattern>*/src/PaymentMethods/PaymentMethods/Dirdeb.php</exclude-pattern>
-        <exclude-pattern>*/src/PaymentMethods/PaymentMethods/Ideal.php</exclude-pattern>
-        <exclude-pattern>*/src/Services/OrderService.php</exclude-pattern>
-    </rule>
-
-    <!-- Exclude non used parameters warnings, since most of the filters requires skip this rule -->
-    <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed">
-        <exclude-pattern>*/src/Utils/UpgradeNotices.php</exclude-pattern>
-    </rule>
-
-    <!-- Exclude restriction to output non esc html -->
-    <rule ref="WordPress.Security.EscapeOutput.OutputNotEscaped">
-        <exclude-pattern>*/src/Utils/UpgradeNotices.php</exclude-pattern>
-    </rule>
-
-    <!-- Exclude nonce verification recomendation -->
-    <rule ref="WordPress.Security.NonceVerification.Recommended">
-        <exclude-pattern>*/src/PaymentMethods/Base/BasePaymentMethod.php</exclude-pattern>
-        <exclude-pattern>*/src/Settings/SettingsController.php</exclude-pattern>
-    </rule>
-
-    <!-- Exclude BasePaymentMethod.php length limit -->
-    <rule ref="ObjectCalisthenics.Files.ClassTraitAndInterfaceLength.ObjectCalisthenics\Sniffs\Files\ClassTraitAndInterfaceLengthSniff">
-        <exclude-pattern>*/src/PaymentMethods/BasePaymentMethod.php</exclude-pattern>
-    </rule>
-
-
     <!-- Let's also check that everything is properly documented. -->
     <rule ref="WordPress-Docs"/>
 
@@ -102,7 +66,8 @@ xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_C
         <properties>
             <property name="maxNestingLevel" value="3"/>
         </properties>
-        <exclude-pattern>*/src/PaymentMethods/TokenizationMethodsController.php</exclude-pattern>
+        <exclude-pattern>*/controllers/ApplePayController.php</exclude-pattern>
+        <exclude-pattern>*/controllers/PaypalExpressController.php</exclude-pattern>
     </rule>
 
     <!-- Minimal length for variables names -->
@@ -114,13 +79,6 @@ xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_C
     </rule>
 
     <!-- The following ensure small classes -->
-    <rule ref="ObjectCalisthenics.Files.ClassTraitAndInterfaceLength">
-        <properties>
-            <property name="maxLength" value="500"/>
-        </properties>
-        <exclude-pattern>*/src/PaymentMethods/Base/BasePaymentMethod.php</exclude-pattern>
-        <exclude-pattern>*/src/Settings/SystemReport.php</exclude-pattern>
-    </rule>
     <rule ref="ObjectCalisthenics.Files.FunctionLength">
         <properties>
             <property name="maxLength" value="500"/>
