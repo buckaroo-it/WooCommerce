@@ -24,7 +24,7 @@ jobs:
         uses: pat-s/always-upload-cache@v1.1.4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          # Use the hash of composer.json as the key for your cache if you do not commit composer.lock. 
+          # Use the hash of composer.json as the key for your cache if you do not commit composer.lock.
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
@@ -32,5 +32,8 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-suggest --no-progress
 
+      - name: Config code sniffer
+        run: vendor/bin/phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs,vendor/pheromone/phpcs-security-audit
+
       - name: Run code sniffer
-        run: vendor/bin/phpcs . -q --report=checkstyle | cs2pr --prepend-filename
+        run: vendor/bin/phpcs . --standard=phpcs.xml --report=checkstyle | cs2pr --prepend-filename

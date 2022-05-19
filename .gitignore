@@ -2,3 +2,5 @@
 /library/api/log/
 /.scannerwork
 vendor/
+.idea/
+composer.lock
