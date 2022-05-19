@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 6.0
-Stable tag: 3.1.1
+Stable tag: 3.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,9 +98,15 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 == Changelog ==
 
 
-= 3.1.1 =
+= 3.2.0 =
 
 - Support for Wordpress: 6.0 and WooCommerce: 6.4.1
+- Paypal seller protection address information jumbled [BP-1479]
+- Variables and options must be escaped when echo'd [BP-1529]
+- Sanitize, Escape and Validate variables [BP-1528]
+- Remove Libraries Already In Core [BP-1527]
+- There are poorly named files in your plugin [BP-1526]
+- Remove "png instead of svg" setting and "new" png images [BP-1498]
 - Limit payment logo size [BP-1459]
 
 = 3.1.0 =
