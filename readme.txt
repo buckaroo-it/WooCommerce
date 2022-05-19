@@ -105,7 +105,7 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 - Variables and options must be escaped when echo'd [BP-1529]
 - Sanitize, Escape and Validate variables [BP-1528]
 - Remove Libraries Already In Core [BP-1527]
-- There are poorly named files in your plugin [BP-1526]
+- Improve files naming [BP-1526]
 - Remove "png instead of svg" setting and "new" png images [BP-1498]
 - Limit payment logo size [BP-1459]
 
