@@ -722,15 +722,14 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     protected function createPaymentRequest($order)
     {
-
         $paymentClass = static::PAYMENT_CLASS;
         $payment = new $paymentClass();
         $payment->currency = get_woocommerce_currency();
         $payment->amountDedit = 0;
         $payment->amountCredit = 0;
         $payment->invoiceId = (string)getUniqInvoiceId($order->get_order_number());
-        $payment->orderId = (string)$order->get_id();
-        $payment->description = $this->get_option('transactiondescription', 'Order #' . (string)$order->get_id());
+        $payment->orderId = (string)$order->get_order_number();
+        $payment->description = $this->get_option('transactiondescription', 'Order #' . (string)$order->get_order_number());
         $payment->returnUrl = $this->notify_url;
         $payment->mode = $this->mode;
         $payment->channel = BuckarooConfig::CHANNEL;
