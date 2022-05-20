@@ -658,7 +658,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if ($setType) {
             $request->setType(
                 get_post_meta(
-                    (int)str_replace('#', '', $order->get_order_number()),
+                    $order->get_id(),
                     '_payment_method_transaction',
                     true
                 )
@@ -729,6 +729,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $payment->amountCredit = 0;
         $payment->invoiceId = (string)getUniqInvoiceId($order->get_order_number());
         $payment->orderId = (string)$order->get_order_number();
+        $payment->real_order_id = $order->get_id();
         $payment->description = $this->get_option('transactiondescription', 'Order #' . (string)$order->get_order_number());
         $payment->returnUrl = $this->notify_url;
         $payment->mode = $this->mode;

@@ -21,8 +21,8 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
                 $response->transactions
             )
         );
-        add_post_meta($order->get_order_number(), '_refundbuckaroo' . $response->transactions, 'ok', true);
-        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        add_post_meta($order->get_id(), '_refundbuckaroo' . $response->transactions, 'ok', true);
+        update_post_meta($order->get_id(), '_pushallowed', 'ok');
         return true;
     }
     if (!empty($response->ChannelError)) {
@@ -37,7 +37,7 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
                 $order->get_transaction_id()
             )
         );
-        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        update_post_meta($order->get_id(), '_pushallowed', 'ok');
         return new WP_Error('error_refund', __("Refund failed: ") . $response->ChannelError);
     } else {
         $order->add_order_note(
@@ -46,7 +46,7 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
                 $order->get_transaction_id()
             )
         );
-        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        update_post_meta($order->get_id(), '_pushallowed', 'ok');
         return false;
     }
 }
@@ -106,8 +106,8 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
             'line_item_tax_totals'   => isset( $_POST['line_item_tax_totals'] ) ?  sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ), true ) :'',
         ));
 
-        add_post_meta($order->get_order_number(), '_capturebuckaroo' . $response->transactions, 'ok', true);
-        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        add_post_meta($order->get_id(), '_capturebuckaroo' . $response->transactions, 'ok', true);
+        update_post_meta($order->get_id(), '_pushallowed', 'ok');
 
         $order->add_order_note(
             sprintf(
@@ -136,7 +136,7 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
                 $order->get_transaction_id()
             )
         );
-        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        update_post_meta($order->get_id(), '_pushallowed', 'ok');
         return new WP_Error('error_capture', __("Capture failed: ") . $response->ChannelError);
     } else {
         $order->add_order_note(
@@ -145,7 +145,7 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
                 $order->get_transaction_id()
             )
         );
-        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        update_post_meta($order->get_id(), '_pushallowed', 'ok');
         return false;
     }
 }
@@ -174,8 +174,8 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
     Buckaroo_Logger::log('Parse response:\n', $response);
     $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, 'test');
     $order_id                =
-        $response->add_order_id ?
-        $response->add_order_id :
+        $response->real_order_id ?
+        $response->real_order_id :
         ($response->brq_ordernumber ? $response->brq_ordernumber : $response->invoicenumber);
     Buckaroo_Logger::log(__METHOD__ . "|5|", $order_id);
 
@@ -310,7 +310,10 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     } else {
         $order_id = $response->brq_ordernumber;
     }
-
+    
+    if (is_int($response->real_order_id)) {
+        $order_id = $response->real_order_id;
+    }
     try {
         $order = new WC_Order($order_id);
         if ((int) $order_id > 0) {
@@ -539,7 +542,7 @@ function resetOrder()
                 $order->update_status('cancelled', __($response->statusmessage ?? '', 'wc-buckaroo-bpe-gateway'));
             } else {
                 $newOrder                             = wc_create_order($order);
-                WC()->session->order_awaiting_payment = $newOrder->get_order_number();
+                WC()->session->order_awaiting_payment = $newOrder->get_id();
             }
         }
     }

@@ -36,7 +36,7 @@ class BuckarooRequestToPay extends BuckarooPaymentMethod {
     public function checkRefundData($data){
 
         //Check if order is refundable
-        $order = wc_get_order( $this->orderId );
+        $order = wc_get_order( $this->getRealOrderId() );
         $items = $order->get_items();
         $feeItems = $order->get_items('fee');
 

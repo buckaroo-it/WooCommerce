@@ -83,12 +83,7 @@
                     $TransactionRequest->ContinueOnIncomplete       = $this->_vars['customVars']['continueOnIncomplete'];
                 }
 
-                if (isset($this->_vars['customParameters'])) {
-                    foreach ($this->_vars['customParameters'] as $key => $value) {
-                        $TransactionRequest->AdditionalParameters->AdditionalParameter->Name = $key;
-                        $TransactionRequest->AdditionalParameters->AdditionalParameter->_ = $value;
-                    }
-                }
+                $this->_addCustomParameters($TransactionRequest);
 
                 $TransactionRequest->Services = new Services();
                 $this->_addServices($TransactionRequest);
