@@ -1,5 +1,5 @@
-jQuery(document).ready(function ($) {
-    if ($(".buckaroo-paypal-express").length && buckaroo_paypal_express.websiteKey.length) {
+jQuery(document).ready(function () {
+    if (jQuery(".buckaroo-paypal-express").length && buckaroo_paypal_express.websiteKey.length) {
         let buckaroo_paypal_express_class = new BuckarooPaypalExpress(
             BuckarooSdk.PayPal,
             buckaroo_paypal_express.page,
@@ -115,16 +115,16 @@ class BuckarooPaypalExpress {
      * listen to any change in the cart and get total
      */
     listen() {
-        $(".cart .quantity input").on('change', () => {
+        jQuery(".cart .quantity input").on('change', () => {
             this.get_cart_total();
         });
 
-        $(".variations_form").on("show_variation hide_variation", () => {
+        jQuery(".variations_form").on("show_variation hide_variation", () => {
             this.get_cart_total();
         });
-        $(document.body).on('wc_fragments_refreshed updated_shipping_method', () => {
+        jQuery(document.body).on('wc_fragments_refreshed updated_shipping_method', () => {
             this.get_cart_total();
-            if ($(".buckaroo-paypal-express").length) {
+            if (jQuery(".buckaroo-paypal-express").length) {
                 this.sdk.initiate(this.options);
             }
         });
@@ -133,7 +133,7 @@ class BuckarooPaypalExpress {
      * Get cart total to output in paypal
      */
     get_cart_total() {
-        $.post(this.url, {
+        jQuery.post(this.url, {
             action: 'buckaroo_paypal_express_get_cart_total',
             order_data: this.getOrderData(),
             page: this.page
@@ -152,7 +152,7 @@ class BuckarooPaypalExpress {
      */
     createTransaction(orderId) {
         return new Promise((resolve, reject) => {
-            $.post(this.url, { action: 'buckaroo_paypal_express_order', orderId })
+            jQuery.post(this.url, { action: 'buckaroo_paypal_express_order', orderId })
                 .then((response) => {
                     this.result = response;
                     resolve(response);
@@ -167,7 +167,7 @@ class BuckarooPaypalExpress {
      * @returns 
      */
     setShipping(data) {
-        return $.post(
+        return jQuery.post(
             this.url,
             {
                 action: 'buckaroo_paypal_express_set_shipping',
@@ -182,7 +182,7 @@ class BuckarooPaypalExpress {
      * @returns 
      */
     getOrderData() {
-        let form = $('.cart');
+        let form = jQuery('.cart');
         let orderData = null;
         if (this.page === 'product') {
             orderData = form.serializeArray();
@@ -203,7 +203,7 @@ class BuckarooPaypalExpress {
      * @param {string} message 
      */
     displayErrorMessage(message) {
-        $('.buckaroo-paypal-express-error').remove();
+        jQuery('.buckaroo-paypal-express-error').remove();
         if (typeof message === 'object') {
             console.log(message);
             message = buckaroo_paypal_express.i18n.cannot_create_payment;
@@ -213,9 +213,9 @@ class BuckarooPaypalExpress {
           ${message}
         </div>
       `;
-        $('.woocommerce-notices-wrapper').first().prepend(content);
+        jQuery('.woocommerce-notices-wrapper').first().prepend(content);
         setTimeout(function () {
-            $('.buckaroo-paypal-express-error').fadeOut(1000);
+            jQuery('.buckaroo-paypal-express-error').fadeOut(1000);
         }, 10000);
     }
 
