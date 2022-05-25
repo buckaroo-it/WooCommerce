@@ -14,8 +14,8 @@
 
 defined('ABSPATH') || exit;
 
-$customer_name = $this->geCheckoutField('billing_first_name');
-$customer_name.= " ".$this->geCheckoutField('billing_last_name');
+$customer_name = $this->getScalarCheckoutField('billing_first_name');
+$customer_name.= " ".$this->getScalarCheckoutField('billing_last_name');
 
 ?>
 
@@ -32,7 +32,7 @@ $customer_name.= " ".$this->geCheckoutField('billing_last_name');
         type="text"
         maxlength="250"
         autocomplete="off"
-        value="<?php echo $customer_name; ?>" />
+        value="<?php echo esc_html($customer_name); ?>" />
     </p>
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-sepadirectdebit-iban">

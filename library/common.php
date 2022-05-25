@@ -1062,3 +1062,27 @@ function fn_process_check_redirect_required($response, $mode = null, $payment_me
     }
     return false;
 }
+
+/**
+ * Convert $_POST json string to array and sanitize it  
+ *
+ * @param string $key
+ *
+ * @return array
+ */
+function buckaroo_request_sanitized_json($key)
+{
+    if (!isset( $_POST[$key] ) || !is_string( $_POST[$key] )) {
+        return array();
+    }
+
+    $result = json_decode( wp_unslash( $_POST[$key]  ), true );
+    if (!is_array($result)) {
+        return array();
+    }
+
+    return map_deep(
+        $result,
+        'sanitize_text_field'
+    );
+}

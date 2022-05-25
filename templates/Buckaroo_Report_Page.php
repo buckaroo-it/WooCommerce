@@ -275,10 +275,16 @@ class Buckaroo_Report_Page extends WP_List_Table
         foreach ($logs as $filePath) {
             if (basename($filePath) === $fileName) {
                 $file = file_get_contents($filePath);
-                $logData = "<h4>".$backButton.$fileName.$downloadButton."</h4></hr><textarea disabled style='width:100%;height:80vh;'>".$file."</textarea>";
+                $logData = "<h4>".$backButton.$fileName.$downloadButton."</h4></hr><textarea disabled style='width:100%;height:80vh;'>".htmlentities($file)."</textarea>";
             }
         }
-        echo $logData;
+        echo wp_kses($logData, array( 
+            "a" => array( "style" => true, "href" => true ),
+            "p" => array(),
+            "h4" => array(),
+            "hr" => array(),
+            "textarea" => array( "style" => true, "disabled" => true)
+         ));
     }
     /**
      * Get total count for file storage
