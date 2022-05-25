@@ -477,7 +477,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     {
         return
             (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-            || $_SERVER['SERVER_PORT'] == 443;
+            || !empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443;
     }
     /**
      * Save only creditcards that are allowed

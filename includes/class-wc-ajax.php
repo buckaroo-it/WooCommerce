@@ -164,7 +164,7 @@ class BK_AJAX {
 		check_ajax_referer( 'apply-coupon', 'security' );
 
 		if ( ! empty( $_POST['coupon_code'] ) ) {
-			WC()->cart->add_discount( wc_format_coupon_code( wp_unslash( $_POST['coupon_code'] ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			WC()->cart->add_discount( wc_format_coupon_code( wp_unslash( $_POST['coupon_code'] ) ) ); 
 		} else {
 			wc_add_notice( WC_Coupon::get_generic_coupon_error( WC_Coupon::E_WC_COUPON_PLEASE_ENTER ), 'error' );
 		}
@@ -179,7 +179,7 @@ class BK_AJAX {
 	public static function remove_coupon() {
 		check_ajax_referer( 'remove-coupon', 'security' );
 
-		$coupon = isset( $_POST['coupon'] ) ? wc_format_coupon_code( wp_unslash( $_POST['coupon'] ) ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$coupon = isset( $_POST['coupon'] ) ? wc_format_coupon_code( wp_unslash( $_POST['coupon'] ) ) : false; 
 
 		if ( empty( $coupon ) ) {
 			wc_add_notice( __( 'Sorry there was a problem removing this coupon.', 'woocommerce' ), 'error' );
@@ -257,7 +257,7 @@ class BK_AJAX {
 			self::update_order_review_expired();
 		}
 
-		do_action( 'woocommerce_checkout_update_order_review', isset( $_POST['post_data'] ) ? wp_unslash( $_POST['post_data'] ) : '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		do_action( 'woocommerce_checkout_update_order_review', isset( $_POST['post_data'] ) ? wp_unslash( $_POST['post_data'] ) : '' ); 
 
         self::setChosenShippingMethods();
 		WC()->session->set( 'chosen_payment_method', empty( $_POST['payment_method'] ) ? '' : wc_clean( wp_unslash( $_POST['payment_method'] ) ) );
@@ -398,7 +398,6 @@ class BK_AJAX {
 	public static function remove_from_cart() {
 		ob_start();
 
-		// phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
 		$cart_item_key = wc_clean( isset( $_POST['cart_item_key'] ) ? wp_unslash( $_POST['cart_item_key'] ) : '' );
 
 		if ( $cart_item_key && false !== WC()->cart->remove_cart_item( $cart_item_key ) ) {
@@ -544,7 +543,7 @@ class BK_AJAX {
 		check_ajax_referer( 'add-attribute', 'security' );
 
 		if ( current_user_can( 'manage_product_terms' ) && isset( $_POST['taxonomy'], $_POST['term'] ) ) {
-			$taxonomy = esc_attr( wp_unslash( $_POST['taxonomy'] ) ); // phpcs:ignore
+			$taxonomy = esc_attr( wp_unslash( $_POST['taxonomy'] ) ); 
 			$term     = wc_clean( wp_unslash( $_POST['term'] ) );
 
 			if ( taxonomy_exists( $taxonomy ) ) {
@@ -605,7 +604,7 @@ class BK_AJAX {
 		$response = array();
 
 		try {
-			parse_str( wp_unslash( $_POST['data'] ), $data ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			parse_str( wp_unslash( $_POST['data'] ), $data ); 
 
 			$attributes   = WC_Meta_Box_Product_Data::prepare_attributes( $data );
 			$product_id   = absint( wp_unslash( $_POST['post_id'] ) );
@@ -659,7 +658,7 @@ class BK_AJAX {
 		global $post; // Set $post global so its available, like within the admin screens.
 
 		$product_id       = intval( $_POST['post_id'] );
-		$post             = get_post( $product_id ); // phpcs:ignore
+		$post             = get_post( $product_id ); 
 		$loop             = intval( $_POST['loop'] );
 		$product_object   = new WC_Product_Variable( $product_id ); // Forces type to variable in case product is unsaved.
 		$variation_object = new WC_Product_Variation();
@@ -853,7 +852,7 @@ class BK_AJAX {
 			}
 
 			// If we passed through items it means we need to save first before adding a new one.
-			$items = ( ! empty( $_POST['items'] ) ) ? wp_unslash( $_POST['items'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$items = ( ! empty( $_POST['items'] ) ) ? wp_unslash( $_POST['items'] ) : ''; 
 
 			if ( ! empty( $items ) ) {
 				$save_items = array();
@@ -861,7 +860,7 @@ class BK_AJAX {
 				wc_save_order_items( $order->get_id(), $save_items );
 			}
 
-			$items_to_add = isset( $_POST['data'] ) ? array_filter( wp_unslash( (array) $_POST['data'] ) ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$items_to_add = isset( $_POST['data'] ) ? array_filter( wp_unslash( (array) $_POST['data'] ) ) : array(); 
 
 			// Add items to order.
 			$order_notes = array();
@@ -1114,7 +1113,7 @@ class BK_AJAX {
 				$order->set_customer_id( $user_id_arg );
 			}
 
-			$result = $order->apply_coupon( wc_format_coupon_code( wp_unslash( $_POST['coupon'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$result = $order->apply_coupon( wc_format_coupon_code( wp_unslash( $_POST['coupon'] ) ) ); 
 
 			if ( is_wp_error( $result ) ) {
 				throw new Exception( html_entity_decode( wp_strip_all_tags( $result->get_error_message() ) ) );
@@ -1161,7 +1160,7 @@ class BK_AJAX {
 				throw new Exception( __( 'Invalid coupon', 'woocommerce' ) );
 			}
 
-			$order->remove_coupon( wc_format_coupon_code( wp_unslash( $_POST['coupon'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$order->remove_coupon( wc_format_coupon_code( wp_unslash( $_POST['coupon'] ) ) ); 
 			$order->calculate_taxes( $calculate_tax_args );
 			$order->calculate_totals( false );
 
@@ -1202,8 +1201,8 @@ class BK_AJAX {
 				throw new Exception( __( 'Invalid items', 'woocommerce' ) );
 			}
 
-			$order_item_ids     = wp_unslash( $_POST['order_item_ids'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$items              = ( ! empty( $_POST['items'] ) ) ? wp_unslash( $_POST['items'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$order_item_ids     = wp_unslash( $_POST['order_item_ids'] ); 
+			$items              = ( ! empty( $_POST['items'] ) ) ? wp_unslash( $_POST['items'] ) : ''; 
             $calculate_tax_args = self::calculateTaxArgs();
 
 			if ( ! is_array( $order_item_ids ) && is_numeric( $order_item_ids ) ) {
@@ -1318,7 +1317,7 @@ class BK_AJAX {
 
 		// Parse the jQuery serialized items.
 		$items = array();
-		parse_str( wp_unslash( $_POST['items'] ), $items ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		parse_str( wp_unslash( $_POST['items'] ), $items ); 
 
 		// Save order items first.
 		wc_save_order_items( $order_id, $items );
@@ -1346,7 +1345,7 @@ class BK_AJAX {
 
 			// Parse the jQuery serialized items.
 			$items = array();
-			parse_str( wp_unslash( $_POST['items'] ), $items ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			parse_str( wp_unslash( $_POST['items'] ), $items ); 
 
 			// Save order items.
 			wc_save_order_items( $order_id, $items );
@@ -1402,7 +1401,7 @@ class BK_AJAX {
 		}
 
 		$post_id   = absint( $_POST['post_id'] );
-		$note      = wp_kses_post( trim( wp_unslash( $_POST['note'] ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$note      = wp_kses_post( trim( wp_unslash( $_POST['note'] ) ) ); 
 		$note_type = wc_clean( wp_unslash( $_POST['note_type'] ) );
 
 		$is_customer_note = ( 'customer' === $note_type ) ? 1 : 0;
@@ -1681,7 +1680,7 @@ class BK_AJAX {
 
 		$id       = (int) $_POST['id'];
 		$next_id  = isset( $_POST['nextid'] ) && (int) $_POST['nextid'] ? (int) $_POST['nextid'] : null;
-		$taxonomy = isset( $_POST['thetaxonomy'] ) ? esc_attr( wp_unslash( $_POST['thetaxonomy'] ) ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$taxonomy = isset( $_POST['thetaxonomy'] ) ? esc_attr( wp_unslash( $_POST['thetaxonomy'] ) ) : null; 
 		$term     = get_term_by( 'id', $id, $taxonomy );
 
 		if ( ! $id || ! $term || ! $taxonomy ) {
@@ -1851,7 +1850,7 @@ class BK_AJAX {
 			wp_die( -1 );
 		}
 
-		$refund_ids = array_map( 'absint', is_array( $_POST['refund_id'] ) ? wp_unslash( $_POST['refund_id'] ) : array( wp_unslash( $_POST['refund_id'] ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$refund_ids = array_map( 'absint', is_array( $_POST['refund_id'] ) ? wp_unslash( $_POST['refund_id'] ) : array( wp_unslash( $_POST['refund_id'] ) ) ); 
 		foreach ( $refund_ids as $refund_id ) {
 			if ( $refund_id && 'shop_order_refund' === get_post_type( $refund_id ) ) {
 				$refund   = wc_get_order( $refund_id );
@@ -1996,7 +1995,7 @@ class BK_AJAX {
 
 		$loop           = 0;
 		$product_id     = absint( $_POST['product_id'] );
-		$post           = get_post( $product_id ); // phpcs:ignore
+		$post           = get_post( $product_id ); 
 		$product_object = wc_get_product( $product_id );
 		$per_page       = ! empty( $_POST['per_page'] ) ? absint( $_POST['per_page'] ) : 10;
 		$page           = ! empty( $_POST['page'] ) ? absint( $_POST['page'] ) : 1;
@@ -2498,9 +2497,9 @@ class BK_AJAX {
 			wp_die();
 		}
 
-		$current_class = ! empty( $_POST['current_class'] ) ? wp_unslash( $_POST['current_class'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$current_class = ! empty( $_POST['current_class'] ) ? wp_unslash( $_POST['current_class'] ) : ''; 
 
-		if ( ! wp_verify_nonce( wp_unslash( $_POST['wc_tax_nonce'] ), 'wc_tax_nonce-class:' . $current_class ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( ! wp_verify_nonce( wp_unslash( $_POST['wc_tax_nonce'] ), 'wc_tax_nonce-class:' . $current_class ) ) { 
 			wp_send_json_error( 'bad_nonce' );
 			wp_die();
 		}
@@ -2513,7 +2512,7 @@ class BK_AJAX {
 			wp_die();
 		}
 
-		$changes = wp_unslash( $_POST['changes'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$changes = wp_unslash( $_POST['changes'] ); 
 		foreach ( $changes as $tax_rate_id => $data ) {
 			if ( isset( $data['deleted'] ) ) {
 				if ( isset( $data['newRow'] ) ) {
@@ -2579,7 +2578,7 @@ class BK_AJAX {
 			wp_die();
 		}
 
-		if ( ! wp_verify_nonce( wp_unslash( $_POST['wc_shipping_zones_nonce'] ), 'wc_shipping_zones_nonce' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( ! wp_verify_nonce( wp_unslash( $_POST['wc_shipping_zones_nonce'] ), 'wc_shipping_zones_nonce' ) ) { 
 			wp_send_json_error( 'bad_nonce' );
 			wp_die();
 		}
@@ -2590,7 +2589,7 @@ class BK_AJAX {
 			wp_die();
 		}
 
-		$changes = wp_unslash( $_POST['changes'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$changes = wp_unslash( $_POST['changes'] ); 
 		foreach ( $changes as $zone_id => $data ) {
 			if ( isset( $data['deleted'] ) ) {
 				if ( isset( $data['newRow'] ) ) {
@@ -2637,7 +2636,7 @@ class BK_AJAX {
 			wp_die();
 		}
 
-		if ( ! wp_verify_nonce( wp_unslash( $_POST['wc_shipping_zones_nonce'] ), 'wc_shipping_zones_nonce' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( ! wp_verify_nonce( wp_unslash( $_POST['wc_shipping_zones_nonce'] ), 'wc_shipping_zones_nonce' ) ) { 
 			wp_send_json_error( 'bad_nonce' );
 			wp_die();
 		}
@@ -2671,7 +2670,7 @@ class BK_AJAX {
 			wp_die();
 		}
 
-		if ( ! wp_verify_nonce( wp_unslash( $_POST['wc_shipping_zones_nonce'] ), 'wc_shipping_zones_nonce' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( ! wp_verify_nonce( wp_unslash( $_POST['wc_shipping_zones_nonce'] ), 'wc_shipping_zones_nonce' ) ) { 
 			wp_send_json_error( 'bad_nonce' );
 			wp_die();
 		}
@@ -2685,7 +2684,7 @@ class BK_AJAX {
 
 		$zone_id = wc_clean( wp_unslash( $_POST['zone_id'] ) );
 		$zone    = new WC_Shipping_Zone( $zone_id );
-		$changes = wp_unslash( $_POST['changes'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$changes = wp_unslash( $_POST['changes'] ); 
 
 		if ( isset( $changes['zone_name'] ) ) {
 			$zone->set_zone_name( wc_clean( $changes['zone_name'] ) );
@@ -2774,7 +2773,7 @@ class BK_AJAX {
 			wp_die();
 		}
 
-		if ( ! wp_verify_nonce( wp_unslash( $_POST['wc_shipping_zones_nonce'] ), 'wc_shipping_zones_nonce' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( ! wp_verify_nonce( wp_unslash( $_POST['wc_shipping_zones_nonce'] ), 'wc_shipping_zones_nonce' ) ) { 
 			wp_send_json_error( 'bad_nonce' );
 			wp_die();
 		}
@@ -2787,7 +2786,7 @@ class BK_AJAX {
 		$instance_id     = absint( $_POST['instance_id'] );
 		$zone            = WC_Shipping_Zones::get_zone_by( 'instance_id', $instance_id );
 		$shipping_method = WC_Shipping_Zones::get_shipping_method( $instance_id );
-		$shipping_method->set_post_data( wp_unslash( $_POST['data'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$shipping_method->set_post_data( wp_unslash( $_POST['data'] ) ); 
 		$shipping_method->process_admin_options();
 
 		WC_Cache_Helper::get_transient_version( 'shipping', true );
@@ -2811,7 +2810,7 @@ class BK_AJAX {
 			wp_die();
 		}
 
-		if ( ! wp_verify_nonce( wp_unslash( $_POST['wc_shipping_classes_nonce'] ), 'wc_shipping_classes_nonce' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( ! wp_verify_nonce( wp_unslash( $_POST['wc_shipping_classes_nonce'] ), 'wc_shipping_classes_nonce' ) ) { 
 			wp_send_json_error( 'bad_nonce' );
 			wp_die();
 		}
@@ -2821,7 +2820,7 @@ class BK_AJAX {
 			wp_die();
 		}
 
-		$changes = wp_unslash( $_POST['changes'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$changes = wp_unslash( $_POST['changes'] ); 
 
 		foreach ( $changes as $term_id => $data ) {
 			$term_id = absint( $term_id );

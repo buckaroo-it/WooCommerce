@@ -333,7 +333,7 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
                     <th scope="row" class="titledesc">
                         <label for="<?php echo esc_attr($value['id']); ?>"><?php echo esc_html($value['title']); ?>
                             <?php 
-                                echo $tooltip_html; // WPCS: XSS ok. 
+                                echo $tooltip_html;  
                             ?>
                         </label>
                     </th>
@@ -348,12 +348,12 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
                         placeholder="<?php echo esc_attr($value['placeholder']); ?>"
                         
                         <?php 
-                            echo implode(' ', $custom_attributes); // WPCS: XSS ok. 
+                            echo implode(' ', $custom_attributes); 
                         ?>
                         />
                         <?php 
                             echo esc_html($value['suffix']); 
-                            echo $description; // WPCS: XSS ok.
+                            echo $description;
                         ?>
                     </td>
                 </tr>
