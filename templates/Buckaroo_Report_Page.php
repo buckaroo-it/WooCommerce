@@ -305,7 +305,11 @@ class Buckaroo_Report_Page extends WP_List_Table
 
         $table = $wpdb->prefix.Buckaroo_Logger_Storage::STORAGE_DB_TABLE;
         $rows = $wpdb->get_results(
-            "SELECT `date`, `message` as `description` FROM `". $table . "` ORDER BY `date` DESC LIMIT ". ($this->per_page * ($current_page - 1)) .",".$this->per_page,
+            $wpdb->prepare(
+                "SELECT `date`, `message` as `description` FROM {$table} ORDER BY `date` DESC LIMIT %d,%d",
+                ($this->per_page * ($current_page - 1)),
+                $this->per_page
+            ),
             ARRAY_A
         );
         $results = [];

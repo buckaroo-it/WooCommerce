@@ -243,7 +243,7 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
 
                 ?>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wc-settings&tab=checkout&section=' . strtolower($gateway->id)));?>">
-                <?php echo __('edit', 'wc-buckaroo-bpe-gateway'); ?>
+                <?php echo esc_html__('edit', 'wc-buckaroo-bpe-gateway'); ?>
             </a>
             </li>
         <?php

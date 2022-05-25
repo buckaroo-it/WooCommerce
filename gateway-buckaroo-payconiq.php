@@ -82,6 +82,10 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
 
 function payconiqQrcode()
 {
+    if(!isset($_SERVER['REQUEST_URI'])) {
+        wp_safe_redirect(site_url()); exit();
+    }
+    
     $page = filter_var( $_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL);
 
     if ($page === false) {

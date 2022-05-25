@@ -16,7 +16,7 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
     if ($response && $response->isValid() && $response->hasSucceeded()) {
         $order->add_order_note(
             sprintf(
-                __('Refunded %s - Refund transaction ID: %s', 'wc-buckaroo-bpe-gateway'),
+                __('Refunded %1$s - Refund transaction ID: %2$s', 'wc-buckaroo-bpe-gateway'),
                 $amount . ' ' . $currency,
                 $response->transactions
             )
@@ -111,7 +111,7 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
 
         $order->add_order_note(
             sprintf(
-                __('Captured %s - Capture transaction ID: %s', 'wc-buckaroo-bpe-gateway'),
+                __('Captured %1$s - Capture transaction ID: %2$s', 'wc-buckaroo-bpe-gateway'),
                 $capture_amount . ' ' . $currency,
                 $response->transactions
             )

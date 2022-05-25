@@ -242,7 +242,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         //Add Warning, if currency set in Buckaroo is unsupported
         if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && !checkCurrencySupported($this->id) && is_admin()): ?>
 <div class="error notice">
-    <p><?php echo esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . get_woocommerce_currency() . ')'; ?>
+    <p><?php echo esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')'; ?>
     </p>
 </div>
 <?php endif;
@@ -361,9 +361,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'default'     => 'none',
         );
         $this->form_fields['choosecertificate'] = array(
-            'title'       => __('', 'wc-buckaroo-bpe-gateway'),
+            'title'       => '',
             'type'        => 'file',
-            'description' => __(''),
+            'description' => '',
             'default'     => '');
     }
     /**
