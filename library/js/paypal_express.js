@@ -136,7 +136,8 @@ class BuckarooPaypalExpress {
         jQuery.post(this.url, {
             action: 'buckaroo_paypal_express_get_cart_total',
             order_data: this.getOrderData(),
-            page: this.page
+            page: this.page,
+            cart_total_nonce: buckaroo_paypal_express.cart_total_nonce
         })
         .then((response) => {
             if (response.data) {
@@ -152,11 +153,14 @@ class BuckarooPaypalExpress {
      */
     createTransaction(orderId) {
         return new Promise((resolve, reject) => {
-            jQuery.post(this.url, { action: 'buckaroo_paypal_express_order', orderId })
-                .then((response) => {
+            $.post(this.url, {
+                action: 'buckaroo_paypal_express_order',
+                orderId,
+                send_order_nonce: buckaroo_paypal_express.send_order_nonce
+            }).then((response) => {
                     this.result = response;
                     resolve(response);
-                }, (reason) => reject(reason))
+            }, (reason) => reject(reason))
         })
     }
 
@@ -173,7 +177,8 @@ class BuckarooPaypalExpress {
                 action: 'buckaroo_paypal_express_set_shipping',
                 shipping_data: data,
                 order_data: this.getOrderData(),
-                page: this.page
+                page: this.page,
+                set_shipping_nonce: buckaroo_paypal_express.set_shipping_nonce
             }
         )
     }

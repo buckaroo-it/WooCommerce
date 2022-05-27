@@ -77,25 +77,6 @@ abstract class BuckarooAbstract {
     );
     
     /**
-     * Split the request response into three, get the values of those parts and echo them.
-     * 
-     * @access public
-     * @param array $requestResponse
-     */
-    public function printResponse($requestResponse) {
-        list($response, $responseXML, $requestXML) = $requestResponse;
-
-        echo "The SOAP request has been sent. <br/>";
-        if (is_object($requestXML) && is_object($responseXML)) {
-            echo "Request: " . var_export($requestXML->saveXML(), true) . "<br/><br/>";
-            echo "Response: " . var_export($response, true) . "<br/><br/>";
-            echo "Response XML:" . var_export($responseXML->saveXML(), true) . "<br/><br/>";
-        }
-
-        echo "Response recieved. \n";
-    }
-    
-    /**
      * Custom array sort function.
      * 
      * @param array $array

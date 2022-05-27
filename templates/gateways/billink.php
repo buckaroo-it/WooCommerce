@@ -92,7 +92,7 @@ defined('ABSPATH') || exit;
     </p>
 </fieldset>
 
-<?php if (!empty($this->geCheckoutField('ship_to_different_address'))) { ?>
+<?php if (!empty($this->getScalarCheckoutField('ship_to_different_address'))) { ?>
     <input
     id="buckaroo-billink-shipping-differ"
     name="buckaroo-billink-shipping-differ"

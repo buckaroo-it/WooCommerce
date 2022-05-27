@@ -50,8 +50,7 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
 	<td class="item_cost" width="1%" data-sort-value="<?php echo esc_attr( $order->get_item_subtotal( $item, false, true ) ); ?>">
 		<div class="view">
 			<?php
-			$itemPrice =  wc_price( $order->get_item_total( $item, false, true ), array( 'currency' => $order->get_currency() ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo $itemPrice;
+			echo wc_price( $order->get_item_total( $item, false, true ), array( 'currency' => $order->get_currency() ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
 		</div>
 	</td>
@@ -89,7 +88,7 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
                     $amountLeft = $item->get_quantity();
 			}
 			?>
-			<input type="number" step="<?php echo esc_attr( apply_filters( 'woocommerce_quantity_input_step', '1', $product ) ); ?>" value="<?php echo $amountLeft; ?>" min="0" max="<?php echo $amountLeft; ?>" autocomplete="off" name="capture_order_item_qty[<?php echo absint( $item_id ); ?>]" placeholder="0" size="4" class="capture_order_item_qty" />
+			<input type="number" step="<?php echo esc_attr( apply_filters( 'woocommerce_quantity_input_step', '1', $product ) ); ?>" value="<?php echo esc_attr($amountLeft); ?>" min="0" max="<?php echo esc_attr($amountLeft); ?>" autocomplete="off" name="capture_order_item_qty[<?php echo absint( $item_id ); ?>]" placeholder="0" size="4" class="capture_order_item_qty" />
 		</div>
 	</td>
 	<td class="line_cost" width="1%" data-sort-value="<?php echo esc_attr( $item->get_total() ); ?>">
@@ -122,7 +121,7 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
 			</div>
 		</div>
 		<div class="capture" style="display: none;">
-			<input type="text" disabled="true" value=<?php echo $amountLeft * $order->get_item_total( $item, false, true ); ?> name="capture_line_total[<?php echo absint( $item_id ); ?>]" placeholder="<?php echo esc_attr( wc_format_localized_price( 0 ) ); ?>" class="capture_line_total wc_input_price" />
+			<input type="text" disabled="true" value=<?php echo esc_attr($amountLeft * $order->get_item_total( $item, false, true )); ?> name="capture_line_total[<?php echo absint( $item_id ); ?>]" placeholder="<?php echo esc_attr( wc_format_localized_price( 0 ) ); ?>" class="capture_line_total wc_input_price" />
 		</div>
 	</td>
 
@@ -164,7 +163,7 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
 					</div>
 				</div>
 				<div class="capture" style="display: none;">
-					<input type="text" disabled="true" value=<?php echo roundAmount(floatval($tax_item_total) / $item->get_quantity() * $amountLeft); ?> name="capture_line_tax[<?php echo absint( $item_id ); ?>][<?php echo esc_attr( $tax_item_id ); ?>]" placeholder="<?php echo esc_attr( wc_format_localized_price( 0 ) ); ?>" class="capture_line_tax wc_input_price" data-tax_id="<?php echo esc_attr( $tax_item_id ); ?>" />
+					<input type="text" disabled="true" value=<?php echo esc_attr(roundAmount(floatval($tax_item_total) / $item->get_quantity() * $amountLeft)); ?> name="capture_line_tax[<?php echo absint( $item_id ); ?>][<?php echo esc_attr( $tax_item_id ); ?>]" placeholder="<?php echo esc_attr( wc_format_localized_price( 0 ) ); ?>" class="capture_line_tax wc_input_price" data-tax_id="<?php echo esc_attr( $tax_item_id ); ?>" />
 				</div>
 			</td>
 			<?php

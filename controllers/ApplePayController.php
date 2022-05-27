@@ -6,14 +6,13 @@ Class ApplePayController
     {
         $country_code = preg_replace('/\:\*/', '', get_option('woocommerce_default_country'));
     
-        echo json_encode([
+        wp_send_json([
             'store_name'    => get_option('blogname'),
             'country_code'  => $country_code,
             'currency_code' => get_option('woocommerce_currency'),
             'culture_code'  => $country_code,
             'merchant_id'   => get_option('woocommerce_buckaroo_applepay_settings')["merchant_guid"]
-        ], JSON_PRETTY_PRINT); 
-        exit;
+        ]); 
     }
      
     public static function getItemsFromDetailPage()
@@ -57,8 +56,7 @@ Class ApplePayController
             return array_merge([$product], $coupons, $fees);
         });
         
-        echo json_encode(array_values($items), JSON_PRETTY_PRINT);
-        exit;
+        wp_send_json(array_values($items));
     }
 
     public static function getItemsFromCart()
@@ -101,8 +99,7 @@ Class ApplePayController
 
         $items = array_merge($products, $coupons, $fees);
 
-        echo json_encode(array_values($items), JSON_PRETTY_PRINT);
-        exit;
+        wp_send_json(array_values($items));
     }
 
     private static function getProductsFromCart($cart)
@@ -163,8 +160,7 @@ Class ApplePayController
             ];
         }, $wc_methods);
         
-        echo json_encode(array_values($shipping_methods), JSON_PRETTY_PRINT);
-        exit;
+        wp_send_json(array_values($shipping_methods));
     }
 
   
