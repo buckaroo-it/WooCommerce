@@ -6,7 +6,7 @@ export default class Buckaroo {
   }
 
   createTransaction(payment_data, total_price, selected_shipping_method, items) {
-    $.ajax({
+    jQuery.ajax({
       url: "/?wc-api=WC_Gateway_Buckaroo_applepay-create-transaction",
       method: "post",
       data: {

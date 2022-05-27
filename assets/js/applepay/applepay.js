@@ -14,8 +14,8 @@ export default class ApplePay {
   }
 
   rebuild() {
-    $('.applepay-button-container div').remove();
-    $('.applepay-button-container').append('<div>');
+    jQuery('.applepay-button-container div').remove();
+    jQuery('.applepay-button-container').append('<div>');
   }
 
   init() {

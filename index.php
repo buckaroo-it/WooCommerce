@@ -83,7 +83,7 @@ function buckaroo_payment_setup_scripts()
     wp_enqueue_script(
         'buckaroo_certificate_management_js',
         plugin_dir_url(__FILE__) . 'library/js/9yards/upload_certificate.js',
-        ['jquery'],
+        array('jquery'),
         BuckarooConfig::VERSION,
         true
     );
@@ -106,14 +106,14 @@ function buckaroo_payment_frontend_scripts()
     wp_enqueue_script(
         'creditcard_encryption_sdk',
         plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-encryption-sdk.js',
-        ['jquery'],
+        array('jquery'),
         BuckarooConfig::VERSION,
         true
     );
     wp_enqueue_script(
         'creditcard_call_encryption',
         plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-call-encryption.js',
-        ['jquery'],
+        array('jquery'),
         BuckarooConfig::VERSION,
         true
     );
@@ -125,17 +125,54 @@ function buckaroo_payment_frontend_scripts()
         BuckarooConfig::VERSION
     );
 
+    wp_enqueue_script(
+        'buckaroo_apple_pay',
+        plugin_dir_url(__FILE__) . 'assets/js/applepay/index.js',
+        array('jquery', 'buckaroo_sdk'),
+        BuckarooConfig::VERSION,
+        true
+    );
+
+    wp_enqueue_script(
+        'buckaroo_idin',
+        plugin_dir_url(__FILE__) . 'assets/js/idin/index.js',
+        array('jquery'),
+        BuckarooConfig::VERSION,
+        true
+    );
+
+    wp_localize_script(
+        'buckaroo_sdk',
+        'buckaroo_global',
+        array(
+            "ajax_url" => home_url('/'),
+            "idin_i18n" => array(
+                "general_error" => esc_html__("Something went wrong while processing your identification."),
+                "bank_required"=>esc_html__("You need to select your bank!")
+            )
+        )
+    );
+
     if (class_exists('WC_Order') && is_checkout()) {
         wp_enqueue_script(
             'wc-pf-checkout',
-            plugin_dir_url(__FILE__) . '/assets/js/checkout.js',
-            ['jquery'],
+            plugin_dir_url(__FILE__) . 'assets/js/checkout.js',
+            array('jquery'),
             BuckarooConfig::VERSION,
             true
         );
     }
 }
 add_action('plugins_loaded', 'buckaroo_init_gateway', 0);
+
+function buckaroo_add_apple_pay_module($tag, $handle, $src) {
+    if ( 'buckaroo_apple_pay' !== $handle ) {
+        return $tag;
+    }
+    $tag = '<script type="module" src="' . esc_url( $src ) . '"></script>';
+    return $tag;
+}
+add_filter('script_loader_tag', 'buckaroo_add_apple_pay_module', 10, 3);
 
 if (!empty($_REQUEST['wc-api']) && ($_REQUEST['wc-api'] == 'WC_Push_Buckaroo')) {
     if (empty($_SERVER['HTTP_USER_AGENT'])) {
