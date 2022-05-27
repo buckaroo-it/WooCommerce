@@ -161,16 +161,16 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         $creditcard = $this->createCreditRequest($order, $amount, $reason);
 
         if ($line_item_qtys === null) {
-            $line_item_qtys = isset( $_POST['line_item_qtys'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ) ), true ) : array();
+            $line_item_qtys = buckaroo_request_sanitized_json('line_item_qtys');
         }
         
         
         if ($line_item_totals === null) {
-            $line_item_totals = isset( $_POST['line_item_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ) ), true ) : array();
+            $line_item_totals = buckaroo_request_sanitized_json('line_item_totals');
         }
         
         if ($line_item_tax_totals === null) {
-            $line_item_tax_totals  = isset( $_POST['line_item_tax_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ) ), true ) : array();
+            $line_item_tax_totals  = buckaroo_request_sanitized_json('line_item_tax_totals');
         }
 
 

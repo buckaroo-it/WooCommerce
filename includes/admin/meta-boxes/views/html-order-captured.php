@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php
 			printf(
 				esc_html__( 'Capture - #%s', 'woocommerce' ),
-				$singleCapture['id']
+				esc_attr($singleCapture['id'])
 			);
 		?>
 		<input type="hidden" class="order_capture_id" name="order_capture_id[]" value="<?php echo esc_attr( $singleCapture['id'] ); ?>" />

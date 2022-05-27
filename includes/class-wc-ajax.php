@@ -1771,9 +1771,9 @@ class BK_AJAX {
 		$refund_amount          = isset( $_POST['refund_amount'] ) ? wc_format_decimal( sanitize_text_field( wp_unslash( $_POST['refund_amount'] ) ), wc_get_price_decimals() ) : 0;
 		$captured_amount        = isset( $_POST['captured_amount'] ) ? wc_format_decimal( sanitize_text_field( wp_unslash( $_POST['captured_amount'] ) ), wc_get_price_decimals() ) : 0;
 		$refund_reason          = isset( $_POST['refund_reason'] ) ? sanitize_text_field( wp_unslash( $_POST['refund_reason'] ) ) : '';
-		$line_item_qtys         = isset( $_POST['line_item_qtys'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ) ), true ) : array();
-		$line_item_totals       = isset( $_POST['line_item_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ) ), true ) : array();
-		$line_item_tax_totals   = isset( $_POST['line_item_tax_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ) ), true ) : array();
+		$line_item_qtys         = buckaroo_request_sanitized_json('line_item_qtys');
+		$line_item_totals       = buckaroo_request_sanitized_json('line_item_totals');
+		$line_item_tax_totals   = buckaroo_request_sanitized_json('line_item_tax_totals');
 		$api_refund             = isset( $_POST['api_refund'] ) && 'true' === $_POST['api_refund'];
 		$restock_refunded_items = isset( $_POST['restock_refunded_items'] ) && 'true' === $_POST['restock_refunded_items'];
 		$refund                 = false;

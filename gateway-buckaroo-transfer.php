@@ -98,7 +98,16 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
             @session_start();
         }
 
-        print $_SESSION['buckaroo_response'];
+        print wp_kses(
+            $_SESSION['buckaroo_response'],
+            array(
+                "table" => array("class" => true),
+                "td" => array("class" => true, "id" => true),
+                "tr" => array(),
+                "br" => array(),
+                "b" => array()
+            )
+        );
     }
 
     /**

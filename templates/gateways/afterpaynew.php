@@ -15,9 +15,9 @@
 defined('ABSPATH') || exit;
 
 //set customer phone
-$customer_phone = $this->geCheckoutField('billing_phone');
+$customer_phone = $this->getScalarCheckoutField('billing_phone');
 
-$country = $this->geCheckoutField('billing_country');
+$country = $this->getScalarCheckoutField('billing_country');
 $country = !empty($country) ? $country : $this->country;
 
 ?>
@@ -57,11 +57,11 @@ $country = !empty($country) ? $country : $this->country;
         class="input-tel"
         type="tel"
         autocomplete="off"
-        value="<?php echo $customer_phone; ?>">
+        value="<?php echo esc_html($customer_phone); ?>">
     </p>
     <?php }?>
 
-    <?php if (!empty($this->geCheckoutField('ship_to_different_address'))) {?>
+    <?php if (!empty($this->getScalarCheckoutField('ship_to_different_address'))) {?>
     <input
     id="buckaroo-afterpaynew-shipping-differ"
     name="buckaroo-afterpaynew-shipping-differ"

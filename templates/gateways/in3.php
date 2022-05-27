@@ -14,7 +14,7 @@
 
 defined('ABSPATH') || exit;
 
-$country = $this->geCheckoutField('billing_country');
+$country = $this->getScalarCheckoutField('billing_country');
 $country = !empty($country) ? $country : $this->country;
 
 ?>

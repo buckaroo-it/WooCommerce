@@ -16,7 +16,7 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
     if ($response && $response->isValid() && $response->hasSucceeded()) {
         $order->add_order_note(
             sprintf(
-                __('Refunded %s - Refund transaction ID: %s', 'wc-buckaroo-bpe-gateway'),
+                __('Refunded %1$s - Refund transaction ID: %2$s', 'wc-buckaroo-bpe-gateway'),
                 $amount . ' ' . $currency,
                 $response->transactions
             )
@@ -111,7 +111,7 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
 
         $order->add_order_note(
             sprintf(
-                __('Captured %s - Capture transaction ID: %s', 'wc-buckaroo-bpe-gateway'),
+                __('Captured %1$s - Capture transaction ID: %2$s', 'wc-buckaroo-bpe-gateway'),
                 $capture_amount . ' ' . $currency,
                 $response->transactions
             )
@@ -1061,4 +1061,28 @@ function fn_process_check_redirect_required($response, $mode = null, $payment_me
         }
     }
     return false;
+}
+
+/**
+ * Convert $_POST json string to array and sanitize it  
+ *
+ * @param string $key
+ *
+ * @return array
+ */
+function buckaroo_request_sanitized_json($key)
+{
+    if (!isset( $_POST[$key] ) || !is_string( $_POST[$key] )) {
+        return array();
+    }
+
+    $result = json_decode( wp_unslash( $_POST[$key]  ), true );
+    if (!is_array($result)) {
+        return array();
+    }
+
+    return map_deep(
+        $result,
+        'sanitize_text_field'
+    );
 }

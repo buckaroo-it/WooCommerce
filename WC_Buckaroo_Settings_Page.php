@@ -233,17 +233,17 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
                 echo wp_kses_post(str_replace("Buckaroo ", "", $method_title));
                 if (wc_string_to_bool($gateway->enabled)) {
                     if ($gateway->mode === 'live') {
-                        echo '<b class="buckaroo-payment-status buckaroo-payment-enabled-live">'.__('enabled (live)', 'wc-buckaroo-bpe-gateway').'</b>'; 
+                        echo '<b class="buckaroo-payment-status buckaroo-payment-enabled-live">'.esc_html__('enabled (live)', 'wc-buckaroo-bpe-gateway').'</b>'; 
                     } else {
-                        echo '<b class="buckaroo-payment-status buckaroo-payment-enabled-test">'.__('enabled (test)', 'wc-buckaroo-bpe-gateway').'</b>'; 
+                        echo '<b class="buckaroo-payment-status buckaroo-payment-enabled-test">'.esc_html__('enabled (test)', 'wc-buckaroo-bpe-gateway').'</b>'; 
                     }
                 } else {
-                    echo '<b class="buckaroo-payment-status buckaroo-payment-disabled">'.__('disabled', 'wc-buckaroo-bpe-gateway').'</b>';
+                    echo '<b class="buckaroo-payment-status buckaroo-payment-disabled">'.esc_html__('disabled', 'wc-buckaroo-bpe-gateway').'</b>';
                 }
 
                 ?>
                 <a href="<?php echo esc_url(admin_url('admin.php?page=wc-settings&tab=checkout&section=' . strtolower($gateway->id)));?>">
-                <?php echo __('edit', 'wc-buckaroo-bpe-gateway'); ?>
+                <?php echo esc_html__('edit', 'wc-buckaroo-bpe-gateway'); ?>
             </a>
             </li>
         <?php
@@ -276,12 +276,12 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
     public function render_submeniu_field($value)
     {
         ?>
-            <h2><?php echo $value['title']; ?></h2>
+            <h2><?php echo esc_html($value['title']); ?></h2>
             <tr><td>
                 <ul class="subsubsub" style="width:100%;margin-bottom:10px">
                     <?php foreach ($value['links'] as $key => $link) {
                         $endSlash = $key === count($value['links']) - 1 ? '' : '|';
-                        echo '<li><b><a href="'.$link['href'].'"> '.$link['name'].' </a></b>'.$endSlash;
+                        echo '<li><b><a href="'.esc_url($link['href']).'"> '.esc_html($link['name']).' </a></b>'.esc_html($endSlash);
                     }
                     ?>
                 </ul>
@@ -320,11 +320,7 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
     {
         $custom_attributes = array();
 
-        if (!empty($value['custom_attributes']) && is_array($value['custom_attributes'])) {
-            foreach ($value['custom_attributes'] as $attribute => $attribute_value) {
-                $custom_attributes[] = esc_attr($attribute) . '="' . esc_attr($attribute_value) . '"';
-            }
-        }
+        
         $field_description = WC_Admin_Settings::get_field_description($value);
         $description       = $field_description['description'];
         $tooltip_html      = $field_description['tooltip_html'];
@@ -333,7 +329,7 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
                     <th scope="row" class="titledesc">
                         <label for="<?php echo esc_attr($value['id']); ?>"><?php echo esc_html($value['title']); ?>
                             <?php 
-                                echo $tooltip_html;  
+                                echo wp_kses($tooltip_html, array("span"=>array("class"=>true, "data-tip"=>true)));
                             ?>
                         </label>
                     </th>
@@ -348,12 +344,16 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
                         placeholder="<?php echo esc_attr($value['placeholder']); ?>"
                         
                         <?php 
-                            echo implode(' ', $custom_attributes); 
+                            if (!empty($value['custom_attributes']) && is_array($value['custom_attributes'])) {
+                                foreach ($value['custom_attributes'] as $attribute => $attribute_value) {
+                                    echo esc_attr($attribute) . '="' . esc_attr($attribute_value) . '"';
+                                }
+                            }
                         ?>
                         />
                         <?php 
                             echo esc_html($value['suffix']); 
-                            echo $description;
+                            echo wp_kses($description, array("p"=>array("class" =>true, "style"=>true)));
                         ?>
                     </td>
                 </tr>
@@ -403,10 +403,10 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
     protected function render_gateway_list()
     {
         ?>
-        <h2><?php echo __('Payment methods', 'wc-buckaroo-bpe-gateway'); ?></h2>
+        <h2><?php echo esc_html__('Payment methods', 'wc-buckaroo-bpe-gateway'); ?></h2>
         <p>
             <?php 
-             echo __('Buckaroo payment methods are listed below and can be accessed, enabled or disabled.', 'wc-buckaroo-bpe-gateway'); 
+             echo esc_html__('Buckaroo payment methods are listed below and can be accessed, enabled or disabled.', 'wc-buckaroo-bpe-gateway'); 
             ?>
         </p>
         <tr valign="top">

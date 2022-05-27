@@ -18,7 +18,6 @@ Class ApplePayButtons
             $product->get_stock_status() === 'instock'
         ){                        
             echo "<div class='applepay-button-container is-detail-page'><div></div></div>";  
-            $this->insertScript();
         }        
     }
 
@@ -29,7 +28,6 @@ Class ApplePayButtons
             $this->isHttpsConnection()
         ){    
             echo "<div class='applepay-button-container'><div></div></div>";
-            $this->insertScript();
         }                
     }
     
@@ -40,18 +38,10 @@ Class ApplePayButtons
             $this->isHttpsConnection()
         ){
             echo "<div class='applepay-button-container'><div></div></div>";
-            $this->insertScript();
         }              
     }
 
 
-    private function insertScript() 
-    {
-        $path = plugin_dir_url(__DIR__) . '../assets/js/applepay/index.js';    
-
-        echo "<script type='text/javascript'>$ = jQuery; var buckaroo_ajax_url = '".home_url('/')."';</script>";
-        echo "<script type='module' src='{$path}'></script>";
-    }
 
     private function isHttpsConnection()
     {

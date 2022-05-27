@@ -138,7 +138,7 @@ class Buckaroo_Logger_Storage
         global $wpdb;
         $table = $wpdb->prefix.self::STORAGE_DB_TABLE;
         
-        list($date, $processId, $message, $locationId) = $info;
+        list($date, $processId, $locationId, $message ) = $info;
         
         $data = array(
             "date" => $date,
