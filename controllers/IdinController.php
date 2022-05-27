@@ -29,9 +29,10 @@ class IdinController
                 'error');
         }
 
-        if (!empty($_REQUEST['bk_redirect'])) {
+        if (!empty($_REQUEST['bk_redirect']) && is_string($_REQUEST['bk_redirect'])) {
             Buckaroo_Logger::log(__METHOD__ . "|15|");
             wp_safe_redirect($_REQUEST['bk_redirect']);
+            exit;
         }
     }
 
@@ -40,7 +41,7 @@ class IdinController
         Buckaroo_Logger::log(__METHOD__ . "|1|");
 
         if (!BuckarooConfig::isIdin(BuckarooIdin::getCartProductIds())) {
-            $this->sendError('iDIN is disabled');
+            $this->sendError(esc_html__('iDIN is disabled'));
         }
 
         $data = [];
@@ -75,24 +76,23 @@ class IdinController
 
         Buckaroo_Logger::log(__METHOD__ . "|10|", $processedResponse);
 
-        echo json_encode($processedResponse, JSON_PRETTY_PRINT);
-        exit;
+        wp_send_json($processedResponse);
     }
 
     public function reset()
     {
         BuckarooIdin::setCurrentUserIsNotVerified();
 
-        echo 'ok';
-        die();
+        wp_send_json([
+            'success'   => true,
+        ]);
     }
 
     private function sendError($error)
     {
-        echo json_encode([
+        wp_send_json([
             'result'   => 'error',
             'message' => $error
-        ], JSON_PRETTY_PRINT);
-        die();
+        ]);
     }
 }

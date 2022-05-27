@@ -226,17 +226,17 @@ if ( wc_tax_enabled() ) {
 				<li><strong><?php esc_html_e( 'Coupon(s)', 'woocommerce' ); ?></strong></li>
 				<?php
 				foreach ( $coupons as $item_id => $item ) :
-					$post_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_title = %s AND post_type = 'shop_coupon' AND post_status = 'publish' LIMIT 1;", $item->get_code() ) ); // phpcs:disable WordPress.WP.GlobalVariablesOverride.OverrideProhibited
+					$cp_post_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_title = %s AND post_type = 'shop_coupon' AND post_status = 'publish' LIMIT 1;", $item->get_code() ) ); // phpcs:disable WordPress.WP.GlobalVariablesOverride.OverrideProhibited
 					$class   = $order->is_editable() ? 'code editable' : 'code';
 					?>
 					<li class="<?php echo esc_attr( $class ); ?>">
-						<?php if ( $post_id ) : ?>
+						<?php if ( $cp_post_id ) : ?>
 							<?php
 							$post_url = apply_filters(
 								'woocommerce_admin_order_item_coupon_url',
 								add_query_arg(
 									array(
-										'post'   => $post_id,
+										'post'   => $cp_post_id,
 										'action' => 'edit',
 									),
 									admin_url( 'post.php' )
@@ -488,10 +488,10 @@ if ( $order->get_total() - $amountAlreadyCaptured  > 0) :
 							echo '
 									<tr>
 										<td><input type="radio" id="add_order_tax_' . absint( $rate->tax_rate_id ) . '" name="add_order_tax" value="' . absint( $rate->tax_rate_id ) . '" /></td>
-										<td><label for="add_order_tax_' . absint( $rate->tax_rate_id ) . '">' . WC_Tax::get_rate_label( $rate ) . '</label></td>
-										<td>' . ( isset( $classes_options[ $rate->tax_rate_class ] ) ? $classes_options[ $rate->tax_rate_class ] : '-' ) . '</td>
-										<td>' . WC_Tax::get_rate_code( $rate ) . '</td>
-										<td>' . WC_Tax::get_rate_percent( $rate ) . '</td>
+										<td><label for="add_order_tax_' . absint( $rate->tax_rate_id ) . '">' . esc_html(WC_Tax::get_rate_label( $rate )) . '</label></td>
+										<td>' . ( isset( $classes_options[ $rate->tax_rate_class ] ) ? esc_html($classes_options[ $rate->tax_rate_class ]) : '-' ) . '</td>
+										<td>' . esc_html(WC_Tax::get_rate_code( $rate )) . '</td>
+										<td>' . esc_html(WC_Tax::get_rate_percent( $rate )) . '</td>
 									</tr>
 								'; // WPCS: XSS ok.
 						}

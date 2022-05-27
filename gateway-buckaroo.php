@@ -242,7 +242,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         //Add Warning, if currency set in Buckaroo is unsupported
         if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && !checkCurrencySupported($this->id) && is_admin()): ?>
 <div class="error notice">
-    <p><?php echo __('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . get_woocommerce_currency() . ')'; ?>
+    <p><?php echo esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')'; ?>
     </p>
 </div>
 <?php endif;
@@ -361,9 +361,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'default'     => 'none',
         );
         $this->form_fields['choosecertificate'] = array(
-            'title'       => __('', 'wc-buckaroo-bpe-gateway'),
+            'title'       => '',
             'type'        => 'file',
-            'description' => __(''),
+            'description' => '',
             'default'     => '');
     }
     /**
@@ -567,21 +567,21 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return mixt
      */
-    protected function geCheckoutField($key)
+    protected function getScalarCheckoutField($key)
     {
         $value = '';
         $post_data   = array();
-        if (!empty($_POST["post_data"])) {
+        if (!empty($_POST["post_data"]) && is_string($_POST["post_data"])) {
             parse_str(
-                sanitize_text_field( $_POST["post_data"] ),
+                $_POST["post_data"],
                 $post_data
             );
         }
 
-        if (isset($post_data[$key])) {
+        if (isset($post_data[$key]) && is_scalar($post_data[$key])) {
             $value = $post_data[$key];
         }
-        return esc_html($value);
+        return sanitize_text_field($value);
     }
     /**
      * Can the order be refunded
@@ -889,9 +889,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
             $captures = json_decode(json_encode($captures), true);
 
-            $line_item_qtys         = isset( $_POST['line_item_qtys'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ) ), true ) : array();
-            $line_item_totals       = isset( $_POST['line_item_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ) ), true ) : array();
-            $line_item_tax_totals   = isset( $_POST['line_item_tax_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ) ), true ) : array();
+            $line_item_qtys         = buckaroo_request_sanitized_json('line_item_qtys');
+            $line_item_totals       = buckaroo_request_sanitized_json('line_item_totals');
+            $line_item_tax_totals   = buckaroo_request_sanitized_json('line_item_tax_totals');
 
             $line_item_qtys_new                 = array();
             $line_item_totals_new               = array();

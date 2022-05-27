@@ -19,7 +19,8 @@ if (!defined('BK_PLUGIN_FILE')) {
 require_once dirname(__FILE__). "/library/Buckaroo_Logger_Storage.php";
 
 if(isset($_GET['buckaroo_download_log_file']) && is_string($_GET['buckaroo_download_log_file'])) {
-    Buckaroo_Logger_Storage::downloadFile(sanitize_text_field($_GET['buckaroo_download_log_file']));
+    $report_name = preg_replace('/[^A-Za-z0-9-.]+/', '-',$_GET['buckaroo_download_log_file']);
+    Buckaroo_Logger_Storage::downloadFile($report_name);
 }
 
 require_once dirname(__FILE__). "/library/Buckaroo_Logger.php";
@@ -33,7 +34,7 @@ require_once dirname(__FILE__). "/Buckaroo_Load_Gateways.php";
 require_once dirname(__FILE__). "/controllers/PaypalExpress.php";
 
 /**
- * Remove gateways based on min/max value or idin verificaiton
+ * Remove gateways based on min/max value or idin verification
  */
 new Buckaroo_Disable_Gateways();
 /**
@@ -41,7 +42,7 @@ new Buckaroo_Disable_Gateways();
  */
 new Buckaroo_Order_Fee();
 /**
- * Start runing buckaroo events
+ * Start running buckaroo events
  */
 new Buckaroo_Cron_Events();
 /**
@@ -401,7 +402,7 @@ function buckaroo_init_gateway()
         $gateway = new WC_Gateway_Buckaroo_PayPerEmail();
         if (isset($gateway)) {
             $response = $gateway->process_payment($order->get_id());
-            echo json_encode($response);
+            wp_send_json($response);
         }
     }
     add_action( 'woocommerce_order_action_buckaroo_send_admin_payperemail', 'buckaroo_send_admin_payperemail', 10, 1 );
@@ -410,6 +411,7 @@ function buckaroo_init_gateway()
         $gateway = new WC_Gateway_Buckaroo_PayPerEmail();
         if (isset($gateway)) {
             $response = $gateway->process_payment($order->get_id(),1);
+            wp_send_json($response);
         }
     }
 
@@ -463,7 +465,7 @@ function buckaroo_idin_checkout() {
 function orderCapture()
 {
     if (!isset($_POST['order_id'])) {
-        echo json_encode(
+        wp_send_json(
             [
                 "errors" => [
                     "error_capture"=>[
@@ -472,7 +474,6 @@ function orderCapture()
                 ]
             ]
         );
-        exit;
     }
 
     $paymentMethod = get_post_meta( (int)sanitize_text_field($_POST['order_id']), '_wc_order_selected_payment_method', true);
@@ -494,7 +495,7 @@ function orderCapture()
    
     if (isset($gateway)) {
         
-        echo json_encode(
+        wp_send_json(
             $gateway->process_capture()
         );
     }

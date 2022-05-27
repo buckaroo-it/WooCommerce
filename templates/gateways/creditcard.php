@@ -17,8 +17,8 @@ defined('ABSPATH') || exit;
 $creditCardMethod = isset($this->creditcardmethod) ? $this->creditcardmethod : 'redirect';
 
 
-$customer_name = $this->geCheckoutField('billing_first_name');
-$customer_name.= " ".$this->geCheckoutField('billing_last_name');
+$customer_name = $this->getScalarCheckoutField('billing_first_name');
+$customer_name.= " ".$this->getScalarCheckoutField('billing_last_name');
 ?>
 
 
@@ -70,7 +70,7 @@ $customer_name.= " ".$this->geCheckoutField('billing_last_name');
             class="cardHolderName input-text"
             maxlength="250"
             autocomplete="off"
-            value="<?php echo $customer_name ?? '' ?>">
+            value="<?php echo esc_html($customer_name) ?? '' ?>">
         </p>
 
         <p class="form-row">

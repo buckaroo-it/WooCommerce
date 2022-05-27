@@ -25,8 +25,12 @@
 		<exclude name="WordPress.PHP.DontExtract"/>
 		<exclude name="WordPress.PHP.YodaConditions"/>
 	</rule>
-	<rule ref="WordPress.Security">
+	<rule ref="WordPress.Security.EscapeOutput">
+		<properties>
+			<property name="customAutoEscapedFunctions" type="array" value="wc_price,wc_clean,plugin_dir_url,home_url,wc_help_tip"/>
+		</properties>
 	</rule>
+	
 	<rule ref="WordPress.Utils">
 	</rule>
 	<rule ref="WordPress.WP">
