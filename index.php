@@ -273,7 +273,7 @@ if ( ! class_exists( 'Buckaroo' ) ) {
  *
  * @return Buckaroo
  */
-function BK() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+function BK() { 
 	return Buckaroo::instance();
 }
 

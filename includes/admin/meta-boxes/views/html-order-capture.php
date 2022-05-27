@@ -267,7 +267,7 @@ if ( wc_tax_enabled() ) {
 				<td class="label"><?php esc_html_e( 'Discount:', 'woocommerce' ); ?></td>
 				<td width="1%"></td>
 				<td class="total">
-					<?php echo wc_price( $order->get_total_discount(), array( 'currency' => $order->get_currency() ) ); // WPCS: XSS ok. ?>
+					<?php echo wc_price( $order->get_total_discount(), array( 'currency' => $order->get_currency() ) );  ?>
 				</td>
 			</tr>
 		<?php endif; ?>
@@ -282,9 +282,9 @@ if ( wc_tax_enabled() ) {
 					<?php
                     $captured = false;
 					if ( $captured > 0 ) {
-						echo '<del>' . wp_strip_all_tags( wc_price( $order->get_shipping_total(), array( 'currency' => $order->get_currency() ) ) ) . '</del> <ins>' . wc_price( $order->get_shipping_total() - $captured, array( 'currency' => $order->get_currency() ) ) . '</ins>'; // WPCS: XSS ok.
+						echo '<del>' . wp_strip_all_tags( wc_price( $order->get_shipping_total(), array( 'currency' => $order->get_currency() ) ) ) . '</del> <ins>' . wc_price( $order->get_shipping_total() - $captured, array( 'currency' => $order->get_currency() ) ) . '</ins>'; 
 					} else {
-						echo wc_price( $order->get_shipping_total(), array( 'currency' => $order->get_currency() ) ); // WPCS: XSS ok.
+						echo wc_price( $order->get_shipping_total(), array( 'currency' => $order->get_currency() ) ); 
 					}
 					?>
 				</td>
@@ -302,7 +302,7 @@ if ( wc_tax_enabled() ) {
 						<?php
                         $captured = false;
 						if ( $captured > 0 ) {
-							echo '<del>' . wp_strip_all_tags( $tax_total->formatted_amount ) . '</del> <ins>' . wc_price( roundAmount( $tax_total->amount ) - roundAmount( $captured ), array( 'currency' => $order->get_currency() ) ) . '</ins>'; // WPCS: XSS ok.
+							echo '<del>' . wp_strip_all_tags( $tax_total->formatted_amount ) . '</del> <ins>' . wc_price( roundAmount( $tax_total->amount ) - roundAmount( $captured ), array( 'currency' => $order->get_currency() ) ) . '</ins>'; 
 						} else {
 							echo wp_kses_post( $tax_total->formatted_amount );
 						}
@@ -318,7 +318,7 @@ if ( wc_tax_enabled() ) {
 			<td class="label"><?php esc_html_e( 'Total', 'woocommerce' ); ?>:</td>
 			<td width="1%"></td>
 			<td class="total">
-				<?php echo $order->get_formatted_order_total(); // WPCS: XSS ok. ?>
+				<?php echo $order->get_formatted_order_total();  ?>
 			</td>
 		</tr>
 
@@ -328,7 +328,7 @@ if ( wc_tax_enabled() ) {
 			<tr>
 				<td class="label captured-total"><?php esc_html_e( 'Captured', 'woocommerce' ); ?>:</td>
 				<td width="1%"></td>
-				<td class="total captured-total">-<?php echo wc_price( $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) ); // WPCS: XSS ok. ?></td>
+				<td class="total captured-total">-<?php echo wc_price( $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) );  ?></td>
 			</tr>
 		<?php endif; ?>
 
@@ -379,12 +379,12 @@ if ( $order->get_total() - $amountAlreadyCaptured  > 0) :
 		<tr>
 	
 			<td class="label"><?php esc_html_e( 'Amount already captured', 'woocommerce' ); ?>:</td>
-			<td class="total"><?php echo wc_price( $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) ); // WPCS: XSS ok. ?></td>
+			<td class="total"><?php echo wc_price( $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) );  ?></td>
 		</tr>
 		<tr>
 		
 			<td class="label"><?php esc_html_e( 'Total available to capture', 'woocommerce' ); ?>:</td>
-			<td class="total"><?php echo wc_price( $order->get_total() - $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) ); // WPCS: XSS ok. ?></td>
+			<td class="total"><?php echo wc_price( $order->get_total() - $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) );  ?></td>
 		</tr>
 		<tr>
 	
@@ -442,7 +442,7 @@ if ( $order->get_total() - $amountAlreadyCaptured  > 0) :
 							?>
 							<tbody data-row="<?php echo esc_attr( $row ); ?>">
 								<tr>
-									<?php echo $row; // WPCS: XSS ok. ?>
+									<?php echo $row;  ?>
 								</tr>
 							</tbody>
 						</table>
@@ -493,7 +493,7 @@ if ( $order->get_total() - $amountAlreadyCaptured  > 0) :
 										<td>' . esc_html(WC_Tax::get_rate_code( $rate )) . '</td>
 										<td>' . esc_html(WC_Tax::get_rate_percent( $rate )) . '</td>
 									</tr>
-								'; // WPCS: XSS ok.
+								'; 
 						}
 						?>
 						</table>
