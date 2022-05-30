@@ -183,6 +183,10 @@ table.woocommerce_order_items tbody tr:first-child td {
         width: 1000%;
     }
 }
+label[for^="payment_method_buckaroo_"] img {
+    max-height: 25px;
+    max-width: auto;
+}
 label[for^="payment_method_buckaroo_creditcard"] img {
     max-height: 72px;
 }

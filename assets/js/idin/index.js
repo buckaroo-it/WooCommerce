@@ -1,6 +1,6 @@
 (function($) {
 
-    var url = buckaroo_ajax_url;
+    var url = buckaroo_global.ajax_url;
     if (url === undefined) {
         url = '/';
     }
@@ -41,11 +41,11 @@
                             }
                         }
                     }
-                    buckarooDisplayErrorMessage(buckaroo_idin_translation.general_error);
+                    buckarooDisplayErrorMessage(buckaroo_global.idin_i18n.general_error);
                     $('.woocommerce-checkout').unblock();
                 })
                 .fail(() => {
-                    buckarooDisplayErrorMessage(buckaroo_idin_translation.general_error);
+                    buckarooDisplayErrorMessage(buckaroo_global.idin_i18n.general_error);
                     $('.woocommerce-checkout').unblock();
                 });
         }, 1000);
@@ -69,7 +69,7 @@
         if ($("#buckaroo-idin-issuer") && ($("#buckaroo-idin-issuer").val().length > 1)) {
             buckarooIdentify($("#buckaroo-idin-issuer").val());
         } else {
-            buckarooDisplayErrorMessage(buckaroo_idin_translation.bank_required);
+            buckarooDisplayErrorMessage(buckaroo_global.idin_i18n.bank_required);
 
         }
     });

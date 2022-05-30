@@ -521,15 +521,16 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         $orderRefundData = [];
 
         if ($line_item_qtys === null) {
-            $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
+            $line_item_qtys = buckaroo_request_sanitized_json('line_item_qtys');
         }
-
+        
+        
         if ($line_item_totals === null) {
-            $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true);
+            $line_item_totals = buckaroo_request_sanitized_json('line_item_totals');
         }
-
+        
         if ($line_item_tax_totals === null) {
-            $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
+            $line_item_tax_totals  = buckaroo_request_sanitized_json('line_item_tax_totals');
         }
 
         foreach ($line_item_totals as $key => $value) {

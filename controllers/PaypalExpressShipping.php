@@ -183,10 +183,10 @@ class Buckaroo_Paypal_Express_Shipping
      */
     protected function get_address_data()
     {
-        if (!isset($_POST['shipping_data']) && !isset($_POST['shipping_data']['shipping_address'])) {
+        if (!isset($_POST['shipping_data']) || !isset($_POST['shipping_data']['shipping_address'])) {
             throw new Buckaroo_Paypal_Express_Exception("Shipping address is required");
         }
-        return $_POST['shipping_data']['shipping_address'];
+        return wc_clean($_POST['shipping_data']['shipping_address']);
     }
     /**
      * Get formatted order data from frontend
@@ -199,7 +199,7 @@ class Buckaroo_Paypal_Express_Shipping
             throw new Buckaroo_Paypal_Express_Exception("Empty cart, cannot create order");
         }
         $request = [];
-        foreach ($_POST['order_data'] as $data) {
+        foreach (wc_clean($_POST['order_data']) as $data) {
             if (!isset($data['name']) || !isset($data['value'])) {
                 throw new Buckaroo_Paypal_Express_Exception("Invalid data format");
             }

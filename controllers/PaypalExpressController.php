@@ -52,7 +52,7 @@ class Buckaroo_Paypal_Express
         $this->shipping = $shipping;
         $this->order = $order;
         $this->cart = $cart;
-    
+
         $this->get_settings();
 
         if (!$this->is_active()) {
@@ -69,7 +69,6 @@ class Buckaroo_Paypal_Express
      */
     public function enqueue_scripts()
     {
-        $this->enqueue_sdk();
         wp_enqueue_script(
             'buckaroo_paypal_express',
             plugin_dir_url(BK_PLUGIN_FILE) . '/library/js/paypal_express.js',
@@ -81,33 +80,18 @@ class Buckaroo_Paypal_Express
             'buckaroo_paypal_express',
             'buckaroo_paypal_express',
             array(
+                'set_shipping_nonce' => wp_create_nonce('express-set-shipping'), 
+                'cart_total_nonce' => wp_create_nonce('express-cart-totals'), 
+                'send_order_nonce' => wp_create_nonce('express-send_order'), 
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 'currency' => get_woocommerce_currency(),
                 'websiteKey' => $this->get_website_key(),
                 'page' => $this->determine_page(),
                 'i18n' => [
                     'cancel_error_message' => __("You have canceled the payment request", 'wc-buckaroo-bpe-gateway'),
-                    'cannot_create_payment' => __("Cannot create payment" , 'wc-buckaroo-bpe-gateway')
+                    'cannot_create_payment' => __("Cannot create payment", 'wc-buckaroo-bpe-gateway')
                 ]
             )
-        );
-    }
-    /**
-     * enqueue buckaroo sdk
-     *
-     * @return void
-     */
-    protected function enqueue_sdk()
-    {
-        $path = "https://testcheckout.buckaroo.nl/api/buckaroosdk/script";
-        if ($this->settings['mode'] === 'live') {
-            $path = "https://checkout.buckaroo.nl/api/buckaroosdk/script";
-        }
-        wp_enqueue_script(
-            'buckaroo_sdk',
-            $path,
-            array('jquery'),
-            BuckarooConfig::VERSION
         );
     }
     /**
@@ -132,6 +116,11 @@ class Buckaroo_Paypal_Express
             "express" => ["none"]
         );
         $settings = get_option('woocommerce_buckaroo_paypal_settings', []);
+
+        if (!is_array($settings["express"])) {
+            $settings["express"] = ["none"];
+        }
+
         $this->settings = array_merge($default, $settings);
     }
     /**
@@ -169,33 +158,33 @@ class Buckaroo_Paypal_Express
     }
     public function add_shipping()
     {
-        header('Content-Type: application/json');
+        check_ajax_referer( 'express-set-shipping', 'set_shipping_nonce' );
         try {
             if ($this->on_product_page()) {
                 $this->shipping->create_cart_for_product_page();
             }
-            wp_die(
-                json_encode([
+            wp_send_json(
+                    [
                     "error" => false,
                     "data" => [
                         "value" => $this->shipping->get_cart_total_breakdown(),
                     ]
-                ])
+                ]
             );
         } catch (Buckaroo_Paypal_Express_Exception $th) {
-            wp_die(
-                json_encode([
+            wp_send_json(
+                [
                     "error" => true,
                     "message" => $th->getMessage()
-                ])
+                ]
             );
         } catch (\Throwable $th) {
             Buckaroo_Logger::log(__METHOD__, $th->getMessage());
-            wp_die(
-                json_encode([
+            wp_send_json(
+                [
                     "error" => true,
                     "message" => 'Internal buckaroo error'
-                ])
+                ]
             );
         }
     }
@@ -206,7 +195,7 @@ class Buckaroo_Paypal_Express
      */
     public function get_cart_total()
     {
-        header('Content-Type: application/json');
+        check_ajax_referer( 'express-cart-totals', 'cart_total_nonce' );
         try {
             if ($this->on_product_page()) {
                 $this->cart->store_current();
@@ -219,25 +208,23 @@ class Buckaroo_Paypal_Express
                 $this->cart->restore();
             }
 
-            wp_die(
-                json_encode([
+            wp_send_json(
+                [
                     "error" => false,
                     "data" => [
                         "total" => number_format($total, 2),
                     ]
-                ])
+                ]
             );
-            
         } catch (\Throwable $th) {
             Buckaroo_Logger::log(__METHOD__, $th->getMessage());
-            wp_die(
-                json_encode([
-                    "error"=>true,
+            wp_send_json(
+                [
+                    "error" => true,
                     "message" => "Cannot calculate cart total"
-                ])
+                ]
             );
         }
-
     }
     /**
      * Create order from ajax call
@@ -246,35 +233,35 @@ class Buckaroo_Paypal_Express
      */
     public function send_order()
     {
-        header('Content-Type: application/json');
+        check_ajax_referer( 'express-send_order', 'send_order_nonce' );
         if (!isset($_POST['orderId'])) {
-           wp_die(
-               json_encode([
-                   "error"=>true,
-                   "message" => "No paypal express order id provided"
-               ])
+            wp_send_json(
+                [
+                    "error" => true,
+                    "message" => "No paypal express order id provided"
+                ]
             );
         }
         try {
-            $response = $this->order->create_and_send($_POST['orderId']);
-            
+            $response = $this->order->create_and_send(sanitize_text_field($_POST['orderId']));
+
             if ($response === null) {
                 $this->display_any_notices();
             }
 
-            wp_die(
-                json_encode([
-                    "error"=>false,
+            wp_send_json(
+                [
+                    "error" => false,
                     "data" => $response
-                ])
+                ]
             );
         } catch (\Throwable $th) {
             Buckaroo_Logger::log(__METHOD__, $th->getMessage());
-            wp_die(
-                json_encode([
-                    "error"=>true,
+            wp_send_json(
+                [
+                    "error" => true,
                     "message" => "Cannot process buckaroo payment"
-                ])
+                ]
             );
         }
     }
@@ -289,11 +276,11 @@ class Buckaroo_Paypal_Express
         wc_clear_notices();
 
         if (count($notices)) {
-            wp_die(
-                json_encode([
-                "error"=>true,
-                "message" => implode("</br>", $notices)
-                ])
+            wp_send_json(
+                [
+                    "error" => true,
+                    "message" => implode("</br>", $notices)
+                ]
             );
         }
     }
@@ -304,7 +291,7 @@ class Buckaroo_Paypal_Express
      */
     protected function on_product_page()
     {
-        return isset($_POST['page']) && $_POST['page'] === self::LOCATION_PRODUCT;
+        return isset($_POST['page']) && sanitize_text_field($_POST['page']) === self::LOCATION_PRODUCT;
     }
 
     /**

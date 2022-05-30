@@ -15,7 +15,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
         $this->title                  = 'PayPerEmail';
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo PayPerEmail";
-        $this->setIcon('payperemail.png', 'new/PayPerEmail.png', 'svg/PayPerEmail.svg');
+        $this->setIcon('payperemail.png', 'svg/PayPerEmail.svg');
 
         parent::__construct();
     }
@@ -46,18 +46,26 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
     public function validate_fields()
     {
         if ($this->isVisibleOnFrontend()) {
-            if (empty($_POST['buckaroo-payperemail-gender'])) {
+            if ($this->request('buckaroo-payperemail-gender') === null) {
                 wc_add_notice(__("Please select gender", 'wc-buckaroo-bpe-gateway'), 'error');
             }
-            if (empty($_POST['buckaroo-payperemail-firstname'])) {
+
+            $gender = $this->request('buckaroo-payperemail-gender');
+
+            if (!in_array($gender, ["0", "1", "2", "9"])) {
+                wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
+            }
+
+            if ($this->request('buckaroo-payperemail-firstname') === null) {
                 wc_add_notice(__("Please enter firstname", 'wc-buckaroo-bpe-gateway'), 'error');
             }
-            if (empty($_POST['buckaroo-payperemail-lastname'])) {
+            
+            if ($this->request('buckaroo-payperemail-lastname') === null) {
                 wc_add_notice(__("Please enter lastname", 'wc-buckaroo-bpe-gateway'), 'error');
             }
-            if (empty($_POST['buckaroo-payperemail-email'])) {
+            if ($this->request('buckaroo-payperemail-email') === null) {
                 wc_add_notice(__("Please enter email", 'wc-buckaroo-bpe-gateway'), 'error');
-            } elseif (!is_email($_POST['buckaroo-payperemail-email'])) {
+            } elseif (!is_email($this->request('buckaroo-payperemail-email'))) {
                 wc_add_notice(__("Please enter valid email", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
@@ -86,10 +94,10 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
         );
 
         if ($this->isVisibleOnFrontend() && !is_admin()) {
-            $customVars['CustomerGender']    = $_POST['buckaroo-payperemail-gender'];
-            $customVars['CustomerFirstName'] = $_POST['buckaroo-payperemail-firstname'];
-            $customVars['CustomerLastName']  = $_POST['buckaroo-payperemail-lastname'];
-            $customVars['Customeremail']     = $_POST['buckaroo-payperemail-email'];
+            $customVars['CustomerGender']    = $this->request('buckaroo-payperemail-gender');
+            $customVars['CustomerFirstName'] = $this->request('buckaroo-payperemail-firstname');
+            $customVars['CustomerLastName']  = $this->request('buckaroo-payperemail-lastname');
+            $customVars['Customeremail']     = $this->request('buckaroo-payperemail-email');
         }
 
         if (!empty($this->paymentmethodppe)) {

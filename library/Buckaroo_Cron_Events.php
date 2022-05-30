@@ -152,7 +152,7 @@ class Buckaroo_Cron_Events
         $table = $wpdb->prefix.Buckaroo_Logger_Storage::STORAGE_DB_TABLE;
         $staleDate = $this->get_stale_date()->format('Y-m-d H:i:s');
         $wpdb->query(
-            "DELETE FROM `". $table . "` WHERE `date` < '".$staleDate."'"
+            $wpdb->prepare("DELETE FROM {$table} WHERE `date` < %s", $staleDate)
         );
     }
 }

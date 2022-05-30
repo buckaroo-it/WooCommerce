@@ -15,9 +15,9 @@
 defined('ABSPATH') || exit;
 
 //set customer phone
-$customerPhone = $this->geCheckoutField('billing_phone');
+$customer_phone = $this->getScalarCheckoutField('billing_phone');
 
-$country = $this->geCheckoutField('billing_country');
+$country = $this->getScalarCheckoutField('billing_country');
 $country = !empty($country) ? $country : $this->country;
 
 ?>
@@ -27,7 +27,7 @@ $country = !empty($country) ? $country : $this->country;
     <?php if ($country == "FI") {?>
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-afterpaynew-IdentificationNumber">
-            <?php echo _e('Identification Number', 'wc-buckaroo-bpe-gateway') ?>
+            <?php echo esc_html_e('Identification Number', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
 
@@ -48,7 +48,7 @@ $country = !empty($country) ? $country : $this->country;
         ?>
     <p class="form-row validate-required">
         <label for="buckaroo-afterpaynew-phone">
-            <?php echo _e('Phone:', 'wc-buckaroo-bpe-gateway') ?>
+            <?php echo esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
         <input
@@ -57,11 +57,11 @@ $country = !empty($country) ? $country : $this->country;
         class="input-tel"
         type="tel"
         autocomplete="off"
-        value="<?php echo $customerPhone; ?>">
+        value="<?php echo esc_html($customer_phone); ?>">
     </p>
     <?php }?>
 
-    <?php if (!empty($this->geCheckoutField('ship_to_different_address'))) {?>
+    <?php if (!empty($this->getScalarCheckoutField('ship_to_different_address'))) {?>
     <input
     id="buckaroo-afterpaynew-shipping-differ"
     name="buckaroo-afterpaynew-shipping-differ"

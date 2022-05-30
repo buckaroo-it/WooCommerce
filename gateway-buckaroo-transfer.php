@@ -17,7 +17,7 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
         $this->title                  = 'Bank Transfer';
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Bank Transfer';
-        $this->setIcon('24x24/transfer.jpg', 'new/SEPA-credittransfer.png', 'svg/SEPACreditTransfer.svg');
+        $this->setIcon('24x24/transfer.jpg', 'svg/SEPACreditTransfer.svg');
 
         parent::__construct();
         $this->addRefundSupport();
@@ -98,7 +98,16 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
             @session_start();
         }
 
-        print $_SESSION['buckaroo_response'];
+        print wp_kses(
+            $_SESSION['buckaroo_response'],
+            array(
+                "table" => array("class" => true),
+                "td" => array("class" => true, "id" => true),
+                "tr" => array(),
+                "br" => array(),
+                "b" => array()
+            )
+        );
     }
 
     /**

@@ -16,7 +16,7 @@ defined('ABSPATH') || exit;
 
 
 //set customer phone
-$customerPhone = $this->geCheckoutField('billing_phone');
+$customer_phone = $this->getScalarCheckoutField('billing_phone');
 
 
 ?>
@@ -32,7 +32,7 @@ $customerPhone = $this->geCheckoutField('billing_phone');
     ?>
     <p class="form-row validate-required">
         <label for="buckaroo-afterpay-phone">
-            <?php echo _e('Phone:', 'wc-buckaroo-bpe-gateway') ?>
+            <?php echo esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
 
@@ -41,10 +41,10 @@ $customerPhone = $this->geCheckoutField('billing_phone');
         class="input-tel"
         type="tel"
         autocomplete="off"
-        value="<?php echo $customerPhone ?? '' ?>">
+        value="<?php echo esc_html($customer_phone) ?? '' ?>">
     </p>
     <?php 
-    if (!empty($this->geCheckoutField('ship_to_different_address'))) {
+    if (!empty($this->getScalarCheckoutField('ship_to_different_address'))) {
         ?>
         <input id="buckaroo-afterpay-shipping-differ"
         name="buckaroo-afterpay-shipping-differ"
@@ -57,7 +57,7 @@ $customerPhone = $this->geCheckoutField('billing_phone');
         ?>
         <p class="form-row form-row-wide validate-required">
             <label for="buckaroo-afterpay-CustomerAccountNumber">
-                <?php echo _e('IBAN:', 'wc-buckaroo-bpe-gateway') ?>
+                <?php echo esc_html_e('IBAN:', 'wc-buckaroo-bpe-gateway') ?>
                 <span class="required">*</span>
             </label>
             

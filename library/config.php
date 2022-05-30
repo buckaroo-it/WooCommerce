@@ -7,7 +7,7 @@ require_once dirname(__FILE__).'/api/config/configcore.php';
 class BuckarooConfig extends BuckarooConfigCore {
     const NAME = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-    const VERSION = '3.1.0';
+    const VERSION = '3.2.1';
 
     const SHIPPING_SKU = "WC8888";
 
@@ -78,9 +78,6 @@ class BuckarooConfig extends BuckarooConfigCore {
                 break;
             case 'BUCKAROO_USE_NEW_ICONS':
                 $val = (empty($options['usenewicons']) ?  FALSE : $options['usenewicons']);
-                break;
-            case 'BUCKAROO_USE_NONSVG_ICONS':
-                $val = (empty($options['usenonsvg']) ?  FALSE : $options['usenonsvg']);
                 break;
             case 'BUCKAROO_USE_IDIN':
                 $val = (empty($options['useidin']) ?  FALSE : $options['useidin']);
@@ -176,8 +173,8 @@ class BuckarooConfig extends BuckarooConfigCore {
         return $Software;
     }
 
-    public static function getIconPath($oldIcon, $newIcon, $svgPath = '') {
-        $icon = self::get('BUCKAROO_USE_NEW_ICONS') ? ($svgPath && !self::get('BUCKAROO_USE_NONSVG_ICONS') ? $svgPath : $newIcon) : $oldIcon;
+    public static function getIconPath($oldIcon, $newIcon) {
+        $icon = self::get('BUCKAROO_USE_NEW_ICONS') ? $newIcon : $oldIcon;
         return plugins_url('buckaroo_images/' . $icon, __FILE__);
     }
 

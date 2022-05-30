@@ -14,7 +14,7 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
         $this->title                  = 'Payconiq';
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Payconiq";
-        $this->setIcon('24x24/payconiq.png', 'new/Payconic.png', 'svg/Payconiq.svg');
+        $this->setIcon('24x24/payconiq.png', 'svg/Payconiq.svg');
 
         parent::__construct();
         $this->addRefundSupport();
@@ -56,7 +56,7 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
     {
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $result               = fn_buckaroo_process_response($this);
-        $order_id             = isset($_GET["order_id"]) ? $_GET["order_id"] : false;
+        $order_id             = isset($_GET["order_id"]) && is_scalar($_GET["order_id"]) ? intval($_GET["order_id"]) : false;
         if (!is_null($result)) {
             wp_safe_redirect($result['redirect']);
         } elseif ($order_id) {
@@ -82,9 +82,24 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
 
 function payconiqQrcode()
 {
-    $page = esc_url($_SERVER['REQUEST_URI']);
+    if(!isset($_SERVER['REQUEST_URI'])) {
+        wp_safe_redirect(site_url()); exit();
+    }
+    
+    $page = filter_var( $_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL);
+
+    if ($page === false) {
+        wp_safe_redirect(site_url()); exit();
+    }
+    
     if (strpos($page, 'payconiqQrcode') !== false) {
-        if (!isset($_GET["invoicenumber"]) && !isset($_GET["transactionKey"]) && !isset($_GET["currency"]) && !isset($_GET["amount"])) {
+        if (
+            !isset($_GET["invoicenumber"]) ||
+            !isset($_GET["transactionKey"]) ||
+            !isset($_GET["currency"]) ||
+            !isset($_GET["amount"]) ||
+            !isset($_GET["returnUrl"])
+        ) {
             // When no parameters, redirect to cart page.
             wc_add_notice(__('Checkout is not available whilst your cart is empty.', 'woocommerce'), 'notice');
             wp_safe_redirect(wc_get_page_permalink('cart'));

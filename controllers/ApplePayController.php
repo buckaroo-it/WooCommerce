@@ -6,14 +6,13 @@ Class ApplePayController
     {
         $country_code = preg_replace('/\:\*/', '', get_option('woocommerce_default_country'));
     
-        echo json_encode([
+        wp_send_json([
             'store_name'    => get_option('blogname'),
             'country_code'  => $country_code,
             'currency_code' => get_option('woocommerce_currency'),
             'culture_code'  => $country_code,
             'merchant_id'   => get_option('woocommerce_buckaroo_applepay_settings')["merchant_guid"]
-        ], JSON_PRETTY_PRINT); 
-        exit;
+        ]); 
     }
      
     public static function getItemsFromDetailPage()
@@ -57,8 +56,7 @@ Class ApplePayController
             return array_merge([$product], $coupons, $fees);
         });
         
-        echo json_encode(array_values($items), JSON_PRETTY_PRINT);
-        exit;
+        wp_send_json(array_values($items));
     }
 
     public static function getItemsFromCart()
@@ -101,8 +99,7 @@ Class ApplePayController
 
         $items = array_merge($products, $coupons, $fees);
 
-        echo json_encode(array_values($items), JSON_PRETTY_PRINT);
-        exit;
+        wp_send_json(array_values($items));
     }
 
     private static function getProductsFromCart($cart)
@@ -114,7 +111,7 @@ Class ApplePayController
                 : $product['product_id'];
             return [
                 'type'       => 'product',
-                'id'         => $id,
+                'id'         => absint($id),
                 'name'       => wc_get_product($id)->get_name(),
                 'price'      => $product['line_total'] + $product['line_tax'],
                 'quantity'   => $product['quantity'],
@@ -131,7 +128,11 @@ Class ApplePayController
             global $woocommerce;
     
             $cart = $woocommerce->cart;
-            $country_code = strtoupper($_GET['country_code']);
+
+            $country_code = '';
+            if (isset($_GET['country_code']) && is_string($_GET['country_code'])) {
+                $country_code = strtoupper(sanitize_text_field($_GET['country_code']));
+            }
 
             $customer = $woocommerce->customer;
             $customer->set_shipping_country($country_code);
@@ -142,8 +143,7 @@ Class ApplePayController
                 ->calculate_shipping_for_package(current($packages))['rates']
             ;
         }
-        
-        if (isset($_GET['product_id'])) {
+        if (isset($_GET['product_id']) && is_numeric($_GET['product_id'])) {
             $wc_methods = self::createTemporaryCart(function () {
                 return wcMethods();
             });
@@ -160,8 +160,7 @@ Class ApplePayController
             ];
         }, $wc_methods);
         
-        echo json_encode(array_values($shipping_methods), JSON_PRETTY_PRINT);
-        exit;
+        wp_send_json(array_values($shipping_methods));
     }
 
   
@@ -174,14 +173,26 @@ Class ApplePayController
      */
     private static function createTemporaryCart($callback) 
     {
+        if (!(isset($_GET['product_id']) && is_numeric($_GET['product_id']))) {
+            throw new \Exception('Invalid product_id');
+        }
+
+        if (isset($_GET['variation_id']) && !is_numeric($_GET['variation_id'])) {
+            throw new \Exception('Invalid variation_id');
+        }
+
+        if (!(isset($_GET['quantity']) && is_numeric($_GET['quantity']) && $_GET['quantity'] > 0)) {
+            throw new \Exception('Invalid quantity');
+        }
+        
         global $woocommerce;
 
         /** @var WC_Cart */
         $cart = $woocommerce->cart;
 
         $current_shown_product = [
-            'product_id'   => $_GET['product_id'],
-            'variation_id' => $_GET['variation_id'],
+            'product_id'   => absint($_GET['product_id']),
+            'variation_id' => absint($_GET['variation_id']),
             'quantity'     => (int) $_GET['quantity'],
         ];
 

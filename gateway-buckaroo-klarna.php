@@ -16,7 +16,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
     {
         $this->has_fields = true;
         $this->type       = 'klarna';
-        $this->setIcon('24x24/klarna.svg', 'new/Klarna.png', 'svg/Klarna.svg');
+        $this->setIcon('24x24/klarna.svg', 'svg/Klarna.svg');
         $this->setCountry();
 
         parent::__construct();
@@ -58,19 +58,27 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
      */
     public function validate_fields()
     {
-        if (!empty($_POST['ship_to_different_address'])) {
-            $countryCode = $_POST['shipping_country'] == 'NL' ? $_POST['shipping_country'] : '';
-            $countryCode = $_POST['billing_country'] == 'NL' ? $_POST['billing_country'] : $countryCode;
+        $gender = $this->request($this->getKlarnaSelector() . '-gender');
+
+        if(!in_array($gender, ["1","2"])) {
+            wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
+        }
+
+        if ($this->request('ship_to_different_address') !== null) {
+            $countryCode =$this->request('shipping_country') == 'NL' ?$this->request('shipping_country') : '';
+            $countryCode =$this->request('billing_country') == 'NL' ?$this->request('billing_country') : $countryCode;
             if (!empty($countryCode)
                 && strtolower($this->klarnaPaymentFlowId) !== 'pay') {
 
-                return wc_add_notice(__('Payment method is not supported for country ' . '(' . $countryCode . ')', 'wc-buckaroo-bpe-gateway'), 'error');
+                return wc_add_notice(__('Payment method is not supported for country ' . '(' . esc_html($countryCode) . ')', 'wc-buckaroo-bpe-gateway'), 'error');
             }
         } else {
-            if (($_POST['billing_country'] == 'NL')
-                && strtolower($this->klarnaPaymentFlowId) !== 'pay') {
+            if (
+                ($this->request('billing_country') == 'NL')
+                && strtolower($this->klarnaPaymentFlowId) !== 'pay'
+                ) {
 
-                return wc_add_notice(__('Payment method is not supported for country ' . '(' . $_POST['billing_country'] . ')', 'wc-buckaroo-bpe-gateway'), 'error');
+                return wc_add_notice(__('Payment method is not supported for country ' . '(' . esc_html($this->request('billing_country')) . ')', 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
     }
@@ -132,10 +140,10 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
     {
         /** @var BuckarooKlarna */
         $method = $this->set_billing($method, $order_details);
-        $method->BillingGender = $_POST[$this->getKlarnaSelector() . '-gender'] ?? 'Unknown';
+        $method->BillingGender = $this->request($this->getKlarnaSelector() . '-gender') ?? 'Unknown';
         $method->BillingFirstName = $order_details->getBilling('first_name');
         if (empty($method->BillingPhoneNumber)) {
-            $method->BillingPhoneNumber =  $_POST[$this->getKlarnaSelector() . "-phone"];
+            $method->BillingPhoneNumber = $this->request($this->getKlarnaSelector() . "-phone");
         }
 
 
@@ -156,7 +164,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
     protected function getShippingInfo($order_details, $method)
     {
         $method->AddressesDiffer = 'FALSE';
-        if (isset($_POST[$this->getKlarnaSelector() . "-shipping-differ"])) {
+        if ($this->request($this->getKlarnaSelector() . "-shipping-differ")) {
             $method->AddressesDiffer = 'TRUE';
 
             $shippingCompany = $order_details->getShipping('company');

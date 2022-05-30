@@ -14,7 +14,7 @@
 
 defined('ABSPATH') || exit;
 
-$country = $this->geCheckoutField('billing_country');
+$country = $this->getScalarCheckoutField('billing_country');
 $country = !empty($country) ? $country : $this->country;
 
 ?>
@@ -25,7 +25,7 @@ $country = !empty($country) ? $country : $this->country;
         ?>
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-in3-orderas">
-            <?php echo _e('Order as:', 'wc-buckaroo-bpe-gateway') ?>
+            <?php echo esc_html_e('Order as:', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
         <select
@@ -34,13 +34,13 @@ $country = !empty($country) ? $country : $this->country;
         class=""
         >
             <option value="Debtor">
-                <?php echo __('Debtor', 'wc-buckaroo-bpe-gateway') ?>
+                <?php echo esc_html_e('Debtor', 'wc-buckaroo-bpe-gateway') ?>
             </option>
             <option value="SoleProprietor">
-                <?php echo __('SoleProprietor', 'wc-buckaroo-bpe-gateway') ?>
+                <?php echo esc_html_e('SoleProprietor', 'wc-buckaroo-bpe-gateway') ?>
             </option>
             <option value="Company">
-                <?php echo __('Company', 'wc-buckaroo-bpe-gateway') ?>
+                <?php echo esc_html_e('Company', 'wc-buckaroo-bpe-gateway') ?>
             </option>
         </select>
     </p>
@@ -50,7 +50,7 @@ $country = !empty($country) ? $country : $this->country;
     id="buckaroo-in3-coc-container"
     style="display: none">
         <label for="buckaroo-in3-coc">
-            <?php echo _e('COC Number:', 'wc-buckaroo-bpe-gateway') ?>
+            <?php echo esc_html_e('COC Number:', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
         <input
@@ -65,7 +65,7 @@ $country = !empty($country) ? $country : $this->country;
     id="buckaroo-in3-companyname-container"
     style="display: none">
         <label for="buckaroo-in3-companyname">
-            <?php echo _e('Company Name:', 'wc-buckaroo-bpe-gateway') ?>
+            <?php echo esc_html_e('Company Name:', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
         <input
@@ -75,7 +75,7 @@ $country = !empty($country) ? $country : $this->country;
         maxlength="250" />
     </p>
     <p class="required" style="float:right;">
-        * <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?>
+        * <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway') ?>
     </p>
     <?php endif;?>
 </fieldset>

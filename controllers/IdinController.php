@@ -7,9 +7,9 @@ class IdinController
 
     public function returnHandler()
     {
-        Buckaroo_Logger::log(__METHOD__ . "|1|", $_POST);
+        Buckaroo_Logger::log(__METHOD__ . "|1|", wc_clean($_POST));
 
-        $response = new BuckarooResponseDefault($_POST);
+        $response = new BuckarooResponseDefault(wc_clean($_POST));
 
         if ($response && $response->isValid() && $response->hasSucceeded()) {
             $bin = !empty($response->brq_service_idin_consumerbin) ? $response->brq_service_idin_consumerbin : 0;
@@ -29,9 +29,10 @@ class IdinController
                 'error');
         }
 
-        if (!empty($_REQUEST['bk_redirect'])) {
+        if (!empty($_REQUEST['bk_redirect']) && is_string($_REQUEST['bk_redirect'])) {
             Buckaroo_Logger::log(__METHOD__ . "|15|");
             wp_safe_redirect($_REQUEST['bk_redirect']);
+            exit;
         }
     }
 
@@ -40,7 +41,7 @@ class IdinController
         Buckaroo_Logger::log(__METHOD__ . "|1|");
 
         if (!BuckarooConfig::isIdin(BuckarooIdin::getCartProductIds())) {
-            $this->sendError('iDIN is disabled');
+            $this->sendError(esc_html__('iDIN is disabled'));
         }
 
         $data = [];
@@ -48,15 +49,22 @@ class IdinController
         $data['amountDebit']      = 0;
         $data['amountCredit']     = 0;
         $data['mode'] = BuckarooConfig::getIdinMode();
-        $url = parse_url($_SERVER['HTTP_REFERER']);
-        $data['returnUrl'] = $url['scheme'] . '://' . $url['host'] . '/' . ($url['path'] ?? '') .
-            '?wc-api=WC_Gateway_Buckaroo_idin-return&bk_redirect='.urlencode($_SERVER['HTTP_REFERER']);
+        if(isset($_SERVER['HTTP_REFERER'])) {
+            $referer = sanitize_text_field($_SERVER['HTTP_REFERER']);
+            $url = parse_url($referer);
+            $data['returnUrl'] = $url['scheme'] . '://' . $url['host'] . '/' . ($url['path'] ?? '') .
+                '?wc-api=WC_Gateway_Buckaroo_idin-return&bk_redirect='.urlencode($referer);
+        }
         $data['continueonincomplete'] = 'redirecttohtml';
 
         $data['services']['idin']['action']  = 'verify';
         $data['services']['idin']['version'] = '0';
-        $data['customVars']['idin']['issuerId'] =
-            (isset($_GET['issuer']) && BuckarooIdin::checkIfValidIssuer($_GET['issuer'])) ? $_GET['issuer'] : '';
+
+        $issuer = '';
+        if (isset($_GET['issuer']) && is_string($_GET['issuer'])) {
+            $issuer = sanitize_text_field($_GET['issuer']);
+        }
+        $data['customVars']['idin']['issuerId'] =BuckarooIdin::checkIfValidIssuer($issuer) ?$issuer : '';
 
         $soap = new BuckarooSoap($data);
 
@@ -68,24 +76,23 @@ class IdinController
 
         Buckaroo_Logger::log(__METHOD__ . "|10|", $processedResponse);
 
-        echo json_encode($processedResponse, JSON_PRETTY_PRINT);
-        exit;
+        wp_send_json($processedResponse);
     }
 
     public function reset()
     {
         BuckarooIdin::setCurrentUserIsNotVerified();
 
-        echo 'ok';
-        die();
+        wp_send_json([
+            'success'   => true,
+        ]);
     }
 
     private function sendError($error)
     {
-        echo json_encode([
+        wp_send_json([
             'result'   => 'error',
             'message' => $error
-        ], JSON_PRETTY_PRINT);
-        die();
+        ]);
     }
 }

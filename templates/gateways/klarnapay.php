@@ -14,15 +14,15 @@
 
 defined('ABSPATH') || exit;
 
-$customerPhone = $this->geCheckoutField('billing_phone');
-$country = $this->geCheckoutField('billing_country');
+$customerPhone = $this->getScalarCheckoutField('billing_phone');
+$country = $this->getScalarCheckoutField('billing_country');
 
 if (strtoupper($country) == 'NL' && strtolower($this->klarnaPaymentFlowId) !== 'pay') :
     ?>
     <div class="woocommerce-error">
         <p>
             <?php 
-                echo __('Payment method is not supported for country ', 'wc-buckaroo-bpe-gateway') . '(' . $country . ')'; 
+                echo esc_html_e('Payment method is not supported for country ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html_e($country) . ')'; 
             ?>
         </p>
     </div>
@@ -35,28 +35,28 @@ endif;?>
     ?>
 
     <p class="form-row validate-required">
-        <label for="<?php echo $this->getKlarnaSelector() ?>-phone">
-            <?php echo _e('Phone:', 'wc-buckaroo-bpe-gateway') ?>
+        <label for="<?php echo esc_attr($this->getKlarnaSelector()) ?>-phone">
+            <?php echo esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
-        <input id="<?php echo $this->getKlarnaSelector() ?>-phone"
-        name="<?php echo $this->getKlarnaSelector() ?>-phone"
+        <input id="<?php echo esc_attr($this->getKlarnaSelector()) ?>-phone"
+        name="<?php echo esc_attr($this->getKlarnaSelector()) ?>-phone"
         class="input-tel"
         type="tel"
         autocomplete="off"
-        value="<?php echo $customerPhone ?? '' ?>">
+        value="<?php echo esc_html($customerPhone) ?? '' ?>">
     </p>
 
-    <?php if (!empty($this->geCheckoutField('ship_to_different_address'))) {?>
+    <?php if (!empty($this->getScalarCheckoutField('ship_to_different_address'))) {?>
     <input
-    id="<?php echo $this->getKlarnaSelector() ?>-shipping-differ"
-    name="<?php echo $this->getKlarnaSelector() ?>-shipping-differ"
+    id="<?php echo esc_attr($this->getKlarnaSelector()) ?>-shipping-differ"
+    name="<?php echo esc_attr($this->getKlarnaSelector()) ?>-shipping-differ"
     class=""
     type="hidden"
     value="1" />
     <?php }?>
 
     <p class="required" style="float:right;">*
-        <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?>
+        <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway') ?>
     </p>
 </fieldset>

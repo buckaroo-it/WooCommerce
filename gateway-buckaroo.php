@@ -92,10 +92,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             
             $feeText = " (+ ".$fee.")";
         }
-        $this->title = $this->get_option('title', $this->title ?? '');
-        if (is_checkout()) {
-            $this->title = $this->title.$feeText;
-        }
+
+        $this->title = strip_tags($this->get_option('title', $this->title ?? '').$feeText);
     }
     /**
      * Set gateway icon
@@ -105,11 +103,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return void
      */
-    protected function setIcon($oldPath, $newPath, $svgPath = '')
+    protected function setIcon($oldPath, $newPath)
     {
         $this->icon = apply_filters(
             'woocommerce_'.$this->id.'_icon',
-            BuckarooConfig::getIconPath($oldPath, $newPath, $svgPath)
+            BuckarooConfig::getIconPath($oldPath, $newPath)
         );
     }
     /**
@@ -242,9 +240,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $addDescription = '<fieldset style="border: 1px solid #ffac0e; padding: 10px;"><legend><b style="color: #ffac0e">'.__('Warning', 'wc-buckaroo-bpe-gateway').'!</b></legend>'.__('default_charset is not set.<br>This might cause a problems on receiving push message.<br>Please set default_charset="UTF-8" in your php.ini and add AddDefaultCharset UTF-8 to .htaccess file.', 'wc-buckaroo-bpe-gateway').'</fieldset>';
         }
         //Add Warning, if currency set in Buckaroo is unsupported
-        if (isset($_GET['section']) && $this->id == $_GET['section'] && !checkCurrencySupported($this->id) && is_admin()): ?>
+        if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && !checkCurrencySupported($this->id) && is_admin()): ?>
 <div class="error notice">
-    <p><?php echo __('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . get_woocommerce_currency() . ')'; ?>
+    <p><?php echo esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')'; ?>
     </p>
 </div>
 <?php endif;
@@ -363,9 +361,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'default'     => 'none',
         );
         $this->form_fields['choosecertificate'] = array(
-            'title'       => __('', 'wc-buckaroo-bpe-gateway'),
+            'title'       => '',
             'type'        => 'file',
-            'description' => __(''),
+            'description' => '',
             'default'     => '');
     }
     /**
@@ -432,6 +430,43 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         return parent::validate_text_field($key, $text);
     }
+    /**
+     * Get clean $_POST data
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function request($key)
+    {
+        if (!isset($_POST[$key])) {
+           return;
+        }
+        $value = map_deep( $_POST[$key], 'sanitize_text_field' );
+        if (is_string($value) && strlen($value) === 0) {
+            return;
+        }
+        return $value;
+    }
+    /**
+     * Get clean $_GET data
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function requestGet($key)
+    {
+        if (!isset($_GET[$key])) {
+           return;
+        }
+        $value = map_deep( $_GET[$key], 'sanitize_text_field' );
+        if (is_string($value) && strlen($value) === 0) {
+            return;
+        }
+        return $value;
+    }
+    
 
     /**
      * Check that a date is valid.
@@ -443,6 +478,10 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     public function validateDate($date, $format = 'Y-m-d H:i:s')
     {
+        if ($date === null) {
+            return false;
+        }
+
         $d = DateTime::createFromFormat($format, $date);
         return $d && $d->format($format) == $date;
     }
@@ -528,15 +567,18 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return mixt
      */
-    protected function geCheckoutField($key)
+    protected function getScalarCheckoutField($key)
     {
         $value = '';
         $post_data   = array();
-        if (!empty($_POST["post_data"])) {
-            parse_str($_POST["post_data"], $post_data);
+        if (!empty($_POST["post_data"]) && is_string($_POST["post_data"])) {
+            parse_str(
+                $_POST["post_data"],
+                $post_data
+            );
         }
 
-        if (isset($post_data[$key])) {
+        if (isset($post_data[$key]) && is_scalar($post_data[$key])) {
             $value = $post_data[$key];
         }
         return sanitize_text_field($value);
@@ -697,9 +739,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
     protected function handleThirdPartyShippings($method, $order, $country)
     {
-        if (!empty($_POST['shipping_method'][0]) && ($_POST['shipping_method'][0] == 'dhlpwc-parcelshop')) {
+        $shippingMethod = $this->request('shipping_method');
+
+        if (is_array($shippingMethod) && $shippingMethod[0] == 'dhlpwc-parcelshop') {
             $dhlConnectorData                    = $order->get_meta('_dhlpwc_order_connectors_data');
-            $dhlCountry                          = !empty($country) ? $country : $_POST['billing_country'];
+            $dhlCountry                          = !empty($country) ? $country : $this->request('billing_country');
             $requestPart                         = $dhlCountry . '/' . $dhlConnectorData['id'];
             $dhlParcelShopAddressData            = $this->getDHLParcelShopLocation($requestPart);
             $method->AddressesDiffer           = 'TRUE';
@@ -711,7 +755,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $method->ShippingCountryCode       = $dhlParcelShopAddressData->countryCode;
         }
 
-        if (!empty($_POST['post-deliver-or-pickup']) && $_POST['post-deliver-or-pickup'] == 'post-pickup') {
+        if ($this->request('post-deliver-or-pickup') == 'post-pickup') {
             $postNL                              = $order->get_meta('_postnl_delivery_options');
             $method->AddressesDiffer           = 'TRUE';
             $method->ShippingStreet            = $postNL['street'];
@@ -722,7 +766,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $method->ShippingCountryCode       = $postNL['cc'];
         }
 
-        if (!empty($_POST['sendcloudshipping_service_point_selected'])) {
+        if ($this->request('sendcloudshipping_service_point_selected') !== null) {
             $method->AddressesDiffer = 'TRUE';
             $sendcloudPointAddress     = $order->get_meta('sendcloudshipping_service_point_meta');
             $addressData               = $this->parseSendCloudPointAddress($sendcloudPointAddress['extra']);
@@ -735,7 +779,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $method->ShippingCountryCode       = $method->BillingCountry;
         }
 
-        if (isset($_POST['_myparcel_delivery_options'])) {
+        if ($this->request('_myparcel_delivery_options') !== null) {
             $myparselDeliveryOptions = $order->get_meta('_myparcel_delivery_options');
             if (!empty($myparselDeliveryOptions)) {
                 if ($myparselDeliveryOptions = unserialize($myparselDeliveryOptions)) {
@@ -845,9 +889,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
             $captures = json_decode(json_encode($captures), true);
 
-            $line_item_qtys       = json_decode(stripslashes($_POST['line_item_qtys']), true);
-            $line_item_totals     = json_decode(stripslashes($_POST['line_item_totals']), true);
-            $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
+            $line_item_qtys         = buckaroo_request_sanitized_json('line_item_qtys');
+            $line_item_totals       = buckaroo_request_sanitized_json('line_item_totals');
+            $line_item_tax_totals   = buckaroo_request_sanitized_json('line_item_tax_totals');
 
             $line_item_qtys_new                 = array();
             $line_item_totals_new               = array();
@@ -1231,5 +1275,23 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $method->ShippingLanguage          = 'nl';
 
         return $method;
+    }
+
+    /**
+     * Return properly formated capture error
+     *
+     * @param string $message
+     *
+     * @return array
+     */
+    protected function create_capture_error($message)
+    {
+        return [
+            "errors" => [
+                "error_capture"=>[
+                    [$message]
+                ]
+            ]
+        ];
     }
 }

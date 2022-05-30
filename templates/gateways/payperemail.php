@@ -14,9 +14,9 @@
 
 defined('ABSPATH') || exit;
 
-$customerFirstName = $this->geCheckoutField('billing_first_name');
-$customerLastName  = $this->geCheckoutField('billing_last_name');
-$customerEmail     = $this->geCheckoutField('billing_email');
+$customerFirstName = $this->getScalarCheckoutField('billing_first_name');
+$customerLastName  = $this->getScalarCheckoutField('billing_last_name');
+$customerEmail     = $this->getScalarCheckoutField('billing_email');
 
 ?>
 <fieldset>
@@ -27,7 +27,7 @@ $customerEmail     = $this->geCheckoutField('billing_email');
 
 <p class="form-row validate-required">
     <label for="buckaroo-payperemail-firstname">
-        <?php echo _e('First Name:', 'wc-buckaroo-bpe-gateway') ?>
+        <?php echo esc_html_e('First Name:', 'wc-buckaroo-bpe-gateway') ?>
         <span class="required">*</span>
     </label>
     <input
@@ -36,12 +36,12 @@ $customerEmail     = $this->geCheckoutField('billing_email');
     class="input-text"
     type="text"
     autocomplete="off"
-    value="<?php echo $customerFirstName ?? '' ?>">
+    value="<?php echo esc_html($customerFirstName) ?? '' ?>">
 </p>
 
 <p class="form-row validate-required">
     <label for="buckaroo-payperemail-lastname">
-        <?php echo _e('Last Name:', 'wc-buckaroo-bpe-gateway') ?>
+        <?php echo esc_html_e('Last Name:', 'wc-buckaroo-bpe-gateway') ?>
         <span class="required">*</span>
     </label>
     <input
@@ -50,12 +50,12 @@ $customerEmail     = $this->geCheckoutField('billing_email');
     class="input-text"
     type="text"
     autocomplete="off"
-    value="<?php echo $customerLastName ?? '' ?>">
+    value="<?php echo esc_html($customerLastName) ?? '' ?>">
 </p>
 
 <p class="form-row validate-required">
     <label for="buckaroo-payperemail-email">
-        <?php echo _e('Email:', 'wc-buckaroo-bpe-gateway') ?>
+        <?php echo esc_html_e('Email:', 'wc-buckaroo-bpe-gateway') ?>
         <span class="required">*</span>
     </label>
     <input
@@ -63,10 +63,10 @@ $customerEmail     = $this->geCheckoutField('billing_email');
     name="buckaroo-payperemail-email"
     type="email"
     autocomplete="off"
-    value="<?php echo $customerEmail ?? '' ?>">
+    value="<?php echo esc_html($customerEmail) ?? '' ?>">
 </p>
 
 <p class="required" style="float:right;">
-    * <?php echo _e('Required', 'wc-buckaroo-bpe-gateway') ?>
+    * <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway') ?>
 </p>
 </fieldset>

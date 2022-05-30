@@ -2,30 +2,20 @@
 
 require_once(dirname(__FILE__) . '/../../library/api/idin.php');
 
-$buckaroo_idin_translation  = [
-    "general_error" => __("Something went wrong while processing your identification."),
-    "bank_required"=>__("You need to select your bank!")
-];
-
 if (BuckarooIdin::checkCurrentUserIsVerified()) {
 ?>
     <div id="buckaroo_idin" class="buckaroo-idin buckaroo-idin-passed form-row">
-        <h3 id="buckaroo_idin_heading"><?php _e('Age verification', 'wc-buckaroo-bpe-gateway'); ?></h3>
+        <h3 id="buckaroo_idin_heading"><?php esc_html_e('Age verification', 'wc-buckaroo-bpe-gateway'); ?></h3>
         <fieldset>
             <div>
                 <img class="buckaroo_idin_logo" src="<?php echo plugin_dir_url(__DIR__) . '../library/buckaroo_images/idin_logo.svg'; ?>" />
-                <p class="buckaroo_idin_prompt"><?php _e('You have verified your age already', 'wc-buckaroo-bpe-gateway'); ?></p>
+                <p class="buckaroo_idin_prompt"><?php esc_html_e('You have verified your age already', 'wc-buckaroo-bpe-gateway'); ?></p>
             </div>
         </fieldset>
     </div>
 <?php
 } else {
     ?>
-    <script>
-        var buckaroo_idin_translation = <?php echo json_encode($buckaroo_idin_translation);?>;
-        var buckaroo_ajax_url = '<?php echo home_url('/'); ?>';
-    </script>
-    <script type="module" src="<?php echo plugin_dir_url(__DIR__) . '../assets/js/idin/index.js'; ?>"></script>
     <style>
         .woocommerce-checkout-payment {
             display: none;
@@ -33,23 +23,23 @@ if (BuckarooIdin::checkCurrentUserIsVerified()) {
     </style>
 
     <div id="buckaroo_idin" class="buckaroo-idin buckaroo-idin-not-passed form-row">
-        <h3 id="buckaroo_idin_heading"><?php _e('Age verification', 'wc-buckaroo-bpe-gateway'); ?></h3>
+        <h3 id="buckaroo_idin_heading"><?php esc_html_e('Age verification', 'wc-buckaroo-bpe-gateway'); ?></h3>
         <fieldset>
             <div>
                 <img class="buckaroo_idin_logo" src="<?php echo plugin_dir_url(__DIR__) . '../library/buckaroo_images/idin_logo.svg'; ?>" />
                 <p class="buckaroo_idin_prompt">
-                    <?php _e('To continue you must verify your age using iDIN', 'wc-buckaroo-bpe-gateway'); ?>
+                    <?php esc_html_e('To continue you must verify your age using iDIN', 'wc-buckaroo-bpe-gateway'); ?>
                 </p>
 
                 <p class="form-row form-row-wide">
                     <select id='buckaroo-idin-issuer'>
                         <option value='0' style='color: grey !important'>
-                            <?php _e('Select your bank', 'wc-buckaroo-bpe-gateway') ?>
+                            <?php esc_html_e('Select your bank', 'wc-buckaroo-bpe-gateway') ?>
                         </option>
                         <?php foreach (BuckarooIdin::getIssuerList() as $issuer): ?>
                             <div>
-                                <option value='<?php echo $issuer['servicename']; ?>'>
-                                    <?php _e($issuer['displayname'], 'wc-buckaroo-bpe-gateway') ?>
+                                <option value='<?php echo esc_attr($issuer['servicename']); ?>'>
+                                    <?php esc_html_e($issuer['displayname'], 'wc-buckaroo-bpe-gateway') ?>
                                 </option>
                             </div>
                         <?php endforeach ?>
@@ -58,8 +48,8 @@ if (BuckarooIdin::checkCurrentUserIsVerified()) {
 
 
                 <button type="button" class="button alt" id="buckaroo-idin-verify-button"
-                        value="<?php _e('Verify your age via iDIN', 'wc-buckaroo-bpe-gateway') ?>">
-                    <?php _e('Verify your age via iDIN', 'wc-buckaroo-bpe-gateway') ?>
+                        value="<?php esc_html_e('Verify your age via iDIN', 'wc-buckaroo-bpe-gateway') ?>">
+                    <?php esc_html_e('Verify your age via iDIN', 'wc-buckaroo-bpe-gateway') ?>
                 </button>
             </div>
         </fieldset>

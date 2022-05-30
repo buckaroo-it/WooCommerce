@@ -37,7 +37,7 @@ class BuckarooEmpayment extends BuckarooPaymentMethod {
         $this->data['customVars'][$this->type]['LastName']['group'] = 'person';
         $this->data['customVars'][$this->type]['Initials']['value'] = $customVars['Initials'];
         $this->data['customVars'][$this->type]['Initials']['group'] = 'person';
-        $this->data['customVars'][$this->type]['browserAgent']['value'] = $_SERVER['HTTP_USER_AGENT'];
+        $this->data['customVars'][$this->type]['browserAgent']['value'] = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field($_SERVER['HTTP_USER_AGENT']) : '';
         $this->data['customVars'][$this->type]['browserAgent']['group'] = 'clientInfo';
         $this->data['customVars'][$this->type]['Type']['value'] = 'DOM';
         $this->data['customVars'][$this->type]['Type']['group'] = 'bankaccount';

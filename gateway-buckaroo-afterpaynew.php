@@ -21,7 +21,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $this->title                  = 'Afterpay (by Buckaroo)';
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo AfterPay New';
-        $this->setIcon('24x24/afterpaynew.png', 'new/AfterPay.png', 'svg/AfterPay.svg');
+        $this->setIcon('24x24/afterpaynew.png', 'svg/AfterPay.svg');
         $this->setCountry();
 
         parent::__construct();
@@ -81,15 +81,16 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $itemsTotalAmount = 0;
 
         if ($line_item_qtys === null) {
-            $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
+            $line_item_qtys = buckaroo_request_sanitized_json('line_item_qtys');
         }
-
+        
+        
         if ($line_item_totals === null) {
-            $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true);
+            $line_item_totals = buckaroo_request_sanitized_json('line_item_totals');
         }
-
+        
         if ($line_item_tax_totals === null) {
-            $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
+            $line_item_tax_totals  = buckaroo_request_sanitized_json('line_item_tax_totals');
         }
 
         $orderDataForChecking = $afterpay->getOrderRefundData($order);
@@ -178,8 +179,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         }
         // end add items
 
-        if (isset($_POST['refund_amount']) && $itemsTotalAmount == 0) {
-            $afterpay->amountCredit = $_POST['refund_amount'];
+        $ref_amount = $this->request('refund_amount');
+        if ($ref_amount !== null && $itemsTotalAmount == 0) {
+            $afterpay->amountCredit = $ref_amount;
         } else {
             $amount                 = $itemsTotalAmount;
             $afterpay->amountCredit = $amount;
@@ -211,7 +213,16 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
     public function process_capture()
     {
-        $order_id = $_POST['order_id'];
+        $order_id = $this->request('order_id');
+        
+        if ($order_id === null || !is_numeric($order_id)) {
+            return $this->create_capture_error(__('A valid order number is required'));
+        }
+
+        $capture_amount = $this->request('capture_amount');
+        if($capture_amount === null || !is_scalar($capture_amount)) {
+            return $this->create_capture_error(__('A valid capture amount is required'));
+        }
 
         $previous_captures = get_post_meta($order_id, '_wc_order_captures') ? get_post_meta($order_id, '_wc_order_captures') : false;
 
@@ -220,7 +231,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooAfterPayNew */
         $afterpay = $this->createDebitRequest($order);
-        $afterpay->amountDedit            = str_replace(',', '.', $_POST['capture_amount']);
+        $afterpay->amountDedit            = str_replace(',', '.', $capture_amount);
         $afterpay->OriginalTransactionKey = $order->get_transaction_id();
         $afterpay->invoiceId              = (string) getUniqInvoiceId($woocommerce->order ? $woocommerce->order->get_order_number() : $order_id) . (is_array($previous_captures) ? '-' . count($previous_captures) : "");
 
@@ -231,9 +242,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $items            = $order->get_items();
         $itemsTotalAmount = 0;
 
-        $line_item_qtys       = json_decode(stripslashes($_POST['line_item_qtys']), true);
-        $line_item_totals     = json_decode(stripslashes($_POST['line_item_totals']), true);
-        $line_item_tax_totals = json_decode(stripslashes($_POST['line_item_tax_totals']), true);
+        $line_item_qtys         = buckaroo_request_sanitized_json('line_item_qtys');
+		$line_item_totals       = buckaroo_request_sanitized_json('line_item_totals');
+		$line_item_tax_totals   = buckaroo_request_sanitized_json('line_item_tax_totals');
 
         foreach ($items as $item) {
             if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
@@ -290,26 +301,36 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
      */
     public function validate_fields()
     {
-        $country = isset($_POST['billing_country']) ? $_POST['billing_country'] : $this->country;
+        $country = $this->request('billing_country');
+        if ($country === null) {
+            $country =  $this->country;
+        }
 
-        if (empty($_POST["buckaroo-afterpaynew-accept"])) {
+        $birthdate = $this->parseDate(
+            $this->request('buckaroo-afterpaynew-birthdate')
+        );
+        if (!$this->validateDate($birthdate, 'd-m-Y') && in_array($country, ['NL', 'BE'])) {
+            wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
+        }
+        if(!in_array($this->request('buckaroo-afterpaynew-gender'), ["1","2"])) {
+            wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
+        }
+
+        if ($this->request("buckaroo-afterpaynew-accept") === null) {
             wc_add_notice(__("Please accept licence agreements", 'wc-buckaroo-bpe-gateway'), 'error');
         }
-        if (!empty($_POST["buckaroo-afterpaynew-b2b"]) && $_POST["buckaroo-afterpaynew-b2b"] == 'ON') {
-            if (empty($_POST["buckaroo-afterpaynew-CompanyCOCRegistration"])) {
+
+        $b2b = $this->request('buckaroo-afterpaynew-b2b');
+        if ($b2b == 'ON') {
+            if ($this->request("buckaroo-afterpaynew-CompanyCOCRegistration") === null) {
                 wc_add_notice(__("Company registration number is required (KvK)", 'wc-buckaroo-bpe-gateway'), 'error');
             }
-            if (empty($_POST["buckaroo-afterpaynew-CompanyName"])) {
+            if ($this->request("buckaroo-afterpaynew-CompanyName") === null) {
                 wc_add_notice(__("Company name is required", 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-        } else {
-            $birthdate = $this->parseDate($_POST['buckaroo-afterpaynew-birthdate']);
-            if (!$this->validateDate($birthdate, 'd-m-Y') && in_array($country, ['NL', 'BE'])) {
-                wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
 
-        if (empty($_POST['buckaroo-afterpaynew-phone']) && empty($_POST['billing_phone'])) {
+        if ($this->request('buckaroo-afterpaynew-phone') === null && $this->request('billing_phone') === null) {
             wc_add_notice(__("Please enter phone number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
@@ -334,21 +355,8 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         );
         $order_details = new Buckaroo_Order_Details($order);
      
-        $birthdate                 = $this->parseDate($_POST['buckaroo-afterpaynew-birthdate']);
-        if (!empty($_POST["buckaroo-afterpaynew-b2b"]) && $_POST["buckaroo-afterpaynew-b2b"] == 'ON') {
-            // if is company reset birthdate
-            $birthdate = '01-01-1990';
-        }
-        if ($this->validateDate($birthdate, 'd-m-Y')) {
-            $birthdate = date('Y-m-d', strtotime($birthdate));
-        } elseif (in_array($order_details->getBilling('country'), ['NL', 'BE'])) {
-            wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
-            return;
-        }
-        if (empty($_POST["buckaroo-afterpaynew-accept"])) {
-            wc_add_notice(__("Please accept licence agreements", 'wc-buckaroo-bpe-gateway'), 'error');
-            return;
-        }
+        $birthdate        = $this->parseDate($this->request('buckaroo-afterpaynew-birthdate'));
+
         $shippingCosts    = $order->get_total_shipping();
         $shippingCostsTax = $order->get_shipping_tax();
         if (floatval($shippingCosts) > 0) {
@@ -392,13 +400,13 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     {
         /** @var BuckarooAfterPayNew */
         $method = $this->set_billing($method, $order_details);
-        $method->BillingGender    = $_POST['buckaroo-afterpaynew-gender'];
+        $method->BillingGender    = $this->request('buckaroo-afterpaynew-gender');
         $method->BillingInitials  = $order_details->getInitials(
             $order_details->getBilling('first_name')
         );
         $method->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
         if (empty($method->BillingPhoneNumber)) {
-            $method->BillingPhoneNumber =  $_POST["buckaroo-afterpaynew-phone"];
+            $method->BillingPhoneNumber =  $this->request("buckaroo-afterpaynew-phone");
         }
 
         return $method;
@@ -414,7 +422,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     protected function getShippingInfo($order_details, $method)
     {
         $method->AddressesDiffer = 'FALSE';
-        if (isset($_POST["buckaroo-afterpaynew-shipping-differ"])) {
+        if ($this->request("buckaroo-afterpaynew-shipping-differ") !== null) {
             $method->AddressesDiffer = 'TRUE';
             /** @var BuckarooAfterPayNew */
             $method = $this->set_shipping($method, $order_details);
