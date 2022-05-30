@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 6.0
-Stable tag: 3.2.0
+Stable tag: 3.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,11 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 
 == Changelog ==
 
+= 3.2.2 =
+- Don't use calls like // phpcs:ignore [BP-1727]
+- Use wp_enqueue commands [BP-1728]
+- Sanitize, Escape and Validate variables [BP-1528]
+- Adding code sniffer for Woocommerce to the GitHub pipeline [BP-1534]
 
 = 3.2.1 =
 - Don't use calls like // phpcs:ignore [BP-1727]
