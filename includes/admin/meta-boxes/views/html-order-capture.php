@@ -267,7 +267,7 @@ if ( wc_tax_enabled() ) {
 				<td class="label"><?php esc_html_e( 'Discount:', 'woocommerce' ); ?></td>
 				<td width="1%"></td>
 				<td class="total">
-					<?php echo wc_price( $order->get_total_discount(), array( 'currency' => $order->get_currency() ) );  ?>
+					<?php echo esc_html(wc_price( $order->get_total_discount(), array( 'currency' => $order->get_currency() ) ));  ?>
 				</td>
 			</tr>
 		<?php endif; ?>
@@ -282,9 +282,9 @@ if ( wc_tax_enabled() ) {
 					<?php
                     $captured = false;
 					if ( $captured > 0 ) {
-						echo '<del>' . wp_strip_all_tags( wc_price( $order->get_shipping_total(), array( 'currency' => $order->get_currency() ) ) ) . '</del> <ins>' . wc_price( $order->get_shipping_total() - $captured, array( 'currency' => $order->get_currency() ) ) . '</ins>'; 
+						echo '<del>' . esc_html(wp_strip_all_tags( wc_price( $order->get_shipping_total(), array( 'currency' => $order->get_currency() ) ) )) . '</del> <ins>' . esc_html(wc_price( $order->get_shipping_total() - $captured, array( 'currency' => $order->get_currency() ) )) . '</ins>';
 					} else {
-						echo wc_price( $order->get_shipping_total(), array( 'currency' => $order->get_currency() ) ); 
+						echo esc_html(wc_price( $order->get_shipping_total(), array( 'currency' => $order->get_currency() ) ));
 					}
 					?>
 				</td>
@@ -302,7 +302,7 @@ if ( wc_tax_enabled() ) {
 						<?php
                         $captured = false;
 						if ( $captured > 0 ) {
-							echo '<del>' . wp_strip_all_tags( $tax_total->formatted_amount ) . '</del> <ins>' . wc_price( roundAmount( $tax_total->amount ) - roundAmount( $captured ), array( 'currency' => $order->get_currency() ) ) . '</ins>'; 
+							echo '<del>' . esc_html(wp_strip_all_tags( $tax_total->formatted_amount )) . '</del> <ins>' . esc_html(wc_price( roundAmount( $tax_total->amount ) - roundAmount( $captured ), array( 'currency' => $order->get_currency() ) )) . '</ins>';
 						} else {
 							echo wp_kses_post( $tax_total->formatted_amount );
 						}
@@ -318,7 +318,7 @@ if ( wc_tax_enabled() ) {
 			<td class="label"><?php esc_html_e( 'Total', 'woocommerce' ); ?>:</td>
 			<td width="1%"></td>
 			<td class="total">
-				<?php echo $order->get_formatted_order_total();  ?>
+				<?php echo esc_html($order->get_formatted_order_total());  ?>
 			</td>
 		</tr>
 
@@ -328,7 +328,7 @@ if ( wc_tax_enabled() ) {
 			<tr>
 				<td class="label captured-total"><?php esc_html_e( 'Captured', 'woocommerce' ); ?>:</td>
 				<td width="1%"></td>
-				<td class="total captured-total">-<?php echo wc_price( $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) );  ?></td>
+				<td class="total captured-total">-<?php echo esc_html(wc_price( $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) ));  ?></td>
 			</tr>
 		<?php endif; ?>
 
@@ -379,18 +379,18 @@ if ( $order->get_total() - $amountAlreadyCaptured  > 0) :
 		<tr>
 	
 			<td class="label"><?php esc_html_e( 'Amount already captured', 'woocommerce' ); ?>:</td>
-			<td class="total"><?php echo wc_price( $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) );  ?></td>
+			<td class="total"><?php echo esc_html(wc_price( $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) ));  ?></td>
 		</tr>
 		<tr>
 		
 			<td class="label"><?php esc_html_e( 'Total available to capture', 'woocommerce' ); ?>:</td>
-			<td class="total"><?php echo wc_price( $order->get_total() - $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) );  ?></td>
+			<td class="total"><?php echo esc_html(wc_price( $order->get_total() - $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) ));  ?></td>
 		</tr>
 		<tr>
 	
 			<td class="label">
 				<label for="capture_amount">
-					<?php echo wc_help_tip( __( 'Capture the line items above. This will show the total amount to be captured', 'woocommerce' ) ); ?>
+					<?php echo esc_html(wc_help_tip( __( 'Capture the line items above. This will show the total amount to be captured', 'woocommerce' ) )); ?>
 					<?php esc_html_e( 'Capture amount', 'woocommerce' ); ?>:
 				</label>
 			</td>
@@ -442,7 +442,7 @@ if ( $order->get_total() - $amountAlreadyCaptured  > 0) :
 							?>
 							<tbody data-row="<?php echo esc_attr( $row ); ?>">
 								<tr>
-									<?php echo $row;  ?>
+									<?php echo esc_html($row);  ?>
 								</tr>
 							</tbody>
 						</table>

@@ -8,7 +8,7 @@ if (BuckarooIdin::checkCurrentUserIsVerified()) {
         <h3 id="buckaroo_idin_heading"><?php esc_html_e('Age verification', 'wc-buckaroo-bpe-gateway'); ?></h3>
         <fieldset>
             <div>
-                <img class="buckaroo_idin_logo" src="<?php echo plugin_dir_url(__DIR__) . '../library/buckaroo_images/idin_logo.svg'; ?>" />
+                <img class="buckaroo_idin_logo" src="<?php echo esc_url(plugin_dir_url(__DIR__) . '../library/buckaroo_images/idin_logo.svg'); ?>" />
                 <p class="buckaroo_idin_prompt"><?php esc_html_e('You have verified your age already', 'wc-buckaroo-bpe-gateway'); ?></p>
             </div>
         </fieldset>
@@ -26,7 +26,7 @@ if (BuckarooIdin::checkCurrentUserIsVerified()) {
         <h3 id="buckaroo_idin_heading"><?php esc_html_e('Age verification', 'wc-buckaroo-bpe-gateway'); ?></h3>
         <fieldset>
             <div>
-                <img class="buckaroo_idin_logo" src="<?php echo plugin_dir_url(__DIR__) . '../library/buckaroo_images/idin_logo.svg'; ?>" />
+                <img class="buckaroo_idin_logo" src="<?php echo esc_url(plugin_dir_url(__DIR__) . '../library/buckaroo_images/idin_logo.svg'); ?>" />
                 <p class="buckaroo_idin_prompt">
                     <?php esc_html_e('To continue you must verify your age using iDIN', 'wc-buckaroo-bpe-gateway'); ?>
                 </p>
