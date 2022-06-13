@@ -655,7 +655,7 @@ class BK_AJAX {
 			wp_die( -1 );
 		}
 
-		global $post; // Set $post global so its available, like within the admin screens.
+		//global $post; // Set $post global so its available, like within the admin screens.
 
 		$product_id       = intval( $_POST['post_id'] );
 		$post             = get_post( $product_id ); 
@@ -1680,7 +1680,7 @@ class BK_AJAX {
 
 		$id       = (int) $_POST['id'];
 		$next_id  = isset( $_POST['nextid'] ) && (int) $_POST['nextid'] ? (int) $_POST['nextid'] : null;
-		$taxonomy = isset( $_POST['thetaxonomy'] ) ? esc_attr( wp_unslash( $_POST['thetaxonomy'] ) ) : null; 
+		$taxonomy = isset( $_POST['thetaxonomy'] ) ? sanitize_text_field(esc_attr( wp_unslash( $_POST['thetaxonomy'] ) )) : null;
 		$term     = get_term_by( 'id', $id, $taxonomy );
 
 		if ( ! $id || ! $term || ! $taxonomy ) {
@@ -1991,7 +1991,7 @@ class BK_AJAX {
 		}
 
 		// Set $post global so its available, like within the admin screens.
-		global $post;
+		//global $post;
 
 		$loop           = 0;
 		$product_id     = absint( $_POST['product_id'] );
@@ -2512,7 +2512,7 @@ class BK_AJAX {
 			wp_die();
 		}
 
-		$changes = wp_unslash( $_POST['changes'] ); 
+		$changes = wp_unslash( sanitize_text_field($_POST['changes']) );
 		foreach ( $changes as $tax_rate_id => $data ) {
 			if ( isset( $data['deleted'] ) ) {
 				if ( isset( $data['newRow'] ) ) {
@@ -2589,7 +2589,7 @@ class BK_AJAX {
 			wp_die();
 		}
 
-		$changes = wp_unslash( $_POST['changes'] ); 
+		$changes = wp_unslash( sanitize_text_field($_POST['changes']) );
 		foreach ( $changes as $zone_id => $data ) {
 			if ( isset( $data['deleted'] ) ) {
 				if ( isset( $data['newRow'] ) ) {
@@ -2889,19 +2889,23 @@ class BK_AJAX {
 				if ( ! in_array( $gateway_id, array( $gateway->id, sanitize_title( get_class( $gateway ) ) ), true ) ) {
 					continue;
 				}
+
 				$enabled = $gateway->get_option( 'enabled', 'no' );
 
 				if ( ! wc_string_to_bool( $enabled ) ) {
 					if ( $gateway->needs_setup() ) {
 						wp_send_json_error( 'needs_setup' );
 						wp_die();
-					} else {
-						$gateway->update_option( 'enabled', 'yes' );
+
+                        continue;
 					}
-				} else {
-					// Disable the gateway.
-					$gateway->update_option( 'enabled', 'no' );
+
+                    $gateway->update_option( 'enabled', 'yes' );
+                    continue;
 				}
+
+                // Disable the gateway.
+                $gateway->update_option( 'enabled', 'no' );
 
 				wp_send_json_success( ! wc_string_to_bool( $enabled ) );
 				wp_die();

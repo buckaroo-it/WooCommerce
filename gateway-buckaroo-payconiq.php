@@ -113,7 +113,8 @@ function payconiqQrcode()
 
         $content = ob_get_clean();
         $content = preg_replace('#<title>(.*?)<\/title>#', '<title>Payconiq</title>', $content);
-        echo $content;
+
+        echo esc_attr($content);
 
         die();
     }elseif (strpos($page, 'payconiq') !== false) {

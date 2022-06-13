@@ -58,10 +58,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<td class="line_cost" width="1%">
 		<div class="view">
 			<?php
-			echo wc_price( $item->get_total(), array( 'currency' => $order->get_currency() ) );
+			echo esc_html(wc_price( $item->get_total(), array( 'currency' => $order->get_currency() ) ));
             $captured = false;
 			if ( $captured ) {
-				echo '<small class="captured">-' . wc_price( $captured, array( 'currency' => $order->get_currency() ) ) . '</small>';
+				echo '<small class="captured">-' . esc_html(wc_price( $captured, array( 'currency' => $order->get_currency() ) )) . '</small>';
 			}
 			?>
 		</div>
@@ -82,10 +82,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<td class="line_tax" width="1%">
 				<div class="view">
 					<?php
-					echo ( '' !== $tax_item_total ) ? wc_price( wc_round_tax_total( $tax_item_total ), array( 'currency' => $order->get_currency() ) ) : '&ndash;';
+					echo ( '' !== $tax_item_total ) ? esc_html(wc_price( wc_round_tax_total( $tax_item_total ), array( 'currency' => $order->get_currency() ) )) : '&ndash;';
                     $captured = false;
 					if ( $captured ) {
-						echo '<small class="captured">-' . wc_price( $captured, array( 'currency' => $order->get_currency() ) ) . '</small>';
+						echo '<small class="captured">-' . esc_html(wc_price( $captured, array( 'currency' => $order->get_currency() ) )) . '</small>';
 					}
 					?>
 				</div>

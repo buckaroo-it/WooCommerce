@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 6.0
-Stable tag: 3.2.2
+Stable tag: 3.2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,11 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.2.3 =
+- Update esc_html to esc_url for image urls
+- Sanitized some fields
+- Other Improvments
 
 = 3.2.2 =
 - Don't use calls like // phpcs:ignore [BP-1727]

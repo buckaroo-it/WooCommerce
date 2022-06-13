@@ -3,6 +3,9 @@
 xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
     <description>A custom coding standard for Buckaroo Wordpress WooCommerce plugin.</description>
 
+    <arg name="colors"/>
+    <arg name="report" value="code"/>
+
     <!-- Exclude folders and files from being checked. -->
     <exclude-pattern>./bin/*</exclude-pattern>
     <exclude-pattern>./tests/*</exclude-pattern>
