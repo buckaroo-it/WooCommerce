@@ -86,10 +86,12 @@ class Buckaroo_Paypal_Express
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 'currency' => get_woocommerce_currency(),
                 'websiteKey' => $this->get_website_key(),
+                'merchant_id' => $this->get_merchant_id(),
                 'page' => $this->determine_page(),
                 'i18n' => [
                     'cancel_error_message' => __("You have canceled the payment request", 'wc-buckaroo-bpe-gateway'),
-                    'cannot_create_payment' => __("Cannot create payment", 'wc-buckaroo-bpe-gateway')
+                    'cannot_create_payment' => __("Cannot create payment", 'wc-buckaroo-bpe-gateway'),
+                    'merchant_id_required' => __("Paypal merchant id is required", 'wc-buckaroo-bpe-gateway')
                 ]
             )
         );
@@ -324,6 +326,17 @@ class Buckaroo_Paypal_Express
         $masterSettings = get_option('woocommerce_buckaroo_mastersettings_settings', null);
         if ($masterSettings !== null) {
             return $masterSettings['merchantkey'];
+        }
+    }
+    /**
+     * Get paypal merchant id
+     *
+     * @return string|null
+     */
+    protected function get_merchant_id()
+    {
+        if (isset($this->settings['express_merchant_id']) && strlen(trim($this->settings['express_merchant_id']))) {
+            return $this->settings['express_merchant_id'];
         }
     }
     protected function determine_page()
