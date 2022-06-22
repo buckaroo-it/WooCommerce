@@ -1,11 +1,16 @@
 jQuery(document).ready(function () {
     if (jQuery(".buckaroo-paypal-express").length && buckaroo_paypal_express.websiteKey.length) {
+
+        if (buckaroo_paypal_express.merchant_id === null) {
+            alert(buckaroo_paypal_express.i18n.merchant_id_required);
+        }
         let buckaroo_paypal_express_class = new BuckarooPaypalExpress(
             BuckarooSdk.PayPal,
             buckaroo_paypal_express.page,
             {
                 buckarooWebsiteKey: buckaroo_paypal_express.websiteKey,
-                currency: buckaroo_paypal_express.currency
+                currency: buckaroo_paypal_express.currency,
+                paypalMerchantId: buckaroo_paypal_express.merchant_id
             },
             buckaroo_paypal_express.ajaxurl
         )
