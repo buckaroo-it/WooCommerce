@@ -5,7 +5,7 @@ Tags: WooCommerce, payments, Buckaroo, credit card, ideal, bancontact, klarna, s
 Requires at least: 4.4.10
 Tested up to: 6.0
 Stable tag: 3.2.3
-Requires PHP: 7.2
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,27 +18,26 @@ It is a plugin with many different payment methods, all of which are SEPA proof.
 
 = Payment methods that are supported in this Buckaroo plugin =
 1. iDEAL (Netherlands)
-2. PayPal (International)
-3. Bancontact (Belgium)
+2. Bancontact (Belgium)
+3. PayPal (International) 
 4. Creditcards (International)
 (Visa, MasterCard, Maestro, American Express, VPAY, Visa Electron, Carte Bleue, Carte Bancaire, Dankort, PostePay, Nexi)
 5. Apple Pay (International)
 6. Afterpay (Europe)
-7. AfterPay 2.0 (Europe)
-8. Billink (Netherlands)
-9. Belfius (Belgium)
-10. EPS (Austria)
-11. Giftcards (Netherlands)
-12. Giropay (Germany)
-13. Klarna (Europe)
-14. KBC (Belgium)
-15. Payconiq (Europe)
-16. PayPerEmail (Europe)
-17. Przelewy24 (Poland)
-18. Request To Pay (Europe)
-19. SEPA Credit Transfer / Bank transfer (Europe)
-20. SEPA Direct Debit (Europe)
-21. SOFORT Banking (Europe)
+7. Billink (Netherlands & Belgium)
+8. Belfius (Belgium)
+9. EPS (Austria)
+10. Giftcards (Netherlands)
+11. Giropay (Germany)
+12. Klarna (Europe)
+13. KBC (Belgium)
+14. Payconiq (Europe)
+15. PayPerEmail (Europe)
+16. Przelewy24 (Poland)
+17. Request To Pay (Europe)
+18. SEPA Credit Transfer / Bank transfer (Europe)
+19. SEPA Direct Debit (Europe)
+20. SOFORT Banking (Europe)
 
 > Transparent pricing, only pay for successful transactions.
 
@@ -62,14 +61,16 @@ Phone: +31 (0)30 711 50 50
 
 1. Centrally manage your payment methods, within the general plugin settings.
 
-2. Linked to the Buckaroo Plaza which is Buckaroo's secured financial backoffice system.
+2. It is easy to configurate the plugin, start accepting payments within a few minutes.
+
+3. Linked to the Buckaroo Plaza which is Buckaroo's secured financial backoffice system.
 
 == Frequently Asked Questions ==
 
 = Minimum Requirements =
 - WordPress 4.4
 - WooCommerce 2.2
-- PHP 7.2
+- PHP 7.4
 - Buckaroo account
 
 = How do I automatically install the plugin? =
@@ -112,7 +113,7 @@ Phone: +31 (0)30 711 50 50
 = 3.2.3 =
 - Update esc_html to esc_url for image urls
 - Sanitized some fields
-- Other Improvments
+- Other Improvements
 
 = 3.2.2 =
 - Don't use calls like // phpcs:ignore [BP-1727]
