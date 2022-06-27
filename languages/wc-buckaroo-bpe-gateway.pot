@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WC Buckaroo BPE Gateway\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-31 08:26+0000\n"
+"POT-Creation-Date: 2022-06-24 11:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -1000,4 +1000,9 @@ msgstr ""
 
 #: templates/idin/product.php:10
 msgid "You must be 18 years or older to order this product"
+msgstr ""
+
+msgid ""
+"Transaction description can be filled with static text and tags like: "
+"{order_number}, {shop_name} and {product_name} for first product found."
 msgstr ""

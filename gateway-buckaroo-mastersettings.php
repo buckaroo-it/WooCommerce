@@ -123,6 +123,7 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'title'             => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
             'type'              => 'textarea',
             'description'       => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
+            'desc_tip'          => __('Transaction description can be filled with static text and tags like: {order_number}, {shop_name} and {product_name} for first product found.'),
             'default'           => ''
         );
 

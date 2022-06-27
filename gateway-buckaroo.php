@@ -211,18 +211,16 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     {
         parent::init_settings();
 
-        if (isset($this->settings['usemaster']) && $this->settings['usemaster'] == 'yes') {
-            // merge with master settings
-            $options            = get_option('woocommerce_buckaroo_mastersettings_settings', null);
-            if (is_array($options)) {
-                unset(
-                    $options['enabled'],
-                    $options['title'],
-                    $options['mode'],
-                    $options['description'],
-                );
-                $this->settings = array_replace($this->settings, $options);
-            }
+        // merge with master settings
+        $options = get_option('woocommerce_buckaroo_mastersettings_settings', null);
+        if (is_array($options)) {
+            unset(
+                $options['enabled'],
+                $options['title'],
+                $options['mode'],
+                $options['description'],
+            );
+            $this->settings = array_replace($this->settings, $options);
         }
     }
     
@@ -730,13 +728,36 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $payment->amountCredit = 0;
         $payment->invoiceId = (string)getUniqInvoiceId($order->get_order_number());
         $payment->orderId = (string)$order->get_id();
-        $payment->description = $this->get_option('transactiondescription', 'Order #' . (string)$order->get_id());
+        $payment->description = $this->getParsedLabel($order);
         $payment->returnUrl = $this->notify_url;
         $payment->mode = $this->mode;
         $payment->channel = BuckarooConfig::CHANNEL;
         return $payment;
     }
+    /**
+     * Get the parsed label, we replace the template variables with the values
+     *
+     * @param WC_Order $order
+     *
+     * @return string
+     */
+    public function getParsedLabel(WC_Order $order)
+    {
+        $label =  $this->get_option('transactiondescription', 'Order #' . $order->get_order_number());
 
+        if ($label === null) {
+            return $store->getName();
+        }
+
+        $label = preg_replace('/\{order_number\}/', $order->get_order_number(), $label);
+        $label = preg_replace('/\{shop_name\}/', get_bloginfo('name'), $label);
+
+        $products = $order->get_items('line_item');
+        if (count($products)) {
+            $label = preg_replace('/\{product_name\}/', array_values($products)[0]->get_name(), $label);
+        }
+        return mb_substr($label, 0, 244);
+    }
     protected function handleThirdPartyShippings($method, $order, $country)
     {
         $shippingMethod = $this->request('shipping_method');
