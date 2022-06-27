@@ -57,11 +57,24 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     {
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
         $this->setTitle();
+        $this->description            = $this->getPaymentDescription();
         $this->currency               = get_woocommerce_currency();
-        $this->description            = sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         $this->mode                   = $this->get_option('mode');
         $this->minvalue               = $this->get_option('minvalue', 0);
         $this->maxvalue               = $this->get_option('maxvalue', 0);
+    }
+    /**
+     * Get checkout payment description field
+     *
+     * @return string
+     */
+    public function getPaymentDescription()
+    {
+        $desc = $this->get_option('description','');
+        if (strlen(trim($desc)) === 0) {
+            $desc = sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
+        }
+        return $desc;
     }
     /**
      * Set title with fee
@@ -272,6 +285,15 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                     'wc-buckaroo-bpe-gateway'
                 ),
                 'default'           => __($this->title, 'wc-buckaroo-bpe-gateway'),
+            ],
+            'description'            => [
+                'title'       => __('Description', 'wc-buckaroo-bpe-gateway'),
+                'type'        => 'textarea',
+                'description' => __(
+                    'This controls the description which the user sees during checkout.',
+                    'wc-buckaroo-bpe-gateway'
+                ),
+                'default'     => $this->getPaymentDescription(),
             ],
             'extrachargeamount'     => [
                 'title'             => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
