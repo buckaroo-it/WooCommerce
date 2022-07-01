@@ -61,6 +61,24 @@ $country = !empty($country) ? $country : $this->country;
     </p>
     <?php }?>
 
+    <?php if ($country == "NL" && WC_Gateway_Buckaroo_Afterpaynew::CUSTOMER_TYPE_B2C !==  $this->customer_type) {?>
+    <p class="form-row form-row-wide validate-required">
+        <label for="buckaroo-afterpaynew-coc">
+            <?php echo esc_html_e('CoC-number:', 'wc-buckaroo-bpe-gateway') ?>
+            <span class="required">*</span>
+        </label>
+
+        <input 
+        id="buckaroo-afterpaynew-coc"
+        name="buckaroo-afterpaynew-coc"
+        class="input-text"
+        type="text"
+        maxlength="250"
+        autocomplete="off"
+        value="" />
+    </p>
+    <?php }?>
+
     <?php if (!empty($this->getScalarCheckoutField('ship_to_different_address'))) {?>
     <input
     id="buckaroo-afterpaynew-shipping-differ"

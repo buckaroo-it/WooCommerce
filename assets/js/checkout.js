@@ -49,6 +49,11 @@
         genderParent.toggle(!b2bActive);
 
     });
+    $('input[name=billing_company]').on('input', function() {
+        $('#buckaroo-afterpaynew-coc').parent().toggle(
+            $.trim($(this).val()).length !== 0
+        );
+    });
 
     /**
      * toggle phone number
@@ -65,6 +70,9 @@
         if ($('input[name=billing_phone]').length) {
             $('#buckaroo-afterpaynew-phone').parent().hide();
         }
+        $('#buckaroo-afterpaynew-coc').parent().toggle(
+            $.trim($('input[name=billing_company]').val()).length !== 0
+        );
     }
     /**
      * toggle between bilink payment types

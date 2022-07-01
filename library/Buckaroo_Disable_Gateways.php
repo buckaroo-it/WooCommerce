@@ -37,7 +37,14 @@ class Buckaroo_Disable_Gateways
 
                 foreach ($available_gateways as $key => $gateway) {
                     if (
-                        (substr($key, 0, 8) === 'buckaroo')
+                        $this->isBuckarooPayment($key) &&
+                        method_exists($gateway, 'isAvailable') &&
+                        !$gateway->isAvailable($totalCartAmount)
+                    ) {
+                        unset($available_gateways[$key]);
+                    }
+                    if (
+                        $this->isBuckarooPayment($key)
                         && (
                             !empty($gateway->minvalue)
                             ||
@@ -63,5 +70,16 @@ class Buckaroo_Disable_Gateways
             unset($available_gateways['buckaroo_payperemail']);
         }
         return $available_gateways;
+    }
+    /**
+     * Check if payment gateway is ours
+     *
+     * @param string $name
+     *
+     * @return boolean
+     */
+    protected function isBuckarooPayment(string $name)
+    {
+        return substr($name, 0, 8) === 'buckaroo';
     }
 }
