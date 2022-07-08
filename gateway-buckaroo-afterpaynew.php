@@ -492,7 +492,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $this->form_fields['customer_type'] = array(
             'title'       => __('AfterPay customer type', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
-            'description' => __('Image info will be sent to BPE gateway inside ImageUrl parameter', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('This setting determines whether you accept AfterPay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.', 'wc-buckaroo-bpe-gateway'),
             'options'     => array(
                 self::CUSTOMER_TYPE_BOTH => __('Both'),
                 self::CUSTOMER_TYPE_B2C => __('B2C (Business-to-consumer)'),
