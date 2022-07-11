@@ -71,7 +71,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     public function getPaymentDescription()
     {
         $desc = $this->get_option('description','');
-        if (strlen(trim($desc)) === 0) {
+        if (strlen($desc) === 0) {
             $desc = sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         }
         return $desc;
