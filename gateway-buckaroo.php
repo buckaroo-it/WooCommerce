@@ -108,14 +108,13 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
                 if ($tax_class == $taxRate) {
 
-                    if ($vatIncluded == 'on') {
-                        return 0;
-                    } else {
+                    if ($vatIncluded == 'off') {
                         return WC_Tax::get_tax_total(WC_Tax::calc_exclusive_tax($amount, $tax_rates));
-                    }                    
+                    }              
                 }
            }
         }
+        return 0;
     }
 
     /**
