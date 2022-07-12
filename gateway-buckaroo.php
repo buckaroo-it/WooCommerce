@@ -141,7 +141,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                     ]
                 )). '%';
             } else {
-                $fee = wc_price( $fee + $this->getPaymentFeeVat($fee));//
+                $fee = wc_price( $fee + $this->getPaymentFeeVat($fee));
             }
             
             $feeText = " (+ ".$fee.")";
