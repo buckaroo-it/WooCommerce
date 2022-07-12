@@ -94,6 +94,13 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'description' => __('Fee tax class', 'wc-buckaroo-bpe-gateway'),
             'default'     => '',
         ];
+        $this->form_fields['paymentfeevat'] = [
+            'title'       => __('Payment fee display', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'select',
+            'options'     => array('off' => 'Excluding VAT', 'on' => 'Including VAT'),
+            'description' => __('Select if payment fee is displayed including / excluding VAT', 'wc-buckaroo-bpe-gateway'),
+            'default'     => 'off',
+        ];
         $this->form_fields['culture'] = array(
             'title'       => __('Language', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',

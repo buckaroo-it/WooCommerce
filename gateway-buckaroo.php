@@ -76,6 +76,41 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         return $desc;
     }
+
+    /**
+     * Get Payment fee VAT
+     */
+    public function getPaymentFeeVat($amount)
+    {   
+        //Allow this to run only on checkout page
+        if(!is_checkout()) {
+            return 0;
+        }
+
+        //Get selected tax rate
+        $taxRate = $this->get_option('feetax', '');
+
+        $vatIncluded = $this->get_option('paymentfeevat', 'off');
+
+        $location = array(
+            'country'   => WC()->customer->get_shipping_country() ? WC()->customer->get_shipping_country() : WC()->customer->get_billing_country(),
+            'state'     => WC()->customer->get_shipping_state() ? WC()->customer->get_shipping_state() : WC()->customer->get_billing_state(),
+            'city'      => WC()->customer->get_shipping_city() ? WC()->customer->get_shipping_city() : WC()->customer->get_billing_city(),
+            'postcode'  => WC()->customer->get_shipping_postcode() ? WC()->customer->get_shipping_postcode() : WC()->customer->get_billing_postcode(),
+        );
+
+        // Loop through tax classes
+        foreach (wc_get_product_tax_class_options() as $tax_class => $tax_class_label) {
+        
+            $tax_rates = WC_Tax::find_rates(array_merge($location, array('tax_class' => $tax_class)));
+
+            if (!empty($tax_rates) && $tax_class == $taxRate && $vatIncluded == 'off') {
+                return WC_Tax::get_tax_total(WC_Tax::calc_exclusive_tax($amount, $tax_rates));          
+            }
+        }
+        return 0; 
+    }
+
     /**
      * Set title with fee
      *
@@ -84,7 +119,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     public function setTitle()
     {
         $feeText = '';
-
         $fee = $this->get_option('extrachargeamount', 0);
         $is_percentage = strpos($fee, "%") !== false;
         $fee = str_replace("%","",$fee);
@@ -100,7 +134,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                     ]
                 )). '%';
             } else {
-                $fee = wc_price($fee);
+                $fee = wc_price( $fee + $this->getPaymentFeeVat($fee));
             }
             
             $feeText = " (+ ".$fee.")";
