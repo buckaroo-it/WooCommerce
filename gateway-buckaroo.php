@@ -90,7 +90,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         //Get selected tax rate
         $taxRate = $this->get_option('feetax', '');
 
-        $vatIncluded = $this->get_option('paymentfeevat', '');
+        $vatIncluded = $this->get_option('paymentfeevat', 'off');
 
         $location = array(
             'country'   => WC()->customer->get_shipping_country() ? WC()->customer->get_shipping_country() : WC()->customer->get_billing_country(),
@@ -104,17 +104,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         
             $tax_rates = WC_Tax::find_rates(array_merge($location, array('tax_class' => $tax_class)));
 
-            if (!empty($tax_rates)) {
-
-                if ($tax_class == $taxRate) {
-
-                    if ($vatIncluded == 'off') {
-                        return WC_Tax::get_tax_total(WC_Tax::calc_exclusive_tax($amount, $tax_rates));
-                    }              
-                }
-           }
+            if (!empty($tax_rates) && $tax_class == $taxRate && $vatIncluded == 'off') {
+                return WC_Tax::get_tax_total(WC_Tax::calc_exclusive_tax($amount, $tax_rates));          
+            }
         }
-        return 0;
+        return 0; 
     }
 
     /**
