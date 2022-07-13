@@ -3,6 +3,15 @@
 </p>
 
 # Buckaroo WooCommerce Payments Plugin
+### Index
+- [About](#about)
+- [Requirements](#requirements)
+- [Quick installation](#quick-installation)
+- [Manual installation with a .ZIP file](#manual-installation-with-a-zip-file)
+- [Configuration](#configuration)
+- [Contribute](#contribute)
+- [Versioning](#versioning)
+- [Additional information](#additional-information)
 
 ### About
 
