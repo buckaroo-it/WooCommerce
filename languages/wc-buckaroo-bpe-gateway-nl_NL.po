@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - Buckaroo Woocommerce Payments Plugin - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-01-31 08:31+0000\n"
+"PO-Revision-Date: 2022-06-24 11:21+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -960,6 +960,14 @@ msgstr "Schakel de debug modus aan/uit"
 #: gateway-buckaroo.php:452
 msgid "Transaction description"
 msgstr "Beschrijving van transactie"
+
+msgid ""
+"Transaction description can be filled with static text and tags like: "
+"{order_number}, {shop_name} and {product_name} for first product found."
+msgstr ""
+"Transactiebeschrijving kan worden gevuld met statische tekst en tags zoals:"
+"{order_number}, {shop_name}  en {product_name} voor het eerst gevonden "
+"product."
 
 #: gateway-buckaroo.php:443
 msgid "Transaction mode"

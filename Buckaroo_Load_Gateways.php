@@ -251,6 +251,7 @@
             $credit_settings !== null &&
             isset($credit_settings['creditcardmethod']) &&
             $credit_settings['creditcardmethod'] === 'encrypt' &&
+            isset($credit_settings['show_in_checkout']) &&
             is_array($credit_settings['show_in_checkout'])
             ) {
             return $credit_settings['show_in_checkout'];
