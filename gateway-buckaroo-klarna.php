@@ -60,7 +60,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
     {
         $gender = $this->request($this->getKlarnaSelector() . '-gender');
 
-        if(!in_array($gender, ["1","2"])) {
+        if(!in_array($gender, ["1","2","0","9"])) {
             wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 

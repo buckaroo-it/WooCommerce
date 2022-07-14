@@ -20,7 +20,6 @@ $country = !empty($country) ? $country : $this->country;
 ?>
 <fieldset>
     <?php if ($country == "NL") : 
-        $this->getPaymentTemplate('partial_gender_field');
         $this->getPaymentTemplate('partial_birth_field');
         ?>
     <p class="form-row form-row-wide validate-required">
