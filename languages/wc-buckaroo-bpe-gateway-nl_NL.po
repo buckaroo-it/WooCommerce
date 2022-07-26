@@ -29,6 +29,10 @@ msgstr "890"
 msgid "<strong>iDEAL bank </strong> is a required field."
 msgstr "<strong>iDEAL bank </strong> is een verplicht veld."
 
+#: /gateway-buckaroo-ideal.php:50
+msgid "A valid iDEAL bank is required."
+msgstr "Een geldige iDEAL-bank is verplicht."
+
 #: templates/gateways/partial_afterpay_tos.php:53
 #: templates/gateways/partial_afterpay_tos.php:57
 msgid "Accept Afterpay conditions:"

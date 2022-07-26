@@ -28,6 +28,10 @@ msgstr ""
 msgid "<strong>iDEAL bank </strong> is a required field."
 msgstr ""
 
+#: /gateway-buckaroo-ideal.php:50
+msgid "A valid iDEAL bank is required."
+msgstr ""
+
 #: templates/gateways/partial_afterpay_tos.php:53
 #: templates/gateways/partial_afterpay_tos.php:57
 msgid "Accept Afterpay conditions:"
