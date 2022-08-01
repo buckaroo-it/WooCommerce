@@ -40,6 +40,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
     public $brq_service_idin_iseighteenorolder;
     //transaction key
     public $transactions;
+    public $reservation_number;
     //if is errors, othervise = null
     /*
      *
@@ -211,8 +212,10 @@ abstract class BuckarooResponse extends BuckarooAbstract
             $this->invoice = $this->_response->Invoice;
         }
 
-        $this->order         = $this->_response->Order;
-        $this->brq_ordernumber = $this->_response->Order;
+        if (isset($this->_response->Order)) {
+            $this->order         = $this->_response->Order;
+            $this->brq_ordernumber = $this->_response->Order;
+        }
         $this->invoicenumber = $this->invoice;
         $this->amount        = 0;
         if (isset($this->_response->AmountDebit)) {
@@ -228,7 +231,11 @@ abstract class BuckarooResponse extends BuckarooAbstract
         if (isset($this->_response->Key)) {
             $this->transactionId = $this->_response->Key;
         }
-        $this->currency  = $this->_response->Currency;
+
+        if (isset($this->_response->Currency)) {
+            $this->currency  = $this->_response->Currency;
+        }
+        
         $this->_test     = ($this->_response->IsTest == 1) ? true : false;
         $this->timestamp = $this->_response->Status->DateTime;
         if (isset($this->_response->RequestErrors->ChannelError->_)) {
@@ -294,13 +301,22 @@ abstract class BuckarooResponse extends BuckarooAbstract
         $this->currency     = $this->_setPostVariable('brq_currency');
         $this->_test        = $this->_setPostVariable('brq_test');
         $this->timestamp    = $this->_setPostVariable('brq_timestamp');
-        $this->transactions = $this->_setPostVariable('brq_transactions');
+        if($this->_setPostVariable('brq_datarequest') !== null) {
+            $this->transactions = $this->_setPostVariable('brq_datarequest');
+        }
+        if($this->_setPostVariable('brq_transactions') !== null) {
+            $this->transactions = $this->_setPostVariable('brq_transactions');
+        }
         $this->_signature   = $this->_setPostVariable('brq_signature');
 
         if (isset($this->statuscode)) {
             $responseArray = $this->responseCodes[(int) $this->statuscode];
             $this->status  = $responseArray['status'];
             $this->message = $responseArray['message'];
+        }
+        $reservation_number = $this->_setPostVariable('brq_SERVICE_klarnakp_ReservationNumber');   
+        if ($reservation_number !== null) {
+            $this->reservation_number = $reservation_number;
         }
     }
 

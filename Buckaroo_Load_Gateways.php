@@ -84,6 +84,10 @@
             'filename' => 'gateway-buckaroo-klarnapii.php',
             'classname' => 'WC_Gateway_Buckaroo_KlarnaPII'
         ),
+        'KlarnaKp' => array(
+            'filename' => 'gateway-buckaroo-klarnakp.php',
+            'classname' => 'WC_Gateway_Buckaroo_KlarnaKp'
+        ),
         'P24' => array(
             'filename' =>
             'gateway-buckaroo-p24.php',
