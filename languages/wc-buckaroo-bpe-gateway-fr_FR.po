@@ -1068,5 +1068,6 @@ msgstr ""
 
 #: templates/idin/product.php:10
 msgid "You must be 18 years or older to order this product"
+msgstr ""
 "Vous devez avoir au moins 18 ans pour commander ce produit"
 
