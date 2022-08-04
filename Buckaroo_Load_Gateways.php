@@ -231,10 +231,12 @@
 
 
         foreach ($this->get_creditcards_to_show() as $creditcard) {
-            $creditcardMethods[$creditcard.'_creditcard'] = array(
-                'filename' => "gateways-creditcard/gateway-buckaroo-${creditcard}.php",
-                'classname' => 'WC_Gateway_Buckaroo_'.ucfirst($creditcard)
-            );
+            if (strlen(trim($creditcard)) !== 0) {
+                $creditcardMethods[$creditcard.'_creditcard'] = array(
+                    'filename' => "gateways-creditcard/gateway-buckaroo-${creditcard}.php",
+                    'classname' => 'WC_Gateway_Buckaroo_'.ucfirst($creditcard)
+                );
+            }
         }
         return $creditcardMethods;
     }
