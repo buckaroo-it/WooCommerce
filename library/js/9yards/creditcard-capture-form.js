@@ -77,7 +77,6 @@ jQuery(document).ready(function() {
                     // Redirect to same page for show the refunded status
                     window.location.reload();
                 } else {
-                    response = JSON.parse(response);
                     if (response.errors && response.errors.error_capture) {
                         window.alert(response.errors.error_capture[0]);
                     }
