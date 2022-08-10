@@ -168,17 +168,18 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
 
         foreach (array_values($products) as $pos => $product) {
             $this->setDefaultProductParams($product, $pos);
-            $additonalVars = [
-                'Url' => $product["ProductUrl"],
-            ];
+            $additonalVars = [];
 
-            if (!empty($p["ImageUrl"])) {
-                $additonalVars['ImageUrl'] = $product["ImageUrl"];
+            if (!empty(trim($product["ProductUrl"]))) {
+                $additonalVars['Url'] = $product["ProductUrl"];
             }
 
+            if (!empty($product["ImageUrl"])) {
+                $additonalVars['ImageUrl'] = $product["ImageUrl"];
+            }
             $this->setCustomVarsAtPosition($additonalVars, $pos, 'Article');
-
         }
+
         $this->setShipping(count($products));
 
         return parent::$action();

@@ -182,18 +182,24 @@
       *
       * @return void
       */
-     protected function load_gateways()
-     {
-        foreach ($this->methods as $method) {
-            require_once $this->dir . $method['filename'];
-        }
-        require_once $this->dir. "gateways-creditcard/gateway-buckaroo-creditcard-single.php";
-
-        foreach ($this->get_creditcard_methods() as $method) {
-            require_once $this->dir . $method['filename'];
-        }
-
-     }
+      protected function load_gateways()
+      {
+         foreach ($this->methods as $method) {
+             $file = $this->dir . $method['filename'];
+             if(file_exists($file)) {
+                 require_once $file;
+             }
+         }
+         require_once $this->dir. "gateways-creditcard/gateway-buckaroo-creditcard-single.php";
+ 
+         foreach ($this->get_creditcard_methods() as $method) {
+             $file = $this->dir . $method['filename'];
+             if(file_exists($file)) {
+                 require_once $file;
+             }
+         }
+ 
+      }
      /**
       * Get all gateways
       *
