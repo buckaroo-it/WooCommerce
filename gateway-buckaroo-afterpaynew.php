@@ -458,14 +458,17 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             'type'        => 'select',
             'description' => __('Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('pay' => 'Pay', 'authorize' => 'Authorize'),
-            'default'     => 'pay');
+            'default'     => 'pay'
+        );
 
         $this->form_fields['sendimageinfo'] = array(
             'title'       => __('Send image info', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Image info will be sent to BPE gateway inside ImageUrl parameter', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('0' => 'No', '1' => 'Yes'),
-            'default'     => 'pay');
+            'default'     => 'pay',
+            'desc_tip'    => 'Product images are only shown when they are available in JPG or PNG format'
+        );
 
     }
 
