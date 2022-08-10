@@ -37,11 +37,11 @@ buckarooValidateCreditCards = {
                 e.target
             );
         });
-        this.form.submit(this.submit);
+        this.form.submit(this.submit.bind(this));
     },
 
     toggleClasses: function(valid, target) {
-        target = $(target);
+        target = jQuery(target);
 
         target.toggleClass("error", !valid);
         target.toggleClass("validated", valid);
@@ -62,6 +62,7 @@ buckarooValidateCreditCards = {
         var expirationYearValid = BuckarooClientSideEncryption.V001.validateYear(expirationYear);
         var expirationMonthValid = BuckarooClientSideEncryption.V001.validateMonth(expirationMonth);
         if (cardNumberValid && cvcValid && cardHolderNameValid && expirationYearValid && expirationMonthValid) {
+            console.log(this);
             this.getEncryptedData(cardNumber, expirationYear, expirationMonth, cvc, cardHolderName, parent);
         }
     },

@@ -5,7 +5,7 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
-Version: 3.2.3
+Version: 3.3.0
 Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -27,6 +27,14 @@ require_once dirname(__FILE__). "/library/Buckaroo_Logger.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Order_Fee.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Cron_Events.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Order_Details.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Order_Item.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Order_Capture.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Capture_Transaction.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Http_Request.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Item_For_Capture.php";
+require_once dirname(__FILE__). "/library/klarnakp/Capture.php";
+require_once dirname(__FILE__). "/library/klarnakp/Refund.php";
+require_once dirname(__FILE__). "/library/klarnakp/Cancel_Reservation.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Disable_Gateways.php";
 require_once dirname(__FILE__). "/install/class-wcb-install.php";
 require_once dirname(__FILE__). "/install/migration/Buckaroo_Migration_Handler.php";
@@ -57,6 +65,10 @@ new Buckaroo_Paypal_Express(
     new Buckaroo_Paypal_Express_Order(),
     new Buckaroo_Paypal_Express_Cart()
 );
+
+new Buckaroo_Capture_Form();
+new Buckaroo_Cancel_Reservation();
+new Buckaroo_KlarnaKP_Refund();
 
 add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
 
@@ -527,7 +539,11 @@ function orderCapture()
         case "Creditcard":
             require_once(dirname(__FILE__) . '/gateway-buckaroo-creditcard.php');
             $gateway = new WC_Gateway_Buckaroo_Creditcard();
-            break;                                
+            break;
+        case "KlarnaKp":
+            require_once(dirname(__FILE__) . '/gateway-buckaroo-creditcard.php');
+            $gateway = new WC_Gateway_Buckaroo_KlarnaKp();
+            break;                               
     }
    
     if (isset($gateway)) {

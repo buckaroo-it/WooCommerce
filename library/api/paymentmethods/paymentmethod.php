@@ -31,12 +31,20 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     public $CreditCardDataEncrypted;
     protected $data = array();
 
+    protected $requestType = 'TransactionRequest';
+
+    public const REQUEST_TYPE_DATA_REQUEST = 'DataRequest';
     /**
      * @param mixed $type
      */
     public function setType($type)
     {
         $this->type = $type;
+    }
+
+    public function setRequestType(string $type)
+    {
+        $this->requestType = $type;
     }
 
     /**
@@ -380,7 +388,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     {
         $this->setMainParametersForRequestType($type);
         return BuckarooResponseFactory::getResponse(
-            (new BuckarooSoap($this->data))->transactionRequest()
+            (new BuckarooSoap($this->data))->transactionRequest($this->requestType)
         );
     }
 

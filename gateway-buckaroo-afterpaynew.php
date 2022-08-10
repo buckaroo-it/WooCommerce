@@ -15,6 +15,10 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     public $country;
     public $sendimageinfo;
 
+    public const CUSTOMER_TYPE_B2C = 'b2c';
+    public const CUSTOMER_TYPE_B2B = 'b2b';
+    public const CUSTOMER_TYPE_BOTH = 'both';
+
     public function __construct()
     {
         $this->id                     = 'buckaroo_afterpaynew';
@@ -35,6 +39,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $this->sendimageinfo = $this->get_option('sendimageinfo');
         $this->vattype    = $this->get_option('vattype');
         $this->type       = 'afterpay';
+        $this->customer_type = $this->get_option('customer_type', self::CUSTOMER_TYPE_BOTH);
     }
     /**
      * Can the order be refunded
@@ -320,13 +325,13 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             wc_add_notice(__("Please accept licence agreements", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
-        $b2b = $this->request('buckaroo-afterpaynew-b2b');
-        if ($b2b == 'ON') {
-            if ($this->request("buckaroo-afterpaynew-CompanyCOCRegistration") === null) {
-                wc_add_notice(__("Company registration number is required (KvK)", 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-            if ($this->request("buckaroo-afterpaynew-CompanyName") === null) {
-                wc_add_notice(__("Company name is required", 'wc-buckaroo-bpe-gateway'), 'error');
+        if (
+            self::CUSTOMER_TYPE_B2C !== $this->customer_type &&
+            $country === 'NL' &&
+            $this->request('billing_company') !== null
+        ) {
+            if ($this->request("buckaroo-afterpaynew-coc") === null) {
+                wc_add_notice(__("Company registration number is required", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
 
@@ -373,6 +378,16 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept            = 'TRUE';
+        $afterpay->CustomerType      = $this->customer_type;
+
+        if ($this->request("buckaroo-afterpaynew-IdentificationNumber") !== null) {
+            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-IdentificationNumber");
+        }
+
+        if ($this->request("buckaroo-afterpaynew-coc") !== null) {
+            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-coc");
+        }
+
         $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts);
 
         $afterpay->returnUrl = $this->notify_url;
@@ -409,6 +424,10 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $method->BillingPhoneNumber =  $this->request("buckaroo-afterpaynew-phone");
         }
 
+        if (strlen($order_details->getBilling('company'))) {
+            $method->BillingCompanyName = $order_details->getBilling('company');
+        }
+
         return $method;
     }
     /**
@@ -429,6 +448,10 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $method->ShippingInitials = $order_details->getInitials(
                 $order_details->getShipping('first_name')
             );
+
+            if (strlen($order_details->getShipping('company'))) {
+                $method->ShippingCompanyName = $order_details->getShipping('company');
+            }
         }
         return $method;
     }
@@ -469,7 +492,31 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             'default'     => 'pay',
             'desc_tip'    => 'Product images are only shown when they are available in JPG or PNG format'
         );
-
+        $this->form_fields['customer_type'] = array(
+            'title'       => __('AfterPay customer type', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'select',
+            'description' => __('This setting determines whether you accept AfterPay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.', 'wc-buckaroo-bpe-gateway'),
+            'options'     => array(
+                self::CUSTOMER_TYPE_BOTH => __('Both'),
+                self::CUSTOMER_TYPE_B2C => __('B2C (Business-to-consumer)'),
+                self::CUSTOMER_TYPE_B2B => __('B2B ((Business-to-Business)'),
+            ),
+            'default'     => self::CUSTOMER_TYPE_BOTH
+        );
+        $this->form_fields['b2b_min_value'] = array(
+            'title'             => __('Min order amount  for B2B', 'wc-buckaroo-bpe-gateway'),
+            'type'              => 'number',
+            'custom_attributes' => ['step' => '0.01'],
+            'description'       => __('The payment method shows only for orders with an order amount greater than the minimum amount.', 'wc-buckaroo-bpe-gateway'),
+            'default'           => '0',
+        );
+        $this->form_fields['b2b_max_value'] = array(
+            'title'             => __('Max order amount  for B2B', 'wc-buckaroo-bpe-gateway'),
+            'type'              => 'number',
+            'custom_attributes' => ['step' => '0.01'],
+            'description'       => __('The payment method shows only for orders with an order amount smaller than the maximum amount.', 'wc-buckaroo-bpe-gateway'),
+            'default'           => '0',
+        );
     }
 
     public function getProductImage($product) {
@@ -523,5 +570,39 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         }
         
         return $data;
+    }
+
+    /**
+     * Show payment if available
+     *
+     * @param float $cartTotal
+     *
+     * @return boolean
+     */
+    public function isAvailable(float $cartTotal)
+    {
+        if ($this->customer_type !== self::CUSTOMER_TYPE_B2B) {
+            return $this->isAvailableB2B($cartTotal);
+        }
+
+        return true;
+    }
+    /**
+     * Check if payment is available for b2b
+     *
+     * @param float $cartTotal
+     *
+     * @return boolean
+     */
+    public function isAvailableB2B(float $cartTotal)
+    {
+        $b2bMin = $this->get_option('b2b_min_value', 0);
+        $b2bMax = $this->get_option('b2b_max_value', 0);
+
+        if ($b2bMin == 0 && $b2bMax == 0) {
+            return true;
+        }
+        
+        return ($b2bMin > 0 && $cartTotal > $b2bMin) || ($b2bMax > 0 && $cartTotal < $b2bMax);
     }
 }
