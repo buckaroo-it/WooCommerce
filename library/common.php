@@ -1086,3 +1086,21 @@ function buckaroo_request_sanitized_json($key)
         'sanitize_text_field'
     );
 }
+
+function getGenderValues($payment_method)
+{
+    switch($payment_method)
+    {
+        case 'buckaroo-payperemail' :
+            $genders = ['male' => 1, 'female' => 2, 'they'=> 0, 'unknown' => 9];
+            break;
+        case 'buckaroo-billink' :
+            $genders = ['male' => 'Male', 'female' => 'Female', 'they'=> 'Unknown', 'unknown' => 'Unknown'];
+            break;
+        default :
+            $genders = ['male' => 'male', 'female' => 'female', 'they'=> 'unknown', 'unknown' => 'unknown'];
+            break;
+    }
+
+    return $genders;
+}
