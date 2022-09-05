@@ -109,11 +109,14 @@ add_action('wp_enqueue_scripts', 'buckaroo_payment_frontend_scripts');
  */
 function buckaroo_payment_frontend_scripts() 
 {
+    $page = filter_var( $_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL);
+
     if (
         class_exists('WC_Order') && (
             is_product() ||
             is_checkout() ||
-            is_cart()
+            is_cart() ||
+            strpos($page, 'payconiq') !== false
         )
     ) {
         wp_enqueue_style(

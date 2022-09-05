@@ -325,10 +325,10 @@
 </div>
 
 <script>
-    $(document).ready(function () {
+    jQuery(document).ready(function () {
         BuckarooSdk.Payconiq.initiate("#payconiqQr", "<?php echo esc_html($_GET["transactionKey"]) ?>", function(status, params) {
             if (status == 'PROCESSING'){
-                $('.payconiq-cancel').hide();
+                jQuery('.payconiq-cancel').hide();
             }
             // true if the SDK should redirect the browser to the ReturnUrl
             return true;
