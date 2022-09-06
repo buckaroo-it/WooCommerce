@@ -29,15 +29,11 @@ msgstr "890"
 msgid "<strong>iDEAL bank </strong> is a required field."
 msgstr "<strong>iDEAL bank </strong> is een verplicht veld."
 
-<<<<<<< HEAD
 #: gateway-buckaroo-creditcard.php:238
 msgid "A valid credit card is required."
 msgstr ""
 
 #: gateway-buckaroo-ideal.php:50
-=======
-#: /gateway-buckaroo-ideal.php:50
->>>>>>> develop
 msgid "A valid iDEAL bank is required."
 msgstr "Een geldige iDEAL-bank is verplicht."
 
