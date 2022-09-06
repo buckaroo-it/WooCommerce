@@ -27,7 +27,6 @@ $customer_phone = $this->getScalarCheckoutField('billing_phone');
     if ($this->b2b == 'enable' && $this->type == 'afterpaydigiaccept') {
         $this->getPaymentTemplate('partial_afterpay_b2b');
     }
-    $this->getPaymentTemplate('partial_gender_field');
     $this->getPaymentTemplate('partial_birth_field');
     ?>
     <p class="form-row validate-required">

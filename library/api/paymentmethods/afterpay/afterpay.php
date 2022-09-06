@@ -6,7 +6,6 @@ require_once dirname(__FILE__) . '/../paymentmethod.php';
  */
 class BuckarooAfterPay extends BuckarooPaymentMethod
 {
-    public $BillingGender;
     public $BillingInitials;
     public $BillingLastName;
     public $BillingBirthDate;
@@ -20,7 +19,6 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
     public $BillingPhoneNumber;
     public $BillingLanguage;
     public $AddressesDiffer;
-    public $ShippingGender;
     public $ShippingInitials;
     public $ShippingLastName;
     public $ShippingBirthDate;
@@ -70,7 +68,6 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
      */
     public function PayOrAuthorizeAfterpay($products, $action)
     {
-        $this->data['customVars'][$this->type]['BillingGender']            = $this->BillingGender;
         $this->data['customVars'][$this->type]['BillingInitials']          = $this->BillingInitials;
         $this->data['customVars'][$this->type]['BillingLastName']          = $this->BillingLastName;
         $this->data['customVars'][$this->type]['BillingBirthDate']         = $this->BillingBirthDate;
@@ -143,7 +140,6 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
 
     private function setCommonShippingInfo()
     {
-        $this->data['customVars'][$this->type]['ShippingGender']            = $this->ShippingGender;
         $this->data['customVars'][$this->type]['ShippingInitials']          = $this->ShippingInitials ?? $this->BillingInitials;
         $this->data['customVars'][$this->type]['ShippingLastName']          = $this->ShippingLastName ?? $this->BillingLastName;
         $this->data['customVars'][$this->type]['ShippingBirthDate']         = $this->ShippingBirthDate;
