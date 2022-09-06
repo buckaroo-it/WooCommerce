@@ -922,7 +922,7 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
 
                 /** handle klarnakp reservation push */
                 if (
-                    property_exists($response, 'reservation_number') &&
+                    $response->reservation_number !== null &&
                     $order->get_status() !== 'cancelled'
                     ) {
                     $order->payment_complete($response->transactions);
