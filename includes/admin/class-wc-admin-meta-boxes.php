@@ -37,7 +37,7 @@ class BK_Admin_Meta_Boxes {
 	 * Constructor.
 	 */
 	public function __construct() {
-		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ), 30 );
+		add_action( 'add_meta_boxes_shop_order', array( $this, 'add_meta_boxes' ), 30 );
 
 		
 		/**
@@ -110,10 +110,12 @@ class BK_Admin_Meta_Boxes {
 	/**
 	 * Add WC Meta boxes.
 	 */
-	public function add_meta_boxes() {
+	public function add_meta_boxes( $post ) {
 		$screen    = get_current_screen();
-		$screen_id = $screen ? $screen->id : '';
-
+		$order = wc_get_order($post->ID);
+        if ($order->get_payment_method() === 'buckaroo_klarnakp') {
+			return;
+		}
 		// Orders.
 		foreach ( wc_get_order_types( 'order-meta-boxes' ) as $type ) {
 			$order_type_object = get_post_type_object( $type );

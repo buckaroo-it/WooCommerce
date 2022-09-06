@@ -52,10 +52,10 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
         $this->version = '0';
     }
 
-    public function setPaymnetFlow($paymentFlow){
+    public function setPaymentFlow($paymentFlow){
         $this->paymentFlow = $paymentFlow;
     }
-    public function getPaymnetFlow(){
+    public function getPaymentFlow(){
         return $this->paymentFlow;
     }
 
@@ -81,7 +81,7 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
      */
     public function paymentAction($products = array()) {
 
-        $this->setServiceActionAndVersion($this->getPaymnetFlow());
+        $this->setServiceActionAndVersion($this->getPaymentFlow());
 
         $billing = [
             "Category" => !empty($this->getBillingCategory()) ? 'B2B' : 'B2C',

@@ -1188,7 +1188,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         //Loop trough products
         foreach ($items as $item) {
-
+            $tmp = [];
             $product   = new WC_Product($item['product_id']);
             //Product details
             $tmp['ArticleDescription'] = $item['name'];
@@ -1211,12 +1211,12 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             } else { 
                 $products[] = $tmp;
             }
-           
+            
         }
         
         $fees = $order->get_fees();
         foreach ($fees as $key => $item) {
-
+            $tmp = [];
             $tmp['ArticleDescription'] = $item['name'];
             $tmp['ArticleId']          = $key;
             $tmp['ArticleQuantity']    = 1;

@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 6.0
-Stable tag: 3.2.3
+Stable tag: 3.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,17 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.3.0 =
+- Support for Wordpress version 6.0 & WooCommerce 6.7.0 [BP-1861]
+- Fix undefined array key show_in_checkout
+- Add paypal express merchandid admin field [BP-1477]
+- Explain variable transaction description [BP-1492]
+- Missing Payment method description in WooCommerce templates. [BP-1490]
+- Update README file [BP-1508]
+- The Apple Pay logo is not visible when the old logos are being used. [BP-1813]
+- Support Afterpay B2B [BP-1468]
+- Added support for payment fee vat display mode(including / excluding). [BP-1858]
 
 = 3.2.3 =
 - Update esc_html to esc_url for image urls
