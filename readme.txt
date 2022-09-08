@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 6.0
-Stable tag: 3.3.0
+Stable tag: 3.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,16 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.4.0 =
+- Change gender selection for BNPL methods [BP-1896]
+- Add contribution guidelines [BP-1873]
+- Add string 'A valid iDEAL bank is required' to .pot file and add Dutch ( Thank you @Robbertdk )
+- Error when loading empty credicard
+- Add KlarnaKP to WooCommerce BP-1886
+- Add product images to the Afterpay request (ImageUrl) [BP-1768]
+- Slow load time for javascript files [BP-1857]
+- Fix Payconiq payment method in live mode. [BP-2030]
 
 = 3.3.0 =
 - Support for Wordpress version 6.0 & WooCommerce 6.7.0 [BP-1861]
