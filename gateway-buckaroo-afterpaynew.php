@@ -317,9 +317,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         if (!$this->validateDate($birthdate, 'd-m-Y') && in_array($country, ['NL', 'BE'])) {
             wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
         }
-        if(!in_array($this->request('buckaroo-afterpaynew-gender'), ["1","2"])) {
-            wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
-        }
 
         if ($this->request("buckaroo-afterpaynew-accept") === null) {
             wc_add_notice(__("Please accept licence agreements", 'wc-buckaroo-bpe-gateway'), 'error');
@@ -415,7 +412,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     {
         /** @var BuckarooAfterPayNew */
         $method = $this->set_billing($method, $order_details);
-        $method->BillingGender    = $this->request('buckaroo-afterpaynew-gender');
         $method->BillingInitials  = $order_details->getInitials(
             $order_details->getBilling('first_name')
         );
@@ -481,14 +477,17 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             'type'        => 'select',
             'description' => __('Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('pay' => 'Pay', 'authorize' => 'Authorize'),
-            'default'     => 'pay');
+            'default'     => 'pay'
+        );
 
         $this->form_fields['sendimageinfo'] = array(
             'title'       => __('Send image info', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Image info will be sent to BPE gateway inside ImageUrl parameter', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('0' => 'No', '1' => 'Yes'),
-            'default'     => 'pay');
+            'default'     => 'pay',
+            'desc_tip'    => 'Product images are only shown when they are available in JPG or PNG format'
+        );
         $this->form_fields['customer_type'] = array(
             'title'       => __('AfterPay customer type', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
@@ -498,7 +497,8 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
                 self::CUSTOMER_TYPE_B2C => __('B2C (Business-to-consumer)'),
                 self::CUSTOMER_TYPE_B2B => __('B2B ((Business-to-Business)'),
             ),
-            'default'     => self::CUSTOMER_TYPE_BOTH);
+            'default'     => self::CUSTOMER_TYPE_BOTH
+        );
         $this->form_fields['b2b_min_value'] = array(
             'title'             => __('Min order amount  for B2B', 'wc-buckaroo-bpe-gateway'),
             'type'              => 'number',

@@ -43,7 +43,6 @@ $country = !empty($country) ? $country : $this->country;
     <?php }?>
 
     <?php if (in_array($country, ["BE", "NL"])) {
-        $this->getPaymentTemplate('partial_gender_field');
         $this->getPaymentTemplate('partial_birth_field');
         ?>
     <p class="form-row validate-required">

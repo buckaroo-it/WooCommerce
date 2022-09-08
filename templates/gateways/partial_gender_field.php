@@ -15,34 +15,22 @@
 defined('ABSPATH') || exit;
 
 $section_id = str_replace("_", "-", $this->id);
+$genderVal = getGenderValues($section_id);
 ?>
 <p class="form-row">
     <label for="<?php echo esc_attr($section_id)?>-gender">
         <?php echo esc_html_e('Gender:', 'wc-buckaroo-bpe-gateway') ?>
         <span class="required">*</span>
     </label>
-    <input
-    id="<?php echo esc_attr($section_id)?>-genderm"
-    name="<?php echo esc_attr($section_id)?>-gender"
-    class=""
-    type="radio"
-    value="1"
-    checked
-    />
-    <label 
-    for="<?php echo esc_attr($section_id)?>-genderm" 
-    style="display:inline; margin-right:15px;">
-        <?php echo esc_html_e('Male', 'wc-buckaroo-bpe-gateway') ?>
-    </label>
+    <select name="<?php echo esc_attr($section_id)?>-gender" id="<?php echo esc_attr($section_id)?>-gender">
+        <option value="<?php echo $genderVal['male']; ?>"><?php echo esc_html_e('He/him', 'wc-buckaroo-bpe-gateway') ?></option>
+        <option value="<?php echo $genderVal['female']; ?>"><?php echo esc_html_e('She/her', 'wc-buckaroo-bpe-gateway') ?></option>
 
-    <input
-    id="<?php echo esc_attr($section_id)?>-genderf"
-    name="<?php echo esc_attr($section_id)?>-gender"
-    class=""
-    type="radio"
-    value="2"
-    />
-    <label for="<?php echo esc_attr($section_id)?>-genderf" style="display:inline;">
-        <?php echo esc_html_e('Female', 'wc-buckaroo-bpe-gateway') ?>
-    </label>
+        <?php if($section_id != 'buckaroo-klarnapay' && $section_id != 'buckaroo-klarnapii') { ?>
+        
+            <option value="<?php echo $genderVal['they']; ?>"><?php echo esc_html_e('They/them', 'wc-buckaroo-bpe-gateway') ?></option>
+            <option value="<?php echo $genderVal['unknown']; ?>"><?php echo esc_html_e('I prefer not to say', 'wc-buckaroo-bpe-gateway') ?></option>
+
+        <?php } ?>
+    </select>
 </p>

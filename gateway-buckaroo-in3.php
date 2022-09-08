@@ -52,11 +52,6 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
      */
     public function validate_fields()
     {
-        $gender = $this->request('buckaroo-in3-gender');
-        if(!in_array($gender, ["1","2"])) {
-            wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
-        }
-
         $orderAs = $this->request("buckaroo-in3-orderas");
         if (!in_array($orderAs, ["Debtor", "SoleProprietor", "Company"])) {
             wc_add_notice(__("Unknown order as type", 'wc-buckaroo-bpe-gateway'), 'error');
@@ -192,7 +187,6 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     {
         /** @var BuckarooIn3 */
         $method = $this->set_billing($method, $order_details);
-        $method->BillingGender    = $this->request('buckaroo-in3-gender');
         $method->BillingInitials  = $order_details->getInitials(
             $order_details->getBilling('first_name')
         );

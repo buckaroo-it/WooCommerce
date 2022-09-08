@@ -17,8 +17,6 @@ class BuckarooTransfer extends BuckarooPaymentMethod {
     
     public function PayTransfer($customVars) {
         
-        if (isset($customVars['CustomerGender']))
-            $this->setCustomVar('customergender', $customVars['CustomerGender']);    
         if (isset($customVars['CustomerFirstName']))
             $this->setCustomVar('customerFirstName', $customVars['CustomerFirstName']);
         if (isset($customVars['CustomerLastName']))

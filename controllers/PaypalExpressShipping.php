@@ -49,7 +49,7 @@ class Buckaroo_Paypal_Express_Shipping
             $this->get_required_value($address_data, 'country_code'),
             $this->get_required_value($address_data, 'state'),
             $this->get_required_value($address_data, 'postal_code'),
-            $this->get_required_value($address_data, 'city'),
+            $this->get_required_value($address_data, 'city')
         );
 
         $cart = WC()->cart;

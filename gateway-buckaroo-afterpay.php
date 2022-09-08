@@ -272,10 +272,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
         }
         
-        if(!in_array($this->request('buckaroo-afterpay-gender'), ["1","2"])) {
-            wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
-        }
-
         if ($this->request("buckaroo-afterpay-b2b") == 'ON') {
             if ($this->request("buckaroo-afterpay-CompanyCOCRegistration") === null) {
                 wc_add_notice(__("Company registration number is required (KvK)", 'wc-buckaroo-bpe-gateway'), 'error');
@@ -373,7 +369,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     {
         /** @var BuckarooAfterPay */
         $method = $this->set_billing($method, $order_details);
-        $method->BillingGender    = $this->request('buckaroo-afterpay-gender');
         $method->BillingInitials  = $order_details->getInitials(
             $order_details->getBilling('first_name')
         );

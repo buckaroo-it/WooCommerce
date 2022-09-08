@@ -1,0 +1,9 @@
+/*!
+ * Buckaroo Client Side Encryption v1.0.0
+ *
+ * Copyright Buckaroo
+ * Released under the MIT license
+ * https://buckaroo.nl
+ *
+ * Date: 2018-10-18 09:26
+ */

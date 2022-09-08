@@ -60,7 +60,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
     {
         $gender = $this->request($this->getKlarnaSelector() . '-gender');
 
-        if(!in_array($gender, ["1","2"])) {
+        if(!in_array($gender, ["male","female","unknown"])) {
             wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
@@ -96,6 +96,8 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooKlarna */
         $klarna = $this->createDebitRequest($order);
+        $klarna->setType($this->type);
+
         $klarna->invoiceId = (string)getUniqInvoiceId(
             preg_replace('/\./', '-', $order->get_order_number())
         );
@@ -123,7 +125,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
         $klarna->returnUrl = $this->notify_url;
 
-        $klarna->setPaymnetFlow($this->getKlarnaPaymentFlow());
+        $klarna->setPaymentFlow($this->getKlarnaPaymentFlow());
         $response = $klarna->paymentAction($products);
         return fn_buckaroo_process_response($this, $response, $this->mode);
     }

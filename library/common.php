@@ -2,6 +2,38 @@
 require_once dirname(__FILE__) . '/api/abstract.php';
 
 
+function fn_buckaroo_process_reservation_cancel($response, $order)
+{
+    if ($response && $response->isValid() && $response->statuscode == BuckarooAbstract::CODE_SUCCESS) {
+        $order->update_status(
+            'cancelled',
+             __('Klarna reservation was successfully canceled', 'wc-buckaroo-bpe-gateway')
+        );
+
+        set_transient(
+            get_current_user_id().'buckarooAdminNotice',
+            [
+                "type" => "success",
+                "message" =>sprintf(
+                    __('Klarna reservation for order #%s was successfully canceled', 'wc-buckaroo-bpe-gateway'),
+                    $order->get_order_number()
+                )
+            ]
+        );
+    } else {
+        set_transient(
+            get_current_user_id().'buckarooAdminNotice',
+            [
+                "type" => "warning",
+                "message" =>sprintf(
+                    __('Cannot cancel klarna reservation for order #%s', 'wc-buckaroo-bpe-gateway'),
+                    $order->get_order_number()
+                )
+            ]
+        );
+    }
+}
+
 /**
  * Can the order be refunded.
  *
@@ -21,8 +53,8 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
                 $response->transactions
             )
         );
-        add_post_meta($order->get_order_number(), '_refundbuckaroo' . $response->transactions, 'ok', true);
-        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        add_post_meta($order->get_id(), '_refundbuckaroo' . $response->transactions, 'ok', true);
+        update_post_meta($order->get_id(), '_pushallowed', 'ok');
         return true;
     }
     if (!empty($response->ChannelError)) {
@@ -37,7 +69,7 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
                 $order->get_transaction_id()
             )
         );
-        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        update_post_meta($order->get_id(), '_pushallowed', 'ok');
         return new WP_Error('error_refund', __("Refund failed: ") . $response->ChannelError);
     } else {
         $order->add_order_note(
@@ -46,7 +78,7 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
                 $order->get_transaction_id()
             )
         );
-        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        update_post_meta($order->get_id(), '_pushallowed', 'ok');
         return false;
     }
 }
@@ -104,10 +136,11 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
             'line_item_qtys'         => isset( $_POST['line_item_qtys'] ) ?  sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ), true ) :'',
             'line_item_totals'       => isset( $_POST['line_item_totals'] ) ?  sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ), true ) :'',
             'line_item_tax_totals'   => isset( $_POST['line_item_tax_totals'] ) ?  sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ), true ) :'',
+            'transaction_id'        => $response->transactions
         ));
 
-        add_post_meta($order->get_order_number(), '_capturebuckaroo' . $response->transactions, 'ok', true);
-        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        add_post_meta($order->get_id(), '_capturebuckaroo' . $response->transactions, 'ok', true);
+        update_post_meta($order->get_id(), '_pushallowed', 'ok');
 
         $order->add_order_note(
             sprintf(
@@ -136,7 +169,7 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
                 $order->get_transaction_id()
             )
         );
-        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        update_post_meta($order->get_id(), '_pushallowed', 'ok');
         return new WP_Error('error_capture', __("Capture failed: ") . $response->ChannelError);
     } else {
         $order->add_order_note(
@@ -145,7 +178,7 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
                 $order->get_transaction_id()
             )
         );
-        update_post_meta($order->get_order_number(), '_pushallowed', 'ok');
+        update_post_meta($order->get_id(), '_pushallowed', 'ok');
         return false;
     }
 }
@@ -208,7 +241,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         }
         Buckaroo_Logger::log('Response order status: ' . $response->status);
         Buckaroo_Logger::log('Status message: ' . $response->statusmessage);
-
+        
         if (!fn_process_push_meta_update($order_id, $order, $response)){
             return;
         }
@@ -349,6 +382,14 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             return;
         }
 
+        if($order->get_payment_method() == 'buckaroo_klarnakp') {
+            update_post_meta(
+                $order->get_id(), 
+                '_buckaroo_klarnakp_reservation_number',
+                $response->reservation_number
+            );
+        }
+        
         if ($response->hasSucceeded()) {
             Buckaroo_Logger::log(
                 'Order already in final state or  have the same status as response. Order status: ' . $order->get_status()
@@ -878,6 +919,21 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
     } else {
         switch ($response->status) {
             case 'completed':
+
+                /** handle klarnakp reservation push */
+                if (
+                    $response->reservation_number !== null &&
+                    $order->get_status() !== 'cancelled'
+                    ) {
+                    $order->payment_complete($response->transactions);
+                    $order->add_order_note(
+                        "Payment succesfully reserved"
+                    );
+                    add_post_meta($order->get_id(), 'bukaroo_is_reserved', 'yes');
+                    return;
+                }
+
+
                 $transaction        = $response->transactions;
                 $payment_methodname = $response->payment_method;
                 if ($response->brq_relatedtransaction_partialpayment != null) {
@@ -1085,4 +1141,22 @@ function buckaroo_request_sanitized_json($key)
         $result,
         'sanitize_text_field'
     );
+}
+
+function getGenderValues($payment_method)
+{
+    switch($payment_method)
+    {
+        case 'buckaroo-payperemail' :
+            $genders = ['male' => 1, 'female' => 2, 'they'=> 0, 'unknown' => 9];
+            break;
+        case 'buckaroo-billink' :
+            $genders = ['male' => 'Male', 'female' => 'Female', 'they'=> 'Unknown', 'unknown' => 'Unknown'];
+            break;
+        default :
+            $genders = ['male' => 'male', 'female' => 'female', 'they'=> 'unknown', 'unknown' => 'unknown'];
+            break;
+    }
+
+    return $genders;
 }

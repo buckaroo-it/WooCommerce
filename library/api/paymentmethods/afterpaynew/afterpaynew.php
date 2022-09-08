@@ -6,7 +6,6 @@ require_once dirname(__FILE__) . '/../paymentmethod.php';
  */
 class BuckarooAfterPayNew extends BuckarooPaymentMethod
 {
-    public $BillingGender;
     public $BillingInitials;
     public $BillingLastName;
     public $BillingBirthDate;
@@ -21,7 +20,6 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
     public $BillingLanguage;
     public $IdentificationNumber;
     public $AddressesDiffer;
-    public $ShippingGender;
     public $ShippingInitials;
     public $ShippingLastName;
     public $ShippingBirthDate;
@@ -142,7 +140,6 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
             $billing = array_merge(
                 $billing,
                 [
-                    "Salutation" => $this->BillingGender == '1' ? 'Mr' : 'Mrs',
                     "BirthDate" => $this->BillingBirthDate,
                     "MobilePhone" =>  $this->BillingPhoneNumber,
                     "Phone" =>  $this->BillingPhoneNumber,
@@ -151,7 +148,6 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
             $shipping = array_merge(
                 $shipping,
                 [
-                    "Salutation" => $this->ShippingGender == '1' ? 'Mr' : 'Mrs',
                     "BirthDate" => $this->BillingBirthDate,
                     "MobilePhone" =>  $this->BillingPhoneNumber,
                     "Phone" =>  $this->BillingPhoneNumber,
@@ -168,17 +164,18 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
 
         foreach (array_values($products) as $pos => $product) {
             $this->setDefaultProductParams($product, $pos);
-            $additonalVars = [
-                'Url' => $product["ProductUrl"],
-            ];
+            $additonalVars = [];
 
-            if (!empty($p["ImageUrl"])) {
-                $additonalVars['ImageUrl'] = $product["ImageUrl"];
+            if (!empty(trim($product["ProductUrl"]))) {
+                $additonalVars['Url'] = $product["ProductUrl"];
             }
 
+            if (!empty($product["ImageUrl"])) {
+                $additonalVars['ImageUrl'] = $product["ImageUrl"];
+            }
             $this->setCustomVarsAtPosition($additonalVars, $pos, 'Article');
-
         }
+
         $this->setShipping(count($products));
 
         return parent::$action();
