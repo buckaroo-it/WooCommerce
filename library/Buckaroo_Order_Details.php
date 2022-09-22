@@ -211,7 +211,7 @@ class Buckaroo_Order_Details
     public function get_products()
     {
         return $this->formatOrderItems(
-            $this->order->get_items('line_item'),
+            $this->order->get_items('line_item')
         );
     }
     /**
