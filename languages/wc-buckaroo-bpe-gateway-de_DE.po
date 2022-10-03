@@ -42,7 +42,7 @@ msgstr ""
 #: gateway-buckaroo-afterpaynew.php:1092 gateway-buckaroo-afterpaynew.php:1099
 #: gateway-buckaroo-afterpaynew.php:1114 gateway-buckaroo-afterpaynew.php:1118
 #: gateway-buckaroo-afterpaynew.php:1122 gateway-buckaroo-afterpaynew.php:1126
-msgid "Accept Afterpay conditions:"
+msgid "Accept Riverty | AfterPay conditions:"
 msgstr ""
 
 #: gateway-buckaroo-billink.php:320 gateway-buckaroo-billink.php:343
@@ -54,15 +54,15 @@ msgid "According to iDIN you are under 18 years old"
 msgstr "Laut iDIN sind sie unter 18 jahre alt"
 
 #: gateway-buckaroo-afterpay.php:1047 gateway-buckaroo-afterpaynew.php:1103
-msgid "Afterpay conditions (Dutch)"
+msgid "Riverty | AfterPay conditions (Dutch)"
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:1051 gateway-buckaroo-afterpaynew.php:1107
-msgid "Afterpay conditions (French)"
+msgid "Riverty | AfterPay conditions (French)"
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:1206 gateway-buckaroo-afterpaynew.php:1238
-msgid "AfterPay Pay or Capture"
+msgid "Riverty | AfterPay Pay or Capture"
 msgstr ""
 
 #: templates/idin/checkout.php:7 templates/idin/checkout.php:26
@@ -264,7 +264,7 @@ msgid "Email:"
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:1174
-msgid "Enable B2B option for AfterPay"
+msgid "Enable B2B option for Riverty | AfterPay"
 msgstr ""
 
 #: gateway-buckaroo.php:346
@@ -960,10 +960,10 @@ msgstr ""
 
 #: library/common.php:402 library/common.php:425 library/common.php:621
 msgid ""
-"We are sorry to inform you that the request to pay afterwards with AfterPay "
+"We are sorry to inform you that the request to pay afterwards with Riverty | AfterPay "
 "is not possible at this time. This can be due to various (temporary) reasons."
 " For questions about your rejection you can contact the customer service of "
-"AfterPay. Or you can visit the website of AfterPay and check the 'Frequently "
+"Riverty | AfterPay. Or you can visit the website of Riverty | AfterPay and check the 'Frequently "
 "asked questions' through this <a href=\"https://www.afterpay."
 "nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise "
 "you to choose another payment method to complete your order."
