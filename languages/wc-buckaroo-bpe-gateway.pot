@@ -38,7 +38,7 @@ msgstr ""
 
 #: templates/gateways/partial_afterpay_tos.php:53
 #: templates/gateways/partial_afterpay_tos.php:57
-msgid "Accept Afterpay conditions:"
+msgid "Accept Riverty | AfterPay conditions:"
 msgstr ""
 
 #: templates/gateways/billink.php:57 templates/gateways/billink.php:81
@@ -50,11 +50,11 @@ msgid "According to iDIN you are under 18 years old"
 msgstr ""
 
 #: gateway-buckaroo-afterpaynew.php:489
-msgid "AfterPay customer type"
+msgid "Riverty | AfterPay customer type"
 msgstr ""
 
 #: gateway-buckaroo-afterpaynew.php:476 gateway-buckaroo-afterpay.php:451
-msgid "AfterPay Pay or Capture"
+msgid "Riverty | AfterPay Pay or Capture"
 msgstr ""
 
 #: templates/idin/checkout.php:8 templates/idin/checkout.php:26
@@ -338,7 +338,7 @@ msgid "Enable %s Payment Method"
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:432
-msgid "Enable B2B option for AfterPay"
+msgid "Enable B2B option for Riverty | AfterPay"
 msgstr ""
 
 #: gateway-buckaroo-paypal.php:117
@@ -994,7 +994,7 @@ msgstr ""
 
 #: gateway-buckaroo-afterpaynew.php:491
 msgid ""
-"This setting determines whether you accept AfterPay payments for B2C, B2B or "
+"This setting determines whether you accept Riverty | AfterPay payments for B2C, B2B or "
 "both customer types. When B2B is selected, this method is only shown when a "
 "company name is entered in the checkout process."
 msgstr ""
@@ -1059,10 +1059,10 @@ msgstr ""
 
 #: library/common.php:239 library/common.php:262 library/common.php:403
 msgid ""
-"We are sorry to inform you that the request to pay afterwards with AfterPay "
+"We are sorry to inform you that the request to pay afterwards with Riverty | AfterPay "
 "is not possible at this time. This can be due to various (temporary) reasons."
 " For questions about your rejection you can contact the customer service of "
-"AfterPay. Or you can visit the website of AfterPay and check the 'Frequently "
+"Riverty | AfterPay. Or you can visit the website of Riverty | AfterPay and check the 'Frequently "
 "asked questions' through this <a href=\"https://www.afterpay."
 "nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise "
 "you to choose another payment method to complete your order."

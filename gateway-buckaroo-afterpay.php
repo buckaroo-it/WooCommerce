@@ -18,10 +18,10 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     public function __construct()
     {
         $this->id                     = 'buckaroo_afterpay';
-        $this->title                  = 'AfterPay';
+        $this->title                  = 'Riverty | AfterPay';
         $this->has_fields             = false;
-        $this->method_title           = 'Buckaroo AfterPay';
-        $this->setIcon('24x24/afterpay.jpg', 'svg/AfterPay.svg');
+        $this->method_title           = 'Buckaroo Riverty | AfterPay';
+        $this->setIcon('afterpay.png', 'svg/AfterPay.svg');
         $this->setCountry();
 
         parent::__construct();
@@ -429,7 +429,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             'default'     => 'afterpaydigiaccept'];
 
         $this->form_fields['enable_bb'] = [
-            'title'       => __('Enable B2B option for AfterPay', 'wc-buckaroo-bpe-gateway'),
+            'title'       => __('Enable B2B option for Riverty | AfterPay', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Enables or disables possibility to pay using company credentials', 'wc-buckaroo-bpe-gateway'),
             'options'     => ['enable' => 'Enable', 'disable' => 'Disable'],
