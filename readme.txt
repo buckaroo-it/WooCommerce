@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 6.0
-Stable tag: 3.4.0
+Stable tag: 3.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,13 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.5.0 =
+- Support for WooCommerce 7.0.0
+- Update README.MD file [#127]
+- Remove 'Handelsbanken' [BP-1471]
+- Notice: Undefined index: PayPalExpressController.php [BP-2063]
+- Rebranding Afterpay to Riverty [BP-1865]
 
 = 3.4.0 =
 - Change gender selection for BNPL methods [BP-1896]

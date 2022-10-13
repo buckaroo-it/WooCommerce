@@ -39,8 +39,8 @@ msgstr "Een geldige iDEAL-bank is verplicht."
 
 #: templates/gateways/partial_afterpay_tos.php:53
 #: templates/gateways/partial_afterpay_tos.php:57
-msgid "Accept Afterpay conditions:"
-msgstr "AfterPay voorwaarden accepteren:"
+msgid "Accept Riverty | AfterPay conditions:"
+msgstr "Riverty | AfterPay voorwaarden accepteren:"
 
 #: templates/gateways/billink.php:57 templates/gateways/billink.php:81
 msgid "Accept terms of use"
@@ -51,12 +51,12 @@ msgid "According to iDIN you are under 18 years old"
 msgstr "Volgens iDIN ben je jonger dan 18 jaar"
 
 #: gateway-buckaroo-afterpaynew.php:489
-msgid "AfterPay customer type"
+msgid "Riverty | AfterPay customer type"
 msgstr ""
 
 #: gateway-buckaroo-afterpaynew.php:476 gateway-buckaroo-afterpay.php:451
-msgid "AfterPay Pay or Capture"
-msgstr "AfterPay Pay of Capture"
+msgid "Riverty | AfterPay Pay or Capture"
+msgstr "Riverty | AfterPay Pay of Capture"
 
 #: templates/idin/checkout.php:8 templates/idin/checkout.php:26
 msgid "Age verification"
@@ -355,8 +355,8 @@ msgid "Enable %s Payment Method"
 msgstr "Betaalmethode %s inschakelen"
 
 #: gateway-buckaroo-afterpay.php:432
-msgid "Enable B2B option for AfterPay"
-msgstr "Zet B2B aan voor AfterPay"
+msgid "Enable B2B option for Riverty | AfterPay"
+msgstr "Zet B2B aan voor Riverty | AfterPay"
 
 #: gateway-buckaroo-paypal.php:117
 msgid "Enable paypal express for the following pages."
@@ -716,7 +716,7 @@ msgstr "Selecteer a.u.b. een geslacht"
 
 #: gateway-buckaroo-afterpay.php:427
 msgid "Please select the service"
-msgstr "Kies de gewenste AfterPay service"
+msgstr "Kies de gewenste Riverty | AfterPay service"
 
 #: templates/payconiq/qrcode.php:318
 msgid "Point your camera at this QR code. "
@@ -768,7 +768,7 @@ msgstr "Selecteer een CreditCard."
 
 #: gateway-buckaroo-afterpay.php:425
 msgid "Select afterpay service"
-msgstr "Kies AfterPay service"
+msgstr "Kies Riverty | AfterPay service"
 
 #: gateway-buckaroo.php:411
 msgid "Select Certificate"
@@ -1035,7 +1035,7 @@ msgstr "Deze betaalmethode wordt niet ondersteund voor de geselecteerde valuta"
 
 #: gateway-buckaroo-afterpaynew.php:491
 msgid ""
-"This setting determines whether you accept AfterPay payments for B2C, B2B or "
+"This setting determines whether you accept Riverty | AfterPay payments for B2C, B2B or "
 "both customer types. When B2B is selected, this method is only shown when a "
 "company name is entered in the checkout process."
 msgstr ""
@@ -1100,19 +1100,19 @@ msgstr "WC Buckaroo BPE Gateway"
 
 #: library/common.php:239 library/common.php:262 library/common.php:403
 msgid ""
-"We are sorry to inform you that the request to pay afterwards with AfterPay "
+"We are sorry to inform you that the request to pay afterwards with Riverty | AfterPay "
 "is not possible at this time. This can be due to various (temporary) reasons."
 " For questions about your rejection you can contact the customer service of "
-"AfterPay. Or you can visit the website of AfterPay and check the 'Frequently "
+"Riverty | AfterPay. Or you can visit the website of Riverty | AfterPay and check the 'Frequently "
 "asked questions' through this <a href=\"https://www.afterpay."
 "nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise "
 "you to choose another payment method to complete your order."
 msgstr ""
 "Het spijt ons u te moeten mededelen dat het verzoek om achteraf te betalen "
-"met AfterPay op dit moment niet mogelijk is. Dit kan verschillende "
+"met Riverty | AfterPay op dit moment niet mogelijk is. Dit kan verschillende "
 "(tijdelijke) redenen hebben. Voor vragen over uw afwijzing kunt u contact "
-"opnemen met de klantenservice van AfterPay. Of bezoek de website van "
-"AfterPay en bekijk de 'Veelgestelde vragen' via deze <a href=\"https://www."
+"opnemen met de klantenservice van Riverty | AfterPay. Of bezoek de website van "
+"Riverty | AfterPay en bekijk de 'Veelgestelde vragen' via deze <a href=\"https://www."
 "afterpay.nl/nl/consumenten/vragen-en- Antwoord\" target=\"_blank\">link </a>."
 " Wij adviseren u om een ​​andere betaalmethode te kiezen om uw bestelling af "
 "te ronden."

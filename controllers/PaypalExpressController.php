@@ -127,7 +127,7 @@ class Buckaroo_Paypal_Express
         );
         $settings = get_option('woocommerce_buckaroo_paypal_settings', []);
 
-        if (!is_array($settings["express"])) {
+        if (!isset($settings["express"]) || !is_array($settings["express"])) {
             $settings["express"] = ["none"];
         }
 

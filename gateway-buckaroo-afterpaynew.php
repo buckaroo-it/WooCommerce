@@ -22,10 +22,10 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     public function __construct()
     {
         $this->id                     = 'buckaroo_afterpaynew';
-        $this->title                  = 'Afterpay (by Buckaroo)';
+        $this->title                  = 'Riverty | AfterPay (by Buckaroo)';
         $this->has_fields             = false;
-        $this->method_title           = 'Buckaroo AfterPay New';
-        $this->setIcon('24x24/afterpaynew.png', 'svg/AfterPay.svg');
+        $this->method_title           = 'Buckaroo Riverty | AfterPay New';
+        $this->setIcon('afterpay.png', 'svg/AfterPay.svg');
         $this->setCountry();
 
         parent::__construct();
@@ -193,7 +193,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         }
 
         if (!(count($products) > 0)) {
-            return new WP_Error('error_refund_afterpay_no_products', __("To refund an AfterPay transaction you need to refund at least one product."));
+            return new WP_Error('error_refund_afterpay_no_products', __("To refund an Riverty | AfterPay transaction you need to refund at least one product."));
         }
 
         try {
@@ -473,7 +473,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         parent::init_form_fields();
         
         $this->form_fields['afterpaynewpayauthorize'] = array(
-            'title'       => __('AfterPay Pay or Capture', 'wc-buckaroo-bpe-gateway'),
+            'title'       => __('Riverty | AfterPay Pay or Capture', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('pay' => 'Pay', 'authorize' => 'Authorize'),
@@ -489,9 +489,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             'desc_tip'    => 'Product images are only shown when they are available in JPG or PNG format'
         );
         $this->form_fields['customer_type'] = array(
-            'title'       => __('AfterPay customer type', 'wc-buckaroo-bpe-gateway'),
+            'title'       => __('Riverty | AfterPay customer type', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
-            'description' => __('This setting determines whether you accept AfterPay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('This setting determines whether you accept Riverty | AfterPay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.', 'wc-buckaroo-bpe-gateway'),
             'options'     => array(
                 self::CUSTOMER_TYPE_BOTH => __('Both'),
                 self::CUSTOMER_TYPE_B2C => __('B2C (Business-to-consumer)'),
