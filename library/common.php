@@ -1153,6 +1153,12 @@ function getGenderValues($payment_method)
         case 'buckaroo-billink' :
             $genders = ['male' => 'Male', 'female' => 'Female', 'they'=> 'Unknown', 'unknown' => 'Unknown'];
             break;
+        case 'buckaroo-klarnapay' :
+            $genders = ['male' => 'male', 'female' => 'female'];
+            break;
+        case 'buckaroo-klarnapii' :
+            $genders = ['male' => 'male', 'female' => 'female'];
+            break;
         default :
             $genders = ['male' => 'male', 'female' => 'female', 'they'=> 'unknown', 'unknown' => 'unknown'];
             break;
