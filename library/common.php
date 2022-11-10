@@ -383,9 +383,6 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         Buckaroo_Logger::log('Response order status: ' . $response->status);
         Buckaroo_Logger::log('Status message: ' . $response->statusmessage);
 
-        
-        
-        
         //Payperemail response
         if(fn_process_response_payperemail($payment_method, $response)){
             return;
