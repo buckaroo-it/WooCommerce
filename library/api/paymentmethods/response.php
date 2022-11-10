@@ -299,7 +299,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
         }
 
         $this->currency     = $this->_setPostVariable('brq_currency');
-        $this->_test        = $this->_setPostVariable('brq_test');
+        $this->_test        = $this->_setPostVariable('brq_test') === 'true';
         $this->timestamp    = $this->_setPostVariable('brq_timestamp');
         if($this->_setPostVariable('brq_datarequest') !== null) {
             $this->transactions = $this->_setPostVariable('brq_datarequest');

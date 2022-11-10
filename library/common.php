@@ -357,6 +357,12 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 
     if ($response->isValid()) {
         
+        update_post_meta(
+            $order_id, 
+            '_buckaroo_order_in_test_mode',
+            $response->isTest() == true
+        );
+
         //Check if redirect required
         $checkIfRedirectRequired = fn_process_check_redirect_required($response, 'response', $payment_method, $order_id);
         if ($checkIfRedirectRequired){
@@ -377,6 +383,9 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         Buckaroo_Logger::log('Response order status: ' . $response->status);
         Buckaroo_Logger::log('Status message: ' . $response->statusmessage);
 
+        
+        
+        
         //Payperemail response
         if(fn_process_response_payperemail($payment_method, $response)){
             return;
