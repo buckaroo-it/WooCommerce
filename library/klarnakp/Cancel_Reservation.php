@@ -25,12 +25,20 @@ class Buckaroo_Cancel_Reservation
      * Hook into order actions, add cancel reservation option for klarnakp
      *
      * @param array $actions
-     * @param WC_Order $order
+     * @param WC_Order|null $order
      *
      * @return array
      */
-    public function add_cancel_option($actions, $order)
+    public function add_cancel_option($actions, $order = null)
     {
+        global $theorder;
+        if ($order == null) {
+            if (!($theorder instanceof WC_Order)) {
+                return $actions;
+            }
+            $order = $theorder;
+        }
+
         if (
             $order->get_payment_method() === 'buckaroo_klarnakp' &&
             get_post_meta($order->get_id(), 'bukaroo_is_reserved', true) === 'yes'
@@ -50,13 +58,13 @@ class Buckaroo_Cancel_Reservation
      */
     public function cancel_reservation($order)
     {
-        
+
         $gateway = new WC_Gateway_Buckaroo_KlarnaKp();
         if (isset($gateway)) {
             $gateway->cancel_reservation($order);
         }
         wp_redirect(
-            admin_url( "post.php?post={$order->get_id()}&action=edit")
+            admin_url("post.php?post={$order->get_id()}&action=edit")
         );
     }
 }
