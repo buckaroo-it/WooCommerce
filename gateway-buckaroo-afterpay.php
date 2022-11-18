@@ -153,12 +153,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
         $final_response = fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
 
-        if ($final_response === true) {
-            // Store the transaction_key together with refunded products, we need this for later refunding actions
-            $refund_data = json_encode(['OriginalTransactionKey' => $response->transactions, 'OriginalCaptureTransactionKey' => $afterpay->OriginalTransactionKey, 'products' => $products]);
-            add_post_meta($order_id, 'buckaroo_refund', $refund_data, false);
-        }
-
         return $final_response;
     }
 
