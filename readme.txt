@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 6.0
-Stable tag: 3.1.1
+Stable tag: 3.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,10 +97,59 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 
 == Changelog ==
 
+= 3.5.0 =
+- Support for WooCommerce 7.0.0
+- Update README.MD file [#127]
+- Remove 'Handelsbanken' [BP-1471]
+- Notice: Undefined index: PayPalExpressController.php [BP-2063]
+- Rebranding Afterpay to Riverty [BP-1865]
 
-= 3.1.1 =
+= 3.4.0 =
+- Change gender selection for BNPL methods [BP-1896]
+- Add contribution guidelines [BP-1873]
+- Add string 'A valid iDEAL bank is required' to .pot file and add Dutch ( Thank you @Robbertdk )
+- Error when loading empty credicard
+- Add KlarnaKP to WooCommerce BP-1886
+- Add product images to the Afterpay request (ImageUrl) [BP-1768]
+- Slow load time for javascript files [BP-1857]
+- Fix Payconiq payment method in live mode. [BP-2030]
 
+= 3.3.0 =
+- Support for Wordpress version 6.0 & WooCommerce 6.7.0 [BP-1861]
+- Fix undefined array key show_in_checkout
+- Add paypal express merchandid admin field [BP-1477]
+- Explain variable transaction description [BP-1492]
+- Missing Payment method description in WooCommerce templates. [BP-1490]
+- Update README file [BP-1508]
+- The Apple Pay logo is not visible when the old logos are being used. [BP-1813]
+- Support Afterpay B2B [BP-1468]
+- Added support for payment fee vat display mode(including / excluding). [BP-1858]
+
+= 3.2.3 =
+- Update esc_html to esc_url for image urls
+- Sanitized some fields
+- Other Improvments
+
+= 3.2.2 =
+- Don't use calls like // phpcs:ignore [BP-1727]
+- Use wp_enqueue commands [BP-1728]
+- Sanitize, Escape and Validate variables [BP-1528]
+- Adding code sniffer for Woocommerce to the GitHub pipeline [BP-1534]
+
+= 3.2.1 =
+- Don't use calls like // phpcs:ignore [BP-1727]
+- Use wp_enqueue commands [BP-1728]
+- Sanitize, Escape and Validate variables [BP-1528]
+- Adding code sniffer for Woocommerce to the GitHub pipeline [BP-1534]
+
+= 3.2.0 =
 - Support for Wordpress: 6.0 and WooCommerce: 6.4.1
+- Paypal seller protection address information jumbled [BP-1479]
+- Variables and options must be escaped when echo'd [BP-1529]
+- Sanitize, Escape and Validate variables [BP-1528]
+- Remove Libraries Already In Core [BP-1527]
+- Improve files naming [BP-1526]
+- Remove "png instead of svg" setting and "new" png images [BP-1498]
 - Limit payment logo size [BP-1459]
 
 = 3.1.0 =

@@ -1,8 +1,5 @@
 <?php
-
-  
-
-  /**
+    /**
    * @package Buckaroo
    */
   class WC_Gateway_Buckaroo_Exodus extends WC_Gateway_Buckaroo {

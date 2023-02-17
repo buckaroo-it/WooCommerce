@@ -14,8 +14,8 @@
 
 defined('ABSPATH') || exit;
 
-$customerPhone = $this->geCheckoutField('billing_phone');
-$country = $this->geCheckoutField('billing_country');
+$customerPhone = $this->getScalarCheckoutField('billing_phone');
+$country = $this->getScalarCheckoutField('billing_country');
 
 if (strtoupper($country) == 'NL' && strtolower($this->klarnaPaymentFlowId) !== 'pay') :
     ?>
@@ -35,22 +35,22 @@ endif;?>
     ?>
 
     <p class="form-row validate-required">
-        <label for="<?php echo $this->getKlarnaSelector() ?>-phone">
+        <label for="<?php echo esc_attr($this->getKlarnaSelector()) ?>-phone">
             <?php echo esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
-        <input id="<?php echo $this->getKlarnaSelector() ?>-phone"
-        name="<?php echo $this->getKlarnaSelector() ?>-phone"
+        <input id="<?php echo esc_attr($this->getKlarnaSelector()) ?>-phone"
+        name="<?php echo esc_attr($this->getKlarnaSelector()) ?>-phone"
         class="input-tel"
         type="tel"
         autocomplete="off"
-        value="<?php echo $customerPhone ?? '' ?>">
+        value="<?php echo esc_html($customerPhone) ?? '' ?>">
     </p>
 
-    <?php if (!empty($this->geCheckoutField('ship_to_different_address'))) {?>
+    <?php if (!empty($this->getScalarCheckoutField('ship_to_different_address'))) {?>
     <input
-    id="<?php echo $this->getKlarnaSelector() ?>-shipping-differ"
-    name="<?php echo $this->getKlarnaSelector() ?>-shipping-differ"
+    id="<?php echo esc_attr($this->getKlarnaSelector()) ?>-shipping-differ"
+    name="<?php echo esc_attr($this->getKlarnaSelector()) ?>-shipping-differ"
     class=""
     type="hidden"
     value="1" />

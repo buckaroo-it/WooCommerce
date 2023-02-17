@@ -2,18 +2,13 @@
 
 require_once(dirname(__FILE__) . '/../../library/api/idin.php');
 
-$buckaroo_idin_translation  = [
-    "general_error" => esc_html_e("Something went wrong while processing your identification."),
-    "bank_required"=>esc_html_e("You need to select your bank!")
-];
-
 if (BuckarooIdin::checkCurrentUserIsVerified()) {
 ?>
     <div id="buckaroo_idin" class="buckaroo-idin buckaroo-idin-passed form-row">
         <h3 id="buckaroo_idin_heading"><?php esc_html_e('Age verification', 'wc-buckaroo-bpe-gateway'); ?></h3>
         <fieldset>
             <div>
-                <img class="buckaroo_idin_logo" src="<?php echo plugin_dir_url(__DIR__) . '../library/buckaroo_images/idin_logo.svg'; ?>" />
+                <img class="buckaroo_idin_logo" src="<?php echo esc_url(plugin_dir_url(__DIR__) . '../library/buckaroo_images/idin_logo.svg'); ?>" />
                 <p class="buckaroo_idin_prompt"><?php esc_html_e('You have verified your age already', 'wc-buckaroo-bpe-gateway'); ?></p>
             </div>
         </fieldset>
@@ -21,11 +16,6 @@ if (BuckarooIdin::checkCurrentUserIsVerified()) {
 <?php
 } else {
     ?>
-    <script>
-        var buckaroo_idin_translation = <?php echo json_encode($buckaroo_idin_translation);?>;
-        var buckaroo_ajax_url = '<?php echo home_url('/'); ?>';
-    </script>
-    <script type="module" src="<?php echo plugin_dir_url(__DIR__) . '../assets/js/idin/index.js'; ?>"></script>
     <style>
         .woocommerce-checkout-payment {
             display: none;
@@ -36,7 +26,7 @@ if (BuckarooIdin::checkCurrentUserIsVerified()) {
         <h3 id="buckaroo_idin_heading"><?php esc_html_e('Age verification', 'wc-buckaroo-bpe-gateway'); ?></h3>
         <fieldset>
             <div>
-                <img class="buckaroo_idin_logo" src="<?php echo plugin_dir_url(__DIR__) . '../library/buckaroo_images/idin_logo.svg'; ?>" />
+                <img class="buckaroo_idin_logo" src="<?php echo esc_url(plugin_dir_url(__DIR__) . '../library/buckaroo_images/idin_logo.svg'); ?>" />
                 <p class="buckaroo_idin_prompt">
                     <?php esc_html_e('To continue you must verify your age using iDIN', 'wc-buckaroo-bpe-gateway'); ?>
                 </p>

@@ -52,10 +52,10 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
         $this->version = '0';
     }
 
-    public function setPaymnetFlow($paymentFlow){
+    public function setPaymentFlow($paymentFlow){
         $this->paymentFlow = $paymentFlow;
     }
-    public function getPaymnetFlow(){
+    public function getPaymentFlow(){
         return $this->paymentFlow;
     }
 
@@ -81,7 +81,7 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
      */
     public function paymentAction($products = array()) {
 
-        $this->setServiceActionAndVersion($this->getPaymnetFlow());
+        $this->setServiceActionAndVersion($this->getPaymentFlow());
 
         $billing = [
             "Category" => !empty($this->getBillingCategory()) ? 'B2B' : 'B2C',
@@ -93,9 +93,7 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
             "City" => $this->BillingCity,
             "Country" => $this->BillingCountry,
             "Email" => $this->BillingEmail,
-            "Gender" => $this->getGender(
-                $this->BillingGender
-            ),
+            "Gender" => $this->BillingGender,
             "Phone" => $this->BillingPhoneNumber
         ];
         $shipping = [
@@ -108,9 +106,7 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
             "City" => $this->diffAddress($this->ShippingCity, $this->BillingCity),
             "Country" => $this->diffAddress($this->ShippingCountryCode, $this->BillingCountry),
             "Email" => $this->BillingEmail,
-            "Gender" => $this->getGender(
-                $this->diffAddress($this->ShippingGender, $this->BillingGender)
-            ),
+            "Gender" => $this->diffAddress($this->ShippingGender, $this->BillingGender),
             "Phone" => $this->BillingPhoneNumber
         ];
 
@@ -180,20 +176,7 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
 
         return parent::PayGlobal();
     }
-    public function getGender($gender)
-    {
-        switch ($gender) {
-        case '1':
-            return 'male';
-            break;
-        case '2':
-            return 'female';
-            break;
-        default:
-            return 'unkown';
-            break;
-        }
-    }
+
     private function diffAddress($shippingField, $billingField)
     {
         if ($this->AddressesDiffer == 'TRUE') {

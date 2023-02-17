@@ -84,6 +84,10 @@
             'filename' => 'gateway-buckaroo-klarnapii.php',
             'classname' => 'WC_Gateway_Buckaroo_KlarnaPII'
         ),
+        'KlarnaKp' => array(
+            'filename' => 'gateway-buckaroo-klarnakp.php',
+            'classname' => 'WC_Gateway_Buckaroo_KlarnaKp'
+        ),
         'P24' => array(
             'filename' =>
             'gateway-buckaroo-p24.php',
@@ -100,10 +104,6 @@
         'PayPerEmail' => array(
             'filename' => 'gateway-buckaroo-payperemail.php',
             'classname' => 'WC_Gateway_Buckaroo_PayPerEmail'
-        ),
-        'RequestToPay' => array(
-            'filename' => 'gateway-buckaroo-requesttopay.php',
-            'classname' => 'WC_Gateway_Buckaroo_RequestToPay'
         ),
         'SepaDirectDebit' => array(
             'filename' => 'gateway-buckaroo-sepadirectdebit.php',
@@ -178,18 +178,24 @@
       *
       * @return void
       */
-     protected function load_gateways()
-     {
-        foreach ($this->methods as $method) {
-            require_once $this->dir . $method['filename'];
-        }
-        require_once $this->dir. "gateways-creditcard/gateway-buckaroo-creditcard-single.php";
-
-        foreach ($this->get_creditcard_methods() as $method) {
-            require_once $this->dir . $method['filename'];
-        }
-
-     }
+      protected function load_gateways()
+      {
+         foreach ($this->methods as $method) {
+             $file = $this->dir . $method['filename'];
+             if(file_exists($file)) {
+                 require_once $file;
+             }
+         }
+         require_once $this->dir. "gateways-creditcard/gateway-buckaroo-creditcard-single.php";
+ 
+         foreach ($this->get_creditcard_methods() as $method) {
+             $file = $this->dir . $method['filename'];
+             if(file_exists($file)) {
+                 require_once $file;
+             }
+         }
+ 
+      }
      /**
       * Get all gateways
       *
@@ -231,10 +237,12 @@
 
 
         foreach ($this->get_creditcards_to_show() as $creditcard) {
-            $creditcardMethods[$creditcard.'_creditcard'] = array(
-                'filename' => "gateways-creditcard/gateway-buckaroo-${creditcard}.php",
-                'classname' => 'WC_Gateway_Buckaroo_'.ucfirst($creditcard)
-            );
+            if (strlen(trim($creditcard)) !== 0) {
+                $creditcardMethods[$creditcard.'_creditcard'] = array(
+                    'filename' => "gateways-creditcard/gateway-buckaroo-${creditcard}.php",
+                    'classname' => 'WC_Gateway_Buckaroo_'.ucfirst($creditcard)
+                );
+            }
         }
         return $creditcardMethods;
     }
@@ -251,6 +259,7 @@
             $credit_settings !== null &&
             isset($credit_settings['creditcardmethod']) &&
             $credit_settings['creditcardmethod'] === 'encrypt' &&
+            isset($credit_settings['show_in_checkout']) &&
             is_array($credit_settings['show_in_checkout'])
             ) {
             return $credit_settings['show_in_checkout'];

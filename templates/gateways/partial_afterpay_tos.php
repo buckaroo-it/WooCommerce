@@ -20,18 +20,18 @@ $tosLinks = [
     "BE"=>[
         [
         "link"=>"https://documents.myafterpay.com/consumer-terms-conditions/nl_be/",
-        "label"=> 'Afterpay conditions (Dutch)'
+        "label"=> 'Riverty | AfterPay conditions (Dutch)'
         ],
         [
         "link"=>"https://documents.myafterpay.com/consumer-terms-conditions/fr_be/",
-        "label"=>'Afterpay conditions (French)'
+        "label"=>'Riverty | AfterPay conditions (French)'
         ]
     ],
     "DE"=>"https://documents.myafterpay.com/consumer-terms-conditions/de_at/",
     "FI"=>"https://documents.myafterpay.com/consumer-terms-conditions/fi_fi/",
     "AT"=>"https://documents.myafterpay.com/consumer-terms-conditions/de_at/"
 ];
-$country = $this->geCheckoutField('billing_country');
+$country = $this->getScalarCheckoutField('billing_country');
 $country = !empty($country) ? $country : $this->country;
     
 //set default to NL
@@ -50,11 +50,11 @@ if (!is_array($tos)) {
     <a 
     href="<?php echo esc_url($tos) ?>"
     target="_blank">
-        <?php echo esc_html_e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway'); ?>
+        <?php echo esc_html_e('Accept Riverty | AfterPay conditions:', 'wc-buckaroo-bpe-gateway'); ?>
     </a>
     <?php
 } else {
-    echo esc_html_e('Accept Afterpay conditions:', 'wc-buckaroo-bpe-gateway');
+    echo esc_html_e('Accept Riverty | AfterPay conditions:', 'wc-buckaroo-bpe-gateway');
 }
 ?>
     <span class="required">*</span> 

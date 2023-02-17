@@ -289,7 +289,7 @@
 
 <div class="bpe_container">
     <div class="bpe_logo">
-        <img class="bpe_paymentmethodlogo" src="<?PHP echo plugin_dir_url( dirname( __FILE__ ) ) . 'payconiq/payconiq-logo.png' ?>" alt="Payconiq">
+        <img class="bpe_paymentmethodlogo" src="<?php echo esc_html(plugin_dir_url( dirname( __FILE__ ) ) . 'payconiq/payconiq-logo.png'); ?>" alt="Payconiq">
     </div>
 
     <form method="post" action="./pay.aspx" id="ctl01" onsubmit="return FinalizeForm();">
@@ -325,10 +325,10 @@
 </div>
 
 <script>
-    $(document).ready(function () {
+    jQuery(document).ready(function () {
         BuckarooSdk.Payconiq.initiate("#payconiqQr", "<?php echo esc_html($_GET["transactionKey"]) ?>", function(status, params) {
             if (status == 'PROCESSING'){
-                $('.payconiq-cancel').hide();
+                jQuery('.payconiq-cancel').hide();
             }
             // true if the SDK should redirect the browser to the ReturnUrl
             return true;

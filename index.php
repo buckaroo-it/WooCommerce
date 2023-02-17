@@ -5,7 +5,7 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
-Version: 3.1.1
+Version: 3.5.0
 Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -19,13 +19,22 @@ if (!defined('BK_PLUGIN_FILE')) {
 require_once dirname(__FILE__). "/library/Buckaroo_Logger_Storage.php";
 
 if(isset($_GET['buckaroo_download_log_file']) && is_string($_GET['buckaroo_download_log_file'])) {
-    Buckaroo_Logger_Storage::downloadFile(sanitize_text_field($_GET['buckaroo_download_log_file']));
+    $report_name = preg_replace('/[^A-Za-z0-9-.]+/', '-',$_GET['buckaroo_download_log_file']);
+    Buckaroo_Logger_Storage::downloadFile($report_name);
 }
 
 require_once dirname(__FILE__). "/library/Buckaroo_Logger.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Order_Fee.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Cron_Events.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Order_Details.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Order_Item.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Order_Capture.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Capture_Transaction.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Http_Request.php";
+require_once dirname(__FILE__). "/library/Buckaroo_Item_For_Capture.php";
+require_once dirname(__FILE__). "/library/klarnakp/Capture.php";
+require_once dirname(__FILE__). "/library/klarnakp/Refund.php";
+require_once dirname(__FILE__). "/library/klarnakp/Cancel_Reservation.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Disable_Gateways.php";
 require_once dirname(__FILE__). "/install/class-wcb-install.php";
 require_once dirname(__FILE__). "/install/migration/Buckaroo_Migration_Handler.php";
@@ -33,7 +42,7 @@ require_once dirname(__FILE__). "/Buckaroo_Load_Gateways.php";
 require_once dirname(__FILE__). "/controllers/PaypalExpress.php";
 
 /**
- * Remove gateways based on min/max value or idin verificaiton
+ * Remove gateways based on min/max value or idin verification
  */
 new Buckaroo_Disable_Gateways();
 /**
@@ -41,7 +50,7 @@ new Buckaroo_Disable_Gateways();
  */
 new Buckaroo_Order_Fee();
 /**
- * Start runing buckaroo events
+ * Start running buckaroo events
  */
 new Buckaroo_Cron_Events();
 /**
@@ -56,6 +65,10 @@ new Buckaroo_Paypal_Express(
     new Buckaroo_Paypal_Express_Order(),
     new Buckaroo_Paypal_Express_Cart()
 );
+
+new Buckaroo_Capture_Form();
+new Buckaroo_Cancel_Reservation();
+new Buckaroo_KlarnaKP_Refund();
 
 add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
 
@@ -82,7 +95,7 @@ function buckaroo_payment_setup_scripts()
     wp_enqueue_script(
         'buckaroo_certificate_management_js',
         plugin_dir_url(__FILE__) . 'library/js/9yards/upload_certificate.js',
-        ['jquery'],
+        array('jquery'),
         BuckarooConfig::VERSION,
         true
     );
@@ -96,39 +109,57 @@ add_action('wp_enqueue_scripts', 'buckaroo_payment_frontend_scripts');
  */
 function buckaroo_payment_frontend_scripts() 
 {
-    wp_enqueue_style(
-        'buckaroo-custom-styles',
-        plugin_dir_url( __FILE__ ) . 'library/css/buckaroo-custom.css',
-        [],
-        BuckarooConfig::VERSION
-    );
-    wp_enqueue_script(
-        'creditcard_encryption_sdk',
-        plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-encryption-sdk.js',
-        ['jquery'],
-        BuckarooConfig::VERSION,
-        true
-    );
-    wp_enqueue_script(
-        'creditcard_call_encryption',
-        plugin_dir_url(__FILE__) . 'library/js/9yards/creditcard-call-encryption.js',
-        ['jquery'],
-        BuckarooConfig::VERSION,
-        true
-    );
-    wp_enqueue_script(
-        'buckaroo_sdk',
-        'https://checkout.buckaroo.nl/api/buckaroosdk/script',
-        //'https://testcheckout.buckaroo.nl/api/buckaroosdk/script',
-        array('jquery'),
-        BuckarooConfig::VERSION
-    );
+    $page = filter_var( $_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL);
+
+    if (
+        class_exists('WC_Order') && (
+            is_product() ||
+            is_checkout() ||
+            is_cart() ||
+            strpos($page, 'payconiq') !== false
+        )
+    ) {
+        wp_enqueue_style(
+            'buckaroo-custom-styles',
+            plugin_dir_url( __FILE__ ) . 'library/css/buckaroo-custom.css',
+            [],
+            BuckarooConfig::VERSION
+        );
+        
+        wp_enqueue_script(
+            'buckaroo_sdk',
+            'https://checkout.buckaroo.nl/api/buckaroosdk/script',
+            //'https://testcheckout.buckaroo.nl/api/buckaroosdk/script',
+            array('jquery'),
+            BuckarooConfig::VERSION
+        );
+    
+        wp_enqueue_script(
+            'buckaroo_apple_pay',
+            plugin_dir_url(__FILE__) . 'assets/js/dist/apple-pay.js',
+            array('jquery', 'buckaroo_sdk'),
+            BuckarooConfig::VERSION,
+            true
+        );
+    
+        wp_localize_script(
+            'buckaroo_sdk',
+            'buckaroo_global',
+            array(
+                "ajax_url" => home_url('/'),
+                "idin_i18n" => array(
+                    "general_error" => esc_html__("Something went wrong while processing your identification."),
+                    "bank_required"=>esc_html__("You need to select your bank!")
+                )
+            )
+        );
+    }
 
     if (class_exists('WC_Order') && is_checkout()) {
         wp_enqueue_script(
             'wc-pf-checkout',
-            plugin_dir_url(__FILE__) . '/assets/js/checkout.js',
-            ['jquery'],
+            plugin_dir_url(__FILE__) . 'assets/js/dist/checkout.js',
+            array('jquery'),
             BuckarooConfig::VERSION,
             true
         );
@@ -235,7 +266,7 @@ if ( ! class_exists( 'Buckaroo' ) ) {
  *
  * @return Buckaroo
  */
-function BK() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+function BK() { 
 	return Buckaroo::instance();
 }
 
@@ -401,7 +432,7 @@ function buckaroo_init_gateway()
         $gateway = new WC_Gateway_Buckaroo_PayPerEmail();
         if (isset($gateway)) {
             $response = $gateway->process_payment($order->get_id());
-            echo json_encode($response);
+            wp_send_json($response);
         }
     }
     add_action( 'woocommerce_order_action_buckaroo_send_admin_payperemail', 'buckaroo_send_admin_payperemail', 10, 1 );
@@ -410,6 +441,7 @@ function buckaroo_init_gateway()
         $gateway = new WC_Gateway_Buckaroo_PayPerEmail();
         if (isset($gateway)) {
             $response = $gateway->process_payment($order->get_id(),1);
+            wp_send_json($response);
         }
     }
 
@@ -463,7 +495,7 @@ function buckaroo_idin_checkout() {
 function orderCapture()
 {
     if (!isset($_POST['order_id'])) {
-        echo json_encode(
+        wp_send_json(
             [
                 "errors" => [
                     "error_capture"=>[
@@ -472,7 +504,6 @@ function orderCapture()
                 ]
             ]
         );
-        exit;
     }
 
     $paymentMethod = get_post_meta( (int)sanitize_text_field($_POST['order_id']), '_wc_order_selected_payment_method', true);
@@ -489,12 +520,16 @@ function orderCapture()
         case "Creditcard":
             require_once(dirname(__FILE__) . '/gateway-buckaroo-creditcard.php');
             $gateway = new WC_Gateway_Buckaroo_Creditcard();
-            break;                                
+            break;
+        case "KlarnaKp":
+            require_once(dirname(__FILE__) . '/gateway-buckaroo-creditcard.php');
+            $gateway = new WC_Gateway_Buckaroo_KlarnaKp();
+            break;                               
     }
    
     if (isset($gateway)) {
         
-        echo json_encode(
+        wp_send_json(
             $gateway->process_capture()
         );
     }

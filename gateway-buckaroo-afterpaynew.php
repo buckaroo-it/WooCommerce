@@ -15,13 +15,17 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     public $country;
     public $sendimageinfo;
 
+    public const CUSTOMER_TYPE_B2C = 'b2c';
+    public const CUSTOMER_TYPE_B2B = 'b2b';
+    public const CUSTOMER_TYPE_BOTH = 'both';
+
     public function __construct()
     {
         $this->id                     = 'buckaroo_afterpaynew';
-        $this->title                  = 'Afterpay (by Buckaroo)';
+        $this->title                  = 'Riverty | AfterPay (by Buckaroo)';
         $this->has_fields             = false;
-        $this->method_title           = 'Buckaroo AfterPay New';
-        $this->setIcon('24x24/afterpaynew.png', 'svg/AfterPay.svg');
+        $this->method_title           = 'Buckaroo Riverty | AfterPay New';
+        $this->setIcon('afterpay.png', 'svg/AfterPay.svg');
         $this->setCountry();
 
         parent::__construct();
@@ -35,6 +39,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $this->sendimageinfo = $this->get_option('sendimageinfo');
         $this->vattype    = $this->get_option('vattype');
         $this->type       = 'afterpay';
+        $this->customer_type = $this->get_option('customer_type', self::CUSTOMER_TYPE_BOTH);
     }
     /**
      * Can the order be refunded
@@ -81,16 +86,16 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $itemsTotalAmount = 0;
 
         if ($line_item_qtys === null) {
-            $line_item_qtys = isset( $_POST['line_item_qtys'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ) ), true ) : array();
+            $line_item_qtys = buckaroo_request_sanitized_json('line_item_qtys');
         }
         
         
         if ($line_item_totals === null) {
-            $line_item_totals = isset( $_POST['line_item_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ) ), true ) : array();
+            $line_item_totals = buckaroo_request_sanitized_json('line_item_totals');
         }
         
         if ($line_item_tax_totals === null) {
-            $line_item_tax_totals  = isset( $_POST['line_item_tax_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ) ), true ) : array();
+            $line_item_tax_totals  = buckaroo_request_sanitized_json('line_item_tax_totals');
         }
 
         $orderDataForChecking = $afterpay->getOrderRefundData($order);
@@ -188,7 +193,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         }
 
         if (!(count($products) > 0)) {
-            return new WP_Error('error_refund_afterpay_no_products', __("To refund an AfterPay transaction you need to refund at least one product."));
+            return new WP_Error('error_refund_afterpay_no_products', __("To refund an Riverty | AfterPay transaction you need to refund at least one product."));
         }
 
         try {
@@ -201,12 +206,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         }
 
         $final_response = fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
-
-        if ($final_response === true) {
-            // Store the transaction_key together with refunded products, we need this for later refunding actions
-            $refund_data = json_encode(['OriginalTransactionKey' => $response->transactions, 'OriginalCaptureTransactionKey' => $afterpay->OriginalTransactionKey, 'products' => $products]);
-            add_post_meta($order_id, 'buckaroo_refund', $refund_data, false);
-        }
 
         return $final_response;
     }
@@ -242,9 +241,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $items            = $order->get_items();
         $itemsTotalAmount = 0;
 
-        $line_item_qtys         = isset( $_POST['line_item_qtys'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ) ), true ) : array();
-		$line_item_totals       = isset( $_POST['line_item_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ) ), true ) : array();
-		$line_item_tax_totals   = isset( $_POST['line_item_tax_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ) ), true ) : array();
+        $line_item_qtys         = buckaroo_request_sanitized_json('line_item_qtys');
+		$line_item_totals       = buckaroo_request_sanitized_json('line_item_totals');
+		$line_item_tax_totals   = buckaroo_request_sanitized_json('line_item_tax_totals');
 
         foreach ($items as $item) {
             if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
@@ -312,21 +311,18 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         if (!$this->validateDate($birthdate, 'd-m-Y') && in_array($country, ['NL', 'BE'])) {
             wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
         }
-        if(!in_array($this->request('buckaroo-afterpaynew-gender'), ["1","2"])) {
-            wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
-        }
 
         if ($this->request("buckaroo-afterpaynew-accept") === null) {
             wc_add_notice(__("Please accept licence agreements", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
-        $b2b = $this->request('buckaroo-afterpaynew-b2b');
-        if ($b2b == 'ON') {
-            if ($this->request("buckaroo-afterpaynew-CompanyCOCRegistration") === null) {
-                wc_add_notice(__("Company registration number is required (KvK)", 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-            if ($this->request("buckaroo-afterpaynew-CompanyName") === null) {
-                wc_add_notice(__("Company name is required", 'wc-buckaroo-bpe-gateway'), 'error');
+        if (
+            self::CUSTOMER_TYPE_B2C !== $this->customer_type &&
+            $country === 'NL' &&
+            $this->request('billing_company') !== null
+        ) {
+            if ($this->request("buckaroo-afterpaynew-coc") === null) {
+                wc_add_notice(__("Company registration number is required", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
 
@@ -373,6 +369,16 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept            = 'TRUE';
+        $afterpay->CustomerType      = $this->customer_type;
+
+        if ($this->request("buckaroo-afterpaynew-IdentificationNumber") !== null) {
+            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-IdentificationNumber");
+        }
+
+        if ($this->request("buckaroo-afterpaynew-coc") !== null) {
+            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-coc");
+        }
+
         $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts);
 
         $afterpay->returnUrl = $this->notify_url;
@@ -400,13 +406,16 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     {
         /** @var BuckarooAfterPayNew */
         $method = $this->set_billing($method, $order_details);
-        $method->BillingGender    = $this->request('buckaroo-afterpaynew-gender');
         $method->BillingInitials  = $order_details->getInitials(
             $order_details->getBilling('first_name')
         );
         $method->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
         if (empty($method->BillingPhoneNumber)) {
             $method->BillingPhoneNumber =  $this->request("buckaroo-afterpaynew-phone");
+        }
+
+        if (strlen($order_details->getBilling('company'))) {
+            $method->BillingCompanyName = $order_details->getBilling('company');
         }
 
         return $method;
@@ -429,6 +438,10 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $method->ShippingInitials = $order_details->getInitials(
                 $order_details->getShipping('first_name')
             );
+
+            if (strlen($order_details->getShipping('company'))) {
+                $method->ShippingCompanyName = $order_details->getShipping('company');
+            }
         }
         return $method;
     }
@@ -454,19 +467,46 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         parent::init_form_fields();
         
         $this->form_fields['afterpaynewpayauthorize'] = array(
-            'title'       => __('AfterPay Pay or Capture', 'wc-buckaroo-bpe-gateway'),
+            'title'       => __('Riverty | AfterPay Pay or Capture', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('pay' => 'Pay', 'authorize' => 'Authorize'),
-            'default'     => 'pay');
+            'default'     => 'pay'
+        );
 
         $this->form_fields['sendimageinfo'] = array(
             'title'       => __('Send image info', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Image info will be sent to BPE gateway inside ImageUrl parameter', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('0' => 'No', '1' => 'Yes'),
-            'default'     => 'pay');
-
+            'default'     => 'pay',
+            'desc_tip'    => 'Product images are only shown when they are available in JPG or PNG format'
+        );
+        $this->form_fields['customer_type'] = array(
+            'title'       => __('Riverty | AfterPay customer type', 'wc-buckaroo-bpe-gateway'),
+            'type'        => 'select',
+            'description' => __('This setting determines whether you accept Riverty | AfterPay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.', 'wc-buckaroo-bpe-gateway'),
+            'options'     => array(
+                self::CUSTOMER_TYPE_BOTH => __('Both'),
+                self::CUSTOMER_TYPE_B2C => __('B2C (Business-to-consumer)'),
+                self::CUSTOMER_TYPE_B2B => __('B2B ((Business-to-Business)'),
+            ),
+            'default'     => self::CUSTOMER_TYPE_BOTH
+        );
+        $this->form_fields['b2b_min_value'] = array(
+            'title'             => __('Min order amount  for B2B', 'wc-buckaroo-bpe-gateway'),
+            'type'              => 'number',
+            'custom_attributes' => ['step' => '0.01'],
+            'description'       => __('The payment method shows only for orders with an order amount greater than the minimum amount.', 'wc-buckaroo-bpe-gateway'),
+            'default'           => '0',
+        );
+        $this->form_fields['b2b_max_value'] = array(
+            'title'             => __('Max order amount  for B2B', 'wc-buckaroo-bpe-gateway'),
+            'type'              => 'number',
+            'custom_attributes' => ['step' => '0.01'],
+            'description'       => __('The payment method shows only for orders with an order amount smaller than the maximum amount.', 'wc-buckaroo-bpe-gateway'),
+            'default'           => '0',
+        );
     }
 
     public function getProductImage($product) {
@@ -520,5 +560,39 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         }
         
         return $data;
+    }
+
+    /**
+     * Show payment if available
+     *
+     * @param float $cartTotal
+     *
+     * @return boolean
+     */
+    public function isAvailable(float $cartTotal)
+    {
+        if ($this->customer_type !== self::CUSTOMER_TYPE_B2B) {
+            return $this->isAvailableB2B($cartTotal);
+        }
+
+        return true;
+    }
+    /**
+     * Check if payment is available for b2b
+     *
+     * @param float $cartTotal
+     *
+     * @return boolean
+     */
+    public function isAvailableB2B(float $cartTotal)
+    {
+        $b2bMin = $this->get_option('b2b_min_value', 0);
+        $b2bMax = $this->get_option('b2b_max_value', 0);
+
+        if ($b2bMin == 0 && $b2bMax == 0) {
+            return true;
+        }
+        
+        return ($b2bMin > 0 && $cartTotal > $b2bMin) || ($b2bMax > 0 && $cartTotal < $b2bMax);
     }
 }

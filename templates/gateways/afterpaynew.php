@@ -15,9 +15,9 @@
 defined('ABSPATH') || exit;
 
 //set customer phone
-$customer_phone = $this->geCheckoutField('billing_phone');
+$customer_phone = $this->getScalarCheckoutField('billing_phone');
 
-$country = $this->geCheckoutField('billing_country');
+$country = $this->getScalarCheckoutField('billing_country');
 $country = !empty($country) ? $country : $this->country;
 
 ?>
@@ -43,7 +43,6 @@ $country = !empty($country) ? $country : $this->country;
     <?php }?>
 
     <?php if (in_array($country, ["BE", "NL"])) {
-        $this->getPaymentTemplate('partial_gender_field');
         $this->getPaymentTemplate('partial_birth_field');
         ?>
     <p class="form-row validate-required">
@@ -57,11 +56,29 @@ $country = !empty($country) ? $country : $this->country;
         class="input-tel"
         type="tel"
         autocomplete="off"
-        value="<?php echo $customer_phone; ?>">
+        value="<?php echo esc_html($customer_phone); ?>">
     </p>
     <?php }?>
 
-    <?php if (!empty($this->geCheckoutField('ship_to_different_address'))) {?>
+    <?php if ($country == "NL" && WC_Gateway_Buckaroo_Afterpaynew::CUSTOMER_TYPE_B2C !==  $this->customer_type) {?>
+    <p class="form-row form-row-wide validate-required">
+        <label for="buckaroo-afterpaynew-coc">
+            <?php echo esc_html_e('CoC-number:', 'wc-buckaroo-bpe-gateway') ?>
+            <span class="required">*</span>
+        </label>
+
+        <input 
+        id="buckaroo-afterpaynew-coc"
+        name="buckaroo-afterpaynew-coc"
+        class="input-text"
+        type="text"
+        maxlength="250"
+        autocomplete="off"
+        value="" />
+    </p>
+    <?php }?>
+
+    <?php if (!empty($this->getScalarCheckoutField('ship_to_different_address'))) {?>
     <input
     id="buckaroo-afterpaynew-shipping-differ"
     name="buckaroo-afterpaynew-shipping-differ"

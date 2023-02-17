@@ -25,6 +25,16 @@ class Buckaroo_Order_Details
     {
         $this->order = $order;
     }
+
+    /**
+     * Get woocommerce order
+     *
+     * @return WC_Order
+     */
+    public function get_order()
+    {
+        return $this->order;
+    }
     /**
      * Checks if WooCommerce Version 3 or greater is installed
      *
@@ -44,7 +54,7 @@ class Buckaroo_Order_Details
      */
     public function getBilling($field, $default = '')
     {
-        return $this->get("billing_".$field, $default);
+        return $this->get("billing_" . $field, $default);
     }
     /**
      * Get shipping info from order or billing info if shipping is empty
@@ -56,7 +66,7 @@ class Buckaroo_Order_Details
      */
     public function getShipping($field, $default = '')
     {
-        $value = $this->get("shipping_".$field);
+        $value = $this->get("shipping_" . $field);
         if (empty($value)) {
             $value = $this->getBilling($field, $default);
         }
@@ -70,7 +80,7 @@ class Buckaroo_Order_Details
     public function getBillingAddressComponents()
     {
         return $this->getAddressComponents(
-            $this->getBilling('address_1'). " " .$this->getBilling('address_2')
+            $this->getBilling('address_1') . " " . $this->getBilling('address_2')
         );
     }
     /**
@@ -81,7 +91,7 @@ class Buckaroo_Order_Details
     public function getShippingAddressComponents()
     {
         return $this->getAddressComponents(
-            $this->getShipping('address_1'). " " .$this->getShipping('address_2')
+            $this->getShipping('address_1') . " " . $this->getShipping('address_2')
         );
     }
     /**
@@ -193,5 +203,110 @@ class Buckaroo_Order_Details
         }
         return $ret;
     }
-    
+    /**
+     * Get articles
+     *
+     * @return Buckaroo_Order_Item[]
+     */
+    public function get_products()
+    {
+        return $this->formatOrderItems(
+            $this->order->get_items('line_item')
+        );
+    }
+    /**
+     * Get shipment
+     *
+     * @return Buckaroo_Order_Item[]
+     */
+    public function get_shipping_items()
+    {
+        return $this->formatOrderItems(
+            $this->order->get_items('shipping')
+        );
+    }
+
+    /**
+     * Get fees
+     *
+     * @return Buckaroo_Order_Item[]
+     */
+    public function get_fees()
+    {
+        return $this->formatOrderItems(
+            $this->order->get_items('fee')
+        );
+    }
+
+    /**
+     * Get items that can be captured
+     *
+     * @return Buckaroo_Order_Item[]
+     */
+    public function get_items_for_capture()
+    {
+        return array_merge(
+            $this->get_products(),
+            $this->get_shipping_items(),
+            $this->get_fees()
+        );
+    }
+    /**
+     * Format woocommerce order items
+     *
+     * @param array $items
+     *
+     * @return Buckaroo_Order_Item[]
+     */
+    private function formatOrderItems(array $items)
+    {
+        return array_map(
+            function ($item) {
+                return new Buckaroo_Order_Item($item, $this->order);
+            },
+            $items
+        );
+    }
+
+    /**
+     * Get order item by id
+     *
+     * @param integer $item_id
+     *
+     * @return Buckaroo_Order_Item|null
+     */
+    public function get_item(int $item_id)
+    {
+        $item = WC_Order_Factory::get_order_item($item_id);
+
+        if($item === false) {
+            return;
+        }
+        return new Buckaroo_Order_Item(
+            $item,
+            $this->order
+        );
+    }
+    public function update_meta(string $key, $value)
+    {
+        return update_post_meta($this->order->get_id(), $key, $value);
+    }
+    public function add_meta(string $key, $value, $unique = false)
+    {
+        return add_post_meta($this->order->get_id(), $key, $value, $unique);
+    }
+    public function get_meta(string $key, $single = false)
+    {
+        return get_post_meta($this->order->get_id(), $key, $single);
+    }
+
+    /**
+     * Get order currency
+     *
+     * @return string
+     */
+    public function get_currency()
+    {
+        return $this->order->get_currency();
+    }
 }

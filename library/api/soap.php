@@ -255,6 +255,13 @@
                     return;
                 }
                 
+                //Check if group key needs to be unset (BP-2238)
+                foreach ($TransactionRequest->Services->Service as $key => $service) {
+                    if($service->Name == 'afterpay') {
+                        $unsetGroupKey = true;
+                    }
+                }
+
                 $requestParameters = array();
                 foreach($this->_vars['customVars'][$name] as $fieldName => $value) {
                     if (
@@ -275,7 +282,7 @@
                                 $requestParameter = new RequestParameter();
                                 $requestParameter->Name = $fieldName;
                                 $requestParameter->Group = $val['group'];
-                                $requestParameter->GroupID = $k+1;
+                                $requestParameter->GroupID = (!$this->isArticleField($fieldName) && $unsetGroupKey) ? '' : $k+1;
                                 $requestParameter->_ = $val['value'];
                                 $requestParameters[] = $requestParameter;
                             }
@@ -287,7 +294,7 @@
                             if (empty($requestParameter->_) && $fieldName == 'StreetNumberAdditional') {
                                 foreach ($value as $fieldKey => $val) {
                                     $requestParameter->Group = $val['group'];
-                                    $requestParameter->GroupID = $fieldKey+1;
+                                    $requestParameter->GroupID = (!$this->isArticleField($fieldName) && $unsetGroupKey) ? '' : $fieldKey+1;
                                     $requestParameter->_ = $val['value'];
                                 }
                             }
@@ -368,6 +375,12 @@
                 }
                 
                 return array($response, $responseDomDOC, $requestDomDOC);
+            }
+
+            private function isArticleField($field) {
+                $articleFields = array('Description', 'Identifier', 'Quantity', 'GrossUnitprice', 'VatPercentage', 'Url', 'ImageUrl');
+
+                return in_array($field, $articleFields);
             }
         }
 

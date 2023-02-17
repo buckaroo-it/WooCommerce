@@ -18,10 +18,10 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     public function __construct()
     {
         $this->id                     = 'buckaroo_afterpay';
-        $this->title                  = 'AfterPay';
+        $this->title                  = 'Riverty | AfterPay';
         $this->has_fields             = false;
-        $this->method_title           = 'Buckaroo AfterPay';
-        $this->setIcon('24x24/afterpay.jpg', 'svg/AfterPay.svg');
+        $this->method_title           = 'Buckaroo Riverty | AfterPay';
+        $this->setIcon('afterpay.png', 'svg/AfterPay.svg');
         $this->setCountry();
 
         parent::__construct();
@@ -82,15 +82,15 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $itemsTotalAmount = 0;
 
         if ($line_item_qtys === null) {
-            $line_item_qtys = wc_clean(json_decode(stripslashes($_POST['line_item_qtys']), true));
+            $line_item_qtys = buckaroo_request_sanitized_json('line_item_qtys');
         }
 
         if ($line_item_totals === null) {
-            $line_item_totals = wc_clean(json_decode(stripslashes($_POST['line_item_totals']), true));
+            $line_item_totals = buckaroo_request_sanitized_json('line_item_totals');
         }
 
         if ($line_item_tax_totals === null) {
-            $line_item_tax_totals = wc_clean(json_decode(stripslashes($_POST['line_item_tax_totals']), true));
+            $line_item_tax_totals = buckaroo_request_sanitized_json('line_item_tax_totals');
         }
 
         $orderDataForChecking = $afterpay->getOrderRefundData();
@@ -153,12 +153,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
         $final_response = fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
 
-        if ($final_response === true) {
-            // Store the transaction_key together with refunded products, we need this for later refunding actions
-            $refund_data = json_encode(['OriginalTransactionKey' => $response->transactions, 'OriginalCaptureTransactionKey' => $afterpay->OriginalTransactionKey, 'products' => $products]);
-            add_post_meta($order_id, 'buckaroo_refund', $refund_data, false);
-        }
-
         return $final_response;
     }
 
@@ -196,9 +190,9 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $items            = $order->get_items();
         $itemsTotalAmount = 0;
         
-        $line_item_qtys         = isset( $_POST['line_item_qtys'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ) ), true ) : array();
-		$line_item_totals       = isset( $_POST['line_item_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ) ), true ) : array();
-		$line_item_tax_totals   = isset( $_POST['line_item_tax_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ) ), true ) : array();
+        $line_item_qtys         = buckaroo_request_sanitized_json('line_item_qtys');
+		$line_item_totals       = buckaroo_request_sanitized_json('line_item_totals');
+		$line_item_tax_totals   = buckaroo_request_sanitized_json('line_item_tax_totals');
 
         foreach ($items as $item) {
             if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
@@ -272,10 +266,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
         }
         
-        if(!in_array($this->request('buckaroo-afterpay-gender'), ["1","2"])) {
-            wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
-        }
-
         if ($this->request("buckaroo-afterpay-b2b") == 'ON') {
             if ($this->request("buckaroo-afterpay-CompanyCOCRegistration") === null) {
                 wc_add_notice(__("Company registration number is required (KvK)", 'wc-buckaroo-bpe-gateway'), 'error');
@@ -373,7 +363,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     {
         /** @var BuckarooAfterPay */
         $method = $this->set_billing($method, $order_details);
-        $method->BillingGender    = $this->request('buckaroo-afterpay-gender');
         $method->BillingInitials  = $order_details->getInitials(
             $order_details->getBilling('first_name')
         );
@@ -434,7 +423,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             'default'     => 'afterpaydigiaccept'];
 
         $this->form_fields['enable_bb'] = [
-            'title'       => __('Enable B2B option for AfterPay', 'wc-buckaroo-bpe-gateway'),
+            'title'       => __('Enable B2B option for Riverty | AfterPay', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Enables or disables possibility to pay using company credentials', 'wc-buckaroo-bpe-gateway'),
             'options'     => ['enable' => 'Enable', 'disable' => 'Disable'],

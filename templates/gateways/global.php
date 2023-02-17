@@ -19,3 +19,8 @@ if ($this->mode == 'test') {
     <p> <?php echo esc_html_e('TEST MODE', 'wc-buckaroo-bpe-gateway');?></p>
 <?php
 }
+if (strlen($this->description)) {
+    echo wp_kses_post(
+        wpautop(wptexturize($this->description)),
+        );
+}

@@ -3,26 +3,26 @@ import * as convert from './helpers/convert.js';
 export default class Woocommerce {
     constructor() {
         this.api_namespace = 'WC_Gateway_Buckaroo_applepay';
-        this.url = buckaroo_ajax_url;
+        this.url = buckaroo_global.ajax_url;
         if (this.url === undefined) {
             this.url = '/';
         }
     }
 
     getItems(country_code) {
-        if ($('.applepay-button-container').hasClass('is-detail-page')) {
+        if (jQuery('.applepay-button-container').hasClass('is-detail-page')) {
             const current_shown_product = this.getCurrentShownProduct();
 
             const send_data = {
                 'wc-api': `${this.api_namespace}-get-items-from-detail-page`,
                 product_id: current_shown_product.product_id,
                 variation_id: current_shown_product.variation_id,
-                quantity: $(".cart .quantity input").val() || 1,
+                quantity: jQuery(".cart .quantity input").val() || 1,
                 country_code: country_code,
             }
 
             var all_items = [];
-            $.ajax({
+            jQuery.ajax({
                     url: this.url,
                     data: send_data,
                     async: false,
@@ -43,7 +43,7 @@ export default class Woocommerce {
             return all_items;
         } else {
             var cart_items = [];
-            $.ajax({
+            jQuery.ajax({
                     url: this.url,
                     data: { 'wc-api': `${this.api_namespace}-get-items-from-cart` },
                     async: false,
@@ -67,13 +67,13 @@ export default class Woocommerce {
 
     getShippingMethods(country_code) {
         const product_params = (() => {
-            if ($('.applepay-button-container').hasClass('is-detail-page')) {
+            if (jQuery('.applepay-button-container').hasClass('is-detail-page')) {
                 const current_shown_product = this.getCurrentShownProduct();
 
                 return {
                     product_id: current_shown_product.product_id,
                     variation_id: current_shown_product.variation_id,
-                    quantity: $(".cart .quantity input").val() || 1,
+                    quantity: jQuery(".cart .quantity input").val() || 1,
                 }
             }
             return {};
@@ -85,7 +85,7 @@ export default class Woocommerce {
         }
 
         var methods;
-        $.ajax({
+        jQuery.ajax({
                 url: this.url,
                 data: Object.assign(default_params, product_params),
                 dataType: "json",
@@ -98,7 +98,7 @@ export default class Woocommerce {
 
     getStoreInformation() {
         var information = [];
-        $.ajax({
+        jQuery.ajax({
                 url: this.url,
                 data: { 'wc-api': `${this.api_namespace}-get-shop-information` },
                 async: false,
@@ -110,14 +110,14 @@ export default class Woocommerce {
     }
 
     getCurrentShownProduct() {
-        const product_id = $('[name="add-to-cart"]').val();
+        const product_id = jQuery('[name="add-to-cart"]').val();
 
         const variation_id = (() => {
-            if ($('[name="variation_id"]')[0] &&
-                $('[name="variation_id"]').val() != 0 &&
-                $('[name="variation_id"]')[0] != ''
+            if (jQuery('[name="variation_id"]')[0] &&
+                jQuery('[name="variation_id"]').val() != 0 &&
+                jQuery('[name="variation_id"]')[0] != ''
             ) {
-                return $('[name="variation_id"]').val();
+                return jQuery('[name="variation_id"]').val();
             }
             return product_id;
         })();
@@ -135,15 +135,15 @@ export default class Woocommerce {
       </div>
     `;
 
-        $('.woocommerce-notices-wrapper').first().prepend(content);
-        $('html, body').scrollTop(0);
+        jQuery('.woocommerce-notices-wrapper').first().prepend(content);
+        jQuery('html, body').scrollTop(0);
     }
 
     canOrderAmount() {
-        if ($(".checkout.woocommerce-checkout").length) return true;
+        if (jQuery(".checkout.woocommerce-checkout").length) return true;
 
-        const current_amount = parseInt($(".cart .quantity input.qty").val());
-        const max_amount = parseInt($(".cart .quantity input.qty").attr('max'));
+        const current_amount = parseInt(jQuery(".cart .quantity input.qty").val());
+        const max_amount = parseInt(jQuery(".cart .quantity input.qty").attr('max'));
         if (isNaN(max_amount)) {
             return current_amount > 0;
         } else {

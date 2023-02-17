@@ -32,12 +32,20 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     public $real_order_id;
     protected $data = array();
 
+    protected $requestType = 'TransactionRequest';
+
+    public const REQUEST_TYPE_DATA_REQUEST = 'DataRequest';
     /**
      * @param mixed $type
      */
     public function setType($type)
     {
         $this->type = $type;
+    }
+
+    public function setRequestType(string $type)
+    {
+        $this->requestType = $type;
     }
 
     /**
@@ -423,7 +431,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     {
         $this->setMainParametersForRequestType($type);
         return BuckarooResponseFactory::getResponse(
-            (new BuckarooSoap($this->data))->transactionRequest()
+            (new BuckarooSoap($this->data))->transactionRequest($this->requestType)
         );
     }
 
@@ -564,16 +572,16 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         $orderRefundData = [];
 
         if ($line_item_qtys === null) {
-            $line_item_qtys = isset( $_POST['line_item_qtys'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_qtys'] ) ), true ) : array();
+            $line_item_qtys = buckaroo_request_sanitized_json('line_item_qtys');
         }
         
         
         if ($line_item_totals === null) {
-            $line_item_totals = isset( $_POST['line_item_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_totals'] ) ), true ) : array();
+            $line_item_totals = buckaroo_request_sanitized_json('line_item_totals');
         }
         
         if ($line_item_tax_totals === null) {
-            $line_item_tax_totals  = isset( $_POST['line_item_tax_totals'] ) ? json_decode( sanitize_text_field( wp_unslash( $_POST['line_item_tax_totals'] ) ), true ) : array();
+            $line_item_tax_totals  = buckaroo_request_sanitized_json('line_item_tax_totals');
         }
 
         foreach ($line_item_totals as $key => $value) {
@@ -630,30 +638,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
      */
     private function getInvoiceNumber()
     {
-
-        if (in_array(strtolower($this->type), ['sepadirectdebit'])) {
-            return $this->invoiceId;
-        }
-
-        return $this->invoiceId . '-R' . $this->getInvoiceIncrement();
-    }
-
-    /**
-     * Get incremental invoice number for refund
-     *
-     * @return string
-     */
-    private function getInvoiceIncrement()
-    {
-        if (in_array($this->type, ['afterpay', 'afterpayacceptgiro', 'afterpaydigiaccept'])) {
-            if (
-                ($previous_refunds = get_post_meta($this->getRealOrderId(), 'buckaroo_refund', false)) &&
-                count($previous_refunds) > 0
-            ) {
-                return count($previous_refunds) + 1;
-            }
-        }
-        return '';
+        return $this->invoiceId;
     }
 
     public function order_number_shortcode()

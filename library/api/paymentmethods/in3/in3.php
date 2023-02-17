@@ -6,7 +6,6 @@ require_once dirname(__FILE__) . '/../paymentmethod.php';
  */
 class BuckarooIn3 extends BuckarooPaymentMethod
 {
-    public $BillingGender;
     public $BillingInitials;
     public $BillingLastName;
     public $BillingBirthDate;
@@ -67,7 +66,6 @@ class BuckarooIn3 extends BuckarooPaymentMethod
                 "LastName" => $this->BillingLastName,
                 "Culture" =>  'nl-NL',
                 "Initials" => $this->BillingInitials,
-                "Gender" => $this->BillingGender,
                 "BirthDate" => $this->BillingBirthDate
             ],
             null,

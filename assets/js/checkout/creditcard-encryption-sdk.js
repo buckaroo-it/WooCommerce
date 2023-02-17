@@ -272,3 +272,5 @@ var BuckarooClientSideEncryption;
     })(V001 = BuckarooClientSideEncryption.V001 || (BuckarooClientSideEncryption.V001 = {}));
 })(BuckarooClientSideEncryption || (BuckarooClientSideEncryption = {}));
 // sourceMappingURL=ClientSideEncryption001.js.map
+
+export default BuckarooClientSideEncryption;
