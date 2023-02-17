@@ -783,6 +783,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $payment->amountCredit = 0;
         $payment->invoiceId = (string)getUniqInvoiceId($order->get_order_number());
         $payment->orderId = (string)$order->get_id();
+        $payment->real_order_id = $order->get_id();
         $payment->description = $this->getParsedLabel($order);
         $payment->returnUrl = $this->notify_url;
         $payment->mode = $this->mode;
