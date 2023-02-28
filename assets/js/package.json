@@ -1,11 +1,11 @@
 {
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
-   },
+    "build": "webpack --mode production",
+    "serve": "webpack --mode development --watch"
+  },
   "devDependencies": {
-    "webpack-cli": "^4.10.0"
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.11.1"
   }
 }
-
-
