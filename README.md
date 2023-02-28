@@ -24,7 +24,7 @@ The Buckaroo WooCommerce Payments Plugin ([Dutch](https://support.buckaroo.nl/ca
 To use the Buckaroo plugin, please be aware of the following minimum requirements:
 - A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
 - WordPress 4.4.10 up to 6.0.2
-- WooCommerce 5.0 up to 6.8.2
+- WooCommerce 5.0 up to 7.4.0
 - PHP 7.4 , 8.0 , 8.1
 
 ### Quick installation
