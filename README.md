@@ -3,6 +3,8 @@
 </p>
 
 # Buckaroo WooCommerce Payments Plugin
+[![Latest release](https://badgen.net/github/release/buckaroo-it/WooCommerce)](https://github.com/buckaroo-it/WooCommerce/releases)
+
 ### Index
 - [About](#about)
 - [Requirements](#requirements)
