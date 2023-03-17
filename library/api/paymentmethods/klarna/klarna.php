@@ -150,13 +150,15 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
                     "Quantity"=> $p["ArticleQuantity"],
                     "GrossUnitprice"=> $p["ArticleUnitprice"],
                     "VatPercentage"=> isset($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0,
-                    "Url"=> $p["ProductUrl"]
             ];
             
             if (!empty($p['ImageUrl'])) {
                 $vars["ImageUrl"] = $p["ImageUrl"];
             }
 
+            if (!empty($p['ProductUrl'])) {
+                $vars["Url"] = $p["ProductUrl"];
+            }
 
             $this->setCustomVarsAtPosition($vars, $pos, 'Article');
         }
