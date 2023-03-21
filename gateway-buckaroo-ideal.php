@@ -9,6 +9,7 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo
 {
 
     const PAYMENT_CLASS = BuckarooIDeal::class;
+    use WC_Buckaroo_Subscriptions_Trait;
     function __construct()
     {
         $this->id = 'buckaroo_ideal';
@@ -19,6 +20,7 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo
 
         parent::__construct();
         $this->addRefundSupport();
+        $this->addSubscriptionsSupport();
     }
     /**
      * Can the order be refunded
@@ -64,7 +66,11 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo
         /** @var BuckarooIDeal */
         $ideal = $this->createDebitRequest($order);
         $ideal->issuer = $this->request('buckaroo-ideal-issuer');
-        $response = $ideal->Pay();
-        return fn_buckaroo_process_response($this, $response);
+        if($this->is_subscriptions_enabled() && $this->has_subscription($order_id)){
+            return apply_filters('buckaroo_subscriptions', $order_id, $ideal, 'ideal');
+        }else{
+            $response = $ideal->Pay();
+            return fn_buckaroo_process_response($this, $response);
+        }
     }
 }

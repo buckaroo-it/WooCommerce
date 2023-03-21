@@ -8,6 +8,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/sofortbanking/sofo
 class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo
 {
     const PAYMENT_CLASS = BuckarooSofortbanking::class;
+    use WC_Buckaroo_Subscriptions_Trait;
     public function __construct()
     {
         $this->id                     = 'buckaroo_sofortueberweisung';
@@ -19,7 +20,7 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo
         $this->migrateOldSettings('woocommerce_buckaroo_sofortbanking_settings');
         parent::__construct();
         $this->addRefundSupport();
-
+        $this->addSubscriptionsSupport();
     }
 
     /**
@@ -45,9 +46,12 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooSofortbanking */
         $sofortbanking = $this->createDebitRequest($order);
-        $response = $sofortbanking->Pay();
-
-        return fn_buckaroo_process_response($this, $response);
+        if($this->is_subscriptions_enabled() && $this->has_subscription($order_id)){
+            return apply_filters('buckaroo_subscriptions', $order_id, $sofortbanking, 'sofortueberweisung');
+        }else{
+            $response = $sofortbanking->Pay();
+            return fn_buckaroo_process_response($this, $response);
+        }
     }
 
 }

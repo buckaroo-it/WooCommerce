@@ -8,6 +8,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/mistercash/misterc
 class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
 {
     const PAYMENT_CLASS = BuckarooMisterCash::class;
+    use WC_Buckaroo_Subscriptions_Trait;
     public function __construct()
     {
         $this->id                     = 'buckaroo_bancontactmrcash';
@@ -44,7 +45,11 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooMisterCash */
         $mistercash = $this->createDebitRequest($order);
-        $response = $mistercash->Pay();
-        return fn_buckaroo_process_response($this, $response);
+        if($this->is_subscriptions_enabled() && $this->has_subscription($order_id)){
+            return apply_filters('buckaroo_subscriptions', $order_id, $mistercash, 'bancontactmrcash');
+        }else{
+            $response = $mistercash->Pay();
+            return fn_buckaroo_process_response($this, $response);
+        }
     }
 }
