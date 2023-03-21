@@ -1181,92 +1181,111 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         return number_format($taxRate['rate'], 2);
     }
 
-    public function getProductsInfo($order, $amountDedit, $shippingCosts){
-        $products                    = array();
-        $items                       = $order->get_items();
-        $itemsTotalAmount            = 0;
 
-        //Loop trough products
-        foreach ($items as $item) {
-            $tmp = [];
-            $product   = new WC_Product($item['product_id']);
-            //Product details
-            $tmp['ArticleDescription'] = $item['name'];
-            $tmp['ArticleId'] = $item['product_id'];
-            $tmp['ArticleQuantity'] = $item['qty'];
+    /**
+     * Get all the products from order for a payment
+     *
+     * @param Buckaroo_Order_Details $order_details
+     *
+     * @return array
+     */
+    public function get_products_for_payment(
+        Buckaroo_Order_Details $order_details
+    ): array
+    {
 
-            //Get payment method product specific
-            if (method_exists($this, 'getProductSpecific')) {
-                $productArr = $this->getProductSpecific($product, $item, $tmp);
-                $tmp = $productArr['product_tmp'];
-                $itemsTotalAmount += $productArr['product_itemsTotalAmount'];
-            }
+        $products = array_map(
+            function(Buckaroo_Order_Item $item) {
+                return $this->get_product_data($item);
+            },
+            array_merge(
+                $order_details->get_products(),
+                $order_details->get_shipping_items(),
+                $order_details->get_fees()
+            )
+        );
 
-            $tmp['ArticleVatcategory'] = $this->getProductTaxRate($item);
+        $productDiff = $this->get_product_with_diffrences($products, $order_details->get_order()->get_total());
 
-            if ($this->productQtyLoop) {                
-                for ($i = 0; $item['qty'] > $i; $i++) {
-                    $products[] = $tmp;
-                }
-            } else { 
-                $products[] = $tmp;
-            }
-            
-        }
-        
-        $fees = $order->get_fees();
-        foreach ($fees as $key => $item) {
-            $tmp = [];
-            $tmp['ArticleDescription'] = $item['name'];
-            $tmp['ArticleId']          = $key;
-            $tmp['ArticleQuantity']    = 1;
-            $tmp['ArticleUnitprice']   = number_format(($item['line_total'] + $item['line_tax']), 2);
-            $tmp['ArticleVatcategory'] = $this->getProductTaxRate($product);
-
-            //Payment method fee specific
-            if (method_exists($this, 'getFeeSpecific')) {
-                $feeArr = $this->getFeeSpecific($item, $tmp, $fees[$key]);
-                $tmp = $feeArr['product_tmp'];
-            }
-
-            if (isset($feeArr['product_itemsTotalAmount'])) {
-                $itemsTotalAmount += $feeArr['product_itemsTotalAmount'];
-            } else {
-                $itemsTotalAmount += $tmp['ArticleUnitprice'];
-            }         
-
-            $products[] = $tmp;
-        }
-
-        if (!empty($shippingCosts)) {
-            $itemsTotalAmount += $shippingCosts;
-        }
-
-        if ($amountDedit != $itemsTotalAmount) {
-
-            $tmp['ArticleDescription'] = 'Remaining Price';
-            $tmp['ArticleId']          = 'remaining_price';
-            $tmp['ArticleQuantity']    = 1;
-            $tmp['ArticleUnitprice']   = number_format($amountDedit - $itemsTotalAmount, 2);
-            $tmp['ArticleVatcategory'] = 0;
-
-            if (number_format($amountDedit - $itemsTotalAmount, 2) >= 0.01) {
-                $diffMode = 1;
-            } elseif (number_format($itemsTotalAmount - $amountDedit, 2) >= 0.01) {
-                $diffMode = 2;
-            }
-
-            if ($diffMode) {
-                //Payment method remaining price specific
-                if (method_exists($this, 'getRemainingPriceSpecific')) {
-                    $feeArr = $this->getRemainingPriceSpecific($diffMode, $amountDedit, $itemsTotalAmount, $tmp);
-                    $tmp = $feeArr['product_tmp'];
-                }
-                $products[] = $tmp;
-            }
-            
+        if(is_array($productDiff)) {
+            $products[] = $productDiff;
         }
         return $products;
+    }
+
+    /**
+     * Get formated product data
+     *
+     * @param Buckaroo_Order_Item $item
+     *
+     * @return array
+     */
+    public function get_product_data(Buckaroo_Order_Item $item)
+    {
+        $product = [
+            'identifier' => $item->get_id(),
+            'description' => $item->get_title(),
+            'price' => round($item->get_unit_price(), 2),
+            'quantity' => $item->get_quantity(),
+            'vatPercentage' => $item->get_vat()
+        ];
+
+        if($this->get_option('vattype') !== null) {
+            $product['vatCategory'] = $this->get_option('vattype');
+        }
+        return $product;
+    }
+
+    /**
+     * Get any rounding errors between the final amount and the sum of the products
+     *
+     * @param array $products
+     * @param float $total_order_amount
+     *
+     * @return array|null
+     */
+    protected function get_product_with_diffrences(array $products, float $total_order_amount)
+    {
+        $product_amount =$this->sum_products_amount($products);
+        
+        $diffAmount = round(round($total_order_amount, 2) - $product_amount, 2);
+
+        if(abs($diffAmount) >= 0.01) {
+            $product = [
+                'identifier' => 'rounding_errors',
+                'description' => 'Rounding errors',
+                'price' => $diffAmount,
+                'quantity' => 1,
+                'vatPercentage' => 0
+            ];
+
+            if($this->get_option('vattype') !== null) {
+                $product['vatCategory'] = $this->get_option('vattype');
+            }
+            return $product;
+        }
+    }
+
+    /**
+     * Sum all products amounts
+     *
+     * @param array $products
+     *
+     * @return float
+     */
+    protected function sum_products_amount(array $products)
+    {
+        return array_reduce(
+            $products,
+            function ($carier, $product) {
+                if (isset($product['price']) && isset($product['quantity'])) {
+                    return $carier + ($product['price'] * $product['quantity']);
+                }
+                return $carier;
+            },
+            0
+        );
+
     }
 
     public function formatStreet($street)

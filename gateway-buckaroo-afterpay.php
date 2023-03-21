@@ -307,8 +307,8 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             $this->request('buckaroo-afterpay-birthdate')
         );
         
-        $shippingCosts    = $order->get_total_shipping();
-        $shippingCostsTax = $order->get_shipping_tax();
+        $shippingCosts    = $order->get_shipping_total('edit');
+        $shippingCostsTax = (float)$order->get_shipping_tax('edit');
         if (floatval($shippingCosts) > 0) {
             $afterpay->ShippingCosts = number_format($shippingCosts, 2) + number_format($shippingCostsTax, 2);
         }
@@ -331,7 +331,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
         $afterpay->CustomerIPAddress = getClientIpBuckaroo();
         $afterpay->Accept            = 'TRUE';
-        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts);
 
         $afterpay->returnUrl = $this->notify_url;
 
@@ -342,7 +341,10 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             update_post_meta($order_id, '_wc_order_authorized', 'yes');
         }
 
-        $response = $afterpay->PayOrAuthorizeAfterpay($products, $action);
+        $response = $afterpay->PayOrAuthorizeAfterpay(
+            $this->get_products_for_payment($order_details),
+            $action
+        );
 
         // Save the original tranaction ID from the authorize or capture, we need it to do the refund
         // JM REMOVE???
@@ -447,48 +449,5 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             'description' => __('Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway'),
             'options'     => ['pay' => 'Pay', 'authorize' => 'Authorize'],
             'default'     => 'pay'];
-    }
-
-    /**
-     * Get VAT type from settings page
-     *
-     * @param mixed $product
-     *
-     * @return string
-     */
-    public function getProductTaxRate($product) {
-        if ($product instanceof WC_Order_Item_Product) {
-            $product = new WC_Product($product->get_product_id());
-        }
-
-        $tax_class = $product->get_attribute("vat_category");
-        
-        if (empty($tax_class)) {
-            $tax_class = $this->vattype;
-        }
-        
-        return $tax_class;
-    }
-
-    public function getProductSpecific($product, $item, $tmp) {
-        //Product
-        $data['product_tmp'] = $tmp;
-        $data['product_tmp']['ArticleUnitprice']   = number_format(number_format($item['line_total'] + $item['line_tax'], 4) / $item['qty'], 2);
-        $data['product_tmp']['ArticleQuantity'] = 1;
-        $data['product_itemsTotalAmount'] = $data['product_tmp']['ArticleUnitprice'] * $item['qty'];
-
-        return $data;
-    }
-    public function getFeeSpecific($item, $tmp, $fee){
-        $data['product_tmp'] = $tmp;
-        $data['product_tmp']['ArticleVatcategory'] = '4';
-
-        return $data;
-    }
-    public function getRemainingPriceSpecific($mode, $amountDedit, $itemsTotalAmount, $tmp) { 
-        $data['product_tmp'] = $tmp;
-        $data['product_tmp']['ArticleVatcategory'] =  4;
-
-        return $data;
     }
 }
