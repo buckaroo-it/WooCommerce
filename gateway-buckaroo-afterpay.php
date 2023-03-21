@@ -430,9 +430,9 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             'default'     => 'disable'];
 
         $this->form_fields['vattype'] = [
-            'title'       => __('Default product Vat type', 'wc-buckaroo-bpe-gateway'),
+            'title'       => __('Default product VAT type', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
-            'description' => __('Please select default vat type for your products', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Please select the default VAT type for your products', 'wc-buckaroo-bpe-gateway'),
             'options'     => [
                 '1' => '1 = High rate',
                 '2' => '2 = Low rate',

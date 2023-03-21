@@ -388,7 +388,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         $this->form_fields['creditcardmethod'] = array(
             'title'       => __('Credit card method', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
-            'description' => __('Redirect user to Buckaroo or enter creditcard information inline in the checkout. SSL is required to enable inline creditcard information', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Redirect user to Buckaroo or enter creditcard information inline in the checkout. SSL is required to enable inline creditcard information.', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('redirect' => 'Redirect', 'encrypt' => 'Inline'),
             'default'     => 'encrypt',
             'desc_tip'    =>__('Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.', 'wc-buckaroo-bpe-gateway'),
@@ -416,7 +416,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
                     'visaelectron'   => 'Visa Electron',
                     'vpay'           => 'Vpay'
                 ),
-                'description' => __('select which Creditecard providers  will be appear to customer', 'wc-buckaroo-bpe-gateway'),
+                'description' => __('Select which Creditcard providers  will be visible to customer', 'wc-buckaroo-bpe-gateway'),
                 'default'     => array(
                     'amex',
                     'cartebancaire',
