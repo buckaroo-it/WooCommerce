@@ -25,7 +25,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
     public $statusmessage;
     public $message;
     public $brq_ordernumber;
-    public $add_order_id;
+    public $real_order_id;
     public $invoice;
     public $invoicenumber;
     public $amount_credit;
@@ -257,6 +257,38 @@ abstract class BuckarooResponse extends BuckarooAbstract
             $this->ParameterError = $this->_response->RequestErrors->ParameterError;
         }
 
+        $real_order_id = $this->get_additional_parameter_by_name('real_order_id');
+        
+        if ($real_order_id !== null) {
+           $this->real_order_id = $real_order_id;
+        }
+       
+
+    }
+
+    /**
+     * Get real order id from soap
+     *
+     * @param string $key
+     *
+     * @return void
+     */
+    public function get_additional_parameter_by_name(string $key)
+    {
+        if (
+            !isset($this->_response->AdditionalParameters->AdditionalParameter) ||
+            !is_array($this->_response->AdditionalParameters->AdditionalParameter)
+            ) {
+            return;
+        }
+        foreach ($this->_response->AdditionalParameters->AdditionalParameter as $parameter) {
+            if (
+                isset($parameter->Name) &&
+                $parameter->Name === $key
+            ) {
+                return $parameter->_;
+            }
+        }
     }
 
     abstract protected function _parseSoapResponseChild();
@@ -269,6 +301,25 @@ abstract class BuckarooResponse extends BuckarooAbstract
             return null;
         }
 
+    }
+
+    /**
+     * Get the real order id to use in capturing response and push requests
+     *
+     * @return void
+     */
+    private function getOrderId()
+    {
+       $orderId = $this->_setPostVariable('add_real_order_id');
+
+        if ($orderId === null) {
+            $orderId = $this->_setPostVariable('ADD_real_order_id');
+        }
+
+        if ($orderId === null) {
+            $orderId = $this->_setPostVariable('ADD_REAL_ORDER_ID');
+        }
+        return  $orderId;
     }
 
     private function _parsePostResponse()
@@ -289,7 +340,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
         $this->brq_service_idin_consumerbin          = $this->_setPostVariable('brq_service_idin_consumerbin');
         $this->brq_service_idin_iseighteenorolder    = $this->_setPostVariable('brq_service_idin_iseighteenorolder');
 
-        $this->add_order_id    = $this->_setPostVariable('add_order_id');
+        $this->real_order_id = $this->getOrderId();
         $this->brq_ordernumber = $this->_setPostVariable('brq_ordernumber');
         $this->invoice         = $this->_setPostVariable('brq_invoicenumber');
         $this->invoicenumber   = $this->_setPostVariable('brq_invoicenumber');

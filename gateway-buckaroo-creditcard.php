@@ -180,7 +180,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 
         $creditcard->setType(
             get_post_meta(
-                (int) str_replace('#', '', $order->get_order_number()),
+                 $order->get_id(),
                 '_payment_method_transaction',
                 true
             )

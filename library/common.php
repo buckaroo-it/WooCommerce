@@ -207,8 +207,8 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
     Buckaroo_Logger::log('Parse response:\n', $response);
     $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, 'test');
     $order_id                =
-        $response->add_order_id ?
-        $response->add_order_id :
+        $response->real_order_id ?
+        $response->real_order_id :
         ($response->brq_ordernumber ? $response->brq_ordernumber : $response->invoicenumber);
     Buckaroo_Logger::log(__METHOD__ . "|5|", $order_id);
 
@@ -343,7 +343,10 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     } else {
         $order_id = $response->brq_ordernumber;
     }
-
+    
+    if (is_int($response->real_order_id)) {
+        $order_id = $response->real_order_id;
+    }
     try {
         $order = new WC_Order($order_id);
         if ((int) $order_id > 0) {
@@ -580,7 +583,7 @@ function resetOrder()
                 $order->update_status('cancelled', __($response->statusmessage ?? '', 'wc-buckaroo-bpe-gateway'));
             } else {
                 $newOrder                             = wc_create_order($order);
-                WC()->session->order_awaiting_payment = $newOrder->get_order_number();
+                WC()->session->order_awaiting_payment = $newOrder->get_id();
             }
         }
     }
