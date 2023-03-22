@@ -246,6 +246,7 @@
             }
             
             protected function _addCustomFields(&$TransactionRequest, $key, $name) {
+                $unsetGroupKey = false;
                 if (
                     !isset($this->_vars['customVars']) 
                     || !isset($this->_vars['customVars'][$name])

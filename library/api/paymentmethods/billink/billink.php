@@ -28,7 +28,6 @@ class BuckarooBillink extends BuckarooPaymentMethod
     public $ShippingCountryCode;
     public $ShippingEmail;
     public $ShippingPhoneNumber;
-    public $ShippingCosts;
     public $CustomerIPAddress;
     public $Accept;
 
@@ -144,33 +143,13 @@ class BuckarooBillink extends BuckarooPaymentMethod
             $billing['BirthDate'] = $this->BillingBirthDate;
         }
 
-        $products = $this->PayOrAuthorizeCommon($products, $billing, $shipping);
+        $this->setCustomVarsAtPosition($billing, 0, 'BillingCustomer');
+        $this->setCustomVarsAtPosition($shipping, 1, 'ShippingCustomer');
 
-        foreach(array_values($products) as $pos => $p) {
-            $this->setCustomVarsAtPosition(
-                [
-                    "Description"=> $p["ArticleDescription"],
-                    "Identifier"=> $p["ArticleId"],
-                    "Quantity"=> $p["ArticleQuantity"],
-                    "GrossUnitPriceIncl"=> $p["ArticleUnitpriceIncl"],
-                    "VatPercentage"=> isset($p["ArticleVatcategory"]) ? intval($p["ArticleVatcategory"]) : 0,
-                ],
-                $pos,
-                'Article'
-            );
+        
+        foreach ($products as $pos => $product) {
+            $this->setDefaultProductParams($product, $pos);
         }
-
-        $this->setCustomVarsAtPosition(
-            [
-                "Description"=> 'Shipping Cost',
-                "Identifier"=> 'shipping',
-                "Quantity"=> 1,
-                "GrossUnitPriceIncl"=> (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0'),
-                "VatPercentage"=> (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0'),
-            ],
-            count($products),
-            'Article'
-        );
         return parent::Pay();
     }
     private function diffAddress($shippingField, $billingField)
@@ -179,5 +158,24 @@ class BuckarooBillink extends BuckarooPaymentMethod
             return $shippingField;
         }
         return $billingField;
+    }
+
+    private function setDefaultProductParams($product, $position)
+    {
+
+        $productData = [
+            'Description' => $product["description"],
+            'Identifier' => $product["identifier"],
+            'Quantity' => $product["quantity"],
+            'GrossUnitPriceIncl' => $product["price"],
+            'VatPercentage' => $product['vatPercentage'],
+
+        ];
+
+        $this->setCustomVarsAtPosition(
+            $productData,
+            $position,
+            'Article'
+        );
     }
 }

@@ -33,8 +33,6 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
     public $ShippingEmail;
     public $ShippingPhoneNumber;
     public $ShippingLanguage;
-    public $ShippingCosts;
-    public $ShippingCostsTax;
     public $CustomerIPAddress;
     public $Accept;
     public $BillingFirstName;
@@ -130,50 +128,8 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
         $this->setCustomVarsAtPosition($billing, 0, 'BillingCustomer');
         $this->setCustomVarsAtPosition($shipping, 1, 'ShippingCustomer');
 
-        // Merge products with same SKU
-
-        $mergedProducts = array();
-        foreach ($products as $product) {
-            if (! isset($mergedProducts[$product['ArticleId']])) {
-                $mergedProducts[$product['ArticleId']] = $product;
-            } else {
-                $mergedProducts[$product['ArticleId']]["ArticleQuantity"] += 1;
-            }
-        }
-
-        $products = $mergedProducts;
-
-        foreach(array_values($products) as $pos => $p) {
-            $vars = [
-                    "Description"=> $p["ArticleDescription"],
-                    "Identifier"=> $p["ArticleId"],
-                    "Quantity"=> $p["ArticleQuantity"],
-                    "GrossUnitprice"=> $p["ArticleUnitprice"],
-                    "VatPercentage"=> isset($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0,
-            ];
-            
-            if (!empty($p['ImageUrl'])) {
-                $vars["ImageUrl"] = $p["ImageUrl"];
-            }
-
-            if (!empty($p['ProductUrl'])) {
-                $vars["Url"] = $p["ProductUrl"];
-            }
-
-            $this->setCustomVarsAtPosition($vars, $pos, 'Article');
-        }
-        if (!empty($this->ShippingCosts)) {
-            $this->setCustomVarsAtPosition(
-                [
-                    "Description"=> 'Shipping Cost',
-                    "Identifier"=> 'shipping',
-                    "Quantity"=> 1,
-                    "GrossUnitprice"=> (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0'),
-                    "VatPercentage"=> (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0'),
-                ],
-                count($products),
-                'Article'
-            );
+        foreach ($products as $pos => $product) {
+            $this->setDefaultProductParams($product, $pos);
         }
 
         return parent::PayGlobal();
@@ -185,5 +141,32 @@ class BuckarooKlarna extends BuckarooPaymentMethod {
             return $shippingField;
         }
         return $billingField;
+    }
+
+    private function setDefaultProductParams($product, $position)
+    {
+
+        $productData = [
+            'Description' => $product["description"],
+            'Identifier' => $product["identifier"],
+            'Quantity' => $product["quantity"],
+            'GrossUnitprice' => $product["price"],
+            'VatPercentage' => $product['vatPercentage'],
+
+        ];
+
+        if (isset($product["url"]) && !empty(trim($product["url"]))) {
+            $productData['Url'] = $product["url"];
+        }
+
+        if (isset($product["imgUrl"]) && !empty($product["imgUrl"])) {
+            $productData['ImageUrl'] = $product["imgUrl"];
+        }
+
+        $this->setCustomVarsAtPosition(
+            $productData,
+            $position,
+            'Article'
+        );
     }
 }
