@@ -82,7 +82,7 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
             ),
             'BITSNL2A' => array(
                 'name' => 'Yoursafe',
-                'logo' => 'logo_lanschot_s.gif',
+                'logo' => 'YourSafe.png',
             ),
         );
         return $issuerArray;
