@@ -48,7 +48,7 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo
         $sofortbanking = $this->createDebitRequest($order);
         if($this->is_subscriptions_enabled() && $this->has_subscription($order_id)){
             if($this->is_not_trial_subscription( $order ))
-                return apply_filters('buckaroo_subscriptions', $order_id, $sofortbanking, 'sofortueberweisung');
+                return apply_filters('buckaroo_subscriptions', $order, $sofortbanking, 'sofortueberweisung');
         }else{
             $response = $sofortbanking->Pay();
             return fn_buckaroo_process_response($this, $response);
