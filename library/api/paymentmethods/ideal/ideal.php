@@ -25,7 +25,7 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
     public function Pay($customVars = array()) {
         $this->setCustomVar(
             'issuer',
-            $this->_getIssuer($this->issuer)
+            $this->issuer
         );
         return parent::Pay();
     }
@@ -36,97 +36,55 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
      */
     public static function getIssuerList() {
         $issuerArray = array(
-            'ABNAMRO' => array(
+            'ABNANL2A' => array(
                 'name' => 'ABN AMRO',
                 'logo' => 'logo_abn_s.gif',
             ),
-            'ASNBANK' => array(
+            'ASNBNL21' => array(
                 'name' => 'ASN Bank',
                 'logo' => 'logo_asn.gif',
             ),
-            'INGBANK' => array(
-                'name' => 'ING',
-                'logo' => 'logo_ing_s.gif',
-            ),
-            'RABOBANK' => array(
-                'name' => 'Rabobank',
-                'logo' => 'logo_rabo_s.gif',
-            ),
-            'SNSBANK' => array(
-                'name' => 'SNS Bank',
-                'logo' => 'logo_sns_s.gif',
-            ),
-            'SNSREGIO' => array(
-                'name' => 'RegioBank',
-                'logo' => 'regiobanklogo.png',
-            ),
-            'TRIODOS' => array(
-                'name' => 'Triodos Bank',
-                'logo' => 'logo_triodos.gif',
-            ),
-            'LANSCHOT' => array(
-                'name' => 'Van Lanschot',
-                'logo' => 'logo_lanschot_s.gif',
-            ),
-            'KNAB' => array(
-                'name' => 'Knab',
-                'logo' => 'logo_knab_s.gif',
-            ),
-            'BUNQ' => array(
+            'BUNQNL2A' => array(
                 'name' => 'bunq',
                 'logo' => 'logo_bunq.png',
             ),
-            'REVOLUT' => array(
+            'INGBNL2A' => array(
+                'name' => 'ING',
+                'logo' => 'logo_ing_s.gif',
+            ),
+            'KNABNL2H' => array(
+                'name' => 'Knab',
+                'logo' => 'logo_knab_s.gif',
+            ),
+            'RABONL2U' => array(
+                'name' => 'Rabobank',
+                'logo' => 'logo_rabo_s.gif',
+            ),
+            'RBRBNL21' => array(
+                'name' => 'RegioBank',
+                'logo' => 'regiobanklogo.png',
+            ),
+            'REVOLT21' => array(
                 'name' => 'Revolut',
                 'logo' => 'logo_revolutbanken.png',
             ),
+            'SNSBNL2A' => array(
+                'name' => 'SNS',
+                'logo' => 'logo_sns_s.gif',
+            ),
+            'TRIONL2U' => array(
+                'name' => 'Triodos Bank',
+                'logo' => 'logo_triodos.gif',
+            ),
+            'FVLBNL22' => array(
+                'name' => 'Van Lanschot',
+                'logo' => 'logo_lanschot_s.gif',
+            ),
+            'BITSNL2A' => array(
+                'name' => 'Yoursafe',
+                'logo' => 'logo_lanschot_s.gif',
+            ),
         );
         return $issuerArray;
-    }
-
-    /**
-     * @access public
-     * @param string $issuer
-     * @return array $issuerCode
-     */
-    protected function _getIssuer($issuer) {
-        $issuerCode = '';
-        switch ($issuer) {
-            case 'ABNAMRO':
-                $issuerCode = 'ABNANL2A';
-                break;
-            case 'ASNBANK':
-                $issuerCode = 'ASNBNL21';
-                break;
-            case 'INGBANK':
-                $issuerCode = 'INGBNL2A';
-                break;
-            case 'RABOBANK':
-                $issuerCode = 'RABONL2U';
-                break;
-            case 'SNSBANK':
-                $issuerCode = 'SNSBNL2A';
-                break;
-            case 'SNSREGIO':
-                $issuerCode = 'RBRBNL21';
-                break;
-            case 'TRIODOS':
-                $issuerCode = 'TRIONL2U';
-                break;
-            case 'LANSCHOT':
-                $issuerCode = 'FVLBNL22';
-                break;
-            case 'KNAB':
-                $issuerCode = 'KNABNL2H';
-                break;
-            case 'BUNQ':
-                $issuerCode = 'BUNQNL2A';
-                break;
-            case 'REVOLUT':
-                $issuerCode = 'REVOLT21';
-                break;
-        }
-
-        return $issuerCode;
     }
 }

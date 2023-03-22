@@ -46,7 +46,8 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
         /** @var BuckarooMisterCash */
         $mistercash = $this->createDebitRequest($order);
         if($this->is_subscriptions_enabled() && $this->has_subscription($order_id)){
-            return apply_filters('buckaroo_subscriptions', $order_id, $mistercash, 'bancontactmrcash');
+            if($this->is_not_trial_subscription( $order ))
+                return apply_filters('buckaroo_subscriptions', $order_id, $mistercash, 'bancontactmrcash');
         }else{
             $response = $mistercash->Pay();
             return fn_buckaroo_process_response($this, $response);
