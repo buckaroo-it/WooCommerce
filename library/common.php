@@ -360,6 +360,12 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 
     if ($response->isValid()) {
         
+        update_post_meta(
+            $order_id, 
+            '_buckaroo_order_in_test_mode',
+            $response->isTest() == true
+        );
+
         //Check if redirect required
         $checkIfRedirectRequired = fn_process_check_redirect_required($response, 'response', $payment_method, $order_id);
         if ($checkIfRedirectRequired){
