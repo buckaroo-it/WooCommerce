@@ -19,15 +19,11 @@ class BuckarooIn3 extends BuckarooPaymentMethod
     public $BillingPhoneNumber;
     public $BillingLanguage;
     public $IdentificationNumber;
-    public $ShippingCosts;
-    public $ShippingCostsTax;
     public $CustomerIPAddress;
     public $Accept;
     public $InvoiceDate;
-    public $CustomerType;
     public $cocNumber;
     public $companyName;
-    public $in3Version;
     public $orderId;
 
     /**
@@ -58,7 +54,7 @@ class BuckarooIn3 extends BuckarooPaymentMethod
     public function PayIn3($products, $action)
     {
         $this->setParameter("customParameters", ["order_id" => $this->getRealOrderId()]);
-        $this->setCustomVar("CustomerType", ["value" => $this->CustomerType]);
+        $this->setCustomVar("CustomerType", ["value" => "Debtor"]);
         $this->setCustomVar("InvoiceDate", ["value" => $this->InvoiceDate]);
 
         $this->setCustomVar(
@@ -87,70 +83,28 @@ class BuckarooIn3 extends BuckarooPaymentMethod
         $this->setCustomVar("Phone", $this->BillingPhoneNumber, 'Phone');
         $this->setCustomVar("Email", $this->BillingEmail, 'Email');
 
-        // Merge products with same SKU
-        $mergedProducts = array();
-        foreach ($products['product'] as $product) {
-            if (!isset($mergedProducts[$product['ArticleId']])) {
-                $mergedProducts[$product['ArticleId']] = $product;
-            } else {
-                $mergedProducts[$product['ArticleId']]["ArticleQuantity"] += 1;
-            }
+        foreach ($products as $pos => $product) {
+            $this->setDefaultProductParams($product, $pos);
         }
-
-        $products['product'] = $mergedProducts;
-
-        foreach (array_values($products['product']) as $pos => $p) {
-            $this->setCustomVarsAtPosition(
-                [
-                    "Name" => $p["ArticleDescription"],
-                    "Code" => $p["ArticleId"],
-                    "Quantity" => $p["ArticleQuantity"],
-                    "Price" =>$p["ArticleUnitprice"]
-                ],
-                $pos,
-                'ProductLine'
-            );
-        }
-        $i = count($products['product']);
-        if (!empty($products['fee'])) {
-
-            $this->setCustomVarsAtPosition(
-                [
-                    "Name"     => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
-                    "Code"     => $products['fee']["ArticleId"],
-                    "Quantity" => $products['fee']["ArticleQuantity"],
-                    "Price"    => $products['fee']["ArticleUnitprice"]
-                ],
-                $i,
-                'ProductLine'
-            );
-            $i++;
-        }
-
-        if (!empty($this->cocNumber)) {
-            $this->setCustomVar("ChamberOfCommerce", $this->cocNumber, 'Company');
-        }
-
-        if (!empty($this->companyName)) {
-            $this->setCustomVarAtPosition(
-                "Name", $this->companyName, $i, 'Company'
-            );
-            $i++;
-        }
-        $this->setCustomVarsAtPosition(
-            [
-                "Name"     => __('Shipping cost', 'wc-buckaroo-bpe-gateway'),
-                "Code"     => __('Shipping', 'wc-buckaroo-bpe-gateway'),
-                "Quantity" => '1',
-                "Price"    => (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0')
-            ],
-            $i,
-            'SubtotalLine'
-        );
-
-        $this->setCustomVar("IsInThreeGuarantee", $this->in3Version, '');
-
         return parent::$action();
+    }
+
+    private function setDefaultProductParams($product, $position)
+    {
+
+        $productData = [
+            'Name' => $product["description"],
+            'Code' => $product["identifier"],
+            'Quantity' => $product["quantity"],
+            'Price' => $product["price"],
+        ];
+
+        
+        $this->setCustomVarsAtPosition(
+            $productData,
+            $position,
+            'ProductLine'
+        );
     }
 
     /**
