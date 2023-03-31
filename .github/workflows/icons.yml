@@ -23,7 +23,7 @@ jobs:
         run: |
             cd Media
             cp -R "Payment methods/SVG/." ${{ github.workspace }}/library/buckaroo_images/svg/
-            cd ${{ github.workspace }}/library/buckaroo_images
+            cd ${{ github.workspace }}/library/buckaroo_images/svg/
             rm -f wechatpay.svg
             rm -f vouchers.svg
             rm -f trustly.svg
