@@ -19,7 +19,12 @@ class Buckaroo_Creditcard_Single extends WC_Gateway_Buckaroo_Creditcard
     /** @inheritDoc */
     public function setCreditcardIcon()
     {
-        $icon = "creditcards/".str_replace("buckaroo_creditcard_", "", $this->id).".svg";
+        $name = str_replace("buckaroo_creditcard_", "", $this->id);
+        if($name === 'cartebleuevisa') {
+            $name = 'cartebleue';
+        }
+        
+        $icon = "creditcards/{$name}.svg";
         $this->setIcon($icon, $icon);
     }
     /**

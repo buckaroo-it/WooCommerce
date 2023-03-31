@@ -14,7 +14,7 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
         $this->title                  = 'SEPA Direct Debit';
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo SEPA Direct Debit';
-        $this->setIcon('24x24/directdebit.png', 'svg/SEPAdirectdebit.svg');
+        $this->setIcon('24x24/directdebit.png', 'svg/sepa-directdebit.svg');
 
         parent::__construct();
         $this->addRefundSupport();
