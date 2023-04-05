@@ -8,6 +8,7 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/kbc/kbc.php';
 class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo
 {
     const PAYMENT_CLASS = BuckarooKBC::class;
+    use WC_Buckaroo_Subscriptions_Trait;
     public function __construct()
     {
         $this->id                     = 'buckaroo_kbc';
@@ -15,9 +16,9 @@ class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo KBC";
         $this->setIcon('24x24/kbc.png', 'svg/KBC.svg');
-        
-        parent::__construct();
         $this->addRefundSupport();
+        $this->addSubscriptionsSupport();
+        parent::__construct();
     }
 
     /**
@@ -44,7 +45,13 @@ class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooKBC */
         $kbc = $this->createDebitRequest($order);
-        $response = $kbc->Pay();
-        return fn_buckaroo_process_response($this, $response);
+
+        if($this->is_subscriptions_enabled() && $this->has_subscription($order_id)){
+            if($this->is_not_trial_subscription( $order ))
+                return apply_filters('buckaroo_subscriptions', $order, $kbc);
+        }else{
+            $response = $kbc->Pay();
+            return fn_buckaroo_process_response($this, $response);
+        }
     }
 }

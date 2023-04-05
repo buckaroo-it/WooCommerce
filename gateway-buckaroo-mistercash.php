@@ -17,9 +17,9 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
         $this->method_title           = 'Buckaroo Bancontact';
         $this->setIcon('24x24/mistercash.png', 'svg/Bancontact.svg');
         $this->migrateOldSettings('woocommerce_buckaroo_mistercash_settings');
-
-        parent::__construct();
         $this->addRefundSupport();
+        $this->addSubscriptionsSupport();
+        parent::__construct();
     }
 
     /**
@@ -47,7 +47,7 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
         $mistercash = $this->createDebitRequest($order);
         if($this->is_subscriptions_enabled() && $this->has_subscription($order_id)){
             if($this->is_not_trial_subscription( $order ))
-                return apply_filters('buckaroo_subscriptions', $order, $mistercash, 'bancontactmrcash');
+                return apply_filters('buckaroo_subscriptions', $order, $mistercash);
         }else{
             $response = $mistercash->Pay();
             return fn_buckaroo_process_response($this, $response);
