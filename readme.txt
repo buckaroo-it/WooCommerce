@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 7.5.1
-Stable tag: 3.6.0
+Tested up to: 6.2
+Stable tag: 3.6.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,8 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 
 == Changelog ==
 
+= 3.6.1 =
+- Fix Tested up to tag to correct wp version
 = 3.6.0 =
 - Fix Klarna gender values [BP-2112]
 - Fatal error: Unsupported operand types: string + int (PHP 8.0) [BP-2126]
