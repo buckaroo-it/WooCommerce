@@ -3,7 +3,7 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 7.4
+Tested up to: 7.5.1
 Stable tag: 3.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
