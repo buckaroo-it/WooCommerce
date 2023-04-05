@@ -3,6 +3,8 @@
 </p>
 
 # Buckaroo WooCommerce Payments Plugin
+[![Latest release](https://badgen.net/github/release/buckaroo-it/WooCommerce)](https://github.com/buckaroo-it/WooCommerce/releases)
+
 ### Index
 - [About](#about)
 - [Requirements](#requirements)
@@ -24,7 +26,7 @@ The Buckaroo WooCommerce Payments Plugin ([Dutch](https://support.buckaroo.nl/ca
 To use the Buckaroo plugin, please be aware of the following minimum requirements:
 - A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
 - WordPress 4.4.10 up to 6.0.2
-- WooCommerce 5.0 up to 6.8.2
+- WooCommerce 5.0 up to 7.5.1
 - PHP 7.4 , 8.0 , 8.1
 
 ### Quick installation
@@ -44,7 +46,7 @@ To use the Buckaroo plugin, please be aware of the following minimum requirement
 
 ### Configuration
 
-For the configuration of the plugin, please refer to our [Dutch](https://support.buckaroo.nl/categorieen/plugins/woocommerce) or [English](https://support.buckaroo.eu/categories/plugins/woocommerce) support website. You'll find all the needed information there.
+For the configuration of the plugin, please refer to our [Dutch](https://docs.buckaroo.io/docs/nl/woocommerce-configuratie) or [English](https://docs.buckaroo.io/docs/woocommerce-configuration) support website. You'll find all the needed information there.
 You can also contact our [technical support department](mailto:support@buckaroo.nl) if you still have some unanswered questions.
 
 ### Contribute
@@ -62,8 +64,8 @@ If you want to contribute as well, then please follow our [Contribution Guidelin
 - **PATCHES:** Bug and hotfixes only.
 
 ### Additional information
-- **Knowledge base & FAQ:** Available in [Dutch](https://support.buckaroo.nl/categorieen/plugins/woocommerce) or [English](https://support.buckaroo.eu/categories/plugins/woocommerce).
-- **Support:** https://support.buckaroo.eu/contact
+- **Knowledge base & FAQ:** Available in [Dutch](https://docs.buckaroo.io/docs/nl/woocommerce) or [English](https://docs.buckaroo.io/docs/woocommerce).
+- **Support:** https://docs.buckaroo.io
 - **Contact:** [support@buckaroo.nl](mailto:support@buckaroo.nl) or [+31 (0)30 711 50 50](tel:+310307115050)
 
 <b>Please note:</b><br>

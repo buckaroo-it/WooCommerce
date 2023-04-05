@@ -207,12 +207,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         $final_response = fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
 
-        if ($final_response === true) {
-            // Store the transaction_key together with refunded products, we need this for later refunding actions
-            $refund_data = json_encode(['OriginalTransactionKey' => $response->transactions, 'OriginalCaptureTransactionKey' => $afterpay->OriginalTransactionKey, 'products' => $products]);
-            add_post_meta($order_id, 'buckaroo_refund', $refund_data, false);
-        }
-
         return $final_response;
     }
 
@@ -359,16 +353,8 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
      
         $birthdate        = $this->parseDate($this->request('buckaroo-afterpaynew-birthdate'));
 
-        $shippingCosts    = $order->get_total_shipping();
-        $shippingCostsTax = $order->get_shipping_tax();
-        if (floatval($shippingCosts) > 0) {
-            $afterpay->ShippingCosts = number_format($shippingCosts, 2) + number_format($shippingCostsTax, 2);
-        }
-        if (floatval($shippingCostsTax) > 0) {
-            $afterpay->ShippingCostsTax = number_format(($shippingCostsTax * 100) / $shippingCosts);
-        }
-        $afterpay = $this->getBillingInfo($order_details, $afterpay, $birthdate);
-        $afterpay = $this->getShippingInfo($order_details, $afterpay);
+        $afterpay = $this->get_billing_info($order_details, $afterpay, $birthdate);
+        $afterpay = $this->get_shipping_info($order_details, $afterpay);
         
         /** @var BuckarooAfterPayNew */
         $afterpay = $this->handleThirdPartyShippings($afterpay, $order, $this->country);
@@ -385,8 +371,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-coc");
         }
 
-        $products = $this->getProductsInfo($order, $afterpay->amountDedit, $afterpay->ShippingCosts);
-
         $afterpay->returnUrl = $this->notify_url;
 
 
@@ -396,8 +380,28 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             update_post_meta($order_id, '_wc_order_authorized', 'yes');
         }
 
-        $response = $afterpay->PayOrAuthorizeAfterpay($products, $action);
+        $response = $afterpay->PayOrAuthorizeAfterpay(
+            $this->get_products_for_payment($order_details),
+            $action
+        );
         return fn_buckaroo_process_response($this, $response, $this->mode);
+    }
+
+    public function get_product_data(Buckaroo_Order_Item $order_item)
+    {
+        $product = parent::get_product_data($order_item);
+        
+        if($order_item->get_type() === 'line_item') {
+
+            $img = $this->getProductImage($order_item->get_order_item()->get_product());
+            
+            if(!empty($img)) {
+                $product['imgUrl'] = $img;
+            }
+        
+            $product['url']  = get_permalink($order_item->get_id());
+        }
+        return $product;
     }
     /**
      * Get billing info for pay request
@@ -408,7 +412,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
      *
      * @return BuckarooAfterPayNew  $method
      */
-    protected function getBillingInfo($order_details, $method, $birthdate)
+    protected function get_billing_info($order_details, $method, $birthdate)
     {
         /** @var BuckarooAfterPayNew */
         $method = $this->set_billing($method, $order_details);
@@ -434,7 +438,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
      *
      * @return BuckarooAfterPayNew $method
      */
-    protected function getShippingInfo($order_details, $method)
+    protected function get_shipping_info($order_details, $method)
     {
         $method->AddressesDiffer = 'FALSE';
         if ($this->request("buckaroo-afterpaynew-shipping-differ") !== null) {
@@ -534,39 +538,14 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             if ($srcInfo = @getimagesize($src)) {
                 if (!empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg'])) {
                     if (!empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280)) {
-                        $imageUrl = $src;
+                        return $src;
                     }
                 }
             } 
         }
-        return $imageUrl; 
     }
 
-    public function getProductSpecific($product, $item, $tmp) {
-        //Product
-        $data['product_tmp'] = $tmp;
-        $data['product_tmp']['ArticleUnitprice'] = number_format(number_format($item['line_total'] + $item['line_tax'], 4, '.', '') / $item['qty'], 2, '.', '');
-        $data['product_tmp']['ProductUrl'] = get_permalink($item['product_id']);
-        $imgUrl = $this->getProductImage($product);
-        //Don't sent the tag if imgurl not set
-        if(!empty($imgUrl)){
-            $data['product_tmp']['ImageUrl'] = $imgUrl;
-        }
-        
-        $data['product_itemsTotalAmount'] = number_format($data['product_tmp']['ArticleUnitprice'] * $item['qty'], 2, '.', '');
 
-        return $data;
-    }
-
-    public function getRemainingPriceSpecific($mode, $amountDedit, $itemsTotalAmount, $tmp) {
-        $data['product_tmp'] = $tmp;
-
-        if ($mode == 2) {            
-            $data['product_tmp']['ArticleUnitprice'] = number_format($amountDedit - $itemsTotalAmount, 2, '.', '');
-        }
-        
-        return $data;
-    }
 
     /**
      * Show payment if available

@@ -290,7 +290,7 @@ msgid "Debug mode"
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:439
-msgid "Default product Vat type"
+msgid "Default product VAT type"
 msgstr ""
 
 #: gateway-buckaroo.php:285
@@ -691,7 +691,7 @@ msgid "Please provide correct BIC"
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:441
-msgid "Please select default vat type for your products"
+msgid "Please select the default VAT type for your products"
 msgstr ""
 
 #: gateway-buckaroo-payperemail.php:50
@@ -774,7 +774,7 @@ msgid "Select where to store debug data"
 msgstr ""
 
 #: gateway-buckaroo-creditcard.php:419
-msgid "select which Creditecard providers  will be appear to customer"
+msgid "Select which Creditcard providers  will be visible to customer"
 msgstr ""
 
 #: gateway-buckaroo-creditcard.php:451
@@ -782,7 +782,7 @@ msgid "Select which Creditecard providers will be shown separate in checkout"
 msgstr ""
 
 #: gateway-buckaroo-payperemail.php:192
-msgid "select which methods will be appear to customer"
+msgid "Select which methods appear to the customer"
 msgstr ""
 
 #: templates/gateways/ideal.php:22 templates/idin/checkout.php:37

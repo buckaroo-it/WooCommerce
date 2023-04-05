@@ -105,10 +105,6 @@
             'filename' => 'gateway-buckaroo-payperemail.php',
             'classname' => 'WC_Gateway_Buckaroo_PayPerEmail'
         ),
-        'RequestToPay' => array(
-            'filename' => 'gateway-buckaroo-requesttopay.php',
-            'classname' => 'WC_Gateway_Buckaroo_RequestToPay'
-        ),
         'SepaDirectDebit' => array(
             'filename' => 'gateway-buckaroo-sepadirectdebit.php',
             'classname' => 'WC_Gateway_Buckaroo_SepaDirectDebit'

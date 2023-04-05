@@ -29,6 +29,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     public $version;
     public $sellerprotection = 0;
     public $CreditCardDataEncrypted;
+    public $real_order_id;
     protected $data = array();
 
     protected $requestType = 'TransactionRequest';
@@ -261,6 +262,32 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         $this->data['customVars'][$keyOrValues] = $value;
         return $value;
     }
+     /**
+     * Set additional param
+     *
+     * @param string|array $keyOrValues
+     * @param string|null $value
+     *
+     * @return $value
+     */
+    public function setAdditionalParameters($keyOrValues, $value = null)
+    {
+        if (is_array($keyOrValues)) {
+            if (!isset($this->data['customParameters'])) {
+                $this->data['customParameters'] =  $keyOrValues;
+            }
+            
+            $this->data['customParameters'] = array_merge(
+                $this->data['customParameters'],
+                $keyOrValues
+            );
+            return $keyOrValues;
+        }
+        if (is_scalar($keyOrValues)) {
+            $this->data['customParameters'][$keyOrValues] = $value;
+        }
+        return $value;
+    }
 
     /**
      * Set Service action and function
@@ -308,6 +335,9 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
      */
     private function setMainParametersForRequestType($type = self::TYPE_PAY)
     {
+        if (is_int($this->real_order_id)) {
+            $this->setAdditionalParameters('real_order_id', $this->real_order_id);
+        }
         $this->setParameter('currency', $this->currency);
         $this->setParameter('amountDebit', $this->amountDedit);
         $this->setParameter('amountCredit', $this->amountCredit);
@@ -327,6 +357,19 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
         if ($type === self::TYPE_REFUND) {
             $this->setParameter('invoice', $this->getInvoiceNumber());
         }
+    }
+
+    /**
+     * Get real order id
+     *
+     * @return int
+     */
+    public function getRealOrderId()
+    {
+        if (is_int($this->real_order_id)) {
+            return $this->real_order_id;
+        }
+        return $this->orderId;
     }
 
     /**
@@ -471,7 +514,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
     public function checkRefundData($data)
     {
         //Check if order is refundable
-        $order = wc_get_order($this->orderId);
+        $order = wc_get_order($this->getRealOrderId());
         $items = $order->get_items();
         $shippingItems = $order->get_items('shipping');
         $feeItems = $order->get_items('fee');
@@ -551,7 +594,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
             foreach ($keyItem as $taxItem => $taxItemValue) {
                 if (!empty($taxItemValue)) {
                     if (empty($order)) {
-                        $order = wc_get_order($this->orderId);
+                        $order = wc_get_order($this->getRealOrderId());
                     }
                     $item = $order->get_item($key);
                     $taxItemFromOrder = $item->get_taxes();
@@ -595,30 +638,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
      */
     private function getInvoiceNumber()
     {
-
-        if (in_array(strtolower($this->type), ['sepadirectdebit'])) {
-            return $this->invoiceId;
-        }
-
-        return $this->invoiceId . '-R' . $this->getInvoiceIncrement();
-    }
-
-    /**
-     * Get incremental invoice number for refund
-     *
-     * @return string
-     */
-    private function getInvoiceIncrement()
-    {
-        if (in_array($this->type, ['afterpay', 'afterpayacceptgiro', 'afterpaydigiaccept'])) {
-            if (
-                ($previous_refunds = get_post_meta($this->orderId, 'buckaroo_refund', false)) &&
-                count($previous_refunds) > 0
-            ) {
-                return count($previous_refunds) + 1;
-            }
-        }
-        return '';
+        return $this->invoiceId;
     }
 
     public function order_number_shortcode()
@@ -653,7 +673,7 @@ abstract class BuckarooPaymentMethod extends BuckarooAbstract
                 throw new Exception('Tax only cannot be refund');
             }
         }
-        $order = wc_get_order($this->orderId);
+        $order = wc_get_order($this->getRealOrderId());
         $items = $order->get_items();
         $shippingItems = $order->get_items('shipping');
         $feeItems = $order->get_items('fee');

@@ -46,8 +46,26 @@ export default class ApplePay {
           this.total_price = total_to_pay;
 
           const requiredContactFields = ["name", "email", "postalAddress", "phone"];
-          const applepay_options = new BuckarooSdk.ApplePay.ApplePayOptions(this.store_info.store_name, this.store_info.country_code, this.store_info.currency_code, this.store_info.culture_code, this.store_info.merchant_id, all_items, total_item, 'shipping', shipping_methods, this.processApplepayCallback.bind(this), this.processShippingMethodsCallback.bind(this), this.processChangeContactInfoCallback.bind(this), requiredContactFields, requiredContactFields)
-          const applepay_payment = new BuckarooSdk.ApplePay.ApplePayPayment(".applepay-button-container div", applepay_options);
+          const applepay_options = new BuckarooSdk.ApplePay.ApplePayOptions(
+            this.store_info.store_name,
+            this.store_info.country_code,
+            this.store_info.currency_code,
+            this.store_info.culture_code,
+            this.store_info.merchant_id,
+            all_items,
+            total_item,
+            'shipping',
+            shipping_methods,
+            this.processApplepayCallback.bind(this),
+            this.processShippingMethodsCallback.bind(this),
+            this.processChangeContactInfoCallback.bind(this),
+            requiredContactFields,
+            requiredContactFields
+            )
+            const applepay_payment = new BuckarooSdk.ApplePay.ApplePayPayment(
+              ".applepay-button-container div",
+              applepay_options
+            );
          
           applepay_payment.showPayButton("black");
         }
@@ -132,7 +150,12 @@ export default class ApplePay {
     }
 
     if (authorization_result.status === ApplePaySession.STATUS_SUCCESS) {
-      this.buckaroo.createTransaction(payment, this.total_price, this.selected_shipping_method, this.woocommerce.getItems(this.country_code));
+      this.buckaroo.createTransaction(
+        payment,
+        this.total_price,
+        this.selected_shipping_method,
+        this.woocommerce.getItems(this.country_code)
+      );
     }
     else {
       const errors = authorization_result.errors.map((error) => { 

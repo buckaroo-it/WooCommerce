@@ -207,8 +207,8 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
     Buckaroo_Logger::log('Parse response:\n', $response);
     $response->invoicenumber = getOrderIdFromInvoiceId($response->invoicenumber, 'test');
     $order_id                =
-        $response->add_order_id ?
-        $response->add_order_id :
+        $response->real_order_id ?
+        $response->real_order_id :
         ($response->brq_ordernumber ? $response->brq_ordernumber : $response->invoicenumber);
     Buckaroo_Logger::log(__METHOD__ . "|5|", $order_id);
 
@@ -343,7 +343,10 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     } else {
         $order_id = $response->brq_ordernumber;
     }
-
+    
+    if (is_int($response->real_order_id)) {
+        $order_id = $response->real_order_id;
+    }
     try {
         $order = new WC_Order($order_id);
         if ((int) $order_id > 0) {
@@ -357,6 +360,12 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 
     if ($response->isValid()) {
         
+        update_post_meta(
+            $order_id, 
+            '_buckaroo_order_in_test_mode',
+            $response->isTest() == true
+        );
+
         //Check if redirect required
         $checkIfRedirectRequired = fn_process_check_redirect_required($response, 'response', $payment_method, $order_id);
         if ($checkIfRedirectRequired){
@@ -580,7 +589,7 @@ function resetOrder()
                 $order->update_status('cancelled', __($response->statusmessage ?? '', 'wc-buckaroo-bpe-gateway'));
             } else {
                 $newOrder                             = wc_create_order($order);
-                WC()->session->order_awaiting_payment = $newOrder->get_order_number();
+                WC()->session->order_awaiting_payment = $newOrder->get_id();
             }
         }
     }
@@ -1152,6 +1161,12 @@ function getGenderValues($payment_method)
             break;
         case 'buckaroo-billink' :
             $genders = ['male' => 'Male', 'female' => 'Female', 'they'=> 'Unknown', 'unknown' => 'Unknown'];
+            break;
+        case 'buckaroo-klarnapay' :
+            $genders = ['male' => 'male', 'female' => 'female'];
+            break;
+        case 'buckaroo-klarnapii' :
+            $genders = ['male' => 'male', 'female' => 'female'];
             break;
         default :
             $genders = ['male' => 'male', 'female' => 'female', 'they'=> 'unknown', 'unknown' => 'unknown'];

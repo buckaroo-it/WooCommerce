@@ -8,6 +8,12 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/applepay/applepay.
  */
 class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
 {
+    protected $paymentData;
+
+    protected $CustomerCardName;
+
+    protected $amount;
+
     const PAYMENT_CLASS = BuckarooApplepay::class;
     public function __construct()
     {
@@ -64,50 +70,51 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         $this->paymentData = $this->request('paymentData');
 
         if (!is_array($this->paymentData)) {
-            throw new \Exception('ApplePay data is invalid.');
+            $this->error_response('ApplePay data is invalid.');
         }
 
   
         if (
+            !isset($this->paymentData['billingContact']) ||
+            !isset($this->paymentData['shippingContact']) ||
             !is_array($this->paymentData['billingContact']) ||
             !is_array($this->paymentData['shippingContact'])
             ) {
-            throw new \Exception('ApplePay data is invalid.');
+            $this->error_response('ApplePay data is invalid.');
         }
 
         $items = $this->request('items');
         if ($items === null || !is_array($items)) {
-            throw new \Exception('ApplePay data is invalid.');
+            $this->error_response('ApplePay data is invalid.');
         }
 
         $shipping_method = $this->request('selected_shipping_method');
-        if ($shipping_method === null || is_scalar($shipping_method)) {
-            throw new \Exception('Invalid shipping method.');
+        if ($shipping_method === null || !is_scalar($shipping_method)) {
+            $this->error_response('Invalid shipping method.');
         }
-
         $amount = $this->request('amount');
         if ($amount === null || !is_scalar($amount)) {
-            throw new \Exception('Invalid amount.');
+            $this->error_response('Invalid amount.');
         }
         if (
             count(
                 array_diff(
-                    ['givenName', 'familyName', 'emailAddress', 'emailAddress', 'addressLines', 'locality', 'postalCode', 'countryCode'],
+                    ['givenName', 'familyName', 'emailAddress', 'addressLines', 'locality', 'postalCode', 'countryCode'],
                      array_keys($this->paymentData['shippingContact'])
                 )
             )
          ){
-            throw new \Exception('Invalid shipping address format.');
+            $this->error_response('Invalid shipping address format.');
         }
         if (
             count(
                 array_diff(
-                    ['givenName', 'familyName', 'emailAddress', 'emailAddress', 'addressLines', 'locality', 'postalCode', 'countryCode'],
+                    ['givenName', 'familyName', 'addressLines', 'locality', 'postalCode', 'countryCode'],
                      array_keys($this->paymentData['billingContact'])
                 )
             )
          ){
-            throw new \Exception('Invalid billing address format.');
+            $this->error_response('Invalid billing address format.');
         }
 
 
@@ -123,18 +130,31 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         $this->amount = $amount;
 
 
-        $orderResult = $this->createOrder(
-            $this->paymentData['billingContact'],
-            $this->paymentData['shippingContact'],
-            $items,
-            $shipping_method
-        );
-
-        if ($orderResult) {
-            $this->process_payment($orderResult['data']['id']);
-        } else {
-            throw new \Exception('Error while creation of WooCommerce order');
+        try {
+            $orderResult = $this->createOrder(
+                $this->paymentData['billingContact'],
+                $this->paymentData['shippingContact'],
+                $items,
+                $shipping_method
+            );
+    
+            if ($orderResult) {
+                $this->process_payment($orderResult['data']['id']);
+            } else {
+                $this->error_response('Error while creation of WooCommerce order');
+            }
+        } catch (\Throwable $th) {
+            $this->error_response($th->getMessage());
         }
+    }
+    public function error_response($errorMessage)
+    {
+        wp_send_json(
+            [
+               "status" => 'fail',
+               "message" => $errorMessage
+            ]
+        );
     }
 
     /**
@@ -148,8 +168,6 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooApplepay */
         $applepay = $this->createDebitRequest($order);
-
-        $applepay->CustomerCardName = $this->CustomerCardName;
 
         $customVars                     = array();
         $customVars['PaymentData']      = base64_encode(json_encode($this->paymentData['token']));
@@ -179,7 +197,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
 
         $order = wc_create_order();
 
-        $wc_methods = self::createFakeCart(function () {
+        $wc_methods = self::createFakeCart($items, function () {
             $packages = WC()->cart->get_shipping_packages();
 
             return WC()
@@ -352,29 +370,12 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         $this->form_fields =  $new_form_fields;
     }
 
-    private static function createFakeCart($callback)
+    private static function createFakeCart($items, $callback)
     {
-        if (!(isset($_GET['product_id']) && is_numeric($_GET['product_id']))) {
-            throw new \Exception('Invalid product_id');
-        }
-
-        if (isset($_GET['variation_id']) && !is_numeric($_GET['variation_id'])) {
-            throw new \Exception('Invalid variation_id');
-        }
-
-        if (!(isset($_GET['quantity']) && is_numeric($_GET['quantity']) && $_GET['quantity'] > 0)) {
-            throw new \Exception('Invalid quantity');
-        }
-
+        
         global $woocommerce;
+        $cart = $woocommerce->cart;
 
-        $cart         = $woocommerce->cart;
-
-        $current_shown_product = [
-            'product_id'   => intval(sanitize_text_field($_GET['product_id'])),
-            'variation_id' => intval(sanitize_text_field($_GET['variation_id'])),
-            'quantity'     => (int) sanitize_text_field($_GET['quantity']),
-        ];
 
         $original_cart_products = array_map(function ($product) {
             return [
@@ -392,11 +393,24 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         }, $cart->get_coupons());
 
         $cart->empty_cart();
-        $cart->add_to_cart(
-            $current_shown_product['product_id'],
-            $current_shown_product['quantity'],
-            $current_shown_product['variation_id']
-        );
+
+        foreach ($items as $item) {
+            if (
+                count(
+                    array_diff(
+                        ['id', 'quantity'],
+                         array_keys($item)
+                    )
+                ) === 0
+             ) {
+                $cart->add_to_cart(
+                    $item['id'],
+                    $item['quantity'],
+                );
+            }
+        }
+
+        
 
         foreach ($original_applied_coupons as $original_applied_coupon) {
             $cart->apply_coupon($original_applied_coupon['code']);

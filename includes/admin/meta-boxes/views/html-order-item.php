@@ -50,7 +50,7 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
 	<td class="item_cost" width="1%" data-sort-value="<?php echo esc_attr( $order->get_item_subtotal( $item, false, true ) ); ?>">
 		<div class="view">
 			<?php
-			echo wc_price( $order->get_item_total( $item, false, true ), array( 'currency' => $order->get_currency() ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo wp_kses_post(wc_price( $order->get_item_total( $item, false, true ), array( 'currency' => $order->get_currency() ) ));
 			?>
 		</div>
 	</td>
@@ -94,17 +94,17 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
 	<td class="line_cost" width="1%" data-sort-value="<?php echo esc_attr( $item->get_total() ); ?>">
 		<div class="view">
 			<?php
-			echo esc_html(wc_price( $item->get_total(), array( 'currency' => $order->get_currency() ) ));
+			echo wp_kses_post(wc_price( $item->get_total(), array( 'currency' => $order->get_currency() ) ));
 
 			if ( $item->get_subtotal() !== $item->get_total() ) {
 				/* translators: %s: discount amount */
-				echo '<span class="wc-order-item-discount">' . sprintf( esc_html__( '%s discount', 'woocommerce' ), esc_html(wc_price( wc_format_decimal( $item->get_subtotal() - $item->get_total()), '' ), array( 'currency' => $order->get_currency() ) ) ) . '</span>';
+				echo '<span class="wc-order-item-discount">' . sprintf( esc_html__( '%s discount', 'woocommerce' ), wp_kses_post(wc_price( wc_format_decimal( $item->get_subtotal() - $item->get_total()), '' ), array( 'currency' => $order->get_currency() ) ) ) . '</span>';
 			}
 
             $captured = false;
 
 			if ( $captured ) {
-				echo '<small class="captured">-' . esc_html(wc_price( $captured, array( 'currency' => $order->get_currency() ) )) . '</small>';
+				echo '<small class="captured">-' . wp_kses_post(wc_price( $captured, array( 'currency' => $order->get_currency() ) )) . '</small>';
 			}
 			?>
 		</div>
@@ -138,7 +138,7 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
 				<div class="view">
 					<?php
 					if ( '' !== $tax_item_total ) {
-						echo esc_html(wc_price( wc_round_tax_total( $tax_item_total ), array( 'currency' => $order->get_currency() ) ));
+						echo wp_kses_post(wc_price( wc_round_tax_total( $tax_item_total ), array( 'currency' => $order->get_currency() ) ));
 					} else {
 						echo '&ndash;';
 					}
@@ -146,7 +146,7 @@ $row_class    = apply_filters( 'woocommerce_admin_html_order_item_class', ! empt
                     $captured = false;
 
 					if ( $captured ) {
-						echo '<small class="captured">-' . esc_html(wc_price( $captured, array( 'currency' => $order->get_currency() ) )) . '</small>';
+						echo '<small class="captured">-' . esc_hwp_kses_posttml(wc_price( $captured, array( 'currency' => $order->get_currency() ) )) . '</small>';
 					}
 					?>
 				</div>

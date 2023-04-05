@@ -23,7 +23,12 @@ export default class Buckaroo {
         window.location.replace(buckaroo_response.redirect);
       }
       else {
-        this.woocommerce.displayErrorMessage(buckaroo_response.message);
+        let errorMessage = "Something went wrong while processing your payment.";
+        if(buckaroo_response.message) {
+          errorMessage =buckaroo_response.message
+        }
+
+        this.woocommerce.displayErrorMessage(errorMessage);
       }
     })
     .fail(() => {

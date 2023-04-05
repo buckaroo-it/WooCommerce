@@ -247,7 +247,7 @@ msgid "Debug mode"
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:1181
-msgid "Default product Vat type"
+msgid "Default product VAT type"
 msgstr ""
 
 #: gateway-buckaroo.php:376
@@ -430,7 +430,6 @@ msgstr ""
 #: gateway-buckaroo-nexi.php:259 gateway-buckaroo-p24.php:278
 #: gateway-buckaroo-payconiq.php:270 gateway-buckaroo-paypal.php:279
 #: gateway-buckaroo-payperemail.php:371 gateway-buckaroo-postepay.php:259
-#: gateway-buckaroo-requesttopay.php:277
 #: gateway-buckaroo-sepadirectdebit.php:486 gateway-buckaroo-sofort.php:271
 #: gateway-buckaroo-transfer.php:304
 msgid "Notification delay"
@@ -471,7 +470,7 @@ msgstr ""
 #: gateway-buckaroo-nexi.php:18 gateway-buckaroo-p24.php:29
 #: gateway-buckaroo-payconiq.php:18 gateway-buckaroo-paypal.php:17
 #: gateway-buckaroo-payperemail.php:19 gateway-buckaroo-postepay.php:18
-#: gateway-buckaroo-requesttopay.php:19 gateway-buckaroo-sepadirectdebit.php:24
+#: gateway-buckaroo-sepadirectdebit.php:24
 #: gateway-buckaroo-sofort.php:29 gateway-buckaroo-transfer.php:21
 #, php-format
 msgid "Pay with %s"
@@ -565,7 +564,7 @@ msgid "Please provide correct BIC"
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:1183
-msgid "Please select default vat type for your products"
+msgid "Please select the default VAT type for your products"
 msgstr ""
 
 #: gateway-buckaroo-payperemail.php:113
@@ -639,7 +638,6 @@ msgstr ""
 #: gateway-buckaroo-mistercash.php:249 gateway-buckaroo-nexi.php:239
 #: gateway-buckaroo-p24.php:258 gateway-buckaroo-payconiq.php:252
 #: gateway-buckaroo-paypal.php:259 gateway-buckaroo-payperemail.php:351
-#: gateway-buckaroo-postepay.php:239 gateway-buckaroo-requesttopay.php:257
 #: gateway-buckaroo-sepadirectdebit.php:401 gateway-buckaroo-sofort.php:251
 #: gateway-buckaroo-transfer.php:268
 msgid "Select Certificate"
@@ -664,11 +662,11 @@ msgid "Select the maximum reminder level buckaroo will use."
 msgstr ""
 
 #: gateway-buckaroo-creditcard.php:667
-msgid "select which Creditecard providers  will be appear to customer"
+msgid "Select which Creditcard providers  will be visible to customer"
 msgstr ""
 
 #: gateway-buckaroo-payperemail.php:431
-msgid "select which methods will be appear to customer"
+msgid "Select which methods appear to the customer"
 msgstr ""
 
 #: gateway-buckaroo-ideal.php:197 templates/idin/checkout.php:37
@@ -686,7 +684,6 @@ msgstr ""
 #: gateway-buckaroo-nexi.php:241 gateway-buckaroo-p24.php:260
 #: gateway-buckaroo-payconiq.php:254 gateway-buckaroo-paypal.php:261
 #: gateway-buckaroo-payperemail.php:353 gateway-buckaroo-postepay.php:241
-#: gateway-buckaroo-requesttopay.php:259
 #: gateway-buckaroo-sepadirectdebit.php:403 gateway-buckaroo-sofort.php:253
 #: gateway-buckaroo-transfer.php:270
 msgid "Select your certificate by name."
@@ -752,7 +749,7 @@ msgid "Show PayPerEmail in admin order actions"
 msgstr ""
 
 #: gateway-buckaroo-payperemail.php:379
-msgid "Show PayPerEnail on Checkout page"
+msgid "Show PayPerEmail on the checkout page"
 msgstr ""
 
 #: gateway-buckaroo-applepay.php:462
@@ -823,7 +820,6 @@ msgstr ""
 #: gateway-buckaroo-nexi.php:254 gateway-buckaroo-p24.php:273
 #: gateway-buckaroo-payconiq.php:266 gateway-buckaroo-paypal.php:274
 #: gateway-buckaroo-payperemail.php:366 gateway-buckaroo-postepay.php:254
-#: gateway-buckaroo-requesttopay.php:272
 #: gateway-buckaroo-sepadirectdebit.php:476 gateway-buckaroo-sofort.php:266
 #: gateway-buckaroo-transfer.php:300
 msgid ""
@@ -848,7 +844,6 @@ msgstr ""
 #: gateway-buckaroo-nexi.php:261 gateway-buckaroo-p24.php:280
 #: gateway-buckaroo-payconiq.php:272 gateway-buckaroo-paypal.php:281
 #: gateway-buckaroo-payperemail.php:373 gateway-buckaroo-postepay.php:261
-#: gateway-buckaroo-requesttopay.php:279
 #: gateway-buckaroo-sepadirectdebit.php:488 gateway-buckaroo-sofort.php:273
 #: gateway-buckaroo-transfer.php:306
 msgid ""
@@ -932,7 +927,7 @@ msgstr "Verwenden sie neue symbole"
 #: gateway-buckaroo-mistercash.php:262 gateway-buckaroo-nexi.php:252
 #: gateway-buckaroo-p24.php:271 gateway-buckaroo-payconiq.php:264
 #: gateway-buckaroo-paypal.php:272 gateway-buckaroo-payperemail.php:364
-#: gateway-buckaroo-postepay.php:252 gateway-buckaroo-requesttopay.php:270
+#: gateway-buckaroo-postepay.php:252
 #: gateway-buckaroo-sepadirectdebit.php:474 gateway-buckaroo-sofort.php:264
 #: gateway-buckaroo-transfer.php:298
 msgid "Use Notification Service"
