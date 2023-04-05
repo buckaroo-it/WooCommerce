@@ -106,7 +106,7 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 - Fix for displaying customer name in Plaza for AfterPay(new )[BP-2238]
 - Remove Request to Pay payment method [BP-2253]
 - Apple Pay error: Something went wrong while processing [BP-2315]
-- Support for WooCommerce 7.4.0 [BP-2339]
+- Support for WooCommerce 7.5.1 [BP-2339]
 - Payment fee is not working for Klarna [BP-2295]
 - Support sequential order numbers skyverge [BP-1485]
 - Variable products incorrect amount [BP-2236]
