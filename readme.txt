@@ -101,9 +101,9 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 - Fix Klarna gender values [BP-2112]
 - Fatal error: Unsupported operand types: string + int (PHP 8.0) [BP-2126]
 - Fix compatibility with WC < v5.8
-- Remove the -R addition for refunds. [BP-2012]
+- Remove the -R addition for refunds [BP-2012]
 - Remove HTML tags from capture form [BP-2143]
-- Fix for displaying customer name in Plaza for AfterPay(new )[BP-2238]
+- Fix for displaying the customer name in Plaza for Riverty (new) [BP-2238]
 - Remove Request to Pay payment method [BP-2253]
 - Apple Pay error: Something went wrong while processing [BP-2315]
 - Support for WooCommerce 7.5.1 [BP-2339]
