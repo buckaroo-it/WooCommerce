@@ -38,51 +38,51 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
         $issuerArray = array(
             'ABNAMRO' => array(
                 'name' => 'ABN AMRO',
-                'logo' => 'logo_abn_s.gif',
+                'logo' => 'abnamro.svg',
             ),
             'ASNBANK' => array(
                 'name' => 'ASN Bank',
-                'logo' => 'logo_asn.gif',
+                'logo' => 'asnbank.svg',
             ),
             'INGBANK' => array(
                 'name' => 'ING',
-                'logo' => 'logo_ing_s.gif',
+                'logo' => 'ing.svg',
             ),
             'RABOBANK' => array(
                 'name' => 'Rabobank',
-                'logo' => 'logo_rabo_s.gif',
+                'logo' => 'rabobank.svg',
             ),
             'SNSBANK' => array(
                 'name' => 'SNS Bank',
-                'logo' => 'logo_sns_s.gif',
+                'logo' => 'sns.svg',
             ),
             'SNSREGIO' => array(
                 'name' => 'RegioBank',
-                'logo' => 'regiobanklogo.png',
+                'logo' => 'regiobank.svg',
             ),
             'TRIODOS' => array(
                 'name' => 'Triodos Bank',
-                'logo' => 'logo_triodos.gif',
+                'logo' => 'triodos.svg',
             ),
             'LANSCHOT' => array(
                 'name' => 'Van Lanschot',
-                'logo' => 'logo_lanschot_s.gif',
+                'logo' => 'vanlanschot.svg',
             ),
             'KNAB' => array(
                 'name' => 'Knab',
-                'logo' => 'logo_knab_s.gif',
+                'logo' => 'knab.svg',
             ),
             'BUNQ' => array(
                 'name' => 'bunq',
-                'logo' => 'logo_bunq.png',
+                'logo' => 'bunq.svg',
             ),
             'REVOLUT' => array(
                 'name' => 'Revolut',
-                'logo' => 'logo_revolutbanken.png',
+                'logo' => 'revolut.svg',
             ),
             'YOURSAFE' => array(
                 'name' => 'Yoursafe',
-                'logo' => 'YourSafe.png',
+                'logo' => 'yoursafe.svg',
             ),
         );
         return $issuerArray;

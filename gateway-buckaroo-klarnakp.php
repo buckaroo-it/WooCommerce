@@ -14,7 +14,7 @@ class WC_Gateway_Buckaroo_KlarnaKp extends WC_Gateway_Buckaroo
         $this->method_title = 'Buckaroo Klarna Pay later (authorize/capture)';
         $this->has_fields = true;
         $this->type = 'klarnakp';
-        $this->setIcon('24x24/klarna.svg', 'svg/Klarna.svg');
+        $this->setIcon('24x24/klarna.svg', 'svg/klarna.svg');
         $this->setCountry();
         parent::__construct();
         $this->addRefundSupport();
