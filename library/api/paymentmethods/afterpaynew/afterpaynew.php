@@ -193,7 +193,7 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
         );
 
         foreach (array_values($products) as $pos => $product) {
-            $this->setDefaultProductParams($product, $pos);
+            $this->setDefaultProductParams($product, $pos, true);
             $this->setCustomVarAtPosition(
                 'RefundType',
                 ($product["ArticleId"] == BuckarooConfig::SHIPPING_SKU ? "Refund" : "Return"),
@@ -220,21 +220,19 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
         );
 
         foreach (array_values($products) as $pos => $product) {
-            $this->setDefaultProductParams($product, $pos);
+            $this->setDefaultProductParams($product, $pos, true);
         }
 
         return $this->CaptureGlobal();
     }
-    private function setDefaultProductParams($product, $position)
+    private function setDefaultProductParams($product, $position, $isArticle = false)
     {
-
         $productData = [
-            'Description' => $product["description"],
-            'Identifier' => $product["identifier"],
-            'Quantity' => $product["quantity"],
-            'GrossUnitprice' => $product["price"],
-            'VatPercentage' => $product['vatPercentage'],
-
+            'Description' => ($isArticle) ? $product["ArticleDescription"] : $product["description"],
+            'Identifier' => ($isArticle) ? $product["ArticleId"] : $product["identifier"],
+            'Quantity' => ($isArticle) ? $product["ArticleQuantity"] : $product["quantity"],
+            'GrossUnitprice' => ($isArticle) ? $product["ArticleUnitprice"] : $product["price"],
+            'VatPercentage' => ($isArticle) ? $product["ArticleVatcategory"] : $product['vatPercentage'],
         ];
 
         if (isset($product["url"]) && !empty(trim($product["url"]))) {

@@ -379,7 +379,7 @@
             }
 
             private function isArticleField($field) {
-                $articleFields = array('Description', 'Identifier', 'Quantity', 'GrossUnitprice', 'VatPercentage', 'Url', 'ImageUrl');
+                $articleFields = array('Description', 'Identifier', 'Quantity', 'GrossUnitprice', 'VatPercentage', 'Url', 'ImageUrl', 'RefundType');
 
                 return in_array($field, $articleFields);
             }
