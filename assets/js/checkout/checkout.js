@@ -48,6 +48,10 @@ class BuckarooCheckout {
         );
       }
 
+      if (b2bActive) {
+        birthdate.val('01-01-1900'); // Set the dummy birthday here
+      }
+
       birthdate.prop("disabled", !b2bActive);
       birthdateParent.toggle(!b2bActive);
       birthdateParent.toggleClass("validate-required", !b2bActive);
