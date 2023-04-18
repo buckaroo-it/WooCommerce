@@ -193,7 +193,7 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
         );
 
         foreach (array_values($products) as $pos => $product) {
-            $this->setDefaultProductParams($product, $pos);
+            $this->setDefaultProductArticleParams($product, $pos);
             $this->setCustomVarAtPosition(
                 'RefundType',
                 ($product["ArticleId"] == BuckarooConfig::SHIPPING_SKU ? "Refund" : "Return"),
@@ -220,29 +220,51 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
         );
 
         foreach (array_values($products) as $pos => $product) {
-            $this->setDefaultProductParams($product, $pos);
+            $this->setDefaultProductArticleParams($product, $pos);
         }
 
         return $this->CaptureGlobal();
     }
-    private function setDefaultProductParams($product, $position)
-    {
 
+    private function setDefaultProductParams($product, $position){
         $productData = [
-            'Description' => $product["description"],
-            'Identifier' => $product["identifier"],
-            'Quantity' => $product["quantity"],
-            'GrossUnitprice' => $product["price"],
+            'Description' => $product['description'],
+            'Identifier' => $product['identifier'],
+            'Quantity' => $product['quantity'],
+            'GrossUnitprice' => $product['price'],
             'VatPercentage' => $product['vatPercentage'],
-
         ];
 
-        if (isset($product["url"]) && !empty(trim($product["url"]))) {
-            $productData['Url'] = $product["url"];
+        if (isset($product['url']) && !empty(trim($product['url']))) {
+            $productData['Url'] = $product['url'];
         }
 
-        if (isset($product["imgUrl"]) && !empty($product["imgUrl"])) {
-            $productData['ImageUrl'] = $product["imgUrl"];
+        if (isset($product['imgUrl']) && !empty($product['imgUrl'])) {
+            $productData['ImageUrl'] = $product['imgUrl'];
+        }
+
+        $this->setCustomVarsAtPosition(
+            $productData,
+            $position,
+            'Article'
+        );
+    }
+
+    private function setDefaultProductArticleParams($product, $position){
+        $productData = [
+            'Description' => $product['ArticleDescription'],
+            'Identifier' => $product['ArticleId'],
+            'Quantity' => $product['ArticleQuantity'],
+            'GrossUnitprice' => $product['ArticleUnitprice'],
+            'VatPercentage' => $product['ArticleVatcategory'],
+        ];
+
+        if (isset($product['url']) && !empty(trim($product['url']))) {
+            $productData['Url'] = $product['url'];
+        }
+
+        if (isset($product['imgUrl']) && !empty($product['imgUrl'])) {
+            $productData['ImageUrl'] = $product['imgUrl'];
         }
 
         $this->setCustomVarsAtPosition(
