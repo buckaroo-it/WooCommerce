@@ -10,16 +10,17 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo
 
     const PAYMENT_CLASS = BuckarooIDeal::class;
     use WC_Buckaroo_Subscriptions_Trait;
-    function __construct()
+    public function __construct()
     {
         $this->id = 'buckaroo_ideal';
         $this->title = 'iDEAL';
         $this->has_fields   = true;
         $this->method_title = "Buckaroo iDEAL";
-        $this->setIcon('24x24/ideal.png', 'svg/iDEAL.svg');
+        $this->setIcon('24x24/ideal.png', 'svg/ideal.svg');
+
+        parent::__construct();
         $this->addRefundSupport();
         $this->addSubscriptionsSupport();
-        parent::__construct();
     }
     /**
      * Can the order be refunded

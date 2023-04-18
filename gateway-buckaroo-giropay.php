@@ -15,10 +15,11 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
         $this->title                  = 'Giropay';
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo Giropay";
-        $this->setIcon('24x24/giropay.gif', 'svg/Giropay.svg');
+        $this->setIcon('24x24/giropay.gif', 'svg/giropay.svg');
+
+        parent::__construct();
         $this->addRefundSupport();
         $this->addSubscriptionsSupport();
-        parent::__construct();
     }
 
     /**

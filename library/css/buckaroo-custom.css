@@ -187,9 +187,6 @@ label[for^="payment_method_buckaroo_"] img {
     max-height: 25px;
     max-width: auto;
 }
-label[for^="payment_method_buckaroo_creditcard"] img {
-    max-height: 72px;
-}
 .buckaroo-paypal-express {
     margin: 10px 0;
     max-width: 200px;

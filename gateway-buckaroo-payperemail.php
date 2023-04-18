@@ -15,7 +15,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
         $this->title                  = 'PayPerEmail';
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo PayPerEmail";
-        $this->setIcon('payperemail.png', 'svg/PayPerEmail.svg');
+        $this->setIcon('payperemail.png', 'svg/payperemail.svg');
 
         parent::__construct();
     }
@@ -188,7 +188,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
                 'belfius'            => 'Belfius',
                 'Przelewy24'         => 'P24',
             ),
-            'description' => __('select which methods will be appear to customer', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Select which methods appear to the customer', 'wc-buckaroo-bpe-gateway'),
             'default'     => array('amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard', 'postepay', 'visa', 'visaelectron', 'vpay', 'maestro', 'bancontactmrcash', 'transfer', 'giftcard', 'giropay', 'ideal', 'paypal', 'sepadirectdebit', 'sofortueberweisung', 'belfius', 'Przelewy24'),
         );
     }

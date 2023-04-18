@@ -246,7 +246,7 @@ msgid "Debug mode"
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:1181
-msgid "Default product Vat type"
+msgid "Default product VAT type"
 msgstr ""
 
 #: gateway-buckaroo.php:376
@@ -563,7 +563,7 @@ msgid "Please provide correct BIC"
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:1183
-msgid "Please select default vat type for your products"
+msgid "Please select the default VAT type for your products"
 msgstr ""
 
 #: gateway-buckaroo-payperemail.php:113
@@ -662,11 +662,11 @@ msgid "Select the maximum reminder level buckaroo will use."
 msgstr ""
 
 #: gateway-buckaroo-creditcard.php:667
-msgid "select which Creditecard providers  will be appear to customer"
+msgid "Select which Creditcard providers  will be visible to customer"
 msgstr ""
 
 #: gateway-buckaroo-payperemail.php:431
-msgid "select which methods will be appear to customer"
+msgid "Select which methods appear to the customer"
 msgstr ""
 
 #: gateway-buckaroo-ideal.php:197 templates/idin/checkout.php:37
@@ -749,7 +749,7 @@ msgid "Show PayPerEmail in admin order actions"
 msgstr ""
 
 #: gateway-buckaroo-payperemail.php:379
-msgid "Show PayPerEnail on Checkout page"
+msgid "Show PayPerEmail on the checkout page"
 msgstr ""
 
 #: gateway-buckaroo-applepay.php:462

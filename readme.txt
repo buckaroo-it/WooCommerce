@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 6.0
-Stable tag: 3.5.0
+Tested up to: 6.2
+Stable tag: 3.6.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,25 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 
 == Changelog ==
 
+= 3.6.1 =
+- Fix Tested up to tag to correct wp version
+= 3.6.0 =
+- Fix Klarna gender values [BP-2112]
+- Fatal error: Unsupported operand types: string + int (PHP 8.0) [BP-2126]
+- Fix compatibility with WC < v5.8
+- Remove the -R addition for refunds [BP-2012]
+- Remove HTML tags from capture form [BP-2143]
+- Fix for displaying the customer name in Plaza for Riverty (new) [BP-2238]
+- Remove Request to Pay payment method [BP-2253]
+- Apple Pay error: Something went wrong while processing [BP-2315]
+- Support for WooCommerce 7.5.1 [BP-2339]
+- Payment fee is not working for Klarna [BP-2295]
+- Support sequential order numbers skyverge [BP-1485]
+- Variable products incorrect amount [BP-2236]
+- Minor translation changes (ENG) [BP-1764]
+- Update README with new WooCommerce version support [BP-2339]
+- Added YourSafe Issuer to Ideal[BP-2449]
+- Add a notification when one of the payment methods is in test [BP-1982]
 = 3.5.0 =
 - Support for WooCommerce 7.0.0
 - Update README.MD file [#127]

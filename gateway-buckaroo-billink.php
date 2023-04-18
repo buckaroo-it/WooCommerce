@@ -20,7 +20,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $this->title                  = 'Billink - postpay';
         $this->has_fields             = true;
         $this->method_title           = 'Buckaroo Billink';
-        $this->setIcon('24x24/billink.png', 'svg/Billink.svg');
+        $this->setIcon('24x24/billink.png', 'svg/billink.svg');
         $this->setCountry();
 
         parent::__construct();
@@ -94,26 +94,18 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
 
         }
         
-        $shippingCosts    = $order->get_total_shipping();
-        $shippingCostsTax = $order->get_shipping_tax();
-        if (floatval($shippingCosts) > 0) {
-            $billink->ShippingCosts = number_format($shippingCosts, 2) + number_format($shippingCostsTax, 2);
-        }
-        if (floatval($shippingCostsTax) > 0) {
-            $billink->ShippingCostsTax = number_format(($shippingCostsTax * 100) / $shippingCosts);
-        }
-
-        
         $billink = $this->getBillingInfo($order_details, $billink);
         $billink = $this->getShippingInfo($order_details, $billink);
         
 
         $billink->CustomerIPAddress = getClientIpBuckaroo();
         $billink->Accept            = 'TRUE';
-        $products = $this->getProductsInfo($order, $billink->amountDedit, $billink->ShippingCosts);
         $billink->returnUrl = $this->notify_url;
 
-        $response = $billink->PayOrAuthorizeBillink($products, 'Pay');
+        $response = $billink->PayOrAuthorizeBillink(
+            $this->get_products_for_payment($order_details),
+            'Pay'
+        );
         return fn_buckaroo_process_response($this, $response, $this->mode);
     }
     /**
@@ -189,34 +181,4 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         return $this->processDefaultRefund($order_id, $amount, $reason);
     }
 
-    public function getProductSpecific($product, $item, $tmp) {
-        //Product
-        $data['product_tmp'] = $tmp;        
-        $data['product_tmp']['ArticleUnitpriceExcl'] = number_format($item['line_total'] / $item['qty'], 2);
-        $data['product_tmp']['ArticleUnitpriceIncl'] = number_format(number_format($item['line_total'] + $item['line_tax'], 4) / $item['qty'], 2);
-        $data['product_itemsTotalAmount'] = number_format($data['product_tmp']['ArticleUnitpriceIncl'] * $item['qty'], 2);
-
-        return $data;
-    }
-
-    public function getFeeSpecific($item, $tmp, $fee){
-        unset($tmp['ArticleUnitprice']);
-        $data['product_tmp'] = $tmp;
-        $data['product_tmp']['ArticleUnitpriceExcl'] = number_format($item['line_total'], 2);
-        $data['product_tmp']['ArticleUnitpriceIncl'] = number_format(($item['line_total'] + $item['line_tax']), 2);
-        $data['product_itemsTotalAmount'] = $data['product_tmp']['ArticleUnitpriceIncl'];
-        
-        return $data;
-
-    }
-
-    public function getRemainingPriceSpecific($mode, $amountDedit, $itemsTotalAmount, $tmp) {
-        $articleUnitPrice = $tmp['ArticleUnitprice'];
-        unset($tmp["ArticleUnitprice"]);  
-        $data['product_tmp'] = $tmp;
-        $data['product_tmp']['ArticleUnitpriceExcl'] = $articleUnitPrice;
-        $data['product_tmp']['ArticleUnitpriceIncl'] = $articleUnitPrice;
-        
-        return $data;
-    }
 }

@@ -83,12 +83,7 @@
                     $TransactionRequest->ContinueOnIncomplete       = $this->_vars['customVars']['continueOnIncomplete'];
                 }
 
-                if (isset($this->_vars['customParameters'])) {
-                    foreach ($this->_vars['customParameters'] as $key => $value) {
-                        $TransactionRequest->AdditionalParameters->AdditionalParameter->Name = $key;
-                        $TransactionRequest->AdditionalParameters->AdditionalParameter->_ = $value;
-                    }
-                }
+                $this->_addCustomParameters($TransactionRequest);
 
                 $TransactionRequest->Services = new Services();
                 $this->_addServices($TransactionRequest);
@@ -251,6 +246,7 @@
             }
             
             protected function _addCustomFields(&$TransactionRequest, $key, $name) {
+                $unsetGroupKey = false;
                 if (
                     !isset($this->_vars['customVars']) 
                     || !isset($this->_vars['customVars'][$name])
@@ -383,7 +379,7 @@
             }
 
             private function isArticleField($field) {
-                $articleFields = array('Description', 'Identifier', 'Quantity', 'GrossUnitprice', 'VatPercentage', 'Url', 'ImageUrl');
+                $articleFields = array('Description', 'Identifier', 'Quantity', 'GrossUnitprice', 'VatPercentage', 'Url', 'ImageUrl', 'RefundType');
 
                 return in_array($field, $articleFields);
             }

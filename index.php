@@ -5,7 +5,7 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
-Version: 3.5.0
+Version: 3.6.1
 Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -555,4 +555,14 @@ function buckaroo_admin_notice() {
 }
 add_action('admin_notices', 'buckaroo_admin_notice');
 
-//test
+add_action( 'edit_form_top', 'buckaroo_order_in_test_mode' );
+
+function buckaroo_order_in_test_mode( $post ) {
+    if($post->post_type === 'shop_order') {
+        $order_in_test_mode = get_post_meta($post->ID, '_buckaroo_order_in_test_mode', true);
+        if($order_in_test_mode === '1') {
+            echo '<div class="notice notice-error"><p>'.esc_html__('The payment for this order was made in test mode').'</p></div>';
+        }
+    }
+    
+}

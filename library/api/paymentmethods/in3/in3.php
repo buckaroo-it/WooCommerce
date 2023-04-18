@@ -57,7 +57,7 @@ class BuckarooIn3 extends BuckarooPaymentMethod
      */
     public function PayIn3($products, $action)
     {
-        $this->setParameter("customParameters", ["order_id" => $this->orderId]);
+        $this->setParameter("customParameters", ["order_id" => $this->getRealOrderId()]);
         $this->setCustomVar("CustomerType", ["value" => $this->CustomerType]);
         $this->setCustomVar("InvoiceDate", ["value" => $this->InvoiceDate]);
 

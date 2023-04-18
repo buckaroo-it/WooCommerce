@@ -16,7 +16,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
     {
         $this->has_fields = true;
         $this->type       = 'klarna';
-        $this->setIcon('24x24/klarna.svg', 'svg/Klarna.svg');
+        $this->setIcon('24x24/klarna.svg', 'svg/klarna.svg');
         $this->setCountry();
 
         parent::__construct();
@@ -102,31 +102,21 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
             preg_replace('/\./', '-', $order->get_order_number())
         );
 
-      
-
-        $shippingCosts    = $order->get_total_shipping();
-        $shippingCostsTax = $order->get_shipping_tax();
-        if (floatval($shippingCosts) > 0) {
-            $klarna->ShippingCosts = number_format($shippingCosts, 2) + number_format($shippingCostsTax, 2);
-        }
-        if (floatval($shippingCostsTax) > 0) {
-            $klarna->ShippingCostsTax = number_format(($shippingCostsTax * 100) / $shippingCosts);
-        }
-
         $order_details = new Buckaroo_Order_Details($order);
         
-        $klarna = $this->getBillingInfo($order_details, $klarna);
-        $klarna = $this->getShippingInfo($order_details, $klarna);
+        $klarna = $this->get_billing_info($order_details, $klarna);
+        $klarna = $this->get_shipping_info($order_details, $klarna);
         $klarna = $this->handleThirdPartyShippings($klarna, $order, $this->country);
 
         $klarna->CustomerIPAddress = getClientIpBuckaroo();
         $klarna->Accept            = 'TRUE';
-        $products = $this->getProductsInfo($order, $klarna->amountDedit, $klarna->ShippingCosts);
 
         $klarna->returnUrl = $this->notify_url;
 
         $klarna->setPaymentFlow($this->getKlarnaPaymentFlow());
-        $response = $klarna->paymentAction($products);
+        $response = $klarna->paymentAction(
+            $this->get_products_for_payment($order_details)
+        );
         return fn_buckaroo_process_response($this, $response, $this->mode);
     }
     /**
@@ -138,7 +128,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
      *
      * @return BuckarooKlarna  $method
      */
-    protected function getBillingInfo($order_details, $method)
+    protected function get_billing_info($order_details, $method)
     {
         /** @var BuckarooKlarna */
         $method = $this->set_billing($method, $order_details);
@@ -163,7 +153,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
      *
      * @return BuckarooKlarna $method
      */
-    protected function getShippingInfo($order_details, $method)
+    protected function get_shipping_info($order_details, $method)
     {
         $method->AddressesDiffer = 'FALSE';
         if ($this->request($this->getKlarnaSelector() . "-shipping-differ")) {
@@ -189,19 +179,20 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
         return $imageUrl;
     }
 
-    public function getProductSpecific($product, $item, $tmp) { 
-        //Product
-        $data['product_tmp'] = $tmp;
-        $data['product_tmp']['ArticleUnitprice'] = number_format(number_format($item['line_total'] + $item['line_tax'], 4) / $item['qty'], 2);
-        $data['product_tmp']['ProductUrl'] = get_permalink($item['product_id']);
-        $imgUrl = $this->getProductImage($product);
-        //Don't send the tag if imgurl not set
-        if(!empty($imgUrl)){
-            $data['product_tmp']['ImageUrl'] = $imgUrl;
-        }
+    public function get_product_data(Buckaroo_Order_Item $order_item)
+    {
+        $product = parent::get_product_data($order_item);
         
-        $data['product_itemsTotalAmount'] = number_format($data['product_tmp']['ArticleUnitprice'] * $item['qty'], 2);
+        if($order_item->get_type() === 'line_item') {
 
-        return $data;
+            $img = $this->getProductImage($order_item->get_order_item()->get_product());
+            
+            if(!empty($img)) {
+                $product['imgUrl'] = $img;
+            }
+        
+            $product['url']  = get_permalink($order_item->get_id());
+        }
+        return $product;
     }
 }

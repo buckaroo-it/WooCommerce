@@ -32,8 +32,6 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
     public $ShippingEmail;
     public $ShippingPhoneNumber;
     public $ShippingLanguage;
-    public $ShippingCosts;
-    public $ShippingCostsTax;
     public $CustomerIPAddress;
     public $CustomerType;
     public $Accept;
@@ -108,7 +106,7 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
             }
     
             $shippingCompanyName = $this->diffAddress($this->ShippingCompanyName, $this->BillingCompanyName);
-            if ($shippingCompanyName !== null && $this->shippingCountry === 'NL') {
+            if ($shippingCompanyName !== null && $this->ShippingCountryCode === 'NL') {
                 $shipping = array_merge(
                     $shipping,
                     [
@@ -160,23 +158,12 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
             $billing["IdentificationNumber"] = $this->IdentificationNumber;
         }
 
-        $products = $this->PayOrAuthorizeCommon($products, $billing, $shipping);
+        $this->setCustomVarsAtPosition($billing, 0, 'BillingCustomer');
+        $this->setCustomVarsAtPosition($shipping, 1, 'ShippingCustomer');
 
-        foreach (array_values($products) as $pos => $product) {
+        foreach ($products as $pos => $product) {
             $this->setDefaultProductParams($product, $pos);
-            $additonalVars = [];
-
-            if (!empty(trim($product["ProductUrl"]))) {
-                $additonalVars['Url'] = $product["ProductUrl"];
-            }
-
-            if (!empty($product["ImageUrl"])) {
-                $additonalVars['ImageUrl'] = $product["ImageUrl"];
-            }
-            $this->setCustomVarsAtPosition($additonalVars, $pos, 'Article');
         }
-
-        $this->setShipping(count($products));
 
         return parent::$action();
     }
@@ -187,28 +174,7 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
         }
         return $billingField;
     }
-    /**
-     * Set shipping at postion
-     *
-     * @param int $position
-     *
-     * @return void
-     */
-    public function setShipping($position)
-    {
-        $this->setCustomVarsAtPosition(
-            [
-                'Description' => 'Shipping Cost',
-                'Identifier' => 'shipping',
-                'Quantity' => 1,
-                'GrossUnitprice' => (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0'),
-                'VatPercentage' => (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0')
 
-            ],
-            $position,
-            'Article'
-        );
-    }
     
     /**
      * Populate generic fields for a refund
@@ -227,7 +193,7 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
         );
 
         foreach (array_values($products) as $pos => $product) {
-            $this->setDefaultProductParams($product, $pos);
+            $this->setDefaultProductArticleParams($product, $pos);
             $this->setCustomVarAtPosition(
                 'RefundType',
                 ($product["ArticleId"] == BuckarooConfig::SHIPPING_SKU ? "Refund" : "Return"),
@@ -254,22 +220,55 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod
         );
 
         foreach (array_values($products) as $pos => $product) {
-            $this->setDefaultProductParams($product, $pos);
+            $this->setDefaultProductArticleParams($product, $pos);
         }
 
         return $this->CaptureGlobal();
     }
-    public function setDefaultProductParams($product, $position)
-    {
-        $this->setCustomVarsAtPosition(
-            [
-                'Description' => $product["ArticleDescription"],
-                'Identifier' => $product["ArticleId"],
-                'Quantity' => $product["ArticleQuantity"],
-                'GrossUnitprice' => $product["ArticleUnitprice"],
-                'VatPercentage' => !empty($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0,
 
-            ],
+    private function setDefaultProductParams($product, $position){
+        $productData = [
+            'Description' => $product['description'],
+            'Identifier' => $product['identifier'],
+            'Quantity' => $product['quantity'],
+            'GrossUnitprice' => $product['price'],
+            'VatPercentage' => $product['vatPercentage'],
+        ];
+
+        if (isset($product['url']) && !empty(trim($product['url']))) {
+            $productData['Url'] = $product['url'];
+        }
+
+        if (isset($product['imgUrl']) && !empty($product['imgUrl'])) {
+            $productData['ImageUrl'] = $product['imgUrl'];
+        }
+
+        $this->setCustomVarsAtPosition(
+            $productData,
+            $position,
+            'Article'
+        );
+    }
+
+    private function setDefaultProductArticleParams($product, $position){
+        $productData = [
+            'Description' => $product['ArticleDescription'],
+            'Identifier' => $product['ArticleId'],
+            'Quantity' => $product['ArticleQuantity'],
+            'GrossUnitprice' => $product['ArticleUnitprice'],
+            'VatPercentage' => $product['ArticleVatcategory'],
+        ];
+
+        if (isset($product['url']) && !empty(trim($product['url']))) {
+            $productData['Url'] = $product['url'];
+        }
+
+        if (isset($product['imgUrl']) && !empty($product['imgUrl'])) {
+            $productData['ImageUrl'] = $product['imgUrl'];
+        }
+
+        $this->setCustomVarsAtPosition(
+            $productData,
             $position,
             'Article'
         );

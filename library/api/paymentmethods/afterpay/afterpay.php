@@ -100,25 +100,36 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
         }
         $this->data['customVars'][$this->type]['CustomerIPAddress'] = $this->CustomerIPAddress;
         $this->data['customVars'][$this->type]['Accept']            = $this->Accept;
-        $i                                                          = 1;
 
-        // Merge products with same SKU
-        $mergedProducts = array();
-        foreach ($products as $product) {
-            if (!isset($mergedProducts[$product['ArticleId']])) {
-                $mergedProducts[$product['ArticleId']] = $product;
-            } else {
-                $mergedProducts[$product['ArticleId']]["ArticleQuantity"] += 1;
-            }
+        foreach ($products as $pos => $product) {
+            $this->setDefaultProductParams($product, $pos);
         }
 
-        $products = $mergedProducts;
-        $this->setProducts($products, $i);
 
         $this->setCommonShippingInfo();
 
 
         return parent::$action();
+    }
+
+    private function setDefaultProductParams($product, $position)
+    {
+
+        $productData = [
+            'ArticleDescription' => $product["description"],
+            'ArticleId' => $product["identifier"],
+            'ArticleQuantity' => $product["quantity"],
+            'ArticleUnitprice' => $product["price"],
+            'ArticleVatcategory' => $product["vatCategory"],
+
+        ];
+
+     
+        $this->setCustomVarsAtPosition(
+            $productData,
+            $position,
+            'Article'
+        );
     }
 
     private function setProducts($products, $i)

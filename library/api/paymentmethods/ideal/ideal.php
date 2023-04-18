@@ -38,51 +38,51 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
         $issuerArray = array(
             'ABNANL2A' => array(
                 'name' => 'ABN AMRO',
-                'logo' => 'logo_abn_s.gif',
+                'logo' => 'abnamro.svg',
             ),
             'ASNBNL21' => array(
                 'name' => 'ASN Bank',
-                'logo' => 'logo_asn.gif',
-            ),
-            'BUNQNL2A' => array(
-                'name' => 'bunq',
-                'logo' => 'logo_bunq.png',
+                'logo' => 'asnbank.svg',
             ),
             'INGBNL2A' => array(
                 'name' => 'ING',
-                'logo' => 'logo_ing_s.gif',
-            ),
-            'KNABNL2H' => array(
-                'name' => 'Knab',
-                'logo' => 'logo_knab_s.gif',
+                'logo' => 'ing.svg',
             ),
             'RABONL2U' => array(
                 'name' => 'Rabobank',
-                'logo' => 'logo_rabo_s.gif',
+                'logo' => 'rabobank.svg',
+            ),
+            'SNSBNL2A' => array(
+                'name' => 'SNS Bank',
+                'logo' => 'sns.svg',
             ),
             'RBRBNL21' => array(
                 'name' => 'RegioBank',
-                'logo' => 'regiobanklogo.png',
-            ),
-            'REVOLT21' => array(
-                'name' => 'Revolut',
-                'logo' => 'logo_revolutbanken.png',
-            ),
-            'SNSBNL2A' => array(
-                'name' => 'SNS',
-                'logo' => 'logo_sns_s.gif',
+                'logo' => 'regiobank.svg',
             ),
             'TRIONL2U' => array(
                 'name' => 'Triodos Bank',
-                'logo' => 'logo_triodos.gif',
+                'logo' => 'triodos.svg',
             ),
             'FVLBNL22' => array(
                 'name' => 'Van Lanschot',
-                'logo' => 'logo_lanschot_s.gif',
+                'logo' => 'vanlanschot.svg',
+            ),
+            'KNABNL2H' => array(
+                'name' => 'Knab',
+                'logo' => 'knab.svg',
+            ),
+            'BUNQNL2A' => array(
+                'name' => 'bunq',
+                'logo' => 'bunq.svg',
+            ),
+            'REVOLT21' => array(
+                'name' => 'Revolut',
+                'logo' => 'revolut.svg',
             ),
             'BITSNL2A' => array(
                 'name' => 'Yoursafe',
-                'logo' => 'YourSafe.png',
+                'logo' => 'yoursafe.svg',
             ),
         );
         return $issuerArray;

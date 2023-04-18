@@ -16,7 +16,7 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
      */
     public function Refund() {
         $this->setType(
-            get_post_meta($this->orderId, '_wc_order_payment_issuer', true)
+            get_post_meta($this->getRealOrderId(), '_wc_order_payment_issuer', true)
         );
         return parent::Refund();
     }
@@ -35,7 +35,7 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
         );
 
         // add the flag
-        update_post_meta( $this->orderId, '_wc_order_authorized', 'yes' );
+        update_post_meta( $this->getRealOrderId(), '_wc_order_authorized', 'yes' );
 
         return $this->PayGlobal();
     }
