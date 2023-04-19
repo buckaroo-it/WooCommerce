@@ -40,7 +40,6 @@ require_once dirname(__FILE__). "/install/class-wcb-install.php";
 require_once dirname(__FILE__). "/install/migration/Buckaroo_Migration_Handler.php";
 require_once dirname(__FILE__). "/Buckaroo_Load_Gateways.php";
 require_once dirname(__FILE__). "/controllers/PaypalExpress.php";
-include_once dirname( __FILE__ ) . '/includes/trait-wc-buckaroo-subscriptions.php';
 
 /**
  * Remove gateways based on min/max value or idin verification

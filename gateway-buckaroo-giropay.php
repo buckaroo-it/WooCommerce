@@ -8,7 +8,6 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/giropay/giropay.ph
 class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
 {
     const PAYMENT_CLASS = BuckarooGiropay::class;
-    use WC_Buckaroo_Subscriptions_Trait;
     public function __construct()
     {
         $this->id                     = 'buckaroo_giropay';
@@ -19,7 +18,7 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
 
         parent::__construct();
         $this->addRefundSupport();
-        $this->addSubscriptionsSupport();
+        apply_filters('buckaroo_init_payment_class', $this);
     }
 
     /**
@@ -61,12 +60,12 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
         $giropay = $this->createDebitRequest($order);
         $giropay->bic         = $this->request('buckaroo-giropay-bancaccount');
 
-        if($this->is_subscriptions_enabled() && $this->has_subscription($order_id)){
-            if($this->is_not_trial_subscription( $order ))
-                return apply_filters('buckaroo_subscriptions', $order, $giropay);
-        }else{
-            $response = $giropay->Pay();
-            return fn_buckaroo_process_response($this, $response);
+        $response = apply_filters('buckaroo_before_payment_request', $order, $giropay);
+        if ($response['result'] !== 'no_subscription') {
+            return $response;
         }
+
+        $response = $giropay->Pay();
+        return fn_buckaroo_process_response($this, $response);
     }
 }

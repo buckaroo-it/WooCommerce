@@ -8,7 +8,6 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/mistercash/misterc
 class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
 {
     const PAYMENT_CLASS = BuckarooMisterCash::class;
-    use WC_Buckaroo_Subscriptions_Trait;
     public function __construct()
     {
         $this->id                     = 'buckaroo_bancontactmrcash';
@@ -20,7 +19,7 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
         parent::__construct();
         $this->migrateOldSettings('woocommerce_buckaroo_mistercash_settings');
         $this->addRefundSupport();
-        $this->addSubscriptionsSupport();
+        apply_filters('buckaroo_init_payment_class', $this);
     }
 
     /**
@@ -46,12 +45,14 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooMisterCash */
         $mistercash = $this->createDebitRequest($order);
-        if($this->is_subscriptions_enabled() && $this->has_subscription($order_id)){
-            if($this->is_not_trial_subscription( $order ))
-                return apply_filters('buckaroo_subscriptions', $order, $mistercash);
-        }else{
-            $response = $mistercash->Pay();
-            return fn_buckaroo_process_response($this, $response);
+
+        $response = apply_filters('buckaroo_before_payment_request', $order, $mistercash);
+        if ($response['result'] !== 'no_subscription') {
+            return $response;
         }
+
+        $response = $mistercash->Pay();
+        return fn_buckaroo_process_response($this, $response);
+
     }
 }
