@@ -1390,4 +1390,21 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             ]
         ];
     }
+
+    /**
+     * Return properly filter if exists or null
+     *
+     * @param string $message
+     *
+     * @return array
+     */
+    function apply_filters_or_error($tag, $value, ...$args) {
+        if (has_filter($tag)) {
+            return apply_filters($tag, $value, ...$args);
+        } else {
+            // Handle the case when the filter is not found
+            // You can return an error message, throw an exception, or take any other action as needed
+            return null;
+        }
+    }
 }

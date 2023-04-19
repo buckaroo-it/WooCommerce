@@ -46,10 +46,7 @@ class WC_Gateway_Buckaroo_KBC extends WC_Gateway_Buckaroo
         /** @var BuckarooKBC */
         $kbc = $this->createDebitRequest($order);
 
-        $response = apply_filters('buckaroo_before_payment_request', $order, $kbc);
-        if ($response['result'] !== 'no_subscription') {
-            return $response;
-        }
+        $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $kbc);
 
         $response = $kbc->Pay();
         return fn_buckaroo_process_response($this, $response);

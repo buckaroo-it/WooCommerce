@@ -66,10 +66,7 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo
         $ideal = $this->createDebitRequest($order);
         $ideal->issuer = $this->request('buckaroo-ideal-issuer');
 
-        $response = apply_filters('buckaroo_before_payment_request', $order, $ideal);
-        if ($response['result'] !== 'no_subscription') {
-            return $response;
-        }
+        $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $ideal);
 
         $response = $ideal->Pay();
         return fn_buckaroo_process_response($this, $response);
