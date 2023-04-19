@@ -66,10 +66,12 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo
         $ideal = $this->createDebitRequest($order);
         $ideal->issuer = $this->request('buckaroo-ideal-issuer');
 
-        $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $ideal);
+        $response = $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $ideal);
+        if ($response) {
+            return $response;
+        }
 
         $response = $ideal->Pay();
         return fn_buckaroo_process_response($this, $response);
-
     }
 }

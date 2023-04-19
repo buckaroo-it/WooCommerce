@@ -1400,9 +1400,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      * @return array | null
      */
     function apply_filters_or_error($tag, $value, ...$args) {
-        if (has_filter($tag)) {
-            return apply_filters($tag, $value, ...$args);
+        if (!has_filter($tag)) {
+            return null;
         }
-        return null;
+        $response = apply_filters($tag, $value, ...$args);
+
+        return (isset($response['result']) && $response['result'] === 'no_subscription') ? null : $response;
     }
 }

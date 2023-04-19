@@ -46,11 +46,13 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo
         /** @var BuckarooSofortbanking */
         $sofortbanking = $this->createDebitRequest($order);
 
-        $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $sofortbanking);
+        $response = $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $sofortbanking);
+        if ($response) {
+            return $response;
+        }
 
         $response = $sofortbanking->Pay();
         return fn_buckaroo_process_response($this, $response);
-
     }
 
 }
