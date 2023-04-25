@@ -262,11 +262,12 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         }
 
         $birthdate = $this->parseDate($this->request('buckaroo-afterpay-birthdate'));
-        if (!$this->validateDate($birthdate, 'd-m-Y')) {
+        $b2b       = $this->request("buckaroo-afterpay-b2b");
+        if (!$this->validateDate($birthdate, 'd-m-Y') && $b2b != 'ON') {
             wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
         }
-        
-        if ($this->request("buckaroo-afterpay-b2b") == 'ON') {
+
+        if ($b2b == 'ON') {
             if ($this->request("buckaroo-afterpay-CompanyCOCRegistration") === null) {
                 wc_add_notice(__("Company registration number is required (KvK)", 'wc-buckaroo-bpe-gateway'), 'error');
             }
