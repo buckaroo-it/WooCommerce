@@ -70,7 +70,7 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
     {
         $this->data['customVars'][$this->type]['BillingInitials']          = $this->BillingInitials;
         $this->data['customVars'][$this->type]['BillingLastName']          = $this->BillingLastName;
-        $this->data['customVars'][$this->type]['BillingBirthDate']         = $this->BillingBirthDate;
+        $this->data['customVars'][$this->type]['BillingBirthDate']         = ($this->B2B) ? '01-01-1900' : $this->BillingBirthDate;
         $this->data['customVars'][$this->type]['BillingStreet']            = $this->BillingStreet;
         $this->data['customVars'][$this->type]['BillingHouseNumber']       = isset($this->BillingHouseNumber) ? $this->BillingHouseNumber . ' ' : $this->BillingHouseNumber;
         $this->data['customVars'][$this->type]['BillingHouseNumberSuffix'] = $this->BillingHouseNumberSuffix;
