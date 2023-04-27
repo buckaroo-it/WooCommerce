@@ -669,7 +669,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     protected function setOrderCapture($order_id, $paymentName, $paymentType = null)
     {
-
         update_post_meta($order_id, '_wc_order_selected_payment_method', $paymentName);
         $this->setOrderIssuer($order_id, $paymentType);
     }
