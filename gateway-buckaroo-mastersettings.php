@@ -134,13 +134,7 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'default'           => ''
         );
 
-        $this->form_fields['subscriptionConfigurationCode'] = array(
-            'title'       => __( 'Subscription ConfigurationCode', 'wc-buckaroo-bpe-gateway' ),
-            'type'        => 'text',
-            'description' => __( 'By Buckaroo generated code. This needs to be send for creating new subscriptions.<br> Leave empty if you don`t want to use subscriptions.', 'wc-buckaroo-bpe-gateway' ),
-            'desc_tip'    => __( 'Please fill in your personal Buckaroo “Configurationcode” if you want to use the Buckaroo Subscription service together with WooCommerce Subscriptions.<br>You can find the Configurationcode in Buckaroo → Configuration → Subscriptions → Configurations.' ),
-            'default'     => '',
-        );
+        $this->apply_filter_or_error('subscription_configurationCode_field', $this);
 
         $this->form_fields['usenewicons'] = array(
             'title'       => __('Use new icons', 'wc-buckaroo-bpe-gateway'),
