@@ -128,6 +128,14 @@ msgstr ""
 msgid "Button on product page"
 msgstr ""
 
+#: gateway-buckaroo-mastersettings.php:140
+msgid "By Buckaroo generated code. This needs to be sendBy Buckaroo generated code. This needs to be send for creating new subscriptions.<br> Leave empty if you don`t want to use subscriptions."
+msgstr ""
+
+#: gateway-buckaroo-mastersettings.php:141
+msgid "Please fill in your personal Buckaroo “Configurationcode” if you want to use the Buckaroo Subscription service together with WooCommerce Subscriptions.<br>You can find the Configurationcode in Buckaroo → Configuration → Subscriptions → Configurations."
+msgstr ""
+
 #: gateway-buckaroo-mastersettings.php:220
 msgid "By turning on this setting age verification with iDIN will be in use"
 msgstr ""
@@ -353,11 +361,11 @@ msgstr ""
 msgid "Identification Number"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:218
+#: gateway-buckaroo-mastersettings.php:154
 msgid "iDIN mode"
 msgstr "Modus iDIN"
 
-#: gateway-buckaroo-mastersettings.php:232
+#: gateway-buckaroo-mastersettings.php:168
 msgid "iDIN specific product categories"
 msgstr ""
 
@@ -647,7 +655,7 @@ msgstr ""
 msgid "Select certificate"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:235
+#: gateway-buckaroo-mastersettings.php:171
 msgid ""
 "Select for what product categories iDIN verification should be applied. "
 "Don't select anything if want to apply iDIN to any product"
@@ -893,6 +901,10 @@ msgstr ""
 msgid "Transaction description"
 msgstr ""
 
+#: gateway-buckaroo-mastersettings.php:138
+msgid "Subscription ConfigurationCode"
+msgstr ""
+
 #: gateway-buckaroo.php:410
 msgid "Transaction mode"
 msgstr ""
@@ -913,7 +925,7 @@ msgstr ""
 msgid "Use master settings"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:210
+#: gateway-buckaroo-mastersettings.php:146
 msgid "Use new icons"
 msgstr "Verwenden sie neue symbole"
 
