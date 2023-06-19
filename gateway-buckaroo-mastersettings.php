@@ -134,7 +134,7 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'default'           => ''
         );
 
-        $this->apply_filter_or_error('subscription_configurationCode_field', $this);
+        $this->apply_filter_or_error('append_subscription_configurationCode_in_setting_field', $this);
 
         $this->form_fields['usenewicons'] = array(
             'title'       => __('Use new icons', 'wc-buckaroo-bpe-gateway'),
