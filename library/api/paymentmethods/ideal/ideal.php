@@ -25,7 +25,7 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
     public function Pay($customVars = array()) {
         $this->setCustomVar(
             'issuer',
-            $this->_getIssuer($this->issuer)
+            $this->issuer
         );
         return parent::Pay();
     }
@@ -36,104 +36,55 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
      */
     public static function getIssuerList() {
         $issuerArray = array(
-            'ABNAMRO' => array(
+            'ABNANL2A' => array(
                 'name' => 'ABN AMRO',
                 'logo' => 'abnamro.svg',
             ),
-            'ASNBANK' => array(
+            'ASNBNL21' => array(
                 'name' => 'ASN Bank',
                 'logo' => 'asnbank.svg',
             ),
-            'INGBANK' => array(
+            'INGBNL2A' => array(
                 'name' => 'ING',
                 'logo' => 'ing.svg',
             ),
-            'RABOBANK' => array(
+            'RABONL2U' => array(
                 'name' => 'Rabobank',
                 'logo' => 'rabobank.svg',
             ),
-            'SNSBANK' => array(
+            'SNSBNL2A' => array(
                 'name' => 'SNS Bank',
                 'logo' => 'sns.svg',
             ),
-            'SNSREGIO' => array(
+            'RBRBNL21' => array(
                 'name' => 'RegioBank',
                 'logo' => 'regiobank.svg',
             ),
-            'TRIODOS' => array(
+            'TRIONL2U' => array(
                 'name' => 'Triodos Bank',
                 'logo' => 'triodos.svg',
             ),
-            'LANSCHOT' => array(
+            'FVLBNL22' => array(
                 'name' => 'Van Lanschot',
                 'logo' => 'vanlanschot.svg',
             ),
-            'KNAB' => array(
+            'KNABNL2H' => array(
                 'name' => 'Knab',
                 'logo' => 'knab.svg',
             ),
-            'BUNQ' => array(
+            'BUNQNL2A' => array(
                 'name' => 'bunq',
                 'logo' => 'bunq.svg',
             ),
-            'REVOLUT' => array(
+            'REVOLT21' => array(
                 'name' => 'Revolut',
                 'logo' => 'revolut.svg',
             ),
-            'YOURSAFE' => array(
+            'BITSNL2A' => array(
                 'name' => 'Yoursafe',
                 'logo' => 'yoursafe.svg',
             ),
         );
         return $issuerArray;
-    }
-
-    /**
-     * @access public
-     * @param string $issuer
-     * @return array $issuerCode
-     */
-    protected function _getIssuer($issuer) {
-        $issuerCode = '';
-        switch ($issuer) {
-            case 'ABNAMRO':
-                $issuerCode = 'ABNANL2A';
-                break;
-            case 'ASNBANK':
-                $issuerCode = 'ASNBNL21';
-                break;
-            case 'INGBANK':
-                $issuerCode = 'INGBNL2A';
-                break;
-            case 'RABOBANK':
-                $issuerCode = 'RABONL2U';
-                break;
-            case 'SNSBANK':
-                $issuerCode = 'SNSBNL2A';
-                break;
-            case 'SNSREGIO':
-                $issuerCode = 'RBRBNL21';
-                break;
-            case 'TRIODOS':
-                $issuerCode = 'TRIONL2U';
-                break;
-            case 'LANSCHOT':
-                $issuerCode = 'FVLBNL22';
-                break;
-            case 'KNAB':
-                $issuerCode = 'KNABNL2H';
-                break;
-            case 'BUNQ':
-                $issuerCode = 'BUNQNL2A';
-                break;
-            case 'REVOLUT':
-                $issuerCode = 'REVOLT21';
-                break;
-            case 'YOURSAFE':
-                $issuerCode = 'BITSNL2A';
-                break;
-        }
-
-        return $issuerCode;
     }
 }

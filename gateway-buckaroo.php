@@ -1389,4 +1389,35 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             ]
         ];
     }
+
+    /**
+     * Return properly filter if exists or null
+     *
+     * @param $tag
+     * @param $value
+     * @param mixed ...$args
+     * @return array | null
+     */
+    function apply_filters_or_error($tag, $value, ...$args) {
+        if (!has_filter($tag)) {
+            return null;
+        }
+        $response = apply_filters($tag, $value, ...$args);
+
+        return (isset($response['result']) && $response['result'] === 'no_subscription') ? null : $response;
+    }
+
+    /**
+     * Return properly filter if exists or null
+     *
+     * @param string $message
+     *
+     * @return array | null
+     */
+    function apply_filter_or_error($tag, $value) {
+        if (has_filter($tag)) {
+            return apply_filters($tag, $value);
+        }
+        return null;
+    }
 }

@@ -270,22 +270,24 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
                 value="<?php echo esc_attr($value['value']); ?>"
                 class="<?php echo esc_attr($value['class']); ?>"
                 />
-            <tr></td>
+            </td><tr>
         <?php
     }
     public function render_submeniu_field($value)
     {
         ?>
             <h2><?php echo esc_html($value['title']); ?></h2>
-            <tr><td>
-                <ul class="subsubsub" style="width:100%;margin-bottom:10px">
-                    <?php foreach ($value['links'] as $key => $link) {
-                        $endSlash = $key === count($value['links']) - 1 ? '' : '|';
-                        echo '<li><b><a href="'.esc_url($link['href']).'"> '.esc_html($link['name']).' </a></b>'.esc_html($endSlash);
-                    }
-                    ?>
-                </ul>
-            <tr></td>
+            <tr>
+                <td>
+                    <ul class="subsubsub" style="width:100%;margin-bottom:10px">
+                        <?php foreach ($value['links'] as $key => $link) {
+                            $endSlash = $key === count($value['links']) - 1 ? '' : '|';
+                            echo '<li><b><a href="'.esc_url($link['href']).'"> '.esc_html($link['name']).' </a></b>'.esc_html($endSlash);
+                        }
+                        ?>
+                    </ul>
+                </td>
+            <tr>
         <?php
     }
      /**

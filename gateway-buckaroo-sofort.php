@@ -15,11 +15,11 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Sofort";
         $this->setIcon('24x24/sofort.png', 'svg/sofort.svg');
-        
-        $this->migrateOldSettings('woocommerce_buckaroo_sofortbanking_settings');
-        parent::__construct();
-        $this->addRefundSupport();
 
+        parent::__construct();
+        $this->migrateOldSettings('woocommerce_buckaroo_sofortbanking_settings');
+        $this->addRefundSupport();
+        apply_filters('buckaroo_init_payment_class', $this);
     }
 
     /**
@@ -45,8 +45,13 @@ class WC_Gateway_Buckaroo_Sofortbanking extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooSofortbanking */
         $sofortbanking = $this->createDebitRequest($order);
-        $response = $sofortbanking->Pay();
 
+        $response = $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $sofortbanking);
+        if ($response) {
+            return $response;
+        }
+
+        $response = $sofortbanking->Pay();
         return fn_buckaroo_process_response($this, $response);
     }
 
