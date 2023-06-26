@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WC Buckaroo BPE Gateway\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-14 12:03+0000\n"
-"PO-Revision-Date: 2021-11-04 08:58+0000\n"
+"PO-Revision-Date: 2023-06-26 12:39+0000\n"
 "Last-Translator: \n"
 "Language-Team: French (France)\n"
 "Language: fr_FR\n"
@@ -14,134 +14,131 @@ msgstr ""
 "X-Generator: Loco https://localise.biz/\n"
 "X-Loco-Version: 2.4.0; wp-5.5"
 
-#: gateway-buckaroo.php:347
-msgid " Payment method"
-msgstr ""
-
-#: gateway-buckaroo-klarna.php:126 gateway-buckaroo-klarna.php:132
+#: gateway-buckaroo-klarna.php:73 gateway-buckaroo-klarna.php:81
 msgid ")"
 msgstr ""
 
-#: gateway-buckaroo-payconiq.php:174
+#: gateway-buckaroo-payconiq.php:67
 msgid "890"
 msgstr ""
 
-#: gateway-buckaroo-giftcard.php:206
-msgid ""
-"<b>Important:</b> Group giftcards can only be refunded from the Buckaroo "
-"Plaza."
-msgstr ""
-
-#: gateway-buckaroo-ideal.php:120 gateway-buckaroo-ideal.php:138
+#: gateway-buckaroo-ideal.php:47
 msgid "<strong>iDEAL bank </strong> is a required field."
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1036 gateway-buckaroo-afterpay.php:1043
-#: gateway-buckaroo-afterpay.php:1058 gateway-buckaroo-afterpay.php:1062
-#: gateway-buckaroo-afterpay.php:1066 gateway-buckaroo-afterpay.php:1070
-#: gateway-buckaroo-afterpaynew.php:1092 gateway-buckaroo-afterpaynew.php:1099
-#: gateway-buckaroo-afterpaynew.php:1114 gateway-buckaroo-afterpaynew.php:1118
-#: gateway-buckaroo-afterpaynew.php:1122 gateway-buckaroo-afterpaynew.php:1126
+#: library/klarnakp/Refund.php:42
+msgid "A capture id is required"
+msgstr ""
+
+#: library/klarnakp/Refund.php:35
+msgid "A order id is required"
+msgstr ""
+
+#: gateway-buckaroo-creditcard.php:243
+msgid "A valid credit card is required."
+msgstr ""
+
+#: gateway-buckaroo-ideal.php:50
+msgid "A valid iDEAL bank is required."
+msgstr ""
+
+#: templates/gateways/partial_afterpay_tos.php:53
+#: templates/gateways/partial_afterpay_tos.php:57
 msgid "Accept Riverty | AfterPay conditions:"
 msgstr ""
 
-#: gateway-buckaroo-billink.php:320 gateway-buckaroo-billink.php:343
+#: templates/gateways/billink.php:57 templates/gateways/billink.php:81
 msgid "Accept terms of use"
 msgstr ""
 
-#: controllers/IdinController.php:28
+#: controllers/IdinController.php:22
 msgid "According to iDIN you are under 18 years old"
 msgstr "Selon iDIN, vous avez moins de 18 ans"
 
-#: gateway-buckaroo-afterpay.php:1047 gateway-buckaroo-afterpaynew.php:1103
-msgid "Riverty | AfterPay conditions (Dutch)"
+#: gateway-buckaroo-afterpay.php:448
+msgid "AfterPay Pay or Capture"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1051 gateway-buckaroo-afterpaynew.php:1107
-msgid "Riverty | AfterPay conditions (French)"
-msgstr ""
-
-#: gateway-buckaroo-afterpay.php:1206 gateway-buckaroo-afterpaynew.php:1238
-msgid "Riverty | AfterPay Pay or Capture"
-msgstr ""
-
-#: templates/idin/checkout.php:7 templates/idin/checkout.php:26
+#: templates/idin/checkout.php:8 templates/idin/checkout.php:26
 msgid "Age verification"
 msgstr "Verification de l'AGE"
 
-#: gateway-buckaroo-sepadirectdebit.php:436
-msgid "Allowed payment methods"
+#: gateway-buckaroo-payperemail.php:167
+msgid "Allowed methods"
 msgstr ""
 
-#: gateway-buckaroo-sepadirectdebit.php:308
+#: gateway-buckaroo-creditcard.php:409
+msgid "Allowed provider"
+msgstr ""
+
+#: templates/gateways/sepadirectdebit.php:25
 msgid "Bank account holder:"
 msgstr ""
 
-#: gateway-buckaroo-giropay.php:175 gateway-buckaroo-sepadirectdebit.php:316
+#: templates/gateways/sepadirectdebit.php:54 templates/gateways/giropay.php:21
 msgid "BIC:"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1002 gateway-buckaroo-afterpaynew.php:1071
-#: gateway-buckaroo-billink.php:336 gateway-buckaroo-in3.php:319
+#: templates/gateways/partial_birth_field.php:21
 msgid "Birthdate (format DD-MM-YYYY):"
-msgstr ""
-
-#: gateway-buckaroo-sepadirectdebit.php:296
-msgid "Birthdate:"
 msgstr ""
 
 #. Author of the plugin
 msgid "Buckaroo"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:19
+#: index.php:550
+msgid "Buckaroo BPE requires WooCommerce to be installed and active"
+msgstr ""
+
+#: gateway-buckaroo-mastersettings.php:15
 msgid "Buckaroo Master Settings"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:192 gateway-buckaroo.php:425
+#: gateway-buckaroo-mastersettings.php:107
 msgid "Buckaroo payment engine culture"
+msgstr ""
+
+#: WC_Buckaroo_Settings_Page.php:409
+msgid ""
+"Buckaroo payment methods are listed below and can be accessed, enabled or "
+"disabled."
 msgstr ""
 
 #. Description of the plugin
 msgid "Buckaroo payment system plugin for WooCommerce."
 msgstr ""
 
-#: gateway-buckaroo-transfer.php:288
+#: gateway-buckaroo-transfer.php:131
 msgid "Buckaroo sends an email to the customer with the payment procedures."
 msgstr ""
 
-#: gateway-buckaroo-sepadirectdebit.php:416
-msgid ""
-"Buckaroo sends payment reminders to the customer. (Contact Buckaroo before "
-"activating credit management. By default this is excluded in the contract.)"
+#: WC_Buckaroo_Settings_Page.php:28
+msgid "Buckaroo Settings"
 msgstr ""
 
-#: gateway-buckaroo-applepay.php:460
+#: WC_Buckaroo_Settings_Page.php:142
+msgid "Buckaroo settings"
+msgstr ""
+
+#: gateway-buckaroo-applepay.php:334
 msgid "Button on cart page"
 msgstr ""
 
-#: gateway-buckaroo-applepay.php:468
+#: gateway-buckaroo-applepay.php:342
 msgid "Button on checkout page"
 msgstr ""
 
-#: gateway-buckaroo-applepay.php:452
+#: gateway-buckaroo-applepay.php:326
 msgid "Button on product page"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:140
-msgid "By Buckaroo generated code. This needs to be sendBy Buckaroo generated code. This needs to be send for creating new subscriptions.<br> Leave empty if you don`t want to use subscriptions."
-msgstr ""
-
-#: gateway-buckaroo-mastersettings.php:141
-msgid "Please fill in your personal Buckaroo “Configurationcode” if you want to use the Buckaroo Subscription service together with WooCommerce Subscriptions.<br>You can find the Configurationcode in Buckaroo → Configuration → Subscriptions → Configurations."
-msgstr ""
-
-#: gateway-buckaroo-mastersettings.php:220
+#: gateway-buckaroo-mastersettings.php:148
 msgid "By turning on this setting age verification with iDIN will be in use"
 msgstr ""
 "En activant ce paramètre, la vérification de l'âge avec iDIN sera utilisée"
 
-#: gateway-buckaroo-mastersettings.php:148
+#: gateway-buckaroo-mastersettings.php:140
 msgid ""
 "By turning on this setting in checkout new payment method icons will be in "
 "use"
@@ -149,83 +146,108 @@ msgstr ""
 "En activant ce paramètre lors du paiement, de nouvelles icônes de mode de "
 "paiement seront utilisées"
 
-#: library/common.php:171
+#: library/common.php:29
+#, php-format
+msgid "Cannot cancel klarna reservation for order #%s"
+msgstr ""
+
+#: controllers/PaypalExpressController.php:100
+msgid "Cannot create payment"
+msgstr ""
+
+#: library/klarnakp/Refund.php:73
+msgid "Cannot process refund"
+msgstr ""
+
+#: library/common.php:177
 #, php-format
 msgid "Capture failed for transaction ID: %s"
 msgstr ""
 
-#: library/common.php:140
+#: library/common.php:147
 #, php-format
-msgid "Captured %s - Capture transaction ID: %s"
+msgid "Captured %1$s - Capture transaction ID: %2$s"
 msgstr ""
 
-#: library/common.php:631
+#: gateway-buckaroo-creditcard.php:394
+msgid "Card method"
+msgstr ""
+
+#: library/common.php:463
 #, php-format
 msgid "Card number or pin is incorrect for %s"
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:455 gateway-buckaroo-creditcard.php:459
+#: templates/gateways/creditcard.php:78 templates/gateways/creditcard.php:86
 msgid "Card Number:"
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:445 gateway-buckaroo-creditcard.php:449
+#: templates/gateways/creditcard.php:61 templates/gateways/creditcard.php:69
 msgid "Cardholder Name:"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:93 gateway-buckaroo.php:406
+#: gateway-buckaroo-paypal.php:121
+msgid "Cart page"
+msgstr ""
+
+#: gateway-buckaroo-mastersettings.php:70
 msgid ""
 "Certificate thumbprint (Configuration -> Security -> Certificates -> See "
 "\"Fingerprint\" after a certificate has been generated)."
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:935 gateway-buckaroo-afterpaynew.php:1008
+#: gateway-buckaroo-creditcard.php:399
+msgid ""
+"Check with Buckaroo whether Client Side Encryption is enabled, otherwise "
+"transactions will fail. If in doubt, please contact us."
+msgstr ""
+
+#: templates/gateways/partial_afterpay_b2b.php:21
 msgid "Checkout for company"
 msgstr ""
 
-#: gateway-buckaroo-in3.php:471
-msgid "Choose In3 version"
+#: gateway-buckaroo-paypal.php:122
+msgid "Checkout page"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1208 gateway-buckaroo-afterpaynew.php:1240
-#: gateway-buckaroo-creditcard.php:635
+#: gateway-buckaroo-creditcard.php:405 gateway-buckaroo-afterpay.php:450
+#: gateway-buckaroo-afterpaynew.php:482
 msgid "Choose to execute Pay or Capture call"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:67
+#: gateway-buckaroo-mastersettings.php:83
+msgid "Click here to verify website key & secret key."
+msgstr ""
+
+#: gateway-buckaroo-mastersettings.php:44
 msgid ""
 "Click to migrate settings, from existing payment methods to master settings."
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:98 gateway-buckaroo.php:388
+#: gateway-buckaroo-mastersettings.php:75
 msgid ""
 "Click to select and upload your certificate. Note: Please save after "
 "uploading."
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:977 gateway-buckaroo-afterpaynew.php:1043
-#: gateway-buckaroo-billink.php:308
+#: templates/gateways/billink.php:25
+#: templates/gateways/partial_afterpay_b2b.php:35
 msgid "COC (KvK) number:"
 msgstr ""
 
-#: gateway-buckaroo-in3.php:332
-msgid "COC Number:"
+#: templates/gateways/afterpaynew.php:66
+msgid "CoC-number:"
 msgstr ""
 
-#: gateway-buckaroo-in3.php:327
-msgid "Company"
-msgstr ""
-
-#: gateway-buckaroo-afterpay.php:556 gateway-buckaroo-afterpay.php:642
-#: gateway-buckaroo-afterpaynew.php:603
+#: gateway-buckaroo-afterpay.php:275
 msgid "Company name is required"
 msgstr ""
 
-#: gateway-buckaroo-in3.php:336
-msgid "Company Name:"
+#: gateway-buckaroo-afterpaynew.php:325
+msgid "Company registration number is required"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:553 gateway-buckaroo-afterpay.php:638
-#: gateway-buckaroo-afterpaynew.php:600
+#: gateway-buckaroo-afterpay.php:272
 msgid "Company registration number is required (KvK)"
 msgstr ""
 
@@ -233,114 +255,179 @@ msgstr ""
 msgid "Confirm payment with your PIN or fingerprint. "
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:626
-msgid "Credit card method"
+#: index.php:187 index.php:193 index.php:250
+msgid "Credentials are incorrect"
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:633
-msgid "Credit card Pay or Capture"
+#: index.php:246
+msgid "Credentials are OK"
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:487 gateway-buckaroo-creditcard.php:492
+#: templates/gateways/creditcard.php:130 templates/gateways/creditcard.php:138
 msgid "CVC:"
 msgstr ""
 
-#: gateway-buckaroo-in3.php:325
-msgid "Debtor"
+#: templates/Buckaroo_Report_Page.php:108
+msgid "Date"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:196
+#: gateway-buckaroo-mastersettings.php:118
+msgid "Debug data storage"
+msgstr ""
+
+#: gateway-buckaroo-mastersettings.php:111
 msgid "Debug mode"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1181
+#: gateway-buckaroo-afterpay.php:436
 msgid "Default product VAT type"
 msgstr ""
 
-#: gateway-buckaroo.php:376
+#: gateway-buckaroo.php:289
+msgid ""
+"default_charset is not set.<br>This might cause a problems on receiving push "
+"message.<br>Please set default_charset=\"UTF-8\" in your php.ini and add "
+"AddDefaultCharset UTF-8 to .htaccess file."
+msgstr ""
+
+#: gateway-buckaroo.php:326 templates/Buckaroo_Report_Page.php:109
 msgid "Description"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:400
-#: gateway-buckaroo-sepadirectdebit.php:425
+#: gateway-buckaroo.php:319
+msgid "Determines how the payment method is named in the checkout."
+msgstr ""
+
+#: gateway-buckaroo-paypal.php:106
+msgid "Disabled"
+msgstr ""
+
+#: WC_Buckaroo_Settings_Page.php:241
+msgid "disabled"
+msgstr ""
+
+#: WC_Buckaroo_Settings_Page.php:148
+msgid "Documentation"
+msgstr ""
+
+#: gateway-buckaroo-payperemail.php:161
 msgid "Due date (in days)"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:256
+#: WC_Buckaroo_Settings_Page.php:246
+msgid "edit"
+msgstr ""
+
+#: templates/gateways/payperemail.php:58
 msgid "Email:"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1174
+#: gateway-buckaroo.php:304
+#, php-format
+msgid "Enable %s Payment Method"
+msgstr ""
+
+#: gateway-buckaroo-afterpay.php:429
 msgid "Enable B2B option for Riverty | AfterPay"
 msgstr ""
 
-#: gateway-buckaroo.php:346
+#: gateway-buckaroo-paypal.php:117
+msgid "Enable paypal express for the following pages."
+msgstr ""
+
+#: gateway-buckaroo.php:303
 msgid "Enable/Disable"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1176
+#: WC_Buckaroo_Settings_Page.php:420 gateway-buckaroo-paypal.php:106
+msgid "Enabled"
+msgstr ""
+
+#: WC_Buckaroo_Settings_Page.php:236
+msgid "enabled (live)"
+msgstr ""
+
+#: WC_Buckaroo_Settings_Page.php:238
+msgid "enabled (test)"
+msgstr ""
+
+#: gateway-buckaroo-afterpay.php:431
 msgid "Enables or disables possibility to pay using company credentials"
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:243
+#: gateway-buckaroo-creditcard.php:249
 msgid "Enter expiration year field"
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:249 gateway-buckaroo-creditcard.php:253
+#: gateway-buckaroo-creditcard.php:256 gateway-buckaroo-creditcard.php:260
 msgid "Enter valid expiration year"
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:465 gateway-buckaroo-creditcard.php:470
+#: templates/Buckaroo_Report_Page.php:107
+msgid "Error no"
+msgstr ""
+
+#: templates/gateways/creditcard.php:95 templates/gateways/creditcard.php:104
 msgid "Expiration Month:"
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:476 gateway-buckaroo-creditcard.php:481
+#: templates/gateways/creditcard.php:113 templates/gateways/creditcard.php:121
 msgid "Expiration Year:"
 msgstr ""
 
-#: gateway-buckaroo.php:430
-msgid "Extra charge amount"
+#: WC_Buckaroo_Settings_Page.php:152
+msgid "FAQ"
 msgstr ""
 
-#: gateway-buckaroo.php:437
-msgid "Extra charge type"
-msgstr ""
-
-#: gateway-buckaroo-mastersettings.php:106
+#: gateway-buckaroo-mastersettings.php:94
 msgid "Fee tax class"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:999 gateway-buckaroo-afterpaynew.php:1068
-#: gateway-buckaroo-billink.php:333 gateway-buckaroo-in3.php:316
-#: gateway-buckaroo-klarna.php:475 gateway-buckaroo-payperemail.php:238
-#: gateway-buckaroo-sepadirectdebit.php:293
-#: gateway-buckaroo-sepadirectdebit.php:304
-msgid "Female"
-msgstr ""
-
-#: gateway-buckaroo-afterpay.php:974 gateway-buckaroo-afterpaynew.php:1040
-#: gateway-buckaroo-billink.php:305
+#: templates/gateways/billink.php:21
+#: templates/gateways/partial_afterpay_b2b.php:31
 msgid "Fill required fields if bill in on the company:"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:91 gateway-buckaroo.php:404
+#: gateway-buckaroo-mastersettings.php:68
 msgid "Fingerprint"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:242
+#: templates/gateways/payperemail.php:30
 msgid "First Name:"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:993 gateway-buckaroo-afterpaynew.php:1066
-#: gateway-buckaroo-billink.php:327 gateway-buckaroo-in3.php:314
-#: gateway-buckaroo-klarna.php:467 gateway-buckaroo-payperemail.php:230
-#: gateway-buckaroo-sepadirectdebit.php:291
-#: gateway-buckaroo-sepadirectdebit.php:302
+#: gateway-buckaroo.php:317
+msgid "Front-end label"
+msgstr ""
+
+#: templates/gateways/partial_gender_field.php:22
 msgid "Gender:"
 msgstr ""
 
-#: gateway-buckaroo-giftcard.php:273
+#: WC_Buckaroo_Settings_Page.php:53
+msgid "General"
+msgstr ""
+
+#: WC_Buckaroo_Settings_Page.php:171
+msgid "General settings"
+msgstr ""
+
+#: gateway-buckaroo-giftcard.php:86
 msgid "Giftcards must be comma separated"
+msgstr ""
+
+#: gateway-buckaroo-applepay.php:363
+msgid "GUID"
+msgstr ""
+
+#: templates/gateways/partial_gender_field.php:26
+msgid "He/him"
+msgstr ""
+
+#: gateway-buckaroo-payperemail.php:148 gateway-buckaroo-payperemail.php:156
+#: gateway-buckaroo-applepay.php:329 gateway-buckaroo-applepay.php:337
+#: gateway-buckaroo-applepay.php:345
+msgid "Hide"
 msgstr ""
 
 #. URI of the plugin
@@ -348,237 +435,258 @@ msgstr ""
 msgid "http://www.buckaroo.nl"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:569 gateway-buckaroo-afterpay.php:700
+#: templates/gateways/partial_gender_field.php:32
+msgid "I prefer not to say"
+msgstr ""
+
+#: gateway-buckaroo-afterpay.php:285
 msgid "IBAN is required"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1026 gateway-buckaroo-sepadirectdebit.php:312
+#: templates/gateways/afterpay.php:59 templates/gateways/sepadirectdebit.php:39
 msgid "IBAN:"
 msgstr ""
 
-#: gateway-buckaroo-afterpaynew.php:1059
+#: templates/gateways/afterpaynew.php:30
 msgid "Identification Number"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:218
+#: gateway-buckaroo-mastersettings.php:146
 msgid "iDIN mode"
 msgstr "Mode iDIN"
 
-#: gateway-buckaroo-mastersettings.php:232
+#: gateway-buckaroo-mastersettings.php:160
 msgid "iDIN specific product categories"
 msgstr ""
 
-#: gateway-buckaroo-afterpaynew.php:1247
+#: gateway-buckaroo-afterpaynew.php:490
 msgid "Image info will be sent to BPE gateway inside ImageUrl parameter"
 msgstr ""
 "Les informations sur l'image seront envoyées à la passerelle BPE dans le "
 "paramètre ImageUrl"
 
-#: gateway-buckaroo-in3.php:469
-msgid "In3 version"
+#: WC_Buckaroo_Settings_Page.php:160
+msgid ""
+"Integrate more then 30+ international payment methods in your WooCommerce "
+"webshop. Simply enable them into your WooCommerce webshop with the Buckaroo "
+"Payments plugin.\n"
+"                        Please go to the <a href=\"https://plaza.buckaroo."
+"nl/Configuration/Website/Index/\">signup page</a> to create a Buckaroo "
+"account and start receiving payments.</br>\n"
+"                        Contact <a href=\"mailto:support@buckaroo.nl\">"
+"support@buckaroo.nl</a> if you have any questions about this plugin."
 msgstr ""
 
-#: gateway-buckaroo-sepadirectdebit.php:420
-msgid "Invoice delay (in days)"
+#: library/common.php:18
+#, php-format
+msgid "Klarna reservation for order #%s was successfully canceled"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:190 gateway-buckaroo.php:423
+#: library/common.php:10
+msgid "Klarna reservation was successfully canceled"
+msgstr ""
+
+#: gateway-buckaroo-mastersettings.php:105
 msgid "Language"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:249
+#: templates/gateways/payperemail.php:44
 msgid "Last Name:"
 msgstr ""
 
-#: gateway-buckaroo-giftcard.php:271
+#: gateway-buckaroo-giftcard.php:84
 msgid "List of authorized giftcards"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:996 gateway-buckaroo-afterpaynew.php:1067
-#: gateway-buckaroo-billink.php:330 gateway-buckaroo-in3.php:315
-#: gateway-buckaroo-klarna.php:471 gateway-buckaroo-payperemail.php:234
-#: gateway-buckaroo-sepadirectdebit.php:292
-#: gateway-buckaroo-sepadirectdebit.php:303
-msgid "Male"
+#: WC_Buckaroo_Settings_Page.php:458
+msgid "Manage"
 msgstr ""
 
-#: gateway-buckaroo-sepadirectdebit.php:430
-msgid "Max reminder level"
+#. %s Payment gateway name.
+#: WC_Buckaroo_Settings_Page.php:458
+#, php-format
+msgid "Manage the \"%s\" payment method"
 msgstr ""
 
-#: gateway-buckaroo.php:451
+#: gateway-buckaroo-afterpaynew.php:514
+msgid "Max order amount  for B2B"
+msgstr ""
+
+#: gateway-buckaroo.php:348
 msgid "Maximum order amount allowed"
 msgstr "Montant maximum de commande autorisé"
 
-#: gateway-buckaroo-mastersettings.php:73 gateway-buckaroo.php:392
-msgid "Merchant key"
+#: WC_Buckaroo_Settings_Page.php:419
+msgid "Method"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:65
+#: gateway-buckaroo-mastersettings.php:42
 msgid "Migrate Settings"
 msgstr ""
 
-#: gateway-buckaroo.php:444
+#: gateway-buckaroo-afterpaynew.php:507
+msgid "Min order amount  for B2B"
+msgstr ""
+
+#: gateway-buckaroo.php:341
 msgid "Minimum order amount allowed"
 msgstr "Montant minimum de commande autorisé"
 
-#: gateway-buckaroo-afterpay.php:983 gateway-buckaroo-afterpaynew.php:1047
+#: templates/gateways/partial_afterpay_b2b.php:48
 msgid "Name of the organization:"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1200 gateway-buckaroo-afterpaynew.php:1232
-#: gateway-buckaroo-applepay.php:446 gateway-buckaroo-belfius.php:269
-#: gateway-buckaroo-billink.php:467 gateway-buckaroo-creditcard.php:647
-#: gateway-buckaroo-emaestro.php:258 gateway-buckaroo-eps.php:276
-#: gateway-buckaroo-giftcard.php:284 gateway-buckaroo-giropay.php:288
-#: gateway-buckaroo-ideal.php:318 gateway-buckaroo-in3.php:463
-#: gateway-buckaroo-kbc.php:276 gateway-buckaroo-klarna.php:584
-#: gateway-buckaroo-mastersettings.php:184 gateway-buckaroo-mistercash.php:269
-#: gateway-buckaroo-nexi.php:259 gateway-buckaroo-p24.php:278
-#: gateway-buckaroo-payconiq.php:270 gateway-buckaroo-paypal.php:279
-#: gateway-buckaroo-payperemail.php:371 gateway-buckaroo-postepay.php:259
-#: gateway-buckaroo-sepadirectdebit.php:486 gateway-buckaroo-sofort.php:271
-#: gateway-buckaroo-transfer.php:304
-msgid "Notification delay"
+#: gateway-buckaroo-transfer.php:132 gateway-buckaroo-transfer.php:138
+#: WC_Buckaroo_Settings_Page.php:471
+msgid "No"
 msgstr ""
 
-#: gateway-buckaroo-sepadirectdebit.php:480
-msgid "Notification Type"
+#: templates/Buckaroo_Report_Page.php:63
+msgid "No log data found."
 msgstr ""
 
-#: gateway-buckaroo-transfer.php:281
+#: gateway-buckaroo-creditcard.php:443 gateway-buckaroo-paypal.php:119
+msgid "None"
+msgstr ""
+
+#: gateway-buckaroo-transfer.php:124
 msgid "Number of days till order expire"
 msgstr ""
 
-#: gateway-buckaroo-transfer.php:283
+#: gateway-buckaroo-transfer.php:126
 msgid "Number of days to the date that the order should be payed."
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:497
-msgid "Obligatory fields"
+#: gateway-buckaroo-afterpay.php:425
+msgid "Offer customer to pay afterwards by digital invoice."
+msgstr ""
+
+#: gateway-buckaroo-afterpay.php:425
+msgid "Offer customer to pay afterwards by SEPA Direct Debit."
 msgstr ""
 
 #: templates/payconiq/qrcode.php:317
 msgid "Open your Payconiq app. "
 msgstr ""
 
-#: gateway-buckaroo-in3.php:323
-msgid "Order as:"
+#: gateway-buckaroo-creditcard.php:403
+msgid "Pay or Capture"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:46 gateway-buckaroo-afterpaynew.php:27
-#: gateway-buckaroo-applepay.php:19 gateway-buckaroo-belfius.php:28
-#: gateway-buckaroo-billink.php:25 gateway-buckaroo-creditcard.php:19
-#: gateway-buckaroo-emaestro.php:18 gateway-buckaroo-eps.php:18
-#: gateway-buckaroo-giftcard.php:20 gateway-buckaroo-giropay.php:18
-#: gateway-buckaroo-ideal.php:21 gateway-buckaroo-in3.php:23
-#: gateway-buckaroo-kbc.php:18 gateway-buckaroo-klarnapay.php:12
-#: gateway-buckaroo-klarnapii.php:12 gateway-buckaroo-mistercash.php:30
-#: gateway-buckaroo-nexi.php:18 gateway-buckaroo-p24.php:29
-#: gateway-buckaroo-payconiq.php:18 gateway-buckaroo-paypal.php:17
-#: gateway-buckaroo-payperemail.php:19 gateway-buckaroo-postepay.php:18
-#: gateway-buckaroo-sepadirectdebit.php:24
-#: gateway-buckaroo-sofort.php:29 gateway-buckaroo-transfer.php:21
+#: gateway-buckaroo.php:79
 #, php-format
 msgid "Pay with %s"
 msgstr ""
 
-#: library/common.php:398 library/common.php:611
+#: library/common.php:268 library/common.php:443
 msgid "Payment cancelled by customer."
 msgstr ""
 
-#: gateway-buckaroo-payconiq.php:176
+#: gateway-buckaroo-payconiq.php:69
 msgid "Payment cancelled. Please try again or choose another payment method."
 msgstr ""
 
-#: gateway-buckaroo.php:278 controllers/ApplePayController.php:68
-#: controllers/ApplePayController.php:121
-#: library/api/paymentmethods/in3/in3.php:133
+#: gateway-buckaroo.php:335 library/Buckaroo_Order_Fee.php:101
 msgid "Payment fee"
 msgstr ""
 
-#: gateway-buckaroo-klarna.php:457
+#: gateway-buckaroo-mastersettings.php:98
+msgid "Payment fee display"
+msgstr ""
+
+#: templates/gateways/klarnapay.php:25
 msgid "Payment method is not supported for country "
 msgstr ""
 
-#: library/common.php:410 library/common.php:433 library/common.php:653
+#: WC_Buckaroo_Settings_Page.php:54 WC_Buckaroo_Settings_Page.php:406
+#: index.php:327 index.php:328
+msgid "Payment methods"
+msgstr ""
+
+#: library/common.php:280 library/common.php:303
 msgid ""
 "Payment unsuccessful. Please try again or choose another payment method."
 msgstr ""
 
-#: gateway-buckaroo.php:440
-msgid "Percentage or static"
+#: gateway-buckaroo-paypal.php:115
+msgid "Paypal express"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1008 gateway-buckaroo-afterpaynew.php:1075
-#: gateway-buckaroo-klarna.php:478
+#: gateway-buckaroo-paypal.php:110
+msgid "Paypal express merchant id"
+msgstr ""
+
+#: controllers/PaypalExpressController.php:101
+msgid "Paypal merchant id is required"
+msgstr ""
+
+#: gateway-buckaroo-paypal.php:112
+msgid "Paypal merchant id required for paypal express"
+msgstr ""
+
+#: templates/gateways/klarnapay.php:39 templates/gateways/afterpay.php:34
+#: templates/gateways/afterpaynew.php:50
 msgid "Phone:"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:549 gateway-buckaroo-afterpay.php:628
-#: gateway-buckaroo-afterpaynew.php:596 gateway-buckaroo-afterpaynew.php:673
-#: gateway-buckaroo-billink.php:137
+#: gateway-buckaroo-afterpay.php:261 gateway-buckaroo-afterpaynew.php:316
 msgid "Please accept licence agreements"
 msgstr ""
 
-#: gateway-buckaroo-in3.php:126
-msgid "Please enter CoC number"
+#: gateway-buckaroo-billink.php:57
+msgid "Please accept license agreements"
 msgstr ""
 
-#: gateway-buckaroo-in3.php:130
-msgid "Please enter company name"
+#: gateway-buckaroo-billink.php:49
+msgid "Please enter correct birth date"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:561 gateway-buckaroo-afterpay.php:624
-#: gateway-buckaroo-afterpaynew.php:608 gateway-buckaroo-afterpaynew.php:669
-#: gateway-buckaroo-billink.php:132 gateway-buckaroo-in3.php:189
-#: gateway-buckaroo-sepadirectdebit.php:148
-#: gateway-buckaroo-sepadirectdebit.php:202
+#: gateway-buckaroo-afterpay.php:267 gateway-buckaroo-in3.php:63
+#: gateway-buckaroo-afterpaynew.php:312
 msgid "Please enter correct birthdate date"
 msgstr ""
 
-#: gateway-buckaroo-billink.php:121
+#: gateway-buckaroo-billink.php:44
 msgid "Please enter correct COC (KvK) number"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:122
+#: gateway-buckaroo-payperemail.php:67
 msgid "Please enter email"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:116
+#: gateway-buckaroo-payperemail.php:60
 msgid "Please enter firstname"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:119
+#: gateway-buckaroo-payperemail.php:64
 msgid "Please enter lastname"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:565 gateway-buckaroo-afterpaynew.php:613
+#: gateway-buckaroo-afterpay.php:281 gateway-buckaroo-afterpaynew.php:330
 msgid "Please enter phone number"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:124
+#: gateway-buckaroo-payperemail.php:69
 msgid "Please enter valid email"
 msgstr ""
 
-#: gateway-buckaroo-sepadirectdebit.php:138
-#: gateway-buckaroo-sepadirectdebit.php:171
+#: gateway-buckaroo-sepadirectdebit.php:58
 msgid "Please fill in all required fields"
 msgstr ""
 
-#: gateway-buckaroo-giropay.php:103 gateway-buckaroo-giropay.php:122
+#: gateway-buckaroo-giropay.php:44
 msgid "Please provide correct BIC"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1183
-msgid "Please select the default VAT type for your products"
-msgstr ""
-
-#: gateway-buckaroo-payperemail.php:113
+#: gateway-buckaroo-payperemail.php:50
 msgid "Please select gender"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1169
+#: gateway-buckaroo-afterpay.php:438
+msgid "Please select the default VAT type for your products"
+msgstr ""
+
+#: gateway-buckaroo-afterpay.php:424
 msgid "Please select the service"
 msgstr ""
 
@@ -586,197 +694,196 @@ msgstr ""
 msgid "Point your camera at this QR code. "
 msgstr ""
 
-#: gateway-buckaroo-sepadirectdebit.php:482
-msgid ""
-"Pre Notification: A pre-notification that is sent some time before "
-"performing a scheduled action. Payment Complete: A notification that is sent "
-"when a transaction has been completed with success."
+#: gateway-buckaroo-paypal.php:120
+msgid "Product page"
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:628
+#: gateway-buckaroo-creditcard.php:396
 msgid ""
-"Redirect user to Buckaroo or enter creditcard information inline in the "
-"checkout. SSL is required to enable inline creditcard information"
+"Redirect user to Buckaroo or enter card information inline in the checkout. "
+"SSL is required to enable inline creditcard information."
 msgstr ""
 
-#: library/common.php:76
+#: library/common.php:77
 #, php-format
 msgid "Refund failed for transaction ID: %s"
 msgstr ""
 
-#: library/common.php:52
+#: library/common.php:51
 #, php-format
-msgid "Refunded %s - Refund transaction ID: %s"
+msgid "Refunded %1$s - Refund transaction ID: %2$s"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1073 gateway-buckaroo-afterpaynew.php:1130
-#: gateway-buckaroo-billink.php:323 gateway-buckaroo-billink.php:346
-#: gateway-buckaroo-giropay.php:180 gateway-buckaroo-klarna.php:495
-#: gateway-buckaroo-payperemail.php:262
-#: gateway-buckaroo-sepadirectdebit.php:319
+#: WC_Buckaroo_Settings_Page.php:55 index.php:334 index.php:335
+msgid "Report"
+msgstr ""
+
+#: templates/gateways/billink.php:68 templates/gateways/billink.php:91
+#: templates/gateways/klarnapay.php:60 templates/gateways/payperemail.php:70
+#: templates/gateways/sepadirectdebit.php:66
+#: templates/gateways/partial_afterpay_tos.php:80
+#: templates/gateways/giropay.php:35 templates/gateways/creditcard.php:147
 msgid "Required"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:82 gateway-buckaroo.php:398
+#: gateway-buckaroo-afterpaynew.php:496
+msgid "Riverty | AfterPay customer type"
+msgstr ""
+
+#: gateway-buckaroo-afterpaynew.php:480
+msgid "Riverty | AfterPay Pay or Capture"
+msgstr ""
+
+#: gateway-buckaroo-mastersettings.php:59
 msgid "Secret key"
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:239
+#: gateway-buckaroo-creditcard.php:226
 msgid "Select a credit card."
 msgstr "Sélectionnez une carte de crédit"
 
-#: gateway-buckaroo-afterpay.php:1167
+#: gateway-buckaroo-afterpay.php:422
 msgid "Select afterpay service"
 msgstr ""
 
-#: gateway-buckaroo-sepadirectdebit.php:439
-msgid ""
-"Select allowed payment methods for SEPA Direct Debit. (Ctrl+Click select "
-"multiple)"
-msgstr ""
-
-#: gateway-buckaroo-afterpay.php:1155 gateway-buckaroo-afterpaynew.php:1212
-#: gateway-buckaroo-applepay.php:426 gateway-buckaroo-belfius.php:249
-#: gateway-buckaroo-billink.php:447 gateway-buckaroo-creditcard.php:613
-#: gateway-buckaroo-emaestro.php:238 gateway-buckaroo-eps.php:256
-#: gateway-buckaroo-giftcard.php:258 gateway-buckaroo-giropay.php:268
-#: gateway-buckaroo-ideal.php:295 gateway-buckaroo-in3.php:443
-#: gateway-buckaroo-kbc.php:256 gateway-buckaroo-klarna.php:564
-#: gateway-buckaroo-mistercash.php:249 gateway-buckaroo-nexi.php:239
-#: gateway-buckaroo-p24.php:258 gateway-buckaroo-payconiq.php:252
-#: gateway-buckaroo-paypal.php:259 gateway-buckaroo-payperemail.php:351
-#: gateway-buckaroo-postepay.php:239
-#: gateway-buckaroo-sepadirectdebit.php:401 gateway-buckaroo-sofort.php:251
-#: gateway-buckaroo-transfer.php:268
+#: gateway-buckaroo.php:415
 msgid "Select Certificate"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:162
-msgid "Select certificate"
-msgstr ""
-
-#: gateway-buckaroo-mastersettings.php:235
+#: gateway-buckaroo-mastersettings.php:163
 msgid ""
 "Select for what product categories iDIN verification should be applied. "
 "Don't select anything if want to apply iDIN to any product"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:103
+#: gateway-buckaroo-mastersettings.php:101
+msgid "Select if payment fee is displayed including / excluding VAT"
+msgstr ""
+
+#: gateway-buckaroo-mastersettings.php:91
 msgid "Select tax class for fee"
 msgstr ""
 
-#: gateway-buckaroo-sepadirectdebit.php:432
-msgid "Select the maximum reminder level buckaroo will use."
+#: gateway-buckaroo-mastersettings.php:120
+msgid "Select where to store debug data"
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:667
-msgid "Select which Creditcard providers  will be visible to customer"
+#: gateway-buckaroo-creditcard.php:456
+msgid "Select which card provider will be shown separate in checkout"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:431
+#: gateway-buckaroo-creditcard.php:424
+msgid "Select which card providers will be visible to customer"
+msgstr ""
+
+#: gateway-buckaroo-payperemail.php:191
 msgid "Select which methods appear to the customer"
 msgstr ""
 
-#: gateway-buckaroo-ideal.php:197 templates/idin/checkout.php:37
+#: templates/gateways/ideal.php:22 templates/idin/checkout.php:37
 msgid "Select your bank"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1157 gateway-buckaroo-afterpaynew.php:1214
-#: gateway-buckaroo-applepay.php:428 gateway-buckaroo-belfius.php:251
-#: gateway-buckaroo-billink.php:449 gateway-buckaroo-creditcard.php:615
-#: gateway-buckaroo-emaestro.php:240 gateway-buckaroo-eps.php:258
-#: gateway-buckaroo-giftcard.php:260 gateway-buckaroo-giropay.php:270
-#: gateway-buckaroo-ideal.php:297 gateway-buckaroo-in3.php:445
-#: gateway-buckaroo-kbc.php:258 gateway-buckaroo-klarna.php:566
-#: gateway-buckaroo-mastersettings.php:164 gateway-buckaroo-mistercash.php:251
-#: gateway-buckaroo-nexi.php:241 gateway-buckaroo-p24.php:260
-#: gateway-buckaroo-payconiq.php:254 gateway-buckaroo-paypal.php:261
-#: gateway-buckaroo-payperemail.php:353 gateway-buckaroo-postepay.php:241
-#: gateway-buckaroo-sepadirectdebit.php:403 gateway-buckaroo-sofort.php:253
-#: gateway-buckaroo-transfer.php:270
+#: gateway-buckaroo.php:417
 msgid "Select your certificate by name."
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:428
+#: templates/gateways/creditcard.php:43
 msgid "Select your credit card:"
 msgstr ""
 
-#: gateway-buckaroo-paypal.php:285
+#: gateway-buckaroo-paypal.php:103
 msgid "Seller Protection"
 msgstr ""
 
-#: gateway-buckaroo-transfer.php:286
+#: gateway-buckaroo-transfer.php:129
 msgid "Send email"
 msgstr ""
 
-#: gateway-buckaroo-afterpaynew.php:1245
+#: gateway-buckaroo-afterpaynew.php:488
 msgid "Send image info"
 msgstr "Envoyer des informations sur l'image"
 
-#: gateway-buckaroo-paypal.php:287
+#: gateway-buckaroo-paypal.php:105
 msgid ""
 "Sends customer address information to PayPal to enable PayPal seller "
 "protection."
 msgstr ""
 
-#: library/api/paymentmethods/in3/in3.php:157
-msgid "Shipping"
+#: WC_Buckaroo_Settings_Page.php:461
+msgid "Set up"
 msgstr ""
 
-#: library/api/paymentmethods/in3/in3.php:155
-msgid "Shipping cost"
+#. %s Payment gateway name.
+#: WC_Buckaroo_Settings_Page.php:461
+#, php-format
+msgid "Set up the \"%s\" payment method"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:377
+#: index.php:320 index.php:321 index.php:352
+msgid "Settings"
+msgstr ""
+
+#: templates/gateways/partial_gender_field.php:27
+msgid "She/her"
+msgstr ""
+
+#: gateway-buckaroo-payperemail.php:148 gateway-buckaroo-payperemail.php:156
+#: gateway-buckaroo-applepay.php:329 gateway-buckaroo-applepay.php:337
+#: gateway-buckaroo-applepay.php:345
+msgid "Show"
+msgstr ""
+
+#: gateway-buckaroo-payperemail.php:138
 msgid "Show on Checkout page"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:384
+#: gateway-buckaroo-payperemail.php:145
 msgid "Show PayLink"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:386
+#: gateway-buckaroo-payperemail.php:147
 msgid "Show PayLink in admin order actions"
 msgstr ""
 
-#: gateway-buckaroo-transfer.php:292
+#: gateway-buckaroo-transfer.php:135
 msgid "Show payment procedures"
 msgstr ""
 
-#: gateway-buckaroo-transfer.php:294
+#: gateway-buckaroo-transfer.php:137
 msgid ""
 "Show payment procedures on the thank you page after payment confirmation."
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:392
+#: gateway-buckaroo-payperemail.php:153
 msgid "Show PayPerEmail"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:394
+#: gateway-buckaroo-payperemail.php:155
 msgid "Show PayPerEmail in admin order actions"
 msgstr ""
 
-#: gateway-buckaroo-payperemail.php:379
-msgid "Show PayPerEmail on the checkout page"
+#: gateway-buckaroo-payperemail.php:140
+msgid "Show PayPerEmail on Checkout page"
 msgstr ""
 
-#: gateway-buckaroo-applepay.php:462
+#: gateway-buckaroo-creditcard.php:440
+msgid "Show separate in checkout"
+msgstr ""
+
+#: gateway-buckaroo-applepay.php:336
 msgid "Show the Apple pay button on the cart page"
 msgstr ""
 
-#: gateway-buckaroo-applepay.php:470
+#: gateway-buckaroo-applepay.php:344
 msgid "Show the Apple pay button on the checkout page"
 msgstr ""
 
-#: gateway-buckaroo-applepay.php:454
+#: gateway-buckaroo-applepay.php:328
 msgid "Show the Apple pay button on the product page"
 msgstr ""
 
-#: gateway-buckaroo-in3.php:326
-msgid "SoleProprietor"
-msgstr ""
-
-#: gateway-buckaroo.php:454
+#: gateway-buckaroo.php:351
 msgid ""
 "Specify maximum order amount allowed to show the current method. Zero or "
 "empty value means no rule will be applied."
@@ -785,7 +892,7 @@ msgstr ""
 "actuelle. Une valeur nulle ou vide signifie qu'aucune règle ne sera "
 "appliquée."
 
-#: gateway-buckaroo.php:447
+#: gateway-buckaroo.php:344
 msgid ""
 "Specify minimum order amount allowed to show the current method. Zero or "
 "empty value means no rule will be applied."
@@ -793,168 +900,132 @@ msgstr ""
 "Geben Sie die zulässige mindestbestellmenge an, um die aktuelle methode "
 "anzuzeigen. Null oder leerer wert bedeutet, dass keine regel angewendet wird."
 
-#: gateway-buckaroo-sepadirectdebit.php:422
+#: gateway-buckaroo.php:337
 msgid ""
-"Specify the amount of days before Buckaroo invoices the order and sends out "
-"the payment mail."
+"Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be "
+"separated by a dot (.)"
 msgstr ""
 
-#: gateway-buckaroo-sepadirectdebit.php:427
-msgid ""
-"Specify the number of days the customer has to complete their payment before "
-"the first reminder e-mail will be sent by Buckaroo."
+#: gateway-buckaroo-mastersettings.php:85
+msgid "Test"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:925 gateway-buckaroo-afterpaynew.php:1000
-#: gateway-buckaroo-billink.php:297 gateway-buckaroo-creditcard.php:414
-#: gateway-buckaroo-giropay.php:165 gateway-buckaroo-ideal.php:182
-#: gateway-buckaroo-in3.php:304 gateway-buckaroo-klarna.php:462
-#: gateway-buckaroo-payperemail.php:224
-#: gateway-buckaroo-sepadirectdebit.php:285 gateway-buckaroo.php:485
+#: gateway-buckaroo-mastersettings.php:81
+msgid "Test credentials"
+msgstr ""
+
+#: templates/gateways/global.php:19
 msgid "TEST MODE"
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:313
-msgid "The credit card data is incorrect, please check the values"
+#. %s Payment gateway name.
+#: WC_Buckaroo_Settings_Page.php:471
+#, php-format
+msgid "The \"%s\" payment method is currently disabled"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1195 gateway-buckaroo-afterpaynew.php:1227
-#: gateway-buckaroo-applepay.php:441 gateway-buckaroo-belfius.php:264
-#: gateway-buckaroo-billink.php:462 gateway-buckaroo-creditcard.php:642
-#: gateway-buckaroo-emaestro.php:253 gateway-buckaroo-eps.php:271
-#: gateway-buckaroo-giftcard.php:279 gateway-buckaroo-giropay.php:283
-#: gateway-buckaroo-ideal.php:313 gateway-buckaroo-in3.php:458
-#: gateway-buckaroo-kbc.php:271 gateway-buckaroo-klarna.php:579
-#: gateway-buckaroo-mastersettings.php:179 gateway-buckaroo-mistercash.php:264
-#: gateway-buckaroo-nexi.php:254 gateway-buckaroo-p24.php:273
-#: gateway-buckaroo-payconiq.php:266 gateway-buckaroo-paypal.php:274
-#: gateway-buckaroo-payperemail.php:366 gateway-buckaroo-postepay.php:254
-#: gateway-buckaroo-sepadirectdebit.php:476 gateway-buckaroo-sofort.php:266
-#: gateway-buckaroo-transfer.php:300
+#. %s Payment gateway name.
+#: WC_Buckaroo_Settings_Page.php:468
+#, php-format
+msgid "The \"%s\" payment method is currently enabled"
+msgstr ""
+
+#: gateway-buckaroo-applepay.php:365
 msgid ""
-"The notification service can be used to have the payment engine sent "
-"additional notifications."
+"The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > "
+"General."
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:84 gateway-buckaroo.php:400
+#: gateway-buckaroo-payperemail.php:163
+msgid "The expiration date for the paylink."
+msgstr ""
+
+#: gateway-buckaroo-afterpaynew.php:510
+msgid ""
+"The payment method shows only for orders with an order amount greater than "
+"the minimum amount."
+msgstr ""
+
+#: gateway-buckaroo-afterpaynew.php:517
+msgid ""
+"The payment method shows only for orders with an order amount smaller than "
+"the maximum amount."
+msgstr ""
+
+#: gateway-buckaroo-mastersettings.php:61
 msgid ""
 "The secret password to verify transactions (Configuration -> Security -> "
 "Secret key)."
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:1202 gateway-buckaroo-afterpaynew.php:1234
-#: gateway-buckaroo-applepay.php:448 gateway-buckaroo-belfius.php:271
-#: gateway-buckaroo-billink.php:469 gateway-buckaroo-creditcard.php:649
-#: gateway-buckaroo-emaestro.php:260 gateway-buckaroo-eps.php:278
-#: gateway-buckaroo-giftcard.php:286 gateway-buckaroo-giropay.php:290
-#: gateway-buckaroo-ideal.php:320 gateway-buckaroo-in3.php:465
-#: gateway-buckaroo-kbc.php:278 gateway-buckaroo-klarna.php:586
-#: gateway-buckaroo-mastersettings.php:186 gateway-buckaroo-mistercash.php:271
-#: gateway-buckaroo-nexi.php:261 gateway-buckaroo-p24.php:280
-#: gateway-buckaroo-payconiq.php:272 gateway-buckaroo-paypal.php:281
-#: gateway-buckaroo-payperemail.php:373 gateway-buckaroo-postepay.php:261
-#: gateway-buckaroo-sepadirectdebit.php:488 gateway-buckaroo-sofort.php:273
-#: gateway-buckaroo-transfer.php:306
-msgid ""
-"The time at which the notification should be sent. If this is not specified, "
-"the notification is sent immediately."
-msgstr ""
-
-#: gateway-buckaroo-creditcard.php:329 gateway-buckaroo-creditcard.php:355
+#: gateway-buckaroo-creditcard.php:309 gateway-buckaroo-creditcard.php:321
 msgid "The type of credit card request is not defined. Contact Buckaroo."
 msgstr ""
 
-#: gateway-buckaroo.php:378
+#: templates/gateways/partial_gender_field.php:31
+msgid "They/them"
+msgstr ""
+
+#: gateway-buckaroo.php:328
 msgid "This controls the description which the user sees during checkout."
 msgstr ""
 
-#: gateway-buckaroo.php:368
-msgid "This controls the title which the user sees during checkout."
-msgstr ""
-
-#: gateway-buckaroo-mastersettings.php:75 gateway-buckaroo.php:394
+#: gateway-buckaroo-mastersettings.php:52
 msgid ""
 "This is your Buckaroo Payment Plaza website key (My Buckaroo -> Websites -> "
 "Choose website through Filter -> Key)."
 msgstr ""
 
-#: gateway-buckaroo.php:337
+#: gateway-buckaroo.php:294
 msgid "This payment method is not supported for the selected currency "
 msgstr ""
 
-#: gateway-buckaroo.php:357
+#: gateway-buckaroo-afterpaynew.php:498
 msgid ""
-"Tick to use master settings for this payment method (see 'Buckaroo Master "
-"Settings' page to setup your default certificate)."
+"This setting determines whether you accept Riverty | AfterPay payments for "
+"B2C, B2B or both customer types. When B2B is selected, this method is only "
+"shown when a company name is entered in the checkout process."
 msgstr ""
 
 #: templates/idin/checkout.php:31
 msgid "To continue you must verify your age using iDIN"
 msgstr "Pour continuer, vous devez vérifier votre âge à l'aide d'iDIN"
 
-#: gateway-buckaroo-mastersettings.php:198
+#: gateway-buckaroo-mastersettings.php:113
 msgid "Toggle debug mode on/off"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:203
-#: gateway-buckaroo-mastersettings.php:205 gateway-buckaroo.php:417
-#: gateway-buckaroo.php:419
+#: gateway-buckaroo-mastersettings.php:130
+#: gateway-buckaroo-mastersettings.php:132
 msgid "Transaction description"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:138
-msgid "Subscription ConfigurationCode"
-msgstr ""
-
-#: gateway-buckaroo.php:410
+#: gateway-buckaroo.php:310
 msgid "Transaction mode"
 msgstr ""
 
-#: gateway-buckaroo.php:412
+#: gateway-buckaroo.php:312
 msgid "Transaction mode used for processing orders"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:96 gateway-buckaroo.php:386
+#: gateway-buckaroo-billink.php:52 gateway-buckaroo-klarna.php:64
+#: gateway-buckaroo-payperemail.php:56
+msgid "Unknown gender"
+msgstr ""
+
+#: gateway-buckaroo-mastersettings.php:73
 msgid "Upload certificate"
 msgstr ""
 
-#: gateway-buckaroo-sepadirectdebit.php:414
-msgid "Use credit managment"
-msgstr ""
-
-#: gateway-buckaroo.php:356
-msgid "Use master settings"
-msgstr ""
-
-#: gateway-buckaroo-mastersettings.php:210
+#: gateway-buckaroo-mastersettings.php:138
 msgid "Use new icons"
 msgstr "Utiliser de nouvelles icônes"
 
-#: gateway-buckaroo-afterpay.php:1193 gateway-buckaroo-afterpaynew.php:1225
-#: gateway-buckaroo-applepay.php:439 gateway-buckaroo-belfius.php:262
-#: gateway-buckaroo-billink.php:460 gateway-buckaroo-creditcard.php:640
-#: gateway-buckaroo-emaestro.php:251 gateway-buckaroo-eps.php:269
-#: gateway-buckaroo-giftcard.php:277 gateway-buckaroo-giropay.php:281
-#: gateway-buckaroo-ideal.php:311 gateway-buckaroo-in3.php:456
-#: gateway-buckaroo-kbc.php:269 gateway-buckaroo-klarna.php:577
-#: gateway-buckaroo-mistercash.php:262 gateway-buckaroo-nexi.php:252
-#: gateway-buckaroo-p24.php:271 gateway-buckaroo-payconiq.php:264
-#: gateway-buckaroo-paypal.php:272 gateway-buckaroo-payperemail.php:364
-#: gateway-buckaroo-postepay.php:252
-#: gateway-buckaroo-sepadirectdebit.php:474 gateway-buckaroo-sofort.php:264
-#: gateway-buckaroo-transfer.php:298
-msgid "Use Notification Service"
-msgstr ""
-
-#: gateway-buckaroo-mastersettings.php:177
-msgid "Use notification service"
-msgstr ""
-
-#: gateway-buckaroo-billink.php:314
+#: templates/gateways/billink.php:41
 msgid "VAT number:"
 msgstr ""
 
-#: controllers/IdinController.php:34
+#: controllers/IdinController.php:28
 msgid "Verification has been failed"
 msgstr "La vérification a échoué"
 
@@ -962,54 +1033,63 @@ msgstr "La vérification a échoué"
 msgid "Verify your age via iDIN"
 msgstr "Vérifiez votre âge via iDIN"
 
+#: gateway-buckaroo.php:289
+msgid "Warning"
+msgstr ""
+
 #. Name of the plugin
 msgid "WC Buckaroo BPE Gateway"
 msgstr ""
 
-#: library/common.php:402 library/common.php:425 library/common.php:621
+#: library/common.php:272 library/common.php:295 library/common.php:453
 msgid ""
-"We are sorry to inform you that the request to pay afterwards with Riverty | AfterPay "
-"is not possible at this time. This can be due to various (temporary) reasons."
-" For questions about your rejection you can contact the customer service of "
-"Riverty | AfterPay. Or you can visit the website of Riverty | AfterPay and check the 'Frequently "
-"asked questions' through this <a href=\"https://www.afterpay."
-"nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise "
-"you to choose another payment method to complete your order."
+"We are sorry to inform you that the request to pay afterwards with Riverty | "
+"AfterPay is not possible at this time. This can be due to various (temporary)"
+" reasons. For questions about your rejection you can contact the customer "
+"service of Riverty | AfterPay. Or you can visit the website of Riverty | "
+"AfterPay and check the 'Frequently asked questions' through this <a "
+"href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" "
+"target=\"_blank\">link</a>. We advise you to choose another payment method "
+"to complete your order."
 msgstr ""
 
-#: gateway-buckaroo-sepadirectdebit.php:143
-#: gateway-buckaroo-sepadirectdebit.php:177
+#: gateway-buckaroo-mastersettings.php:50
+msgid "Website key"
+msgstr ""
+
+#: gateway-buckaroo-sepadirectdebit.php:62
+#: gateway-buckaroo-sepadirectdebit.php:82
 msgid "Wrong IBAN number"
 msgstr ""
 
-#: controllers/IdinController.php:26
+#: gateway-buckaroo-transfer.php:132 gateway-buckaroo-transfer.php:138
+#: WC_Buckaroo_Settings_Page.php:468
+msgid "Yes"
+msgstr ""
+
+#: controllers/IdinController.php:20
 msgid "You have been verified successfully"
 msgstr "Vous avez été vérifié avec succès"
 
-#: templates/idin/checkout.php:11
+#: controllers/PaypalExpressController.php:99
+msgid "You have canceled the payment request"
+msgstr ""
+
+#: templates/idin/checkout.php:12
 msgid "You have verified your age already"
 msgstr "Vous avez déjà vérifié votre âge"
 
-#: gateway-buckaroo-creditcard.php:318
-msgid "You havent selected your credit card issuer"
+#: install/migration/Buckaroo_Migration_Handler.php:61
+msgid ""
+"You installed a previous version of Buckaroo BPE, some functionality may not "
+"work properly"
 msgstr ""
 
-#. } else {
-#: templates/idin/cart.php:13
+#: templates/idin/cart.php:10
 msgid "You must be 18 or older to pay for the products below"
 msgstr ""
 "Vous devez être âgé d'au moins 18 ans pour payer les produits ci-dessous"
 
-#. } else {
-#: templates/idin/product.php:13
+#: templates/idin/product.php:10
 msgid "You must be 18 years or older to order this product"
 msgstr "Vous devez être âgé d'au moins 18 ans pour commander ce produit"
-
-#: gateway-buckaroo-applepay.php:476
-msgid "Your merchant ID"
-msgstr ""
-
-#: gateway-buckaroo-applepay.php:478
-msgid ""
-"Your merchant ID as supplied by Buckaroo, can be found in the Buckaroo plaza."
-msgstr ""

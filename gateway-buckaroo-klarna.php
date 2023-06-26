@@ -9,7 +9,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 {
     const PAYMENT_CLASS = BuckarooKlarna::class;
     protected $type;
-    protected $currency;
+    protected $vattype;
     protected $klarnaPaymentFlowId = '';
 
     public function __construct()
