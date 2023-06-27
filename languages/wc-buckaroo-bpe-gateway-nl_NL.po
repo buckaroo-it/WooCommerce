@@ -816,7 +816,7 @@ msgstr ""
 #: gateway-buckaroo-creditcard.php:424
 #, fuzzy
 #| msgid "Select which Creditcard providers  will be visible to customer"
-msgid "Select which card providers will be visible to customer"
+msgid "Select which credit or debit card providers will be visible to customer"
 msgstr "selecteer welke Creditecard-aanbieders aan de klant verschijnen"
 
 #: gateway-buckaroo-payperemail.php:191
