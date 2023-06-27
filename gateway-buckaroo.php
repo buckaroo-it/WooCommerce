@@ -1229,6 +1229,10 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'vatPercentage' => $item->get_vat()
         ];
 
+        if($this->id === 'buckaroo_afterpay') {
+            $product[] = $item->get_type();
+        }
+
         if($this->get_option('vattype') !== null) {
             $product['vatCategory'] = $this->get_option('vattype');
         }

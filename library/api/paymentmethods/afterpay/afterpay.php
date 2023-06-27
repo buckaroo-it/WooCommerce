@@ -102,6 +102,10 @@ class BuckarooAfterPay extends BuckarooPaymentMethod
         $this->data['customVars'][$this->type]['Accept']            = $this->Accept;
 
         foreach ($products as $pos => $product) {
+            if(isset($product['type']) && $product['type'] === 'shipping') {
+                continue;
+            }
+            
             $this->setDefaultProductParams($product, $pos);
         }
 
