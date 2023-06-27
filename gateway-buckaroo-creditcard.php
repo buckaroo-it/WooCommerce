@@ -453,7 +453,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
                     'visaelectron'   => 'Visa Electron',
                     'vpay'           => 'Vpay'
                 ),
-                'description' => __('Select which credit or debit card providers will be shown separately in the checkou', 'wc-buckaroo-bpe-gateway'),
+                'description' => __('Select which credit or debit card providers will be shown separately in the checkout', 'wc-buckaroo-bpe-gateway'),
                 'default'     => array(),
             );
 
