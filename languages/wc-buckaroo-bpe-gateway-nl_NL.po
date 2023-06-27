@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - Buckaroo Woocommerce Payments Plugin - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-06-27 08:18+0000\n"
+"PO-Revision-Date: 2023-06-27 08:27+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -143,25 +143,13 @@ msgid ""
 "don`t want to use subscriptions."
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:141
-msgid ""
-"Please fill in your personal Buckaroo “Configurationcode” if you want to use "
-"the Buckaroo Subscription service together with WooCommerce Subscriptions."
-"<br>You can find the Configurationcode in Buckaroo → Configuration → "
-"Subscriptions → Configurations."
-msgstr ""
-"Vul je persoonlijke Buckaroo “Configuratiecode” in als je gebruik wilt maken "
-"van de Buckaroo Subscription service samen met WooCommerce Subscriptions.<br>"
-"Je vindt de Configuratiecode in Buckaroo → Configuratie → Abonnementen → "
-"Configuraties."
-
 #: gateway-buckaroo-mastersettings.php:148
 msgid "By turning on this setting age verification with iDIN will be in use"
 msgstr ""
 "Door deze instelling aan te zetten wordt leeftijdsverificatie met iDIN "
 "verplicht gesteld."
 
-#: gateway-buckaroo-mastersettings.php:140
+#: gateway-buckaroo-mastersettings.php:148
 msgid ""
 "By turning on this setting in checkout new payment method icons will be in "
 "use"
@@ -192,10 +180,6 @@ msgstr "Capture mislukt voor transactie-ID: %s"
 #| msgid "Captured %s - Capture transaction ID: %s"
 msgid "Captured %1$s - Capture transaction ID: %2$s"
 msgstr "Captured %s - Capture transactie-ID: %s"
-
-#: gateway-buckaroo-creditcard.php:394
-msgid "Credit and debit card method"
-msgstr "Creditcard"
 
 #: library/common.php:463
 #, php-format
@@ -295,6 +279,14 @@ msgstr ""
 #: index.php:246
 msgid "Credentials are OK"
 msgstr ""
+
+#: gateway-buckaroo-creditcard.php:403
+msgid "Credit and debit card flow"
+msgstr "Credit and debit card flow"
+
+#: gateway-buckaroo-creditcard.php:394
+msgid "Credit and debit card method"
+msgstr "Credit en debetkaart"
 
 #: templates/gateways/creditcard.php:130 templates/gateways/creditcard.php:138
 msgid "CVC:"
@@ -606,10 +598,6 @@ msgstr "Bied de klant aan om achteraf te betalen via SEPA-incasso."
 msgid "Open your Payconiq app. "
 msgstr "Open uw Payconiq app."
 
-#: gateway-buckaroo-creditcard.php:403
-msgid "Credit and debit card flow"
-msgstr "Credit and debit card flow"
-
 #: gateway-buckaroo.php:79
 #, php-format
 msgid "Pay with %s"
@@ -716,6 +704,18 @@ msgstr "Voer een geldig emailadres in"
 msgid "Please fill in all required fields"
 msgstr "Vul alstublieft alle verplichte velden in"
 
+#: gateway-buckaroo-mastersettings.php:141
+msgid ""
+"Please fill in your personal Buckaroo “Configurationcode” if you want to use "
+"the Buckaroo Subscription service together with WooCommerce Subscriptions."
+"<br>You can find the Configurationcode in Buckaroo → Configuration → "
+"Subscriptions → Configurations."
+msgstr ""
+"Vul je persoonlijke Buckaroo “Configuratiecode” in als je gebruik wilt maken "
+"van de Buckaroo Subscription service samen met WooCommerce Subscriptions.<br>"
+"Je vindt de Configuratiecode in Buckaroo → Configuratie → Abonnementen → "
+"Configuraties."
+
 #: gateway-buckaroo-giropay.php:44
 msgid "Please provide correct BIC"
 msgstr "Geef alstublieft een correcte BIC op"
@@ -743,11 +743,13 @@ msgstr ""
 #: gateway-buckaroo-creditcard.php:396
 #, fuzzy
 #| msgid ""
-#| "Redirect user to Buckaroo or enter card information inline in the "
-#| "checkout. SSL is required to enable inline creditcard information"
+#| "Redirect user to Buckaroo or enter credit or debit card information "
+#| "inline in the checkout.SSL is required to enable inline creditcard "
+#| "information."
 msgid ""
-"Redirect user to Buckaroo or enter credit or debit card information inline "
-"in the checkout.SSL is required to enable inline creditcard information."
+"Redirect user to Buckaroo or enter credit or debit card information "
+"(directly) inline in the checkout. SSL is required to enable inline credit "
+"or debit card information."
 msgstr ""
 "Stuur de gebruiker door een Buckaroo checkout (REDIRECT) of voer CreditCard "
 "gegevens direct in vanuit uw eigen checkout (INLINE). SSL is vereist "

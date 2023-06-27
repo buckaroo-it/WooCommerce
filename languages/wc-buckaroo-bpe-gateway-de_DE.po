@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WC Buckaroo BPE Gateway\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-14 12:01+0000\n"
-"PO-Revision-Date: 2023-06-27 08:18+0000\n"
+"PO-Revision-Date: 2023-06-27 08:27+0000\n"
 "Last-Translator: \n"
 "Language-Team: German\n"
 "Language: de_DE\n"
@@ -133,13 +133,20 @@ msgstr ""
 msgid "Button on product page"
 msgstr ""
 
+#: gateway-buckaroo-mastersettings.php:140
+msgid ""
+"By Buckaroo generated code. This needs to be sendBy Buckaroo generated code. "
+"This needs to be send for creating new subscriptions.<br> Leave empty if you "
+"don`t want to use subscriptions."
+msgstr ""
+
 #: gateway-buckaroo-mastersettings.php:148
 msgid "By turning on this setting age verification with iDIN will be in use"
 msgstr ""
 "Durch aktivieren dieser einstellung wird die altersüberprüfung mit iDIN "
 "verwendet"
 
-#: gateway-buckaroo-mastersettings.php:140
+#: gateway-buckaroo-mastersettings.php:148
 msgid ""
 "By turning on this setting in checkout new payment method icons will be in "
 "use"
@@ -168,10 +175,6 @@ msgstr ""
 #: library/common.php:147
 #, php-format
 msgid "Captured %1$s - Capture transaction ID: %2$s"
-msgstr ""
-
-#: gateway-buckaroo-creditcard.php:394
-msgid "Credit and debit card method"
 msgstr ""
 
 #: library/common.php:463
@@ -262,6 +265,14 @@ msgstr ""
 
 #: index.php:246
 msgid "Credentials are OK"
+msgstr ""
+
+#: gateway-buckaroo-creditcard.php:403
+msgid "Credit and debit card flow"
+msgstr ""
+
+#: gateway-buckaroo-creditcard.php:394
+msgid "Credit and debit card method"
 msgstr ""
 
 #: templates/gateways/creditcard.php:130 templates/gateways/creditcard.php:138
@@ -452,11 +463,11 @@ msgstr ""
 msgid "Identification Number"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:146
+#: gateway-buckaroo-mastersettings.php:154
 msgid "iDIN mode"
 msgstr "Modus iDIN"
 
-#: gateway-buckaroo-mastersettings.php:160
+#: gateway-buckaroo-mastersettings.php:168
 msgid "iDIN specific product categories"
 msgstr ""
 
@@ -570,10 +581,6 @@ msgstr ""
 msgid "Open your Payconiq app. "
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:403
-msgid "Credit and debit card flow"
-msgstr ""
-
 #: gateway-buckaroo.php:79
 #, php-format
 msgid "Pay with %s"
@@ -675,6 +682,14 @@ msgstr ""
 msgid "Please fill in all required fields"
 msgstr ""
 
+#: gateway-buckaroo-mastersettings.php:141
+msgid ""
+"Please fill in your personal Buckaroo “Configurationcode” if you want to use "
+"the Buckaroo Subscription service together with WooCommerce Subscriptions."
+"<br>You can find the Configurationcode in Buckaroo → Configuration → "
+"Subscriptions → Configurations."
+msgstr ""
+
 #: gateway-buckaroo-giropay.php:44
 msgid "Please provide correct BIC"
 msgstr ""
@@ -701,8 +716,9 @@ msgstr ""
 
 #: gateway-buckaroo-creditcard.php:396
 msgid ""
-"Redirect user to Buckaroo or enter credit or debit card information inline "
-"in the checkout.SSL is required to enable inline creditcard information."
+"Redirect user to Buckaroo or enter credit or debit card information "
+"(directly) inline in the checkout. SSL is required to enable inline credit "
+"or debit card information."
 msgstr ""
 
 #: library/common.php:77
@@ -751,7 +767,7 @@ msgstr ""
 msgid "Select Certificate"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:163
+#: gateway-buckaroo-mastersettings.php:171
 msgid ""
 "Select for what product categories iDIN verification should be applied. "
 "Don't select anything if want to apply iDIN to any product"
@@ -1019,7 +1035,7 @@ msgstr ""
 msgid "Upload certificate"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:138
+#: gateway-buckaroo-mastersettings.php:146
 msgid "Use new icons"
 msgstr "Verwenden sie neue symbole"
 

@@ -705,8 +705,8 @@ msgstr ""
 
 #: gateway-buckaroo-creditcard.php:396
 msgid ""
-"Redirect user to Buckaroo or enter credit or debit card information inline in the checkout."
-"SSL is required to enable inline creditcard information."
+"Redirect user to Buckaroo or enter credit or debit card information (directly) inline in the checkout. "
+"SSL is required to enable inline credit or debit card information."
 msgstr ""
 
 #: library/common.php:77

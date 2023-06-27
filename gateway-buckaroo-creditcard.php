@@ -393,7 +393,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         $this->form_fields['creditcardmethod'] = array(
             'title'       => __('Credit and debit card method', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
-            'description' => __('Redirect user to Buckaroo or enter card information inline in the checkout. SSL is required to enable inline creditcard information.', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Redirect user to Buckaroo or enter credit or debit card information (directly) inline in the checkout. SSL is required to enable inline credit or debit card information.', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('redirect' => 'Redirect', 'encrypt' => 'Inline'),
             'default'     => 'encrypt',
             'desc_tip'    =>__('Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.', 'wc-buckaroo-bpe-gateway'),
