@@ -740,7 +740,7 @@ msgstr ""
 
 #: gateway-buckaroo-creditcard.php:226
 msgid "Select a credit card."
-msgstr "Sélectionnez une carte de crédit"
+msgstr "Sélectionnez une carte de crédit ou de débit"
 
 #: gateway-buckaroo-afterpay.php:422
 msgid "Select afterpay service"
