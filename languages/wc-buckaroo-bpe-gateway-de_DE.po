@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WC Buckaroo BPE Gateway\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-14 12:01+0000\n"
-"PO-Revision-Date: 2023-06-26 12:39+0000\n"
+"PO-Revision-Date: 2023-06-27 07:28+0000\n"
 "Last-Translator: \n"
 "Language-Team: German\n"
 "Language: de_DE\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.4.0; wp-5.5"
+"X-Loco-Version: 2.6.4; wp-6.2.2"
 
 #: gateway-buckaroo-klarna.php:73 gateway-buckaroo-klarna.php:81
 msgid ")"
@@ -701,8 +701,8 @@ msgstr ""
 
 #: gateway-buckaroo-creditcard.php:396
 msgid ""
-"Redirect user to Buckaroo or enter credit or debit card information inline in the checkout."
-"SSL is required to enable inline creditcard information."
+"Redirect user to Buckaroo or enter credit or debit card information inline "
+"in the checkout.SSL is required to enable inline creditcard information."
 msgstr ""
 
 #: library/common.php:77
