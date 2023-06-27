@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - Buckaroo Woocommerce Payments Plugin - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-06-27 07:28+0000\n"
+"PO-Revision-Date: 2023-06-27 07:31+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -825,10 +825,10 @@ msgid "Select which card provider will be shown separate in checkout"
 msgstr ""
 
 #: gateway-buckaroo-creditcard.php:424
-#, fuzzy
 #| msgid "Select which Creditcard providers  will be visible to customer"
 msgid "Select which credit or debit card providers will be visible to customer"
-msgstr "selecteer welke Creditecard-aanbieders aan de klant verschijnen"
+msgstr ""
+"Selecteer welke credit of debetkaart-aanbieders voor de klant verschijnen"
 
 #: gateway-buckaroo-payperemail.php:191
 msgid "Select which methods appear to the customer"
