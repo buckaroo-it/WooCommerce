@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WC Buckaroo BPE Gateway\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-14 12:01+0000\n"
-"PO-Revision-Date: 2023-06-27 07:28+0000\n"
+"PO-Revision-Date: 2023-06-27 08:18+0000\n"
 "Last-Translator: \n"
 "Language-Team: German\n"
 "Language: de_DE\n"
@@ -740,7 +740,7 @@ msgid "Secret key"
 msgstr ""
 
 #: gateway-buckaroo-creditcard.php:226
-msgid "Select a credit card."
+msgid "Select a credit or debit card."
 msgstr "Wählen Sie eine Kreditkarte."
 
 #: gateway-buckaroo-afterpay.php:422
@@ -770,7 +770,9 @@ msgid "Select where to store debug data"
 msgstr ""
 
 #: gateway-buckaroo-creditcard.php:456
-msgid "Select which card provider will be shown separate in checkout"
+msgid ""
+"Select which credit or debit card providers will be shown separately in the "
+"checkout"
 msgstr ""
 
 #: gateway-buckaroo-creditcard.php:424

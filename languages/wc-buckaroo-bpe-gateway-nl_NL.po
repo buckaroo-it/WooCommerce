@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - Buckaroo Woocommerce Payments Plugin - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-06-27 07:31+0000\n"
+"PO-Revision-Date: 2023-06-27 08:18+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: gateway-buckaroo-klarna.php:73 gateway-buckaroo-klarna.php:81
 msgid ")"
-msgstr ")"
+msgstr ""
 
 #: gateway-buckaroo-payconiq.php:67
 msgid "890"
@@ -788,7 +788,7 @@ msgid "Secret key"
 msgstr "Secret key"
 
 #: gateway-buckaroo-creditcard.php:226
-msgid "Select a credit card."
+msgid "Select a credit or debit card."
 msgstr "Selecteer een CreditCard."
 
 #: gateway-buckaroo-afterpay.php:422
@@ -821,7 +821,9 @@ msgid "Select where to store debug data"
 msgstr ""
 
 #: gateway-buckaroo-creditcard.php:456
-msgid "Select which card provider will be shown separate in checkout"
+msgid ""
+"Select which credit or debit card providers will be shown separately in the "
+"checkout"
 msgstr ""
 
 #: gateway-buckaroo-creditcard.php:424
