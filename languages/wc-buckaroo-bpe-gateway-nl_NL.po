@@ -183,7 +183,7 @@ msgid "Captured %1$s - Capture transaction ID: %2$s"
 msgstr "Captured %s - Capture transactie-ID: %s"
 
 #: gateway-buckaroo-creditcard.php:394
-msgid "Card method"
+msgid "Credit and debit card method"
 msgstr "Creditcard"
 
 #: library/common.php:463
@@ -356,7 +356,7 @@ msgid "Enable B2B option for Riverty | AfterPay"
 msgstr "Zet B2B aan voor Riverty | AfterPay"
 
 #: gateway-buckaroo-paypal.php:117
-msgid "Enable paypal express for the following pages."
+msgid "Enable PayPal express for the following pages."
 msgstr ""
 
 #: gateway-buckaroo.php:303
@@ -596,8 +596,8 @@ msgid "Open your Payconiq app. "
 msgstr "Open uw Payconiq app."
 
 #: gateway-buckaroo-creditcard.php:403
-msgid "Pay or Capture"
-msgstr "Pay or Capture"
+msgid "Credit and debit card flow"
+msgstr "Credit and debit card flow"
 
 #: gateway-buckaroo.php:79
 #, php-format
@@ -640,19 +640,19 @@ msgstr ""
 "betaalmethode."
 
 #: gateway-buckaroo-paypal.php:115
-msgid "Paypal express"
+msgid "PayPal express"
 msgstr ""
 
 #: gateway-buckaroo-paypal.php:110
-msgid "Paypal express merchant id"
+msgid "PayPal express merchant id"
 msgstr ""
 
 #: controllers/PaypalExpressController.php:101
-msgid "Paypal merchant id is required"
+msgid "PayPal merchant id is required"
 msgstr ""
 
 #: gateway-buckaroo-paypal.php:112
-msgid "Paypal merchant id required for paypal express"
+msgid "PayPal merchant id required for paypal express"
 msgstr ""
 
 #: templates/gateways/klarnapay.php:39 templates/gateways/afterpay.php:34
@@ -735,7 +735,7 @@ msgstr ""
 #| "Redirect user to Buckaroo or enter card information inline in the "
 #| "checkout. SSL is required to enable inline creditcard information"
 msgid ""
-"Redirect user to Buckaroo or enter card information inline in the checkout. "
+"Redirect user to Buckaroo or enter credit or debit card information inline in the checkout."
 "SSL is required to enable inline creditcard information."
 msgstr ""
 "Stuur de gebruiker door een Buckaroo checkout (REDIRECT) of voer CreditCard "
