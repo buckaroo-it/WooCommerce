@@ -106,6 +106,7 @@ Add support for WooCommerce 7.8.0
 - Riverty/AfterPay (old) shipping cost bug fix [BP-2559]
 - Riverty/AfterPay Separate Capture and Refund fix [BP-2486]
 - Riverty | Afterpay (old) B2B and B2C fix [BP-2493]
+
 = 3.6.1 =
 - Fix Tested up to tag to correct wp version
 = 3.6.0 =
