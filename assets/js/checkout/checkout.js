@@ -1,6 +1,7 @@
 class BuckarooCheckout {
   listen() {
     let self = this;
+    self.paybyBank();
     jQuery("body").on("change", 'input[name="payment_method"]', function () {
       jQuery("body").trigger("update_checkout");
     });
@@ -97,6 +98,48 @@ class BuckarooCheckout {
   klarna() {
     if (jQuery("input[name=billing_phone]").length) {
       jQuery('input[id^="buckaroo-klarna"][type="tel"]').parent().hide();
+    }
+  }
+  
+  /**
+   *  toggle payByBank list
+   */
+  paybyBank() {
+    const paybyBankShowAllIssuers = this.paybyBankShowAllIssuers;
+    jQuery('.bk-paybybank-selector .custom-radio:nth-child(n+5)').hide();
+    paybyBankShowAllIssuers();
+    jQuery('.bk-toggle-wrap').on('click', function() {
+      const toggle =jQuery('.bk-toggle');
+      const textElement =jQuery('.bk-toggle-text');
+      const isDown = toggle.is('.bk-toggle-down');
+      toggle.toggleClass('bk-toggle-down bk-toggle-up');
+      const textLess = textElement.attr('text-less');
+      const textMore = textElement.attr('text-more');
+      if(isDown) {
+          textElement.text(textLess);
+      } else {
+          textElement.text(textMore);
+      }
+
+      jQuery('.bk-paybybank-selector .custom-radio:nth-child(n+5)').toggle(isDown);
+    })
+    jQuery(window).on('resize', function() {
+      paybyBankShowAllIssuers();
+
+      
+    })
+  }
+
+  paybyBankShowAllIssuers() {
+    if (jQuery(window).width() < 768) {
+      jQuery('.bk-toggle-wrap').hide();
+      if(jQuery('.bk-toggle-down').length) {
+        jQuery('.bk-toggle-down').addClass('bk-toggle-up').removeClass('bk-toggle-down');
+        jQuery('.bk-paybybank-selector .custom-radio:nth-child(n+5)').show();
+        jQuery('.bk-toggle-text').text(jQuery('.bk-toggle-text').attr('text-less'));
+      } else {
+        jQuery('.bk-toggle-wrap').show();
+      }
     }
   }
 }

@@ -34,6 +34,10 @@ jobs:
         run: |
             cd Media
             cp -R "Creditcard issuers/SVG/." ${{ github.workspace }}/library/buckaroo_images/creditcards/
+      - name: Copy payment issuers icons
+        run: |
+            cd Media
+            cp -R "iDEAL bank issuers/SVG/." ${{ github.workspace }}/library/buckaroo_images/ideal/
       - name: Cleanup
         run: |
             rm -rd Media
