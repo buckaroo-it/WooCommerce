@@ -669,7 +669,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     protected function setOrderCapture($order_id, $paymentName, $paymentType = null)
     {
-
         update_post_meta($order_id, '_wc_order_selected_payment_method', $paymentName);
         $this->setOrderIssuer($order_id, $paymentType);
     }
@@ -1230,6 +1229,10 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'vatPercentage' => $item->get_vat()
         ];
 
+        if($this->id === 'buckaroo_afterpay') {
+            $product[] = $item->get_type();
+        }
+
         if($this->get_option('vattype') !== null) {
             $product['vatCategory'] = $this->get_option('vattype');
         }
@@ -1389,5 +1392,36 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 ]
             ]
         ];
+    }
+
+    /**
+     * Return properly filter if exists or null
+     *
+     * @param $tag
+     * @param $value
+     * @param mixed ...$args
+     * @return array | null
+     */
+    function apply_filters_or_error($tag, $value, ...$args) {
+        if (!has_filter($tag)) {
+            return null;
+        }
+        $response = apply_filters($tag, $value, ...$args);
+
+        return (isset($response['result']) && $response['result'] === 'no_subscription') ? null : $response;
+    }
+
+    /**
+     * Return properly filter if exists or null
+     *
+     * @param string $message
+     *
+     * @return array | null
+     */
+    function apply_filter_or_error($tag, $value) {
+        if (has_filter($tag)) {
+            return apply_filters($tag, $value);
+        }
+        return null;
     }
 }

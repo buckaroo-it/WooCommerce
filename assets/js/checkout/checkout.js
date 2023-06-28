@@ -20,14 +20,6 @@ class BuckarooCheckout {
         .parent()
         .toggle(jQuery.trim(jQuery(this).val()).length !== 0);
     });
-    /**
-     * toggle in3 coc & company name if debtor
-     */
-    jQuery("body").on("change", "#buckaroo-in3-orderas", function () {
-      jQuery(
-        "#buckaroo-in3-coc-container, #buckaroo-in3-companyname-container"
-      ).toggle(jQuery(this).val().toLowerCase() !== "debtor");
-    });
 
     /**
      * toggle afterpay b2b fields

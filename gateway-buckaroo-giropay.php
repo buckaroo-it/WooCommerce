@@ -14,11 +14,11 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
         $this->title                  = 'Giropay';
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo Giropay";
-        $this->setIcon('24x24/giropay.gif', 'svg/Giropay.svg');
-        $this->addRefundSupport();
+        $this->setIcon('24x24/giropay.gif', 'svg/giropay.svg');
 
         parent::__construct();
-
+        $this->addRefundSupport();
+        apply_filters('buckaroo_init_payment_class', $this);
     }
 
     /**
@@ -59,6 +59,12 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
         /** @var BuckarooGiropay */
         $giropay = $this->createDebitRequest($order);
         $giropay->bic         = $this->request('buckaroo-giropay-bancaccount');
+
+        $response = $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $giropay);
+        if ($response) {
+            return $response;
+        }
+
         $response = $giropay->Pay();
         return fn_buckaroo_process_response($this, $response);
     }

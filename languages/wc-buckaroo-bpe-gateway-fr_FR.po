@@ -128,12 +128,20 @@ msgstr ""
 msgid "Button on product page"
 msgstr ""
 
+#: gateway-buckaroo-mastersettings.php:140
+msgid "By Buckaroo generated code. This needs to be sendBy Buckaroo generated code. This needs to be send for creating new subscriptions.<br> Leave empty if you don`t want to use subscriptions."
+msgstr ""
+
+#: gateway-buckaroo-mastersettings.php:141
+msgid "Please fill in your personal Buckaroo “Configurationcode” if you want to use the Buckaroo Subscription service together with WooCommerce Subscriptions.<br>You can find the Configurationcode in Buckaroo → Configuration → Subscriptions → Configurations."
+msgstr ""
+
 #: gateway-buckaroo-mastersettings.php:220
 msgid "By turning on this setting age verification with iDIN will be in use"
 msgstr ""
 "En activant ce paramètre, la vérification de l'âge avec iDIN sera utilisée"
 
-#: gateway-buckaroo-mastersettings.php:212
+#: gateway-buckaroo-mastersettings.php:148
 msgid ""
 "By turning on this setting in checkout new payment method icons will be in "
 "use"
@@ -892,6 +900,10 @@ msgstr ""
 #: gateway-buckaroo-mastersettings.php:205 gateway-buckaroo.php:417
 #: gateway-buckaroo.php:419
 msgid "Transaction description"
+msgstr ""
+
+#: gateway-buckaroo-mastersettings.php:138
+msgid "Subscription ConfigurationCode"
 msgstr ""
 
 #: gateway-buckaroo.php:410

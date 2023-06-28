@@ -14,11 +14,12 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
         $this->title                  = 'Bancontact';
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Bancontact';
-        $this->setIcon('24x24/mistercash.png', 'svg/Bancontact.svg');
-        $this->migrateOldSettings('woocommerce_buckaroo_mistercash_settings');
+        $this->setIcon('24x24/mistercash.png', 'svg/bancontact.svg');
 
         parent::__construct();
+        $this->migrateOldSettings('woocommerce_buckaroo_mistercash_settings');
         $this->addRefundSupport();
+        apply_filters('buckaroo_init_payment_class', $this);
     }
 
     /**
@@ -44,6 +45,12 @@ class WC_Gateway_Buckaroo_Mistercash extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooMisterCash */
         $mistercash = $this->createDebitRequest($order);
+
+        $response = $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $mistercash);
+        if ($response) {
+            return $response;
+        }
+
         $response = $mistercash->Pay();
         return fn_buckaroo_process_response($this, $response);
     }

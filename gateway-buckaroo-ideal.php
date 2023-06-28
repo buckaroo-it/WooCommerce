@@ -9,16 +9,17 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo
 {
 
     const PAYMENT_CLASS = BuckarooIDeal::class;
-    function __construct()
+    public function __construct()
     {
         $this->id = 'buckaroo_ideal';
         $this->title = 'iDEAL';
         $this->has_fields   = true;
         $this->method_title = "Buckaroo iDEAL";
-        $this->setIcon('24x24/ideal.png', 'svg/iDEAL.svg');
+        $this->setIcon('24x24/ideal.png', 'svg/ideal.svg');
 
         parent::__construct();
         $this->addRefundSupport();
+        apply_filters('buckaroo_init_payment_class', $this);
     }
     /**
      * Can the order be refunded
@@ -64,6 +65,12 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo
         /** @var BuckarooIDeal */
         $ideal = $this->createDebitRequest($order);
         $ideal->issuer = $this->request('buckaroo-ideal-issuer');
+
+        $response = $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $ideal);
+        if ($response) {
+            return $response;
+        }
+
         $response = $ideal->Pay();
         return fn_buckaroo_process_response($this, $response);
     }

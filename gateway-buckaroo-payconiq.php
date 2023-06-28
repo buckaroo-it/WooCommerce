@@ -14,7 +14,7 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
         $this->title                  = 'Payconiq';
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Payconiq";
-        $this->setIcon('24x24/payconiq.png', 'svg/Payconiq.svg');
+        $this->setIcon('24x24/payconiq.png', 'svg/payconiq.svg');
 
         parent::__construct();
         $this->addRefundSupport();
