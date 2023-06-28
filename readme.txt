@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 6.2
-Stable tag: 3.6.1
+Tested up to: 6.3
+Stable tag: 3.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,13 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 
 == Changelog ==
 
+= 3.7.0 =
+- Update payment method logo's [BP-2446]
+- In3 method version changes [BP-2294]
+- Riverty/AfterPay old shipping cost bug [BP-2559]
+- Create support for Buckaroo Subscriptions [BP-2323]
+- Riverty Separate Capture and Refund does not work [BP-2486]
+- Riverty | Afterpay (old) not working properly [BP-2493]
 = 3.6.1 =
 - Fix Tested up to tag to correct wp version
 = 3.6.0 =
