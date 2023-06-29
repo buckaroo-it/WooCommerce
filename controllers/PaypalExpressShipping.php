@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Paypal express shipping class
+ * PayPal express shipping class
  * php version 7.2
  *
  * @category  Payment_Gateways

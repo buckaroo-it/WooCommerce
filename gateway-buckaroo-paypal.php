@@ -107,14 +107,14 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
             'default'     => 'TRUE'
         );
         $this->form_fields['express_merchant_id'] = array(
-            'title'       => __('Paypal express merchant id', 'wc-buckaroo-bpe-gateway'),
+            'title'       => __('PayPal express merchant id', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'text',
-            'description' => __('Paypal merchant id required for paypal express', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('PayPal merchant id required for paypal express', 'wc-buckaroo-bpe-gateway'),
         );
         $this->form_fields['express'] = array(
-            'title'       => __('Paypal express', 'wc-buckaroo-bpe-gateway'),
+            'title'       => __('PayPal express', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'multiselect',
-            'description' => __('Enable paypal express for the following pages.', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Enable PayPal express for the following pages.', 'wc-buckaroo-bpe-gateway'),
             'options'     => array(
                 Buckaroo_Paypal_Express::LOCATION_NONE     => __('None', 'wc-buckaroo-bpe-gateway'),
                 Buckaroo_Paypal_Express::LOCATION_PRODUCT  => __('Product page', 'wc-buckaroo-bpe-gateway'),

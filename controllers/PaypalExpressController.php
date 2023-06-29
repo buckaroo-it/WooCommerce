@@ -98,7 +98,7 @@ class Buckaroo_Paypal_Express
                     'i18n' => [
                         'cancel_error_message' => __("You have canceled the payment request", 'wc-buckaroo-bpe-gateway'),
                         'cannot_create_payment' => __("Cannot create payment", 'wc-buckaroo-bpe-gateway'),
-                        'merchant_id_required' => __("Paypal merchant id is required", 'wc-buckaroo-bpe-gateway')
+                        'merchant_id_required' => __("PayPal merchant id is required", 'wc-buckaroo-bpe-gateway')
                     ]
                 )
             );
