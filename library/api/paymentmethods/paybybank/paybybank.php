@@ -71,29 +71,13 @@ class BuckarooPayByBank extends BuckarooPaymentMethod
                 'name' => 'RegioBank',
                 'logo' => 'regiobank.svg',
             ),
-            'TRIONL2U' => array(
-                'name' => 'Triodos Bank',
-                'logo' => 'triodos.svg',
-            ),
-            'FVLBNL22' => array(
-                'name' => 'Van Lanschot',
-                'logo' => 'vanlanschot.svg',
-            ),
             'KNABNL2H' => array(
                 'name' => 'Knab',
                 'logo' => 'knab.svg',
             ),
-            'BUNQNL2A' => array(
-                'name' => 'bunq',
-                'logo' => 'bunq.svg',
-            ),
-            'REVOLT21' => array(
-                'name' => 'Revolut',
-                'logo' => 'revolut.svg',
-            ),
-            'BITSNL2A' => array(
-                'name' => 'Yoursafe',
-                'logo' => 'yoursafe.svg',
+            'N26' => array(
+                'name' => 'N26',
+                'logo' => 'n26.svg',
             ),
         );
 

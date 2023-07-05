@@ -10,6 +10,7 @@ class BuckarooCheckout {
       self.afterpaynew();
       self.bilink();
       self.klarna();
+      self.initPayByBank()
     });
     /**
      * toggle between bilink payment types on company name change
@@ -106,9 +107,8 @@ class BuckarooCheckout {
    */
   paybyBank() {
     const paybyBankShowAllIssuers = this.paybyBankShowAllIssuers;
-    jQuery('.bk-paybybank-selector .custom-radio:nth-child(n+5)').hide();
-    paybyBankShowAllIssuers();
-    jQuery('.bk-toggle-wrap').on('click', function() {
+    this.initPayByBank();
+    jQuery('body').on('click', '.bk-toggle-wrap', function() {
       const toggle =jQuery('.bk-toggle');
       const textElement =jQuery('.bk-toggle-text');
       const isDown = toggle.is('.bk-toggle-down');
@@ -128,6 +128,11 @@ class BuckarooCheckout {
 
       
     })
+  }
+
+  initPayByBank() {
+    jQuery('.bk-paybybank-selector .custom-radio:nth-child(n+5)').hide();
+    this.paybyBankShowAllIssuers();
   }
 
   paybyBankShowAllIssuers() {
