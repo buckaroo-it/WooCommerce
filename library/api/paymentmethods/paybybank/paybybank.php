@@ -75,7 +75,7 @@ class BuckarooPayByBank extends BuckarooPaymentMethod
                 'name' => 'Knab',
                 'logo' => 'knab.svg',
             ),
-            'N26' => array(
+            'NTSBDEB1' => array(
                 'name' => 'N26',
                 'logo' => 'n26.svg',
             ),
