@@ -78,7 +78,7 @@ class BuckarooPayByBank extends BuckarooPaymentMethod
             'NTSBDEB1' => array(
                 'name' => 'N26',
                 'logo' => 'n26.svg',
-            ),
+            )
         );
 
         $issuers = [];
