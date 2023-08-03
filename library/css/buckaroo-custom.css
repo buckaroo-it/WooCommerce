@@ -246,7 +246,7 @@ label[for^="payment_method_buckaroo_"] img {
         min-width: 55px;
     }
     .bk-paybybank-selector .bank-method-input:checked + .bank-method-label {
-        background-color: #cdd905;
+        background-color: #b2b2b2;
         color: #fff;
         border-radius: 5px;
     }
