@@ -133,7 +133,6 @@ class BuckarooCheckout {
   }
 
   initPayByBank() {
-    console.log(this.getElementToToggle());
     this.getElementToToggle().hide();
     this.paybyBankShowAllIssuers();
   }
