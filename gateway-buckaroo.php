@@ -804,10 +804,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     {
         $label =  $this->get_option('transactiondescription', 'Order #' . $order->get_order_number());
 
-        if ($label === null) {
-            return $store->getName();
-        }
-
         $label = preg_replace('/\{order_number\}/', $order->get_order_number(), $label);
         $label = preg_replace('/\{shop_name\}/', get_bloginfo('name'), $label);
 
@@ -815,6 +811,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if (count($products)) {
             $label = preg_replace('/\{product_name\}/', array_values($products)[0]->get_name(), $label);
         }
+
+        if($this->id === 'buckaroo_paybybank') {
+            $label = preg_replace("/[^A-Za-z0-9\/\-\?:\(\)\.,'\+]/", '', $label);
+        }
+
         return mb_substr($label, 0, 244);
     }
     protected function handleThirdPartyShippings($method, $order, $country)
