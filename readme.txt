@@ -3,7 +3,7 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 6.2.2
+Tested up to: 6.3.0
 Stable tag: 3.8.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -59,8 +59,8 @@ Please go to the [signup page](https://www.buckaroo.eu/solutions/request-form) (
 == Frequently Asked Questions ==
 
 = Minimum Requirements =
-- WordPress 4.4
-- WooCommerce 2.2
+- WordPress 4.4.10
+- WooCommerce 5.0
 
 = How do I automatically install the plugin? =
 1. Install the plugin through the plugins menu in wp-admin
