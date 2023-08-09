@@ -10,6 +10,11 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     const PAYMENT_CLASS = BuckarooCreditCard::class;
     public const SHOW_IN_CHECKOUT_FIELD = 'show_in_checkout';
     public $creditCardProvider = [];
+
+    protected $creditcardmethod;
+
+    protected $creditcardpayauthorize;
+
     public function __construct()
     {
         $this->setParameters();
@@ -28,8 +33,8 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
     public function setParameters()
     {
         $this->id                     = 'buckaroo_creditcard';
-        $this->title                  = 'Creditcards';
-        $this->method_title           = "Buckaroo Creditcards";
+        $this->title                  = 'Credit and debit card';
+        $this->method_title           = "Buckaroo Credit and debit card";
     }
     /**
      * Set credicard icon
@@ -218,7 +223,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         
         $issuer = $this->request($this->id.'-creditcard-issuer');
         if ($issuer === null) {
-            wc_add_notice(__("Select a credit card.", 'wc-buckaroo-bpe-gateway'), 'error');
+            wc_add_notice(__("Select a credit or debit card.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
 
@@ -386,16 +391,16 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         parent::init_form_fields();
 
         $this->form_fields['creditcardmethod'] = array(
-            'title'       => __('Credit card method', 'wc-buckaroo-bpe-gateway'),
+            'title'       => __('Credit and debit card method', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
-            'description' => __('Redirect user to Buckaroo or enter creditcard information inline in the checkout. SSL is required to enable inline creditcard information.', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Redirect user to Buckaroo or enter credit or debit card information (directly) inline in the checkout. SSL is required to enable inline credit or debit card information.', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('redirect' => 'Redirect', 'encrypt' => 'Inline'),
             'default'     => 'encrypt',
             'desc_tip'    =>__('Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.', 'wc-buckaroo-bpe-gateway'),
         
         );
         $this->form_fields['creditcardpayauthorize'] = array(
-            'title'       => __('Credit card Pay or Capture', 'wc-buckaroo-bpe-gateway'),
+            'title'       => __('Credit and debit card flow', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('pay' => 'Pay', 'authorize' => 'Authorize'),
@@ -416,7 +421,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
                     'visaelectron'   => 'Visa Electron',
                     'vpay'           => 'Vpay'
                 ),
-                'description' => __('Select which Creditcard providers  will be visible to customer', 'wc-buckaroo-bpe-gateway'),
+                'description' => __('Select which credit or debit card providers will be visible to customer', 'wc-buckaroo-bpe-gateway'),
                 'default'     => array(
                     'amex',
                     'cartebancaire',
@@ -448,7 +453,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
                     'visaelectron'   => 'Visa Electron',
                     'vpay'           => 'Vpay'
                 ),
-                'description' => __('Select which Creditecard providers will be shown separate in checkout', 'wc-buckaroo-bpe-gateway'),
+                'description' => __('Select which credit or debit card providers will be shown separately in the checkout', 'wc-buckaroo-bpe-gateway'),
                 'default'     => array(),
             );
 

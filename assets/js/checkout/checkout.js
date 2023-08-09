@@ -1,6 +1,7 @@
 class BuckarooCheckout {
   listen() {
     let self = this;
+    self.paybyBank();
     jQuery("body").on("change", 'input[name="payment_method"]', function () {
       jQuery("body").trigger("update_checkout");
     });
@@ -9,6 +10,7 @@ class BuckarooCheckout {
       self.afterpaynew();
       self.bilink();
       self.klarna();
+      self.initPayByBank();
     });
     /**
      * toggle between bilink payment types on company name change
@@ -66,7 +68,9 @@ class BuckarooCheckout {
     }
     jQuery("#buckaroo-afterpaynew-coc")
       .parent()
-      .toggle(jQuery.trim(jQuery("input[name=billing_company]").val()).length !== 0);
+      .toggle(
+        jQuery.trim(jQuery("input[name=billing_company]").val()).length !== 0
+      );
   }
   /**
    * toggle between bilink payment types
@@ -98,6 +102,63 @@ class BuckarooCheckout {
     if (jQuery("input[name=billing_phone]").length) {
       jQuery('input[id^="buckaroo-klarna"][type="tel"]').parent().hide();
     }
+  }
+
+  /**
+   *  toggle payByBank list
+   */
+  paybyBank() {
+    const paybyBankShowAllIssuers = this.paybyBankShowAllIssuers;
+    this.initPayByBank();
+
+    const self = this;
+    jQuery("body").on("click", ".bk-toggle-wrap", function () {
+      const toggle = jQuery(".bk-toggle");
+      const textElement = jQuery(".bk-toggle-text");
+      const isDown = toggle.is(".bk-toggle-down");
+      toggle.toggleClass("bk-toggle-down bk-toggle-up");
+      const textLess = textElement.attr("text-less");
+      const textMore = textElement.attr("text-more");
+      if (isDown) {
+        textElement.text(textLess);
+      } else {
+        textElement.text(textMore);
+      }
+
+      self.getElementToToggle().toggle(isDown);
+    });
+    jQuery(window).on("resize", function () {
+      paybyBankShowAllIssuers();
+    });
+  }
+
+  initPayByBank() {
+    this.getElementToToggle().hide();
+    this.paybyBankShowAllIssuers();
+  }
+
+  paybyBankShowAllIssuers() {
+    if (jQuery(window).width() < 768) {
+      jQuery(".bk-toggle-wrap").hide();
+      if (jQuery(".bk-toggle-down").length) {
+        jQuery(".bk-toggle-down")
+          .addClass("bk-toggle-up")
+          .removeClass("bk-toggle-down");
+        this.getElementToToggle().show();
+        jQuery(".bk-toggle-text").text(
+          jQuery(".bk-toggle-text").attr("text-less")
+        );
+      } else {
+        jQuery(".bk-toggle-wrap").show();
+      }
+    }
+  }
+  getElementToToggle() {
+    const hasSelected = jQuery(".bank-method-input:checked").length > 0;
+    if (hasSelected) {
+      return jQuery(".bank-method-input:not(:checked)").closest(".custom-radio");
+    }
+    return jQuery(".bk-paybybank-selector .custom-radio:nth-child(n+5)");
   }
 }
 

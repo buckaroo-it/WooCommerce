@@ -15,6 +15,8 @@
 
  class Buckaroo_Load_Gateways
  {
+    protected $dir;
+    
     protected $methods = array(
         //comment payment methods you do not want to use
         'AfterPay' => array(
@@ -112,6 +114,10 @@
         'Sofortbanking' => array(
             'filename' => 'gateway-buckaroo-sofort.php',
             'classname' => 'WC_Gateway_Buckaroo_Sofortbanking'
+        ),
+        'PayByBank' => array(
+            'filename' => 'gateway-buckaroo-paybybank.php',
+            'classname' => 'WC_Gateway_Buckaroo_PayByBank'
         )
     );
     public function __construct($dir = null) {
