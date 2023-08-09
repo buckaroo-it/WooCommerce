@@ -12,8 +12,8 @@ This is a plug-in with countless payment methods, all of which are SEPA proof.
 
 == Description ==
 
-The Buckaroo ([Dutch](https://www.buckaroo.nl/resources/integratie/woocommerce) or [English](https://www.buckaroo.eu/resources/integration/woocommerce) plug-in is convenient and works like a charm, it's easy to install and takes all the trouble out of your hands.
-It is a plug-in with many different payment methods, all of which are SEPA proof. This plug-in is completely free to download. WooCommerce is an excellent platform for a webshop to look professional, comes with built-in tools to analyze sales and itâ€™s also fully customizable. WooCommerce is used by 30% of all webshops worldwide, [download](https://www.buckaroo.nl/integratie/plugins/woocommerce/) this plugin now and find out more!
+The Buckaroo ([Dutch]https://docs.buckaroo.io/docs/nl/woocommerce-installatie) or [English](https://docs.buckaroo.io/docs/woocommerce-installation) plug-in is convenient and works like a charm, it's easy to install and takes all the trouble out of your hands.
+It is a plug-in with many different payment methods, all of which are SEPA proof. This plug-in is completely free to download. WooCommerce is an excellent platform for a webshop to look professional, comes with built-in tools to analyze sales and it's also fully customizable. WooCommerce is used by 30% of all webshops worldwide, [download](https://docs.buckaroo.io/docs/en/woocommerce-installation) this plugin now and find out more!
 Payment method support list:
 
 = Payment method support list by Buckaroo WooCommerce payments plugin =
@@ -90,7 +90,7 @@ Very likely, push settings are not setup correctly. The push is used to update t
 Probably the return fields are not yet in lowercase letters in our plaza under My Buckaroo -> Websites -> Choose your website through the filter at the top right -> Push settings. Also check whether the push settings are filled in (see the manual for information on how to set this). Additionally, you can check that the Secret Key in the Buckaroo Plaza corresponds to the Secret Key that was filled in during the configuration of the Buckaroo plugin in WooCommerce. Also, verify that the Secret Key contains only alphanumeric characters.
 
 == Release notes ==
-for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%ABn/plugins/woocommerce/release-notes
+for more detailed release notes visit https://docs.buckaroo.io/docs/woocommerce-releases
 
 == Additional Info ==
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
@@ -209,7 +209,7 @@ With 3.0.0 we are taking a big step in improving our services within WooCommerce
 
 - Improved our UI: We changed a lot, we improved and simplified our configuration process. Added a option to check you filled credentials, moved some advanced configuration to specific methods and changed icons for the payment methods to a single style/design.
 
-For more details about this release: https://support.buckaroo.nl/categorieen/plugins/woocommerce/release-notes
+For more details about this release: https://docs.buckaroo.io/docs/nl/woocommerce-releases
 
 = 2.24.1 =
 
