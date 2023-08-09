@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 6.2.2
-Stable tag: 3.7.0
+Tested up to: 6.3.0
+Stable tag: 3.8.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -59,8 +59,8 @@ Please go to the [signup page](https://www.buckaroo.eu/solutions/request-form) (
 == Frequently Asked Questions ==
 
 = Minimum Requirements =
-- WordPress 4.4
-- WooCommerce 2.2
+- WordPress 4.4.10
+- WooCommerce 5.0
 
 = How do I automatically install the plugin? =
 1. Install the plugin through the plugins menu in wp-admin
@@ -96,6 +96,12 @@ for more detailed release notes visit https://support.buckaroo.nl/categorie%C3%A
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.8.0 =
+Add support for Wordpress 6.3.0
+Add support for WooCommerce 8.0.0
+- Add payment method: PayByBank [BP-2676]
+- Rename creditcards into cards [BP-2620]
 
 = 3.7.0 =
 Add support for Wordpress 6.2.2
