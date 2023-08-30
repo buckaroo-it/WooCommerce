@@ -39,7 +39,7 @@ $selectedIssuer = BuckarooPayByBank::getActiveIssuerCode();
     <input type="hidden" name="buckaroo-paybybank-issuer" class="bk-paybybank-real-value" value="<?php echo esc_attr($selectedIssuer); ?>">
     <div class="form-row form-row-wide bk-paybybank-input bk-paybybank-mobile" style="display: none;">
         <select class="buckaroo-paybybank-select">
-            <option value="0" style="color: grey !important">
+            <option value style="color: grey !important">
                 <?php echo esc_html_e("Select your bank", "wc-buckaroo-bpe-gateway")?>
             </option>
             <?php foreach ($issuers as $key => $issuer) : ?>

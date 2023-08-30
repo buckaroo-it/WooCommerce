@@ -121,6 +121,7 @@ class BuckarooCheckout {
       let value = jQuery(this).val();
       jQuery(".bk-paybybank-real-value").val(value);
       self.setPayByBankLogo();
+      self.setRadioSelectedFromRealValue();
     });
 
     jQuery("body").on("click", ".bk-toggle-wrap", function () {
@@ -149,11 +150,34 @@ class BuckarooCheckout {
       }
     });
   }
+
+  setRadioSelectedFromRealValue() {
+    const selected = jQuery(
+      '.bk-paybybank-radio[value="' +
+        jQuery(".bk-paybybank-real-value").val() +
+        '"]'
+    );
+    if (selected.length) {
+      jQuery(".bk-toggle")
+        .removeClass("bk-toggle-up")
+        .addClass("bk-toggle-down");
+      jQuery(".bk-toggle-text").text(
+        jQuery(".bk-toggle-text").attr("text-more")
+      );
+
+      jQuery(".custom-radio").hide();
+      selected.closest(".custom-radio").show();
+      selected.prop("checked", true);
+    }
+  }
   setPayByBankLogo() {
     const code = jQuery(".bk-paybybank-real-value").val();
     if (buckaroo_global.payByBankLogos && code.length) {
       if (buckaroo_global.payByBankLogos[code]) {
-        jQuery(".payment_method_buckaroo_paybybank > label > img").prop("src", buckaroo_global.payByBankLogos[code]);
+        jQuery(".payment_method_buckaroo_paybybank > label > img").prop(
+          "src",
+          buckaroo_global.payByBankLogos[code]
+        );
       }
     }
   }
