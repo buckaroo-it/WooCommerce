@@ -85,9 +85,9 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
                 'logo' => 'yoursafe.svg',
             ),
             'NTSBDEB1' => array(
-				'name' => 'N26',
-				'logo' => 'n26.svg'
-			),
+                'name' => 'N26',
+                'logo' => 'n26.svg'
+            ),
         );
         return $issuerArray;
     }

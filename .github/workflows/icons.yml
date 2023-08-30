@@ -33,7 +33,7 @@ jobs:
             rm -f ideal-qr.svg
             rm -f knaken.svg
             rm -f paybybank.svg
-            rm -f payling.svg
+            rm -f paylink.svg
             rm -f pos.svg
       - name: Copy creditcards icons
         run: |
