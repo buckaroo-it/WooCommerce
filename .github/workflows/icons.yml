@@ -30,6 +30,11 @@ jobs:
             rm -f tinka.svg
             rm -f alipay.svg
             rm -f buckaroovoucher.svg
+            rm -f ideal-qr.svg
+            rm -f knaken.svg
+            rm -f paybybank.svg
+            rm -f payling.svg
+            rm -f pos.svg
       - name: Copy creditcards icons
         run: |
             cd Media
