@@ -150,7 +150,8 @@ function buckaroo_payment_frontend_scripts()
                 "idin_i18n" => array(
                     "general_error" => esc_html__("Something went wrong while processing your identification."),
                     "bank_required"=>esc_html__("You need to select your bank!")
-                )
+                ),
+                "payByBankLogos" => BuckarooPayByBank::getIssuerLogoUrls()
             )
         );
     }

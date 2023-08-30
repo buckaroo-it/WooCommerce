@@ -108,10 +108,21 @@ class BuckarooCheckout {
    *  toggle payByBank list
    */
   paybyBank() {
-    const paybyBankShowAllIssuers = this.paybyBankShowAllIssuers;
     this.initPayByBank();
-
     const self = this;
+
+    jQuery("body").on("change", ".bk-paybybank-radio", function () {
+      let value = jQuery(".bk-paybybank-radio:checked").val();
+      jQuery(".bk-paybybank-real-value, .buckaroo-paybybank-select").val(value);
+      self.setPayByBankLogo();
+    });
+
+    jQuery("body").on("change", ".buckaroo-paybybank-select", function () {
+      let value = jQuery(this).val();
+      jQuery(".bk-paybybank-real-value").val(value);
+      self.setPayByBankLogo();
+    });
+
     jQuery("body").on("click", ".bk-toggle-wrap", function () {
       const toggle = jQuery(".bk-toggle");
       const textElement = jQuery(".bk-toggle-text");
@@ -127,36 +138,44 @@ class BuckarooCheckout {
 
       self.getElementToToggle().toggle(isDown);
     });
+
+    let isMobile = false;
     jQuery(window).on("resize", function () {
-      paybyBankShowAllIssuers();
+      let mobile = jQuery(window).width() < 768;
+      if (isMobile !== mobile) {
+        isMobile = mobile;
+        jQuery(".bk-paybybank-mobile").toggle(isMobile);
+        jQuery(".bk-paybybank-not-mobile").toggle(!isMobile);
+      }
     });
   }
-
-  initPayByBank() {
-    this.getElementToToggle().hide();
-    this.paybyBankShowAllIssuers();
-  }
-
-  paybyBankShowAllIssuers() {
-    if (jQuery(window).width() < 768) {
-      jQuery(".bk-toggle-wrap").hide();
-      if (jQuery(".bk-toggle-down").length) {
-        jQuery(".bk-toggle-down")
-          .addClass("bk-toggle-up")
-          .removeClass("bk-toggle-down");
-        this.getElementToToggle().show();
-        jQuery(".bk-toggle-text").text(
-          jQuery(".bk-toggle-text").attr("text-less")
-        );
-      } else {
-        jQuery(".bk-toggle-wrap").show();
+  setPayByBankLogo() {
+    const code = jQuery(".bk-paybybank-real-value").val();
+    if (buckaroo_global.payByBankLogos && code.length) {
+      if (buckaroo_global.payByBankLogos[code]) {
+        jQuery(".payment_method_buckaroo_paybybank > label > img").prop("src", buckaroo_global.payByBankLogos[code]);
       }
     }
   }
+
+  initPayByBank() {
+    this.setPayByBankLogo();
+    let isMobile = jQuery(window).width() < 768;
+
+    if (isMobile) {
+      jQuery(".bk-paybybank-mobile").toggle(isMobile);
+      jQuery(".bk-paybybank-not-mobile").toggle(!isMobile);
+    }
+
+    this.getElementToToggle().hide();
+  }
+
   getElementToToggle() {
     const hasSelected = jQuery(".bank-method-input:checked").length > 0;
     if (hasSelected) {
-      return jQuery(".bank-method-input:not(:checked)").closest(".custom-radio");
+      return jQuery(".bank-method-input:not(:checked)").closest(
+        ".custom-radio"
+      );
     }
     return jQuery(".bk-paybybank-selector .custom-radio:nth-child(n+5)");
   }
