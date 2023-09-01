@@ -125,11 +125,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $feeText = '';
         $fee = $this->get_option('extrachargeamount', 0);
         $is_percentage = strpos($fee, "%") !== false;
-        $fee = intval(str_replace("%", "", $fee));
+        $fee = floatval(str_replace("%", "", $fee));
         
         if($fee != 0) {
-           
-
             if($is_percentage) {
                 $fee = str_replace("&nbsp;", "", wc_price(
                     $fee,
