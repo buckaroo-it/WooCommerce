@@ -813,6 +813,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if($this->id === 'buckaroo_paybybank') {
             $label = preg_replace("/[^A-Za-z0-9\/\-\?:\(\)\.,'\+]/", '', $label);
         }
+        $label = preg_replace("/\r?\n|\r/", '', $label);
 
         return mb_substr($label, 0, 244);
     }
