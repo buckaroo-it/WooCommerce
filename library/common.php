@@ -742,6 +742,11 @@ function checkCurrencySupported($payment_method = '')
                 'PLN',
             );
             break;
+        case 'buckaroo_sofortueberweisung':
+            $supported_currencies = array(
+                'EUR', 'GBP', 'CHF',
+            );
+            break;
         default:
             $supported_currencies = array('EUR');
             break;
