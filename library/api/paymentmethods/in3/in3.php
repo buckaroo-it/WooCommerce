@@ -6,25 +6,17 @@ require_once dirname(__FILE__) . '/../paymentmethod.php';
  */
 class BuckarooIn3 extends BuckarooPaymentMethod
 {
-    public $BillingInitials;
-    public $BillingLastName;
-    public $BillingBirthDate;
-    public $BillingStreet;
-    public $BillingHouseNumber;
-    public $BillingHouseNumberSuffix;
-    public $BillingPostalCode;
-    public $BillingCity;
-    public $BillingCountry;
-    public $BillingEmail;
-    public $BillingPhoneNumber;
-    public $BillingLanguage;
-    public $IdentificationNumber;
-    public $CustomerIPAddress;
-    public $Accept;
-    public $InvoiceDate;
-    public $cocNumber;
-    public $companyName;
-    public $orderId;
+    /**
+     * @var Buckaroo_Order_Details
+     */
+    protected $order_details;
+
+    /**
+     * @var Buckaroo_Http_Request
+     */
+    protected $request;
+
+    protected $articles;
 
     /**
      * @access public
@@ -32,8 +24,18 @@ class BuckarooIn3 extends BuckarooPaymentMethod
      */
     public function __construct()
     {
-        $this->type    = 'Capayable';
+        $this->type    = 'In3';
         $this->version = '1';
+    }
+
+    public function setData(
+        Buckaroo_Order_Details $order_details,
+        array $articles,
+        Buckaroo_Http_Request $request
+    ) {
+        $this->order_details = $order_details;
+        $this->articles = $articles;
+        $this->request = $request;
     }
 
     /**
@@ -43,67 +45,78 @@ class BuckarooIn3 extends BuckarooPaymentMethod
      */
     public function Pay($customVars = array())
     {
-        return null;
-    }
+        if (!$this->order_details instanceof Buckaroo_Order_Details) {
+            return;
+        }
 
-    /**
-     * @access public
-     * @param array $products
-     * @return callable parent::Pay();
-     */
-    public function PayIn3($products, $action)
-    {
-        $this->setParameter("customParameters", ["order_id" => $this->getRealOrderId()]);
-        $this->setCustomVar("CustomerType", ["value" => "Debtor"]);
-        $this->setCustomVar("InvoiceDate", ["value" => $this->InvoiceDate]);
+        $address = $this->order_details->getShippingAddressComponents();
 
-        $this->setCustomVar(
-            [
-                "LastName" => $this->BillingLastName,
-                "Culture" =>  'nl-NL',
-                "Initials" => $this->BillingInitials,
-                "BirthDate" => $this->BillingBirthDate
-            ],
-            null,
-            'Person'
-        );
+        $data = [
+            "Street" =>  $address['street'],
+            "StreetNumber" => $address['house_number'],
+            "PostalCode" => $this->order_details->getShipping('postcode'),
+            "City" => $this->order_details->getShipping('city'),
+            "CountryCode" => $this->order_details->getShipping('country'),
+        ];
 
-        $this->setCustomVar(
-            [
-                "Street" => $this->BillingStreet,
-                "HouseNumber" => isset($this->BillingHouseNumber) ? $this->BillingHouseNumber . ' ' : $this->BillingHouseNumber,
-                "HouseNumberSuffix" => $this->BillingHouseNumberSuffix,
-                "ZipCode" => $this->BillingPostalCode,
-                "City" => $this->BillingCity,
-                "Country" => $this->BillingCountry,
-            ],
-            null,
-            'Address'
-        );
-        $this->setCustomVar("Phone", $this->BillingPhoneNumber, 'Phone');
-        $this->setCustomVar("Email", $this->BillingEmail, 'Email');
+        if (!empty($address['number_addition'])) {
+            $data["StreetNumberSuffix"] = $address['number_addition'];
+        }
 
-        foreach ($products as $pos => $product) {
+        $this->setCustomVarsAtPosition($data, 1, 'ShippingCustomer');
+
+
+        $address = $this->order_details->getBillingAddressComponents();
+
+        $data = [
+
+            'CustomerNumber' => get_current_user_id(),
+            'FirstName' => $this->order_details->getBilling('first_name'),
+            'LastName' => $this->order_details->getBilling('last_name'),
+            'Initials' => $this->order_details->getInitials(
+                $this->order_details->getBilling('last_name') . " " . $this->order_details->getBilling('last_name')
+            ),
+            'BirthDate' => date('Y-m-d', strtotime($this->request->request('buckaroo-in3-birthdate'))),
+            'Phone' => $this->order_details->getBillingPhone(),
+            'Email' => $this->order_details->getBilling('email'),
+            'Category' => 'B2C',
+
+            "Street" =>  $address['street'],
+            "StreetNumber" => $address['house_number'],
+            "PostalCode" => $this->order_details->getBilling('postcode'),
+            "City" => $this->order_details->getBilling('city'),
+            "CountryCode" => $this->order_details->getBilling('country'),
+        ];
+
+        if (!empty($address['number_addition'])) {
+            $data["StreetNumberSuffix"] = $address['number_addition'];
+        }
+
+        $this->setCustomVarsAtPosition($data, 0, 'BillingCustomer');
+
+        foreach ($this->articles as $pos => $product) {
             $this->setDefaultProductParams($product, $pos);
         }
-        return parent::$action();
+
+        return parent::pay();
     }
 
     private function setDefaultProductParams($product, $position)
     {
 
         $productData = [
-            'Name' => $product["description"],
-            'Code' => $product["identifier"],
+            'Description' => $product["description"],
+            'Identifier' => $product["identifier"],
             'Quantity' => $product["quantity"],
-            'Price' => $product["price"],
+            'GrossUnitPrice' => $product["price"],
+            'VatPercentage' => $product["vatPercentage"],
         ];
 
-        
+
         $this->setCustomVarsAtPosition(
             $productData,
             $position,
-            'ProductLine'
+            'Article'
         );
     }
 
@@ -118,7 +131,7 @@ class BuckarooIn3 extends BuckarooPaymentMethod
     public function In3Refund()
     {
         $this->setServiceTypeActionAndVersion(
-            'Capayable',
+            'In3',
             'Refund',
             BuckarooPaymentMethod::VERSION_ONE
         );
