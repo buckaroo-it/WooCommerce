@@ -74,7 +74,7 @@ class BuckarooIn3 extends BuckarooPaymentMethod
             'FirstName' => $this->order_details->getBilling('first_name'),
             'LastName' => $this->order_details->getBilling('last_name'),
             'Initials' => $this->order_details->getInitials(
-                $this->order_details->getBilling('last_name') . " " . $this->order_details->getBilling('last_name')
+                $this->order_details->getBilling('first_name') . " " . $this->order_details->getBilling('last_name')
             ),
             'BirthDate' => date('Y-m-d', strtotime($this->request->request('buckaroo-in3-birthdate'))),
             'Phone' => $this->order_details->getBillingPhone(),
