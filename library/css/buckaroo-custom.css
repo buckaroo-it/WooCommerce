@@ -271,5 +271,26 @@ label[for^="payment_method_buckaroo_"] img {
         display:none;
     }
 }
-
 /* end paybybank */
+
+/** in3 logo input **/
+
+.bk-in3-logo-wrap {
+    border: 1px solid #8c8f94;
+    margin: 5px 0;
+    padding: 5px 10px;
+    width: 400px;
+    box-sizing: border-box;
+    border-radius: 3px;
+}
+.form-table td fieldset label.bk-in3-logo {
+    display: flex;
+    align-items: center;
+    max-width: 70px;
+}
+
+label.bk-in3-logo img {
+    width: 100%;
+    height: auto;
+}
+/** end in3 logo input **/

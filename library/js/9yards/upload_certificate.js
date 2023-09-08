@@ -164,8 +164,22 @@ buckarooAdmin = {
     setCredicardSeparate(value) {
         jQuery('#woocommerce_buckaroo_creditcard_show_in_checkout').closest('tr').toggle(value === 'encrypt');
     },
+
+    in3ToggleLogoSelector() {
+        const iconSelector = jQuery('.bk-in3-logo-wrap').closest('tr');
+        const apiVersionSelector = jQuery('#woocommerce_buckaroo_in3_api_version');
+        iconSelector.toggle(
+            apiVersionSelector.val() === 'v3'
+        );
+        apiVersionSelector.on('change', function() {
+            let canShowIconSelector = jQuery(this).val() === 'v3';
+            iconSelector.toggle(canShowIconSelector);
+        })
+    },
+
     init: function() {
         this.testButton();
         this.credicardToggleSelect();
+        this.in3ToggleLogoSelector();
     }
 }
