@@ -45,7 +45,7 @@ class BuckarooPayByBank extends BuckarooPaymentMethod
      */
     public static function getIssuerList()
     {
-        $savedBankIssuer =  WC()->session->get(self::SESSION_LAST_ISSUER_LABEL);
+        $savedBankIssuer =  self::getActiveIssuerCode();
         $issuerArray = array(
             'ABNANL2A' => array(
                 'name' => 'ABN AMRO',
@@ -89,13 +89,27 @@ class BuckarooPayByBank extends BuckarooPaymentMethod
             $issuers[$key] = $issuer;
         }
 
-        $savedIssuer = array_filter($issuers, function($issuer) {
-            return $issuer['selected'];
-        });
-        $issuers = array_filter($issuers, function($issuer) {
-            return !$issuer['selected'];
-        });
+        return $issuers;
+    }
 
-        return array_merge($savedIssuer, $issuers);
+    public static function getActiveIssuerCode() {
+        return WC()->session->get(self::SESSION_LAST_ISSUER_LABEL);
+    }
+
+    /**
+     * @access public
+     * @return array $issuerArray
+     */
+    public static function getIssuerLogoUrls()
+    {
+        
+        $issuers = self::getIssuerList();
+        $logos = array();
+
+        foreach ($issuers as $code => $issuer) {
+            $logos[$code] = esc_url(plugin_dir_url(BK_PLUGIN_FILE) . "/library/buckaroo_images/ideal/". $issuer['logo']);
+        }
+
+        return $logos;
     }
 }

@@ -125,11 +125,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $feeText = '';
         $fee = $this->get_option('extrachargeamount', 0);
         $is_percentage = strpos($fee, "%") !== false;
-        $fee = intval(str_replace("%", "", $fee));
+        $fee = floatval(str_replace("%", "", $fee));
         
         if($fee != 0) {
-           
-
             if($is_percentage) {
                 $fee = str_replace("&nbsp;", "", wc_price(
                     $fee,
@@ -745,7 +743,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     protected function createCreditRequest($order, $amount, $reason)
     {
 
-        $payment = $this->createPaymentRequest($order);
+        $payment = $this->createPaymentRequest($order, true);
         $payment->amountCredit = $amount;
         $payment->description = $reason;
         $payment->invoiceId = $order->get_order_number();
@@ -770,16 +768,31 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         return $payment;
     }
+
+    /**
+     * Get payment class
+     *
+     * @param WC_Order $order
+     * @param boolean $isRefund
+     *
+     * @return string
+     */
+    protected function get_payment_class($order, $isRefund = false)
+    {
+        return static::PAYMENT_CLASS;
+    }
     /**
      * Create the payment method
      *
      * @param WC_Order $order Woocommerce order
+     * @param bool $isRefund
      *
      * @return BuckarooPaymentMethod
      */
-    protected function createPaymentRequest($order)
+    protected function createPaymentRequest($order, $isRefund = false)
     {
-        $paymentClass = static::PAYMENT_CLASS;
+        $paymentClass = $this->get_payment_class($order, $isRefund);
+        
         $payment = new $paymentClass();
         $payment->currency = get_woocommerce_currency();
         $payment->amountDedit = 0;
@@ -815,6 +828,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if($this->id === 'buckaroo_paybybank') {
             $label = preg_replace("/[^A-Za-z0-9\/\-\?:\(\)\.,'\+]/", '', $label);
         }
+        $label = preg_replace("/\r?\n|\r/", '', $label);
 
         return mb_substr($label, 0, 244);
     }

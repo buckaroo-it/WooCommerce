@@ -5,7 +5,7 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
-Version: 3.8.0
+Version: 3.9.0
 Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -150,7 +150,8 @@ function buckaroo_payment_frontend_scripts()
                 "idin_i18n" => array(
                     "general_error" => esc_html__("Something went wrong while processing your identification."),
                     "bank_required"=>esc_html__("You need to select your bank!")
-                )
+                ),
+                "payByBankLogos" => BuckarooPayByBank::getIssuerLogoUrls()
             )
         );
     }

@@ -410,6 +410,7 @@
              */ 
             public $thumbprint = '';
             
+            #[ReturnTypeWillChange]
             public function __doRequest ($request , $location , $action , $version , $one_way = 0 ) {
                 // Add code to inspect/dissect/debug/adjust the XML given in $request here
                 $domDOC = new DOMDocument();
