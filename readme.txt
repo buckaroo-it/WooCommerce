@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 6.3.0
-Stable tag: 3.8.0
+Tested up to: 6.3.1
+Stable tag: 3.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,13 @@ for more detailed release notes visit https://docs.buckaroo.io/docs/woocommerce-
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.9.0 =
+- PayByBank improvements [BP-2842]
+- Payment fee decimal amount not shown in front-end [BP-2866]
+- Sofort support currencies CHF and GBP [BP-2837]
+- Description field should not support multiple rows [BP-2839]
+- Add In3 API V3 selection [BP-2849]
 
 = 3.8.0 =
 Add support for Wordpress 6.3.0
