@@ -98,6 +98,8 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 == Changelog ==
 
 = 3.9.0 =
+Add support for Wordpress 6.3.1
+Add support for WooCommerce 8.1.0
 - PayByBank improvements [BP-2842]
 - Payment fee decimal amount not shown in front-end [BP-2866]
 - Sofort support currencies CHF and GBP [BP-2837]
