@@ -65,7 +65,7 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
                 'logo' => 'triodos.svg',
             ),
             'FVLBNL22' => array(
-                'name' => 'Van Lanschot',
+                'name' => 'Van Lanschot Kempen',
                 'logo' => 'vanlanschot.svg',
             ),
             'KNABNL2H' => array(
@@ -88,6 +88,10 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
                 'name' => 'N26',
                 'logo' => 'n26.svg'
             ),
+            'NNBANL2G' => array(
+                'name' => 'Nationale Nederlanden',
+                'logo' => 'nn.svg'
+            )
         );
         return $issuerArray;
     }
