@@ -115,20 +115,16 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
      */
     private function set_icons()
     {
-        $this->setIcon('24x24/in3.png', 'svg/in3.svg');
         $icon = $this->get_option('icon');
 
-        if ($this->get_option('api_version') === 'v2') {
+        if (
+            $this->get_option('api_version') === 'v2' ||
+            $icon === self::DEFAULT_ICON_VALUE
+        ) {
+            $this->setIcon('24x24/in3.png', 'svg/in3.svg');
             return;
         }
-
-        if (
-            is_string($icon) &&
-            !empty($icon) &&
-            $icon !== self::DEFAULT_ICON_VALUE
-        ) {
-            $this->setIcon($icon, $icon);
-        }
+        $this->setIcon($icon, $icon);
     }
 
     /**
@@ -203,10 +199,10 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             'type'        => 'in3_logo',
             'description' => __('Determines the logo that will be shown in the checkout', 'wc-buckaroo-bpe-gateway'),
             'options'     => array(
-                self::DEFAULT_ICON_VALUE => BuckarooConfig::getIconPath('24x24/in3.png', 'svg/in3.svg'),
                 'svg/in3-ideal.svg' => BuckarooConfig::getIconPath('svg/in3-ideal.svg', 'svg/in3-ideal.svg'),
+                self::DEFAULT_ICON_VALUE => BuckarooConfig::getIconPath('24x24/in3.png', 'svg/in3.svg'),
             ),
-            'default'     => self::DEFAULT_ICON_VALUE
+            'default'     => 'svg/in3-ideal.svg'
         );
     }
 
