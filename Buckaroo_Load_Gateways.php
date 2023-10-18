@@ -118,6 +118,14 @@
         'PayByBank' => array(
             'filename' => 'gateway-buckaroo-paybybank.php',
             'classname' => 'WC_Gateway_Buckaroo_PayByBank'
+        ),
+        'Multibanco' => array(
+            'filename' => 'gateway-buckaroo-multibanco.php',
+            'classname' => 'WC_Gateway_Buckaroo_Multibanco'
+        ),
+        'MBWay' => array(
+            'filename' => 'gateway-buckaroo-mbway.php',
+            'classname' => 'WC_Gateway_Buckaroo_MBWay'
         )
     );
     public function __construct($dir = null) {
