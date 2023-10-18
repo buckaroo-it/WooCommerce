@@ -33,19 +33,6 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
         return $this->processDefaultRefund($order_id, $amount, $reason);
     }
 
-    /**
-     * Validate payment fields on the frontend.
-     *
-     * @return bool
-     */
-    public function validate_fields()
-    {
-        if ($this->request('buckaroo-giropay-bancaccount') === null) {
-            wc_add_notice(__('Please provide correct BIC', 'wc-buckaroo-bpe-gateway'), 'error');
-        }
-        
-        parent::validate_fields();
-    }
 
     /**
      * Process payment
@@ -58,8 +45,6 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo
         $order = getWCOrder($order_id);
         /** @var BuckarooGiropay */
         $giropay = $this->createDebitRequest($order);
-        $giropay->bic         = $this->request('buckaroo-giropay-bancaccount');
-
         $response = $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $giropay);
         if ($response) {
             return $response;
