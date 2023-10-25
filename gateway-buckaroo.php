@@ -8,6 +8,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 {
     const PAYMENT_CLASS = null;
     const BUCKAROO_TEMPLATE_LOCATION = '/templates/gateways/';
+    const VERSION2 = 'v2';
+    const IN3_V2 = 'In3';
+    const IN3_V3 = 'iDEAL In3';
 
     public $notify_url;
     public $minvalue;
@@ -301,6 +304,13 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         
 
         $this->title       = (!isset($this->title) ? '' : $this->title);
+
+        if($this->title === 'in3'){
+            $api_version = $this->get_option('api_version');
+            $default_title = ($api_version === self::VERSION2) ? self::IN3_V2 : self::IN3_V3;
+            $this->title = $default_title;
+        }
+
         $this->id          = (!isset($this->id) ? '' : $this->id);
         $this->form_fields = [
             'buckaroo_notice'               => [

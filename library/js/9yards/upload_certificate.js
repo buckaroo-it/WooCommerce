@@ -182,7 +182,8 @@ buckarooAdmin = {
             let apiVersion = jQuery(this).val();
             let titleField = jQuery('#woocommerce_buckaroo_in3_title');
 
-            (apiVersion === buckaroo_php_vars.version2) ? titleField.val(buckaroo_php_vars.in3_v2) : titleField.val(buckaroo_php_vars.in3_v3);
+            const label = apiVersion === buckaroo_php_vars.version2 ? buckaroo_php_vars.in3_v2:buckaroo_php_vars.in3_v3;
+            titleField.val(label)
         });
     },
 
