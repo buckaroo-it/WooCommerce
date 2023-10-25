@@ -23,10 +23,12 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     public function __construct()
     {
         $this->id                     = 'buckaroo_in3';
-        $this->title                  = 'in3';
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo in3';
         $this->set_icons();
+
+        $api_version = $this->get_option('api_version');
+        $this->title = $api_version === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
 
         $this->setCountry();
 
@@ -185,8 +187,6 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     {
         parent::init_form_fields();
 
-        $api_version = $this->get_option('api_version');
-        $this->title = $api_version === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
 
         $this->form_fields['api_version'] = array(
             'title'       => __('Api version', 'wc-buckaroo-bpe-gateway'),
