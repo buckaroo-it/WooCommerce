@@ -177,9 +177,19 @@ buckarooAdmin = {
         })
     },
 
+    in3FrontEndLabel(){
+        jQuery('#woocommerce_buckaroo_in3_api_version').on('change', function () {
+            let apiVersion = jQuery(this).val();
+            let titleField = jQuery('#woocommerce_buckaroo_in3_title');
+
+            (apiVersion === buckaroo_php_vars.version2) ? titleField.val(buckaroo_php_vars.in3_v2) : titleField.val(buckaroo_php_vars.in3_v3);
+        });
+    },
+
     init: function() {
         this.testButton();
         this.credicardToggleSelect();
         this.in3ToggleLogoSelector();
+        this.in3FrontEndLabel();
     }
 }

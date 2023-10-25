@@ -14,8 +14,8 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     public const VERSION_FLAG = 'buckaroo_in3_version';
     public const VERSION2 = 'v2';
     public const VERSION3 = 'v3';
-    public const in3_v2 = 'In3';
-    public const in3_v3 = 'iDEAL In3';
+    public const IN3_V2 = 'In3';
+    public const IN3_V3 = 'iDEAL In3';
 
     public $type;
     public $vattype;
@@ -176,6 +176,34 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         return $method;
     }
 
+    public function setTitle()
+    {
+        $api_version = $this->get_option('api_version');
+        $default_title = ($api_version === self::VERSION2) ? self::IN3_V2 : self::IN3_V3;
+
+        $feeText = '';
+        $fee = $this->get_option('extrachargeamount', 0);
+        $is_percentage = strpos($fee, "%") !== false;
+        $fee = floatval(str_replace("%", "", $fee));
+
+        if($fee != 0) {
+            if($is_percentage) {
+                $fee = str_replace("&nbsp;", "", wc_price(
+                        $fee,
+                        [
+                            "currency" => 'null',
+                        ]
+                    )). '%';
+            } else {
+                $fee = wc_price( $fee + $this->getPaymentFeeVat($fee));
+            }
+
+            $feeText = " (+ ".$fee.")";
+        }
+
+        $this->title = strip_tags($this->get_option('title', $default_title ).$feeText);
+    }
+
     /**
      * Add fields to the form_fields() array, specific to this page.
      *
@@ -183,20 +211,9 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
      */
     public function init_form_fields()
     {
+        $this->setTitle();
+
         parent::init_form_fields();
-
-        $api_version = $this->get_option('api_version');
-        $default_title = ($api_version === self::VERSION2) ? self::in3_v2 : self::in3_v3;
-
-        $this->form_fields['title'] = array(
-            'title'             => __('Front-end label', 'wc-buckaroo-bpe-gateway'),
-            'type'              => 'text',
-            'description'       => __(
-                'Determines how the payment method is named in the checkout.',
-                'wc-buckaroo-bpe-gateway'
-            ),
-            'default'     => __($default_title, 'wc-buckaroo-bpe-gateway'),
-        );
 
         $this->form_fields['api_version'] = array(
             'title'       => __('Api version', 'wc-buckaroo-bpe-gateway'),

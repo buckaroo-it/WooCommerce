@@ -93,18 +93,20 @@ function buckaroo_payment_setup_scripts()
         true
     );
     wp_enqueue_script(
-        'in3-form',
-        plugin_dir_url( __FILE__ ) . 'library/js/9yards/in3-form.js',
-        array('jquery'),
-        BuckarooConfig::VERSION,
-        true
-    );
-    wp_enqueue_script(
         'buckaroo_certificate_management_js',
         plugin_dir_url(__FILE__) . 'library/js/9yards/upload_certificate.js',
         array('jquery'),
         BuckarooConfig::VERSION,
         true
+    );
+    wp_localize_script(
+        'buckaroo_certificate_management_js',
+        'buckaroo_php_vars',
+        array(
+            'version2' => WC_Gateway_Buckaroo_In3::VERSION2,
+            'in3_v2' => WC_Gateway_Buckaroo_In3::IN3_V2,
+            'in3_v3' => WC_Gateway_Buckaroo_In3::IN3_V3,
+        )
     );
 }
 add_action('wp_enqueue_scripts', 'buckaroo_payment_frontend_scripts');
@@ -148,7 +150,7 @@ function buckaroo_payment_frontend_scripts()
             BuckarooConfig::VERSION,
             true
         );
-    
+
         wp_localize_script(
             'buckaroo_sdk',
             'buckaroo_global',
@@ -161,6 +163,7 @@ function buckaroo_payment_frontend_scripts()
                 "payByBankLogos" => BuckarooPayByBank::getIssuerLogoUrls()
             )
         );
+
     }
 
     if (class_exists('WC_Order') && is_checkout()) {
