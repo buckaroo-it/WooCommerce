@@ -183,10 +183,11 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
      */
     public function init_form_fields()
     {
-        parent::init_form_fields();
-
         $api_version = $this->get_option('api_version');
         $this->title = $api_version === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
+
+        parent::init_form_fields();
+
 
         $this->form_fields['api_version'] = array(
             'title'       => __('Api version', 'wc-buckaroo-bpe-gateway'),
