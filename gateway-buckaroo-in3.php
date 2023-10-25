@@ -13,6 +13,9 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     public const DEFAULT_ICON_VALUE = 'defaultIcon';
     public const VERSION_FLAG = 'buckaroo_in3_version';
     public const VERSION3 = 'v3';
+    public const VERSION2 = 'v2';
+    public const IN3_V2_TITLE = 'In3';
+    public const IN3_V3_TITLE = 'iDEAL In3';
 
     public $type;
     public $vattype;
@@ -181,6 +184,9 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     public function init_form_fields()
     {
         parent::init_form_fields();
+
+        $api_version = $this->get_option('api_version');
+        $this->title = $api_version === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
 
         $this->form_fields['api_version'] = array(
             'title'       => __('Api version', 'wc-buckaroo-bpe-gateway'),
