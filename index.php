@@ -93,6 +93,13 @@ function buckaroo_payment_setup_scripts()
         true
     );
     wp_enqueue_script(
+        'in3-form',
+        plugin_dir_url( __FILE__ ) . 'library/js/9yards/in3-form.js',
+        array('jquery'),
+        BuckarooConfig::VERSION,
+        true
+    );
+    wp_enqueue_script(
         'buckaroo_certificate_management_js',
         plugin_dir_url(__FILE__) . 'library/js/9yards/upload_certificate.js',
         array('jquery'),
