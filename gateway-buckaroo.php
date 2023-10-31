@@ -1258,7 +1258,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         ];
 
         if($this->id === 'buckaroo_afterpay') {
-            $product[] = $item->get_type();
+            $product['type'] = $item->get_type();
         }
 
         if($this->get_option('vattype') !== null) {
