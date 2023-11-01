@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 6.3.1
-Stable tag: 3.9.0
+Tested up to: 6.3.2
+Stable tag: 3.10.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,19 @@ for more detailed release notes visit https://docs.buckaroo.io/docs/woocommerce-
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.10.0 =
+Add support for Wordpress 6.3.2
+Add support for WooCommerce 8.2.1
+- BP-2924 Add iDEAL issuer Nationale Nederlanden.
+- BP-2905 iDEAL issuer "Van Lanschot" is renamed to "Van Lanschot Kempen".
+- BP-2992 In3 (V3) set the iDEAL In3 logo as the default.
+- BP-3030 Remove BIC/IBAN fields for Giropay.
+- BP-2984 Add payment method "Multibanco".
+- BP-3015 Add payment method "MB WAY".
+- BP-2972 Payment fee display setting is showing the opposite result.
+- BP-3044 Checkout order review table not refreshing when switching payment method.
+- BP-3078 Riverty/Afterpay (old) failed transactions fix.
 
 = 3.9.0 =
 Add support for Wordpress 6.3.1
