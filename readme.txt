@@ -12,32 +12,34 @@ This is a plug-in with countless payment methods, all of which are SEPA proof.
 
 == Description ==
 
-The Buckaroo ([Dutch]https://docs.buckaroo.io/docs/nl/woocommerce-installatie) or [English](https://docs.buckaroo.io/docs/woocommerce-installation) plug-in is convenient and works like a charm, it's easy to install and takes all the trouble out of your hands.
+The Buckaroo [Dutch](https://docs.buckaroo.io/docs/nl/woocommerce-installatie) or [English](https://docs.buckaroo.io/docs/woocommerce-installation) plug-in is convenient and works like a charm, it's easy to install and takes all the trouble out of your hands.
 It is a plug-in with many different payment methods, all of which are SEPA proof. This plug-in is completely free to download. WooCommerce is an excellent platform for a webshop to look professional, comes with built-in tools to analyze sales and it's also fully customizable. WooCommerce is used by 30% of all webshops worldwide, [download](https://docs.buckaroo.io/docs/en/woocommerce-installation) this plugin now and find out more!
 Payment method support list:
 
 = Payment method support list by Buckaroo WooCommerce payments plugin =
-1. iDEAL
-2. PayPal
-3. Creditcards (Visa, MasterCard, American Express, VPAY, Visa Electron, Carte Bleue, Carte Bancaire, Dankort)
-4. eMaestro
-5. Afterpay
-6. Giftcards
-7. Giropay
-8. Bancontact
-9. SOFORT Banking
-10. SEPA Credit Transfer (Bank transfer)
-11. SEPA Direct Debit (With or without Credit management)
-12. Payconiq
-13. Nexi
-14. P24
-15. AfterPay 2.0
-16. Apple Pay
-17. KBC
-18. PayPerEmail
-19. Billink
-20. Belfius
-21. Klarna
+1.iDEAL
+2.PayPal
+3.Credit and debit card (American Express, Visa, MasterCard, VPAY, Visa Electron, Maestro, Carte Bleue, Carte Bancaire, Dankort, Nexi, PostePay)
+4.Riverty/Afterpay
+5.Giftcards
+6.Giropay
+7.Bancontact
+8.Sofort
+9.SEPA Credit Transfer (Bank transfer)
+10.SEPA Direct Debit (With or without Credit management)
+11.Payconiq
+12.Przelewy24
+13.Apple Pay
+14.KBC
+15.PayPerEmail
+16.Billink
+17.Belfius
+18.Klarna
+19.In3
+20.PayByBank
+21.EPS
+22.Multibanco
+23.MB Way
 
 == Installation ==
 
