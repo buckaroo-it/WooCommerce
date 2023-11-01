@@ -35,6 +35,9 @@ jobs:
             rm -f paybybank.svg
             rm -f paylink.svg
             rm -f pos.svg
+            rm -f pos-nfc.svg
+            rm -f riverty.svg
+            rm -f cartebleue.svg
       - name: Copy creditcards icons
         run: |
             cd Media
