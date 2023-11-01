@@ -27,7 +27,7 @@
         "issues": "https://docs.buckaroo.io/docs/en/contact-us"
     },
     "homepage": "https://www.buckaroo.nl",
-    "version" : "3.9.0",
+    "version" : "3.10.0",
     "minimum-stability": "stable",
     "config": {
         "allow-plugins": {

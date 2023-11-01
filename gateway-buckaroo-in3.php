@@ -12,8 +12,10 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     const PAYMENT_CLASS = BuckarooIn3::class;
     public const DEFAULT_ICON_VALUE = 'defaultIcon';
     public const VERSION_FLAG = 'buckaroo_in3_version';
-    public const VERSION2 = 'v2';
     public const VERSION3 = 'v3';
+    public const VERSION2 = 'v2';
+    public const IN3_V2_TITLE = 'In3';
+    public const IN3_V3_TITLE = 'iDEAL In3';
 
     public $type;
     public $vattype;
@@ -21,10 +23,12 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     public function __construct()
     {
         $this->id                     = 'buckaroo_in3';
-        $this->title                  = 'in3';
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo in3';
         $this->set_icons();
+
+        $api_version = $this->get_option('api_version');
+        $this->title = $api_version === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
 
         $this->setCountry();
 
@@ -115,20 +119,16 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
      */
     private function set_icons()
     {
-        $this->setIcon('24x24/in3.png', 'svg/in3.svg');
         $icon = $this->get_option('icon');
 
-        if ($this->get_option('api_version') === 'v2') {
+        if (
+            $this->get_option('api_version') === 'v2' ||
+            $icon === self::DEFAULT_ICON_VALUE
+        ) {
+            $this->setIcon('svg/in3.svg', 'svg/in3.svg');
             return;
         }
-
-        if (
-            is_string($icon) &&
-            !empty($icon) &&
-            $icon !== self::DEFAULT_ICON_VALUE
-        ) {
-            $this->setIcon($icon, $icon);
-        }
+        $this->setIcon($icon, $icon);
     }
 
     /**
@@ -187,13 +187,14 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     {
         parent::init_form_fields();
 
+
         $this->form_fields['api_version'] = array(
             'title'       => __('Api version', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Chose the api version for this payment method.', 'wc-buckaroo-bpe-gateway'),
             'options'     => array(
-                self::VERSION3 => __('V3 (In3)'),
-                self::VERSION2 => __('V2 (Capayable/In2)'),
+                self::VERSION3 => __('V3 (iDEAL In3)'),
+                self::VERSION2 => __('V2 (Capayabel/In3)'),
             ),
             'default'     => self::VERSION3
         );
@@ -203,10 +204,10 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             'type'        => 'in3_logo',
             'description' => __('Determines the logo that will be shown in the checkout', 'wc-buckaroo-bpe-gateway'),
             'options'     => array(
-                self::DEFAULT_ICON_VALUE => BuckarooConfig::getIconPath('24x24/in3.png', 'svg/in3.svg'),
                 'svg/in3-ideal.svg' => BuckarooConfig::getIconPath('svg/in3-ideal.svg', 'svg/in3-ideal.svg'),
+                self::DEFAULT_ICON_VALUE => BuckarooConfig::getIconPath('svg/in3.svg', 'svg/in3.svg'),
             ),
-            'default'     => self::DEFAULT_ICON_VALUE
+            'default'     => 'svg/in3-ideal.svg'
         );
     }
 

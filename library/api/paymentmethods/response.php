@@ -582,7 +582,6 @@ abstract class BuckarooResponse extends BuckarooAbstract
             if (in_array(
                 strtolower($key),
                 array(
-                    'brq_customer_name',
                     'brq_service_ideal_consumername',
                     'brq_service_transfer_consumername',
                     'brq_service_payconiq_payconiqandroidurl',

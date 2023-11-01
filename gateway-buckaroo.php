@@ -94,7 +94,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         //Get selected tax rate
         $taxRate = $this->get_option('feetax', '');
 
-        $vatIncluded = $this->get_option('paymentfeevat', 'off');
+        $vatIncluded = $this->get_option('paymentfeevat', 'on');
 
         $location = array(
             'country'   => WC()->customer->get_shipping_country() ? WC()->customer->get_shipping_country() : WC()->customer->get_billing_country(),
@@ -272,8 +272,20 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $this->settings = array_replace($this->settings, $options);
         }
     }
-    
-
+    public function generate_buckaroo_notice_html($key, $data)
+    {
+        //Add Warning, if currency set in Buckaroo is unsupported
+        if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && !checkCurrencySupported($this->id) && is_admin()): 
+        ob_start();
+        ?>
+        <div class="error notice">
+            <p><?php echo esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')'; ?>
+            </p>
+        </div>
+        <?php 
+        return ob_get_clean();
+        endif;
+    }
     /**
      * Initialize Gateway Settings Form Fields
      *
@@ -286,17 +298,14 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if ($charset != 'utf-8') {
             $addDescription = '<fieldset style="border: 1px solid #ffac0e; padding: 10px;"><legend><b style="color: #ffac0e">'.__('Warning', 'wc-buckaroo-bpe-gateway').'!</b></legend>'.__('default_charset is not set.<br>This might cause a problems on receiving push message.<br>Please set default_charset="UTF-8" in your php.ini and add AddDefaultCharset UTF-8 to .htaccess file.', 'wc-buckaroo-bpe-gateway').'</fieldset>';
         }
-        //Add Warning, if currency set in Buckaroo is unsupported
-        if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && !checkCurrencySupported($this->id) && is_admin()): ?>
-<div class="error notice">
-    <p><?php echo esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')'; ?>
-    </p>
-</div>
-<?php endif;
+        
 
         $this->title       = (!isset($this->title) ? '' : $this->title);
         $this->id          = (!isset($this->id) ? '' : $this->id);
         $this->form_fields = [
+            'buckaroo_notice'               => [
+                'type'              => 'buckaroo_notice',
+            ],
             'enabled'               => [
                 'title'             => __('Enable/Disable', 'wc-buckaroo-bpe-gateway'),
                 'label'             => sprintf(__('Enable %s Payment Method', 'wc-buckaroo-bpe-gateway'), (isset($this->method_title) ? $this->method_title : '')),
@@ -1249,7 +1258,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         ];
 
         if($this->id === 'buckaroo_afterpay') {
-            $product[] = $item->get_type();
+            $product['type'] = $item->get_type();
         }
 
         if($this->get_option('vattype') !== null) {

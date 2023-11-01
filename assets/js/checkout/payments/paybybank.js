@@ -67,7 +67,7 @@ class BuckarooPayByBank {
   }
   setLogo() {
     const code = jQuery(".bk-paybybank-real-value").val();
-    if (buckaroo_global.payByBankLogos && code.length) {
+    if ( buckaroo_global.payByBankLogos && code && code.length ) {
       if (buckaroo_global.payByBankLogos[code]) {
         jQuery(".payment_method_buckaroo_paybybank > label > img").prop(
           "src",
