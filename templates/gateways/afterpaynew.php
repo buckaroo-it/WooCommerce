@@ -87,5 +87,7 @@ $country = !empty($country) ? $country : $this->country;
     value="1" />
     <?php }
     $this->getPaymentTemplate('partial_afterpay_tos');
+    $this->getPaymentTemplate('financial_warning');
     ?>
+    
 </fieldset>

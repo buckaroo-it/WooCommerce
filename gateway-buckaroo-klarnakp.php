@@ -138,4 +138,10 @@ class WC_Gateway_Buckaroo_KlarnaKp extends WC_Gateway_Buckaroo
            $this->currency,
         );
     }
+    /** @inheritDoc */
+    public function init_form_fields()
+    {
+        parent::init_form_fields();
+        $this->add_financial_warning_field();
+    }
 }

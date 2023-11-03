@@ -181,4 +181,11 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         return $this->processDefaultRefund($order_id, $amount, $reason);
     }
 
+    /** @inheritDoc */
+    public function init_form_fields()
+    {
+        parent::init_form_fields();
+        $this->add_financial_warning_field();
+    }
+
 }

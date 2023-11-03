@@ -195,4 +195,14 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
         }
         return $product;
     }
+
+    /** @inheritDoc */
+    public function init_form_fields()
+    {
+        parent::init_form_fields();
+
+        if ($this->id !== 'buckaroo_klarnapii') {
+            $this->add_financial_warning_field();
+        }
+    }
 }

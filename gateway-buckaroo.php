@@ -1452,4 +1452,25 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         return null;
     }
+
+    /**
+     * Add financial warning field to the setting page
+     *
+     * @return void
+     */
+    protected function add_financial_warning_field() {
+        
+        $this->form_fields['financial_warning'] = [
+            'title'       => __('Consumer Financial Warning'),
+            'type'        => 'select',
+            'description' => __('Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.', 'wc-buckaroo-bpe-gateway'),
+            'options'     => ['enable' => 'Enable', 'disable' => 'Disable'],
+            'default'     => 'enable'
+        ];
+    }
+
+    protected function can_show_financial_warining() {
+        $country = $this->getScalarCheckoutField('billing_country');
+        return $this->get_option('financial_warning') !== 'disable' && $country === "NL";
+    }
 }

@@ -418,6 +418,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     {
         parent::init_form_fields();
         
+        $this->add_financial_warning_field();
         $this->form_fields['service'] = [
             'title'       => __('Select afterpay service', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
