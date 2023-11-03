@@ -1,7 +1,6 @@
 <?php
-
 /**
- * The Template for displaying in3 gateway template
+ * The Template for displaying karnapay gateway template
  * php version 7.2
  *
  * @category  Payment_Gateways
@@ -14,16 +13,7 @@
  */
 
 defined('ABSPATH') || exit;
-
-$country = $this->getScalarCheckoutField('billing_country');
-$country = !empty($country) ? $country : $this->country;
-
 ?>
 <fieldset>
-    <?php if ($country == "NL") :
-        $this->getPaymentTemplate('partial_birth_field');
-    ?>
-    <?php endif;
-    $this->getPaymentTemplate('financial_warning');
-    ?>
+    <?php $this->getPaymentTemplate('financial_warning'); ?>
 </fieldset>

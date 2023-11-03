@@ -70,5 +70,6 @@ $customer_phone = $this->getScalarCheckoutField('billing_phone');
         <?php
     }
     $this->getPaymentTemplate('partial_afterpay_tos');
+    $this->getPaymentTemplate('financial_warning');
     ?>
 </fieldset>

@@ -187,7 +187,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     {
         parent::init_form_fields();
 
-
+        $this->add_financial_warning_field();
         $this->form_fields['api_version'] = array(
             'title'       => __('Api version', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
