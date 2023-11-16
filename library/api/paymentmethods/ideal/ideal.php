@@ -23,10 +23,13 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
      * @return callable parent::Pay();
      */
     public function Pay($customVars = array()) {
-        $this->setCustomVar(
-            'issuer',
-            $this->issuer
-        );
+
+        if (is_string($this->issuer)) {
+            $this->setCustomVar(
+                'issuer',
+                $this->issuer
+            );
+        }
         return parent::Pay();
     }
 
