@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WC Buckaroo BPE Gateway\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-14 12:01+0000\n"
-"PO-Revision-Date: 2023-06-27 08:27+0000\n"
+"PO-Revision-Date: 2023-11-16 13:01+0000\n"
 "Last-Translator: \n"
 "Language-Team: German\n"
 "Language: de_DE\n"
@@ -22,8 +22,12 @@ msgstr ""
 msgid "890"
 msgstr ""
 
-#: gateway-buckaroo-ideal.php:47
+#: gateway-buckaroo-ideal.php:49
 msgid "<strong>iDEAL bank </strong> is a required field."
+msgstr ""
+
+#: gateway-buckaroo-paybybank.php:48
+msgid "<strong>PayByBank </strong> is a required field."
 msgstr ""
 
 #: library/klarnakp/Refund.php:42
@@ -38,8 +42,12 @@ msgstr ""
 msgid "A valid credit card is required."
 msgstr ""
 
-#: gateway-buckaroo-ideal.php:50
+#: gateway-buckaroo-ideal.php:52
 msgid "A valid iDEAL bank is required."
+msgstr ""
+
+#: gateway-buckaroo-paybybank.php:51
+msgid "A valid PayByBank is required."
 msgstr ""
 
 #: templates/gateways/partial_afterpay_tos.php:53
@@ -55,7 +63,7 @@ msgstr ""
 msgid "According to iDIN you are under 18 years old"
 msgstr "Laut iDIN sind sie unter 18 jahre alt"
 
-#: gateway-buckaroo-afterpay.php:448
+#: gateway-buckaroo-afterpay.php:449
 msgid "AfterPay Pay or Capture"
 msgstr ""
 
@@ -71,11 +79,19 @@ msgstr ""
 msgid "Allowed provider"
 msgstr ""
 
+#: gateway-buckaroo-in3.php:192
+msgid "Api version"
+msgstr ""
+
 #: templates/gateways/sepadirectdebit.php:25
 msgid "Bank account holder:"
 msgstr ""
 
-#: templates/gateways/sepadirectdebit.php:54 templates/gateways/giropay.php:21
+#: gateway-buckaroo-paybybank.php:84
+msgid "Bank selection display"
+msgstr ""
+
+#: templates/gateways/sepadirectdebit.php:54
 msgid "BIC:"
 msgstr ""
 
@@ -87,7 +103,7 @@ msgstr ""
 msgid "Buckaroo"
 msgstr ""
 
-#: index.php:550
+#: index.php:561
 msgid "Buckaroo BPE requires WooCommerce to be installed and active"
 msgstr ""
 
@@ -99,7 +115,7 @@ msgstr ""
 msgid "Buckaroo payment engine culture"
 msgstr ""
 
-#: WC_Buckaroo_Settings_Page.php:409
+#: WC_Buckaroo_Settings_Page.php:411
 msgid ""
 "Buckaroo payment methods are listed below and can be accessed, enabled or "
 "disabled."
@@ -133,20 +149,13 @@ msgstr ""
 msgid "Button on product page"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:140
-msgid ""
-"By Buckaroo generated code. This needs to be sendBy Buckaroo generated code. "
-"This needs to be send for creating new subscriptions.<br> Leave empty if you "
-"don`t want to use subscriptions."
-msgstr ""
-
-#: gateway-buckaroo-mastersettings.php:148
+#: gateway-buckaroo-mastersettings.php:150
 msgid "By turning on this setting age verification with iDIN will be in use"
 msgstr ""
 "Durch aktivieren dieser einstellung wird die altersüberprüfung mit iDIN "
 "verwendet"
 
-#: gateway-buckaroo-mastersettings.php:148
+#: gateway-buckaroo-mastersettings.php:142
 msgid ""
 "By turning on this setting in checkout new payment method icons will be in "
 "use"
@@ -214,9 +223,13 @@ msgstr ""
 msgid "Checkout page"
 msgstr ""
 
-#: gateway-buckaroo-creditcard.php:405 gateway-buckaroo-afterpay.php:450
+#: gateway-buckaroo-creditcard.php:405 gateway-buckaroo-afterpay.php:451
 #: gateway-buckaroo-afterpaynew.php:482
 msgid "Choose to execute Pay or Capture call"
+msgstr ""
+
+#: gateway-buckaroo-in3.php:194
+msgid "Chose the api version for this payment method."
 msgstr ""
 
 #: gateway-buckaroo-mastersettings.php:83
@@ -259,11 +272,11 @@ msgstr ""
 msgid "Confirm payment with your PIN or fingerprint. "
 msgstr ""
 
-#: index.php:187 index.php:193 index.php:250
+#: index.php:198 index.php:204 index.php:261
 msgid "Credentials are incorrect"
 msgstr ""
 
-#: index.php:246
+#: index.php:257
 msgid "Credentials are OK"
 msgstr ""
 
@@ -291,23 +304,27 @@ msgstr ""
 msgid "Debug mode"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:436
+#: gateway-buckaroo-afterpay.php:437
 msgid "Default product VAT type"
 msgstr ""
 
-#: gateway-buckaroo.php:289
+#: gateway-buckaroo.php:299
 msgid ""
 "default_charset is not set.<br>This might cause a problems on receiving push "
 "message.<br>Please set default_charset=\"UTF-8\" in your php.ini and add "
 "AddDefaultCharset UTF-8 to .htaccess file."
 msgstr ""
 
-#: gateway-buckaroo.php:326 templates/Buckaroo_Report_Page.php:109
+#: gateway-buckaroo.php:333 templates/Buckaroo_Report_Page.php:109
 msgid "Description"
 msgstr ""
 
-#: gateway-buckaroo.php:319
+#: gateway-buckaroo.php:326
 msgid "Determines how the payment method is named in the checkout."
+msgstr ""
+
+#: gateway-buckaroo-in3.php:205
+msgid "Determines the logo that will be shown in the checkout"
 msgstr ""
 
 #: gateway-buckaroo-paypal.php:106
@@ -326,6 +343,14 @@ msgstr ""
 msgid "Due date (in days)"
 msgstr ""
 
+#: gateway-buckaroo.php:1466
+msgid ""
+"Due to the regulations for BNPL methods in The Netherlands you’ll  have to "
+"warn customers about using a BNPL plan because it can be easy to get into "
+"debt. When enabled a warning will be showed in the checkout. Please note "
+"that this setting only applies for customers in The Netherlands."
+msgstr ""
+
 #: WC_Buckaroo_Settings_Page.php:246
 msgid "edit"
 msgstr ""
@@ -334,12 +359,12 @@ msgstr ""
 msgid "Email:"
 msgstr ""
 
-#: gateway-buckaroo.php:304
+#: gateway-buckaroo.php:311
 #, php-format
 msgid "Enable %s Payment Method"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:429
+#: gateway-buckaroo-afterpay.php:430
 msgid "Enable B2B option for Riverty | AfterPay"
 msgstr ""
 
@@ -347,11 +372,11 @@ msgstr ""
 msgid "Enable PayPal express for the following pages."
 msgstr ""
 
-#: gateway-buckaroo.php:303
+#: gateway-buckaroo.php:310
 msgid "Enable/Disable"
 msgstr ""
 
-#: WC_Buckaroo_Settings_Page.php:420 gateway-buckaroo-paypal.php:106
+#: WC_Buckaroo_Settings_Page.php:422 gateway-buckaroo-paypal.php:106
 msgid "Enabled"
 msgstr ""
 
@@ -363,7 +388,7 @@ msgstr ""
 msgid "enabled (test)"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:431
+#: gateway-buckaroo-afterpay.php:432
 msgid "Enables or disables possibility to pay using company credentials"
 msgstr ""
 
@@ -408,7 +433,7 @@ msgstr ""
 msgid "First Name:"
 msgstr ""
 
-#: gateway-buckaroo.php:317
+#: gateway-buckaroo.php:324
 msgid "Front-end label"
 msgstr ""
 
@@ -463,11 +488,11 @@ msgstr ""
 msgid "Identification Number"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:154
+#: gateway-buckaroo-mastersettings.php:148
 msgid "iDIN mode"
 msgstr "Modus iDIN"
 
-#: gateway-buckaroo-mastersettings.php:168
+#: gateway-buckaroo-mastersettings.php:162
 msgid "iDIN specific product categories"
 msgstr ""
 
@@ -506,16 +531,20 @@ msgstr ""
 msgid "Last Name:"
 msgstr ""
 
+#: templates/gateways/paybybank.php:69
+msgid "Less banks"
+msgstr ""
+
 #: gateway-buckaroo-giftcard.php:84
 msgid "List of authorized giftcards"
 msgstr ""
 
-#: WC_Buckaroo_Settings_Page.php:458
+#: WC_Buckaroo_Settings_Page.php:460
 msgid "Manage"
 msgstr ""
 
 #. %s Payment gateway name.
-#: WC_Buckaroo_Settings_Page.php:458
+#: WC_Buckaroo_Settings_Page.php:460
 #, php-format
 msgid "Manage the \"%s\" payment method"
 msgstr ""
@@ -524,11 +553,11 @@ msgstr ""
 msgid "Max order amount  for B2B"
 msgstr ""
 
-#: gateway-buckaroo.php:348
+#: gateway-buckaroo.php:355
 msgid "Maximum order amount allowed"
 msgstr "Maximal zulässige bestellmenge"
 
-#: WC_Buckaroo_Settings_Page.php:419
+#: WC_Buckaroo_Settings_Page.php:421
 msgid "Method"
 msgstr ""
 
@@ -540,16 +569,20 @@ msgstr ""
 msgid "Min order amount  for B2B"
 msgstr ""
 
-#: gateway-buckaroo.php:341
+#: gateway-buckaroo.php:348
 msgid "Minimum order amount allowed"
 msgstr "Erlaubte mindestbestellmenge"
+
+#: templates/gateways/paybybank.php:69 templates/gateways/paybybank.php:70
+msgid "More banks"
+msgstr ""
 
 #: templates/gateways/partial_afterpay_b2b.php:48
 msgid "Name of the organization:"
 msgstr ""
 
 #: gateway-buckaroo-transfer.php:132 gateway-buckaroo-transfer.php:138
-#: WC_Buckaroo_Settings_Page.php:471
+#: WC_Buckaroo_Settings_Page.php:473
 msgid "No"
 msgstr ""
 
@@ -569,11 +602,11 @@ msgstr ""
 msgid "Number of days to the date that the order should be payed."
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:425
+#: gateway-buckaroo-afterpay.php:426
 msgid "Offer customer to pay afterwards by digital invoice."
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:425
+#: gateway-buckaroo-afterpay.php:426
 msgid "Offer customer to pay afterwards by SEPA Direct Debit."
 msgstr ""
 
@@ -594,7 +627,7 @@ msgstr ""
 msgid "Payment cancelled. Please try again or choose another payment method."
 msgstr ""
 
-#: gateway-buckaroo.php:335 library/Buckaroo_Order_Fee.php:101
+#: gateway-buckaroo.php:342 library/Buckaroo_Order_Fee.php:101
 msgid "Payment fee"
 msgstr ""
 
@@ -602,12 +635,16 @@ msgstr ""
 msgid "Payment fee display"
 msgstr ""
 
+#: gateway-buckaroo-in3.php:203
+msgid "Payment Logo"
+msgstr ""
+
 #: templates/gateways/klarnapay.php:25
 msgid "Payment method is not supported for country "
 msgstr ""
 
-#: WC_Buckaroo_Settings_Page.php:54 WC_Buckaroo_Settings_Page.php:406
-#: index.php:327 index.php:328
+#: WC_Buckaroo_Settings_Page.php:54 WC_Buckaroo_Settings_Page.php:408
+#: index.php:338 index.php:339
 msgid "Payment methods"
 msgstr ""
 
@@ -649,7 +686,7 @@ msgstr ""
 msgid "Please enter correct birth date"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:267 gateway-buckaroo-in3.php:63
+#: gateway-buckaroo-afterpay.php:267 gateway-buckaroo-in3.php:73
 #: gateway-buckaroo-afterpaynew.php:312
 msgid "Please enter correct birthdate date"
 msgstr ""
@@ -682,27 +719,15 @@ msgstr ""
 msgid "Please fill in all required fields"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:141
-msgid ""
-"Please fill in your personal Buckaroo “Configurationcode” if you want to use "
-"the Buckaroo Subscription service together with WooCommerce Subscriptions."
-"<br>You can find the Configurationcode in Buckaroo → Configuration → "
-"Subscriptions → Configurations."
-msgstr ""
-
-#: gateway-buckaroo-giropay.php:44
-msgid "Please provide correct BIC"
-msgstr ""
-
 #: gateway-buckaroo-payperemail.php:50
 msgid "Please select gender"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:438
+#: gateway-buckaroo-afterpay.php:439
 msgid "Please select the default VAT type for your products"
 msgstr ""
 
-#: gateway-buckaroo-afterpay.php:424
+#: gateway-buckaroo-afterpay.php:425
 msgid "Please select the service"
 msgstr ""
 
@@ -731,7 +756,7 @@ msgstr ""
 msgid "Refunded %1$s - Refund transaction ID: %2$s"
 msgstr ""
 
-#: WC_Buckaroo_Settings_Page.php:55 index.php:334 index.php:335
+#: WC_Buckaroo_Settings_Page.php:55 index.php:345 index.php:346
 msgid "Report"
 msgstr ""
 
@@ -739,7 +764,7 @@ msgstr ""
 #: templates/gateways/klarnapay.php:60 templates/gateways/payperemail.php:70
 #: templates/gateways/sepadirectdebit.php:66
 #: templates/gateways/partial_afterpay_tos.php:80
-#: templates/gateways/giropay.php:35 templates/gateways/creditcard.php:147
+#: templates/gateways/creditcard.php:147
 msgid "Required"
 msgstr ""
 
@@ -759,15 +784,15 @@ msgstr ""
 msgid "Select a credit or debit card."
 msgstr "Wählen Sie eine Kreditkarte."
 
-#: gateway-buckaroo-afterpay.php:422
+#: gateway-buckaroo-afterpay.php:423
 msgid "Select afterpay service"
 msgstr ""
 
-#: gateway-buckaroo.php:415
+#: gateway-buckaroo.php:422
 msgid "Select Certificate"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:171
+#: gateway-buckaroo-mastersettings.php:165
 msgid ""
 "Select for what product categories iDIN verification should be applied. "
 "Don't select anything if want to apply iDIN to any product"
@@ -799,11 +824,12 @@ msgstr ""
 msgid "Select which methods appear to the customer"
 msgstr ""
 
-#: templates/gateways/ideal.php:22 templates/idin/checkout.php:37
+#: templates/gateways/ideal.php:24 templates/gateways/paybybank.php:26
+#: templates/gateways/paybybank.php:43 templates/idin/checkout.php:37
 msgid "Select your bank"
 msgstr ""
 
-#: gateway-buckaroo.php:417
+#: gateway-buckaroo.php:424
 msgid "Select your certificate by name."
 msgstr ""
 
@@ -829,17 +855,17 @@ msgid ""
 "protection."
 msgstr ""
 
-#: WC_Buckaroo_Settings_Page.php:461
+#: WC_Buckaroo_Settings_Page.php:463
 msgid "Set up"
 msgstr ""
 
 #. %s Payment gateway name.
-#: WC_Buckaroo_Settings_Page.php:461
+#: WC_Buckaroo_Settings_Page.php:463
 #, php-format
 msgid "Set up the \"%s\" payment method"
 msgstr ""
 
-#: index.php:320 index.php:321 index.php:352
+#: index.php:331 index.php:332 index.php:363
 msgid "Settings"
 msgstr ""
 
@@ -852,6 +878,10 @@ msgstr ""
 #: gateway-buckaroo-applepay.php:345
 msgid "Show"
 msgstr ""
+
+#: gateway-buckaroo-ideal.php:98
+msgid "Show Issuer Selection in the Checkout"
+msgstr "Bankauswahl im Checkout anzeigen"
 
 #: gateway-buckaroo-payperemail.php:138
 msgid "Show on Checkout page"
@@ -902,7 +932,7 @@ msgstr ""
 msgid "Show the Apple pay button on the product page"
 msgstr ""
 
-#: gateway-buckaroo.php:351
+#: gateway-buckaroo.php:358
 msgid ""
 "Specify maximum order amount allowed to show the current method. Zero or "
 "empty value means no rule will be applied."
@@ -910,7 +940,7 @@ msgstr ""
 "Geben Sie die maximal zulässige bestellmenge an, um die aktuelle methode "
 "anzuzeigen. Null oder leerer wert bedeutet, dass keine regel angewendet wird."
 
-#: gateway-buckaroo.php:344
+#: gateway-buckaroo.php:351
 msgid ""
 "Specify minimum order amount allowed to show the current method. Zero or "
 "empty value means no rule will be applied."
@@ -918,7 +948,7 @@ msgstr ""
 "Geben Sie die zulässige mindestbestellmenge an, um die aktuelle methode "
 "anzuzeigen. Null oder leerer wert bedeutet, dass keine regel angewendet wird."
 
-#: gateway-buckaroo.php:337
+#: gateway-buckaroo.php:344
 msgid ""
 "Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be "
 "separated by a dot (.)"
@@ -937,13 +967,13 @@ msgid "TEST MODE"
 msgstr ""
 
 #. %s Payment gateway name.
-#: WC_Buckaroo_Settings_Page.php:471
+#: WC_Buckaroo_Settings_Page.php:473
 #, php-format
 msgid "The \"%s\" payment method is currently disabled"
 msgstr ""
 
 #. %s Payment gateway name.
-#: WC_Buckaroo_Settings_Page.php:468
+#: WC_Buckaroo_Settings_Page.php:470
 #, php-format
 msgid "The \"%s\" payment method is currently enabled"
 msgstr ""
@@ -984,7 +1014,7 @@ msgstr ""
 msgid "They/them"
 msgstr ""
 
-#: gateway-buckaroo.php:328
+#: gateway-buckaroo.php:335
 msgid "This controls the description which the user sees during checkout."
 msgstr ""
 
@@ -994,7 +1024,7 @@ msgid ""
 "Choose website through Filter -> Key)."
 msgstr ""
 
-#: gateway-buckaroo.php:294
+#: gateway-buckaroo.php:282
 msgid "This payment method is not supported for the selected currency "
 msgstr ""
 
@@ -1018,11 +1048,11 @@ msgstr ""
 msgid "Transaction description"
 msgstr ""
 
-#: gateway-buckaroo.php:310
+#: gateway-buckaroo.php:317
 msgid "Transaction mode"
 msgstr ""
 
-#: gateway-buckaroo.php:312
+#: gateway-buckaroo.php:319
 msgid "Transaction mode used for processing orders"
 msgstr ""
 
@@ -1035,7 +1065,7 @@ msgstr ""
 msgid "Upload certificate"
 msgstr ""
 
-#: gateway-buckaroo-mastersettings.php:146
+#: gateway-buckaroo-mastersettings.php:140
 msgid "Use new icons"
 msgstr "Verwenden sie neue symbole"
 
@@ -1051,7 +1081,7 @@ msgstr "Überprüfung ist fehlgeschlagen"
 msgid "Verify your age via iDIN"
 msgstr "Überprüfen sie ihr alter über iDIN"
 
-#: gateway-buckaroo.php:289
+#: gateway-buckaroo.php:299
 msgid "Warning"
 msgstr ""
 
@@ -1075,13 +1105,33 @@ msgstr ""
 msgid "Website key"
 msgstr ""
 
+#: gateway-buckaroo-ideal.php:100
+msgid ""
+"When the \"NO\" option is selected, the issuer selection for iDEAL will not "
+"be displayed in the checkout. Instead, customers will be redirected to a "
+"separate page where they can choose their iDEAL issuer (i.e., their bank). "
+"On the other hand, selecting the \"Yes\" option will display the issuer "
+"selection directly in the checkout. It's important to note that enabling "
+"this option will incur additional costs from Buckaroo, estimated at around "
+"€0.002 for each transaction. For precise cost details, please reach out to "
+"<a href=\"mailto:wecare@buckaroo.nl\">Buckaroo</a> directly."
+msgstr ""
+"Wenn die Option 'Deaktiviert' ausgewählt ist, wird die Bankauswahl für iDEAL "
+"nicht im Checkout angezeigt. Stattdessen werden Kunden auf eine separate "
+"Seite weitergeleitet, auf der sie ihre eigene Bank auswählen können. Auf der "
+"anderen Seite wird das Aktivieren dieser Funktion die Bankauswahl direkt im "
+"Checkout anzeigen. Es ist wichtig zu beachten, dass das Aktivieren dieser "
+"Option zusätzliche Kosten von Buckaroo verursachen wird, die auf ungefähr €0,"
+"002 pro Transaktion geschätzt werden. Für genaue Kostenangaben können Sie "
+"sich direkt an <a href=\"mailto:wecare@buckaroo.nl\">Buckaroo</a> wenden."
+
 #: gateway-buckaroo-sepadirectdebit.php:62
 #: gateway-buckaroo-sepadirectdebit.php:82
 msgid "Wrong IBAN number"
 msgstr ""
 
 #: gateway-buckaroo-transfer.php:132 gateway-buckaroo-transfer.php:138
-#: WC_Buckaroo_Settings_Page.php:468
+#: WC_Buckaroo_Settings_Page.php:470
 msgid "Yes"
 msgstr ""
 
