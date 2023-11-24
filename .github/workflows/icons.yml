@@ -24,19 +24,9 @@ jobs:
             cd Media
             cp -R "Payment methods/SVG/." ${{ github.workspace }}/library/buckaroo_images/svg/
             cd ${{ github.workspace }}/library/buckaroo_images/svg/
-            rm -f wechatpay.svg
-            rm -f vouchers.svg
-            rm -f trustly.svg
-            rm -f tinka.svg
-            rm -f alipay.svg
-            rm -f buckaroovoucher.svg
-            rm -f ideal-qr.svg
-            rm -f knaken.svg
-            rm -f paybybank.svg
-            rm -f paylink.svg
-            rm -f pos.svg
-            rm -f pos-nfc.svg
-            rm -f riverty.svg
+            mv ideal-in3.svg in3-ideal.svg
+            rm -f wechatpay.svg vouchers.svg trustly.svg tinka.svg alipay.svg buckaroovoucher.svg
+            rm -f ideal-qr.svg knaken.svg paybybank.svg paylink.svg pos.svg pos-nfc.svg riverty.svg
       - name: Copy creditcards icons
         run: |
             cd Media
