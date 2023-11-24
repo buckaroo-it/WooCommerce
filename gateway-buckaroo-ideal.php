@@ -93,7 +93,6 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo
     {
         parent::init_form_fields();
 
-
         $this->form_fields['show_issuers'] = array(
             'title'       => __('Show Issuer Selection in the Checkout', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
