@@ -33,5 +33,5 @@ if ($this->canShowIssuers()) {
             </select>
         </p>
     </fieldset>
-<?
+<?php
 }
