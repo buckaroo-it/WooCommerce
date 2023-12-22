@@ -44,7 +44,7 @@
                             ));
                         } catch (Exception $e){ //(SoapFault $e) {
                             Buckaroo_Logger::log(__METHOD__, $e->getMessage());
-                            return $this->_error($e);
+                            return $this->_error();
                         }
                     }
                  }
@@ -353,6 +353,9 @@
                 return $TransactionRequest;
             }
             
+            /**
+             * @param SoapClient|false $client
+             */
             protected function _error($client = false) {
                 $response = false;
 
