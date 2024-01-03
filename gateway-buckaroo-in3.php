@@ -25,7 +25,6 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         $this->id                     = 'buckaroo_in3';
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo In3';
-        $this->set_icons();
 
         $api_version = $this->get_option('api_version');
         $this->title = $api_version === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
@@ -33,6 +32,8 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         $this->setCountry();
 
         parent::__construct();
+
+        $this->set_icons();
         $this->addRefundSupport();
     }
     /**  @inheritDoc */
