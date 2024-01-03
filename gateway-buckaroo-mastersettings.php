@@ -141,7 +141,7 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'type'        => 'select',
             'description' => __('By turning on this setting in checkout new payment method icons will be in use', 'wc-buckaroo-bpe-gateway'),
             'options'     => array(0 => 'No', 1 => 'Yes'),
-            'default'     => 0
+            'default'     => 1
         );
 
         $this->form_fields['useidin'] = array(
