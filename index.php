@@ -111,6 +111,19 @@ function buckaroo_payment_setup_scripts()
 }
 add_action('wp_enqueue_scripts', 'buckaroo_payment_frontend_scripts');
 
+// Example PHP to enqueue a script in WordPress
+function enqueue_buckaroo_ideal_block_script() {
+    wp_enqueue_script(
+        'buckaroo-ideal-blocks',
+        plugins_url('/assets/js/dist/blocks.js', __FILE__),
+        ['wc-blocks-registry'],
+        '1.0.0',
+        true
+    );
+}
+add_action('enqueue_block_assets', 'enqueue_buckaroo_ideal_block_script');
+
+
 /**
  * Enqueue frontend scripts
  *
