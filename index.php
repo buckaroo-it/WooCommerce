@@ -134,9 +134,11 @@ function get_woocommerce_payment_methods() {
 	foreach ($gateways as $gateway) {
 		if ($gateway->enabled == 'yes') {
 			$payment_method = array(
-				'name' => $gateway->id,
+				'id' => $gateway->id,
+				'name' => $gateway->title,
 				'label' => $gateway->get_title(),
 				'description' => $gateway->get_description(),
+				'image' => $gateway->get_icon(),
 			);
 
 			// Add iDEAL issuers if this gateway is iDEAL

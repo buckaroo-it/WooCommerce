@@ -4,7 +4,7 @@ import IdealDropdown from './ideal'; // Component for iDEAL with issuers dropdow
 // Assuming buckarooPaymentMethods is available globally
 buckarooPaymentMethods.paymentMethods.forEach(paymentMethod => {
     console.log(paymentMethod)
-    if (paymentMethod.name === 'buckaroo_ideal' && paymentMethod.issuers) { // Check if it's iDEAL and has issuers
+    if (paymentMethod.id === 'buckaroo_ideal' && paymentMethod.issuers) { // Check if it's iDEAL and has issuers
         const issuersArray = Object.entries(paymentMethod.issuers).map(([code, issuer]) => ({ code, ...issuer }));
 
         registerPaymentMethod({
@@ -18,7 +18,7 @@ buckarooPaymentMethods.paymentMethods.forEach(paymentMethod => {
     } else {
         // For other payment methods without issuers
         registerPaymentMethod({
-            name: `${paymentMethod.name}`,
+            name: `${paymentMethod.id}`,
             label: paymentMethod.name,
             content: <div>{`Pay with ${paymentMethod.name}`}</div>, // Simple content
             edit: <div>{`Pay with ${paymentMethod.name}`}</div>,
