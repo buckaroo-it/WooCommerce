@@ -108,8 +108,47 @@ function buckaroo_payment_setup_scripts()
             'in3_v3' => WC_Gateway_Buckaroo_In3::IN3_V3_TITLE,
         )
     );
+
+	wp_enqueue_script('my-block-script', 'assets/js/dist/blocks.js', array('wp-blocks', 'wp-element'));
+
+	// Localize the script with necessary data
+	$issuer_list = BuckarooIDeal::getIssuerList(); // Replace with actual method to get issuers
+	wp_localize_script('my-block-script', 'buckarooData', array(
+		'issuers' => $issuer_list
+	));
 }
 add_action('wp_enqueue_scripts', 'buckaroo_payment_frontend_scripts');
+
+function get_ideal_issuers() {
+	return BuckarooIDeal::getIssuerList();
+}
+
+function get_woocommerce_payment_methods() {
+	if (!class_exists('WC_Payment_Gateways')) {
+		return array();
+	}
+	$payment_gateways = WC_Payment_Gateways::instance();
+	$gateways = $payment_gateways->payment_gateways();
+	$payment_methods = array();
+
+	foreach ($gateways as $gateway) {
+		if ($gateway->enabled == 'yes') {
+			$payment_method = array(
+				'name' => $gateway->id,
+				'label' => $gateway->get_title(),
+				'description' => $gateway->get_description(),
+			);
+
+			// Add iDEAL issuers if this gateway is iDEAL
+			if ($gateway->id === 'buckaroo_ideal') {
+				$payment_method['issuers'] = get_ideal_issuers();
+			}
+
+			$payment_methods[] = $payment_method;
+		}
+	}
+	return $payment_methods;
+}
 
 // Example PHP to enqueue a script in WordPress
 function enqueue_buckaroo_ideal_block_script() {
@@ -120,6 +159,11 @@ function enqueue_buckaroo_ideal_block_script() {
         '1.0.0',
         true
     );
+
+	$payment_methods = get_woocommerce_payment_methods();
+	wp_localize_script('buckaroo-ideal-blocks', 'buckarooPaymentMethods', array(
+		'paymentMethods' => $payment_methods
+	));
 }
 add_action('enqueue_block_assets', 'enqueue_buckaroo_ideal_block_script');
 

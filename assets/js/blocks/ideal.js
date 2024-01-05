@@ -1,22 +1,16 @@
 import React from 'react';
 
-const Ideal = ({ issuers }) => {
+const IdealDropdown = ({ issuers }) => {
     return (
-        <fieldset style={{ background: 'none' }}>
-            <p className="form-row form-row-wide">
-                <select name="buckaroo-ideal-issuer" id="buckaroo-ideal-issuer">
-                    <option value="0" style={{ color: 'grey' }}>
-                        Select your bank
-                    </option>
-                    {issuers.map((issuer, index) => (
-                        <option key={index} value={issuer.key}>
-                            {issuer.name}
-                        </option>
-                    ))}
-                </select>
-            </p>
-        </fieldset>
+        <select name="buckaroo-ideal-issuer" id="buckaroo-ideal-issuer">
+            <option value="0">Select your bank</option>
+            {issuers.map((issuer) => (
+                <option key={issuer.code} value={issuer.code}>
+                    {issuer.name}
+                </option>
+            ))}
+        </select>
     );
 };
 
-export default Ideal;
+export default IdealDropdown;

@@ -1,25 +1,29 @@
-import { sprintf, __ } from '@wordpress/i18n';
 import { registerPaymentMethod } from '@woocommerce/blocks-registry';
-import { decodeEntities } from '@wordpress/html-entities';
-import { getSetting } from '@woocommerce/settings';
-import Ideal from './ideal'; // Adjust path as necessary
+import IdealDropdown from './ideal'; // Component for iDEAL with issuers dropdown
 
-// Dummy data for issuers, replace with actual data retrieval logic
-const issuers = [
-    { key: 'issuer1', name: 'Issuer 1' },
-    { key: 'issuer2', name: 'Issuer 2' },
-    // ... other issuers
-];
+// Assuming buckarooPaymentMethods is available globally
+buckarooPaymentMethods.paymentMethods.forEach(paymentMethod => {
+    console.log(paymentMethod)
+    if (paymentMethod.name === 'buckaroo_ideal' && paymentMethod.issuers) { // Check if it's iDEAL and has issuers
+        const issuersArray = Object.entries(paymentMethod.issuers).map(([code, issuer]) => ({ code, ...issuer }));
 
-const Dummy = {
-    name: 'buckaroo_ideal',
-    label: 'iDEAL',
-    content: <Ideal issuers={issuers} />, // Use IdealDropdown here
-    edit: <Ideal issuers={issuers} />,
-    canMakePayment: () => true,
-    ariaLabel: 'iDEAL Payment',
-    supports: {
-    },
-};
-
-registerPaymentMethod( Dummy );
+        registerPaymentMethod({
+            name: 'buckaroo_ideal',
+            label: paymentMethod.name,
+            content: <IdealDropdown issuers={issuersArray} />,
+            edit: <IdealDropdown issuers={issuersArray} />,
+            canMakePayment: () => true,
+            ariaLabel: 'Select your iDEAL payment bank',
+        });
+    } else {
+        // For other payment methods without issuers
+        registerPaymentMethod({
+            name: `${paymentMethod.name}`,
+            label: paymentMethod.name,
+            content: <div>{`Pay with ${paymentMethod.name}`}</div>, // Simple content
+            edit: <div>{`Pay with ${paymentMethod.name}`}</div>,
+            canMakePayment: () => true,
+            ariaLabel: `Pay with ${paymentMethod.name}`,
+        });
+    }
+});
