@@ -123,6 +123,9 @@ function get_ideal_issuers() {
 	return BuckarooIDeal::getIssuerList();
 }
 
+function get_paybybank_issuers() {
+    return BuckarooPayByBank::getIssuerList();
+}
 function get_woocommerce_payment_methods() {
 	if (!class_exists('WC_Payment_Gateways')) {
 		return array();
@@ -132,19 +135,26 @@ function get_woocommerce_payment_methods() {
 	$payment_methods = array();
 
 	foreach ($gateways as $gateway) {
+
 		if ($gateway->enabled == 'yes') {
 			$payment_method = array(
 				'id' => $gateway->id,
 				'name' => $gateway->title,
 				'label' => $gateway->get_title(),
 				'description' => $gateway->get_description(),
-				'image' => $gateway->get_icon(),
+				'image' => $gateway->get_icon()
 			);
 
 			// Add iDEAL issuers if this gateway is iDEAL
-			if ($gateway->id === 'buckaroo_ideal') {
-				$payment_method['issuers'] = get_ideal_issuers();
-			}
+
+
+
+			if ($gateway->has_fields) {
+                $payment_method['has_fields'] = true;
+                $payment_method['gateway'] = $gateway;
+            }else{
+                $payment_method['has_fields'] = false;
+            }
 
 			$payment_methods[] = $payment_method;
 		}
@@ -155,7 +165,7 @@ function get_woocommerce_payment_methods() {
 // Example PHP to enqueue a script in WordPress
 function enqueue_buckaroo_ideal_block_script() {
     wp_enqueue_script(
-        'buckaroo-ideal-blocks',
+        'buckaroo-blocks',
         plugins_url('/assets/js/dist/blocks.js', __FILE__),
         ['wc-blocks-registry'],
         '1.0.0',
@@ -163,9 +173,14 @@ function enqueue_buckaroo_ideal_block_script() {
     );
 
 	$payment_methods = get_woocommerce_payment_methods();
-	wp_localize_script('buckaroo-ideal-blocks', 'buckarooPaymentMethods', array(
+	wp_localize_script('buckaroo-blocks', 'buckarooPaymentMethods', array(
 		'paymentMethods' => $payment_methods
 	));
+
+    wp_localize_script('buckaroo-blocks', 'idealIssuers', get_ideal_issuers());
+
+    wp_localize_script('buckaroo-blocks', 'payByBankIssuers', get_paybybank_issuers());
+
 }
 add_action('enqueue_block_assets', 'enqueue_buckaroo_ideal_block_script');
 
