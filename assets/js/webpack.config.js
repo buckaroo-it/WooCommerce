@@ -2,6 +2,7 @@ const path = require('path');
 const defaultConfig = require('@wordpress/scripts/config/webpack.config');
 const WooCommerceDependencyExtractionWebpackPlugin = require('@woocommerce/dependency-extraction-webpack-plugin');
 
+// WooCommerce dependency maps
 const wcDepMap = {
   '@woocommerce/blocks-registry': ['wc', 'wcBlocksRegistry'],
   '@woocommerce/settings': ['wc', 'wcSettings']
@@ -24,31 +25,15 @@ const requestToHandle = (request) => {
   }
 };
 
-// Define your existing entries for applepay and checkout
-const applepay = {
-  entry: './applepay/index.js',
-  output: {
-    filename: './apple-pay.js',
-    path: path.resolve(__dirname, 'dist'),
-  },
-};
-
-const checkout = {
-  entry: './checkout/index.js',
-  output: {
-    filename: './checkout.js',
-    path: path.resolve(__dirname, 'dist'),
-  },
-};
-
-// New entry for blocks with Babel configuration for JSX
-const blocks = {
+module.exports = {
   entry: {
-    'blocks': './blocks/index.js', // Adjust the path to your blocks index.js
+    'applepay': './applepay/index.js',
+    'checkout': './checkout/index.js',
+    'blocks': './blocks/index.js' // Adjust this path to your blocks index.js
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js',
+    filename: '[name].js', // Output each entry to a unique file
   },
   module: {
     rules: [
@@ -58,7 +43,7 @@ const blocks = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env', '@babel/preset-react'] // Add React preset
+            presets: ['@babel/preset-env', '@babel/preset-react'] // Add React preset for JSX
           }
         }
       }
@@ -75,10 +60,3 @@ const blocks = {
     })
   ]
 };
-
-// Export the merged configuration
-module.exports = [
-  applepay,
-  checkout,
-  blocks
-];
