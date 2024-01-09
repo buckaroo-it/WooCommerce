@@ -1,12 +1,18 @@
 import { registerPaymentMethod } from '@woocommerce/blocks-registry';
 import DefaultPayment from './default_payment';
 
+function BuckarooLabel({image_path, title})
+{
+    return React.createElement('div', {className: 'Buckaroo_method_block'},
+        title, React.createElement('img', {src: image_path, style: {float: 'right'}}, null));
+}
+
 buckarooPaymentMethods.paymentMethods.forEach(paymentMethod => {
     import(`./${paymentMethod.id}`)
         .then(({ default: PaymentComponent }) => {
             registerPaymentMethod({
                 name: `${paymentMethod.id}`,
-                label: paymentMethod.name,
+                label: React.createElement(BuckarooLabel, {image_path: paymentMethod.image, title: paymentMethod.name}),
                 content: <PaymentComponent />,
                 edit: <PaymentComponent />,
                 canMakePayment: () => true,
@@ -17,7 +23,7 @@ buckarooPaymentMethods.paymentMethods.forEach(paymentMethod => {
             if (/Cannot find module/.test(error.message)) {
                 registerPaymentMethod({
                     name: `${paymentMethod.id}`,
-                    label: paymentMethod.name,
+                    label: React.createElement(BuckarooLabel, {image_path: paymentMethod.image, title: paymentMethod.name}),
                     content: <DefaultPayment paymentName={paymentMethod.name}/>,
                     edit: <DefaultPayment paymentName={paymentMethod.name}/>,
                     canMakePayment: () => true,

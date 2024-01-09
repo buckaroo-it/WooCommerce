@@ -142,7 +142,7 @@ function get_woocommerce_payment_methods() {
 				'name' => $gateway->title,
 				'label' => $gateway->get_title(),
 				'description' => $gateway->get_description(),
-				'image' => $gateway->get_icon()
+				'image' => $gateway->getIcon()
 			);
 
 			// Add iDEAL issuers if this gateway is iDEAL
