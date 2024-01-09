@@ -3,8 +3,8 @@ import DefaultPayment from './default_payment';
 
 function BuckarooLabel({image_path, title})
 {
-    return React.createElement('div', {className: 'Buckaroo_method_block'},
-        title, React.createElement('img', {src: image_path, style: {float: 'right'}}, null));
+    return React.createElement('div', {className: 'buckaroo_method_block'},
+        title, React.createElement('img', {src: image_path, className: 'buckaroo_method_block_img'}, null));
 }
 
 buckarooPaymentMethods.paymentMethods.forEach(paymentMethod => {
@@ -13,7 +13,7 @@ buckarooPaymentMethods.paymentMethods.forEach(paymentMethod => {
             registerPaymentMethod({
                 name: `${paymentMethod.id}`,
                 label: React.createElement(BuckarooLabel, {image_path: paymentMethod.image, title: paymentMethod.name}),
-                content: <PaymentComponent />,
+                content: <PaymentComponent paymentName={paymentMethod.name}/>,
                 edit: <PaymentComponent />,
                 canMakePayment: () => true,
                 ariaLabel: `Pay with ${paymentMethod.name}`,
