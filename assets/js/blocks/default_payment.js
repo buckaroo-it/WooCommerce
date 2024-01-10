@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DefaultPayment = ({paymentName}) => {
+const DefaultPayment = () => {
     return;
 };
 

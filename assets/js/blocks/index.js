@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
-
 import DefaultPayment from "./default_payment";
-const BuckarooComponent = (props) =>{
-    let {useEffect, gateway} = props
-    const [ selectedIssuer, selectIssuer ] = wp.element.useState('');
-    const [ processingErrorMessage, setErrorMessage ] = wp.element.useState('');
-    const [ dob ] = wp.element.useState('');
-    const { eventRegistration, emitResponse } = props;
-    const {onPaymentSetup, onCheckoutValidation, onCheckoutFail} = eventRegistration;
+
+const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
+    const [processingErrorMessage, setErrorMessage] = useState('');
+    const [selectedIssuer, setSelectedIssuer] = useState('');
+    const [dob, setDob] = useState(''); // If you need to handle date of birth
     const [PaymentComponent, setPaymentComponent] = useState(null);
 
 
     useEffect(() => {
-        const unsubscribddeProcessing = onCheckoutFail(
+        const unsubscribeProcessing = eventRegistration.onCheckoutFail(
             (props) => {
                 setErrorMessage(props.processingResponse.paymentDetails.errorMessage);
                 return {
@@ -22,57 +19,25 @@ const BuckarooComponent = (props) =>{
                 };
             }
         );
-        return () => {
-            unsubscribddeProcessing()
-        };
-    }, [onCheckoutFail]);
+        return () => unsubscribeProcessing();
+    }, [eventRegistration, emitResponse]);
 
     useEffect(() => {
-        const unsubscribeCheckoutValidation = onCheckoutValidation(
-            () => {
-                // if (gateway.showVatField == true && gateway.vatRequired == true && !vatNumber.length) {
-                //     return {
-                //         type: emitResponse.responseTypes.SUCCESS,
-                //         errorMessage: gateway.texts.requiredVatNumber
-                //     };
-                // } else if (gateway.showCocField == true && gateway.cocRequired == true && !cocNumber.length) {
-                //     return {
-                //         type: emitResponse.responseTypes.SUCCESS,
-                //         errorMessage: gateway.texts.requiredCocNumber
-                //     };
-                // }
-                //
-                // if (gateway.showbirthdate == true && gateway.birthdateRequired == true && !dob.length) {
-                //     return {
-                //         type: emitResponse.responseTypes.SUCCESS,
-                //         errorMessage: gateway.texts.dobRequired
-                //     };
-                // }
-            }
-        );
-        return () => {
-            unsubscribeCheckoutValidation()
-        };
-    }, [onCheckoutValidation, dob]);
-
-    useEffect(() => {
-        const unsubscribe = onPaymentSetup(() => {
+        const unsubscribe = eventRegistration.onPaymentSetup(() => {
             let response = {
                 type: emitResponse.responseTypes.SUCCESS,
                 meta: {},
             };
             let paymentMethodData = {
                 'isblocks': '1',
-                'buckaroo-ideal-issuer': selectedIssuer, // Updated with the state
+                'buckaroo-ideal-issuer': selectedIssuer,
                 [gateway.paymentMethodId + '_birthdate']: dob
             };
             response.meta.paymentMethodData = paymentMethodData;
             return response;
         });
-        return () => {
-            unsubscribe();
-        };
-    }, [onPaymentSetup, selectedIssuer, dob]);
+        return () => unsubscribe();
+    }, [eventRegistration, emitResponse, selectedIssuer, dob, gateway.paymentMethodId]);
 
     useEffect(() => {
         import(`./${gateway.paymentMethodId}`)
@@ -90,17 +55,20 @@ const BuckarooComponent = (props) =>{
     }, [gateway.paymentMethodId]);
 
     if (!PaymentComponent) {
-        return <div>Loading...</div>; // Or some other placeholder
+        return <div>Loading...</div>;
     }
 
-    return React.createElement('div', {className: 'PPMFWC_container'},
-        React.createElement('span', {className: 'description'}, gateway.description),
-        React.createElement('span', {className: 'descriptionError'}, processingErrorMessage),
-
-        React.createElement('div', {},
-            <PaymentComponent paymentName={gateway.title} issuers={gateway.issuers} onSelectIssuer={props.onSelectIssuer} />
-        ))
-
+    return (
+        <div className='PPMFWC_container'>
+            <span className='description'>{gateway.description}</span>
+            <span className='descriptionError'>{processingErrorMessage}</span>
+            <PaymentComponent
+                paymentName={gateway.title}
+                issuers={gateway.issuers}
+                onSelectIssuer={setSelectedIssuer}
+            />
+        </div>
+    );
 }
 
 function BuckarooLabel({image_path, title})
@@ -110,7 +78,6 @@ function BuckarooLabel({image_path, title})
 }
 
 const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
-    console.log(buckaroo_gateways)
     const {registerPaymentMethod} = wc.wcBlocksRegistry;
     const {useEffect} = wp.element;
     buckaroo_gateways.forEach(

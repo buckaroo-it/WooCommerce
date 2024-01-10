@@ -1,7 +1,6 @@
 import React from 'react';
 
 const IdealDropdown = ({ paymentName, issuers, onSelectIssuer }) => {
-    console.log('gege')
     return (
         <div className="payment_box payment_method_buckaroo_ideal">
             <div className="form-row form-row-wide">
