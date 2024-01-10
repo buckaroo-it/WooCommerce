@@ -130,36 +130,21 @@ function get_woocommerce_payment_methods() {
 	if (!class_exists('WC_Payment_Gateways')) {
 		return array();
 	}
-	$payment_gateways = WC_Payment_Gateways::instance();
-	$gateways = $payment_gateways->payment_gateways();
-	$payment_methods = array();
+    $gateways = WC()->payment_gateways()->payment_gateways();
 
-
-	foreach ($gateways as $gateway) {
+    foreach ($gateways as $gateway_id => $gateway) {
 		if ($gateway->enabled == 'yes') {
-			$payment_method = array(
-				'id' => $gateway->id,
-				'name' => $gateway->title,
-				'label' => $gateway->get_title(),
-				'description' => $gateway->get_description(),
-				'image' => $gateway->getIcon()
-		);
+			$payment_method[] = array(
+                'paymentMethodId' => $gateway_id ,
+                'title' => $gateway->get_title(),
+                'description' => $gateway->description,
+                'image_path' => $gateway->getIcon(),
+                'issuers' => get_ideal_issuers(),
+		    );
+            wp_localize_script('buckaroo-blocks', 'buckaroo_gateways', $payment_method);
 
-			// Add iDEAL issuers if this gateway is iDEAL
-
-
-
-			if ($gateway->has_fields) {
-                $payment_method['has_fields'] = true;
-                $payment_method['gateway'] = $gateway;
-            }else{
-                $payment_method['has_fields'] = false;
-            }
-
-			$payment_methods[] = $payment_method;
-		}
+        }
 	}
-	return $payment_methods;
 }
 
 // Example PHP to enqueue a script in WordPress
@@ -172,10 +157,7 @@ function enqueue_buckaroo_ideal_block_script() {
         true
     );
 
-	$payment_methods = get_woocommerce_payment_methods();
-	wp_localize_script('buckaroo-blocks', 'buckarooPaymentMethods', array(
-		'paymentMethods' => $payment_methods
-	));
+	 get_woocommerce_payment_methods();
 
     wp_localize_script('buckaroo-blocks', 'idealIssuers', get_ideal_issuers());
 

@@ -40,6 +40,7 @@ const BirthDayField = ({ sectionId }) => {
                 yearDropdownItemNumber={100}
                 minDate={new Date(1900, 0, 1)}
                 maxDate={new Date()}
+                showMonthDropdown
             />
         </p>
     );
