@@ -1,9 +1,7 @@
 import React from 'react';
 
 const DefaultPayment = ({paymentName}) => {
-    return (
-        <div>{`Pay with ${paymentName}`}</div>
-    );
+    return;
 };
 
 export default DefaultPayment;
