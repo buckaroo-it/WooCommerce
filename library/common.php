@@ -1180,3 +1180,15 @@ function getGenderValues($payment_method)
 
     return $genders;
 }
+function getAllGendersForPaymentMethods()
+{
+    $allGenders = [];
+
+    $allGenders['buckaroo-payperemail'] = ['male' => 1, 'female' => 2, 'they'=> 0, 'unknown' => 9];
+    $allGenders['buckaroo-billink'] = ['male' => 'Male', 'female' => 'Female', 'they'=> 'Unknown', 'unknown' => 'Unknown'];
+    $allGenders['buckaroo-klarnapay'] = ['male' => 'male', 'female' => 'female'];
+    $allGenders['buckaroo-klarnapii'] = ['male' => 'male', 'female' => 'female'];
+
+    return $allGenders;
+}
+
