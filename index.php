@@ -119,17 +119,26 @@ function buckaroo_payment_setup_scripts()
 }
 add_action('wp_enqueue_scripts', 'buckaroo_payment_frontend_scripts');
 
-function get_ideal_issuers() {
-	return BuckarooIDeal::getIssuerList();
-}
 
-function get_paybybank_issuers() {
-    return BuckarooPayByBank::getIssuerList();
-}
 function get_woocommerce_payment_methods() {
 	if (!class_exists('WC_Payment_Gateways')) {
 		return array();
 	}
+
+    function get_ideal_issuers() {
+        return BuckarooIDeal::getIssuerList();
+    }
+
+    function get_paybybank_issuers() {
+        return BuckarooPayByBank::getIssuerList();
+    }
+
+    function get_active_issuer_code()
+    {
+        return BuckarooPayByBank::getActiveIssuerCode();
+    }
+
+
     $gateways = WC()->payment_gateways()->payment_gateways();
 
     foreach ($gateways as $gateway_id => $gateway) {
@@ -139,7 +148,13 @@ function get_woocommerce_payment_methods() {
                 'title' => $gateway->get_title(),
                 'description' => $gateway->description,
                 'image_path' => $gateway->getIcon(),
-                'issuers' => get_ideal_issuers(),
+                'idealIssuers' => get_ideal_issuers(),
+                'payByBankIssuers' => get_paybybank_issuers(),
+                'payByBankSelectedIssuer' => get_active_issuer_code(),
+                'displayMode' => $gateway->get_option('displaymode'),
+                'selectedIssuer' => get_ideal_issuers(),
+                'buckarooImagesUrl' => plugin_dir_url(__FILE__) . 'library/buckaroo_images/',
+                'gateway' => $gateway
 		    );
             wp_localize_script('buckaroo-blocks', 'buckaroo_gateways', $payment_method);
 
@@ -158,11 +173,6 @@ function enqueue_buckaroo_ideal_block_script() {
     );
 
 	 get_woocommerce_payment_methods();
-
-    wp_localize_script('buckaroo-blocks', 'idealIssuers', get_ideal_issuers());
-
-    wp_localize_script('buckaroo-blocks', 'payByBankIssuers', get_paybybank_issuers());
-
 }
 add_action('enqueue_block_assets', 'enqueue_buckaroo_ideal_block_script');
 

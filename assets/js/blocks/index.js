@@ -65,7 +65,11 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
             <span className='descriptionError'>{processingErrorMessage}</span>
             <PaymentComponent
                 paymentName={gateway.title}
-                issuers={gateway.issuers}
+                idealIssuers={gateway.idealIssuers}
+                payByBankIssuers={gateway.payByBankIssuers}
+                payByBankSelectedIssuer={gateway.payByBankSelectedIssuer}
+                displayMode={gateway.displayMode}
+                buckarooImagesUrl={gateway.buckarooImagesUrl}
                 onSelectIssuer={setSelectedIssuer}
                 onBirthdateChange={(date) => setDob(date)}
             />

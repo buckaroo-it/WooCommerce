@@ -256,6 +256,7 @@ label[for^="payment_method_buckaroo_"] img {
         display: flex;
         flex-direction: column;
         padding-top: 5px;
+        text-align: center;
     }
     .bk-paybybank-selector .bank-method-label strong {
             display: block;
