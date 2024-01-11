@@ -14,11 +14,12 @@ const BirthDayField = ({ sectionId, onBirthdateChange }) => {
         return dateFormatRegex.test(date.toISOString().slice(0, 10));
     };
     const handleDateChange = (date) => {
+
         const formattedDate = date.toLocaleDateString('en-GB', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
-        });
+        }).replace(/\//g, '-');
 
         setBirthdate(date);
         onBirthdateChange(formattedDate);

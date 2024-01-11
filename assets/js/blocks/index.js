@@ -4,9 +4,11 @@ import DefaultPayment from "./gateways/default_payment";
 const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
     const [processingErrorMessage, setErrorMessage] = useState('');
     const [selectedIssuer, setSelectedIssuer] = useState('');
-    const [dob, setDob] = useState(''); // If you need to handle date of birth
+    const [dob, setDob] = useState('');
+    const [selectedGender, setSelectedGender] = useState('');
+    const [termsAndConditions, setTermsAndConditions] = useState('');
     const [PaymentComponent, setPaymentComponent] = useState(null);
-
+    const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
 
     useEffect(() => {
         const unsubscribeProcessing = eventRegistration.onCheckoutFail(
@@ -21,7 +23,6 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
         );
         return () => unsubscribeProcessing();
     }, [eventRegistration, emitResponse]);
-
     useEffect(() => {
         const unsubscribe = eventRegistration.onPaymentSetup(() => {
             let response = {
@@ -31,14 +32,16 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
 
             let paymentMethodData = {
                 'isblocks': '1',
-                [gateway.paymentMethodId + '_issuer']: selectedIssuer,
-                [gateway.paymentMethodId + '_birthdate']: dob
+                [`${methodName}_issuer`]: selectedIssuer,
+                [`${methodName}-birthdate`]: dob,
+                [`${methodName}-accept`]: dob,
+                [`${methodName}-gender`]: selectedGender
             };
             response.meta.paymentMethodData = paymentMethodData;
             return response;
         });
         return () => unsubscribe();
-    }, [eventRegistration, emitResponse, selectedIssuer, dob, gateway.paymentMethodId]);
+    }, [eventRegistration, emitResponse, selectedIssuer, selectedGender, dob, gateway.paymentMethodId]);
 
     useEffect(() => {
         import(`./gateways/${gateway.paymentMethodId}`)
@@ -70,8 +73,11 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
                 payByBankSelectedIssuer={gateway.payByBankSelectedIssuer}
                 displayMode={gateway.displayMode}
                 buckarooImagesUrl={gateway.buckarooImagesUrl}
+                genders={gateway.genders}
                 onSelectIssuer={setSelectedIssuer}
+                onSelectGender={(gender) => setSelectedGender(gender)}
                 onBirthdateChange={(date) => setDob(date)}
+                onCheckboxChange={(check)=> setTermsAndConditions(check)}
             />
         </div>
     );
@@ -82,7 +88,9 @@ function BuckarooLabel({image_path, title})
     return React.createElement('div', {className: 'buckaroo_method_block'},
         title, React.createElement('img', {src: image_path, style: {float: 'right'}}, null));
 }
-
+function convertUnderScoreToDash(inputString) {
+    return inputString.replace(/_/g, '-');
+}
 const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
     const {registerPaymentMethod} = wc.wcBlocksRegistry;
     const {useEffect} = wp.element;
@@ -94,6 +102,7 @@ const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
     );
 }
 
+const createOptions = (gateway,BuckarooComponent, useEffect) => {
 function decodeHtmlEntities(input) {
     var doc = new DOMParser().parseFromString(input, "text/html");
     return doc.documentElement.textContent;

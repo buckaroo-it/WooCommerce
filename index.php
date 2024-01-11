@@ -142,6 +142,7 @@ function get_woocommerce_payment_methods() {
     $gateways = WC()->payment_gateways()->payment_gateways();
 
     foreach ($gateways as $gateway_id => $gateway) {
+
 		if ($gateway->enabled == 'yes') {
 			$payment_method[] = array(
                 'paymentMethodId' => $gateway_id ,
@@ -154,10 +155,10 @@ function get_woocommerce_payment_methods() {
                 'displayMode' => $gateway->get_option('displaymode'),
                 'selectedIssuer' => get_ideal_issuers(),
                 'buckarooImagesUrl' => plugin_dir_url(__FILE__) . 'library/buckaroo_images/',
-                'gateway' => $gateway
+                'gateway' => $gateway,
+                'genders' => getAllGendersForPaymentMethods()
 		    );
             wp_localize_script('buckaroo-blocks', 'buckaroo_gateways', $payment_method);
-
         }
 	}
 }
