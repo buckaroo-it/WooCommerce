@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import DefaultPayment from "./default_payment";
+import DefaultPayment from "./gateways/default_payment";
 
 const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
     const [processingErrorMessage, setErrorMessage] = useState('');
@@ -28,6 +28,7 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
                 type: emitResponse.responseTypes.SUCCESS,
                 meta: {},
             };
+
             let paymentMethodData = {
                 'isblocks': '1',
                 [gateway.paymentMethodId + '_issuer']: selectedIssuer,
@@ -40,7 +41,7 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
     }, [eventRegistration, emitResponse, selectedIssuer, dob, gateway.paymentMethodId]);
 
     useEffect(() => {
-        import(`./${gateway.paymentMethodId}`)
+        import(`./gateways/${gateway.paymentMethodId}`)
             .then(({ default: LoadedComponent }) => {
                 setPaymentComponent(() => LoadedComponent);
             })
@@ -66,6 +67,7 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
                 paymentName={gateway.title}
                 issuers={gateway.issuers}
                 onSelectIssuer={setSelectedIssuer}
+                onBirthdateChange={(date) => setDob(date)}
             />
         </div>
     );

@@ -2,21 +2,26 @@ import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-const BirthDayField = ({ sectionId }) => {
+const BirthDayField = ({ sectionId, onBirthdateChange }) => {
     const [birthdate, setBirthdate] = useState(null);
+
     const validateDate = (date) => {
         return isValidDateFormat(date);
     };
+
     const isValidDateFormat = (date) => {
         const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
         return dateFormatRegex.test(date.toISOString().slice(0, 10));
     };
     const handleDateChange = (date) => {
-        if (validateDate(date)) {
-            setBirthdate(date);
-        } else {
-            console.error('Invalid date format');
-        }
+        const formattedDate = date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        });
+
+        setBirthdate(date);
+        onBirthdateChange(formattedDate);
     };
 
     return (
