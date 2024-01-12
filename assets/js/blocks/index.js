@@ -34,7 +34,7 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
                 'isblocks': '1',
                 [`${methodName}_issuer`]: selectedIssuer,
                 [`${methodName}-birthdate`]: dob,
-                [`${methodName}-accept`]: dob,
+                [`${methodName}-accept`]: termsAndConditions,
                 [`${methodName}-gender`]: selectedGender
             };
             response.meta.paymentMethodData = paymentMethodData;
