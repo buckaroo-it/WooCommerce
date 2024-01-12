@@ -32,7 +32,7 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
 
             let paymentMethodData = {
                 'isblocks': '1',
-                [`${methodName}_issuer`]: selectedIssuer,
+                [`${methodName}-issuer`]: selectedIssuer,
                 [`${methodName}-birthdate`]: dob,
                 [`${methodName}-accept`]: termsAndConditions,
                 [`${methodName}-gender`]: selectedGender
@@ -78,6 +78,7 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
                 onSelectGender={(gender) => setSelectedGender(gender)}
                 onBirthdateChange={(date) => setDob(date)}
                 onCheckboxChange={(check)=> setTermsAndConditions(check)}
+                billingCountry = {gateway.billingCountry}
             />
         </div>
     );

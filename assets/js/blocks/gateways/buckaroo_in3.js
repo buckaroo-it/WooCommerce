@@ -1,19 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import BirthDayField from '../partials/buckaroo_partial_birth_field'
+import FinancialWarning from "../partials/buckaroo_financial_warning";
+const In3 = ({billingCountry, onBirthdateChange}) => {
+    const paymentMethod = 'buckaroo-in3';
 
-const PayByBankDropdown = () => {
-    const issuers = payByBankIssuers;
-
+    const handleBirthdateChange = (date) => {
+        onBirthdateChange(date);
+    };
     return (
-        <select name="buckaroo-paybybank-issuer" id="buckaroo-paybybank-issuer">
-            <option value="0">Select your bank</option>
-            {Object.keys(issuers).map((issuerCode) => (
-                <option key={issuerCode} value={issuerCode}>
-                    {issuers[issuerCode].name}
-                </option>
-            ))}
-        </select>
+        <fieldset>
+            {billingCountry === "NL" &&
+                <BirthDayField
+                    sectionId={paymentMethod}
+                    onBirthdateChange={handleBirthdateChange}
+                />
+            }
+            <FinancialWarning paymentMethod={paymentMethod}></FinancialWarning>
+        </fieldset>
     );
 
 };
 
-export default PayByBankDropdown;
+export default In3;
