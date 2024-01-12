@@ -103,12 +103,11 @@ const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
 }
 
 const createOptions = (gateway,BuckarooComponent, useEffect) => {
-function decodeHtmlEntities(input) {
-    var doc = new DOMParser().parseFromString(input, "text/html");
-    return doc.documentElement.textContent;
-}
+    function decodeHtmlEntities(input) {
+        var doc = new DOMParser().parseFromString(input, "text/html");
+        return doc.documentElement.textContent;
+    }
 
-const createOptions = (gateway, BuckarooComponent, useEffect) => {
     return {
         name: gateway.paymentMethodId,
         label: React.createElement(BuckarooLabel, {image_path: gateway.image_path, title: decodeHtmlEntities(gateway.title)}),
