@@ -15,7 +15,7 @@ const GenderDropdown = ({ paymentMethod, genders, onSelectGender }) => {
                     onChange={(e) => onSelectGender(e.target.value)}
                 >
                     <option>Select your Gender</option>
-                    {Object.entries(genders['buckaroo-billink']).map(([key, value]) => (
+                    {Object.entries(genders[paymentMethod]).map(([key, value]) => (
                         <option value={value}>
                             {key}
                         </option>

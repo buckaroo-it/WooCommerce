@@ -119,30 +119,34 @@ function buckaroo_payment_setup_scripts()
 }
 add_action('wp_enqueue_scripts', 'buckaroo_payment_frontend_scripts');
 
+function get_ideal_issuers() {
+    return BuckarooIDeal::getIssuerList();
+}
+
+function get_paybybank_issuers() {
+    return BuckarooPayByBank::getIssuerList();
+}
+
+function get_active_issuer_code()
+{
+    return BuckarooPayByBank::getActiveIssuerCode();
+}
 
 function get_woocommerce_payment_methods() {
 	if (!class_exists('WC_Payment_Gateways')) {
 		return array();
 	}
 
-    function get_ideal_issuers() {
-        return BuckarooIDeal::getIssuerList();
-    }
-
-    function get_paybybank_issuers() {
-        return BuckarooPayByBank::getIssuerList();
-    }
-
-    function get_active_issuer_code()
-    {
-        return BuckarooPayByBank::getActiveIssuerCode();
-    }
-
-
     $gateways = WC()->payment_gateways()->payment_gateways();
 
+
     foreach ($gateways as $gateway_id => $gateway) {
-        $country = WC()->customer->get_billing_country();
+        //ToDO: this needs to be changed
+        if (!is_null(WC()->customer)) {
+            $country = WC()->customer->get_billing_country();
+        } else {
+            $country = '';
+        }
 
 		if ($gateway->enabled == 'yes') {
 			$payment_method[] = array(

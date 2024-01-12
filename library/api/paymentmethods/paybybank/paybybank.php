@@ -93,6 +93,9 @@ class BuckarooPayByBank extends BuckarooPaymentMethod
     }
 
     public static function getActiveIssuerCode() {
+        if (is_null(WC()->session)) {
+            return null;
+        }
         return WC()->session->get(self::SESSION_LAST_ISSUER_LABEL);
     }
 

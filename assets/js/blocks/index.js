@@ -7,6 +7,12 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
     const [dob, setDob] = useState('');
     const [selectedGender, setSelectedGender] = useState('');
     const [termsAndConditions, setTermsAndConditions] = useState('');
+    const [accountName, setAccountName] = useState('');
+    const [iban, setIban] = useState('');
+    const [bic, setBic] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [email, setEmail] = useState('');
     const [PaymentComponent, setPaymentComponent] = useState(null);
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
 
@@ -35,7 +41,13 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
                 [`${methodName}-issuer`]: selectedIssuer,
                 [`${methodName}-birthdate`]: dob,
                 [`${methodName}-accept`]: termsAndConditions,
-                [`${methodName}-gender`]: selectedGender
+                [`${methodName}-gender`]: selectedGender,
+                [`${methodName}-iban`]: iban,
+                [`${methodName}-accountname`]: accountName,
+                [`${methodName}-bic`]: bic,
+                [`${methodName}-firstName`]: firstName,
+                [`${methodName}-lastName`]: lastName,
+                [`${methodName}-email`]: email,
             };
             response.meta.paymentMethodData = paymentMethodData;
             return response;
@@ -70,7 +82,7 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
                 paymentName={gateway.title}
                 idealIssuers={gateway.idealIssuers}
                 payByBankIssuers={gateway.payByBankIssuers}
-                payByBankSelectedIssuer={gateway.payByBankSelectedIssuer}
+                payByBankSelectedIssuer={'2'}
                 displayMode={gateway.displayMode}
                 buckarooImagesUrl={gateway.buckarooImagesUrl}
                 genders={gateway.genders}
@@ -78,6 +90,12 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
                 onSelectGender={(gender) => setSelectedGender(gender)}
                 onBirthdateChange={(date) => setDob(date)}
                 onCheckboxChange={(check)=> setTermsAndConditions(check)}
+                onAccountName={(accountName) => setAccountName(accountName)}
+                onIbanChange={(iban) => setIban(iban)}
+                onBicChange={(bic) => setBic(bic)}
+                onFirstNameChange={(firstName) => setFirstName (firstName)}
+                onLastNameChange={(lastName) => setLastName (lastName)}
+                onEmailChange={(email) => setEmail(email)}
                 billingCountry = {gateway.billingCountry}
             />
         </div>
