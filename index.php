@@ -141,13 +141,6 @@ function get_woocommerce_payment_methods() {
 
 
     foreach ($gateways as $gateway_id => $gateway) {
-        //ToDO: this needs to be changed
-        if (!is_null(WC()->customer)) {
-            $country = WC()->customer->get_billing_country();
-        } else {
-            $country = '';
-        }
-
 		if ($gateway->enabled == 'yes') {
 			$payment_method[] = array(
                 'paymentMethodId' => $gateway_id ,
@@ -156,14 +149,17 @@ function get_woocommerce_payment_methods() {
                 'image_path' => $gateway->getIcon(),
                 'idealIssuers' => get_ideal_issuers(),
                 'payByBankIssuers' => get_paybybank_issuers(),
+                'creditCardIssuers' => getCreditcardsProviders(),
                 'payByBankSelectedIssuer' => get_active_issuer_code(),
                 'displayMode' => $gateway->get_option('displaymode'),
                 'selectedIssuer' => get_ideal_issuers(),
                 'buckarooImagesUrl' => plugin_dir_url(__FILE__) . 'library/buckaroo_images/',
+                'creditCardsMethod' => getCreditCardsMethod(),
+                'creditCardsIsSecure' => getCreditCardsIsSecure(),
                 'gateway' => $gateway,
                 'genders' => getAllGendersForPaymentMethods(),
-                'billingCountry' => $country,
 		    );
+
             wp_localize_script('buckaroo-blocks', 'buckaroo_gateways', $payment_method);
         }
 	}

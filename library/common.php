@@ -812,6 +812,22 @@ function getCreditcardsProviders()
     return $creditcard->getCardsList();
 }
 
+function getCreditCardsIsSecure()
+{
+    $paymentgateways = WC_Payment_Gateways::instance();
+    $creditcard      = $paymentgateways->payment_gateways()['buckaroo_creditcard'];
+
+    return $creditcard->isSecure();
+}
+
+function getCreditCardsMethod()
+{
+    $paymentgateways = WC_Payment_Gateways::instance();
+    $creditcard      = $paymentgateways->payment_gateways()['buckaroo_creditcard'];
+
+    return $creditcard->getCreditcardmethod();
+}
+
 function checkCreditcardProvider($creditcardProvider)
 {
     $creditcardsProvidersList = getCreditcardsProviders();
