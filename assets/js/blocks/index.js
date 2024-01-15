@@ -96,7 +96,6 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
                 onFirstNameChange={(firstName) => setFirstName (firstName)}
                 onLastNameChange={(lastName) => setLastName (lastName)}
                 onEmailChange={(email) => setEmail(email)}
-                billingCountry = {gateway.billingCountry}
             />
         </div>
     );

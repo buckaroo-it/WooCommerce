@@ -5,7 +5,7 @@ const TermsAndConditionsCheckbox = ({ paymentMethod, onCheckboxChange,labelText,
 
     const handleCheckboxChange = () => {
         setIsChecked(!isChecked);
-        onCheckboxChange(!isChecked ? 'on' : 'off');
+        onCheckboxChange(!isChecked ? 'On' : 'Off');
     };
 
 
