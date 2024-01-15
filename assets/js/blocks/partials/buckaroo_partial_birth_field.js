@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-const BirthDayField = ({ sectionId, onBirthdateChange }) => {
+const BirthDayField = ({ paymentMethod, onBirthdateChange }) => {
     const [birthdate, setBirthdate] = useState(null);
 
     const validateDate = (date) => {
@@ -27,14 +27,14 @@ const BirthDayField = ({ sectionId, onBirthdateChange }) => {
 
     return (
         <p className="form-row form-row-wide validate-required">
-            <label htmlFor={`${sectionId}-birthdate`}>
+            <label htmlFor={`${paymentMethod}-birthdate`}>
                 Birthdate (format DD-MM-YYYY):
                 <span className="required">*</span>
             </label>
 
             <DatePicker
-                id={`${sectionId}-birthdate`}
-                name={`${sectionId}-birthdate`}
+                id={`${paymentMethod}-birthdate`}
+                name={`${paymentMethod}-birthdate`}
                 selected={birthdate}
                 onChange={handleDateChange}
                 dateFormat="dd-MM-yyyy"

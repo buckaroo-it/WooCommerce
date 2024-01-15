@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field'
 import FinancialWarning from "../partials/buckaroo_financial_warning";
 import TermsAndConditionsCheckbox from "../partials/buckaroo_terms_and_condition";
@@ -20,7 +20,7 @@ const AfterPayView = ({onCheckboxChange,onBirthdateChange}) => {
 
     return (
         <div>
-            <BirthDayField sectionId={paymentMethod} onBirthdateChange={handleBirthdateChange}/>
+            <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={handleBirthdateChange}/>
             <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={handleTermsCheckboxChange}  labelText={labelText} termsUrl={termsUrl}/>
             <FinancialWarning paymentMethod={paymentMethod} />
         </div>

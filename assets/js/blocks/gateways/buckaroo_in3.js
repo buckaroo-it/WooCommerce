@@ -28,7 +28,7 @@ const In3 = ({ onBirthdateChange}) => {
         <fieldset>
             {selectedCountry === "Netherlands" &&
                 <BirthDayField
-                    sectionId={paymentMethod}
+                    paymentMethod={paymentMethod}
                     onBirthdateChange={handleBirthdateChange}
                 />
             }

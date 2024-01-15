@@ -27,7 +27,7 @@ const Billink = ({genders, onBirthdateChange, onSelectGender,onCheckboxChange}) 
     return (
         <fieldset id="buckaroo_billink_b2c">
             <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={handleSelectGender}></GenderDropdown>
-            <BirthDayField sectionId={paymentMethod} onBirthdateChange={handleBirthdateChange}/>
+            <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={handleBirthdateChange}/>
             <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={handleTermsCheckboxChange}  labelText={labelText} termsUrl={termsUrl}/>
             <FinancialWarning paymentMethod={paymentMethod}></FinancialWarning>
         </fieldset>

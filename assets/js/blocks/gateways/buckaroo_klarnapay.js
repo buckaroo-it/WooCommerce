@@ -1,19 +1,23 @@
-import React from 'react';
+import React,{useState} from 'react';
+import GenderDropdown from "../partials/buckaroo_gender";
+import FinancialWarning from "../partials/buckaroo_financial_warning";
 
-const PayByBankDropdown = () => {
-    const issuers = payByBankIssuers;
+const KlarnaPay = ({paymentName,genders, onSelectGender}) => {
+    const paymentMethod = 'buckaroo-klarnapay';
+
+    const [gender, setGender] = useState(null);
+    const handleSelectGender = (selectedGender) => {
+        setGender(selectedGender);
+        onSelectGender(selectedGender)
+    };
 
     return (
-        <select name="buckaroo-paybybank-issuer" id="buckaroo-paybybank-issuer">
-            <option value="0">Select your bank</option>
-            {Object.keys(issuers).map((issuerCode) => (
-                <option key={issuerCode} value={issuerCode}>
-                    {issuers[issuerCode].name}
-                </option>
-            ))}
-        </select>
+        <fieldset id="buckaroo_klarnapay">
+            <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={handleSelectGender}></GenderDropdown>
+            <FinancialWarning></FinancialWarning>
+        </fieldset>
     );
 
 };
 
-export default PayByBankDropdown;
+export default KlarnaPay;
