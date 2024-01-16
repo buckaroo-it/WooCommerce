@@ -334,14 +334,14 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $this->is_house_number_invalid('billing') &&
             $country === 'DE'
         ) {
-            wc_add_notice(__("Please valid billing address, cannot find house number", 'wc-buckaroo-bpe-gateway'), 'error');
+            wc_add_notice(__("Invalid billing address, cannot find house number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
         if (
             $this->is_house_number_invalid('shipping') &&
             $country === 'DE'
         ) {
-            wc_add_notice(__("Please valid shipping address, cannot find house number", 'wc-buckaroo-bpe-gateway'), 'error');
+            wc_add_notice(__("Invalid shipping address, cannot find house number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
         parent::validate_fields();
