@@ -158,6 +158,7 @@ function get_woocommerce_payment_methods() {
                 'creditCardsIsSecure' => getCreditCardsIsSecure(),
                 'gateway' => $gateway,
                 'genders' => getAllGendersForPaymentMethods(),
+                'buckarooIdin' => BuckarooIdin::checkCurrentUserIsVerified(),
 		    );
 
             wp_localize_script('buckaroo-blocks', 'buckaroo_gateways', $payment_method);
