@@ -339,6 +339,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
         if (
             $this->is_house_number_invalid('shipping') &&
+            $this->request('ship_to_different_address') == 1 &&
             $country === 'DE'
         ) {
             wc_add_notice(__("Invalid shipping address, cannot find house number", 'wc-buckaroo-bpe-gateway'), 'error');
