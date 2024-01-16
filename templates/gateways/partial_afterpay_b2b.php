@@ -31,12 +31,12 @@ defined('ABSPATH') || exit;
         <?php echo esc_html_e('Fill required fields if bill in on the company:', 'wc-buckaroo-bpe-gateway') ?>
     </p>
     <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-afterpay-CompanyCOCRegistration">
+        <label for="buckaroo-afterpay-company-coc-registration">
             <?php echo esc_html_e('COC (KvK) number:', 'wc-buckaroo-bpe-gateway') ?><span class="required">*</span>
         </label>
         <input 
-        id="buckaroo-afterpay-CompanyCOCRegistration" 
-        name="buckaroo-afterpay-CompanyCOCRegistration"
+        id="buckaroo-afterpay-company-coc-registration" 
+        name="buckaroo-afterpay-company-coc-registration"
         class="input-text" 
         type="text" 
         maxlength="250" 
@@ -44,12 +44,12 @@ defined('ABSPATH') || exit;
         value="" />
     </p>
     <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-afterpay-CompanyName">
+        <label for="buckaroo-afterpay-company-name">
             <?php echo esc_html_e('Name of the organization:', 'wc-buckaroo-bpe-gateway') ?><span class="required">*</span>
         </label>
         <input 
-        id="buckaroo-afterpay-CompanyName" 
-        name="buckaroo-afterpay-CompanyName" 
+        id="buckaroo-afterpay-company-name" 
+        name="buckaroo-afterpay-company-name" 
         class="input-text"
         type="text" 
         maxlength="250" 

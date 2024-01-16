@@ -268,10 +268,10 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         }
 
         if ($b2b == 'ON') {
-            if ($this->request("buckaroo-afterpay-CompanyCOCRegistration") === null) {
+            if ($this->request("buckaroo-afterpay-company-coc-registration") === null) {
                 wc_add_notice(__("Company registration number is required (KvK)", 'wc-buckaroo-bpe-gateway'), 'error');
             }
-            if ($this->request("buckaroo-afterpay-CompanyName") === null) {
+            if ($this->request("buckaroo-afterpay-company-name") === null) {
                 wc_add_notice(__("Company name is required", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
@@ -281,7 +281,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             wc_add_notice(__("Please enter phone number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
         if ($this->type == 'afterpayacceptgiro') {
-            if ($this->request("buckaroo-afterpay-CustomerAccountNumber") === null) {
+            if ($this->request("buckaroo-afterpaycustomer-account-number") === null) {
                 wc_add_notice(__("IBAN is required", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
@@ -316,8 +316,8 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         if ($this->request("buckaroo-afterpay-b2b") == 'ON') {
         
             $afterpay->B2B                    = 'TRUE';
-            $afterpay->CompanyCOCRegistration = $this->request("buckaroo-afterpay-CompanyCOCRegistration");
-            $afterpay->CompanyName            = $this->request("buckaroo-afterpay-CompanyName");
+            $afterpay->CompanyCOCRegistration = $this->request("buckaroo-afterpay-company-coc-registration");
+            $afterpay->CompanyName            = $this->request("buckaroo-afterpay-company-name");
         }
 
         $order_details = new Buckaroo_Order_Details($order);
@@ -325,7 +325,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $afterpay = $this->getShippingInfo($order_details, $afterpay);
         
         if ($this->type == 'afterpayacceptgiro') {
-            $afterpay->CustomerAccountNumber = $this->request("buckaroo-afterpay-CustomerAccountNumber");
+            $afterpay->CustomerAccountNumber = $this->request("buckaroo-afterpaycustomer-account-number");
         }
         /** @var BuckarooAfterPay */
         $afterpay = $this->handleThirdPartyShippings($afterpay, $order, $this->country);

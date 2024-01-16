@@ -41,7 +41,7 @@ class BuckarooCheckout {
       jQuery("#showB2BBuckaroo").toggle(b2bActive);
 
       if (jQuery("#billing_company").length) {
-        jQuery("#buckaroo-afterpay-CompanyName").val(
+        jQuery("#buckaroo-afterpay-company-name").val(
           jQuery("#billing_company").val()
         );
       }

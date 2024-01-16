@@ -110,12 +110,6 @@ function buckaroo_payment_setup_scripts()
     );
 
 	wp_enqueue_script('my-block-script', 'assets/js/dist/blocks.js', array('wp-blocks', 'wp-element'));
-
-	// Localize the script with necessary data
-	$issuer_list = BuckarooIDeal::getIssuerList(); // Replace with actual method to get issuers
-	wp_localize_script('my-block-script', 'buckarooData', array(
-		'issuers' => $issuer_list
-	));
 }
 add_action('wp_enqueue_scripts', 'buckaroo_payment_frontend_scripts');
 
@@ -138,7 +132,6 @@ function get_woocommerce_payment_methods() {
 	}
 
     $gateways = WC()->payment_gateways()->payment_gateways();
-
 
     foreach ($gateways as $gateway_id => $gateway) {
 		if ($gateway->enabled == 'yes') {

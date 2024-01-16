@@ -21,14 +21,14 @@ defined('ABSPATH') || exit;
         <?php echo esc_html_e('Fill required fields if bill in on the company:', 'wc-buckaroo-bpe-gateway') ?>
     </p>
     <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-billink-CompanyCOCRegistration">
+        <label for="buckaroo-billink-company-coc-registration">
             <?php echo esc_html_e('COC (KvK) number:', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
         
         <input
-        id="buckaroo-billink-CompanyCOCRegistration"
-        name="buckaroo-billink-CompanyCOCRegistration"
+        id="buckaroo-billink-company-coc-registration"
+        name="buckaroo-billink-company-coc-registration"
         class="input-text"
         type="text"
         maxlength="250"

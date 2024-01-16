@@ -41,7 +41,8 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
 
             let paymentMethodData = {
                 'isblocks': '1',
-                [`${methodName}-CompanyCOCRegistration`] :cocNumber,
+                [`${methodName}-company-coc-registration`] :cocNumber,
+                [`${methodName}-company-name`] :companyName,
                 [`${methodName}-issuer`]: selectedIssuer,
                 [`${methodName}-birthdate`]: dob,
                 [`${methodName}-accept`]: termsAndConditions,
@@ -49,10 +50,9 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
                 [`${methodName}-iban`]: iban,
                 [`${methodName}-accountname`]: accountName,
                 [`${methodName}-bic`]: bic,
-                [`${methodName}-firstName`]: firstName,
-                [`${methodName}-lastName`]: lastName,
+                [`${methodName}-firstname`]: firstName,
+                [`${methodName}-lastname`]: lastName,
                 [`${methodName}-email`]: email,
-                [`${methodName}-CompanyName`] :'companyName',
                 [`${methodName}-b2b`] :'ON'
             };
             response.meta.paymentMethodData = paymentMethodData;
