@@ -6,14 +6,17 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
     const [selectedIssuer, setSelectedIssuer] = useState('');
     const [dob, setDob] = useState('');
     const [selectedGender, setSelectedGender] = useState('');
-    const [termsAndConditions, setTermsAndConditions] = useState('');
+    const [termsAndConditions, setTermsAndConditions] = useState('Off');
     const [accountName, setAccountName] = useState('');
     const [iban, setIban] = useState('');
     const [bic, setBic] = useState('');
     const [lastName, setLastName] = useState('');
     const [firstName, setFirstName] = useState('');
     const [email, setEmail] = useState('');
+    const [creditCard, setCreditCard] = useState('');
     const [PaymentComponent, setPaymentComponent] = useState(null);
+    const [cocNumber, setCocNumber] = useState('');
+    const [companyName, setCompanyName] = useState('');
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
 
     useEffect(() => {
@@ -38,6 +41,7 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
 
             let paymentMethodData = {
                 'isblocks': '1',
+                [`${methodName}-CompanyCOCRegistration`] :cocNumber,
                 [`${methodName}-issuer`]: selectedIssuer,
                 [`${methodName}-birthdate`]: dob,
                 [`${methodName}-accept`]: termsAndConditions,
@@ -48,6 +52,8 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
                 [`${methodName}-firstName`]: firstName,
                 [`${methodName}-lastName`]: lastName,
                 [`${methodName}-email`]: email,
+                [`${methodName}-CompanyName`] :'companyName',
+                [`${methodName}-b2b`] :'ON'
             };
             response.meta.paymentMethodData = paymentMethodData;
             return response;
@@ -79,13 +85,16 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
             <span className='description'>{gateway.description}</span>
             <span className='descriptionError'>{processingErrorMessage}</span>
             <PaymentComponent
-                paymentName={gateway.title}
+                paymentName={gateway.paymentMethodId}
                 idealIssuers={gateway.idealIssuers}
                 payByBankIssuers={gateway.payByBankIssuers}
                 payByBankSelectedIssuer={'2'}
                 displayMode={gateway.displayMode}
                 buckarooImagesUrl={gateway.buckarooImagesUrl}
                 genders={gateway.genders}
+                creditCardIssuers={gateway.creditCardIssuers}
+                b2b={gateway.b2b}
+                onSelectCc={setCreditCard}
                 onSelectIssuer={setSelectedIssuer}
                 onSelectGender={(gender) => setSelectedGender(gender)}
                 onBirthdateChange={(date) => setDob(date)}
@@ -96,6 +105,8 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
                 onFirstNameChange={(firstName) => setFirstName (firstName)}
                 onLastNameChange={(lastName) => setLastName (lastName)}
                 onEmailChange={(email) => setEmail(email)}
+                onCocInput={(cocNumber) => setCocNumber(cocNumber)}
+                onCompanyInput={(companyName) => setCompanyName(companyName)}
             />
         </div>
     );
@@ -115,6 +126,7 @@ const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
     buckaroo_gateways.forEach(
 
         (gateway) => {
+            console.log(gateway)
             registerPaymentMethod(createOptions(gateway, BuckarooComponent, useEffect));
         }
     );

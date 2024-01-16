@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field'
 import FinancialWarning from "../partials/buckaroo_financial_warning";
-import AfterPayB2B from "../partials/buckaroo_afterpay_b2b";
 import TermsAndConditionsCheckbox from "../partials/buckaroo_terms_and_condition";
 
 const AfterPayNew = ({onCheckboxChange,onBirthdateChange}) => {

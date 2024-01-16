@@ -157,6 +157,7 @@ function get_woocommerce_payment_methods() {
                 'creditCardsMethod' => getCreditCardsMethod(),
                 'creditCardsIsSecure' => getCreditCardsIsSecure(),
                 'gateway' => $gateway,
+                'b2b' => $gateway->b2b,
                 'genders' => getAllGendersForPaymentMethods(),
                 'buckarooIdin' => BuckarooIdin::checkCurrentUserIsVerified(),
 		    );
