@@ -329,8 +329,31 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         if ($this->request('buckaroo-afterpaynew-phone') === null && $this->request('billing_phone') === null) {
             wc_add_notice(__("Please enter phone number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
+        
+        if (
+            $this->is_house_number_invalid('billing') &&
+            $country === 'DE'
+        ) {
+            wc_add_notice(__("Please valid billing address, cannot find house number", 'wc-buckaroo-bpe-gateway'), 'error');
+        }
+
+        if (
+            $this->is_house_number_invalid('shipping') &&
+            $country === 'DE'
+        ) {
+            wc_add_notice(__("Please valid shipping address, cannot find house number", 'wc-buckaroo-bpe-gateway'), 'error');
+        }
 
         parent::validate_fields();
+    }
+
+    private function is_house_number_invalid($type)
+    {
+        $components = Buckaroo_Order_Details::getAddressComponents(
+            $this->request($type.'_address_1') . " " . $this->request($type.'_address_2')
+        );
+
+        return !is_string($components['house_number']) || empty(trim($components['house_number']));
     }
 
     /**
