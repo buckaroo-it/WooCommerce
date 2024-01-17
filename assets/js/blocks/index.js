@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DefaultPayment from "./gateways/default_payment";
-
-const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
+const BuckarooComponent = (props) => {
+    let {billing, gateway, eventRegistration, emitResponse} = props
     const [processingErrorMessage, setErrorMessage] = useState('');
     const [selectedIssuer, setSelectedIssuer] = useState('');
     const [dob, setDob] = useState('');
@@ -81,7 +81,7 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
     }
 
     return (
-        <div className='PPMFWC_container'>
+        <div className='container'>
             <span className='description'>{gateway.description}</span>
             <span className='descriptionError'>{processingErrorMessage}</span>
             <PaymentComponent
@@ -89,6 +89,7 @@ const BuckarooComponent = ({ gateway, eventRegistration, emitResponse }) => {
                 idealIssuers={gateway.idealIssuers}
                 payByBankIssuers={gateway.payByBankIssuers}
                 payByBankSelectedIssuer={'2'}
+                billingData={billing.billingAddress}
                 displayMode={gateway.displayMode}
                 buckarooImagesUrl={gateway.buckarooImagesUrl}
                 genders={gateway.genders}
@@ -126,7 +127,6 @@ const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
     buckaroo_gateways.forEach(
 
         (gateway) => {
-            console.log(gateway)
             registerPaymentMethod(createOptions(gateway, BuckarooComponent, useEffect));
         }
     );
@@ -143,7 +143,7 @@ const createOptions = (gateway,BuckarooComponent, useEffect) => {
         label: React.createElement(BuckarooLabel, {image_path: gateway.image_path, title: decodeHtmlEntities(gateway.title)}),
         paymentMethodId: gateway.paymentMethodId,
         edit: React.createElement('div', null, ''),
-        canMakePayment: ({cartTotals, billingData}) => {
+        canMakePayment: () => {
             return true
         },
         ariaLabel: gateway.title,
