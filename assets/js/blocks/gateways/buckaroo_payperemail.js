@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import GenderDropdown from "../partials/buckaroo_gender";
 
-const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastNameChange, onEmailChange }) => {
+const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastNameChange, onEmailChange, billingData}) => {
     const [gender, setGender] = useState(null);
     const paymentMethod = 'buckaroo-payperemail';
 
@@ -9,7 +9,6 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
         setGender(selectedGender);
         onSelectGender(selectedGender)
     };
-
     return (
         <div>
             <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={handleSelectGender}></GenderDropdown>
@@ -24,6 +23,7 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
                     className="input-text"
                     type="text"
                     autoComplete="off"
+                    value={billingData.first_name}
                     onChange={(e) => onFirstNameChange(e.target.value)}
                 />
             </p>
@@ -38,6 +38,7 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
                     className="input-text"
                     type="text"
                     autoComplete="off"
+                    value={billingData.last_name}
                     onChange={(e) => onLastNameChange(e.target.value)}
                 />
             </p>
@@ -49,8 +50,10 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
                 <input
                     id="buckaroo-payperemail-email"
                     name="buckaroo-payperemail-email"
+                    className="input-text"
                     type="email"
                     autoComplete="off"
+                    value={billingData.email}
                     onChange={(e) => onEmailChange(e.target.value)}
                 />
             </p>

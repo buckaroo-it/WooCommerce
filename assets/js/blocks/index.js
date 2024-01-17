@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DefaultPayment from "./gateways/default_payment";
 const BuckarooComponent = (props) => {
-    let {billing, gateway, eventRegistration, emitResponse} = props
+    const {billing, gateway, eventRegistration, emitResponse} = props
     const [processingErrorMessage, setErrorMessage] = useState('');
     const [selectedIssuer, setSelectedIssuer] = useState('');
     const [dob, setDob] = useState('');
