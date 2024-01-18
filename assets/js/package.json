@@ -18,6 +18,7 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
+    "@wordpress/i18n": "^4.49.0",
     "react-datepicker": "^4.25.0"
   }
 }

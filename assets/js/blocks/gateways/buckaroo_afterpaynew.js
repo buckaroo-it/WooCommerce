@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field'
 import FinancialWarning from "../partials/buckaroo_financial_warning";
 import TermsAndConditionsCheckbox from "../partials/buckaroo_terms_and_condition";
 
-const AfterPayNew = ({onCheckboxChange,onBirthdateChange}) => {
+const AfterPayNew = ({onCheckboxChange, billingData, onBirthdateChange}) => {
     const paymentMethod = 'buckaroo-afterpaynew';
-    const labelText = 'Accept Riverty | AfterPay conditions:';
-    const termsUrl = 'buckaroo-afterpay';
 
     const [isTermsAccepted, setIsTermsAccepted] = useState(false);
     const handleTermsCheckboxChange = (isChecked) => {
@@ -21,8 +19,9 @@ const AfterPayNew = ({onCheckboxChange,onBirthdateChange}) => {
     return (
         <div>
             <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={handleBirthdateChange}/>
-            <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={handleTermsCheckboxChange}  labelText={labelText} termsUrl={termsUrl}/>
-            <FinancialWarning paymentMethod={paymentMethod} />
+            <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={handleTermsCheckboxChange}
+                                        billingData={billingData}/>
+            <FinancialWarning paymentMethod={paymentMethod}/>
         </div>
     );
 

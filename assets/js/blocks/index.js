@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import DefaultPayment from "./gateways/default_payment";
-const BuckarooComponent = (props) => {
-    const {billing, gateway, eventRegistration, emitResponse} = props
+import {convertUnderScoreToDash, decodeHtmlEntities} from './utils';
+import {BuckarooLabel} from "./components/BuckarooLabel";
+
+const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) => {
     const [processingErrorMessage, setErrorMessage] = useState('');
     const [selectedIssuer, setSelectedIssuer] = useState('');
     const [dob, setDob] = useState('');
@@ -39,10 +41,10 @@ const BuckarooComponent = (props) => {
                 meta: {},
             };
 
-            let paymentMethodData = {
+            response.meta.paymentMethodData = {
                 'isblocks': '1',
-                [`${methodName}-company-coc-registration`] :cocNumber,
-                [`${methodName}-company-name`] :companyName,
+                [`${methodName}-company-coc-registration`]: cocNumber,
+                [`${methodName}-company-name`]: companyName,
                 [`${methodName}-issuer`]: selectedIssuer,
                 [`${methodName}-birthdate`]: dob,
                 [`${methodName}-accept`]: termsAndConditions,
@@ -53,9 +55,8 @@ const BuckarooComponent = (props) => {
                 [`${methodName}-firstname`]: firstName,
                 [`${methodName}-lastname`]: lastName,
                 [`${methodName}-email`]: email,
-                [`${methodName}-b2b`] :'ON'
+                [`${methodName}-b2b`]: 'ON'
             };
-            response.meta.paymentMethodData = paymentMethodData;
             return response;
         });
         return () => unsubscribe();
@@ -63,7 +64,7 @@ const BuckarooComponent = (props) => {
 
     useEffect(() => {
         import(`./gateways/${gateway.paymentMethodId}`)
-            .then(({ default: LoadedComponent }) => {
+            .then(({default: LoadedComponent}) => {
                 setPaymentComponent(() => LoadedComponent);
             })
             .catch(error => {
@@ -79,7 +80,6 @@ const BuckarooComponent = (props) => {
     if (!PaymentComponent) {
         return <div>Loading...</div>;
     }
-
     return (
         <div className='container'>
             <span className='description'>{gateway.description}</span>
@@ -99,12 +99,12 @@ const BuckarooComponent = (props) => {
                 onSelectIssuer={setSelectedIssuer}
                 onSelectGender={(gender) => setSelectedGender(gender)}
                 onBirthdateChange={(date) => setDob(date)}
-                onCheckboxChange={(check)=> setTermsAndConditions(check)}
+                onCheckboxChange={(check) => setTermsAndConditions(check)}
                 onAccountName={(accountName) => setAccountName(accountName)}
                 onIbanChange={(iban) => setIban(iban)}
                 onBicChange={(bic) => setBic(bic)}
-                onFirstNameChange={(firstName) => setFirstName (firstName)}
-                onLastNameChange={(lastName) => setLastName (lastName)}
+                onFirstNameChange={(firstName) => setFirstName(firstName)}
+                onLastNameChange={(lastName) => setLastName(lastName)}
                 onEmailChange={(email) => setEmail(email)}
                 onCocInput={(cocNumber) => setCocNumber(cocNumber)}
                 onCompanyInput={(companyName) => setCompanyName(companyName)}
@@ -113,41 +113,25 @@ const BuckarooComponent = (props) => {
     );
 }
 
-function BuckarooLabel({image_path, title})
-{
-    return React.createElement('div', {className: 'buckaroo_method_block'},
-        title, React.createElement('img', {src: image_path, style: {float: 'right'}}, null));
-}
-function convertUnderScoreToDash(inputString) {
-    return inputString.replace(/_/g, '-');
-}
 const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
     const {registerPaymentMethod} = wc.wcBlocksRegistry;
     const {useEffect} = wp.element;
     buckaroo_gateways.forEach(
-
         (gateway) => {
             registerPaymentMethod(createOptions(gateway, BuckarooComponent, useEffect));
         }
     );
 }
 
-const createOptions = (gateway,BuckarooComponent, useEffect) => {
-    function decodeHtmlEntities(input) {
-        var doc = new DOMParser().parseFromString(input, "text/html");
-        return doc.documentElement.textContent;
-    }
-
+const createOptions = (gateway, BuckarooComponent) => {
     return {
         name: gateway.paymentMethodId,
-        label: React.createElement(BuckarooLabel, {image_path: gateway.image_path, title: decodeHtmlEntities(gateway.title)}),
+        label: <BuckarooLabel image_path={gateway.image_path} title={decodeHtmlEntities(gateway.title)}/>,
         paymentMethodId: gateway.paymentMethodId,
-        edit: React.createElement('div', null, ''),
-        canMakePayment: () => {
-            return true
-        },
+        edit: <div/>,
+        canMakePayment: () => true,
         ariaLabel: gateway.title,
-        content: React.createElement(BuckarooComponent, {gateway: gateway, image_path: gateway.image_path, useEffect: useEffect})
+        content: <BuckarooComponent gateway={gateway}/>
     }
 }
 
