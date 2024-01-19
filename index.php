@@ -153,7 +153,8 @@ function get_woocommerce_payment_methods() {
                 'b2b' => $gateway->b2b,
                 'genders' => getAllGendersForPaymentMethods(),
                 'buckarooIdin' => BuckarooIdin::checkCurrentUserIsVerified(),
-		    );
+                'lastPayByBankIssuer' => WC()->session->get('buckaroo_last_payByBank_issuer'),
+			);
 
             wp_localize_script('buckaroo-blocks', 'buckaroo_gateways', $payment_method);
         }

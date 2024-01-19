@@ -9,9 +9,10 @@ const PayByBankDropdown = ({ payByBankIssuers, buckarooImagesUrl, payByBankSelec
         setShowAllBanks(!showAllBanks);
     };
 
-    // Handling bank selection
-    const handleBankSelection = (issuerCode) => {
+    // Handle issuer selection
+    const handleSelectIssuer = (issuerCode) => {
         setSelectedIssuer(issuerCode);
+        onSelectIssuer(issuerCode);
     };
 
     return (
@@ -20,7 +21,7 @@ const PayByBankDropdown = ({ payByBankIssuers, buckarooImagesUrl, payByBankSelec
             {displayMode === 'dropdown' ? (
                 // Dropdown for Mobile View
                 <div className="form-row form-row-wide buckaroo-paybybank-mobile">
-                    <select className="buckaroo-custom-select" value={selectedIssuer} onChange={(e) => handleBankSelection(e.target.value)}>
+                    <select className="buckaroo-custom-select" value={selectedIssuer} onChange={(e) => handleSelectIssuer(e.target.value)}>
                         <option value="0">Select your bank</option>
                         {Object.keys(payByBankIssuers).map((issuerCode) => (
                             <option key={issuerCode} value={issuerCode}>
@@ -41,7 +42,7 @@ const PayByBankDropdown = ({ payByBankIssuers, buckarooImagesUrl, payByBankSelec
                                     name="buckaroo-paybybank-radio-issuer"
                                     value={issuerCode}
                                     checked={selectedIssuer === issuerCode}
-                                    onChange={() => handleBankSelection(issuerCode)}
+                                    onChange={() => handleSelectIssuer(issuerCode)}
                                     className="custom-control-input bank-method-input bk-paybybank-radio"
                                 />
                                 <label className="custom-control-label bank-method-label" htmlFor={`radio-bankMethod-${issuerCode}`}>
