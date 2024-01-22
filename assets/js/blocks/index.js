@@ -95,6 +95,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
                 genders={gateway.genders}
                 creditCardIssuers={gateway.creditCardIssuers}
                 b2b={gateway.b2b}
+                customer_type={gateway.customer_type}
                 onSelectCc={setCreditCard}
                 onSelectIssuer={setSelectedIssuer}
                 onSelectGender={(gender) => setSelectedGender(gender)}

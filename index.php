@@ -149,6 +149,7 @@ function get_woocommerce_payment_methods() {
                 'buckarooImagesUrl' => plugin_dir_url(__FILE__) . 'library/buckaroo_images/',
                 'creditCardsMethod' => getCreditCardsMethod(),
                 'creditCardsIsSecure' => getCreditCardsIsSecure(),
+                'customer_type' => $gateway->customer_type,
                 'gateway' => $gateway,
                 'b2b' => $gateway->b2b,
                 'genders' => getAllGendersForPaymentMethods(),

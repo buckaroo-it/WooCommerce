@@ -57,7 +57,7 @@ const PayByBankDropdown = ({ payByBankIssuers, buckarooImagesUrl, payByBankSelec
                     <div className="bk-paybybank-toggle-list" onClick={toggleBankView}>
                         <div className="bk-toggle-wrap">
                             <div className="bk-toggle-text">
-                                {showAllBanks ? 'Less banks' : 'More banks'}
+                                {showAllBanks ? 'More banks' : 'Less banks'}
                             </div>
                             <div className={`bk-toggle ${showAllBanks ? 'bk-toggle-up' : 'bk-toggle-down'}`}></div>
                         </div>

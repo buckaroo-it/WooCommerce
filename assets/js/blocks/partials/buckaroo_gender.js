@@ -21,7 +21,7 @@ const GenderDropdown = ({ paymentMethod, genders, onSelectGender }) => {
     return (
         <div className={`payment_box payment_method_${paymentMethod}`}>
             <div className="form-row form-row-wide">
-                <label htmlFor="buckaroo-billink-gender">
+                <label htmlFor={`${paymentMethod}-gender`}>
                     Gender: <span className="required">*</span>
                 </label>
                 <select

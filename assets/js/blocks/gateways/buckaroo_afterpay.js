@@ -49,9 +49,7 @@ const AfterPayView = ({b2b, billingData, onCheckboxChange, onBirthdateChange, on
                         <AfterPayB2B onCocInput={handleCocInput} onCompanyInput={handleCompanyInput}
                                      onAccountName={handleAccount}/>}
                 </div>)}
-            {b2b === 'disable' && (
-                <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={handleBirthdateChange}/>)}
-
+            <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={handleBirthdateChange}/>
             <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={handleTermsCheckboxChange} billingData={billingData}/>
             <FinancialWarning paymentMethod={paymentMethod}/>
         </fieldset>);
