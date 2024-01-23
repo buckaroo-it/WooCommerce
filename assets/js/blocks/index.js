@@ -3,8 +3,14 @@ import DefaultPayment from "./gateways/default_payment";
 import {convertUnderScoreToDash, decodeHtmlEntities} from './utils';
 import {BuckarooLabel} from "./components/BuckarooLabel";
 
+const customTemplatePaymentMethodIds = [
+    'buckaroo_afterpay', 'buckaroo_afterpaynew', 'buckaroo_billink', 'buckaroo_creditcard',
+    'buckaroo_ideal', 'buckaroo_in3', 'buckaroo_klarnakp', 'buckaroo_klarnapay',
+    'buckaroo_klarnapii', 'buckaroo_paybybank', 'buckaroo_payperemail', 'buckaroo_sepadirectdebit'
+];
+
 const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) => {
-    const [processingErrorMessage, setErrorMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const [selectedIssuer, setSelectedIssuer] = useState('');
     const [dob, setDob] = useState('');
     const [selectedGender, setSelectedGender] = useState('');
@@ -22,23 +28,21 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
 
     useEffect(() => {
-        const unsubscribeProcessing = eventRegistration.onCheckoutFail(
-            (props) => {
-                setErrorMessage(props.processingResponse.paymentDetails.errorMessage);
-                return {
-                    type: emitResponse.responseTypes.FAIL,
-                    errorMessage: 'Error',
-                    message: 'Error occurred, please try again',
-                };
-            }
-        );
-        return () => unsubscribeProcessing();
+        const unsubscribe  = eventRegistration.onCheckoutFail((props) => {
+            setErrorMessage(props.processingResponse.paymentDetails.errorMessage);
+            return {
+                type: emitResponse.responseTypes.FAIL,
+                errorMessage: 'Error',
+                message: 'Error occurred, please try again',
+            };
+        });
+        return () => unsubscribe();
     }, [eventRegistration, emitResponse]);
+
     useEffect(() => {
         const unsubscribe = eventRegistration.onPaymentSetup(() => {
             let response = {
-                type: emitResponse.responseTypes.SUCCESS,
-                meta: {},
+                type: emitResponse.responseTypes.SUCCESS, meta: {},
             };
 
             response.meta.paymentMethodData = {
@@ -63,68 +67,65 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     }, [eventRegistration, emitResponse, selectedIssuer, selectedGender, dob, gateway.paymentMethodId]);
 
     useEffect(() => {
-        import(`./gateways/${gateway.paymentMethodId}`)
-            .then(({default: LoadedComponent}) => {
-                setPaymentComponent(() => LoadedComponent);
-            })
-            .catch(error => {
-                if (/Cannot find module/.test(error.message)) {
-                    setPaymentComponent(() => DefaultPayment);
-                } else {
-                    console.error(`Error importing payment method module './${gateway.paymentMethodId}':`, error);
-                    throw error;
-                }
-            });
+        if (customTemplatePaymentMethodIds.includes(gateway.paymentMethodId)) {
+            import(`./gateways/${gateway.paymentMethodId}`)
+                .then(({default: LoadedComponent}) => {
+                    setPaymentComponent(() => LoadedComponent);
+                })
+                .catch((error) => {
+                    console.error(`Error importing payment method module:`, error);
+                    setErrorMessage('Error loading payment component');
+                });
+        } else {
+            setPaymentComponent(() => DefaultPayment);
+        }
     }, [gateway.paymentMethodId]);
 
     if (!PaymentComponent) {
         return <div>Loading...</div>;
     }
-    return (
-        <div className='container'>
-            <span className='description'>{gateway.description}</span>
-            <span className='descriptionError'>{processingErrorMessage}</span>
-            <PaymentComponent
-                paymentName={gateway.paymentMethodId}
-                idealIssuers={gateway.idealIssuers}
-                payByBankIssuers={gateway.payByBankIssuers}
-                payByBankSelectedIssuer={gateway.lastPayByBankIssuer}
-                billingData={billing.billingAddress}
-                displayMode={gateway.displayMode}
-                buckarooImagesUrl={gateway.buckarooImagesUrl}
-                genders={gateway.genders}
-                creditCardIssuers={gateway.creditCardIssuers}
-                b2b={gateway.b2b}
-                customer_type={gateway.customer_type}
-                onSelectCc={setCreditCard}
-                onSelectIssuer={setSelectedIssuer}
-                onSelectGender={(gender) => setSelectedGender(gender)}
-                onBirthdateChange={(date) => setDob(date)}
-                onCheckboxChange={(check) => setTermsAndConditions(check)}
-                onAccountName={(accountName) => setAccountName(accountName)}
-                onIbanChange={(iban) => setIban(iban)}
-                onBicChange={(bic) => setBic(bic)}
-                onFirstNameChange={(firstName) => setFirstName(firstName)}
-                onLastNameChange={(lastName) => setLastName(lastName)}
-                onEmailChange={(email) => setEmail(email)}
-                onCocInput={(cocNumber) => setCocNumber(cocNumber)}
-                onCompanyInput={(companyName) => setCompanyName(companyName)}
-            />
-        </div>
-    );
+    return (<div className='container'>
+        <span className='description'>{gateway.description}</span>
+        <span className='descriptionError'>{errorMessage}</span>
+        <PaymentComponent
+            paymentName={gateway.paymentMethodId}
+            idealIssuers={gateway.idealIssuers}
+            payByBankIssuers={gateway.payByBankIssuers}
+            payByBankSelectedIssuer={gateway.lastPayByBankIssuer}
+            billingData={billing.billingAddress}
+            displayMode={gateway.displayMode}
+            buckarooImagesUrl={gateway.buckarooImagesUrl}
+            genders={gateway.genders}
+            creditCardIssuers={gateway.creditCardIssuers}
+            b2b={gateway.b2b}
+            customer_type={gateway.customer_type}
+            onSelectCc={setCreditCard}
+            onSelectIssuer={setSelectedIssuer}
+            onSelectGender={(gender) => setSelectedGender(gender)}
+            onBirthdateChange={(date) => setDob(date)}
+            onCheckboxChange={(check) => setTermsAndConditions(check)}
+            onAccountName={(accountName) => setAccountName(accountName)}
+            onIbanChange={(iban) => setIban(iban)}
+            onBicChange={(bic) => setBic(bic)}
+            onFirstNameChange={(firstName) => setFirstName(firstName)}
+            onLastNameChange={(lastName) => setLastName(lastName)}
+            onEmailChange={(email) => setEmail(email)}
+            onCocInput={(cocNumber) => setCocNumber(cocNumber)}
+            onCompanyInput={(companyName) => setCompanyName(companyName)}
+        />
+    </div>);
 }
 
 const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
     const {registerPaymentMethod} = wc.wcBlocksRegistry;
     const {useEffect} = wp.element;
-    buckaroo_gateways.forEach(
-        (gateway) => {
-            registerPaymentMethod(createOptions(gateway, BuckarooComponent, useEffect));
-        }
-    );
+    buckaroo_gateways.forEach((gateway) => {
+        registerPaymentMethod(createOptions(gateway, BuckarooComponent, useEffect));
+    });
 }
 
 const createOptions = (gateway, BuckarooComponent) => {
+
     return {
         name: gateway.paymentMethodId,
         label: <BuckarooLabel image_path={gateway.image_path} title={decodeHtmlEntities(gateway.title)}/>,

@@ -126,6 +126,17 @@ function get_active_issuer_code()
     return BuckarooPayByBank::getActiveIssuerCode();
 }
 
+/**
+ * Check if payment gateway is ours
+ *
+ * @param string $name
+ *
+ * @return boolean
+ */
+function isBuckarooPayment(string $name): bool {
+	return str_starts_with( $name, 'buckaroo' );
+}
+
 function get_woocommerce_payment_methods() {
 	if (!class_exists('WC_Payment_Gateways')) {
 		return array();
@@ -134,7 +145,7 @@ function get_woocommerce_payment_methods() {
     $gateways = WC()->payment_gateways()->payment_gateways();
 
     foreach ($gateways as $gateway_id => $gateway) {
-		if ($gateway->enabled == 'yes') {
+		if (isBuckarooPayment($gateway_id) && $gateway->enabled == 'yes') {
 			$payment_method[] = array(
                 'paymentMethodId' => $gateway_id ,
                 'title' => $gateway->get_title(),
@@ -154,7 +165,7 @@ function get_woocommerce_payment_methods() {
                 'b2b' => $gateway->b2b,
                 'genders' => getAllGendersForPaymentMethods(),
                 'buckarooIdin' => BuckarooIdin::checkCurrentUserIsVerified(),
-                'lastPayByBankIssuer' => WC()->session->get('buckaroo_last_payByBank_issuer'),
+                'lastPayByBankIssuer' => BuckarooPayByBank::getActiveIssuerCode(),
 			);
 
             wp_localize_script('buckaroo-blocks', 'buckaroo_gateways', $payment_method);
