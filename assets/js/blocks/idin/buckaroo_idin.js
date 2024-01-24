@@ -8,12 +8,12 @@ function BuckarooIdin() {
     return (
         <div id="buckaroo_idin" className="buckaroo-idin buckaroo-idin-passed form-row">
             <h3 id="buckaroo_idin_heading">{ageVerificationText}</h3>
-            <fieldset>
+            <div>
                 <div>
                     <img className="buckaroo_idin_logo" src={idinLogo} alt="iDIN logo" />
                     <p className="buckaroo_idin_prompt">{ageVerifiedText}</p>
                 </div>
-            </fieldset>
+            </div>
         </div>
     );
 }

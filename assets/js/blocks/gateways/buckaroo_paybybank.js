@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const PayByBankDropdown = ({ payByBankIssuers, buckarooImagesUrl, payByBankSelectedIssuer, displayMode }) => {
+const PayByBankDropdown = ({ payByBankIssuers, onSelectIssuer, buckarooImagesUrl, payByBankSelectedIssuer, displayMode }) => {
     const [selectedIssuer, setSelectedIssuer] = useState(payByBankSelectedIssuer);
     const [showAllBanks, setShowAllBanks] = useState(false);
 

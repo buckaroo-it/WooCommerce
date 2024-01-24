@@ -1,10 +1,10 @@
 import React,{useState}from 'react';
 import DefaultDropdown from "../partials/buckaroo_creditcard_dropdown";
 
-const CreditCard = ({creditCardIssuers,onSelectCc}) => {
+const CreditCard = ({creditCardIssuers, onCardNameChange, onCardNumberChange, onCardMonthChange,onCardYearChange,onCardCVCChange, onSelectCc}) => {
     const paymentMethod = 'buckaroo-creditcard';
     const [creditCard, setCreditCard] = useState('');
-    const handleSelectGender = (selectedCc) => {
+    const handleSelectCreditCard = (selectedCc) => {
         setCreditCard(selectedCc);
         onSelectCc(selectedCc)
     };
@@ -12,7 +12,7 @@ const CreditCard = ({creditCardIssuers,onSelectCc}) => {
         <div>
 
             <p class="form-row form-row-wide">
-                <DefaultDropdown paymentMethod={paymentMethod} creditCardIssuers={creditCardIssuers} onSelectCc={handleSelectGender}></DefaultDropdown>
+                <DefaultDropdown paymentMethod={paymentMethod} creditCardIssuers={creditCardIssuers} onSelectCc={handleSelectCreditCard}></DefaultDropdown>
             </p>
             <div className="method--bankdata">
 
@@ -28,9 +28,9 @@ const CreditCard = ({creditCardIssuers,onSelectCc}) => {
                         id={`${paymentMethod}-cardname`}
                         placeholder="Cardholder Name:"
                         className="cardHolderName input-text"
-                        maxlength="250"
-                        autocomplete="off"
-                        value={undefined}
+                        maxLength="250"
+                        autoComplete="off"
+                        onChange={(e) => onCardNameChange(e.target.value)}
                     />
 
                 </p>
@@ -47,9 +47,9 @@ const CreditCard = ({creditCardIssuers,onSelectCc}) => {
                         id={`${paymentMethod}-cardnumber`}
                         placeholder="Card Number:"
                         className="cardNumber input-text"
-                        maxlength="250"
-                        autocomplete="off"
-                        value={undefined}
+                        maxLength="250"
+                        autoComplete="off"
+                        onChange={(e) => onCardNumberChange(e.target.value)}
                     />
                 </p>
 
@@ -61,14 +61,13 @@ const CreditCard = ({creditCardIssuers,onSelectCc}) => {
 
                     <input
                         type="text"
-                        maxlength="2"
+                        maxLength="2"
                         name={`${paymentMethod}-cardmonth`}
                         id={`${paymentMethod}-cardmonth`}
                         placeholder="Expiration Month:"
                         className="expirationMonth input-text"
-                        maxlength="250"
-                        autocomplete="off"
-                        value={undefined}
+                        autoComplete="off"
+                        onChange={(e) => onCardMonthChange(e.target.value)}
                     />
                 </p>
 
@@ -79,14 +78,13 @@ const CreditCard = ({creditCardIssuers,onSelectCc}) => {
                     </label>
                     <input
                         type="text"
-                        maxlength="4"
+                        maxLength="4"
                         name={`${paymentMethod}-cardyear`}
                         id={`${paymentMethod}-cardyear`}
                         placeholder="Expiration Year:"
                         className="expirationYear input-text"
-                        maxlength="250"
-                        autocomplete="off"
-                        value={undefined}
+                        autoComplete="off"
+                        onChange={(e) => onCardYearChange(e.target.value)}
                     />
                 </p>
 
@@ -97,14 +95,13 @@ const CreditCard = ({creditCardIssuers,onSelectCc}) => {
                     </label>
                     <input
                         type="password"
-                        maxlength="4"
+                        maxLength="4"
                         name={`${paymentMethod}-cardcvc`}
                         id={`${paymentMethod}-cardcvc`}
                         placeholder="CVC:"
                         className="cvc input-text"
-                        maxlength="250"
-                        autocomplete="off"
-                        value={undefined}
+                        autoComplete="off"
+                        onChange={(e) => onCardCVCChange(e.target.value)}
                     />
                 </p>
 

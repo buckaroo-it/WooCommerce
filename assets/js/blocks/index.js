@@ -20,6 +20,11 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     const [bic, setBic] = useState('');
     const [lastName, setLastName] = useState('');
     const [firstName, setFirstName] = useState('');
+    const [cardName, setCardNameChange] = useState('');
+    const [cardNumber, setCardNumberChange] = useState('');
+    const [cardMonth, setCardMonthChange] = useState('');
+    const [cardYear, setCardYearChange] = useState('');
+    const [cardCVC, setCardCVCChange] = useState('');
     const [email, setEmail] = useState('');
     const [creditCard, setCreditCard] = useState('');
     const [PaymentComponent, setPaymentComponent] = useState(null);
@@ -61,6 +66,16 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
                 [`${methodName}-email`]: email,
                 [`${methodName}-b2b`]: 'ON'
             };
+
+            if (`${methodName}` === 'buckaroo-creditcard') {
+                response.meta.paymentMethodData[`${gateway.paymentMethodId}-creditcard-issuer`] = creditCard;
+                response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardname`] = cardName;
+                response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardnumber`] = cardNumber;
+                response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardmonth`] = cardMonth;
+                response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardyear`] = cardYear;
+                response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardcvc`] = cardCVC;
+            }
+
             return response;
         });
         return () => unsubscribe();
@@ -91,7 +106,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
             paymentName={gateway.paymentMethodId}
             idealIssuers={gateway.idealIssuers}
             payByBankIssuers={gateway.payByBankIssuers}
-            payByBankSelectedIssuer={gateway.lastPayByBankIssuer}
+            payByBankSelectedIssuer={gateway.payByBankSelectedIssuer}
             billingData={billing.billingAddress}
             displayMode={gateway.displayMode}
             buckarooImagesUrl={gateway.buckarooImagesUrl}
@@ -109,6 +124,11 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
             onBicChange={(bic) => setBic(bic)}
             onFirstNameChange={(firstName) => setFirstName(firstName)}
             onLastNameChange={(lastName) => setLastName(lastName)}
+            onCardNameChange={(cardName) => setCardNameChange(cardName)}
+            onCardNumberChange={(cardNumber) => setCardNumberChange(cardNumber)}
+            onCardMonthChange={(cardMonth) => setCardMonthChange(cardMonth)}
+            onCardYearChange={(cardYear) => setCardYearChange(cardYear)}
+            onCardCVCChange={(cardCVC) => setCardCVCChange(cardCVC)}
             onEmailChange={(email) => setEmail(email)}
             onCocInput={(cocNumber) => setCocNumber(cocNumber)}
             onCompanyInput={(companyName) => setCompanyName(companyName)}
@@ -125,7 +145,6 @@ const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
 }
 
 const createOptions = (gateway, BuckarooComponent) => {
-
     return {
         name: gateway.paymentMethodId,
         label: <BuckarooLabel image_path={gateway.image_path} title={decodeHtmlEntities(gateway.title)}/>,

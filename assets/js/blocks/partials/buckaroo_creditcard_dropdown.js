@@ -15,7 +15,7 @@ const DefaultDropdown = ({ paymentMethod, creditCardIssuers, onSelectCc }) => {
         <div className={`payment_box payment_method_${paymentMethod}`}>
             <div className="form-row form-row-wide">
                 <label htmlFor="buckaroo-billink-creditcard">
-                    Gender: <span className="required">*</span>
+                    Credit Card: <span className="required">*</span>
                 </label>
                 <select
                     className="buckaroo-custom-select"
