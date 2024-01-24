@@ -32,7 +32,7 @@ const AfterPayView = ({b2b, billingData, onCheckboxChange, onBirthdateChange, on
         setIsAdditionalCheckboxChecked(isChecked);
     };
 
-    return (<fieldset>
+    return (<div>
             {b2b === 'enable' && (<div>
                     <p className="form-row form-row-wide validate-required">
                         <label htmlFor="buckaroo-afterpay-b2b">
@@ -52,7 +52,7 @@ const AfterPayView = ({b2b, billingData, onCheckboxChange, onBirthdateChange, on
             <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={handleBirthdateChange}/>
             <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={handleTermsCheckboxChange} billingData={billingData}/>
             <FinancialWarning paymentMethod={paymentMethod}/>
-        </fieldset>);
+        </div>);
 };
 
 export default AfterPayView;

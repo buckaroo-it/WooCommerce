@@ -10,7 +10,7 @@ const In3 = ({onBirthdateChange , billingData}) => {
 
 
     return (
-        <fieldset>
+        <div>
             {billingData.country === "NL" &&
                 <BirthDayField
                     paymentMethod={paymentMethod}
@@ -18,7 +18,7 @@ const In3 = ({onBirthdateChange , billingData}) => {
                 />
             }
             <FinancialWarning paymentMethod={paymentMethod}></FinancialWarning>
-        </fieldset>
+        </div>
     );
 
 };

@@ -9,7 +9,7 @@ const CreditCard = ({creditCardIssuers,onSelectCc}) => {
         onSelectCc(selectedCc)
     };
     return (
-        <fieldset>
+        <div>
 
             <p class="form-row form-row-wide">
                 <DefaultDropdown paymentMethod={paymentMethod} creditCardIssuers={creditCardIssuers} onSelectCc={handleSelectGender}></DefaultDropdown>
@@ -120,7 +120,7 @@ const CreditCard = ({creditCardIssuers,onSelectCc}) => {
                 />
 
             </div>
-        </fieldset>
+        </div>
     );
 
 };

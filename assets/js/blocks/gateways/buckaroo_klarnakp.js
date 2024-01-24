@@ -12,10 +12,10 @@ const KlarnaKp = ({paymentName,genders, onSelectGender}) => {
     };
 
     return (
-        <fieldset id="buckaroo_klaranakp">
+        <div id="buckaroo_klaranakp">
             <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={handleSelectGender}></GenderDropdown>
             <FinancialWarning></FinancialWarning>
-        </fieldset>
+        </div>
     );
 
 };
