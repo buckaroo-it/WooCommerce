@@ -46,7 +46,7 @@ const PayByBankDropdown = ({ payByBankIssuers, onSelectIssuer, buckarooImagesUrl
                                     className="custom-control-input bank-method-input bk-paybybank-radio"
                                 />
                                 <label className="custom-control-label bank-method-label" htmlFor={`radio-bankMethod-${issuerCode}`}>
-                                    <img src={buckarooImagesUrl + 'ideal/' +(payByBankIssuers[issuerCode].logo || 'default-logo-filename.png')} width="45" className="bank-method-image" alt={payByBankIssuers[issuerCode].name} />
+                                    <img src={buckarooImagesUrl + 'ideal/' +(payByBankIssuers[issuerCode].logo || 'default-logo-filename.png')} className="bank-method-image" alt={payByBankIssuers[issuerCode].name} />
                                     <strong>{payByBankIssuers[issuerCode].name}</strong>
                                 </label>
                             </div>
