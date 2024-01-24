@@ -173,7 +173,6 @@ function get_woocommerce_payment_methods(): array {
 	return $payment_methods;
 }
 
-// Example PHP to enqueue a script in WordPress
 function enqueue_buckaroo_ideal_block_script() {
     wp_enqueue_script(
         'buckaroo-blocks',
