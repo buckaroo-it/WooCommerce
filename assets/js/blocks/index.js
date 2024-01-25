@@ -81,7 +81,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
                 [`${methodName}-b2b`]: 'ON'
             };
             if (`${methodName}`.includes("buckaroo-creditcard")) {
-                response.meta.paymentMethodData[`${gateway.paymentMethodId}-creditcard-issuer`] = creditCard === "" ? gateway.paymentMethodId.replace("buckaroo_creditcard_", "") : creditCard;
+                response.meta.paymentMethodData[`${gateway.paymentMethodId}-creditcard-issuer`] = creditCard;
                 response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardname`] = cardName;
                 response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardnumber`] = cardNumber;
                 response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardmonth`] = cardMonth;
@@ -166,7 +166,6 @@ const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
 }
 
 const createOptions = (gateway, BuckarooComponent) => {
-    console.log(gateway)
     return {
         name: gateway.paymentMethodId,
         label: <BuckarooLabel image_path={gateway.image_path} title={decodeHtmlEntities(gateway.title)}/>,

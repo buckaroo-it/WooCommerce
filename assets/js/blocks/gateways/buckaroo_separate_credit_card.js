@@ -1,24 +1,35 @@
-import React,{useState}from 'react';
-import DefaultDropdown from "../partials/buckaroo_creditcard_dropdown";
+import React,{useState, useEffect}from 'react';
 
-const SeparateCreditCard = ({onCardNameChange,paymentName, onCardNumberChange, onCardMonthChange,onCardYearChange,onCardCVCChange}) => {
-    const paymentMethod = paymentName;
+const SeparateCreditCard = ({onCardNameChange,paymentName,onSelectCc, onCardNumberChange, onCardMonthChange,onCardYearChange,onCardCVCChange}) => {
+    const hiddenInputValue = paymentName.replace("buckaroo_creditcard_", "");
+
+    useEffect(() => {
+        onSelectCc(hiddenInputValue);
+    }, [hiddenInputValue, onSelectCc]);
 
     return (
         <div>
 
             <div className="method--bankdata">
 
+                <input
+                    type="hidden"
+                    name={`${paymentName}-issuer`}
+                    id={`${paymentName}-issuer`}
+                    className="cardHolderName input-text"
+                    value={hiddenInputValue}
+                />
+
                 <p className="form-row">
-                    <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardname`}>
+                    <label className="buckaroo-label" htmlFor={`${paymentName}-cardname`}>
                         Cardholder Name:
                         <span className="required">*</span>
 
                     </label>
                     <input
                         type="text"
-                        name={`${paymentMethod}-cardname`}
-                        id={`${paymentMethod}-cardname`}
+                        name={`${paymentName}-cardname`}
+                        id={`${paymentName}-cardname`}
                         placeholder="Cardholder Name:"
                         className="cardHolderName input-text"
                         maxLength="250"
@@ -29,15 +40,15 @@ const SeparateCreditCard = ({onCardNameChange,paymentName, onCardNumberChange, o
                 </p>
 
                 <p className="form-row">
-                    <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardnumber`}>
+                    <label className="buckaroo-label" htmlFor={`${paymentName}-cardnumber`}>
                         Card Number:
                         <span className="required">*</span>
                     </label>
 
                     <input
                         type="text"
-                        name={`${paymentMethod}-cardnumber`}
-                        id={`${paymentMethod}-cardnumber`}
+                        name={`${paymentName}-cardnumber`}
+                        id={`${paymentName}-cardnumber`}
                         placeholder="Card Number:"
                         className="cardNumber input-text"
                         maxLength="250"
@@ -47,7 +58,7 @@ const SeparateCreditCard = ({onCardNameChange,paymentName, onCardNumberChange, o
                 </p>
 
                 <p className="form-row">
-                    <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardmonth`}>
+                    <label className="buckaroo-label" htmlFor={`${paymentName}-cardmonth`}>
                         Expiration Month:
                         <span className="required">*</span>
                     </label>
@@ -55,8 +66,8 @@ const SeparateCreditCard = ({onCardNameChange,paymentName, onCardNumberChange, o
                     <input
                         type="text"
                         maxLength="2"
-                        name={`${paymentMethod}-cardmonth`}
-                        id={`${paymentMethod}-cardmonth`}
+                        name={`${paymentName}-cardmonth`}
+                        id={`${paymentName}-cardmonth`}
                         placeholder="Expiration Month:"
                         className="expirationMonth input-text"
                         autoComplete="off"
@@ -65,15 +76,15 @@ const SeparateCreditCard = ({onCardNameChange,paymentName, onCardNumberChange, o
                 </p>
 
                 <p className="form-row">
-                    <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardyear`}>
+                    <label className="buckaroo-label" htmlFor={`${paymentName}-cardyear`}>
                         Expiration Year:
                         <span className="required">*</span>
                     </label>
                     <input
                         type="text"
                         maxLength="4"
-                        name={`${paymentMethod}-cardyear`}
-                        id={`${paymentMethod}-cardyear`}
+                        name={`${paymentName}-cardyear`}
+                        id={`${paymentName}-cardyear`}
                         placeholder="Expiration Year:"
                         className="expirationYear input-text"
                         autoComplete="off"
@@ -82,15 +93,15 @@ const SeparateCreditCard = ({onCardNameChange,paymentName, onCardNumberChange, o
                 </p>
 
                 <p className="form-row">
-                    <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardcvc`}>
+                    <label className="buckaroo-label" htmlFor={`${paymentName}-cardcvc`}>
                         CVC:
                         <span className="required">*</span>
                     </label>
                     <input
                         type="password"
                         maxLength="4"
-                        name={`${paymentMethod}-cardcvc`}
-                        id={`${paymentMethod}-cardcvc`}
+                        name={`${paymentName}-cardcvc`}
+                        id={`${paymentName}-cardcvc`}
                         placeholder="CVC:"
                         className="cvc input-text"
                         autoComplete="off"
@@ -104,8 +115,8 @@ const SeparateCreditCard = ({onCardNameChange,paymentName, onCardNumberChange, o
                 </p>
                 <input
                     type="hidden"
-                    id={`${paymentMethod}-encrypted-data`}
-                    name={`${paymentMethod}-encrypted-data`}
+                    id={`${paymentName}-encrypted-data`}
+                    name={`${paymentName}-encrypted-data`}
                     className="encryptedCardData input-text"
                 />
 
