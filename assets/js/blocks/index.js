@@ -160,9 +160,8 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
 
 const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
     const {registerPaymentMethod} = wc.wcBlocksRegistry;
-    const {useEffect} = wp.element;
     buckaroo_gateways.forEach((gateway) => {
-        registerPaymentMethod(createOptions(gateway, BuckarooComponent, useEffect));
+        registerPaymentMethod(createOptions(gateway, BuckarooComponent));
     });
 }
 

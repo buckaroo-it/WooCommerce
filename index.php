@@ -137,16 +137,17 @@ function isBuckarooPayment(string $name): bool {
 	return str_starts_with( $name, 'buckaroo' );
 }
 
-function get_woocommerce_payment_methods() {
+function get_woocommerce_payment_methods(): array {
 	if (!class_exists('WC_Payment_Gateways')) {
 		return array();
 	}
 
     $gateways = WC()->payment_gateways()->payment_gateways();
+	$payment_methods = array();
 
     foreach ($gateways as $gateway_id => $gateway) {
 		if (isBuckarooPayment($gateway_id) && $gateway->enabled == 'yes') {
-			$payment_method[] = array(
+			$payment_methods[] = array(
                 'paymentMethodId' => $gateway_id ,
                 'title' => $gateway->get_title(),
                 'description' => $gateway->description,
@@ -161,19 +162,17 @@ function get_woocommerce_payment_methods() {
                 'creditCardsMethod' => getCreditCardsMethod(),
                 'creditCardsIsSecure' => getCreditCardsIsSecure(),
                 'customer_type' => $gateway->customer_type,
-                'gateway' => $gateway,
                 'b2b' => $gateway->b2b,
                 'genders' => getAllGendersForPaymentMethods(),
                 'buckarooIdin' => BuckarooIdin::checkCurrentUserIsVerified(),
                 'lastPayByBankIssuer' => BuckarooPayByBank::getActiveIssuerCode(),
 			);
-
-            wp_localize_script('buckaroo-blocks', 'buckaroo_gateways', $payment_method);
         }
 	}
+	wp_localize_script('buckaroo-blocks', 'buckaroo_gateways', $payment_methods);
+	return $payment_methods;
 }
 
-// Example PHP to enqueue a script in WordPress
 function enqueue_buckaroo_ideal_block_script() {
     wp_enqueue_script(
         'buckaroo-blocks',
@@ -183,7 +182,7 @@ function enqueue_buckaroo_ideal_block_script() {
         true
     );
 
-	 get_woocommerce_payment_methods();
+	get_woocommerce_payment_methods();
 }
 add_action('enqueue_block_assets', 'enqueue_buckaroo_ideal_block_script');
 
