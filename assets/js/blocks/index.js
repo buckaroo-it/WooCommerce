@@ -95,27 +95,25 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     }, [eventRegistration, emitResponse, selectedIssuer, selectedGender, dob, gateway.paymentMethodId]);
 
     useEffect(() => {
-        if (customTemplatePaymentMethodIds.includes(gateway.paymentMethodId)) {
-            import(`./gateways/${gateway.paymentMethodId}`)
-                .then(({default: LoadedComponent}) => {
-                    setPaymentComponent(() => LoadedComponent);
-                })
-                .catch((error) => {
-                    console.error(`Error importing payment method module:`, error);
-                    setErrorMessage('Error loading payment component');
-                });
-        }else if(separateCreditCards.includes(gateway.paymentMethodId)){
-            import(`./gateways/buckaroo_separate_credit_card`)
-                .then(({default: LoadedComponent}) => {
-                    setPaymentComponent(() => LoadedComponent);
-                })
-                .catch((error) => {
-                    console.error(`Error importing payment method module:`, error);
-                    setErrorMessage('Error loading payment component');
-                });
-        } else {
-            setPaymentComponent(() => DefaultPayment);
-        }
+        const loadPaymentComponent = async (methodId) => {
+            try {
+                let LoadedComponent;
+                if (customTemplatePaymentMethodIds.includes(methodId)) {
+                    ({ default: LoadedComponent } = await import(`./gateways/${methodId}`));
+                } else if (separateCreditCards.includes(methodId)) {
+                    ({ default: LoadedComponent } = await import(`./gateways/buckaroo_separate_credit_card`));
+                } else {
+                    LoadedComponent = DefaultPayment;
+                }
+
+                setPaymentComponent(() => LoadedComponent);
+            } catch (error) {
+                console.error(`Error importing payment method module for ${methodId}:`, error);
+                setErrorMessage(`Error loading payment component for ${methodId}`);
+            }
+        };
+
+        loadPaymentComponent(gateway.paymentMethodId);
     }, [gateway.paymentMethodId]);
 
     if (!PaymentComponent) {
