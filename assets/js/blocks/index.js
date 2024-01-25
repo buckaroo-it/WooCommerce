@@ -9,6 +9,20 @@ const customTemplatePaymentMethodIds = [
     'buckaroo_klarnapii', 'buckaroo_paybybank', 'buckaroo_payperemail', 'buckaroo_sepadirectdebit'
 ];
 
+const separateCreditCards = [
+    "buckaroo_creditcard_amex",
+    "buckaroo_creditcard_cartebancaire",
+    "buckaroo_creditcard_cartebleuevisa",
+    "buckaroo_creditcard_dankort",
+    "buckaroo_creditcard_maestro",
+    "buckaroo_creditcard_mastercard",
+    "buckaroo_creditcard_nexi",
+    "buckaroo_creditcard_postepay",
+    "buckaroo_creditcard_visa",
+    "buckaroo_creditcard_visaelectron",
+    "buckaroo_creditcard_vpay",
+];
+
 const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) => {
     const [errorMessage, setErrorMessage] = useState('');
     const [selectedIssuer, setSelectedIssuer] = useState('');
@@ -66,9 +80,8 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
                 [`${methodName}-email`]: email,
                 [`${methodName}-b2b`]: 'ON'
             };
-
-            if (`${methodName}` === 'buckaroo-creditcard') {
-                response.meta.paymentMethodData[`${gateway.paymentMethodId}-creditcard-issuer`] = creditCard;
+            if (`${methodName}`.includes("buckaroo-creditcard")) {
+                response.meta.paymentMethodData[`${gateway.paymentMethodId}-creditcard-issuer`] = creditCard === "" ? gateway.paymentMethodId.replace("buckaroo_creditcard_", "") : creditCard;
                 response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardname`] = cardName;
                 response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardnumber`] = cardNumber;
                 response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardmonth`] = cardMonth;
@@ -84,6 +97,15 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     useEffect(() => {
         if (customTemplatePaymentMethodIds.includes(gateway.paymentMethodId)) {
             import(`./gateways/${gateway.paymentMethodId}`)
+                .then(({default: LoadedComponent}) => {
+                    setPaymentComponent(() => LoadedComponent);
+                })
+                .catch((error) => {
+                    console.error(`Error importing payment method module:`, error);
+                    setErrorMessage('Error loading payment component');
+                });
+        }else if(separateCreditCards.includes(gateway.paymentMethodId)){
+            import(`./gateways/buckaroo_separate_credit_card`)
                 .then(({default: LoadedComponent}) => {
                     setPaymentComponent(() => LoadedComponent);
                 })
@@ -145,6 +167,7 @@ const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
 }
 
 const createOptions = (gateway, BuckarooComponent) => {
+    console.log(gateway)
     return {
         name: gateway.paymentMethodId,
         label: <BuckarooLabel image_path={gateway.image_path} title={decodeHtmlEntities(gateway.title)}/>,
