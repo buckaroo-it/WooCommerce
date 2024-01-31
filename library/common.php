@@ -978,7 +978,7 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                 $prefix     = "buckaroo_settlement_";
                 $settlement = $prefix . $response->payment;
 
-                $orderAmount            = (float) $order->get_total();
+                $orderAmount = (float) wc_format_decimal($order->get_total(), 2, false);
                 $paidAmount             = (float) $response->amount;
                 $alreadyPaidSettlements = 0;
                 $isNewPayment           = true;
