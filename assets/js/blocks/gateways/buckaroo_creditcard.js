@@ -1,4 +1,4 @@
-import React,{useState}from 'react';
+import React,{useState,useEffect}from 'react';
 import DefaultDropdown from "../partials/buckaroo_creditcard_dropdown";
 
 const CreditCard = ({creditCardIssuers, onCardNameChange, onCardNumberChange, onCardMonthChange,onCardYearChange,onCardCVCChange, onSelectCc, onEncryptedDataChange}) => {
@@ -8,10 +8,23 @@ const CreditCard = ({creditCardIssuers, onCardNameChange, onCardNumberChange, on
         setCreditCard(selectedCc);
         onSelectCc(selectedCc)
     };
+
+    useEffect(() => {
+        const handleEncryptedDataChange = (event, encryptedData) => {
+            onEncryptedDataChange(encryptedData);
+        };
+
+        jQuery(document).on("encryptedDataChanged", handleEncryptedDataChange);
+
+        return () => {
+            jQuery(document).off("encryptedDataChanged", handleEncryptedDataChange);
+        };
+    }, [onEncryptedDataChange]);
+
     return (
         <div>
 
-            <p class="form-row form-row-wide">
+            <p className="form-row form-row-wide">
                 <DefaultDropdown paymentMethod={paymentMethod} creditCardIssuers={creditCardIssuers} onSelectCc={handleSelectCreditCard}></DefaultDropdown>
             </p>
             <div className="method--bankdata">
@@ -114,7 +127,6 @@ const CreditCard = ({creditCardIssuers, onCardNameChange, onCardNumberChange, on
                     id={`${paymentMethod}-encrypted-data`}
                     name={`${paymentMethod}-encrypted-data`}
                     className="encryptedCardData input-text"
-                    onChange={(e) => onEncryptedDataChange(e.target.value)}
                 />
 
             </div>

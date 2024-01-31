@@ -95,6 +95,7 @@ class BuckarooValidateCreditCards {
             cardholder,
             function(encryptedCardData) {
                 parent.find(".encryptedCardData").val(encryptedCardData);
+                jQuery(document).trigger("encryptedDataChanged", [encryptedCardData]);
             });
     }
 };
