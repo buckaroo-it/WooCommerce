@@ -139,6 +139,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
             buckarooImagesUrl={gateway.buckarooImagesUrl}
             genders={gateway.genders}
             creditCardIssuers={gateway.creditCardIssuers}
+            creditCardIsSecure={gateway.creditCardIsSecure}
             b2b={gateway.b2b}
             customer_type={gateway.customer_type}
             onSelectCc={setCreditCard}

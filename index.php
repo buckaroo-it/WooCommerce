@@ -126,6 +126,12 @@ function get_active_issuer_code()
     return BuckarooPayByBank::getActiveIssuerCode();
 }
 
+function get_credtCard_is_secure() {
+	return
+		(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+		|| !empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443;
+}
+
 /**
  * Check if payment gateway is ours
  *
@@ -164,6 +170,7 @@ function get_woocommerce_payment_methods(): array {
                 'customer_type' => $gateway->customer_type,
                 'b2b' => $gateway->b2b,
                 'genders' => getAllGendersForPaymentMethods(),
+				'creditCardIsSecure' => get_credtCard_is_secure(),
                 'buckarooIdin' => BuckarooIdin::checkCurrentUserIsVerified(),
                 'lastPayByBankIssuer' => BuckarooPayByBank::getActiveIssuerCode(),
 			);
