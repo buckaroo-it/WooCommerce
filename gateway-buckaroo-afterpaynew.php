@@ -363,8 +363,8 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $afterpay->Accept            = 'TRUE';
         $afterpay->CustomerType      = $this->customer_type;
 
-        if ($this->request("buckaroo-afterpaynew-IdentificationNumber") !== null) {
-            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-IdentificationNumber");
+        if ($this->request("buckaroo-afterpaynew-identification-number") !== null) {
+            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-identification-number");
         }
 
         if ($this->request("buckaroo-afterpaynew-coc") !== null) {

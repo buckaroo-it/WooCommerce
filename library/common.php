@@ -1173,38 +1173,33 @@ function buckaroo_request_sanitized_json($key)
     );
 }
 
-function getGenderValues($payment_method)
-{
-    switch($payment_method)
-    {
-        case 'buckaroo-payperemail' :
-            $genders = ['male' => 1, 'female' => 2, 'they'=> 0, 'unknown' => 9];
-            break;
-        case 'buckaroo-billink' :
-            $genders = ['male' => 'Male', 'female' => 'Female', 'they'=> 'Unknown', 'unknown' => 'Unknown'];
-            break;
-        case 'buckaroo-klarnapay' :
-            $genders = ['male' => 'male', 'female' => 'female'];
-            break;
-        case 'buckaroo-klarnapii' :
-            $genders = ['male' => 'male', 'female' => 'female'];
-            break;
-        default :
-            $genders = ['male' => 'male', 'female' => 'female', 'they'=> 'unknown', 'unknown' => 'unknown'];
-            break;
-    }
+function getAllGendersForPaymentMethods(): array {
+	define('GENDER_MALE', 1);
+	define('GENDER_FEMALE', 2);
+	define('GENDER_OTHER', 0);
+	define('GENDER_NOT_SPECIFIED', 9);
 
-    return $genders;
+	$allGenders = [];
+	$allGenders['buckaroo-payperemail'] = [
+		__('He/him', 'wc-buckaroo-bpe-gateway') => GENDER_MALE,
+		__('She/her', 'wc-buckaroo-bpe-gateway') => GENDER_FEMALE,
+		__('They/them', 'wc-buckaroo-bpe-gateway') => GENDER_OTHER,
+		__('I prefer not to say', 'wc-buckaroo-bpe-gateway') => GENDER_NOT_SPECIFIED
+	];
+	$allGenders['buckaroo-billink'] = [
+		__('He/him', 'wc-buckaroo-bpe-gateway') => GENDER_MALE,
+		__('She/her', 'wc-buckaroo-bpe-gateway') => GENDER_FEMALE,
+		__('They/them', 'wc-buckaroo-bpe-gateway') => GENDER_OTHER,
+		__('I prefer not to say', 'wc-buckaroo-bpe-gateway') => GENDER_NOT_SPECIFIED
+	];
+	$allGenders['buckaroo-klarnapay'] = [
+		__('He/him', 'wc-buckaroo-bpe-gateway') => GENDER_MALE,
+		__('She/her', 'wc-buckaroo-bpe-gateway') => GENDER_FEMALE
+	];
+	$allGenders['buckaroo-klarnapii'] = [
+		__('He/him', 'wc-buckaroo-bpe-gateway') => GENDER_MALE,
+		__('She/her', 'wc-buckaroo-bpe-gateway') => GENDER_FEMALE
+	];
+
+	return $allGenders;
 }
-function getAllGendersForPaymentMethods()
-{
-    $allGenders = [];
-
-    $allGenders['buckaroo-payperemail'] = ['male' => 1, 'female' => 2, 'they'=> 0, 'unknown' => 9];
-    $allGenders['buckaroo-billink'] = ['male' => 'Male', 'female' => 'Female', 'they'=> 'Unknown', 'unknown' => 'Unknown'];
-    $allGenders['buckaroo-klarnapay'] = ['male' => 'male', 'female' => 'female'];
-    $allGenders['buckaroo-klarnapii'] = ['male' => 'male', 'female' => 'female'];
-
-    return $allGenders;
-}
-

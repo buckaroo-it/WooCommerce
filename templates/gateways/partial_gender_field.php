@@ -15,22 +15,20 @@
 defined('ABSPATH') || exit;
 
 $section_id = str_replace("_", "-", $this->id);
-$genderVal = getGenderValues($section_id);
+
+$allGenders = getAllGendersForPaymentMethods();
+$genderVal = $allGenders[$section_id] ?? [];
 ?>
 <p class="form-row">
     <label for="<?php echo esc_attr($section_id)?>-gender">
-        <?php echo esc_html_e('Gender:', 'wc-buckaroo-bpe-gateway') ?>
+        <?php echo __('Gender:', 'wc-buckaroo-bpe-gateway') ?>
         <span class="required">*</span>
     </label>
     <select name="<?php echo esc_attr($section_id)?>-gender" id="<?php echo esc_attr($section_id)?>-gender">
-        <option value="<?php echo $genderVal['male']; ?>"><?php echo esc_html_e('He/him', 'wc-buckaroo-bpe-gateway') ?></option>
-        <option value="<?php echo $genderVal['female']; ?>"><?php echo esc_html_e('She/her', 'wc-buckaroo-bpe-gateway') ?></option>
-
-        <?php if($section_id != 'buckaroo-klarnapay' && $section_id != 'buckaroo-klarnapii') { ?>
-        
-            <option value="<?php echo $genderVal['they']; ?>"><?php echo esc_html_e('They/them', 'wc-buckaroo-bpe-gateway') ?></option>
-            <option value="<?php echo $genderVal['unknown']; ?>"><?php echo esc_html_e('I prefer not to say', 'wc-buckaroo-bpe-gateway') ?></option>
-
-        <?php } ?>
+        <?php
+            foreach ($genderVal as $key => $value) {
+                echo '<option value="' . $value . '">' . $key . '</option>';
+            }
+        ?>
     </select>
 </p>

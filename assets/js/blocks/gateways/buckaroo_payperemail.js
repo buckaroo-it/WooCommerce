@@ -3,7 +3,22 @@ import GenderDropdown from "../partials/buckaroo_gender";
 
 const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastNameChange, onEmailChange, billingData}) => {
     const [gender, setGender] = useState(null);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
     const paymentMethod = 'buckaroo-payperemail';
+
+    useEffect(() => {
+        if(billingData) {
+            setFirstName(billingData.first_name || '');
+            setLastName(billingData.last_name || '');
+            setEmail(billingData.email || '');
+
+            onFirstNameChange(billingData.first_name || '');
+            onLastNameChange(billingData.last_name || '');
+            onEmailChange(billingData.email || '');
+        }
+    }, [billingData]);
 
     const handleSelectGender = (selectedGender) => {
         setGender(selectedGender);
@@ -23,8 +38,11 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
                     className="input-text"
                     type="text"
                     autoComplete="off"
-                    value={billingData.first_name}
-                    onChange={(e) => onFirstNameChange(e.target.value)}
+                    value={firstName}
+                    onChange={(e) => {
+                        setFirstName(e.target.value);
+                        onFirstNameChange(e.target.value);
+                    }}
                 />
             </p>
 
@@ -38,8 +56,11 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
                     className="input-text"
                     type="text"
                     autoComplete="off"
-                    value={billingData.last_name}
-                    onChange={(e) => onLastNameChange(e.target.value)}
+                    value={lastName}
+                    onChange={(e) => {
+                        setLastName(e.target.value);
+                        onLastNameChange(e.target.value);
+                    }}
                 />
             </p>
 
@@ -53,8 +74,11 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
                     className="input-text"
                     type="email"
                     autoComplete="off"
-                    value={billingData.email}
-                    onChange={(e) => onEmailChange(e.target.value)}
+                    value={email}
+                    onChange={(e) => {
+                        setEmail(e.target.value);
+                        onEmailChange(e.target.value);
+                    }}
                 />
             </p>
 

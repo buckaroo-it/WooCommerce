@@ -3,10 +3,12 @@ import BirthDayField from '../partials/buckaroo_partial_birth_field';
 import FinancialWarning from "../partials/buckaroo_financial_warning";
 import TermsAndConditionsCheckbox from "../partials/buckaroo_terms_and_condition";
 import AfterPayB2B from '../partials/buckaroo_afterpay_b2b';
+import PhoneDropdown from "../partials/buckaroo_phone";
 
 const AfterPayView = ({
                           b2b,
                           billingData,
+                          onPhoneNumberChange,
                           onCheckboxChange,
                           onBirthdateChange,
                           onCocInput,
@@ -41,8 +43,10 @@ const AfterPayView = ({
     };
 
     return (<div>
+        <PhoneDropdown paymentMethod={paymentMethod} billingData={billingData} onPhoneNumberChange={onPhoneNumberChange}></PhoneDropdown>
+
         {b2b === 'enable' && (<div>
-            <p className="form-row form-row-wide validate-required">
+            <div className="form-row form-row-wide validate-required">
                 <label htmlFor="buckaroo-afterpay-b2b">
                     Checkout for company
                     <input
@@ -52,7 +56,7 @@ const AfterPayView = ({
                         onChange={(e) => handleAdditionalCheckboxChange(e.target.checked)}
                     />
                 </label>
-            </p>
+            </div>
             {isAdditionalCheckboxChecked &&
                 <AfterPayB2B onCocInput={handleCocInput} onCompanyInput={handleCompanyInput}
                              onAccountName={handleAccount}/>}

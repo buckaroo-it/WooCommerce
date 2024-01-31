@@ -281,7 +281,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             wc_add_notice(__("Please enter phone number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
         if ($this->type == 'afterpayacceptgiro') {
-            if ($this->request("buckaroo-afterpaycustomer-account-number") === null) {
+            if ($this->request("buckaroo-afterpay-company-coc-registration") === null) {
                 wc_add_notice(__("IBAN is required", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
@@ -325,7 +325,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $afterpay = $this->getShippingInfo($order_details, $afterpay);
         
         if ($this->type == 'afterpayacceptgiro') {
-            $afterpay->CustomerAccountNumber = $this->request("buckaroo-afterpaycustomer-account-number");
+            $afterpay->CustomerAccountNumber = $this->request("buckaroo-afterpay-company-coc-registration");
         }
         /** @var BuckarooAfterPay */
         $afterpay = $this->handleThirdPartyShippings($afterpay, $order, $this->country);

@@ -2,21 +2,12 @@ import React from 'react';
 
 const GenderDropdown = ({ paymentMethod, genders, onSelectGender }) => {
     let genderOptions = ``;
-    if (genders.hasOwnProperty(paymentMethod)) {
-        // Render options based on the payment method
-        genderOptions = Object.entries(genders[paymentMethod]).map(([key, value]) => (
-            <option key={value} value={value}>
-                {key}
-            </option>
-        ));
-    } else {
-        // Render default "male" and "female" options
-        genderOptions = (  <>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-        </>);
-    }
-
+    // Render options based on the payment method
+    genderOptions = Object.entries(genders[paymentMethod]).map(([key, value]) => (
+        <option key={value} value={value}>
+            {key}
+        </option>
+    ));
 
     return (
         <div className={`payment_box payment_method_${paymentMethod}`}>

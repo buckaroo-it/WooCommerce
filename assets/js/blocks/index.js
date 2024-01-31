@@ -34,6 +34,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     const [bic, setBic] = useState('');
     const [lastName, setLastName] = useState('');
     const [firstName, setFirstName] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [cardName, setCardNameChange] = useState('');
     const [cardNumber, setCardNumberChange] = useState('');
     const [cardMonth, setCardMonthChange] = useState('');
@@ -43,6 +44,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     const [creditCard, setCreditCard] = useState('');
     const [PaymentComponent, setPaymentComponent] = useState(null);
     const [cocNumber, setCocNumber] = useState('');
+    const [identificationNumber, setIdentificationNumber] = useState('');
     const [companyName, setCompanyName] = useState('');
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
 
@@ -66,6 +68,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
 
             response.meta.paymentMethodData = {
                 'isblocks': '1',
+                [`billing_country`]: billing.billingAddress.country,
                 [`${methodName}-company-coc-registration`]: cocNumber,
                 [`${methodName}-company-name`]: companyName,
                 [`${methodName}-issuer`]: selectedIssuer,
@@ -75,10 +78,12 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
                 [`${methodName}-iban`]: iban,
                 [`${methodName}-accountname`]: accountName,
                 [`${methodName}-bic`]: bic,
+                [`${methodName}-identification-number`]: identificationNumber,
+                [`${methodName}-phone`]: phoneNumber,
                 [`${methodName}-firstname`]: firstName,
                 [`${methodName}-lastname`]: lastName,
                 [`${methodName}-email`]: email,
-                [`${methodName}-b2b`]: 'ON'
+                [`${methodName}-b2b`]: gateway.b2b ? 'ON' : 'OFF',
             };
             if (`${methodName}`.includes("buckaroo-creditcard")) {
                 response.meta.paymentMethodData[`${gateway.paymentMethodId}-creditcard-issuer`] = creditCard;
@@ -143,6 +148,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
             onIbanChange={(iban) => setIban(iban)}
             onBicChange={(bic) => setBic(bic)}
             onFirstNameChange={(firstName) => setFirstName(firstName)}
+            onPhoneNumberChange={(phoneNumber) => setPhoneNumber(phoneNumber)}
             onLastNameChange={(lastName) => setLastName(lastName)}
             onCardNameChange={(cardName) => setCardNameChange(cardName)}
             onCardNumberChange={(cardNumber) => setCardNumberChange(cardNumber)}
@@ -151,6 +157,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
             onCardCVCChange={(cardCVC) => setCardCVCChange(cardCVC)}
             onEmailChange={(email) => setEmail(email)}
             onCocInput={(cocNumber) => setCocNumber(cocNumber)}
+            onIdentificationNumber={(identificationNumber) => setIdentificationNumber(identificationNumber)}
             onCompanyInput={(companyName) => setCompanyName(companyName)}
         />
     </div>);
