@@ -1192,6 +1192,10 @@ function getAllGendersForPaymentMethods(): array {
 		__('They/them', 'wc-buckaroo-bpe-gateway') => GENDER_OTHER,
 		__('I prefer not to say', 'wc-buckaroo-bpe-gateway') => GENDER_NOT_SPECIFIED
 	];
+	$allGenders['buckaroo-klarnakp'] = [
+		__('He/him', 'wc-buckaroo-bpe-gateway') => GENDER_MALE,
+		__('She/her', 'wc-buckaroo-bpe-gateway') => GENDER_FEMALE
+	];
 	$allGenders['buckaroo-klarnapay'] = [
 		__('He/him', 'wc-buckaroo-bpe-gateway') => GENDER_MALE,
 		__('She/her', 'wc-buckaroo-bpe-gateway') => GENDER_FEMALE

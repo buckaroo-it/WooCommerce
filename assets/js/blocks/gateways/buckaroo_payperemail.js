@@ -26,9 +26,10 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
     };
     return (
         <div>
-            <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={handleSelectGender}></GenderDropdown>
+            <GenderDropdown paymentMethod={paymentMethod} genders={genders}
+                            onSelectGender={handleSelectGender}></GenderDropdown>
 
-            <p className="form-row validate-required">
+            <div className="form-row validate-required">
                 <label htmlFor="buckaroo-payperemail-firstname">
                     First Name: <span className="required">*</span>
                 </label>
@@ -44,9 +45,9 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
                         onFirstNameChange(e.target.value);
                     }}
                 />
-            </p>
+            </div>
 
-            <p className="form-row validate-required">
+            <div className="form-row validate-required">
                 <label htmlFor="buckaroo-payperemail-lastname">
                     Last Name: <span className="required">*</span>
                 </label>
@@ -62,9 +63,9 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
                         onLastNameChange(e.target.value);
                     }}
                 />
-            </p>
+            </div>
 
-            <p className="form-row validate-required">
+            <div className="form-row validate-required">
                 <label htmlFor="buckaroo-payperemail-email">
                     Email: <span className="required">*</span>
                 </label>
@@ -80,11 +81,12 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
                         onEmailChange(e.target.value);
                     }}
                 />
-            </p>
+            </div>
 
-            <p className="required" style={{ float: 'right' }}>
+            <div className="required" style={{float: 'right'}}>
                 * Required
-            </p>
+            </div>
+            <br/>
         </div>
     );
 };

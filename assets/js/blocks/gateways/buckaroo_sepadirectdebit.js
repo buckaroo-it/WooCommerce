@@ -4,7 +4,7 @@ const SepaDirectDebitForm = ({ onAccountName, onIbanChange, onBicChange }) => {
 
     return (
         <div>
-            <p className="form-row form-row-wide validate-required">
+            <div className="form-row form-row-wide validate-required">
                 <label htmlFor="buckaroo-sepadirectdebit-accountname">
                     Bank account holder: <span className="required">*</span>
                 </label>
@@ -17,8 +17,8 @@ const SepaDirectDebitForm = ({ onAccountName, onIbanChange, onBicChange }) => {
                     autoComplete="off"
                     onChange={(e) => onAccountName(e.target.value)}
                 />
-            </p>
-            <p className="form-row form-row-wide validate-required">
+            </div>
+            <div className="form-row form-row-wide validate-required">
                 <label htmlFor="buckaroo-sepadirectdebit-iban">
                     IBAN: <span className="required">*</span>
                 </label>
@@ -31,8 +31,8 @@ const SepaDirectDebitForm = ({ onAccountName, onIbanChange, onBicChange }) => {
                     autoComplete="off"
                     onChange={(e) => onIbanChange(e.target.value)}
                 />
-            </p>
-            <p className="form-row form-row-wide">
+            </div>
+            <div className="form-row form-row-wide">
                 <label htmlFor="buckaroo-sepadirectdebit-bic">
                     BIC:
                 </label>
@@ -45,10 +45,11 @@ const SepaDirectDebitForm = ({ onAccountName, onIbanChange, onBicChange }) => {
                     autoComplete="off"
                     onChange={(e) => onBicChange(e.target.value)}
                 />
-            </p>
-            <p className="required" style={{ float: 'right' }}>
+            </div>
+            <div className="required" style={{ float: 'right' }}>
                 * Required
-            </p>
+            </div>
+            <br/>
         </div>
     );
 };
