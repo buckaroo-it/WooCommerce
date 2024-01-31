@@ -1,7 +1,7 @@
 import React,{useState}from 'react';
 import DefaultDropdown from "../partials/buckaroo_creditcard_dropdown";
 
-const CreditCard = ({creditCardIssuers, onCardNameChange, onCardNumberChange, onCardMonthChange,onCardYearChange,onCardCVCChange, onSelectCc}) => {
+const CreditCard = ({creditCardIssuers, onCardNameChange, onCardNumberChange, onCardMonthChange,onCardYearChange,onCardCVCChange, onSelectCc, onEncryptedDataChange}) => {
     const paymentMethod = 'buckaroo-creditcard';
     const [creditCard, setCreditCard] = useState('');
     const handleSelectCreditCard = (selectedCc) => {
@@ -114,6 +114,7 @@ const CreditCard = ({creditCardIssuers, onCardNameChange, onCardNumberChange, on
                     id={`${paymentMethod}-encrypted-data`}
                     name={`${paymentMethod}-encrypted-data`}
                     className="encryptedCardData input-text"
+                    onChange={(e) => onEncryptedDataChange(e.target.value)}
                 />
 
             </div>

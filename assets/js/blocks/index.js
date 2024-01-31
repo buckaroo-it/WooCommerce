@@ -44,6 +44,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     const [creditCard, setCreditCard] = useState('');
     const [PaymentComponent, setPaymentComponent] = useState(null);
     const [cocNumber, setCocNumber] = useState('');
+    const [encryptedData, setEncryptedDataChange] = useState('');
     const [identificationNumber, setIdentificationNumber] = useState('');
     const [companyName, setCompanyName] = useState('');
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
@@ -92,6 +93,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
                 response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardmonth`] = cardMonth;
                 response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardyear`] = cardYear;
                 response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardcvc`] = cardCVC;
+                response.meta.paymentMethodData[`${gateway.paymentMethodId}-encrypted-data`] = encryptedData;
             }
 
             return response;
@@ -157,6 +159,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
             onCardCVCChange={(cardCVC) => setCardCVCChange(cardCVC)}
             onEmailChange={(email) => setEmail(email)}
             onCocInput={(cocNumber) => setCocNumber(cocNumber)}
+            onEncryptedDataChange={(encryptedData) => setEncryptedDataChange(encryptedData)}
             onIdentificationNumber={(identificationNumber) => setIdentificationNumber(identificationNumber)}
             onCompanyInput={(companyName) => setCompanyName(companyName)}
         />
