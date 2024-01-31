@@ -140,6 +140,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
             genders={gateway.genders}
             creditCardIssuers={gateway.creditCardIssuers}
             creditCardIsSecure={gateway.creditCardIsSecure}
+            creditcardmethod={gateway.creditcardmethod}
             b2b={gateway.b2b}
             customer_type={gateway.customer_type}
             onSelectCc={setCreditCard}

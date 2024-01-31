@@ -3,6 +3,7 @@ import DefaultDropdown from "../partials/buckaroo_creditcard_dropdown";
 
 const CreditCard = ({
                         creditCardIssuers,
+                        creditcardmethod,
                         creditCardIsSecure,
                         onCardNameChange,
                         onCardNumberChange,
@@ -39,7 +40,7 @@ const CreditCard = ({
                                  onSelectCc={handleSelectCreditCard}></DefaultDropdown>
             </p>
 
-            {creditCardIsSecure === true && (
+            {creditcardmethod === 'encrypt' && creditCardIsSecure === true && (
                 <div className="method--bankdata">
 
                     <div className="form-row">
