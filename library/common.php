@@ -978,9 +978,10 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                 $prefix     = "buckaroo_settlement_";
                 $settlement = $prefix . $response->payment;
 
-                $orderAmount            = (float) $order->get_total();
-                $paidAmount             = (float) $response->amount;
-                $alreadyPaidSettlements = 0;
+	            $price_decimals = wc_get_price_decimals();
+	            $orderAmount = wc_format_decimal( $order->get_total(), $price_decimals );
+	            $paidAmount = wc_format_decimal( $response->amount, $price_decimals );
+	            $alreadyPaidSettlements = 0;
                 $isNewPayment           = true;
                 if ($items = get_post_meta($order_id)) {
                     foreach ($items as $key => $meta) {
