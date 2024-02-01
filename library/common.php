@@ -848,8 +848,9 @@ function getClientIpBuckaroo()
 }
 
 function roundAmount($amount) {
+	$price_decimals = wc_get_price_decimals();
     if(is_scalar($amount)) {
-        return round(floatval($amount), 2);
+	    return (float) wc_format_decimal($amount, $price_decimals );
     }
     return 0;
 }
@@ -979,8 +980,8 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                 $settlement = $prefix . $response->payment;
 
 	            $price_decimals = wc_get_price_decimals();
-	            $orderAmount = wc_format_decimal( $order->get_total(), $price_decimals );
-	            $paidAmount = wc_format_decimal( $response->amount, $price_decimals );
+	            $orderAmount = (float) wc_format_decimal( $order->get_total(), $price_decimals );
+	            $paidAmount = (float) wc_format_decimal( $response->amount, $price_decimals );
 	            $alreadyPaidSettlements = 0;
                 $isNewPayment           = true;
                 if ($items = get_post_meta($order_id)) {
