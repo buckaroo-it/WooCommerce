@@ -47,6 +47,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     const [encryptedData, setEncryptedDataChange] = useState('');
     const [identificationNumber, setIdentificationNumber] = useState('');
     const [companyName, setCompanyName] = useState('');
+    const [additionalCheckboxChange, setAdditionalCheckboxChange] = useState('');
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
 
     useEffect(() => {
@@ -84,7 +85,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
                 [`${methodName}-firstname`]: firstName,
                 [`${methodName}-lastname`]: lastName,
                 [`${methodName}-email`]: email,
-                [`${methodName}-b2b`]: gateway.b2b ? 'ON' : 'OFF',
+                [`${methodName}-b2b`]: additionalCheckboxChange ? 'ON' : 'OFF',
             };
             if (`${methodName}`.includes("buckaroo-creditcard")) {
                 response.meta.paymentMethodData[`${gateway.paymentMethodId}-creditcard-issuer`] = creditCard;
@@ -164,6 +165,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
             onEncryptedDataChange={(encryptedData) => setEncryptedDataChange(encryptedData)}
             onIdentificationNumber={(identificationNumber) => setIdentificationNumber(identificationNumber)}
             onCompanyInput={(companyName) => setCompanyName(companyName)}
+            onAdditionalCheckboxChange={(additionalCheckboxChange) => setAdditionalCheckboxChange(additionalCheckboxChange)}
         />
     </div>);
 }

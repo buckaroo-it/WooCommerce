@@ -34,6 +34,7 @@ class BuckarooCheckout {
       let b2bActive = jQuery(this).is(":checked");
       let birthdate = jQuery("#buckaroo-afterpay-birthdate");
       let birthdateParent = birthdate.parent();
+      let buckaroo_partial_birth_field = jQuery(".buckaroo_partial_birth_field");
 
       let gender = jQuery('[name="buckaroo-afterpay-gender"]');
       let genderParent = gender.parent();
@@ -46,7 +47,8 @@ class BuckarooCheckout {
         );
       }
 
-      birthdate.prop("disabled", !b2bActive);
+      buckaroo_partial_birth_field.toggle(!b2bActive);
+      birthdate.prop("disabled", b2bActive);
       birthdateParent.toggle(!b2bActive);
       birthdateParent.toggleClass("validate-required", !b2bActive);
 

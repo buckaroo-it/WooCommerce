@@ -13,10 +13,10 @@ const AfterPayView = ({
                           onBirthdateChange,
                           onCocInput,
                           onCompanyInput,
-                          onAccountName
+                          onAccountName,
+                          onAdditionalCheckboxChange
                       }) => {
     const paymentMethod = 'buckaroo-afterpay';
-    const [isTermsAccepted, setIsTermsAccepted] = useState(false);
     const [isAdditionalCheckboxChecked, setIsAdditionalCheckboxChecked] = useState(false);
 
     const handleTermsCheckboxChange = (isChecked) => {
@@ -40,10 +40,12 @@ const AfterPayView = ({
 
     const handleAdditionalCheckboxChange = (isChecked) => {
         setIsAdditionalCheckboxChecked(isChecked);
+        onAdditionalCheckboxChange(isChecked);
     };
 
     return (<div>
         <PhoneDropdown paymentMethod={paymentMethod} billingData={billingData} onPhoneNumberChange={onPhoneNumberChange}></PhoneDropdown>
+        <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={handleBirthdateChange}/>
 
         {b2b === 'enable' && (<div>
             <div className="form-row form-row-wide validate-required">
@@ -52,7 +54,7 @@ const AfterPayView = ({
                     <input
                         id="buckaroo-afterpay-b2b"
                         name="buckaroo-afterpay-b2b"
-                        type="checkbox" value=""
+                        type="checkbox"
                         onChange={(e) => handleAdditionalCheckboxChange(e.target.checked)}
                     />
                 </label>
@@ -61,8 +63,6 @@ const AfterPayView = ({
                 <AfterPayB2B onCocInput={handleCocInput} onCompanyInput={handleCompanyInput}
                              onAccountName={handleAccount}/>}
         </div>)}
-        {b2b === 'disable' && (
-            <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={handleBirthdateChange}/>)}
         <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={handleTermsCheckboxChange}
                                     billingData={billingData}/>
         <FinancialWarning paymentMethod={paymentMethod}/>

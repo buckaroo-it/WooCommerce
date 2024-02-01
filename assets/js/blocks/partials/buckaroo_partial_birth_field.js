@@ -26,7 +26,7 @@ const BirthDayField = ({ paymentMethod, onBirthdateChange }) => {
     };
 
     return (
-        <p className="form-row form-row-wide validate-required">
+        <div className="form-row form-row-wide validate-required buckaroo_partial_birth_field">
             <label htmlFor={`${paymentMethod}-birthdate`}>
                 Birthdate (format DD-MM-YYYY):
                 <span className="required">*</span>
@@ -48,7 +48,7 @@ const BirthDayField = ({ paymentMethod, onBirthdateChange }) => {
                 maxDate={new Date()}
                 showMonthDropdown
             />
-        </p>
+        </div>
     );
 };
 
