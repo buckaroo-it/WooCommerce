@@ -4,9 +4,11 @@ import FinancialWarning from "../partials/buckaroo_financial_warning";
 import TermsAndConditionsCheckbox from "../partials/buckaroo_terms_and_condition";
 import AfterPayB2B from '../partials/buckaroo_afterpay_b2b';
 import PhoneDropdown from "../partials/buckaroo_phone";
+import {__} from "@wordpress/i18n";
 
 const AfterPayView = ({
                           b2b,
+                          type,
                           billingData,
                           onPhoneNumberChange,
                           onCheckboxChange,
@@ -14,10 +16,13 @@ const AfterPayView = ({
                           onCocInput,
                           onCompanyInput,
                           onAccountName,
+                          onCocRegistrationChange,
                           onAdditionalCheckboxChange
                       }) => {
     const paymentMethod = 'buckaroo-afterpay';
     const [isAdditionalCheckboxChecked, setIsAdditionalCheckboxChecked] = useState(false);
+    let iban = __('IBAN:', 'wc-buckaroo-bpe-gateway');
+    const [isTermsAccepted, setIsTermsAccepted] = useState(false);
 
     const handleTermsCheckboxChange = (isChecked) => {
         setIsTermsAccepted(isChecked);
@@ -43,30 +48,52 @@ const AfterPayView = ({
         onAdditionalCheckboxChange(isChecked);
     };
 
-    return (<div>
-        <PhoneDropdown paymentMethod={paymentMethod} billingData={billingData} onPhoneNumberChange={onPhoneNumberChange}></PhoneDropdown>
-        <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={handleBirthdateChange}/>
+    return (
+        <div>
+            <PhoneDropdown paymentMethod={paymentMethod} billingData={billingData}
+                           onPhoneNumberChange={onPhoneNumberChange}></PhoneDropdown>
+            {type === 'afterpayacceptgiro' && (
+                <div className="form-row form-row-wide validate-required">
+                    <label htmlFor="buckaroo-afterpay-company-coc-registration">
+                        {iban}
+                        <span className="required">*</span>
+                    </label>
 
-        {b2b === 'enable' && (<div>
-            <div className="form-row form-row-wide validate-required">
-                <label htmlFor="buckaroo-afterpay-b2b">
-                    Checkout for company
                     <input
-                        id="buckaroo-afterpay-b2b"
-                        name="buckaroo-afterpay-b2b"
-                        type="checkbox"
-                        onChange={(e) => handleAdditionalCheckboxChange(e.target.checked)}
+                        id="buckaroo-afterpay-company-coc-registration"
+                        name="buckaroo-afterpay-company-coc-registration"
+                        className="input-text"
+                        type="text"
+                        onChange={(e) => {onCocRegistrationChange(e.target.value)}}
                     />
-                </label>
-            </div>
-            {isAdditionalCheckboxChecked &&
-                <AfterPayB2B onCocInput={handleCocInput} onCompanyInput={handleCompanyInput}
-                             onAccountName={handleAccount}/>}
-        </div>)}
-        <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={handleTermsCheckboxChange}
-                                    billingData={billingData}/>
-        <FinancialWarning paymentMethod={paymentMethod}/>
-    </div>);
+                </div>
+            )
+            }
+            <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={handleBirthdateChange}/>
+
+            {b2b === 'enable' && type === 'afterpaydigiaccept' && (
+                <div>
+                    <div className="form-row form-row-wide validate-required">
+                        <label htmlFor="buckaroo-afterpay-b2b">
+                            Checkout for company
+                            <input
+                                id="buckaroo-afterpay-b2b"
+                                name="buckaroo-afterpay-b2b"
+                                type="checkbox"
+                                onChange={(e) => handleAdditionalCheckboxChange(e.target.checked)}
+                            />
+                        </label>
+                    </div>
+                    {isAdditionalCheckboxChecked &&
+                        <AfterPayB2B onCocInput={handleCocInput} onCompanyInput={handleCompanyInput}
+                                     onAccountName={handleAccount}/>}
+                </div>
+            )}
+            <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={handleTermsCheckboxChange}
+                                        billingData={billingData}/>
+            <FinancialWarning paymentMethod={paymentMethod}/>
+        </div>
+    );
 };
 
 export default AfterPayView;

@@ -126,6 +126,10 @@ function get_active_issuer_code()
     return BuckarooPayByBank::getActiveIssuerCode();
 }
 
+function get_type() {
+	return (new WC_Gateway_Buckaroo_Afterpay())->type;
+}
+
 function get_credtCard_is_secure() {
 	return
 		(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
@@ -170,6 +174,7 @@ function get_woocommerce_payment_methods(): array {
                 'creditcardmethod' => $gateway->get_option('encrypt'),
                 'customer_type' => $gateway->customer_type,
                 'b2b' => $gateway->b2b,
+                'type' => get_type(),
                 'genders' => getAllGendersForPaymentMethods(),
 				'creditCardIsSecure' => get_credtCard_is_secure(),
                 'buckarooIdin' => BuckarooIdin::checkCurrentUserIsVerified(),

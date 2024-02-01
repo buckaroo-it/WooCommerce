@@ -44,6 +44,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     const [creditCard, setCreditCard] = useState('');
     const [PaymentComponent, setPaymentComponent] = useState(null);
     const [cocNumber, setCocNumber] = useState('');
+    const [cocRegistration, setCocRegistrationChange] = useState('');
     const [encryptedData, setEncryptedDataChange] = useState('');
     const [identificationNumber, setIdentificationNumber] = useState('');
     const [companyName, setCompanyName] = useState('');
@@ -85,6 +86,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
                 [`${methodName}-firstname`]: firstName,
                 [`${methodName}-lastname`]: lastName,
                 [`${methodName}-email`]: email,
+                [`${methodName}-company-coc-registration`]: cocRegistration,
                 [`${methodName}-b2b`]: additionalCheckboxChange ? 'ON' : 'OFF',
             };
             if (`${methodName}`.includes("buckaroo-creditcard")) {
@@ -143,6 +145,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
             creditCardIsSecure={gateway.creditCardIsSecure}
             creditcardmethod={gateway.creditcardmethod}
             b2b={gateway.b2b}
+            type={gateway.type}
             customer_type={gateway.customer_type}
             onSelectCc={setCreditCard}
             onSelectIssuer={setSelectedIssuer}
@@ -162,6 +165,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
             onCardCVCChange={(cardCVC) => setCardCVCChange(cardCVC)}
             onEmailChange={(email) => setEmail(email)}
             onCocInput={(cocNumber) => setCocNumber(cocNumber)}
+            onCocRegistrationChange={(cocRegistration) => setCocRegistrationChange(cocRegistration)}
             onEncryptedDataChange={(encryptedData) => setEncryptedDataChange(encryptedData)}
             onIdentificationNumber={(identificationNumber) => setIdentificationNumber(identificationNumber)}
             onCompanyInput={(companyName) => setCompanyName(companyName)}
