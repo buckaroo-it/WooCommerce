@@ -1004,10 +1004,15 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                 $logData['response'] = $response;
                 $logData['orderAmount'] = $orderAmount;
                 $logData['totalPaid'] = $totalPaid;
+	            $logData['$transaction'] = $transaction;
+	            $logData['$order'] = $order;
+	            $logData['payment_complete'] = $order->payment_complete($transaction);
 
                 // order is completely paid
                 if ($totalPaid >= $orderAmount) {
-                    $order->payment_complete($transaction);
+	                $logData['hini'] = 'po vallahen';
+
+	                $order->payment_complete($transaction);
                 }
                 $jsonData = json_encode($logData);
                 file_put_contents('log.txt', $jsonData, FILE_APPEND | LOCK_EX);
