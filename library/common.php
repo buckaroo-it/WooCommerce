@@ -912,6 +912,7 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
         @session_start();
     }
 
+    $logData = array();
     //Logger
 
     if (in_array($order->get_status(), array('completed', 'processing'))) {
@@ -934,6 +935,7 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
         switch ($response->status) {
             case 'completed':
 
+                $logData['else'] = true;
                 /** handle klarnakp reservation push */
                 if (
                     $response->reservation_number !== null &&
@@ -999,10 +1001,17 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
 
                 add_post_meta($order_id, $settlement, $paidAmount, true);
 
+                $logData['response'] = $response;
+                $logData['orderAmount'] = $orderAmount;
+                $logData['totalPaid'] = $totalPaid;
+
                 // order is completely paid
                 if ($totalPaid >= $orderAmount) {
                     $order->payment_complete($transaction);
                 }
+                $jsonData = json_encode($logData);
+                file_put_contents('log.txt', $jsonData, FILE_APPEND | LOCK_EX);
+
 
                 $message = 'Received Buckaroo payment push notification.<br>';
                 $message .= 'Paid amount: ' . wc_price($paidAmount);
