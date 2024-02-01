@@ -848,9 +848,8 @@ function getClientIpBuckaroo()
 }
 
 function roundAmount($amount) {
-	$price_decimals = wc_get_price_decimals();
     if(is_scalar($amount)) {
-	    return (float) wc_format_decimal($amount, $price_decimals );
+	    return (float) wc_format_decimal($amount, 2 );
     }
     return 0;
 }
@@ -979,9 +978,8 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                 $prefix     = "buckaroo_settlement_";
                 $settlement = $prefix . $response->payment;
 
-	            $price_decimals = wc_get_price_decimals();
-	            $orderAmount = (float) wc_format_decimal( $order->get_total(), $price_decimals );
-	            $paidAmount = (float) wc_format_decimal( $response->amount, $price_decimals );
+	            $orderAmount = (float) wc_format_decimal( $order->get_total(), 2 );
+	            $paidAmount = (float) wc_format_decimal( $response->amount, 2 );
 	            $alreadyPaidSettlements = 0;
                 $isNewPayment           = true;
                 if ($items = get_post_meta($order_id)) {
