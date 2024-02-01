@@ -1005,7 +1005,7 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                 $logData['orderAmount'] = $orderAmount;
                 $logData['totalPaid'] = $totalPaid;
 	            $logData['$transaction'] = $transaction;
-	            $logData['$order'] = $order;
+	            $logData['$order'] = $order->get_id();
 	            $logData['payment_complete'] = $order->payment_complete($transaction);
 
                 // order is completely paid
