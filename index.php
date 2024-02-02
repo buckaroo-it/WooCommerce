@@ -103,9 +103,9 @@ function buckaroo_payment_setup_scripts()
         'buckaroo_certificate_management_js',
         'buckaroo_php_vars',
         array(
-            'version2' => WC_Gateway_Buckaroo_In3::VERSION2,
-            'in3_v2' => WC_Gateway_Buckaroo_In3::IN3_V2_TITLE,
-            'in3_v3' => WC_Gateway_Buckaroo_In3::IN3_V3_TITLE,
+            'version2' => BuckarooConfig::IN3_VERSION2,
+            'in3_v2' => BuckarooConfig::IN3_V2_TITLE,
+            'in3_v3' => BuckarooConfig::IN3_V3_TITLE,
         )
     );
 }
