@@ -8,6 +8,7 @@ import PhoneDropdown from '../partials/buckaroo_phone';
 const AfterPayNew = ({ config,callbacks }) => {
     const {
         billingData,
+        b2b,
         customer_type
     } = config;
 
@@ -71,6 +72,7 @@ const AfterPayNew = ({ config,callbacks }) => {
                 paymentMethod={paymentMethod}
                 onCheckboxChange={(isChecked) => onCheckboxChange(isChecked)}
                 billingData={billingData}
+                b2b={b2b}
             />
 
             <FinancialWarning paymentMethod={paymentMethod} />

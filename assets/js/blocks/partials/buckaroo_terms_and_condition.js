@@ -1,30 +1,32 @@
 import React, {useState} from 'react';
 import {__} from "@wordpress/i18n";
 
-const TermsAndConditionsCheckbox = ({paymentMethod, onCheckboxChange, billingData}) => {
+const TermsAndConditionsCheckbox = ({paymentMethod,b2b, onCheckboxChange, billingData}) => {
     const [isChecked, setIsChecked] = useState(false);
 
-    const tosLinks = {
-        NL: "https://documents.myafterpay.com/consumer-terms-conditions/nl_nl/",
-        BE: [
-            {
-                link: "https://documents.myafterpay.com/consumer-terms-conditions/nl_be/",
-                label: 'Riverty | AfterPay conditions (Dutch)'
-            },
-            {
-                link: "https://documents.myafterpay.com/consumer-terms-conditions/fr_be/",
-                label: 'Riverty | AfterPay conditions (French)'
-            }
-        ],
-        DE: "https://documents.myafterpay.com/consumer-terms-conditions/de_at/",
-        FI: "https://documents.myafterpay.com/consumer-terms-conditions/fi_fi/",
-        AT: "https://documents.myafterpay.com/consumer-terms-conditions/de_at/"
+    const getTermsUrl = (country, isB2B = false) => {
+        const baseUrl = "https://documents.riverty.com/terms_conditions/payment_methods/";
+        const languageMap = {
+            DE: 'de_de',
+            NL: 'nl_nl',
+            BE: 'be_nl',
+            AT: 'de_at',
+            NO: 'no_en',
+            FI: 'fi_en',
+            SE: 'se_en',
+            CH: 'ch_en',
+        };
+
+        const languageCode = languageMap[country] || 'nl_en';
+        const path = isB2B ? 'b2b_invoice' : 'invoice';
+
+        return `${baseUrl}${path}/${languageCode}/`;
     };
 
     let fieldName = paymentMethod === "buckaroo_afterpaynew" ? 'buckaroo-afterpaynew-accept' : paymentMethod === "buckaroo_afterpay" ? 'buckaroo-afterpay-accept' : paymentMethod;
     let country = billingData.country;
     let labelText = __('Accept Riverty | AfterPay conditions:', 'wc-buckaroo-bpe-gateway');
-    let termsUrl = tosLinks[country] || tosLinks['NL'];
+    let termsUrl = getTermsUrl(country, b2b);
 
     if (paymentMethod === 'buckaroo-billink') {
         labelText = __('Accept terms of use', 'wc-buckaroo-bpe-gateway');

@@ -11,6 +11,7 @@ const AfterPayView = ({ config,callbacks }) => {
     const {
         paymentInfo,
         type,
+        b2b,
         billingData
     } = config;
 
@@ -76,6 +77,7 @@ const AfterPayView = ({ config,callbacks }) => {
                 paymentMethod={paymentMethod}
                 onCheckboxChange={onCheckboxChange}
                 billingData={billingData}
+                b2b={b2b}
             />
             <FinancialWarning paymentMethod={paymentMethod} />
         </div>
