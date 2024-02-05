@@ -161,12 +161,11 @@ function get_woocommerce_payment_methods(): array {
                 'image_path' => $gateway->getIcon(),
                 'buckarooImagesUrl' => plugin_dir_url(__FILE__) . 'library/buckaroo_images/',
                 'genders' => getAllGendersForPaymentMethods(),
-                'idealIssuers' => BuckarooIDeal::getIssuerList(),
-                'displayMode' => $gateway->get_option('displaymode'),
-                'selectedIssuer' => BuckarooIDeal::getIssuerList(),
-                'creditCardMethod' => $gateway->get_option('encrypt'),
-				'creditCardIsSecure' => get_credtCard_is_secure(),
+                'displayMode' => $gateway->get_option('displaymode')
 			);
+            if($gateway_id === 'buckaroo_ideal') {
+                $payment_method['idealIssuers'] =  BuckarooIDeal::getIssuerList();
+            }
 			if($gateway_id === 'buckaroo_paybybank') {
 				$payment_method['customer_type'] = $gateway->customer_type;
 				$payment_method['payByBankIssuers'] =  BuckarooPayByBank::getIssuerList();
@@ -182,6 +181,8 @@ function get_woocommerce_payment_methods(): array {
 			}
 			if($gateway_id === 'buckaroo_creditcard') {
 				$payment_method['creditCardIssuers'] = $gateway->getCardsList();
+				$payment_method['creditCardMethod'] = $gateway->get_option('encrypt');
+				$payment_method['creditCardIsSecure'] = get_credtCard_is_secure();
 			}
 			$payment_methods[] = $payment_method;
 		}
