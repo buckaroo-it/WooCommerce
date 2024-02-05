@@ -26,10 +26,10 @@ const CreditCard = ({ config,callbacks }) => {
             onEncryptedDataChange(encryptedData);
         };
 
-        jQuery(document).on("encryptedDataChanged", handleEncryptedDataChange);
+        document.addEventListener("encryptedDataChanged", handleEncryptedDataChange);
 
         return () => {
-            jQuery(document).off("encryptedDataChanged", handleEncryptedDataChange);
+            document.removeEventListener("encryptedDataChanged", handleEncryptedDataChange);
         };
     }, [onEncryptedDataChange]);
 
