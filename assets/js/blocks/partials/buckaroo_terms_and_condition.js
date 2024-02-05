@@ -32,7 +32,7 @@ const TermsAndConditionsCheckbox = ({paymentMethod, onCheckboxChange, billingDat
     }
     const handleCheckboxChange = () => {
         setIsChecked(!isChecked);
-        onCheckboxChange(!isChecked ? 'On' : 'Off');
+        onCheckboxChange(!isChecked ? 'On' : null);
     };
 
     return (

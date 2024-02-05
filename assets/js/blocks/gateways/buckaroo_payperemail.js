@@ -2,7 +2,20 @@ import React, { useState, useEffect } from 'react';
 import GenderDropdown from "../partials/buckaroo_gender";
 import {__} from "@wordpress/i18n";
 
-const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastNameChange, onEmailChange, billingData}) => {
+const PayPerEmailForm = ({ config,callbacks }) => {
+
+    const {
+        genders,
+        billingData,
+    } = config;
+
+    const {
+        onSelectGender,
+        onFirstNameChange,
+        onLastNameChange,
+        onEmailChange
+    }= callbacks;
+
     const [gender, setGender] = useState(null);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');

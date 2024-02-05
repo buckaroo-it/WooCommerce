@@ -1,18 +1,24 @@
 import React, {useState, useEffect} from 'react';
 import DefaultDropdown from "../partials/buckaroo_creditcard_dropdown";
 import {__} from "@wordpress/i18n";
-const CreditCard = ({
-                        creditCardIssuers,
-                        creditCardMethod,
-                        creditCardIsSecure,
-                        onCardNameChange,
-                        onCardNumberChange,
-                        onCardMonthChange,
-                        onCardYearChange,
-                        onCardCVCChange,
-                        onSelectCc,
-                        onEncryptedDataChange
-                    }) => {
+const CreditCard = ({ config,callbacks }) => {
+
+    const {
+        creditCardIssuers,
+        creditCardMethod,
+        creditCardIsSecure,
+    } = config;
+
+    const {
+        onCardNameChange,
+        onCardNumberChange,
+        onCardMonthChange,
+        onCardYearChange,
+        onCardCVCChange,
+        onSelectCc,
+        onEncryptedDataChange
+    }= callbacks;
+
     const paymentMethod = 'buckaroo-creditcard';
     const [creditCard, setCreditCard] = useState('');
     const handleSelectCreditCard = (selectedCc) => {
@@ -36,11 +42,11 @@ const CreditCard = ({
         <div>
 
             <p className="form-row form-row-wide">
-                <DefaultDropdown paymentMethod={paymentMethod} creditCardIssuers={creditCardIssuers}
+                <DefaultDropdown paymentMethod={paymentMethod} creditCardIssuers={config.creditCardIssuers}
                                  onSelectCc={handleSelectCreditCard}></DefaultDropdown>
             </p>
 
-            {creditCardMethod === 'encrypt' && creditCardIsSecure === true && (
+            {config.creditCardMethod === 'encrypt' && config.creditCardIsSecure === true && (
                 <div className="method--bankdata">
 
                     <div className="form-row">

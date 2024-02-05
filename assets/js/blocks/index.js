@@ -140,7 +140,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
         genders: gateway.genders,
         creditCardIssuers: gateway.creditCardIssuers,
         creditCardIsSecure: gateway.creditCardIsSecure,
-        creditCardMethod: gateway.creditCardMethod,
+        // creditCardMethod: gateway.creditCardMethod,
         b2b: gateway.b2b,
         type: gateway.type,
         customer_type: gateway.customer_type,

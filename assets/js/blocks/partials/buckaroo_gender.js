@@ -2,6 +2,7 @@ import React from 'react';
 import {__} from "@wordpress/i18n";
 
 const GenderDropdown = ({ paymentMethod, genders, onSelectGender }) => {
+
     const translateGender = (key) => {
         const translations = {
             'male': __('He/him', 'wc-buckaroo-bpe-gateway'),

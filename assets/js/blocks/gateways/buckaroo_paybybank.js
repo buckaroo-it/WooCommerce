@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 
-const PayByBankDropdown = ({ payByBankIssuers, onSelectIssuer, buckarooImagesUrl, payByBankSelectedIssuer, displayMode }) => {
+const PayByBankDropdown =({ config,callbacks }) => {
+
+    const {
+        payByBankIssuers,
+        buckarooImagesUrl,
+        displayMode
+    } = config;
+
+    const {
+        onSelectIssuer,
+        payByBankSelectedIssuer
+    }= callbacks;
+
     const [selectedIssuer, setSelectedIssuer] = useState(payByBankSelectedIssuer);
     const [showAllBanks, setShowAllBanks] = useState(false);
 
@@ -9,7 +21,6 @@ const PayByBankDropdown = ({ payByBankIssuers, onSelectIssuer, buckarooImagesUrl
         setShowAllBanks(!showAllBanks);
     };
 
-    // Handle issuer selection
     const handleSelectIssuer = (issuerCode) => {
         setSelectedIssuer(issuerCode);
         onSelectIssuer(issuerCode);
@@ -23,9 +34,9 @@ const PayByBankDropdown = ({ payByBankIssuers, onSelectIssuer, buckarooImagesUrl
                 <div className="form-row form-row-wide buckaroo-paybybank-mobile">
                     <select className="buckaroo-custom-select" value={selectedIssuer} onChange={(e) => handleSelectIssuer(e.target.value)}>
                         <option value="0">Select your bank</option>
-                        {Object.keys(payByBankIssuers).map((issuerCode) => (
+                        {Object.keys(config.paymentInfo.payByBankIssuers).map((issuerCode) => (
                             <option key={issuerCode} value={issuerCode}>
-                                {payByBankIssuers[issuerCode].name}
+                                {config.paymentInfo.payByBankIssuers[issuerCode].name}
                             </option>
                         ))}
                     </select>
@@ -36,9 +47,9 @@ const PayByBankDropdown = ({ payByBankIssuers, onSelectIssuer, buckarooImagesUrl
                         <select className="buckaroo-custom-select" value={selectedIssuer}
                                 onChange={(e) => handleSelectIssuer(e.target.value)}>
                             <option value="0">Select your bank</option>
-                            {Object.keys(payByBankIssuers).map((issuerCode) => (
+                            {Object.keys(config.paymentInfo.payByBankIssuers).map((issuerCode) => (
                                 <option key={issuerCode} value={issuerCode}>
-                                    {payByBankIssuers[issuerCode].name}
+                                    {config.paymentInfo.payByBankIssuers[issuerCode].name}
                                 </option>
                             ))}
                         </select>
@@ -46,7 +57,7 @@ const PayByBankDropdown = ({ payByBankIssuers, onSelectIssuer, buckarooImagesUrl
                     <div className="bk-paybybank-input bk-paybybank-not-mobile">
                         <div
                             className={`form-row form-row-wide bk-paybybank-selector ${showAllBanks ? 'show-all' : ''}`}>
-                            {Object.keys(payByBankIssuers).map((issuerCode) => (
+                            {Object.keys(config.paymentInfo.payByBankIssuers).map((issuerCode) => (
                                 <div className="custom-control custom-radio bank-control" key={issuerCode}>
                                     <input
                                         type="radio"
@@ -60,9 +71,9 @@ const PayByBankDropdown = ({ payByBankIssuers, onSelectIssuer, buckarooImagesUrl
                                     <label className="custom-control-label bank-method-label"
                                            htmlFor={`radio-bankMethod-${issuerCode}`}>
                                         <img
-                                            src={buckarooImagesUrl + 'ideal/' + (payByBankIssuers[issuerCode].logo || 'default-logo-filename.png')}
-                                            className="bank-method-image" alt={payByBankIssuers[issuerCode].name}/>
-                                        <strong>{payByBankIssuers[issuerCode].name}</strong>
+                                            src={buckarooImagesUrl + 'ideal/' + (config.paymentInfo.payByBankIssuers[issuerCode].logo || 'default-logo-filename.png')}
+                                            className="bank-method-image" alt={config.paymentInfo.payByBankIssuers[issuerCode].name}/>
+                                        <strong>{config.paymentInfo.payByBankIssuers[issuerCode].name}</strong>
                                     </label>
                                 </div>
                             ))}

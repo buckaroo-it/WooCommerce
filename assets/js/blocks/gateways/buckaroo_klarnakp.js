@@ -2,7 +2,16 @@ import React,{useState} from 'react';
 import GenderDropdown from "../partials/buckaroo_gender";
 import FinancialWarning from "../partials/buckaroo_financial_warning";
 
-const KlarnaKp = ({paymentName,genders, onSelectGender}) => {
+const KlarnaKp = ({ config,callbacks }) => {
+
+    const {
+        genders
+    } = config;
+
+    const {
+        onSelectGender
+    }= callbacks;
+
     const paymentMethod = 'buckaroo-klarnakp';
 
     const [gender, setGender] = useState(null);

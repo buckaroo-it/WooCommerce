@@ -4,7 +4,20 @@ import GenderDropdown from "../partials/buckaroo_gender";
 import FinancialWarning from "../partials/buckaroo_financial_warning";
 import TermsAndConditionsCheckbox from "../partials/buckaroo_terms_and_condition";
 
-const Billink = ({genders, billingData, onBirthdateChange, onSelectGender,onCheckboxChange}) => {
+const Billink = ({ config,callbacks }) => {
+
+
+    const {
+        genders,
+        billingData
+    } = config;
+
+    const {
+        onBirthdateChange,
+        onSelectGender,
+        onCheckboxChange,
+    }= callbacks;
+
     const paymentMethod = 'buckaroo-billink';
 
     const [gender, setGender] = useState(null);
@@ -18,7 +31,6 @@ const Billink = ({genders, billingData, onBirthdateChange, onSelectGender,onChec
         setGender(selectedGender);
         onSelectGender(selectedGender)
     };
-
     return (
         <div id="buckaroo_billink_b2c">
             <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={handleSelectGender}></GenderDropdown>
