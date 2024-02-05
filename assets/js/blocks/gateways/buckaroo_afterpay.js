@@ -21,7 +21,6 @@ const AfterPayView = ({
                       }) => {
     const paymentMethod = 'buckaroo-afterpay';
     const [isAdditionalCheckboxChecked, setIsAdditionalCheckboxChecked] = useState(false);
-    let iban = __('IBAN:', 'wc-buckaroo-bpe-gateway');
     const [isTermsAccepted, setIsTermsAccepted] = useState(false);
 
     const handleTermsCheckboxChange = (isChecked) => {
@@ -52,7 +51,7 @@ const AfterPayView = ({
             {type === 'afterpayacceptgiro' && (
                 <div className="form-row form-row-wide validate-required">
                     <label htmlFor="buckaroo-afterpay-company-coc-registration">
-                        {iban}
+                        {__('IBAN:', 'wc-buckaroo-bpe-gateway')}
                         <span className="required">*</span>
                     </label>
 
@@ -61,7 +60,9 @@ const AfterPayView = ({
                         name="buckaroo-afterpay-company-coc-registration"
                         className="input-text"
                         type="text"
-                        onChange={(e) => {onCocRegistrationChange(e.target.value)}}
+                        onChange={(e) => {
+                            onCocRegistrationChange(e.target.value)
+                        }}
                     />
                 </div>
             )
@@ -72,7 +73,7 @@ const AfterPayView = ({
                 <div>
                     <div className="form-row form-row-wide validate-required">
                         <label htmlFor="buckaroo-afterpay-b2b">
-                            Checkout for company
+                            {__('Checkout for company', 'wc-buckaroo-bpe-gateway')}
                             <input
                                 id="buckaroo-afterpay-b2b"
                                 name="buckaroo-afterpay-b2b"

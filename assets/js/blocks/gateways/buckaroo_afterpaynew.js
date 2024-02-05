@@ -7,10 +7,7 @@ import PhoneDropdown from "../partials/buckaroo_phone";
 
 const AfterPayNew = ({customer_type, onCheckboxChange, billingData, onBirthdateChange, onPhoneNumberChange, onCocInput, onIdentificationNumber}) => {
         const paymentMethod = 'buckaroo-afterpaynew';
-
         const [isTermsAccepted, setIsTermsAccepted] = useState(false);
-        let cocNumber = __('CoC-number:', 'wc-buckaroo-bpe-gateway');
-        let identificationNumber = __('Identification Number:', 'wc-buckaroo-bpe-gateway');
 
         const handleTermsCheckboxChange = (isChecked) => {
             setIsTermsAccepted(isChecked);
@@ -30,7 +27,7 @@ const AfterPayNew = ({customer_type, onCheckboxChange, billingData, onBirthdateC
                 {billingData.country === 'NL' && customer_type !== 'b2c' && (
                     <p className="form-row form-row-wide validate-required">
                         <label htmlFor="buckaroo-afterpaynew-coc">
-                            {cocNumber}
+                            {__('CoC-number:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
                         </label>
 
@@ -47,7 +44,7 @@ const AfterPayNew = ({customer_type, onCheckboxChange, billingData, onBirthdateC
                 {billingData.country === 'FI' && (
                     <p className="form-row form-row-wide validate-required">
                         <label htmlFor="buckaroo-afterpaynew-identification-number">
-                            {identificationNumber}
+                            {__('Identification Number:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
                         </label>
 

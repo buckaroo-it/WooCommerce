@@ -1,8 +1,9 @@
 import React from 'react';
+import {__} from "@wordpress/i18n";
 const AfterPayTos = ({field}) => {
     return (
         <div>
-            <a href='#' target="_blank">Accept Riverty | AfterPay conditions:</a>
+            <a href='#' target="_blank">{__('Accept Riverty | AfterPay conditions:', 'wc-buckaroo-bpe-gateway')}</a>
             <span className="required">*</span>
             <input
                 id={`${field}-accept`}
@@ -10,9 +11,9 @@ const AfterPayTos = ({field}) => {
                 type="checkbox"
                 value="ON"
             />
-            <p className="required" style={{float: 'right'}}>*
-                Required
-            </p>
+            <div className="required" style={{float: 'right'}}>*
+                {__('Required', 'wc-buckaroo-bpe-gateway')}
+            </div>
         </div>
     );
 };

@@ -1,9 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import DefaultDropdown from "../partials/buckaroo_creditcard_dropdown";
-
+import {__} from "@wordpress/i18n";
 const CreditCard = ({
                         creditCardIssuers,
-                        creditcardmethod,
+                        creditCardMethod,
                         creditCardIsSecure,
                         onCardNameChange,
                         onCardNumberChange,
@@ -40,12 +40,12 @@ const CreditCard = ({
                                  onSelectCc={handleSelectCreditCard}></DefaultDropdown>
             </p>
 
-            {creditcardmethod === 'encrypt' && creditCardIsSecure === true && (
+            {creditCardMethod === 'encrypt' && creditCardIsSecure === true && (
                 <div className="method--bankdata">
 
                     <div className="form-row">
                         <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardname`}>
-                            Cardholder Name:
+                            {__('Cardholder Name:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
 
                         </label>
@@ -53,7 +53,7 @@ const CreditCard = ({
                             type="text"
                             name={`${paymentMethod}-cardname`}
                             id={`${paymentMethod}-cardname`}
-                            placeholder="Cardholder Name:"
+                            placeholder={__('Cardholder Name:', 'wc-buckaroo-bpe-gateway')}
                             className="cardHolderName input-text"
                             maxLength="250"
                             autoComplete="off"
@@ -64,7 +64,7 @@ const CreditCard = ({
 
                     <div className="form-row">
                         <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardnumber`}>
-                            Card Number:
+                            {__('Card Number:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
                         </label>
 
@@ -72,7 +72,7 @@ const CreditCard = ({
                             type="text"
                             name={`${paymentMethod}-cardnumber`}
                             id={`${paymentMethod}-cardnumber`}
-                            placeholder="Card Number:"
+                            placeholder={__('Card Number:', 'wc-buckaroo-bpe-gateway')}
                             className="cardNumber input-text"
                             maxLength="250"
                             autoComplete="off"
@@ -82,7 +82,7 @@ const CreditCard = ({
 
                     <div className="form-row">
                         <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardmonth`}>
-                            Expiration Month:
+                            {__('Expiration Month:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
                         </label>
 
@@ -91,7 +91,7 @@ const CreditCard = ({
                             maxLength="2"
                             name={`${paymentMethod}-cardmonth`}
                             id={`${paymentMethod}-cardmonth`}
-                            placeholder="Expiration Month:"
+                            placeholder={__('Expiration Month:', 'wc-buckaroo-bpe-gateway')}
                             className="expirationMonth input-text"
                             autoComplete="off"
                             onChange={(e) => onCardMonthChange(e.target.value)}
@@ -100,7 +100,7 @@ const CreditCard = ({
 
                     <div className="form-row">
                         <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardyear`}>
-                            Expiration Year:
+                            {__('Expiration Year:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
                         </label>
                         <input
@@ -108,7 +108,7 @@ const CreditCard = ({
                             maxLength="4"
                             name={`${paymentMethod}-cardyear`}
                             id={`${paymentMethod}-cardyear`}
-                            placeholder="Expiration Year:"
+                            placeholder={__('Expiration Year:', 'wc-buckaroo-bpe-gateway')}
                             className="expirationYear input-text"
                             autoComplete="off"
                             onChange={(e) => onCardYearChange(e.target.value)}
@@ -117,7 +117,7 @@ const CreditCard = ({
 
                     <div className="form-row">
                         <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardcvc`}>
-                            CVC:
+                            {__('CVC:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
                         </label>
                         <input
@@ -125,7 +125,7 @@ const CreditCard = ({
                             maxLength="4"
                             name={`${paymentMethod}-cardcvc`}
                             id={`${paymentMethod}-cardcvc`}
-                            placeholder="CVC:"
+                            placeholder={__('CVC:', 'wc-buckaroo-bpe-gateway')}
                             className="cvc input-text"
                             autoComplete="off"
                             onChange={(e) => onCardCVCChange(e.target.value)}
@@ -134,7 +134,7 @@ const CreditCard = ({
 
                     <div className="form-row form-row-wide validate-required"></div>
                     <div className="required" style={{float: 'right'}}>*
-                        Required
+                        {__('Required', 'wc-buckaroo-bpe-gateway')}
                     </div>
                     <input
                         type="hidden"

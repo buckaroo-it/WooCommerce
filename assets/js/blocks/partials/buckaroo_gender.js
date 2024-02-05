@@ -1,12 +1,13 @@
 import React from 'react';
+import {__} from "@wordpress/i18n";
 
 const GenderDropdown = ({ paymentMethod, genders, onSelectGender }) => {
     const translateGender = (key) => {
         const translations = {
-            'male': 'He/him',
-            'female': 'She/her',
-            'they': 'They/them',
-            'unknown': 'I prefer not to say'
+            'male': __('He/him', 'wc-buckaroo-bpe-gateway'),
+            'female': __('She/her', 'wc-buckaroo-bpe-gateway'),
+            'they': __('They/them', 'wc-buckaroo-bpe-gateway'),
+            'unknown': __('I prefer not to say', 'wc-buckaroo-bpe-gateway')
         };
         return translations[key] || key;
     };
@@ -23,7 +24,8 @@ const GenderDropdown = ({ paymentMethod, genders, onSelectGender }) => {
         <div className={`payment_box payment_method_${paymentMethod}`}>
             <div className="form-row form-row-wide">
                 <label htmlFor={`${paymentMethod}-gender`}>
-                    Gender: <span className="required">*</span>
+                    {__('Gender:', 'wc-buckaroo-bpe-gateway')}
+                    <span className="required">*</span>
                 </label>
                 <select
                     className="buckaroo-custom-select"
@@ -31,7 +33,7 @@ const GenderDropdown = ({ paymentMethod, genders, onSelectGender }) => {
                     id={`buckaroo-${paymentMethod}`}
                     onChange={(e) => onSelectGender(e.target.value)}
                 >
-                    <option>Select your Gender</option>
+                    <option>{__('Select your Gender', 'wc-buckaroo-bpe-gateway')}</option>
                     {genderOptions}
                 </select>
             </div>

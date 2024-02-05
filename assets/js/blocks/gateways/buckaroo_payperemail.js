@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GenderDropdown from "../partials/buckaroo_gender";
+import {__} from "@wordpress/i18n";
 
 const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastNameChange, onEmailChange, billingData}) => {
     const [gender, setGender] = useState(null);
@@ -31,7 +32,8 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
 
             <div className="form-row validate-required">
                 <label htmlFor="buckaroo-payperemail-firstname">
-                    First Name: <span className="required">*</span>
+                    {__('First Name:', 'wc-buckaroo-bpe-gateway')}
+                    <span className="required">*</span>
                 </label>
                 <input
                     id="buckaroo-payperemail-firstname"
@@ -49,7 +51,8 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
 
             <div className="form-row validate-required">
                 <label htmlFor="buckaroo-payperemail-lastname">
-                    Last Name: <span className="required">*</span>
+                    {__('Last Name:', 'wc-buckaroo-bpe-gateway')}
+                    <span className="required">*</span>
                 </label>
                 <input
                     id="buckaroo-payperemail-lastname"
@@ -67,7 +70,8 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
 
             <div className="form-row validate-required">
                 <label htmlFor="buckaroo-payperemail-email">
-                    Email: <span className="required">*</span>
+                    {__('Email:', 'wc-buckaroo-bpe-gateway')}
+                    <span className="required">*</span>
                 </label>
                 <input
                     id="buckaroo-payperemail-email"
@@ -83,8 +87,8 @@ const PayPerEmailForm = ({genders, onSelectGender, onFirstNameChange, onLastName
                 />
             </div>
 
-            <div className="required" style={{float: 'right'}}>
-                * Required
+            <div className="required" style={{float: 'right'}}>*
+                {__('Required', 'wc-buckaroo-bpe-gateway')}
             </div>
             <br/>
         </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {__} from "@wordpress/i18n";
 
 const SepaDirectDebitForm = ({ onAccountName, onIbanChange, onBicChange }) => {
 
@@ -6,7 +7,8 @@ const SepaDirectDebitForm = ({ onAccountName, onIbanChange, onBicChange }) => {
         <div>
             <div className="form-row form-row-wide validate-required">
                 <label htmlFor="buckaroo-sepadirectdebit-accountname">
-                    Bank account holder: <span className="required">*</span>
+                    <span className="required">*</span>
+                    {__('Bank account holder:', 'wc-buckaroo-bpe-gateway')}
                 </label>
                 <input
                     id="buckaroo-sepadirectdebit-accountname"
@@ -20,7 +22,8 @@ const SepaDirectDebitForm = ({ onAccountName, onIbanChange, onBicChange }) => {
             </div>
             <div className="form-row form-row-wide validate-required">
                 <label htmlFor="buckaroo-sepadirectdebit-iban">
-                    IBAN: <span className="required">*</span>
+                    {__('IBAN:', 'wc-buckaroo-bpe-gateway')}
+                    <span className="required">*</span>
                 </label>
                 <input
                     id="buckaroo-sepadirectdebit-iban"
@@ -34,7 +37,7 @@ const SepaDirectDebitForm = ({ onAccountName, onIbanChange, onBicChange }) => {
             </div>
             <div className="form-row form-row-wide">
                 <label htmlFor="buckaroo-sepadirectdebit-bic">
-                    BIC:
+                    {__('BIC:', 'wc-buckaroo-bpe-gateway')}
                 </label>
                 <input
                     id="buckaroo-sepadirectdebit-bic"
@@ -46,8 +49,8 @@ const SepaDirectDebitForm = ({ onAccountName, onIbanChange, onBicChange }) => {
                     onChange={(e) => onBicChange(e.target.value)}
                 />
             </div>
-            <div className="required" style={{ float: 'right' }}>
-                * Required
+            <div className="required" style={{float: 'right'}}>*
+                {__('Required', 'wc-buckaroo-bpe-gateway')}
             </div>
             <br/>
         </div>

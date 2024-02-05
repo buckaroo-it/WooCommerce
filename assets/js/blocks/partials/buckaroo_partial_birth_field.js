@@ -1,18 +1,11 @@
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import {__} from "@wordpress/i18n";
 
 const BirthDayField = ({ paymentMethod, onBirthdateChange }) => {
     const [birthdate, setBirthdate] = useState(null);
 
-    const validateDate = (date) => {
-        return isValidDateFormat(date);
-    };
-
-    const isValidDateFormat = (date) => {
-        const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
-        return dateFormatRegex.test(date.toISOString().slice(0, 10));
-    };
     const handleDateChange = (date) => {
 
         const formattedDate = date.toLocaleDateString('en-GB', {
@@ -28,7 +21,7 @@ const BirthDayField = ({ paymentMethod, onBirthdateChange }) => {
     return (
         <div className="form-row form-row-wide validate-required buckaroo_partial_birth_field">
             <label htmlFor={`${paymentMethod}-birthdate`}>
-                Birthdate (format DD-MM-YYYY):
+                {__('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway')}
                 <span className="required">*</span>
             </label>
 

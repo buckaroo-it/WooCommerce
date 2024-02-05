@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {__} from "@wordpress/i18n";
 
 const AfterPayB2B = ({onCocInput,onCompanyInput,onAccountName}) => {
 
@@ -6,11 +7,12 @@ const AfterPayB2B = ({onCocInput,onCompanyInput,onAccountName}) => {
   return (
       <span id="showB2BBuckaroo">
             <p className="form-row form-row-wide validate-required">
-                Fill required fields if bill in on the company:
+                {__('Fill required fields if bill in on the company:', 'wc-buckaroo-bpe-gateway')}
             </p>
          <p className="form-row form-row-wide validate-required">
                 <label htmlFor="buckaroo-afterpay-company-coc-registration">
-                    COC (KvK) number:<span className="required">*</span>
+                    {__('COC (KvK) number:', 'wc-buckaroo-bpe-gateway')}
+                    <span className="required">*</span>
                 </label>
                 <input
                     id="buckaroo-afterpay-company-coc-registration"
@@ -25,7 +27,8 @@ const AfterPayB2B = ({onCocInput,onCompanyInput,onAccountName}) => {
 
             <p className="form-row form-row-wide validate-required">
                 <label htmlFor="buckaroo-afterpay-company-name">
-                    Name of the organization:<span className="required">*</span>
+                    {__('Name of the organization:', 'wc-buckaroo-bpe-gateway')}
+                    <span className="required">*</span>
                 </label>
                 <input
                     id="buckaroo-afterpay-company-name"

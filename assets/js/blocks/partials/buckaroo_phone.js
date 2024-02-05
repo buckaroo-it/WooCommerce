@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import {__} from "@wordpress/i18n";
 
 const PhoneDropdown = ({paymentMethod, billingData, onPhoneNumberChange}) => {
-    let phoneNumberLabel = __('Phone Number:', 'wc-buckaroo-bpe-gateway');
     const [phoneNumber, setPhoneNumber] = useState('');
     useEffect(() => {
         if (billingData) {
@@ -14,7 +13,7 @@ const PhoneDropdown = ({paymentMethod, billingData, onPhoneNumberChange}) => {
     return (
         <div className="form-row validate-required">
             <label htmlFor={`${paymentMethod}-phone`}>
-                {phoneNumberLabel}
+                {__('Phone Number:', 'wc-buckaroo-bpe-gateway')}
                 <span className="required">*</span>
             </label>
             <input

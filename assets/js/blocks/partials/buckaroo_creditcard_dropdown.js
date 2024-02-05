@@ -1,4 +1,5 @@
 import React from 'react';
+import {__} from "@wordpress/i18n";
 
 const DefaultDropdown = ({ paymentMethod, creditCardIssuers, onSelectCc }) => {
 
@@ -15,7 +16,8 @@ const DefaultDropdown = ({ paymentMethod, creditCardIssuers, onSelectCc }) => {
         <div className={`payment_box payment_method_${paymentMethod}`}>
             <div className="form-row form-row-wide">
                 <label htmlFor="buckaroo-billink-creditcard">
-                    Credit Card: <span className="required">*</span>
+                    {__('Credit Card:', 'wc-buckaroo-bpe-gateway')}
+                    <span className="required">*</span>
                 </label>
                 <select
                     className="buckaroo-custom-select"
@@ -23,7 +25,7 @@ const DefaultDropdown = ({ paymentMethod, creditCardIssuers, onSelectCc }) => {
                     id={`buckaroo-${paymentMethod}`}
                     onChange={(e) => onSelectCc(e.target.value)}
                 >
-                    <option>Select your credit card</option>
+                    <option>{__('Select your credit card', 'wc-buckaroo-bpe-gateway')}</option>
                     {ccOptions}
                 </select>
             </div>
