@@ -107,13 +107,11 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     useEffect(() => {
         const loadPaymentComponent = async (methodId) => {
             try {
-                let LoadedComponent;
+                let LoadedComponent = DefaultPayment;
                 if (customTemplatePaymentMethodIds.includes(methodId)) {
                     ({ default: LoadedComponent } = await import(`./gateways/${methodId}`));
                 } else if (separateCreditCards.includes(methodId)) {
                     ({ default: LoadedComponent } = await import(`./gateways/buckaroo_separate_credit_card`));
-                } else {
-                    LoadedComponent = DefaultPayment;
                 }
 
                 setPaymentComponent(() => LoadedComponent);
