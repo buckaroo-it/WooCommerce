@@ -3,7 +3,6 @@ import {__} from "@wordpress/i18n";
 
 const AfterPayB2B = ({onCocInput,onCompanyInput,onAccountName}) => {
 
-
   return (
       <span id="showB2BBuckaroo">
             <p className="form-row form-row-wide validate-required">

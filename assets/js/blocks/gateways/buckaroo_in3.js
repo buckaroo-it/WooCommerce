@@ -15,7 +15,7 @@ const In3 = ({ config,callbacks }) => {
 
     return (
         <div>
-            {config.billingData.country === "NL" &&
+            {billingData.country === "NL" &&
                 <BirthDayField
                     paymentMethod={paymentMethod}
                     onBirthdateChange={onBirthdateChange}

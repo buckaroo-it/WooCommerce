@@ -14,15 +14,9 @@ const Klaranapii = ({ config,callbacks }) => {
     
     const paymentMethod = 'buckaroo-klarnapii';
 
-    const [gender, setGender] = useState(null);
-    const handleSelectGender = (selectedGender) => {
-        setGender(selectedGender);
-        onSelectGender(selectedGender)
-    };
-
     return (
         <div id="buckaroo_klarnapay">
-            <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={handleSelectGender}></GenderDropdown>
+            <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={onSelectGender}></GenderDropdown>
             <FinancialWarning></FinancialWarning>
         </div>
     );

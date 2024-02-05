@@ -20,11 +20,6 @@ const CreditCard = ({ config,callbacks }) => {
     }= callbacks;
 
     const paymentMethod = 'buckaroo-creditcard';
-    const [creditCard, setCreditCard] = useState('');
-    const handleSelectCreditCard = (selectedCc) => {
-        setCreditCard(selectedCc);
-        onSelectCc(selectedCc)
-    };
 
     useEffect(() => {
         const handleEncryptedDataChange = (event, encryptedData) => {
@@ -42,11 +37,11 @@ const CreditCard = ({ config,callbacks }) => {
         <div>
 
             <p className="form-row form-row-wide">
-                <DefaultDropdown paymentMethod={paymentMethod} creditCardIssuers={config.creditCardIssuers}
-                                 onSelectCc={handleSelectCreditCard}></DefaultDropdown>
+                <DefaultDropdown paymentMethod={paymentMethod} creditCardIssuers={creditCardIssuers}
+                                 onSelectCc={onSelectCc}></DefaultDropdown>
             </p>
 
-            {config.creditCardMethod === 'encrypt' && config.creditCardIsSecure === true && (
+            {creditCardMethod === 'encrypt' && creditCardIsSecure === true && (
                 <div className="method--bankdata">
 
                     <div className="form-row">

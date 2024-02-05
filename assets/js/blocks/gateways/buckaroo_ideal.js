@@ -15,9 +15,9 @@ const IdealDropdown = ({ config,callbacks }) => {
                 <select className="buckaroo-custom-select" name="buckaroo-ideal-issuer" id="buckaroo-ideal-issuer"
                         onChange={(e) => onSelectIssuer(e.target.value)}>
                     <option value="0">Select your bank</option>
-                    {Object.keys(config.paymentInfo.idealIssuers).map((issuerCode) => (
+                    {Object.keys(paymentInfo.idealIssuers).map((issuerCode) => (
                         <option key={issuerCode} value={issuerCode}>
-                            {config.paymentInfo.idealIssuers[issuerCode].name}
+                            {paymentInfo.idealIssuers[issuerCode].name}
                         </option>
                     ))}
                 </select>

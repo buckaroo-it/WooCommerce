@@ -16,7 +16,6 @@ const PayPerEmailForm = ({ config,callbacks }) => {
         onEmailChange
     }= callbacks;
 
-    const [gender, setGender] = useState(null);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -34,14 +33,11 @@ const PayPerEmailForm = ({ config,callbacks }) => {
         }
     }, [billingData]);
 
-    const handleSelectGender = (selectedGender) => {
-        setGender(selectedGender);
-        onSelectGender(selectedGender)
-    };
+
     return (
         <div>
             <GenderDropdown paymentMethod={paymentMethod} genders={genders}
-                            onSelectGender={handleSelectGender}></GenderDropdown>
+                            onSelectGender={onSelectGender}></GenderDropdown>
 
             <div className="form-row validate-required">
                 <label htmlFor="buckaroo-payperemail-firstname">

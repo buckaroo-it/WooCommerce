@@ -6,9 +6,7 @@ import { __ } from '@wordpress/i18n';
 import PhoneDropdown from '../partials/buckaroo_phone';
 
 const AfterPayNew = ({ config,callbacks }) => {
-
     const {
-        paymentInfo,
         billingData,
         customer_type
     } = config;
@@ -17,28 +15,11 @@ const AfterPayNew = ({ config,callbacks }) => {
         onPhoneNumberChange,
         onCheckboxChange,
         onBirthdateChange,
-        onCocInput
+        onCocInput,
+        onIdentificationNumber
     }= callbacks;
 
     const paymentMethod = 'buckaroo-afterpaynew';
-    const [isTermsAccepted, setIsTermsAccepted] = useState(false);
-
-    const handleChange = (field, value) => {
-        switch (field) {
-            case 'terms':
-                setIsTermsAccepted(value);
-                onCheckboxChange(value);
-                break;
-            case 'coc':
-                onCocInput(value);
-                break;
-            case 'identificationNumber':
-                onIdentificationNumber(value);
-                break;
-            default:
-                break;
-        }
-    };
 
     return (
         <div>
@@ -63,7 +44,7 @@ const AfterPayNew = ({ config,callbacks }) => {
                         type="text"
                         maxLength="250"
                         autoComplete="off"
-                        onChange={(e) => handleChange('coc', e.target.value)}
+                        onChange={(e) => onCocInput(e.target.value)}
                     />
                 </p>
             )}
@@ -81,14 +62,14 @@ const AfterPayNew = ({ config,callbacks }) => {
                         type="text"
                         maxLength="250"
                         autoComplete="off"
-                        onChange={(e) => handleChange('identificationNumber', e.target.value)}
+                        onChange={(e) => onIdentificationNumber(e.target.value)}
                     />
                 </p>
             )}
 
             <TermsAndConditionsCheckbox
                 paymentMethod={paymentMethod}
-                onCheckboxChange={(isChecked) => handleChange('terms', isChecked)}
+                onCheckboxChange={(isChecked) => onCheckboxChange(isChecked)}
                 billingData={billingData}
             />
 

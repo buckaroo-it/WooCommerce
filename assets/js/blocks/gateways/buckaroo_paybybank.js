@@ -13,18 +13,12 @@ const PayByBankDropdown =({ config,callbacks }) => {
         payByBankSelectedIssuer
     }= callbacks;
 
-    const [selectedIssuer, setSelectedIssuer] = useState(payByBankSelectedIssuer);
     const [showAllBanks, setShowAllBanks] = useState(false);
 
-    // Toggle the view of banks
     const toggleBankView = () => {
         setShowAllBanks(!showAllBanks);
     };
 
-    const handleSelectIssuer = (issuerCode) => {
-        setSelectedIssuer(issuerCode);
-        onSelectIssuer(issuerCode);
-    };
 
     return (
         <div className="payment_box payment_method_buckaroo">
@@ -32,7 +26,7 @@ const PayByBankDropdown =({ config,callbacks }) => {
             {displayMode === 'dropdown' ? (
                 // Dropdown for Mobile View
                 <div className="form-row form-row-wide buckaroo-paybybank-mobile">
-                    <select className="buckaroo-custom-select" value={selectedIssuer} onChange={(e) => handleSelectIssuer(e.target.value)}>
+                    <select className="buckaroo-custom-select" value={payByBankSelectedIssuer} onChange={(e) => onSelectIssuer(e.target.value)}>
                         <option value="0">Select your bank</option>
                         {Object.keys(config.paymentInfo.payByBankIssuers).map((issuerCode) => (
                             <option key={issuerCode} value={issuerCode}>
@@ -44,8 +38,8 @@ const PayByBankDropdown =({ config,callbacks }) => {
             ) : (
                 <div>
                     <div className="form-row form-row-wide bk-paybybank-input bk-paybybank-mobile" style={{ display: 'none' }}>
-                        <select className="buckaroo-custom-select" value={selectedIssuer}
-                                onChange={(e) => handleSelectIssuer(e.target.value)}>
+                        <select className="buckaroo-custom-select" value={payByBankSelectedIssuer}
+                                onChange={(e) => onSelectIssuer(e.target.value)}>
                             <option value="0">Select your bank</option>
                             {Object.keys(config.paymentInfo.payByBankIssuers).map((issuerCode) => (
                                 <option key={issuerCode} value={issuerCode}>
@@ -64,8 +58,8 @@ const PayByBankDropdown =({ config,callbacks }) => {
                                         id={`radio-bankMethod-${issuerCode}`}
                                         name="buckaroo-paybybank-radio-issuer"
                                         value={issuerCode}
-                                        checked={selectedIssuer === issuerCode}
-                                        onChange={() => handleSelectIssuer(issuerCode)}
+                                        checked={payByBankSelectedIssuer === issuerCode}
+                                        onChange={() => onSelectIssuer(issuerCode)}
                                         className="custom-control-input bank-method-input bk-paybybank-radio"
                                     />
                                     <label className="custom-control-label bank-method-label"

@@ -27,24 +27,6 @@ const AfterPayView = ({ config,callbacks }) => {
 
     const paymentMethod = 'buckaroo-afterpay';
     const [isAdditionalCheckboxChecked, setIsAdditionalCheckboxChecked] = useState(false);
-    const [isTermsAccepted, setIsTermsAccepted] = useState(false);
-
-    const handleTermsCheckboxChange = (isChecked) => {
-        setIsTermsAccepted(isChecked);
-        onCheckboxChange(isChecked);
-    };
-
-    const handleCocInput = (input) => {
-        onCocInput(input);
-    };
-
-    const handleCompanyInput = (input) => {
-        onCompanyInput(input);
-    };
-
-    const handleAccount = (input) => {
-        onAccountName(input);
-    };
 
     const handleAdditionalCheckboxChange = (isChecked) => {
         setIsAdditionalCheckboxChecked(isChecked);
@@ -87,12 +69,12 @@ const AfterPayView = ({ config,callbacks }) => {
                             />
                         </label>
                     </div>
-                    {isAdditionalCheckboxChecked && <AfterPayB2B onCocInput={handleCocInput} onCompanyInput={handleCompanyInput} onAccountName={handleAccount} />}
+                    {isAdditionalCheckboxChecked && <AfterPayB2B onCocInput={onCocInput} onCompanyInput={onCompanyInput} onAccountName={onAccountName} />}
                 </div>
             )}
             <TermsAndConditionsCheckbox
                 paymentMethod={paymentMethod}
-                onCheckboxChange={handleTermsCheckboxChange}
+                onCheckboxChange={onCheckboxChange}
                 billingData={billingData}
             />
             <FinancialWarning paymentMethod={paymentMethod} />

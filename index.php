@@ -154,28 +154,37 @@ function get_woocommerce_payment_methods(): array {
 
     foreach ($gateways as $gateway_id => $gateway) {
 		if (isBuckarooPayment($gateway_id) && $gateway->enabled == 'yes') {
-			$payment_methods[] = array(
+			$payment_method = array(
                 'paymentMethodId' => $gateway_id ,
                 'title' => $gateway->get_title(),
                 'description' => $gateway->description,
                 'image_path' => $gateway->getIcon(),
+                'buckarooImagesUrl' => plugin_dir_url(__FILE__) . 'library/buckaroo_images/',
+                'genders' => getAllGendersForPaymentMethods(),
                 'idealIssuers' => BuckarooIDeal::getIssuerList(),
-                'payByBankIssuers' => BuckarooPayByBank::getIssuerList(),
-                'creditCardIssuers' => getCreditcardsProviders(),
-                'payByBankSelectedIssuer' => BuckarooPayByBank::getActiveIssuerCode(),
                 'displayMode' => $gateway->get_option('displaymode'),
                 'selectedIssuer' => BuckarooIDeal::getIssuerList(),
-                'buckarooImagesUrl' => plugin_dir_url(__FILE__) . 'library/buckaroo_images/',
                 'creditCardMethod' => $gateway->get_option('encrypt'),
-                'customer_type' => $gateway->customer_type,
-                'b2b' => $gateway->b2b,
-                'type' => get_type(),
-                'genders' => getAllGendersForPaymentMethods(),
 				'creditCardIsSecure' => get_credtCard_is_secure(),
-                'buckarooIdin' => BuckarooIdin::checkCurrentUserIsVerified(),
-                'lastPayByBankIssuer' => BuckarooPayByBank::getActiveIssuerCode(),
 			);
-        }
+			if($gateway_id === 'buckaroo_paybybank') {
+				$payment_method['customer_type'] = $gateway->customer_type;
+				$payment_method['payByBankIssuers'] =  BuckarooPayByBank::getIssuerList();
+				$payment_method['payByBankSelectedIssuer'] = BuckarooPayByBank::getActiveIssuerCode();
+				$payment_method['lastPayByBankIssuer'] = BuckarooPayByBank::getActiveIssuerCode();
+			}
+			if($gateway_id === 'buckaroo_afterpaynew') {
+				$payment_method['customer_type'] = $gateway->customer_type;
+			}
+			if($gateway_id === 'buckaroo_afterpay') {
+				$payment_method['b2b'] = $gateway->b2b;
+				$payment_method['type'] = get_type();
+			}
+			if($gateway_id === 'buckaroo_creditcard') {
+				$payment_method['creditCardIssuers'] = $gateway->getCardsList();
+			}
+			$payment_methods[] = $payment_method;
+		}
 	}
 	wp_localize_script('buckaroo-blocks', 'buckaroo_gateways', $payment_methods);
 	return $payment_methods;

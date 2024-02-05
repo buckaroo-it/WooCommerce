@@ -6,7 +6,6 @@ import TermsAndConditionsCheckbox from "../partials/buckaroo_terms_and_condition
 
 const Billink = ({ config,callbacks }) => {
 
-
     const {
         genders,
         billingData
@@ -20,22 +19,11 @@ const Billink = ({ config,callbacks }) => {
 
     const paymentMethod = 'buckaroo-billink';
 
-    const [gender, setGender] = useState(null);
-    const [isTermsAccepted, setIsTermsAccepted] = useState(false);
-    const handleTermsCheckboxChange = (isChecked) => {
-        setIsTermsAccepted(isChecked);
-        onCheckboxChange(isChecked)
-    };
-
-    const handleSelectGender = (selectedGender) => {
-        setGender(selectedGender);
-        onSelectGender(selectedGender)
-    };
     return (
         <div id="buckaroo_billink_b2c">
-            <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={handleSelectGender}></GenderDropdown>
+            <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={onSelectGender}></GenderDropdown>
             <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={onBirthdateChange}/>
-            <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={handleTermsCheckboxChange}
+            <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={onCheckboxChange}
                                         billingData={billingData}/>
             <FinancialWarning paymentMethod={paymentMethod}></FinancialWarning>
         </div>
