@@ -175,9 +175,6 @@ function get_woocommerce_payment_methods(): array {
                 'buckarooIdin' => BuckarooIdin::checkCurrentUserIsVerified(),
                 'lastPayByBankIssuer' => BuckarooPayByBank::getActiveIssuerCode(),
 			);
-			if($gateway_id == 'buckaroo_creditcard'){
-				$payment_methods[$gateway_id]['creditCardMethod'] = $gateway->getCreditcardmethod();
-			}
         }
 	}
 	wp_localize_script('buckaroo-blocks', 'buckaroo_gateways', $payment_methods);

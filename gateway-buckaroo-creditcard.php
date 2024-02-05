@@ -380,11 +380,6 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         return $cards;
     }
 
-    public function getCreditcardmethod()
-    {
-        return $this->creditcardmethod;
-    }
-
     /**
      * Add fields to the form_fields() array, specific to this page.
      *
