@@ -27,7 +27,8 @@ $genderVal = $allGenders[$section_id] ?? [];
     <select name="<?php echo esc_attr($section_id)?>-gender" id="<?php echo esc_attr($section_id)?>-gender">
         <?php
             foreach ($genderVal as $key => $value) {
-                echo '<option value="' . $value . '">' . $key . '</option>';
+	            $translatedLabel = translateGender($key);
+	            echo '<option value="' . esc_attr($value) . '">' . esc_html($translatedLabel) . '</option>';
             }
         ?>
     </select>

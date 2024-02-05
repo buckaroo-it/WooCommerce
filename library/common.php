@@ -1174,36 +1174,53 @@ function buckaroo_request_sanitized_json($key)
 }
 
 function getAllGendersForPaymentMethods(): array {
-	define('GENDER_MALE', 1);
-	define('GENDER_FEMALE', 2);
-	define('GENDER_OTHER', 0);
-	define('GENDER_NOT_SPECIFIED', 9);
+	$GENDER_MALE = 1;
+	$GENDER_FEMALE = 2;
+	$GENDER_OTHER = 0;
+	$GENDER_NOT_SPECIFIED = 9;
+
 
 	$allGenders = [];
 	$allGenders['buckaroo-payperemail'] = [
-		__('He/him', 'wc-buckaroo-bpe-gateway') => GENDER_MALE,
-		__('She/her', 'wc-buckaroo-bpe-gateway') => GENDER_FEMALE,
-		__('They/them', 'wc-buckaroo-bpe-gateway') => GENDER_OTHER,
-		__('I prefer not to say', 'wc-buckaroo-bpe-gateway') => GENDER_NOT_SPECIFIED
+		'male' => $GENDER_MALE,
+		'female' => $GENDER_FEMALE,
+		'they' => $GENDER_OTHER,
+		'unknown' => $GENDER_NOT_SPECIFIED
 	];
 	$allGenders['buckaroo-billink'] = [
-		__('He/him', 'wc-buckaroo-bpe-gateway') => GENDER_MALE,
-		__('She/her', 'wc-buckaroo-bpe-gateway') => GENDER_FEMALE,
-		__('They/them', 'wc-buckaroo-bpe-gateway') => GENDER_OTHER,
-		__('I prefer not to say', 'wc-buckaroo-bpe-gateway') => GENDER_NOT_SPECIFIED
+		'male' => $GENDER_MALE,
+		'female' => $GENDER_FEMALE,
+		'they' => $GENDER_OTHER,
+		'unknown' => $GENDER_NOT_SPECIFIED
 	];
 	$allGenders['buckaroo-klarnakp'] = [
-		__('He/him', 'wc-buckaroo-bpe-gateway') => GENDER_MALE,
-		__('She/her', 'wc-buckaroo-bpe-gateway') => GENDER_FEMALE
+		'male' => $GENDER_MALE,
+		'female' => $GENDER_FEMALE
 	];
 	$allGenders['buckaroo-klarnapay'] = [
-		__('He/him', 'wc-buckaroo-bpe-gateway') => GENDER_MALE,
-		__('She/her', 'wc-buckaroo-bpe-gateway') => GENDER_FEMALE
+		'male' => $GENDER_MALE,
+		'female' => $GENDER_FEMALE
 	];
 	$allGenders['buckaroo-klarnapii'] = [
-		__('He/him', 'wc-buckaroo-bpe-gateway') => GENDER_MALE,
-		__('She/her', 'wc-buckaroo-bpe-gateway') => GENDER_FEMALE
+		'male' => $GENDER_MALE,
+		'female' => $GENDER_FEMALE
 	];
 
+
 	return $allGenders;
+}
+
+function translateGender($genderKey) {
+	switch ($genderKey) {
+		case 'male':
+			return __('He/him', 'wc-buckaroo-bpe-gateway');
+		case 'female':
+			return __('She/her', 'wc-buckaroo-bpe-gateway');
+		case 'they':
+			return __('They/them', 'wc-buckaroo-bpe-gateway');
+		case 'unknown':
+			return __('I prefer not to say', 'wc-buckaroo-bpe-gateway');
+		default:
+			return $genderKey;
+	}
 }

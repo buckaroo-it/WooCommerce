@@ -1,11 +1,21 @@
 import React from 'react';
 
 const GenderDropdown = ({ paymentMethod, genders, onSelectGender }) => {
+    const translateGender = (key) => {
+        const translations = {
+            'male': 'He/him',
+            'female': 'She/her',
+            'they': 'They/them',
+            'unknown': 'I prefer not to say'
+        };
+        return translations[key] || key;
+    };
+
     let genderOptions = ``;
 
     genderOptions = Object.entries(genders[paymentMethod]).map(([key, value]) => (
-        <option key={value} value={value}>
-            {key}
+        <option value={value}>
+            {translateGender(key)}
         </option>
     ));
 
