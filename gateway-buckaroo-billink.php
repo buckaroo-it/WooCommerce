@@ -48,9 +48,10 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
              ) {
                 wc_add_notice(__("Please enter correct birth date", 'wc-buckaroo-bpe-gateway'), 'error');
             }
-            if(!in_array($this->request('buckaroo-billink-gender'), ["Male","Female","Unknown"])) {
-                wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
-            }
+
+	        if (!in_array($this->request('buckaroo-billink-gender'), ["0", "1", "2", "9"])) {
+		        wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
+	        }
         }
 
         if ($this->request("buckaroo-billink-accept") === null) {
