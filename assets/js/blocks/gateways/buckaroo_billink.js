@@ -14,10 +14,6 @@ const Billink = ({genders, billingData, onBirthdateChange, onSelectGender,onChec
         onCheckboxChange(isChecked)
     };
 
-    const handleBirthdateChange = (date) => {
-        onBirthdateChange(date);
-    };
-
     const handleSelectGender = (selectedGender) => {
         setGender(selectedGender);
         onSelectGender(selectedGender)
@@ -26,7 +22,7 @@ const Billink = ({genders, billingData, onBirthdateChange, onSelectGender,onChec
     return (
         <div id="buckaroo_billink_b2c">
             <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={handleSelectGender}></GenderDropdown>
-            <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={handleBirthdateChange}/>
+            <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={onBirthdateChange}/>
             <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={handleTermsCheckboxChange}
                                         billingData={billingData}/>
             <FinancialWarning paymentMethod={paymentMethod}></FinancialWarning>

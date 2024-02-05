@@ -518,7 +518,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if (!isset($_POST[$key])) {
            return;
         }
-//        var_dump($_POST);
         $value = map_deep( $_POST[$key], 'sanitize_text_field' );
         if (is_string($value) && strlen($value) === 0) {
             return;

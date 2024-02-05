@@ -109,22 +109,10 @@ function buckaroo_payment_setup_scripts()
         )
     );
 
-	wp_enqueue_script('my-block-script', 'assets/js/dist/blocks.js', array('wp-blocks', 'wp-element'));
+	wp_enqueue_script('buckaroo-block-script', 'assets/js/dist/blocks.js', array('wp-blocks', 'wp-element'));
 }
 add_action('wp_enqueue_scripts', 'buckaroo_payment_frontend_scripts');
 
-function get_ideal_issuers() {
-    return BuckarooIDeal::getIssuerList();
-}
-
-function get_paybybank_issuers() {
-    return BuckarooPayByBank::getIssuerList();
-}
-
-function get_active_issuer_code()
-{
-    return BuckarooPayByBank::getActiveIssuerCode();
-}
 
 function get_type() {
 	return (new WC_Gateway_Buckaroo_Afterpay())->type;
@@ -138,13 +126,22 @@ function get_credtCard_is_secure() {
 
 /**
  * Check if payment gateway is ours
- *
  * @param string $name
- *
  * @return boolean
  */
 function isBuckarooPayment(string $name): bool {
-	return str_starts_with( $name, 'buckaroo' );
+	return starts_with($name, 'buckaroo' );
+}
+
+/**
+ * Check if a string starts with a specific prefix
+ *
+ * @param string $haystack
+ * @param string $needle
+ * @return bool
+ */
+function starts_with(string $haystack, string $needle): bool {
+    return strncmp($haystack, $needle, strlen($needle)) === 0;
 }
 
 function get_woocommerce_payment_methods(): array {
@@ -162,12 +159,12 @@ function get_woocommerce_payment_methods(): array {
                 'title' => $gateway->get_title(),
                 'description' => $gateway->description,
                 'image_path' => $gateway->getIcon(),
-                'idealIssuers' => get_ideal_issuers(),
-                'payByBankIssuers' => get_paybybank_issuers(),
+                'idealIssuers' => BuckarooIDeal::getIssuerList(),
+                'payByBankIssuers' => BuckarooPayByBank::getIssuerList(),
                 'creditCardIssuers' => getCreditcardsProviders(),
-                'payByBankSelectedIssuer' => get_active_issuer_code(),
+                'payByBankSelectedIssuer' => BuckarooPayByBank::getActiveIssuerCode(),
                 'displayMode' => $gateway->get_option('displaymode'),
-                'selectedIssuer' => get_ideal_issuers(),
+                'selectedIssuer' => BuckarooIDeal::getIssuerList(),
                 'buckarooImagesUrl' => plugin_dir_url(__FILE__) . 'library/buckaroo_images/',
                 'creditCardsMethod' => getCreditCardsMethod(),
                 'creditCardsIsSecure' => getCreditCardsIsSecure(),

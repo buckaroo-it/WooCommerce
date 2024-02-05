@@ -29,9 +29,6 @@ const AfterPayView = ({
         onCheckboxChange(isChecked);
     };
 
-    const handleBirthdateChange = (date) => {
-        onBirthdateChange(date);
-    };
     const handleCocInput = (input) => {
         onCocInput(input);
     };
@@ -69,7 +66,7 @@ const AfterPayView = ({
                 </div>
             )
             }
-            <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={handleBirthdateChange}/>
+            <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={onBirthdateChange}/>
 
             {b2b === 'enable' && type === 'afterpaydigiaccept' && (
                 <div>

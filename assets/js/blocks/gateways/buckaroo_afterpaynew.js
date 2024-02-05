@@ -17,16 +17,13 @@ const AfterPayNew = ({customer_type, onCheckboxChange, billingData, onBirthdateC
             onCheckboxChange(isChecked)
         };
 
-        const handleBirthdateChange = (date) => {
-            onBirthdateChange(date);
-        };
         return (
             <div>
                 <PhoneDropdown paymentMethod={paymentMethod} billingData={billingData} onPhoneNumberChange={onPhoneNumberChange}></PhoneDropdown>
 
                 {(billingData.country === 'BE' || billingData.country === 'NL') && (
                     <div>
-                        <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={handleBirthdateChange} />
+                        <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={onBirthdateChange} />
                     </div>
                 )}
 

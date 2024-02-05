@@ -4,17 +4,13 @@ import FinancialWarning from "../partials/buckaroo_financial_warning";
 const In3 = ({onBirthdateChange , billingData}) => {
     const paymentMethod = 'buckaroo-in3';
 
-    const handleBirthdateChange = (date) => {
-        onBirthdateChange(date);
-    };
-
 
     return (
         <div>
             {billingData.country === "NL" &&
                 <BirthDayField
                     paymentMethod={paymentMethod}
-                    onBirthdateChange={handleBirthdateChange}
+                    onBirthdateChange={onBirthdateChange}
                 />
             }
             <FinancialWarning paymentMethod={paymentMethod}></FinancialWarning>

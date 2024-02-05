@@ -2,7 +2,7 @@ import React from 'react';
 
 const GenderDropdown = ({ paymentMethod, genders, onSelectGender }) => {
     let genderOptions = ``;
-    // Render options based on the payment method
+
     genderOptions = Object.entries(genders[paymentMethod]).map(([key, value]) => (
         <option key={value} value={value}>
             {key}
