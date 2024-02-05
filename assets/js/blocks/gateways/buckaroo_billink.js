@@ -23,8 +23,7 @@ const Billink = ({ config,callbacks }) => {
         <div id="buckaroo_billink_b2c">
             <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={onSelectGender}></GenderDropdown>
             <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={onBirthdateChange}/>
-            <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={onCheckboxChange}
-                                        billingData={billingData}/>
+            <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={onCheckboxChange} billingData={billingData}/>
             <FinancialWarning paymentMethod={paymentMethod}></FinancialWarning>
         </div>
     );

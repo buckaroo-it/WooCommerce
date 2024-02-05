@@ -25,7 +25,7 @@ const AfterPayNew = ({ config,callbacks }) => {
         <div>
             <PhoneDropdown paymentMethod={paymentMethod} billingData={billingData} onPhoneNumberChange={onPhoneNumberChange} />
 
-            {(billingData.country === 'BE' || billingData.country === 'NL') && (
+            {(['BE', 'NL', 'DE'].includes(billingData.country)) && (
                 <div>
                     <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={onBirthdateChange} />
                 </div>
