@@ -166,8 +166,6 @@ function get_woocommerce_payment_methods(): array {
                 'displayMode' => $gateway->get_option('displaymode'),
                 'selectedIssuer' => BuckarooIDeal::getIssuerList(),
                 'buckarooImagesUrl' => plugin_dir_url(__FILE__) . 'library/buckaroo_images/',
-                'creditCardsMethod' => getCreditCardsMethod(),
-                'creditCardsIsSecure' => getCreditCardsIsSecure(),
                 'creditCardMethod' => $gateway->get_option('encrypt'),
                 'customer_type' => $gateway->customer_type,
                 'b2b' => $gateway->b2b,
@@ -177,6 +175,9 @@ function get_woocommerce_payment_methods(): array {
                 'buckarooIdin' => BuckarooIdin::checkCurrentUserIsVerified(),
                 'lastPayByBankIssuer' => BuckarooPayByBank::getActiveIssuerCode(),
 			);
+			if($gateway_id == 'buckaroo_creditcard'){
+				$payment_methods[$gateway_id]['creditCardMethod'] = $gateway->getCreditcardmethod();
+			}
         }
 	}
 	wp_localize_script('buckaroo-blocks', 'buckaroo_gateways', $payment_methods);

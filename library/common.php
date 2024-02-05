@@ -812,22 +812,6 @@ function getCreditcardsProviders()
     return $creditcard->getCardsList();
 }
 
-function getCreditCardsIsSecure()
-{
-    $paymentgateways = WC_Payment_Gateways::instance();
-    $creditcard      = $paymentgateways->payment_gateways()['buckaroo_creditcard'];
-
-    return $creditcard->isSecure();
-}
-
-function getCreditCardsMethod()
-{
-    $paymentgateways = WC_Payment_Gateways::instance();
-    $creditcard      = $paymentgateways->payment_gateways()['buckaroo_creditcard'];
-
-    return $creditcard->getCreditcardmethod();
-}
-
 function checkCreditcardProvider($creditcardProvider)
 {
     $creditcardsProvidersList = getCreditcardsProviders();
@@ -1188,10 +1172,10 @@ function getAllGendersForPaymentMethods(): array {
 		'unknown' => $GENDER_NOT_SPECIFIED
 	];
 	$allGenders['buckaroo-billink'] = [
-		'male' => $GENDER_MALE,
-		'female' => $GENDER_FEMALE,
-		'they' => $GENDER_OTHER,
-		'unknown' => $GENDER_NOT_SPECIFIED
+		'male' => 'Male',
+		'female' => 'Female',
+		'they' => 'Unknown',
+		'unknown' => 'Unknown'
 	];
 	$allGenders['buckaroo-klarnakp'] = [
 		'male' => $GENDER_MALE,
