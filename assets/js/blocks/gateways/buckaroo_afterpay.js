@@ -1,24 +1,30 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field';
-import FinancialWarning from "../partials/buckaroo_financial_warning";
-import TermsAndConditionsCheckbox from "../partials/buckaroo_terms_and_condition";
+import FinancialWarning from '../partials/buckaroo_financial_warning';
+import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition';
 import AfterPayB2B from '../partials/buckaroo_afterpay_b2b';
-import PhoneDropdown from "../partials/buckaroo_phone";
-import {__} from "@wordpress/i18n";
+import PhoneDropdown from '../partials/buckaroo_phone';
+import { __ } from '@wordpress/i18n';
 
-const AfterPayView = ({
-                          b2b,
-                          type,
-                          billingData,
-                          onPhoneNumberChange,
-                          onCheckboxChange,
-                          onBirthdateChange,
-                          onCocInput,
-                          onCompanyInput,
-                          onAccountName,
-                          onCocRegistrationChange,
-                          onAdditionalCheckboxChange
-                      }) => {
+const AfterPayView = ({ config,callbacks }) => {
+
+    const {
+        paymentInfo,
+        type,
+        billingData
+    } = config;
+
+    const {
+        onPhoneNumberChange,
+        onCheckboxChange,
+        onBirthdateChange,
+        onCocInput,
+        onCompanyInput,
+        onAccountName,
+        onCocRegistrationChange,
+        onAdditionalCheckboxChange,
+    }= callbacks;
+
     const paymentMethod = 'buckaroo-afterpay';
     const [isAdditionalCheckboxChecked, setIsAdditionalCheckboxChecked] = useState(false);
     const [isTermsAccepted, setIsTermsAccepted] = useState(false);
@@ -31,6 +37,7 @@ const AfterPayView = ({
     const handleCocInput = (input) => {
         onCocInput(input);
     };
+
     const handleCompanyInput = (input) => {
         onCompanyInput(input);
     };
@@ -46,8 +53,7 @@ const AfterPayView = ({
 
     return (
         <div>
-            <PhoneDropdown paymentMethod={paymentMethod} billingData={billingData}
-                           onPhoneNumberChange={onPhoneNumberChange}></PhoneDropdown>
+            <PhoneDropdown paymentMethod={paymentMethod} billingData={billingData} onPhoneNumberChange={onPhoneNumberChange} />
             {type === 'afterpayacceptgiro' && (
                 <div className="form-row form-row-wide validate-required">
                     <label htmlFor="buckaroo-afterpay-company-coc-registration">
@@ -65,11 +71,10 @@ const AfterPayView = ({
                         }}
                     />
                 </div>
-            )
-            }
-            <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={onBirthdateChange}/>
+            )}
+            <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={onBirthdateChange} />
 
-            {b2b === 'enable' && type === 'afterpaydigiaccept' && (
+            {paymentInfo.b2b === 'enable' && paymentInfo.type === 'afterpaydigiaccept' && (
                 <div>
                     <div className="form-row form-row-wide validate-required">
                         <label htmlFor="buckaroo-afterpay-b2b">
@@ -82,14 +87,15 @@ const AfterPayView = ({
                             />
                         </label>
                     </div>
-                    {isAdditionalCheckboxChecked &&
-                        <AfterPayB2B onCocInput={handleCocInput} onCompanyInput={handleCompanyInput}
-                                     onAccountName={handleAccount}/>}
+                    {isAdditionalCheckboxChecked && <AfterPayB2B onCocInput={handleCocInput} onCompanyInput={handleCompanyInput} onAccountName={handleAccount} />}
                 </div>
             )}
-            <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={handleTermsCheckboxChange}
-                                        billingData={billingData}/>
-            <FinancialWarning paymentMethod={paymentMethod}/>
+            <TermsAndConditionsCheckbox
+                paymentMethod={paymentMethod}
+                onCheckboxChange={handleTermsCheckboxChange}
+                billingData={billingData}
+            />
+            <FinancialWarning paymentMethod={paymentMethod} />
         </div>
     );
 };

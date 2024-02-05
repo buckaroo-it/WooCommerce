@@ -28,7 +28,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     const [selectedIssuer, setSelectedIssuer] = useState('');
     const [dob, setDob] = useState('');
     const [selectedGender, setSelectedGender] = useState('');
-    const [termsAndConditions, setTermsAndConditions] = useState('Off');
+    const [termsAndConditions, setTermsAndConditions] = useState(null);
     const [accountName, setAccountName] = useState('');
     const [iban, setIban] = useState('');
     const [bic, setBic] = useState('');
@@ -76,7 +76,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
                 [`${methodName}-company-name`]: companyName,
                 [`${methodName}-issuer`]: selectedIssuer,
                 [`${methodName}-birthdate`]: dob,
-                [`${methodName}-accept`]: termsAndConditions,
+                ...(termsAndConditions !== null && {[`${methodName}-accept`]: termsAndConditions}),
                 [`${methodName}-gender`]: selectedGender,
                 [`${methodName}-iban`]: iban,
                 [`${methodName}-accountname`]: accountName,
@@ -127,49 +127,59 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     if (!PaymentComponent) {
         return <div>Loading...</div>;
     }
-    return (<div className='container'>
-        <span className='description'>{gateway.description}</span>
-        <span className='descriptionError'>{errorMessage}</span>
-        <PaymentComponent
-            paymentName={gateway.paymentMethodId}
-            idealIssuers={gateway.idealIssuers}
-            payByBankIssuers={gateway.payByBankIssuers}
-            payByBankSelectedIssuer={gateway.payByBankSelectedIssuer}
-            billingData={billing.billingAddress}
-            displayMode={gateway.displayMode}
-            buckarooImagesUrl={gateway.buckarooImagesUrl}
-            genders={gateway.genders}
-            creditCardIssuers={gateway.creditCardIssuers}
-            creditCardIsSecure={gateway.creditCardIsSecure}
-            creditCardMethod={gateway.creditCardMethod}
-            b2b={gateway.b2b}
-            type={gateway.type}
-            customer_type={gateway.customer_type}
-            onSelectCc={setCreditCard}
-            onSelectIssuer={setSelectedIssuer}
-            onSelectGender={(gender) => setSelectedGender(gender)}
-            onBirthdateChange={(date) => setDob(date)}
-            onCheckboxChange={(check) => setTermsAndConditions(check)}
-            onAccountName={(accountName) => setAccountName(accountName)}
-            onIbanChange={(iban) => setIban(iban)}
-            onBicChange={(bic) => setBic(bic)}
-            onFirstNameChange={(firstName) => setFirstName(firstName)}
-            onPhoneNumberChange={(phoneNumber) => setPhoneNumber(phoneNumber)}
-            onLastNameChange={(lastName) => setLastName(lastName)}
-            onCardNameChange={(cardName) => setCardNameChange(cardName)}
-            onCardNumberChange={(cardNumber) => setCardNumberChange(cardNumber)}
-            onCardMonthChange={(cardMonth) => setCardMonthChange(cardMonth)}
-            onCardYearChange={(cardYear) => setCardYearChange(cardYear)}
-            onCardCVCChange={(cardCVC) => setCardCVCChange(cardCVC)}
-            onEmailChange={(email) => setEmail(email)}
-            onCocInput={(cocNumber) => setCocNumber(cocNumber)}
-            onCocRegistrationChange={(cocRegistration) => setCocRegistrationChange(cocRegistration)}
-            onEncryptedDataChange={(encryptedData) => setEncryptedDataChange(encryptedData)}
-            onIdentificationNumber={(identificationNumber) => setIdentificationNumber(identificationNumber)}
-            onCompanyInput={(companyName) => setCompanyName(companyName)}
-            onAdditionalCheckboxChange={(additionalCheckboxChange) => setAdditionalCheckboxChange(additionalCheckboxChange)}
-        />
-    </div>);
+    const paymentConfig = {
+        paymentInfo: {
+            paymentName: gateway.paymentMethodId,
+            idealIssuers: gateway.idealIssuers,
+            payByBankIssuers: gateway.payByBankIssuers,
+            payByBankSelectedIssuer: gateway.payByBankSelectedIssuer
+        },
+        billingData: billing.billingAddress,
+        displayMode: gateway.displayMode,
+        buckarooImagesUrl: gateway.buckarooImagesUrl,
+        genders: gateway.genders,
+        creditCardIssuers: gateway.creditCardIssuers,
+        creditCardIsSecure: gateway.creditCardIsSecure,
+        creditCardMethod: gateway.creditCardMethod,
+        b2b: gateway.b2b,
+        type: gateway.type,
+        customer_type: gateway.customer_type,
+    };
+
+    const paymentCallbacks = {
+        onSelectCc: setCreditCard,
+        onSelectIssuer: setSelectedIssuer,
+        onSelectGender: setSelectedGender,
+        onBirthdateChange: setDob,
+        onCheckboxChange: setTermsAndConditions,
+        onAccountName: setAccountName,
+        onIbanChange: setIban,
+        onBicChange: setBic,
+        onFirstNameChange: setFirstName,
+        onPhoneNumberChange: setPhoneNumber,
+        onLastNameChange: setLastName,
+        onCardNameChange: setCardNameChange,
+        onCardNumberChange: setCardNumberChange,
+        onCardMonthChange: setCardMonthChange,
+        onCardYearChange: setCardYearChange,
+        onCardCVCChange: setCardCVCChange,
+        onEmailChange: setEmail,
+        onCocInput: setCocNumber,
+        onCocRegistrationChange: setCocRegistrationChange,
+        onEncryptedDataChange: setEncryptedDataChange,
+        onIdentificationNumber: setIdentificationNumber,
+        onCompanyInput: setCompanyName,
+        onAdditionalCheckboxChange: setAdditionalCheckboxChange,
+    };
+
+
+    return (
+        <div className='container'>
+            <span className='description'>{gateway.description}</span>
+            <span className='descriptionError'>{errorMessage}</span>
+            <PaymentComponent config={paymentConfig} callbacks={paymentCallbacks} />
+        </div>
+    );
 }
 
 const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
