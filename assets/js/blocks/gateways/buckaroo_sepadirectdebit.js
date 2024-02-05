@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 import {__} from "@wordpress/i18n";
 
-const SepaDirectDebitForm = ({ onAccountName, onIbanChange, onBicChange }) => {
+const SepaDirectDebitForm = ({ config,callbacks }) => {
 
+    const {
+        billingData,
+    } = config;
+
+    const {
+        onIbanChange,
+        onBicChange
+    }= callbacks;
     return (
         <div>
             <div className="form-row form-row-wide validate-required">
@@ -17,6 +25,7 @@ const SepaDirectDebitForm = ({ onAccountName, onIbanChange, onBicChange }) => {
                     type="text"
                     maxLength="250"
                     autoComplete="off"
+                    value={`${billingData.first_name} ${billingData.last_name}`}
                     onChange={(e) => onAccountName(e.target.value)}
                 />
             </div>

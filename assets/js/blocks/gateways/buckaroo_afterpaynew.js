@@ -9,7 +9,8 @@ const AfterPayNew = ({ config,callbacks }) => {
 
     const {
         paymentInfo,
-        billingData
+        billingData,
+        customer_type
     } = config;
 
     const {
