@@ -9,10 +9,6 @@ class BuckarooConfig extends BuckarooConfigCore {
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
     const VERSION = '3.10.0';
     const SHIPPING_SKU = "WC8888";
-    const IN3_VERSION3 = 'v3';
-    const IN3_VERSION2 = 'v2';
-    const IN3_V2_TITLE = 'In3';
-    const IN3_V3_TITLE = 'iDEAL In3';
 
     private static $idinCategories;
 

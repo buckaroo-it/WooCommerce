@@ -12,7 +12,10 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     const PAYMENT_CLASS = BuckarooIn3::class;
     public const DEFAULT_ICON_VALUE = 'defaultIcon';
     public const VERSION_FLAG = 'buckaroo_in3_version';
-
+    public const VERSION3 = 'v3';
+    public const VERSION2 = 'v2';
+    public const IN3_V2_TITLE = 'In3';
+    public const IN3_V3_TITLE = 'iDEAL In3';
 
     public $type;
     public $vattype;
@@ -24,7 +27,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         $this->method_title           = 'Buckaroo In3';
 
         $api_version = $this->get_option('api_version');
-        $this->title = $api_version === BuckarooConfig::IN3_VERSION2 ? BuckarooConfig::IN3_V2_TITLE : BuckarooConfig::IN3_V3_TITLE;
+        $this->title = $api_version === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
 
         $this->setCountry();
 
@@ -93,7 +96,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             $version
         );
 
-        if ($version === BuckarooConfig::IN3_VERSION2) {
+        if ($version === self::VERSION2) {
             return $this->pay_with_v2($order);
         }
 
@@ -191,10 +194,10 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             'type'        => 'select',
             'description' => __('Chose the api version for this payment method.', 'wc-buckaroo-bpe-gateway'),
             'options'     => array(
-	            BuckarooConfig::IN3_VERSION3 => __('V3 (iDEAL In3)'),
-	            BuckarooConfig::IN3_VERSION2 => __('V2 (Capayabel/In3)'),
+                self::VERSION3 => __('V3 (iDEAL In3)'),
+                self::VERSION2 => __('V2 (Capayabel/In3)'),
             ),
-            'default'     => BuckarooConfig::IN3_VERSION3
+            'default'     => self::VERSION3
         );
 
         $this->form_fields['icon'] = array(
@@ -283,14 +286,14 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             );
 
             
-            if ($orderIn3Version === BuckarooConfig::IN3_VERSION3) {
+            if ($orderIn3Version === self::VERSION3) {
                 return BuckarooIn3::class;
             }
             return BuckarooIn3v2::class;
         }
 
         if (
-            $this->get_option('api_version') === BuckarooConfig::IN3_VERSION2
+            $this->get_option('api_version') === self::VERSION2
         ) {
             return BuckarooIn3v2::class;
         }
