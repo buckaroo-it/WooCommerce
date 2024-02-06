@@ -388,7 +388,12 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 
         //Payperemail response
         if(fn_process_response_payperemail($payment_method, $response)){
-            return;
+            $message = 'Email sent successfully.<br>';
+            $order->add_order_note($message);
+            return array(
+                'result'   => 'success',
+                'redirect' => $payment_method->get_return_url($order),
+            );
         }
 
         if($order->get_payment_method() == 'buckaroo_klarnakp') {
