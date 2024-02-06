@@ -849,7 +849,7 @@ function getClientIpBuckaroo()
 
 function roundAmount($amount) {
     if(is_scalar($amount)) {
-        return round(floatval($amount), 2);
+	    return (float) number_format($amount, 2 );
     }
     return 0;
 }
@@ -978,9 +978,9 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                 $prefix     = "buckaroo_settlement_";
                 $settlement = $prefix . $response->payment;
 
-                $orderAmount            = (float) $order->get_total();
-                $paidAmount             = (float) $response->amount;
-                $alreadyPaidSettlements = 0;
+	            $orderAmount = (float) number_format( $order->get_total(), 2 );
+	            $paidAmount = (float) number_format( $response->amount, 2 );
+	            $alreadyPaidSettlements = 0;
                 $isNewPayment           = true;
                 if ($items = get_post_meta($order_id)) {
                     foreach ($items as $key => $meta) {
