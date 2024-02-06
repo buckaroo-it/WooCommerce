@@ -431,21 +431,25 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 
             Buckaroo_Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
             Buckaroo_Logger::log('||| infoLog ' . $response->status);
-            if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
-                //We receive a valid response that the payment is canceled/failed.
-                Buckaroo_Logger::log('Update status 4. Order status: failed');
-                $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
-            } else {
-                Buckaroo_Logger::log('Order status cannot be changed.');
-            }
+
             if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
-                Buckaroo_Logger::log('Update status 5. Order status: cancelled');
                 if ($response->statuscode != BuckarooAbstract::CODE_CANCELLED_BY_USER && $response->statuscode != BuckarooAbstract::CODE_REJECTED){
+
+                    if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
+                        //We receive a valid response that the payment is canceled/failed.
+                        Buckaroo_Logger::log('Update status 4. Order status: failed');
+                        $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
+                    } else {
+                        Buckaroo_Logger::log('Order status cannot be changed.');
+                    }
+
                     if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled'))) {
+                        Buckaroo_Logger::log('Update status 5. Order status: cancelled');
                         $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                     } else {
                         Buckaroo_Logger::log('Push message. Order status cannot be changed.');
                     }
+
                 }else{
                     if ($order->get_status() != 'on-hold') {
                         $order->update_status('on-hold', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
