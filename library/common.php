@@ -441,7 +441,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             Buckaroo_Logger::log('||| infoLog ' . $response->status);
 
             if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
-                if ($response->statuscode != BuckarooAbstract::CODE_CANCELLED_BY_USER && $response->statuscode != BuckarooAbstract::CODE_REJECTED){
+                if ($response->statuscode != BuckarooAbstract::CODE_CANCELLED_BY_USER && $response->statuscode != BuckarooAbstract::CODE_REJECTED ){
 
                     if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                         //We receive a valid response that the payment is canceled/failed.
@@ -465,7 +465,8 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 }
                 wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
             } else {
-                if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
+
+                if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund')) && $response->statuscode != BuckarooAbstract::CODE_REJECTED) {
                     Buckaroo_Logger::log('Update status 6. Order status: failed');
                     $order->update_status('failed', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                 } else {
