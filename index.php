@@ -443,7 +443,7 @@ function buckaroo_init_gateway()
         $gateway = new WC_Gateway_Buckaroo_PayPerEmail();
         if (isset($gateway)) {
             $response = $gateway->process_payment($order->get_id());
-            wp_send_json($response);
+            wp_redirect($response);
         }
     }
     add_action( 'woocommerce_order_action_buckaroo_send_admin_payperemail', 'buckaroo_send_admin_payperemail', 10, 1 );
