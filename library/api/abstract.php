@@ -68,7 +68,7 @@ abstract class BuckarooAbstract {
         ),
         self::CODE_CANCELLED_BY_USER => array(
             'message' => 'Cancelled by consumer',
-            'status'  => self::STATUS_CANCELED,
+            'status'  => self::STATUS_ON_HOLD,
         ),
         self::CODE_CANCELLED_BY_MERCHANT => array(
             'message' => 'Cancelled by merchant',
