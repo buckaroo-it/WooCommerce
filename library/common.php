@@ -260,10 +260,12 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
             }
             if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
                 Buckaroo_Logger::log('Update status 3. Order status: cancelled');
-                if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled'))) {
-                    $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
-                } else {
-                    Buckaroo_Logger::log('Push message. Order status cannot be changed.');
+                if ($response->statuscode != BuckarooAbstract::CODE_CANCELLED_BY_USER){
+                    if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'cancelled'))) {
+                        $order->update_status('cancelled', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
+                    } else {
+                        Buckaroo_Logger::log('Push message. Order status cannot be changed.');
+                    }
                 }
                 wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
             } else {
