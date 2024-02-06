@@ -135,6 +135,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
     public function hasSucceeded()
     {
         //if isValid false return false
+        var_dump($this->status , ' status ');
         if ($this->isValid() && $this->isReceived()) {
             if (($this->status === self::STATUS_ON_HOLD) && ($this->payment_method == 'paypal')) {
                 return false;
