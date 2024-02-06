@@ -266,6 +266,8 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                     } else {
                         Buckaroo_Logger::log('Push message. Order status cannot be changed.');
                     }
+                }else{
+                    $order->update_status('on-hold', __($response->statusmessage, 'wc-buckaroo-bpe-gateway'));
                 }
                 wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
             } else {
