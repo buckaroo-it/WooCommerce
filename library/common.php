@@ -200,7 +200,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
     }
     $_SESSION['buckaroo_response'] = '';
     Buckaroo_Logger::log("Return start / fn_buckaroo_process_response_push");
-    Buckaroo_Logger::log("Payment Method" , $payment_method);
+    Buckaroo_Logger::log("Payment Method" , $payment_method->id);
     if ($response == '') {
         $response = BuckarooResponseFactory::getResponse();
     }
