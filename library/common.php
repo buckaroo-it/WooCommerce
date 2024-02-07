@@ -336,6 +336,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     if (!session_id()){
         @session_start();
     }
+    Buckaroo_Logger::log("fn_buckaroo_process_response:Payment Method" , $payment_method->id);
     $_SESSION['buckaroo_response'] = '';
     Buckaroo_Logger::log(" Return start / fn_buckaroo_process_response");
     Buckaroo_Logger::log("Server : " . var_export($_SERVER, true));
