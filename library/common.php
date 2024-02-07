@@ -252,7 +252,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         } else {
             if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
 
-                if (isStatusCodeValid($response->statuscode) && $payment_method->id !== 'buckaroo_payperemail') {
+                if (buckarooIsStatusCodeValid($response->statuscode) && $payment_method->id !== 'buckaroo_payperemail') {
                     if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                         //We receive a valid response that the payment is canceled/failed.
                         Buckaroo_Logger::log('Update status 2. Order status: failed');
@@ -443,7 +443,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 
 
             if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
-                if (isStatusCodeValid($response->statuscode) && $payment_method->id !== 'buckaroo_payperemail') {
+                if (buckarooIsStatusCodeValid($response->statuscode) && $payment_method->id !== 'buckaroo_payperemail') {
                     if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                         //We receive a valid response that the payment is canceled/failed.
                         Buckaroo_Logger::log('Update status 4. Order status: failed');
@@ -548,9 +548,8 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     }
 
 }
-function isStatusCodeValid($statusCode) {
-    $validStatusCodes = [BuckarooAbstract::CODE_CANCELLED_BY_USER, BuckarooAbstract::CODE_REJECTED];
-    return !in_array($statusCode, $validStatusCodes);
+function buckarooIsStatusCodeValid($statusCode) {
+    return !in_array($statusCode, [BuckarooAbstract::CODE_CANCELLED_BY_USER, BuckarooAbstract::CODE_REJECTED]);
 }
 
 function parsePPENewTransactionId($transactions)
