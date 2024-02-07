@@ -251,8 +251,8 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
             processPushTransactionSucceeded($order_id, $order, $response, $payment_method);
         } else {
             if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
-                if ($response->statuscode != BuckarooAbstract::CODE_CANCELLED_BY_USER && $response->statuscode != BuckarooAbstract::CODE_REJECTED && !($payment_method->id == 'buckaroo_payperemail')){
 
+                if (isStatusCodeValid($response->statuscode) && $payment_method->id !== 'buckaroo_payperemail') {
                     if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                         //We receive a valid response that the payment is canceled/failed.
                         Buckaroo_Logger::log('Update status 2. Order status: failed');
@@ -441,9 +441,9 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             Buckaroo_Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
             Buckaroo_Logger::log('||| infoLog ' . $response->status);
 
-            if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
-                if ($response->statuscode != BuckarooAbstract::CODE_CANCELLED_BY_USER && $response->statuscode != BuckarooAbstract::CODE_REJECTED && !($payment_method->id == 'buckaroo_payperemail')){
 
+            if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
+                if (isStatusCodeValid($response->statuscode) && $payment_method->id !== 'buckaroo_payperemail') {
                     if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                         //We receive a valid response that the payment is canceled/failed.
                         Buckaroo_Logger::log('Update status 4. Order status: failed');
@@ -547,6 +547,10 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         return;
     }
 
+}
+function isStatusCodeValid($statusCode) {
+    $validStatusCodes = [BuckarooAbstract::CODE_CANCELLED_BY_USER, BuckarooAbstract::CODE_REJECTED];
+    return !in_array($statusCode, $validStatusCodes);
 }
 
 function parsePPENewTransactionId($transactions)
