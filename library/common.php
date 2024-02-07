@@ -333,7 +333,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     $woocommerce = getWooCommerceObject();
     $wpdb        = getWpdbObject();
     require_once dirname(__FILE__) . '/api/paymentmethods/responsefactory.php';
-    if (!session_id()){
+    if (!session_id()) {
         @session_start();
     }
     Buckaroo_Logger::log("fn_buckaroo_process_response:Payment Method" , $payment_method->id);
