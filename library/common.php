@@ -200,6 +200,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
     }
     $_SESSION['buckaroo_response'] = '';
     Buckaroo_Logger::log("Return start / fn_buckaroo_process_response_push");
+    Buckaroo_Logger::log("Payment Method" , $payment_method);
     if ($response == '') {
         $response = BuckarooResponseFactory::getResponse();
     }
@@ -248,10 +249,9 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 
         if ($response->hasSucceeded()) {
             processPushTransactionSucceeded($order_id, $order, $response, $payment_method);
-
         } else {
             if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
-                if ($response->statuscode != BuckarooAbstract::CODE_CANCELLED_BY_USER && $response->statuscode != BuckarooAbstract::CODE_REJECTED){
+                if ($response->statuscode != BuckarooAbstract::CODE_CANCELLED_BY_USER && $response->statuscode != BuckarooAbstract::CODE_REJECTED && !($payment_method->id == 'buckaroo_payperemail')){
 
                     if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                         //We receive a valid response that the payment is canceled/failed.
@@ -441,7 +441,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             Buckaroo_Logger::log('||| infoLog ' . $response->status);
 
             if ($response->status == BuckarooAbstract::STATUS_CANCELED) {
-                if ($response->statuscode != BuckarooAbstract::CODE_CANCELLED_BY_USER && $response->statuscode != BuckarooAbstract::CODE_REJECTED ){
+                if ($response->statuscode != BuckarooAbstract::CODE_CANCELLED_BY_USER && $response->statuscode != BuckarooAbstract::CODE_REJECTED && !($payment_method->id == 'buckaroo_payperemail')){
 
                     if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                         //We receive a valid response that the payment is canceled/failed.
