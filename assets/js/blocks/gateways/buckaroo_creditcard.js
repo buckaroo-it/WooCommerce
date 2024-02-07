@@ -1,8 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import DefaultDropdown from "../partials/buckaroo_creditcard_dropdown";
 import {__} from "@wordpress/i18n";
-const CreditCard = ({ config,callbacks }) => {
+import encryptCardData from "../components/BuckarooClientSideEncryption";
 
+const CreditCard = ({ config, callbacks }) => {
     const {
         creditCardIssuers,
         creditCardMethod,
@@ -16,29 +17,35 @@ const CreditCard = ({ config,callbacks }) => {
         onCardYearChange,
         onCardCVCChange,
         onSelectCc,
-        onEncryptedDataChange
-    }= callbacks;
+        onEncryptedDataChange,
+    } = callbacks;
+
+    const [cardNumber, setCardNumber] = useState('');
+    const [cardName, setCardName] = useState('');
+    const [cardMonth, setCardMonth] = useState('');
+    const [cardYear, setCardYear] = useState('');
+    const [cardCVC, setCardCVC] = useState('');
 
     const paymentMethod = 'buckaroo-creditcard';
 
-    useEffect(() => {
-        const handleEncryptedDataChange = (event, encryptedData) => {
-            onEncryptedDataChange(encryptedData);
-        };
+    if(creditCardMethod === 'encrypt' && creditCardIsSecure === true) {
+        useEffect(() => {
+            const cardDetails = {cardNumber, cardName, cardMonth, cardYear, cardCVC};
 
-        document.addEventListener("encryptedDataChanged", handleEncryptedDataChange);
-
-        return () => {
-            document.removeEventListener("encryptedDataChanged", handleEncryptedDataChange);
-        };
-    }, [onEncryptedDataChange]);
-
+            encryptCardData(cardDetails, onEncryptedDataChange);
+        }, [cardNumber, cardName, cardMonth, cardYear, cardCVC, creditCardMethod,onEncryptedDataChange]);
+    }
     return (
         <div>
 
             <p className="form-row form-row-wide">
-                <DefaultDropdown paymentMethod={paymentMethod} creditCardIssuers={creditCardIssuers}
-                                 onSelectCc={onSelectCc}></DefaultDropdown>
+                <DefaultDropdown
+                    paymentMethod={paymentMethod}
+                    creditCardIssuers={creditCardIssuers}
+                    onSelectCc={(selectedIssuer) => {
+                        onSelectCc(selectedIssuer);
+                    }}
+                />
             </p>
 
             {creditCardMethod === 'encrypt' && creditCardIsSecure === true && (
@@ -58,7 +65,10 @@ const CreditCard = ({ config,callbacks }) => {
                             className="cardHolderName input-text"
                             maxLength="250"
                             autoComplete="off"
-                            onChange={(e) => onCardNameChange(e.target.value)}
+                            onChange={(e) => {
+                                setCardName(e.target.value);
+                                onCardNameChange(e.target.value);
+                            }}
                         />
 
                     </div>
@@ -77,7 +87,10 @@ const CreditCard = ({ config,callbacks }) => {
                             className="cardNumber input-text"
                             maxLength="250"
                             autoComplete="off"
-                            onChange={(e) => onCardNumberChange(e.target.value)}
+                            onChange={(e) => {
+                                setCardNumber(e.target.value);
+                                onCardNumberChange(e.target.value);
+                            }}
                         />
                     </div>
 
@@ -95,7 +108,10 @@ const CreditCard = ({ config,callbacks }) => {
                             placeholder={__('Expiration Month:', 'wc-buckaroo-bpe-gateway')}
                             className="expirationMonth input-text"
                             autoComplete="off"
-                            onChange={(e) => onCardMonthChange(e.target.value)}
+                            onChange={(e) => {
+                                setCardMonth(e.target.value);
+                                onCardMonthChange(e.target.value);
+                            }}
                         />
                     </div>
 
@@ -112,7 +128,10 @@ const CreditCard = ({ config,callbacks }) => {
                             placeholder={__('Expiration Year:', 'wc-buckaroo-bpe-gateway')}
                             className="expirationYear input-text"
                             autoComplete="off"
-                            onChange={(e) => onCardYearChange(e.target.value)}
+                            onChange={(e) => {
+                                setCardYear(e.target.value);
+                                onCardYearChange(e.target.value);
+                            }}
                         />
                     </div>
 
@@ -129,7 +148,10 @@ const CreditCard = ({ config,callbacks }) => {
                             placeholder={__('CVC:', 'wc-buckaroo-bpe-gateway')}
                             className="cvc input-text"
                             autoComplete="off"
-                            onChange={(e) => onCardCVCChange(e.target.value)}
+                            onChange={(e) => {
+                                setCardCVC(e.target.value);
+                                onCardCVCChange(e.target.value);
+                            }}
                         />
                     </div>
 
@@ -137,12 +159,6 @@ const CreditCard = ({ config,callbacks }) => {
                     <div className="required" style={{float: 'right'}}>*
                         {__('Required', 'wc-buckaroo-bpe-gateway')}
                     </div>
-                    <input
-                        type="hidden"
-                        id={`${paymentMethod}-encrypted-data`}
-                        name={`${paymentMethod}-encrypted-data`}
-                        className="encryptedCardData input-text"
-                    />
                 </div>
             )}
         </div>

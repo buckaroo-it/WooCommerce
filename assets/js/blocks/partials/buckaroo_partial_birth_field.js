@@ -19,7 +19,7 @@ const BirthDayField = ({ paymentMethod, onBirthdateChange }) => {
     };
 
     return (
-        <div className="form-row form-row-wide validate-required buckaroo_partial_birth_field">
+        <div className="form-row form-row-wide validate-required">
             <label htmlFor={`${paymentMethod}-birthdate`}>
                 {__('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway')}
                 <span className="required">*</span>

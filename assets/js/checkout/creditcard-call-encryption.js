@@ -1,15 +1,6 @@
 import BuckarooClientSideEncryption from "./creditcard-encryption-sdk";
 class BuckarooValidateCreditCards {
-    constructor() {
-        this.initializeForm();
-    }
-
-    initializeForm() {
-        this.form = jQuery('.wc-block-components-form').length > 0
-            ? jQuery('.wc-block-components-form')
-            : jQuery('form[name=checkout]');
-    }
-
+    form = jQuery('form[name=checkout]');
     validator = BuckarooClientSideEncryption.V001;
 
     listen() {
@@ -41,12 +32,12 @@ class BuckarooValidateCreditCards {
             );
         }),
 
-        this.form.on('input', ".expirationMonth", function(e) {
-            self.toggleClasses(
-                validator.validateMonth(e.target.value),
-                e.target
-            );
-        });
+            this.form.on('input', ".expirationMonth", function(e) {
+                self.toggleClasses(
+                    validator.validateMonth(e.target.value),
+                    e.target
+                );
+            });
         this.form.submit(this.submit.bind(this));
     };
 
@@ -59,19 +50,9 @@ class BuckarooValidateCreditCards {
         this.submit();
     };
 
-    getParentElement() {
-        let radioControlOption = jQuery('input[name="radio-control-wc-payment-method-options"]:checked');
-        if (radioControlOption.length > 0) {
-            return radioControlOption.parent().parent();
-        }
-
-        return jQuery('input[name="payment_method"]:checked').parent();
-    }
-
     submit(e) {
         let self = this;
-        let parent = this.getParentElement();
-
+        let parent = jQuery('input[name="payment_method"]:checked').parent();
         let cardNumber = parent.find(".cardNumber").val();
         let cvc = parent.find(".cvc").val();
         let cardHolderName = parent.find(".cardHolderName").val();
@@ -95,7 +76,6 @@ class BuckarooValidateCreditCards {
             cardholder,
             function(encryptedCardData) {
                 parent.find(".encryptedCardData").val(encryptedCardData);
-                jQuery(document).trigger("encryptedDataChanged", [encryptedCardData]);
             });
     }
 };

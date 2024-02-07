@@ -16,7 +16,7 @@ defined('ABSPATH') || exit;
 
 $section_id = str_replace("_", "-", $this->id);
 
-$allGenders = getAllGendersForPaymentMethods();
+$allGenders = BuckarooConfig::getAllGendersForPaymentMethods();
 $genderVal = $allGenders[$section_id] ?? [];
 ?>
 <p class="form-row">
@@ -27,7 +27,7 @@ $genderVal = $allGenders[$section_id] ?? [];
     <select name="<?php echo esc_attr($section_id)?>-gender" id="<?php echo esc_attr($section_id)?>-gender">
         <?php
             foreach ($genderVal as $key => $value) {
-	            $translatedLabel = translateGender($key);
+	            $translatedLabel = BuckarooConfig::translateGender($key);
 	            echo '<option value="' . esc_attr($value) . '">' . esc_html($translatedLabel) . '</option>';
             }
         ?>

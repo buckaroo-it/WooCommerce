@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 const PayByBankDropdown =({ config,callbacks }) => {
 
     const {
-        payByBankIssuers,
+        paymentInfo,
         buckarooImagesUrl,
         displayMode
     } = config;
@@ -28,9 +28,9 @@ const PayByBankDropdown =({ config,callbacks }) => {
                 <div className="form-row form-row-wide buckaroo-paybybank-mobile">
                     <select className="buckaroo-custom-select" value={payByBankSelectedIssuer} onChange={(e) => onSelectIssuer(e.target.value)}>
                         <option value="0">Select your bank</option>
-                        {Object.keys(config.paymentInfo.payByBankIssuers).map((issuerCode) => (
+                        {Object.keys(paymentInfo.payByBankIssuers).map((issuerCode) => (
                             <option key={issuerCode} value={issuerCode}>
-                                {config.paymentInfo.payByBankIssuers[issuerCode].name}
+                                {paymentInfo.payByBankIssuers[issuerCode].name}
                             </option>
                         ))}
                     </select>
@@ -41,9 +41,9 @@ const PayByBankDropdown =({ config,callbacks }) => {
                         <select className="buckaroo-custom-select" value={payByBankSelectedIssuer}
                                 onChange={(e) => onSelectIssuer(e.target.value)}>
                             <option value="0">Select your bank</option>
-                            {Object.keys(config.paymentInfo.payByBankIssuers).map((issuerCode) => (
+                            {Object.keys(paymentInfo.payByBankIssuers).map((issuerCode) => (
                                 <option key={issuerCode} value={issuerCode}>
-                                    {config.paymentInfo.payByBankIssuers[issuerCode].name}
+                                    {paymentInfo.payByBankIssuers[issuerCode].name}
                                 </option>
                             ))}
                         </select>
@@ -51,7 +51,7 @@ const PayByBankDropdown =({ config,callbacks }) => {
                     <div className="bk-paybybank-input bk-paybybank-not-mobile">
                         <div
                             className={`form-row form-row-wide bk-paybybank-selector ${showAllBanks ? 'show-all' : ''}`}>
-                            {Object.keys(config.paymentInfo.payByBankIssuers).map((issuerCode) => (
+                            {Object.keys(paymentInfo.payByBankIssuers).map((issuerCode) => (
                                 <div className="custom-control custom-radio bank-control" key={issuerCode}>
                                     <input
                                         type="radio"
@@ -65,9 +65,9 @@ const PayByBankDropdown =({ config,callbacks }) => {
                                     <label className="custom-control-label bank-method-label"
                                            htmlFor={`radio-bankMethod-${issuerCode}`}>
                                         <img
-                                            src={buckarooImagesUrl + 'ideal/' + (config.paymentInfo.payByBankIssuers[issuerCode].logo || 'default-logo-filename.png')}
-                                            className="bank-method-image" alt={config.paymentInfo.payByBankIssuers[issuerCode].name}/>
-                                        <strong>{config.paymentInfo.payByBankIssuers[issuerCode].name}</strong>
+                                            src={buckarooImagesUrl + 'ideal/' + (paymentInfo.payByBankIssuers[issuerCode].logo || 'default-logo-filename.png')}
+                                            className="bank-method-image" alt={paymentInfo.payByBankIssuers[issuerCode].name}/>
+                                        <strong>{paymentInfo.payByBankIssuers[issuerCode].name}</strong>
                                     </label>
                                 </div>
                             ))}

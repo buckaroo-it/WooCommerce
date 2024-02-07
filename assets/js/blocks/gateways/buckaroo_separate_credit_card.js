@@ -1,18 +1,23 @@
 import React, {useState, useEffect} from 'react';
 import {__} from "@wordpress/i18n";
+const SeparateCreditCard = ({ config,callbacks }) => {
 
-const SeparateCreditCard = ({
-                                onCardNameChange,
-                                creditCardIsSecure,
-                                paymentName,
-                                onSelectCc,
-                                onCardNumberChange,
-                                onCardMonthChange,
-                                onCardYearChange,
-                                onCardCVCChange,
-                                onEncryptedDataChange
-                            }) => {
-    const hiddenInputValue = paymentName.replace("buckaroo_creditcard_", "");
+    const {
+        creditCardIsSecure,
+        paymentInfo
+    } = config;
+
+    const {
+        onSelectCc,
+        onCardNameChange,
+        onCardNumberChange,
+        onCardMonthChange,
+        onCardYearChange,
+        onCardCVCChange,
+        onEncryptedDataChange
+    }= callbacks;
+
+    const hiddenInputValue = paymentInfo.paymentName.replace("buckaroo_creditcard_", "");
 
     useEffect(() => {
         onSelectCc(hiddenInputValue);
@@ -37,22 +42,22 @@ const SeparateCreditCard = ({
 
                 <input
                     type="hidden"
-                    name={`${paymentName}-issuer`}
-                    id={`${paymentName}-issuer`}
+                    name={`${paymentInfo.paymentName}-issuer`}
+                    id={`${paymentInfo.paymentName}-issuer`}
                     className="cardHolderName input-text"
                     value={hiddenInputValue}
                 />
                 {creditCardIsSecure === true && (
                     <div>
                         <div className="form-row">
-                            <label className="buckaroo-label" htmlFor={`${paymentName}-cardname`}>
+                            <label className="buckaroo-label" htmlFor={`${paymentInfo.paymentName}-cardname`}>
                                 {__('Cardholder Name:', 'wc-buckaroo-bpe-gateway')}
                                 <span className="required">*</span>
                             </label>
                             <input
                                 type="text"
-                                name={`${paymentName}-cardname`}
-                                id={`${paymentName}-cardname`}
+                                name={`${paymentInfo.paymentName}-cardname`}
+                                id={`${paymentInfo.paymentName}-cardname`}
                                 placeholder={__('Cardholder Name:', 'wc-buckaroo-bpe-gateway')}
                                 className="cardHolderName input-text"
                                 maxLength="250"
@@ -63,15 +68,15 @@ const SeparateCreditCard = ({
                         </div>
 
                         <div className="form-row">
-                            <label className="buckaroo-label" htmlFor={`${paymentName}-cardnumber`}>
+                            <label className="buckaroo-label" htmlFor={`${paymentInfo.paymentName}-cardnumber`}>
                                 {__('Card Number:', 'wc-buckaroo-bpe-gateway')}
                                 <span className="required">*</span>
                             </label>
 
                             <input
                                 type="text"
-                                name={`${paymentName}-cardnumber`}
-                                id={`${paymentName}-cardnumber`}
+                                name={`${paymentInfo.paymentName}-cardnumber`}
+                                id={`${paymentInfo.paymentName}-cardnumber`}
                                 placeholder={__('Card Number:', 'wc-buckaroo-bpe-gateway')}
                                 className="cardNumber input-text"
                                 maxLength="250"
@@ -81,7 +86,7 @@ const SeparateCreditCard = ({
                         </div>
 
                         <div className="form-row">
-                            <label className="buckaroo-label" htmlFor={`${paymentName}-cardmonth`}>
+                            <label className="buckaroo-label" htmlFor={`${paymentInfo.paymentName}-cardmonth`}>
                                 {__('Expiration Month:', 'wc-buckaroo-bpe-gateway')}
                                 <span className="required">*</span>
                             </label>
@@ -89,8 +94,8 @@ const SeparateCreditCard = ({
                             <input
                                 type="text"
                                 maxLength="2"
-                                name={`${paymentName}-cardmonth`}
-                                id={`${paymentName}-cardmonth`}
+                                name={`${paymentInfo.paymentName}-cardmonth`}
+                                id={`${paymentInfo.paymentName}-cardmonth`}
                                 placeholder={__('Expiration Month:', 'wc-buckaroo-bpe-gateway')}
                                 className="expirationMonth input-text"
                                 autoComplete="off"
@@ -99,15 +104,15 @@ const SeparateCreditCard = ({
                         </div>
 
                         <div className="form-row">
-                            <label className="buckaroo-label" htmlFor={`${paymentName}-cardyear`}>
+                            <label className="buckaroo-label" htmlFor={`${paymentInfo.paymentName}-cardyear`}>
                                 {__('Expiration Year:', 'wc-buckaroo-bpe-gateway')}
                                 <span className="required">*</span>
                             </label>
                             <input
                                 type="text"
                                 maxLength="4"
-                                name={`${paymentName}-cardyear`}
-                                id={`${paymentName}-cardyear`}
+                                name={`${paymentInfo.paymentName}-cardyear`}
+                                id={`${paymentInfo.paymentName}-cardyear`}
                                 placeholder={__('Expiration Year:', 'wc-buckaroo-bpe-gateway')}
                                 className="expirationYear input-text"
                                 autoComplete="off"
@@ -116,15 +121,15 @@ const SeparateCreditCard = ({
                         </div>
 
                         <div className="form-row">
-                            <label className="buckaroo-label" htmlFor={`${paymentName}-cardcvc`}>
+                            <label className="buckaroo-label" htmlFor={`${paymentInfo.paymentName}-cardcvc`}>
                                 {__('CVC:', 'wc-buckaroo-bpe-gateway')}
                                 <span className="required">*</span>
                             </label>
                             <input
                                 type="password"
                                 maxLength="4"
-                                name={`${paymentName}-cardcvc`}
-                                id={`${paymentName}-cardcvc`}
+                                name={`${paymentInfo.paymentName}-cardcvc`}
+                                id={`${paymentInfo.paymentName}-cardcvc`}
                                 placeholder={__('CVC:', 'wc-buckaroo-bpe-gateway')}
                                 className="cvc input-text"
                                 autoComplete="off"
@@ -138,8 +143,8 @@ const SeparateCreditCard = ({
                         </div>
                         <input
                             type="hidden"
-                            id={`${paymentName}-encrypted-data`}
-                            name={`${paymentName}-encrypted-data`}
+                            id={`${paymentInfo.paymentName}-encrypted-data`}
+                            name={`${paymentInfo.paymentName}-encrypted-data`}
                             className="encryptedCardData input-text"
                         />
                     </div>

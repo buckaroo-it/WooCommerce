@@ -9,7 +9,6 @@ import { __ } from '@wordpress/i18n';
 const AfterPayView = ({ config,callbacks }) => {
 
     const {
-        paymentInfo,
         type,
         b2b,
         billingData
@@ -55,9 +54,10 @@ const AfterPayView = ({ config,callbacks }) => {
                     />
                 </div>
             )}
-            <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={onBirthdateChange} />
 
-            {paymentInfo.b2b === 'enable' && paymentInfo.type === 'afterpaydigiaccept' && (
+            {!isAdditionalCheckboxChecked && <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={onBirthdateChange} />}
+
+            {b2b === 'enable' && type === 'afterpaydigiaccept' && (
                 <div>
                     <div className="form-row form-row-wide validate-required">
                         <label htmlFor="buckaroo-afterpay-b2b">

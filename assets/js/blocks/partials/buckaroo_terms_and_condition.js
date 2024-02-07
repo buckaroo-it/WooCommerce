@@ -34,7 +34,7 @@ const TermsAndConditionsCheckbox = ({paymentMethod,b2b, onCheckboxChange, billin
     }
     const handleCheckboxChange = () => {
         setIsChecked(!isChecked);
-        onCheckboxChange(!isChecked ? 'On' : null);
+        onCheckboxChange(!isChecked);
     };
 
     return (
@@ -45,7 +45,6 @@ const TermsAndConditionsCheckbox = ({paymentMethod,b2b, onCheckboxChange, billin
                 id={`${fieldName}-accept`}
                 name={`${fieldName}-accept`}
                 type="checkbox"
-                value="ON"
                 checked={isChecked}
                 onChange={handleCheckboxChange}
             />

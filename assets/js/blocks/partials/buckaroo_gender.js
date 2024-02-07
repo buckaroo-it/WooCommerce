@@ -10,7 +10,12 @@ const GenderDropdown = ({ paymentMethod, genders, onSelectGender }) => {
             'they': __('They/them', 'wc-buckaroo-bpe-gateway'),
             'unknown': __('I prefer not to say', 'wc-buckaroo-bpe-gateway')
         };
-        return translations[key] || key;
+
+        return translations[key] ? translations[key] : capitalizeFirstLetter(key);
+    };
+
+    const capitalizeFirstLetter = (string) => {
+        return string.charAt(0).toUpperCase() + string.slice(1);
     };
 
     let genderOptions = ``;

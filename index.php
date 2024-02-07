@@ -132,19 +132,9 @@ function get_credtCard_is_secure() {
  * @return boolean
  */
 function isBuckarooPayment(string $name): bool {
-	return starts_with($name, 'buckaroo' );
+	return strncmp($name, 'buckaroo', strlen('buckaroo')) === 0;
 }
 
-/**
- * Check if a string starts with a specific prefix
- *
- * @param string $haystack
- * @param string $needle
- * @return bool
- */
-function starts_with(string $haystack, string $needle): bool {
-    return strncmp($haystack, $needle, strlen($needle)) === 0;
-}
 
 function get_woocommerce_payment_methods(): array {
 	if (!class_exists('WC_Payment_Gateways')) {
@@ -162,7 +152,7 @@ function get_woocommerce_payment_methods(): array {
                 'description' => $gateway->description,
                 'image_path' => $gateway->getIcon(),
                 'buckarooImagesUrl' => plugin_dir_url(__FILE__) . 'library/buckaroo_images/',
-                'genders' => getAllGendersForPaymentMethods(),
+                'genders' => BuckarooConfig::getAllGendersForPaymentMethods(),
                 'displayMode' => $gateway->get_option('displaymode')
 			);
             if($gateway_id === 'buckaroo_ideal') {
