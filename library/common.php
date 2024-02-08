@@ -358,6 +358,8 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     }
     try {
         $order = new WC_Order($order_id);
+
+        Buckaroo_Logger::log("ORDER " , $order);
         if ((int) $order_id > 0) {
             if (!isset($GLOBALS['plugin_id'])) {
                 $GLOBALS['plugin_id'] = $payment_method->plugin_id . $order->get_payment_method() . "_settings";
