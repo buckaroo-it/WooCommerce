@@ -253,7 +253,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         } else {
 
             if ($payment_method->id !== 'buckaroo_payperemail') {
-                Buckaroo_Logger::log('Payperemail status check' . $response->statuscode);
+                Buckaroo_Logger::log('Payperemail status check: ' . $response->statuscode);
                 if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
             }
 
@@ -338,6 +338,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     $_SESSION['buckaroo_response'] = '';
     Buckaroo_Logger::log(" Return start / fn_buckaroo_process_response");
     Buckaroo_Logger::log("Server : " . var_export($_SERVER, true));
+    Buckaroo_Logger::log("Payment Method" , $payment_method->id);
     if ($response == '') {
         $response = BuckarooResponseFactory::getResponse();
     }
@@ -395,7 +396,12 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 
         //Payperemail response
         if(fn_process_response_payperemail($payment_method, $response)){
-            return;
+            $message = 'Email sent successfully.<br>';
+            $order->add_order_note($message);
+            return array(
+                'result'   => 'success',
+                'redirect' => $payment_method->get_return_url($order),
+            );
         }
 
         if($order->get_payment_method() == 'buckaroo_klarnakp') {
@@ -434,7 +440,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             Buckaroo_Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
             Buckaroo_Logger::log('||| infoLog ' . $response->status);
             if ($payment_method->id !== 'buckaroo_payperemail') {
-                Buckaroo_Logger::log('Payperemail status check' . $response->statuscode);
+                Buckaroo_Logger::log('Payperemail status check: ' . $response->statuscode);
                 if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
             }
             if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
