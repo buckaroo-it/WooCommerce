@@ -200,7 +200,6 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
     }
     $_SESSION['buckaroo_response'] = '';
     Buckaroo_Logger::log("Return start / fn_buckaroo_process_response_push");
-    Buckaroo_Logger::log("Payment Method" , $payment_method->id);
     if ($response == '') {
         $response = BuckarooResponseFactory::getResponse();
     }
@@ -253,6 +252,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         } else {
 
             if ($order->get_payment_method() == 'buckaroo_payperemail') {
+                Buckaroo_Logger::log('Payperemail status check: ' . $response->statuscode);
                 if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
             }
 
@@ -337,7 +337,6 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     $_SESSION['buckaroo_response'] = '';
     Buckaroo_Logger::log(" Return start / fn_buckaroo_process_response");
     Buckaroo_Logger::log("Server : " . var_export($_SERVER, true));
-    Buckaroo_Logger::log("Payment Method" , $payment_method->id);
     if ($response == '') {
         $response = BuckarooResponseFactory::getResponse();
     }
@@ -537,9 +536,9 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     }
 
 }
-function buckaroo_handle_unsuccessful_payment($statusCode)
+function buckaroo_handle_unsuccessful_payment($status_code)
 {
-    return in_array($statusCode, [BuckarooAbstract::CODE_CANCELLED_BY_USER, BuckarooAbstract::CODE_REJECTED]);
+    return in_array($status_code, [BuckarooAbstract::CODE_CANCELLED_BY_USER, BuckarooAbstract::CODE_REJECTED]);
 }
 
 
