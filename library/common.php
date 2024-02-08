@@ -252,7 +252,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 
         } else {
 
-            if ($payment_method->id !== 'buckaroo_payperemail') {
+            if ($payment_method->id == 'buckaroo_payperemail') {
                 Buckaroo_Logger::log('Payperemail status check: ' . $response->statuscode);
                 if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
             }
@@ -439,7 +439,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 
             Buckaroo_Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
             Buckaroo_Logger::log('||| infoLog ' . $response->status);
-            if ($payment_method->id !== 'buckaroo_payperemail') {
+            if ($payment_method->id == 'buckaroo_payperemail') {
                 Buckaroo_Logger::log('Payperemail status check: ' . $response->statuscode);
                 if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
             }
