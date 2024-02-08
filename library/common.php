@@ -252,9 +252,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 
         } else {
 
-            Buckaroo_Logger::log('TESTLOGS status ' . $response->statuscode);
-            Buckaroo_Logger::log('TESTLOGS id ' . $payment_method->id);
-            if ($payment_method->id == 'buckaroo_payperemail') {
+            if ($order->get_payment_method() == 'buckaroo_payperemail') {
                 if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
             }
 
@@ -358,8 +356,6 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     }
     try {
         $order = new WC_Order($order_id);
-
-        Buckaroo_Logger::log("ORDER " , $order);
         if ((int) $order_id > 0) {
             if (!isset($GLOBALS['plugin_id'])) {
                 $GLOBALS['plugin_id'] = $payment_method->plugin_id . $order->get_payment_method() . "_settings";
@@ -439,10 +435,8 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     return;
             }
         } else {
-
-            Buckaroo_Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
             Buckaroo_Logger::log('||| infoLog ' . $response->status);
-            if ($payment_method->id == 'buckaroo_payperemail') {
+            if ($order->get_payment_method() == 'buckaroo_payperemail') {
                 Buckaroo_Logger::log('Payperemail status check: ' . $response->statuscode);
                 if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
             }
