@@ -252,8 +252,9 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 
         } else {
 
+            Buckaroo_Logger::log('TESTLOGS status ' . $response->statuscode);
+            Buckaroo_Logger::log('TESTLOGS id ' . $payment_method->id);
             if ($payment_method->id == 'buckaroo_payperemail') {
-                Buckaroo_Logger::log('Payperemail status check: ' . $response->statuscode);
                 if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
             }
 
