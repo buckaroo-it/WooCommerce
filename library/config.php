@@ -15,6 +15,11 @@ class BuckarooConfig extends BuckarooConfigCore {
     const GENDER_OTHER = 0;
     const GENDER_NOT_SPECIFIED = 9;
 
+    const PAYMENT_PAYPEREMAIL = 'buckaroo-payperemail';
+    const PAYMENT_BILLINK = 'buckaroo-billink';
+    const PAYMENT_KLARNAKP = 'buckaroo-klarnakp';
+    const PAYMENT_KLARNAPAY = 'buckaroo-klarnapay';
+    const PAYMENT_KLARNAPII = 'buckaroo-klarnapii';
 
     private static $idinCategories;
 
@@ -220,36 +225,32 @@ class BuckarooConfig extends BuckarooConfigCore {
     }
 
     public static function getAllGendersForPaymentMethods(): array {
-
-
-        $allGenders = [];
-        $allGenders['buckaroo-payperemail'] = [
+        $defaultGenders = [
             'male' => self::GENDER_MALE,
             'female' => self::GENDER_FEMALE,
             'they' => self::GENDER_OTHER,
             'unknown' => self::GENDER_NOT_SPECIFIED
         ];
-        $allGenders['buckaroo-billink'] = [
+
+        $billinkGenders = [
             'male' => 'Male',
             'female' => 'Female',
             'they' => 'Unknown',
             'unknown' => 'Unknown'
         ];
-        $allGenders['buckaroo-klarnakp'] = [
-            'male' => self::GENDER_MALE,
-            'female' => self::GENDER_FEMALE
-        ];
-        $allGenders['buckaroo-klarnapay'] = [
-            'male' => self::GENDER_MALE,
-            'female' => self::GENDER_FEMALE
-        ];
-        $allGenders['buckaroo-klarnapii'] = [
+
+        $klarnaGenders = [
             'male' => self::GENDER_MALE,
             'female' => self::GENDER_FEMALE
         ];
 
-
-        return $allGenders;
+        return [
+            self::PAYMENT_PAYPEREMAIL => $defaultGenders,
+            self::PAYMENT_BILLINK => $billinkGenders,
+            self::PAYMENT_KLARNAKP => $klarnaGenders,
+            self::PAYMENT_KLARNAPAY => $klarnaGenders,
+            self::PAYMENT_KLARNAPII => $klarnaGenders,
+        ];
     }
 
     public static function translateGender($genderKey) {
