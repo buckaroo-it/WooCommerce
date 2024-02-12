@@ -1,9 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import {__} from "@wordpress/i18n";
+import encryptCardData from "../services/BuckarooClientSideEncryption";
 const SeparateCreditCard = ({ config,callbacks }) => {
 
     const {
         creditCardIsSecure,
+        creditCardMethod,
         paymentInfo
     } = config;
 
@@ -17,6 +19,12 @@ const SeparateCreditCard = ({ config,callbacks }) => {
         onEncryptedDataChange
     }= callbacks;
 
+    const [cardNumber, setCardNumber] = useState('');
+    const [cardName, setCardName] = useState('');
+    const [cardMonth, setCardMonth] = useState('');
+    const [cardYear, setCardYear] = useState('');
+    const [cardCVC, setCardCVC] = useState('');
+
     const hiddenInputValue = paymentInfo.paymentName.replace("buckaroo_creditcard_", "");
 
     useEffect(() => {
@@ -24,16 +32,22 @@ const SeparateCreditCard = ({ config,callbacks }) => {
     }, [hiddenInputValue, onSelectCc]);
 
     useEffect(() => {
-        const handleEncryptedDataChange = (event, encryptedData) => {
-            onEncryptedDataChange(encryptedData);
+        const cardDetails = { cardNumber, cardName, cardMonth, cardYear, cardCVC };
+
+        const handleEncryption = async () => {
+            try {
+                const encryptedCardData = await encryptCardData(cardDetails);
+                onEncryptedDataChange(encryptedCardData);
+            } catch (error) {
+                console.error("Encryption error:", error);
+            }
         };
 
-        jQuery(document).on("encryptedDataChanged", handleEncryptedDataChange);
+        if (creditCardMethod === 'encrypt' && creditCardIsSecure === true) {
+            handleEncryption();
+        }
+    }, [cardNumber, cardName, cardMonth, cardYear, cardCVC, creditCardMethod, onEncryptedDataChange, creditCardIsSecure]);
 
-        return () => {
-            jQuery(document).off("encryptedDataChanged", handleEncryptedDataChange);
-        };
-    }, [onEncryptedDataChange]);
 
     return (
         <div>
@@ -62,8 +76,10 @@ const SeparateCreditCard = ({ config,callbacks }) => {
                                 className="cardHolderName input-text"
                                 maxLength="250"
                                 autoComplete="off"
-                                onChange={(e) => onCardNameChange(e.target.value)}
-                            />
+                                onChange={(e) => {
+                                    setCardName(e.target.value);
+                                    onCardNameChange(e.target.value);
+                                }}                            />
 
                         </div>
 
@@ -81,8 +97,10 @@ const SeparateCreditCard = ({ config,callbacks }) => {
                                 className="cardNumber input-text"
                                 maxLength="250"
                                 autoComplete="off"
-                                onChange={(e) => onCardNumberChange(e.target.value)}
-                            />
+                                onChange={(e) => {
+                                    setCardNumber(e.target.value);
+                                    onCardNumberChange(e.target.value);
+                                }}                            />
                         </div>
 
                         <div className="form-row">
@@ -99,8 +117,10 @@ const SeparateCreditCard = ({ config,callbacks }) => {
                                 placeholder={__('Expiration Month:', 'wc-buckaroo-bpe-gateway')}
                                 className="expirationMonth input-text"
                                 autoComplete="off"
-                                onChange={(e) => onCardMonthChange(e.target.value)}
-                            />
+                                onChange={(e) => {
+                                    setCardMonth(e.target.value);
+                                    onCardMonthChange(e.target.value);
+                                }}                            />
                         </div>
 
                         <div className="form-row">
@@ -116,8 +136,10 @@ const SeparateCreditCard = ({ config,callbacks }) => {
                                 placeholder={__('Expiration Year:', 'wc-buckaroo-bpe-gateway')}
                                 className="expirationYear input-text"
                                 autoComplete="off"
-                                onChange={(e) => onCardYearChange(e.target.value)}
-                            />
+                                onChange={(e) => {
+                                    setCardYear(e.target.value);
+                                    onCardYearChange(e.target.value);
+                                }}                            />
                         </div>
 
                         <div className="form-row">
@@ -133,26 +155,21 @@ const SeparateCreditCard = ({ config,callbacks }) => {
                                 placeholder={__('CVC:', 'wc-buckaroo-bpe-gateway')}
                                 className="cvc input-text"
                                 autoComplete="off"
-                                onChange={(e) => onCardCVCChange(e.target.value)}
-                            />
+                                onChange={(e) => {
+                                    setCardCVC(e.target.value);
+                                    onCardCVCChange(e.target.value);
+                                }}                            />
                         </div>
 
                         <div className="form-row form-row-wide validate-required"></div>
                         <div className="required" style={{float: 'right'}}>*
                             {__('Required', 'wc-buckaroo-bpe-gateway')}
                         </div>
-                        <input
-                            type="hidden"
-                            id={`${paymentInfo.paymentName}-encrypted-data`}
-                            name={`${paymentInfo.paymentName}-encrypted-data`}
-                            className="encryptedCardData input-text"
-                        />
                     </div>
                 )}
             </div>
         </div>
     );
-
 };
 
 export default SeparateCreditCard;

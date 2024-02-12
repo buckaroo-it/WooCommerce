@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import DefaultDropdown from "../partials/buckaroo_creditcard_dropdown";
 import {__} from "@wordpress/i18n";
-import encryptCardData from "../components/BuckarooClientSideEncryption";
+import encryptCardData from "../services/BuckarooClientSideEncryption";
 
 const CreditCard = ({ config, callbacks }) => {
     const {
@@ -28,13 +28,27 @@ const CreditCard = ({ config, callbacks }) => {
 
     const paymentMethod = 'buckaroo-creditcard';
 
-    if(creditCardMethod === 'encrypt' && creditCardIsSecure === true) {
-        useEffect(() => {
-            const cardDetails = {cardNumber, cardName, cardMonth, cardYear, cardCVC};
+    const handleEncryption = async () => {
+        try {
+            const encryptedData = await encryptCardData({
+                cardName,
+                cardNumber,
+                cardMonth,
+                cardYear,
+                cardCVC,
+            });
+            onEncryptedDataChange(encryptedData);
+        } catch (error) {
+            console.error("Encryption error:", error);
+        }
+    };
 
-            encryptCardData(cardDetails, onEncryptedDataChange);
-        }, [cardNumber, cardName, cardMonth, cardYear, cardCVC, creditCardMethod,onEncryptedDataChange]);
-    }
+    useEffect(() => {
+        if (creditCardMethod === 'encrypt' && creditCardIsSecure === true) {
+            handleEncryption();
+        }
+    }, [cardNumber, cardName, cardMonth, cardYear, cardCVC, creditCardMethod, onEncryptedDataChange, creditCardIsSecure]);
+
     return (
         <div>
 

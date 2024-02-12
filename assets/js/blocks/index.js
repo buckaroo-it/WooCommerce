@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import DefaultPayment from "./gateways/default_payment";
-import {convertUnderScoreToDash, decodeHtmlEntities} from './utils';
+import {convertUnderScoreToDash, decodeHtmlEntities} from './utils/utils';
 import {BuckarooLabel} from "./components/BuckarooLabel";
 
 const customTemplatePaymentMethodIds = [
@@ -147,8 +147,8 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
         buckarooImagesUrl: gateway.buckarooImagesUrl,
         genders: gateway.genders,
         creditCardIssuers: gateway.creditCardIssuers,
-        creditCardIsSecure: true,
-        creditCardMethod: 'encrypt',
+        creditCardIsSecure: gateway.creditCardIsSecure,
+        creditCardMethod: gateway.creditCardMethod,
         b2b: gateway.b2b,
         type: gateway.type,
         customer_type: gateway.customer_type,
