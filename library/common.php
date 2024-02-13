@@ -393,9 +393,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         Buckaroo_Logger::log('Status message: ' . $response->statusmessage);
 
         //Payperemail response
-        if(fn_process_response_payperemail($payment_method, $response)){
-            $message = 'Email sent successfully.<br>';
-            $order->add_order_note($message);
+        if(fn_process_response_payperemail($payment_method, $response,$order)){
             return array(
                 'result'   => 'success',
                 'redirect' => $payment_method->get_return_url($order),
@@ -1058,16 +1056,21 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
 
 }
 
-function fn_process_response_payperemail($payment_method, $response){
+function fn_process_response_payperemail($payment_method, $response,$order){
     if ($payment_method->id == 'buckaroo_payperemail') {
         Buckaroo_Logger::log(__METHOD__, "Process paypermail");
         if (is_admin()) {
             if ($response->hasSucceeded()) {
                 if (!isset($response->getResponse()->ConsumerMessage)) {
+                    $message = 'Your paylink: <a target="_blank" href="' . $response->getPayLink() . '">' . $response->getPayLink() . '</a>';
+                    $order->add_order_note($message);
                     $buckaroo_admin_notice = array(
                         'type'    => 'success',
-                        'message' => 'Your paylink: <a target="_blank" href="' . $response->getPayLink() . '">' . $response->getPayLink() . '</a>',
+                        'message' => $message
                     );
+                }else{
+                    $message = 'Email sent successfully.<br>';
+                    $order->add_order_note($message);
                 }
             } else {
                 $parameterError = '';
