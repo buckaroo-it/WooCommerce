@@ -25,31 +25,14 @@ const separateCreditCards = [
 
 const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) => {
     const [errorMessage, setErrorMessage] = useState('');
-    const [selectedIssuer, setSelectedIssuer] = useState('');
-    const [dob, setDob] = useState('');
-    const [selectedGender, setSelectedGender] = useState('');
-    const [termsAndConditions, setTermsAndConditions] = useState(null);
-    const [accountName, setAccountName] = useState('');
-    const [iban, setIban] = useState('');
-    const [bic, setBic] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [cardName, setCardNameChange] = useState('');
-    const [cardNumber, setCardNumberChange] = useState('');
-    const [cardMonth, setCardMonthChange] = useState('');
-    const [cardYear, setCardYearChange] = useState('');
-    const [cardCVC, setCardCVCChange] = useState('');
-    const [email, setEmail] = useState('');
-    const [creditCard, setCreditCard] = useState('');
     const [PaymentComponent, setPaymentComponent] = useState(null);
-    const [cocNumber, setCocNumber] = useState('');
-    const [cocRegistration, setCocRegistrationChange] = useState('');
-    const [encryptedData, setEncryptedDataChange] = useState('');
-    const [identificationNumber, setIdentificationNumber] = useState('');
-    const [companyName, setCompanyName] = useState('');
-    const [additionalCheckboxChange, setAdditionalCheckboxChange] = useState('');
+    const [activePaymentMethodState, setActivePaymentMethodState] = useState({});
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
+
+    const onPaymentStateChange = (newState) => {
+        setActivePaymentMethodState(newState);
+    };
+
 
     useEffect(() => {
         const unsubscribe = eventRegistration.onCheckoutFail((props) => {
@@ -64,53 +47,22 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     }, [eventRegistration, emitResponse]);
 
     useEffect(() => {
-        const filterFalsyValues = (obj) => Object.entries(obj).reduce((acc, [key, value]) => {
-            if (value != null && value !== '') {
-                acc[key] = value;
-            }
-            return acc;
-        }, {});
-
-
         const unsubscribe = eventRegistration.onPaymentSetup(() => {
             let response = {
                 type: emitResponse.responseTypes.SUCCESS, meta: {},
             };
 
-            response.meta.paymentMethodData = filterFalsyValues({
+            response.meta.paymentMethodData = {
+                ...activePaymentMethodState,
                 'isblocks': '1',
-                [`billing_country`]: billing.billingAddress.country,
-                [`${methodName}-company-coc-registration`]: cocNumber,
-                [`${methodName}-company-name`]: companyName,
-                [`${methodName}-issuer`]: selectedIssuer,
-                [`${methodName}-birthdate`]: dob,
-                [`${methodName}-accept`]: termsAndConditions,
-                [`${methodName}-gender`]: selectedGender,
-                [`${methodName}-iban`]: iban,
-                [`${methodName}-accountname`]: accountName,
-                [`${methodName}-bic`]: bic,
-                [`${methodName}-identification-number`]: identificationNumber,
-                [`${methodName}-phone`]: phoneNumber,
-                [`${methodName}-firstname`]: firstName,
-                [`${methodName}-lastname`]: lastName,
-                [`${methodName}-email`]: email,
-                [`${methodName}-company-coc-registration`]: cocRegistration,
-                [`${methodName}-b2b`]: additionalCheckboxChange ? 'ON' : 'OFF',
-            });
-            if (`${methodName}`.includes("buckaroo-creditcard")) {
-                response.meta.paymentMethodData[`${gateway.paymentMethodId}-creditcard-issuer`] = creditCard;
-                response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardname`] = cardName;
-                response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardnumber`] = cardNumber;
-                response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardmonth`] = cardMonth;
-                response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardyear`] = cardYear;
-                response.meta.paymentMethodData[`${gateway.paymentMethodId}-cardcvc`] = cardCVC;
-                response.meta.paymentMethodData[`${gateway.paymentMethodId}-encrypted-data`] = encryptedData;
-            }
+                'billing_country': billing.billingAddress.country,
+            };
 
             return response;
         });
         return () => unsubscribe();
-    }, [eventRegistration, emitResponse, selectedIssuer, selectedGender, dob, gateway.paymentMethodId]);
+    }, [eventRegistration, emitResponse, gateway.paymentMethodId]);
+
 
     useEffect(() => {
         const loadPaymentComponent = async (methodId) => {
@@ -121,8 +73,9 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
                 } else if (separateCreditCards.includes(methodId)) {
                     ({default: LoadedComponent} = await import(`./gateways/buckaroo_separate_credit_card`));
                 }
-
-                setPaymentComponent(() => LoadedComponent);
+                setPaymentComponent(() => () => <LoadedComponent onStateChange={onPaymentStateChange}
+                                                                 methodName={methodName} gateway={gateway}
+                                                                 billing={billing.billingData}/>);
             } catch (error) {
                 console.error(`Error importing payment method module for ${methodId}:`, error);
                 setErrorMessage(`Error loading payment component for ${methodId}`);
@@ -135,54 +88,12 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
     if (!PaymentComponent) {
         return <div>Loading...</div>;
     }
-    const paymentConfig = {
-        paymentInfo: {
-            paymentName: gateway.paymentMethodId,
-            idealIssuers: gateway.idealIssuers,
-            payByBankIssuers: gateway.payByBankIssuers,
-            payByBankSelectedIssuer: gateway.payByBankSelectedIssuer
-        },
-        billingData: billing.billingAddress,
-        displayMode: gateway.displayMode,
-        buckarooImagesUrl: gateway.buckarooImagesUrl,
-        genders: gateway.genders,
-        creditCardIssuers: gateway.creditCardIssuers,
-        creditCardIsSecure: gateway.creditCardIsSecure,
-        creditCardMethod: gateway.creditCardMethod,
-        b2b: gateway.b2b,
-        type: gateway.type,
-        customer_type: gateway.customer_type,
-    };
-    const paymentCallbacks = {
-        onSelectCc: setCreditCard,
-        onSelectIssuer: setSelectedIssuer,
-        onSelectGender: setSelectedGender,
-        onBirthdateChange: setDob,
-        onCheckboxChange: setTermsAndConditions,
-        onAccountName: setAccountName,
-        onIbanChange: setIban,
-        onBicChange: setBic,
-        onFirstNameChange: setFirstName,
-        onPhoneNumberChange: setPhoneNumber,
-        onLastNameChange: setLastName,
-        onCardNameChange: setCardNameChange,
-        onCardNumberChange: setCardNumberChange,
-        onCardMonthChange: setCardMonthChange,
-        onCardYearChange: setCardYearChange,
-        onCardCVCChange: setCardCVCChange,
-        onEmailChange: setEmail,
-        onCocInput: setCocNumber,
-        onCocRegistrationChange: setCocRegistrationChange,
-        onEncryptedDataChange: setEncryptedDataChange,
-        onIdentificationNumber: setIdentificationNumber,
-        onCompanyInput: setCompanyName,
-        onAdditionalCheckboxChange: setAdditionalCheckboxChange,
-    };
+
     return (
         <div className='container'>
             <span className='description'>{gateway.description}</span>
             <span className='descriptionError'>{errorMessage}</span>
-            <PaymentComponent config={paymentConfig} callbacks={paymentCallbacks}/>
+            <PaymentComponent/>
         </div>
     );
 }

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import {__} from "@wordpress/i18n";
 
-const BirthDayField = ({ paymentMethod, onBirthdateChange }) => {
+const BirthDayField = ({paymentMethod, handleBirthDayChange}) => {
     const [birthdate, setBirthdate] = useState(null);
 
     const handleDateChange = (date) => {
@@ -15,7 +15,7 @@ const BirthDayField = ({ paymentMethod, onBirthdateChange }) => {
         }).replace(/\//g, '-');
 
         setBirthdate(date);
-        onBirthdateChange(formattedDate);
+        handleBirthDayChange(formattedDate);
     };
 
     return (

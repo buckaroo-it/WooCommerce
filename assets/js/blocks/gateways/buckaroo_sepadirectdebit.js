@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {__} from "@wordpress/i18n";
+import useFormData from "../hooks/useFormData";
 
-const SepaDirectDebitForm = ({ config,callbacks }) => {
+const SepaDirectDebitForm = ({onStateChange, methodName, billing}) => {
 
-    const {
-        billingData,
-    } = config;
+    const initialState = {
+        [`${methodName}-accountname`]: `${billing.first_name} ${billing.last_name}`,
+        [`${methodName}-iban`]: '',
+        [`${methodName}-bic`]: '',
+    };
 
-    const {
-        onIbanChange,
-        onBicChange
-    }= callbacks;
+    const [formState, handleChange] = useFormData(initialState, onStateChange);
+
     return (
         <div>
             <div className="form-row form-row-wide validate-required">
@@ -25,8 +26,8 @@ const SepaDirectDebitForm = ({ config,callbacks }) => {
                     type="text"
                     maxLength="250"
                     autoComplete="off"
-                    value={`${billingData.first_name} ${billingData.last_name}`}
-                    onChange={(e) => onAccountName(e.target.value)}
+                    value={formState[`${methodName}-accountname`]}
+                    onChange={handleChange}
                 />
             </div>
             <div className="form-row form-row-wide validate-required">
@@ -41,7 +42,8 @@ const SepaDirectDebitForm = ({ config,callbacks }) => {
                     type="text"
                     maxLength="25"
                     autoComplete="off"
-                    onChange={(e) => onIbanChange(e.target.value)}
+                    value={formState[`${methodName}-iban`]}
+                    onChange={handleChange}
                 />
             </div>
             <div className="form-row form-row-wide">
@@ -55,7 +57,8 @@ const SepaDirectDebitForm = ({ config,callbacks }) => {
                     type="text"
                     maxLength="11"
                     autoComplete="off"
-                    onChange={(e) => onBicChange(e.target.value)}
+                    value={formState[`${methodName}-bic`]}
+                    onChange={handleChange}
                 />
             </div>
             <div className="required" style={{float: 'right'}}>*

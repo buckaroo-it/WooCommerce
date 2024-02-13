@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {__} from "@wordpress/i18n";
 
-const AfterPayB2B = ({onCocInput,onCompanyInput,onAccountName}) => {
+const AfterPayB2B = ({handleChange}) => {
 
-  return (
-      <span id="showB2BBuckaroo">
+    return (
+        <span id="showB2BBuckaroo">
             <p className="form-row form-row-wide validate-required">
                 {__('Fill required fields if bill in on the company:', 'wc-buckaroo-bpe-gateway')}
             </p>
@@ -20,7 +20,7 @@ const AfterPayB2B = ({onCocInput,onCompanyInput,onAccountName}) => {
                     type="text"
                     maxLength="250"
                     autoComplete="off"
-                    onChange={(e) => onCocInput(e.target.value)}
+                    onChange={handleChange}
                 />
             </p>
 
@@ -36,11 +36,11 @@ const AfterPayB2B = ({onCocInput,onCompanyInput,onAccountName}) => {
                     type="text"
                     maxLength="250"
                     autoComplete="off"
-                    onChange={(e) => onCompanyInput(e.target.value)}
+                    onChange={handleChange}
                 />
             </p>
         </span>
-  );
+    );
 };
 
 export default AfterPayB2B;

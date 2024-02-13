@@ -1,22 +1,17 @@
-import React,{useState} from 'react';
+import React from 'react';
 import GenderDropdown from "../partials/buckaroo_gender";
 import FinancialWarning from "../partials/buckaroo_financial_warning";
 
-const KlarnaKp = ({ config,callbacks }) => {
+const KlarnaKp = ({onStateChange, methodName, gateway: {genders}}) => {
 
-    const {
-        genders
-    } = config;
-
-    const {
-        onSelectGender
-    }= callbacks;
-
-    const paymentMethod = 'buckaroo-klarnakp';
+    const handleChange = (e) => {
+        const {value} = e.target;
+        onStateChange({[`${methodName}-gender`]: value});
+    };
 
     return (
-        <div id="buckaroo_klaranakp">
-            <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={onSelectGender}></GenderDropdown>
+        <div id="buckaroo_klarnapay">
+            <GenderDropdown paymentMethod={methodName} genders={genders} handleChange={handleChange}></GenderDropdown>
             <FinancialWarning></FinancialWarning>
         </div>
     );

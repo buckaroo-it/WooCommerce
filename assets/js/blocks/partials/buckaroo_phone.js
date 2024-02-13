@@ -1,13 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import {__} from "@wordpress/i18n";
 
-const PhoneDropdown = ({paymentMethod, billingData, onPhoneNumberChange}) => {
+const PhoneDropdown = ({paymentMethod, billingData, handlePhoneChange}) => {
     const [phoneNumber, setPhoneNumber] = useState('');
     useEffect(() => {
         if (billingData) {
             setPhoneNumber(billingData.phone || '');
 
-            onPhoneNumberChange(billingData.phone || '');
+            handlePhoneChange(billingData.phone || '');
         }
     }, [billingData]);
     return (
@@ -23,9 +23,7 @@ const PhoneDropdown = ({paymentMethod, billingData, onPhoneNumberChange}) => {
                 type="tel"
                 autoComplete="off"
                 value={phoneNumber}
-                onChange={(e) => {
-                    onPhoneNumberChange(e.target.value);
-                }}
+                onChange={handlePhoneChange}
             />
         </div>
     );

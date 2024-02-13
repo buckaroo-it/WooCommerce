@@ -1,38 +1,43 @@
-import React, { useState } from 'react';
+import React from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field';
 import FinancialWarning from '../partials/buckaroo_financial_warning';
 import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition';
-import { __ } from '@wordpress/i18n';
+import {__} from '@wordpress/i18n';
 import PhoneDropdown from '../partials/buckaroo_phone';
+import useFormData from "../hooks/useFormData";
 
-const AfterPayNew = ({ config,callbacks }) => {
-    const {
-        billingData,
-        b2b,
-        customer_type
-    } = config;
+const AfterPayNew = ({onStateChange, methodName, gateway: {customer_type, b2b}, billing}) => {
+    const initialState = {
+        [`${methodName}-phone`]: '',
+        [`${methodName}-birthdate`]: '',
+        [`${methodName}-company-coc-registration`]: '',
+        [`${methodName}-accept`]: '',
+    };
 
-    const {
-        onPhoneNumberChange,
-        onCheckboxChange,
-        onBirthdateChange,
-        onCocInput,
-        onIdentificationNumber
-    }= callbacks;
+    const [formState, handleChange, updateFormState] = useFormData(initialState, onStateChange);
 
-    const paymentMethod = 'buckaroo-afterpaynew';
+    const handleTermsChange = (value) => {
+        updateFormState(`${methodName}-accept`, value);
+    };
+
+    const handleBirthDayChange = (value) => {
+        updateFormState(`${methodName}-birthdate`, value);
+    };
+    const handlePhoneChange = (value) => {
+        updateFormState(`${methodName}-phone`, value);
+    };
 
     return (
         <div>
-            <PhoneDropdown paymentMethod={paymentMethod} billingData={billingData} onPhoneNumberChange={onPhoneNumberChange} />
+            <PhoneDropdown paymentMethod={methodName} billingData={billing} handlePhoneChange={handlePhoneChange}/>
 
-            {(['BE', 'NL', 'DE'].includes(billingData.country)) && (
+            {(['BE', 'NL', 'DE'].includes(billing.country)) && (
                 <div>
-                    <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={onBirthdateChange} />
+                    <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange}/>
                 </div>
             )}
 
-            {billingData.country === 'NL' && customer_type !== 'b2c' && (
+            {billing.country === 'NL' && customer_type !== 'b2c' && (
                 <p className="form-row form-row-wide validate-required">
                     <label htmlFor="buckaroo-afterpaynew-coc">
                         {__('CoC-number:', 'wc-buckaroo-bpe-gateway')}
@@ -45,12 +50,12 @@ const AfterPayNew = ({ config,callbacks }) => {
                         type="text"
                         maxLength="250"
                         autoComplete="off"
-                        onChange={(e) => onCocInput(e.target.value)}
+                        onChange={handleChange}
                     />
                 </p>
             )}
 
-            {billingData.country === 'FI' && (
+            {billing.country === 'FI' && (
                 <p className="form-row form-row-wide validate-required">
                     <label htmlFor="buckaroo-afterpaynew-identification-number">
                         {__('Identification Number:', 'wc-buckaroo-bpe-gateway')}
@@ -63,19 +68,19 @@ const AfterPayNew = ({ config,callbacks }) => {
                         type="text"
                         maxLength="250"
                         autoComplete="off"
-                        onChange={(e) => onIdentificationNumber(e.target.value)}
+                        onChange={handleChange}
                     />
                 </p>
             )}
 
             <TermsAndConditionsCheckbox
-                paymentMethod={paymentMethod}
-                onCheckboxChange={(isChecked) => onCheckboxChange(isChecked)}
-                billingData={billingData}
+                paymentMethod={methodName}
+                handleTermsChange={handleTermsChange}
+                billingData={billing}
                 b2b={b2b}
             />
 
-            <FinancialWarning paymentMethod={paymentMethod} />
+            <FinancialWarning paymentMethod={methodName}/>
         </div>
     );
 };

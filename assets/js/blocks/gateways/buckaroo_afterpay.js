@@ -1,41 +1,47 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field';
 import FinancialWarning from '../partials/buckaroo_financial_warning';
 import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition';
 import AfterPayB2B from '../partials/buckaroo_afterpay_b2b';
 import PhoneDropdown from '../partials/buckaroo_phone';
-import { __ } from '@wordpress/i18n';
+import {__} from '@wordpress/i18n';
+import useFormData from '../hooks/useFormData';
 
-const AfterPayView = ({ config,callbacks }) => {
+const AfterPayView = ({onStateChange, methodName, gateway: {type, b2b}, billing}) => {
+    const initialState = {
+        [`${methodName}-phone`]: '',
+        [`${methodName}-birthdate`]: '',
+        [`${methodName}-b2b`]: '',
+        [`${methodName}-company-coc-registration`]: '',
+        [`${methodName}-company-name`]: '',
+        [`${methodName}-accept`]: '',
+    };
 
-    const {
-        type,
-        b2b,
-        billingData
-    } = config;
+    const [formData, handleChange, updateFormState] = useFormData(initialState, onStateChange);
 
-    const {
-        onPhoneNumberChange,
-        onCheckboxChange,
-        onBirthdateChange,
-        onCocInput,
-        onCompanyInput,
-        onAccountName,
-        onCocRegistrationChange,
-        onAdditionalCheckboxChange,
-    }= callbacks;
+    const handleTermsChange = (value) => {
+        updateFormState(`${methodName}-accept`, value);
+    };
 
-    const paymentMethod = 'buckaroo-afterpay';
+    const handleBirthDayChange = (value) => {
+        updateFormState(`${methodName}-birthdate`, value);
+    };
+
+    const handlePhoneChange = (value) => {
+        updateFormState(`${methodName}-phone`, value);
+    };
+
+
     const [isAdditionalCheckboxChecked, setIsAdditionalCheckboxChecked] = useState(false);
 
     const handleAdditionalCheckboxChange = (isChecked) => {
         setIsAdditionalCheckboxChecked(isChecked);
-        onAdditionalCheckboxChange(isChecked);
+        updateFormState(`${methodName}-b2b`, isChecked ? 'ON' : 'OFF');
     };
 
     return (
         <div>
-            <PhoneDropdown paymentMethod={paymentMethod} billingData={billingData} onPhoneNumberChange={onPhoneNumberChange} />
+            <PhoneDropdown paymentMethod={methodName} billingData={billing} handlePhoneChange={handlePhoneChange}/>
             {type === 'afterpayacceptgiro' && (
                 <div className="form-row form-row-wide validate-required">
                     <label htmlFor="buckaroo-afterpay-company-coc-registration">
@@ -48,14 +54,13 @@ const AfterPayView = ({ config,callbacks }) => {
                         name="buckaroo-afterpay-company-coc-registration"
                         className="input-text"
                         type="text"
-                        onChange={(e) => {
-                            onCocRegistrationChange(e.target.value)
-                        }}
+                        onChange={handleChange}
                     />
                 </div>
             )}
 
-            {!isAdditionalCheckboxChecked && <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={onBirthdateChange} />}
+            {!isAdditionalCheckboxChecked &&
+                <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange}/>}
 
             {b2b === 'enable' && type === 'afterpaydigiaccept' && (
                 <div>
@@ -66,20 +71,20 @@ const AfterPayView = ({ config,callbacks }) => {
                                 id="buckaroo-afterpay-b2b"
                                 name="buckaroo-afterpay-b2b"
                                 type="checkbox"
-                                onChange={(e) => handleAdditionalCheckboxChange(e.target.checked)}
+                                onChange={handleAdditionalCheckboxChange}
                             />
                         </label>
                     </div>
-                    {isAdditionalCheckboxChecked && <AfterPayB2B onCocInput={onCocInput} onCompanyInput={onCompanyInput} onAccountName={onAccountName} />}
+                    {isAdditionalCheckboxChecked && <AfterPayB2B handleChange={handleChange}/>}
                 </div>
             )}
             <TermsAndConditionsCheckbox
-                paymentMethod={paymentMethod}
-                onCheckboxChange={onCheckboxChange}
-                billingData={billingData}
+                paymentMethod={methodName}
+                handleTermsChange={handleTermsChange}
+                billingData={billing}
                 b2b={b2b}
             />
-            <FinancialWarning paymentMethod={paymentMethod} />
+            <FinancialWarning paymentMethod={methodName}/>
         </div>
     );
 };

@@ -1,43 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import GenderDropdown from "../partials/buckaroo_gender";
 import {__} from "@wordpress/i18n";
+import useFormData from '../hooks/useFormData';
 
-const PayPerEmailForm = ({ config,callbacks }) => {
+const PayPerEmailForm = ({onStateChange, methodName, gateway: {genders}, billing}) => {
+    const initialState = {
+        [`${methodName}-firstname`]: billing?.first_name || '',
+        [`${methodName}-lastname`]: billing?.last_name || '',
+        [`${methodName}-email`]: billing?.email || '',
+        [`${methodName}-gender`]: ''
+    };
 
-    const {
-        genders,
-        billingData,
-    } = config;
-
-    const {
-        onSelectGender,
-        onFirstNameChange,
-        onLastNameChange,
-        onEmailChange
-    }= callbacks;
-
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [email, setEmail] = useState('');
-    const paymentMethod = 'buckaroo-payperemail';
-
-    useEffect(() => {
-        if(billingData) {
-            setFirstName(billingData.first_name || '');
-            setLastName(billingData.last_name || '');
-            setEmail(billingData.email || '');
-
-            onFirstNameChange(billingData.first_name || '');
-            onLastNameChange(billingData.last_name || '');
-            onEmailChange(billingData.email || '');
-        }
-    }, [billingData]);
-
+    const [formState, handleChange] = useFormData(initialState, onStateChange);
 
     return (
         <div>
-            <GenderDropdown paymentMethod={paymentMethod} genders={genders}
-                            onSelectGender={onSelectGender}></GenderDropdown>
+            <GenderDropdown paymentMethod={methodName} genders={genders}
+                            handleChange={handleChange}/>
 
             <div className="form-row validate-required">
                 <label htmlFor="buckaroo-payperemail-firstname">
@@ -50,11 +29,8 @@ const PayPerEmailForm = ({ config,callbacks }) => {
                     className="input-text"
                     type="text"
                     autoComplete="off"
-                    value={firstName}
-                    onChange={(e) => {
-                        setFirstName(e.target.value);
-                        onFirstNameChange(e.target.value);
-                    }}
+                    value={formState[`${methodName}-firstname`] || ''}
+                    onChange={handleChange}
                 />
             </div>
 
@@ -69,11 +45,8 @@ const PayPerEmailForm = ({ config,callbacks }) => {
                     className="input-text"
                     type="text"
                     autoComplete="off"
-                    value={lastName}
-                    onChange={(e) => {
-                        setLastName(e.target.value);
-                        onLastNameChange(e.target.value);
-                    }}
+                    value={formState[`${methodName}-lastname`] || ''}
+                    onChange={handleChange}
                 />
             </div>
 
@@ -88,11 +61,8 @@ const PayPerEmailForm = ({ config,callbacks }) => {
                     className="input-text"
                     type="email"
                     autoComplete="off"
-                    value={email}
-                    onChange={(e) => {
-                        setEmail(e.target.value);
-                        onEmailChange(e.target.value);
-                    }}
+                    value={formState[`${methodName}-email`] || ''}
+                    onChange={handleChange}
                 />
             </div>
 

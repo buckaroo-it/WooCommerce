@@ -1,7 +1,7 @@
 import React from 'react';
 import {__} from "@wordpress/i18n";
 
-const GenderDropdown = ({ paymentMethod, genders, onSelectGender }) => {
+const GenderDropdown = ({paymentMethod, genders, handleChange}) => {
 
     const translateGender = (key) => {
         const translations = {
@@ -35,9 +35,9 @@ const GenderDropdown = ({ paymentMethod, genders, onSelectGender }) => {
                 </label>
                 <select
                     className="buckaroo-custom-select"
-                    name={`buckaroo-${paymentMethod}`}
-                    id={`buckaroo-${paymentMethod}`}
-                    onChange={(e) => onSelectGender(e.target.value)}
+                    name={`${paymentMethod}-gender`}
+                    id={`${paymentMethod}-gender`}
+                    onChange={handleChange}
                 >
                     <option>{__('Select your Gender', 'wc-buckaroo-bpe-gateway')}</option>
                     {genderOptions}

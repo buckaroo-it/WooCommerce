@@ -240,8 +240,8 @@ class BuckarooConfig extends BuckarooConfigCore {
         ];
 
         $klarnaGenders = [
-            'male' => self::GENDER_MALE,
-            'female' => self::GENDER_FEMALE
+            'male' => 'male',
+            'female' => 'female'
         ];
 
         return [

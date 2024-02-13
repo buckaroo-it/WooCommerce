@@ -1,31 +1,39 @@
-import React, { useState } from 'react';
+import React from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field'
 import GenderDropdown from "../partials/buckaroo_gender";
 import FinancialWarning from "../partials/buckaroo_financial_warning";
 import TermsAndConditionsCheckbox from "../partials/buckaroo_terms_and_condition";
+import useFormData from "../hooks/useFormData";
 
-const Billink = ({ config,callbacks }) => {
+const Billink = ({onStateChange, methodName, gateway: {genders, b2b}, billing}) => {
 
-    const {
-        genders,
-        billingData,
-        b2b
-    } = config;
+    const initialState = {
+        [`${methodName}-gender`]: '',
+        [`${methodName}-birthdate`]: '',
+        [`${methodName}-b2b`]: '',
+    };
 
-    const {
-        onBirthdateChange,
-        onSelectGender,
-        onCheckboxChange,
-    }= callbacks;
+    const [handleChange, updateFormState] = useFormData(initialState, onStateChange);
 
-    const paymentMethod = 'buckaroo-billink';
+    const handleBirthDayChange = (value) => {
+        updateFormState(`${methodName}-birthdate`, value);
+    };
+
+    const handleTermsChange = (value) => {
+        updateFormState(`${methodName}-accept`, value);
+    };
 
     return (
         <div id="buckaroo_billink_b2c">
-            <GenderDropdown paymentMethod={paymentMethod} genders={genders} onSelectGender={onSelectGender}></GenderDropdown>
-            <BirthDayField paymentMethod={paymentMethod} onBirthdateChange={onBirthdateChange}/>
-            <TermsAndConditionsCheckbox paymentMethod={paymentMethod} onCheckboxChange={onCheckboxChange} billingData={billingData} b2b={b2b}/>
-            <FinancialWarning paymentMethod={paymentMethod}></FinancialWarning>
+            <GenderDropdown paymentMethod={methodName} genders={genders} handleChange={handleChange}></GenderDropdown>
+            <BirthDayField paymentMethod={methodName} handleChange={handleBirthDayChange}/>
+            <TermsAndConditionsCheckbox
+                paymentMethod={methodName}
+                b2b={b2b}
+                billingData={billing}
+                handleTermsChange={handleTermsChange}
+            />
+            <FinancialWarning paymentMethod={methodName}></FinancialWarning>
         </div>
     );
 

@@ -1,43 +1,39 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect} from 'react';
 import DefaultDropdown from "../partials/buckaroo_creditcard_dropdown";
 import {__} from "@wordpress/i18n";
 import encryptCardData from "../services/BuckarooClientSideEncryption";
+import useFormData from "../hooks/useFormData";
 
-const CreditCard = ({ config, callbacks }) => {
-    const {
-        creditCardIssuers,
-        creditCardMethod,
-        creditCardIsSecure,
-    } = config;
+const CreditCard = ({
+                        onStateChange,
+                        methodName,
+                        gateway: {paymentMethodId, creditCardIssuers, creditCardMethod, creditCardIsSecure}
+                    }) => {
 
-    const {
-        onCardNameChange,
-        onCardNumberChange,
-        onCardMonthChange,
-        onCardYearChange,
-        onCardCVCChange,
-        onSelectCc,
-        onEncryptedDataChange,
-    } = callbacks;
+    const initialState = {
+        [`${paymentMethodId}-creditcard-issuer`]: '',
+        [`${paymentMethodId}-cardname`]: '',
+        [`${paymentMethodId}-cardnumber`]: '',
+        [`${paymentMethodId}-cardmonth`]: '',
+        [`${paymentMethodId}-cardyear`]: '',
+        [`${paymentMethodId}-cardcvc`]: '',
+        [`${paymentMethodId}-encrypted-data`]: '',
+    };
 
-    const [cardNumber, setCardNumber] = useState('');
-    const [cardName, setCardName] = useState('');
-    const [cardMonth, setCardMonth] = useState('');
-    const [cardYear, setCardYear] = useState('');
-    const [cardCVC, setCardCVC] = useState('');
-
-    const paymentMethod = 'buckaroo-creditcard';
+    const [formData, handleChange, updateFormState] = useFormData(initialState, onStateChange);
 
     const handleEncryption = async () => {
         try {
-            const encryptedData = await encryptCardData({
-                cardName,
-                cardNumber,
-                cardMonth,
-                cardYear,
-                cardCVC,
-            });
-            onEncryptedDataChange(encryptedData);
+            const cardData = {
+                cardName: initialState[`${paymentMethodId}-cardname`],
+                cardNumber: initialState[`${paymentMethodId}-cardnumber`],
+                cardMonth: initialState[`${paymentMethodId}-cardmonth`],
+                cardYear: initialState[`${paymentMethodId}-cardyear`],
+                cardCVC: initialState[`${paymentMethodId}-cardcvc`],
+            };
+            const encryptedData = await encryptCardData(cardData);
+
+            updateFormState(`${methodName}-encrypted-data`, encryptedData);
         } catch (error) {
             console.error("Encryption error:", error);
         }
@@ -47,18 +43,16 @@ const CreditCard = ({ config, callbacks }) => {
         if (creditCardMethod === 'encrypt' && creditCardIsSecure === true) {
             handleEncryption();
         }
-    }, [cardNumber, cardName, cardMonth, cardYear, cardCVC, creditCardMethod, onEncryptedDataChange, creditCardIsSecure]);
+    }, [initialState[`${paymentMethodId}-cardnumber`], initialState[`${paymentMethodId}-cardname`], initialState[`${paymentMethodId}-cardmonth`], initialState[`${paymentMethodId}-cardyear`], initialState[`${paymentMethodId}-cardcvc`], creditCardMethod, creditCardIsSecure]);
 
     return (
         <div>
 
             <p className="form-row form-row-wide">
                 <DefaultDropdown
-                    paymentMethod={paymentMethod}
+                    paymentMethodId={paymentMethodId}
                     creditCardIssuers={creditCardIssuers}
-                    onSelectCc={(selectedIssuer) => {
-                        onSelectCc(selectedIssuer);
-                    }}
+                    handleChange={handleChange}
                 />
             </p>
 
@@ -66,50 +60,44 @@ const CreditCard = ({ config, callbacks }) => {
                 <div className="method--bankdata">
 
                     <div className="form-row">
-                        <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardname`}>
+                        <label className="buckaroo-label" htmlFor={`${paymentMethodId}-cardname`}>
                             {__('Cardholder Name:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
 
                         </label>
                         <input
                             type="text"
-                            name={`${paymentMethod}-cardname`}
-                            id={`${paymentMethod}-cardname`}
+                            name={`${paymentMethodId}-cardname`}
+                            id={`${paymentMethodId}-cardname`}
                             placeholder={__('Cardholder Name:', 'wc-buckaroo-bpe-gateway')}
                             className="cardHolderName input-text"
                             maxLength="250"
                             autoComplete="off"
-                            onChange={(e) => {
-                                setCardName(e.target.value);
-                                onCardNameChange(e.target.value);
-                            }}
+                            onChange={handleChange}
                         />
 
                     </div>
 
                     <div className="form-row">
-                        <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardnumber`}>
+                        <label className="buckaroo-label" htmlFor={`${paymentMethodId}-cardnumber`}>
                             {__('Card Number:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
                         </label>
 
                         <input
                             type="text"
-                            name={`${paymentMethod}-cardnumber`}
-                            id={`${paymentMethod}-cardnumber`}
+                            name={`${paymentMethodId}-cardnumber`}
+                            id={`${paymentMethodId}-cardnumber`}
                             placeholder={__('Card Number:', 'wc-buckaroo-bpe-gateway')}
                             className="cardNumber input-text"
                             maxLength="250"
                             autoComplete="off"
-                            onChange={(e) => {
-                                setCardNumber(e.target.value);
-                                onCardNumberChange(e.target.value);
-                            }}
+                            onChange={handleChange}
                         />
                     </div>
 
                     <div className="form-row">
-                        <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardmonth`}>
+                        <label className="buckaroo-label" htmlFor={`${paymentMethodId}-cardmonth`}>
                             {__('Expiration Month:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
                         </label>
@@ -117,55 +105,46 @@ const CreditCard = ({ config, callbacks }) => {
                         <input
                             type="text"
                             maxLength="2"
-                            name={`${paymentMethod}-cardmonth`}
-                            id={`${paymentMethod}-cardmonth`}
+                            name={`${paymentMethodId}-cardmonth`}
+                            id={`${paymentMethodId}-cardmonth`}
                             placeholder={__('Expiration Month:', 'wc-buckaroo-bpe-gateway')}
                             className="expirationMonth input-text"
                             autoComplete="off"
-                            onChange={(e) => {
-                                setCardMonth(e.target.value);
-                                onCardMonthChange(e.target.value);
-                            }}
+                            onChange={handleChange}
                         />
                     </div>
 
                     <div className="form-row">
-                        <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardyear`}>
+                        <label className="buckaroo-label" htmlFor={`${paymentMethodId}-cardyear`}>
                             {__('Expiration Year:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
                         </label>
                         <input
                             type="text"
                             maxLength="4"
-                            name={`${paymentMethod}-cardyear`}
-                            id={`${paymentMethod}-cardyear`}
+                            name={`${paymentMethodId}-cardyear`}
+                            id={`${paymentMethodId}-cardyear`}
                             placeholder={__('Expiration Year:', 'wc-buckaroo-bpe-gateway')}
                             className="expirationYear input-text"
                             autoComplete="off"
-                            onChange={(e) => {
-                                setCardYear(e.target.value);
-                                onCardYearChange(e.target.value);
-                            }}
+                            onChange={handleChange}
                         />
                     </div>
 
                     <div className="form-row">
-                        <label className="buckaroo-label" htmlFor={`${paymentMethod}-cardcvc`}>
+                        <label className="buckaroo-label" htmlFor={`${paymentMethodId}-cardcvc`}>
                             {__('CVC:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
                         </label>
                         <input
                             type="password"
                             maxLength="4"
-                            name={`${paymentMethod}-cardcvc`}
-                            id={`${paymentMethod}-cardcvc`}
+                            name={`${paymentMethodId}-cardcvc`}
+                            id={`${paymentMethodId}-cardcvc`}
                             placeholder={__('CVC:', 'wc-buckaroo-bpe-gateway')}
                             className="cvc input-text"
                             autoComplete="off"
-                            onChange={(e) => {
-                                setCardCVC(e.target.value);
-                                onCardCVCChange(e.target.value);
-                            }}
+                            onChange={handleChange}
                         />
                     </div>
 

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {__} from "@wordpress/i18n";
 
-const TermsAndConditionsCheckbox = ({paymentMethod,b2b, onCheckboxChange, billingData}) => {
+const TermsAndConditionsCheckbox = ({paymentMethod, b2b, handleTermsChange, billingData}) => {
     const [isChecked, setIsChecked] = useState(false);
 
     const getTermsUrl = (country, isB2B = false) => {
@@ -34,7 +34,7 @@ const TermsAndConditionsCheckbox = ({paymentMethod,b2b, onCheckboxChange, billin
     }
     const handleCheckboxChange = () => {
         setIsChecked(!isChecked);
-        onCheckboxChange(!isChecked);
+        handleTermsChange(!isChecked);
     };
 
     return (
