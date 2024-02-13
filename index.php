@@ -454,7 +454,7 @@ function buckaroo_init_gateway()
         $gateway = new WC_Gateway_Buckaroo_PayPerEmail();
         if (isset($gateway)) {
             $response = $gateway->process_payment($order->get_id(),1);
-            wp_send_json($response);
+            wp_redirect($response);
         }
     }
 
