@@ -32,12 +32,12 @@ class BuckarooValidateCreditCards {
             );
         }),
 
-        this.form.on('input', ".expirationMonth", function(e) {
-            self.toggleClasses(
-                validator.validateMonth(e.target.value),
-                e.target
-            );
-        });
+            this.form.on('input', ".expirationMonth", function(e) {
+                self.toggleClasses(
+                    validator.validateMonth(e.target.value),
+                    e.target
+                );
+            });
         this.form.submit(this.submit.bind(this));
     };
 

@@ -26,14 +26,14 @@ $country = !empty($country) ? $country : $this->country;
 <fieldset>
     <?php if ($country == "FI") {?>
     <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-afterpaynew-IdentificationNumber">
+        <label for="buckaroo-afterpaynew-identification-number">
             <?php echo esc_html_e('Identification Number', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
 
         <input 
-        id="buckaroo-afterpaynew-IdentificationNumber"
-        name="buckaroo-afterpaynew-IdentificationNumber"
+        id="buckaroo-afterpaynew-identification-number"
+        name="buckaroo-afterpaynew-identification-number"
         class="input-text"
         type="text"
         maxlength="250"

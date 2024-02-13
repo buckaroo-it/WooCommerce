@@ -159,6 +159,17 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             BuckarooConfig::getIconPath($oldPath, $newPath)
         );
     }
+
+    /**
+     * Get gateway icon
+     *
+     * @return string
+     */
+
+	public function getIcon() {
+
+		return $this->icon;
+	}
     /**
      * Set country field
      *

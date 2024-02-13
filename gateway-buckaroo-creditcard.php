@@ -242,7 +242,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         ))) {
             wc_add_notice(__("A valid credit card is required.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
-        if ($this->get_option('creditcardmethod') == 'encrypt') {
+        if ($this->get_option('creditcardmethod') == 'encrypt' && $this->isSecure()) {
             $card_year = $this->request($this->id.'-cardyear');
 
             if ($card_year === null) {
