@@ -250,9 +250,8 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
             processPushTransactionSucceeded($order_id, $order, $response, $payment_method);
 
         } else {
-            $allowed_payment_methods_for_cancellation = ['buckaroo_payperemail', 'buckaroo_transfer'];
 
-            if (in_array($order->get_payment_method(), $allowed_payment_methods_for_cancellation)) {
+            if (in_array($order->get_payment_method(), ['buckaroo_payperemail', 'buckaroo_transfer'])) {
                 Buckaroo_Logger::log('Payperemail status check: ' . $response->statuscode);
                 if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
             }
@@ -435,9 +434,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         } else {
             Buckaroo_Logger::log('||| infoLog ' . $response->status);
 
-            $allowed_payment_methods_for_cancellation = ['buckaroo_payperemail', 'buckaroo_transfer'];
-
-            if (in_array($order->get_payment_method(), $allowed_payment_methods_for_cancellation)) {
+            if (in_array($order->get_payment_method(),['buckaroo_payperemail', 'buckaroo_transfer'])) {
                 Buckaroo_Logger::log('Payperemail status check: ' . $response->statuscode);
                 if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
             }
