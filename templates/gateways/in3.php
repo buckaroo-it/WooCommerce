@@ -17,6 +17,7 @@ defined('ABSPATH') || exit;
 
 $country = $this->getScalarCheckoutField('billing_country');
 $country = !empty($country) ? $country : $this->country;
+$customer_phone = $this->getScalarCheckoutField('billing_phone');
 
 ?>
 <fieldset>
@@ -26,4 +27,19 @@ $country = !empty($country) ? $country : $this->country;
     <?php endif;
     $this->getPaymentTemplate('financial_warning');
     ?>
+
+    <?php if (strlen(trim($customer_phone)) === 0) : ?>
+    <p class="form-row validate-required">
+        <label for="buckaroo-in3-phone">
+            <?php echo esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway') ?>
+            <span class="required">*</span>
+        </label>
+
+        <input id="buckaroo-in3-phone"
+        name="buckaroo-in3-phone"
+        class="input-tel"
+        type="tel"
+        autocomplete="off">
+    </p>
+    <?php endif;?>
 </fieldset>

@@ -73,6 +73,13 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         if ($country === 'NL' && !$this->validateDate($birthdate, 'd-m-Y')) {
             wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
         }
+        
+        if (
+            $this->request('billing_phone') === null &&
+            $this->request('buckaroo-in3-phone') === null
+        ) {
+            wc_add_notice(__("Please enter phone number", 'wc-buckaroo-bpe-gateway'), 'error');
+        }
 
         parent::validate_fields();
     }
@@ -175,6 +182,12 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             $order_details->getBilling('first_name')
         );
         $method->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
+
+        $phone = $this->request('buckaroo-in3-phone');
+
+        if (is_scalar($phone) && trim(strlen((string) $phone)) > 0) {
+            $method->BillingPhoneNumber = $phone;
+        }
 
         return $method;
     }
