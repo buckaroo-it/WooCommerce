@@ -77,7 +77,7 @@ class BuckarooIn3 extends BuckarooPaymentMethod
                 $this->order_details->getBilling('first_name') . " " . $this->order_details->getBilling('last_name')
             ),
             'BirthDate' => date('Y-m-d', strtotime($this->request->request('buckaroo-in3-birthdate'))),
-            'Phone' => $this->order_details->getBillingPhone(),
+            'Phone' => $this->getPhoneNumber(),
             'Email' => $this->order_details->getBilling('email'),
             'Category' => 'B2C',
 
@@ -99,6 +99,16 @@ class BuckarooIn3 extends BuckarooPaymentMethod
         }
 
         return parent::pay();
+    }
+
+    private function getPhoneNumber() {
+        $phone = $this->request->request('buckaroo-in3-phone');
+
+        if (is_scalar($phone) && trim(strlen((string) $phone)) > 0) {
+            return $phone;
+        }
+        
+        return $this->order_details->getBillingPhone();
     }
 
     private function setDefaultProductParams($product, $position)
