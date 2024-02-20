@@ -251,6 +251,9 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
 
         } else {
 
+            if ($response->status == BuckarooAbstract::CODE_PENDING_PROCESSING && $order->get_payment_method() == 'buckaroo_in3'){
+                return;
+            }
             if (in_array($order->get_payment_method(), ['buckaroo_payperemail', 'buckaroo_transfer'])) {
                 Buckaroo_Logger::log('Payperemail status check: ' . $response->statuscode);
                 if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
@@ -434,6 +437,9 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         } else {
             Buckaroo_Logger::log('||| infoLog ' . $response->status);
 
+            if ($response->status == BuckarooAbstract::CODE_PENDING_PROCESSING && $order->get_payment_method() == 'buckaroo_in3'){
+                return;
+            }
             if (in_array($order->get_payment_method(),['buckaroo_payperemail', 'buckaroo_transfer'])) {
                 Buckaroo_Logger::log('Payperemail status check: ' . $response->statuscode);
                 if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
