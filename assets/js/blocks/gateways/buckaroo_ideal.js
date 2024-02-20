@@ -2,13 +2,12 @@ import React from 'react';
 import useFormData from "../hooks/useFormData";
 
 const IdealDropdown = ({onStateChange, methodName, gateway: {idealIssuers}}) => {
-    const formFieldName = `${methodName}-issuer`;
 
-    const [formState, updateFormState] = useFormData({[formFieldName]: ''}, onStateChange);
-    const handleChange = (e) => {
-        const {value} = e.target;
-        updateFormState(formFieldName, value);
+    const initialState = {
+        [`${methodName}-issuer`]: '',
     };
+
+    const [formState, handleChange] = useFormData(initialState, onStateChange);
 
     return (
         <div className="payment_box payment_method_buckaroo_ideal">
@@ -18,12 +17,12 @@ const IdealDropdown = ({onStateChange, methodName, gateway: {idealIssuers}}) => 
                     name="buckaroo-ideal-issuer"
                     id="buckaroo-ideal-issuer"
                     onChange={handleChange}
-                    value={formState[formFieldName]}
                 >
                     <option value="">Select your bank</option>
-                    {Object.entries(idealIssuers).map(([issuerCode, {name}]) => (
+
+                    {Object.keys(idealIssuers).map((issuerCode) => (
                         <option key={issuerCode} value={issuerCode}>
-                            {name}
+                            {idealIssuers[issuerCode].name}
                         </option>
                     ))}
                 </select>
