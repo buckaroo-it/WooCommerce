@@ -1,15 +1,22 @@
-import React, {useState, useEffect} from 'react';
-import {__} from "@wordpress/i18n";
+import React, { useState, useEffect } from 'react';
+import { __ } from '@wordpress/i18n';
 
-const PhoneDropdown = ({paymentMethod, billingData, handlePhoneChange}) => {
+const PhoneDropdown = ({ paymentMethod, billingData, handlePhoneChange }) => {
     const [phoneNumber, setPhoneNumber] = useState('');
-    useEffect(() => {
-        if (billingData) {
-            setPhoneNumber(billingData.phone || '');
 
-            handlePhoneChange(billingData.phone || '');
+    useEffect(() => {
+        if (billingData && billingData.phone) {
+            setPhoneNumber(billingData.phone);
+            handlePhoneChange(billingData.phone);
         }
-    }, [billingData]);
+    }, [billingData, handlePhoneChange]);
+
+    const handleChange = (e) => {
+        const value = e.target.value;
+        setPhoneNumber(value);
+        handlePhoneChange(value);
+    };
+
     return (
         <div className="form-row validate-required">
             <label htmlFor={`${paymentMethod}-phone`}>
@@ -17,13 +24,13 @@ const PhoneDropdown = ({paymentMethod, billingData, handlePhoneChange}) => {
                 <span className="required">*</span>
             </label>
             <input
-                id={`buckaroo-${paymentMethod}`}
-                name={`buckaroo-${paymentMethod}`}
+                id={`${paymentMethod}-phone`}
+                name={`${paymentMethod}-phone`}
                 className="input-text"
                 type="tel"
                 autoComplete="off"
                 value={phoneNumber}
-                onChange={handlePhoneChange}
+                onChange={handleChange}
             />
         </div>
     );
