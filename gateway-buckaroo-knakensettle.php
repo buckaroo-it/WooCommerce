@@ -12,7 +12,7 @@ class WC_Gateway_Buckaroo_KnakenSettle extends WC_Gateway_Buckaroo
     public function __construct()
     {
 
-        $this->id                     = 'buckaroo_knakensettle';
+        $this->id                     = 'buckaroo_knaken';
         $this->title                  = 'Knaken Settle';
 	    $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Knaken Settle';
@@ -45,12 +45,7 @@ class WC_Gateway_Buckaroo_KnakenSettle extends WC_Gateway_Buckaroo
 	{
 		$order = getWCOrder($order_id);
 		/** @var BuckarooKnakenSettle */
-		$knaken = $this->createDebitRequest($order);
-		$customVars     = array();
-
-
-
-		$response = $knaken->Pay($customVars);
-		return fn_buckaroo_process_response($this, $response);
+		$request = $this->createDebitRequest($order);
+		return fn_buckaroo_process_response($this, $request->Pay());
 	}
 }
