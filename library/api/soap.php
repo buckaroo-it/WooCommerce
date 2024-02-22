@@ -78,10 +78,14 @@
                 }
                 $TransactionRequest->StartRecurrent = FALSE;
                 
-                if (isset($this->_vars['customVars']['servicesSelectableByClient']) && isset($this->_vars['customVars']['continueOnIncomplete'])) {
+                if (isset($this->_vars['customVars']['servicesSelectableByClient'])) {
                     $TransactionRequest->ServicesSelectableByClient = $this->_vars['customVars']['servicesSelectableByClient'];
+                }
+                
+                if (isset($this->_vars['customVars']['continueOnIncomplete'])) {
                     $TransactionRequest->ContinueOnIncomplete       = $this->_vars['customVars']['continueOnIncomplete'];
                 }
+                
 
                 $this->_addCustomParameters($TransactionRequest);
 
