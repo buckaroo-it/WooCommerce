@@ -29,6 +29,8 @@ class BuckarooIDeal extends BuckarooPaymentMethod {
                 'issuer',
                 $this->issuer
             );
+        } else {
+            $this->setCustomVarWithoutType(["continueOnIncomplete" => "RedirectToHTML"]);
         }
         return parent::Pay();
     }
