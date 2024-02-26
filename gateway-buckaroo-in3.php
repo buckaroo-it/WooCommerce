@@ -78,7 +78,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             $this->request('billing_phone') === null &&
             $this->request('buckaroo-in3-phone') === null
         ) {
-            wc_add_notice(__("Please enter phone number", 'wc-buckaroo-bpe-gateway'), 'error');
+            wc_add_notice(__("Please fill in a phone number for iDEAL In3. This is required in order to use this payment method.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
         parent::validate_fields();
