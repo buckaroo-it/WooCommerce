@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WC Buckaroo BPE Gateway\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-14 12:03+0000\n"
-"PO-Revision-Date: 2024-02-26 10:55+0000\n"
+"PO-Revision-Date: 2024-02-27 08:45+0000\n"
 "Last-Translator: \n"
 "Language-Team: French (France)\n"
 "Language: fr_FR\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.6.4; wp-6.2.2"
+"X-Loco-Version: 2.6.5; wp-6.4.3"
 
 #: gateway-buckaroo-klarna.php:73 gateway-buckaroo-klarna.php:81
 msgid ")"
@@ -724,10 +724,10 @@ msgstr ""
 
 #: gateway-buckaroo-in3.php:81
 msgid ""
-"Please fill in a phone number for iDEAL In3. This is required in order to "
-"use this payment method."
+"Please fill in a phone number for %s. This is required in order to use this "
+"payment method."
 msgstr ""
-"Veuillez remplir un numéro de téléphone pour iDEAL In3. Ceci est requis pour "
+"Veuillez remplir un numéro de téléphone pour %s. Ceci est requis pour "
 "utiliser ce mode de paiement."
 
 #: gateway-buckaroo-sepadirectdebit.php:58

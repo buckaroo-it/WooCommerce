@@ -26,8 +26,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo In3';
 
-        $api_version = $this->get_option('api_version');
-        $this->title = $api_version === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
+        $this->title = $this->getTitleForVersion();
 
         $this->setCountry();
 
@@ -35,6 +34,10 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
 
         $this->set_icons();
         $this->addRefundSupport();
+    }
+
+    private function getTitleForVersion() {
+        return $this->get_option('api_version') === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
     }
     /**  @inheritDoc */
     protected function setProperties()
@@ -78,7 +81,13 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             $this->request('billing_phone') === null &&
             $this->request('buckaroo-in3-phone') === null
         ) {
-            wc_add_notice(__("Please fill in a phone number for iDEAL In3. This is required in order to use this payment method.", 'wc-buckaroo-bpe-gateway'), 'error');
+            wc_add_notice(
+                sprintf(
+                    __("Please fill in a phone number for %s. This is required in order to use this payment method.", 'wc-buckaroo-bpe-gateway'),
+                    $this->getTitleForVersion()
+                ),
+                'error'
+            );
         }
 
         parent::validate_fields();
