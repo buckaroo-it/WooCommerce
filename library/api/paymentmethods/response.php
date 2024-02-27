@@ -117,6 +117,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
 
     public function isValid()
     {
+        
         if (!$this->_validated) {
             if ($this->_isPost) {
                 $this->_validated = $this->_canProcessPush();
@@ -511,7 +512,7 @@ abstract class BuckarooResponse extends BuckarooAbstract
     {
         $correctSignature = false;
         $signature = $this->_calculateSignature();
-        if (isset($_POST['brq_signature']) && is_string($_POST['brq_signature']) && $signature === $_POST['brq_signature']) {
+	    if (isset($_POST['brq_signature']) && is_string($_POST['brq_signature']) && $signature === $_POST['brq_signature']) {
             $correctSignature = true;
         }
         return $correctSignature;
@@ -606,6 +607,8 @@ abstract class BuckarooResponse extends BuckarooAbstract
             if ($url_decode) {
                 $value = urldecode($value);
             }
+
+            $key = $this->getCorrectKey($key);
             $signatureString .= $key . '=' . $value;
         }
         $transaction_method = isset($origArray['brq_transaction_method']) ? $origArray['brq_transaction_method'] : null;
@@ -615,6 +618,20 @@ abstract class BuckarooResponse extends BuckarooAbstract
         $signature = SHA1($signatureString);
 
         return $signature;
+    }
+
+    private function getCorrectKey(string $key): string
+    {
+        if ($key === 'brq_SERVICE_knaken_Buyer_UUID')
+        {
+            $key = 'brq_SERVICE_knaken_Buyer UUID';
+        }
+
+        if ($key === 'brq_SERVICE_knaken_Buyer_Name')
+        {
+            $key = 'brq_SERVICE_knaken_Buyer Name';
+        }
+        return $key;
     }
 
     public function getCartId()
