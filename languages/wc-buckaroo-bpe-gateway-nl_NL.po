@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - Buckaroo Woocommerce Payments Plugin - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-02-26 10:53+0000\n"
+"PO-Revision-Date: 2024-02-27 08:44+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -748,11 +748,11 @@ msgstr "Voer een geldig emailadres in"
 
 #: gateway-buckaroo-in3.php:81
 msgid ""
-"Please fill in a phone number for iDEAL In3. This is required in order to "
-"use this payment method."
+"Please fill in a phone number for %s. This is required in order to use this "
+"payment method."
 msgstr ""
-"Vul alstublieft een telefoonnummer in voor iDEAL In3. dit is verplicht om "
-"gebruik te maken van deze betaalmethode."
+"Vul alstublieft een telefoonnummer in voor %s. dit is verplicht om gebruik "
+"te maken van deze betaalmethode."
 
 #: gateway-buckaroo-sepadirectdebit.php:58
 msgid "Please fill in all required fields"

@@ -721,7 +721,7 @@ msgstr ""
 
 #: gateway-buckaroo-in3.php:81
 msgid ""
-"Please fill in a phone number for iDEAL In3. This is required in order to "
+"Please fill in a phone number for %s. This is required in order to "
 "use this payment method."
 msgstr ""
 
