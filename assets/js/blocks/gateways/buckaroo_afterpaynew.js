@@ -8,7 +8,7 @@ import useFormData from "../hooks/useFormData";
 
 const AfterPayNew = ({onStateChange, methodName, gateway: {customer_type, b2b}, billing}) => {
     const initialState = {
-        [`${methodName}-phone`]: '',
+        [`${methodName}-phone`]: billing?.phone || '',
         [`${methodName}-birthdate`]: '',
         [`${methodName}-company-coc-registration`]: '',
         [`${methodName}-accept`]: '',
@@ -29,7 +29,7 @@ const AfterPayNew = ({onStateChange, methodName, gateway: {customer_type, b2b}, 
 
     return (
         <div>
-            <PhoneDropdown paymentMethod={methodName} billingData={billing} handlePhoneChange={handlePhoneChange}/>
+            <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange}/>
 
             {(['BE', 'NL', 'DE'].includes(billing.country)) && (
                 <div>

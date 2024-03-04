@@ -1,19 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { __ } from '@wordpress/i18n';
 
-const PhoneDropdown = ({ paymentMethod, billingData, handlePhoneChange }) => {
-    const [phoneNumber, setPhoneNumber] = useState('');
-
-    useEffect(() => {
-        if (billingData && billingData.phone && billingData.phone !== phoneNumber) {
-            setPhoneNumber(billingData.phone);
-            handlePhoneChange(billingData.phone);
-        }
-    }, [billingData, phoneNumber, handlePhoneChange]);
-
+const PhoneDropdown = ({ paymentMethod, formState, handlePhoneChange }) => {
     const handleChange = (e) => {
         const value = e.target.value;
-        setPhoneNumber(value);
         handlePhoneChange(value);
     };
 
@@ -29,7 +19,7 @@ const PhoneDropdown = ({ paymentMethod, billingData, handlePhoneChange }) => {
                 className="input-text"
                 type="tel"
                 autoComplete="off"
-                value={phoneNumber}
+                value={formState[`${paymentMethod}-phone`] || ''}
                 onChange={handleChange}
             />
         </div>
