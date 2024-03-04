@@ -17,7 +17,7 @@ const AfterPayNew = ({onStateChange, methodName, gateway: {customer_type, b2b}, 
     const [formState, handleChange, updateFormState] = useFormData(initialState, onStateChange);
 
     const handleTermsChange = (value) => {
-        updateFormState(`${methodName}-accept`, value);
+        updateFormState(`${methodName}-accept`, +value);
     };
 
     const handleBirthDayChange = (value) => {
