@@ -5,11 +5,11 @@ const PhoneDropdown = ({ paymentMethod, billingData, handlePhoneChange }) => {
     const [phoneNumber, setPhoneNumber] = useState('');
 
     useEffect(() => {
-        if (billingData && billingData.phone) {
+        if (billingData && billingData.phone && billingData.phone !== phoneNumber) {
             setPhoneNumber(billingData.phone);
             handlePhoneChange(billingData.phone);
         }
-    }, [billingData, handlePhoneChange]);
+    }, [billingData, phoneNumber, handlePhoneChange]);
 
     const handleChange = (e) => {
         const value = e.target.value;

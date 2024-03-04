@@ -266,7 +266,7 @@ msgid "COC (KvK) number:"
 msgstr "KvK nummer:"
 
 #: templates/gateways/afterpaynew.php:66
-msgid "CoC-number:"
+msgid "CoC:"
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:275
@@ -719,8 +719,8 @@ msgstr ""
 
 #: gateway-buckaroo-afterpay.php:267 gateway-buckaroo-in3.php:74
 #: gateway-buckaroo-afterpaynew.php:312
-msgid "Please enter correct birthdate date"
-msgstr "Vul alstublieft een juiste geboortedatum in"
+msgid "You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order."
+msgstr "U moet minimaal 18 jaar oud zijn om gebruik te kunnen maken van deze betaalmethode. Vul a.u.b. uw juiste geboortedatum in. Of kies een andere betaalmethode om je bestelling af te ronden."
 
 #: gateway-buckaroo-billink.php:44
 msgid "Please enter correct COC (KvK) number"
