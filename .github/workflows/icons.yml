@@ -31,6 +31,7 @@ jobs:
         run: |
             cd Media
             cp -R "Creditcard issuers/SVG/." ${{ github.workspace }}/library/buckaroo_images/creditcards/
+            rm -f mastercard_debit.svg
       - name: Copy payment issuers icons
         run: |
             cd Media
