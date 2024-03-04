@@ -118,7 +118,7 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'default'     => 'dynamic',
             'id'          => 'woocommerce_buckaroo_mastersettings_culture',
         );
-	    if ($this->get_option('buckaroo_culture') === 'dynamic') {
+	    if ($this->get_option('culture') === 'dynamic') {
 		    add_filter('woocommerce_settings_api_form_fields_' . $this->id, array($this, 'enqueue_scripts'));
 	    }
 
