@@ -7,8 +7,8 @@ import PhoneDropdown from "../partials/buckaroo_phone";
 const In3 = ({onStateChange, methodName, billing}) => {
 
     const initialState = {
+        [`${methodName}-phone`]: billing?.phone || '',
         [`${methodName}-birthdate`]: '',
-        [`${methodName}-phone`]: billing.phone || '',
     };
 
     const [formState, handleChange, updateFormState] = useFormData(initialState, onStateChange);
@@ -28,7 +28,7 @@ const In3 = ({onStateChange, methodName, billing}) => {
                 <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange}/>
             }
             {billing.phone === "" &&
-                <PhoneDropdown paymentMethod={methodName} billingData={billing} handlePhoneChange={handlePhoneChange}/>
+                <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange}/>
             }
             <FinancialWarning paymentMethod={methodName}></FinancialWarning>
         </div>

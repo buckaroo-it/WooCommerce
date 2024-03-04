@@ -308,8 +308,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $birthdate = $this->parseDate(
             $this->request('buckaroo-afterpaynew-birthdate')
         );
-        if (!$this->validateDate($birthdate, 'd-m-Y') && in_array($country, ['NL', 'BE'])) {
-            wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
+
+	    if (!($this->validateDate($birthdate, 'd-m-Y') && $this->validateBirthdate($birthdate)) && in_array($country, ['NL', 'BE']) ) {
+            wc_add_notice(__("You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
         if ($this->request("buckaroo-afterpaynew-accept") === null) {
@@ -321,7 +322,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $country === 'NL' &&
             $this->request('billing_company') !== null
         ) {
-            if ($this->request("buckaroo-afterpaynew-coc") === null) {
+            if ($this->request("buckaroo-afterpaynew-company-coc-registration") === null) {
                 wc_add_notice(__("Company registration number is required", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
@@ -391,8 +392,8 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-identification-number");
         }
 
-        if ($this->request("buckaroo-afterpaynew-coc") !== null) {
-            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-coc");
+        if ($this->request("buckaroo-afterpaynew-company-coc-registration") !== null) {
+            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-company-coc-registration");
         }
 
         $afterpay->returnUrl = $this->notify_url;

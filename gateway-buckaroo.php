@@ -561,6 +561,22 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $d = DateTime::createFromFormat($format, $date);
         return $d && $d->format($format) == $date;
     }
+	/**
+	 * Check that a user is 18 years or older.
+	 *
+	 * @param String $birthdate Birthdate expressed as a string
+     *
+	 * @return Boolean Is user 18 years or older return true, else false
+	 */
+	public function validateBirthdate($birthdate) {
+
+		$currentDate = new DateTime();
+		$userBirthdate = DateTime::createFromFormat('d-m-Y', $birthdate);
+
+		$ageInterval = $currentDate->diff($userBirthdate)->y;
+
+		return $ageInterval >= 18;
+	}
 
     public function parseDate($date)
     {

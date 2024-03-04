@@ -9,7 +9,7 @@ import useFormData from '../hooks/useFormData';
 
 const AfterPayView = ({onStateChange, methodName, gateway: {type, b2b}, billing}) => {
     const initialState = {
-        [`${methodName}-phone`]: '',
+        [`${methodName}-phone`]: billing?.phone || '',
         [`${methodName}-birthdate`]: '',
         [`${methodName}-b2b`]: '',
         [`${methodName}-company-coc-registration`]: '',
@@ -17,7 +17,7 @@ const AfterPayView = ({onStateChange, methodName, gateway: {type, b2b}, billing}
         [`${methodName}-accept`]: '',
     };
 
-    const [formData, handleChange, updateFormState] = useFormData(initialState, onStateChange);
+    const [formState, handleChange, updateFormState] = useFormData(initialState, onStateChange);
 
     const handleTermsChange = (value) => {
         updateFormState(`${methodName}-accept`, value);
@@ -41,7 +41,7 @@ const AfterPayView = ({onStateChange, methodName, gateway: {type, b2b}, billing}
 
     return (
         <div>
-            <PhoneDropdown paymentMethod={methodName} billingData={billing} handlePhoneChange={handlePhoneChange}/>
+            <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange}/>
             {type === 'afterpayacceptgiro' && (
                 <div className="form-row form-row-wide validate-required">
                     <label htmlFor="buckaroo-afterpay-company-coc-registration">

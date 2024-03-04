@@ -8,7 +8,7 @@ import useFormData from "../hooks/useFormData";
 
 const AfterPayNew = ({onStateChange, methodName, gateway: {customer_type, b2b}, billing}) => {
     const initialState = {
-        [`${methodName}-phone`]: '',
+        [`${methodName}-phone`]: billing?.phone || '',
         [`${methodName}-birthdate`]: '',
         [`${methodName}-company-coc-registration`]: '',
         [`${methodName}-accept`]: '',
@@ -29,7 +29,7 @@ const AfterPayNew = ({onStateChange, methodName, gateway: {customer_type, b2b}, 
 
     return (
         <div>
-            <PhoneDropdown paymentMethod={methodName} billingData={billing} handlePhoneChange={handlePhoneChange}/>
+            <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange}/>
 
             {(['BE', 'NL', 'DE'].includes(billing.country)) && (
                 <div>
@@ -39,13 +39,13 @@ const AfterPayNew = ({onStateChange, methodName, gateway: {customer_type, b2b}, 
 
             {billing.country === 'NL' && customer_type !== 'b2c' && (
                 <p className="form-row form-row-wide validate-required">
-                    <label htmlFor="buckaroo-afterpaynew-coc">
+                    <label htmlFor="buckaroo-afterpaynew-company-coc-registration">
                         {__('CoC-number:', 'wc-buckaroo-bpe-gateway')}
                         <span className="required">*</span>
                     </label>
                     <input
-                        id="buckaroo-afterpaynew-coc"
-                        name="buckaroo-afterpaynew-coc"
+                        id={`${methodName}-company-coc-registration`}
+                        name={`${methodName}-company-coc-registration`}
                         className="input-text"
                         type="text"
                         maxLength="250"
