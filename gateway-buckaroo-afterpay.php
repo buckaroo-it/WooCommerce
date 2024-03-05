@@ -264,7 +264,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $birthdate = $this->parseDate($this->request('buckaroo-afterpay-birthdate'));
         $b2b       = $this->request("buckaroo-afterpay-b2b");
         if (!$this->validateDate($birthdate, 'd-m-Y') && $b2b != 'ON') {
-            wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
+            wc_add_notice(__("You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
         if ($b2b == 'ON') {

@@ -22,7 +22,7 @@ class BuckarooCheckout {
     jQuery("#billing_company").on("input", function () {
       self.bilink_toggle(jQuery(this).val());
 
-      jQuery("#buckaroo-afterpaynew-coc")
+      jQuery("#buckaroo-afterpaynew-company-coc-registration")
         .parent()
         .toggle(jQuery.trim(jQuery(this).val()).length !== 0);
     });
@@ -70,7 +70,7 @@ class BuckarooCheckout {
     if (jQuery("input[name=billing_phone]").length) {
       jQuery("#buckaroo-afterpaynew-phone").parent().hide();
     }
-    jQuery("#buckaroo-afterpaynew-coc")
+    jQuery("#buckaroo-afterpaynew-company-coc-registration")
       .parent()
       .toggle(
         jQuery.trim(jQuery("input[name=billing_company]").val()).length !== 0
