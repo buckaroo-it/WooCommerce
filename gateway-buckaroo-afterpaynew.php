@@ -330,18 +330,16 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         if ($this->request('buckaroo-afterpaynew-phone') === null && $this->request('billing_phone') === null) {
             wc_add_notice(__("Please enter phone number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
-        
+
         if (
-            $this->is_house_number_invalid('billing') &&
-            $country === 'DE'
+            $this->is_house_number_invalid('billing')
         ) {
             wc_add_notice(__("Invalid billing address, cannot find house number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
         if (
             $this->is_house_number_invalid('shipping') &&
-            $this->request('ship_to_different_address') == 1 &&
-            $country === 'DE'
+            $this->request('ship_to_different_address') == 1
         ) {
             wc_add_notice(__("Invalid shipping address, cannot find house number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
