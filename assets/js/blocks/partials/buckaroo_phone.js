@@ -9,7 +9,7 @@ const PhoneDropdown = ({ paymentMethod, billingData, handlePhoneChange }) => {
             setPhoneNumber(billingData.phone);
             handlePhoneChange(billingData.phone);
         }
-    }, [billingData, handlePhoneChange]);
+    }, [billingData.phone]);
 
     const handleChange = (e) => {
         const value = e.target.value;

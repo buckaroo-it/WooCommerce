@@ -1,14 +1,10 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import GenderDropdown from "../partials/buckaroo_gender";
 import FinancialWarning from "../partials/buckaroo_financial_warning";
+import PaymentContext from '../PaymentProvider';
 
-const Klaranapii = ({onStateChange, methodName, gateway: {genders}}) => {
-
-    const handleChange = (e) => {
-        const {value} = e.target;
-        onStateChange({[`${methodName}-gender`]: value});
-    };
-
+const Klaranapii = ({ methodName, gateway: { genders } }) => {
+    const { handleChange } = useContext(PaymentContext);
     return (
         <div id="buckaroo_klarnapay">
             <GenderDropdown paymentMethod={methodName} genders={genders} handleChange={handleChange}></GenderDropdown>

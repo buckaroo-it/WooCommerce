@@ -1,23 +1,15 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field';
 import FinancialWarning from '../partials/buckaroo_financial_warning';
 import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition';
 import AfterPayB2B from '../partials/buckaroo_afterpay_b2b';
 import PhoneDropdown from '../partials/buckaroo_phone';
 import {__} from '@wordpress/i18n';
-import useFormData from '../hooks/useFormData';
+import PaymentContext from '../PaymentProvider';
 
-const AfterPayView = ({onStateChange, methodName, gateway: {type, b2b}, billing}) => {
-    const initialState = {
-        [`${methodName}-phone`]: '',
-        [`${methodName}-birthdate`]: '',
-        [`${methodName}-b2b`]: '',
-        [`${methodName}-company-coc-registration`]: '',
-        [`${methodName}-company-name`]: '',
-        [`${methodName}-accept`]: '',
-    };
+const AfterPayView = ({methodName, gateway: {type, b2b}, billing}) => {
 
-    const [formData, handleChange, updateFormState] = useFormData(initialState, onStateChange);
+    const { updateFormState, handleChange } = useContext(PaymentContext);
 
     const handleTermsChange = (value) => {
         updateFormState(`${methodName}-accept`, +value);

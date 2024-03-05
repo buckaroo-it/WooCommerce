@@ -1,13 +1,8 @@
-import React from 'react';
-import useFormData from "../hooks/useFormData";
+import React, {useContext} from 'react';
+import PaymentContext from '../PaymentProvider';
 
-const IdealDropdown = ({onStateChange, methodName, gateway: {idealIssuers}}) => {
-
-    const initialState = {
-        [`${methodName}-issuer`]: '',
-    };
-
-    const [formState, handleChange] = useFormData(initialState, onStateChange);
+const IdealDropdown = ({methodName, gateway: {idealIssuers}}) => {
+    const { updateFormState } = useContext(PaymentContext);
 
     return (
         <div className="payment_box payment_method_buckaroo_ideal">
@@ -16,7 +11,7 @@ const IdealDropdown = ({onStateChange, methodName, gateway: {idealIssuers}}) => 
                     className="buckaroo-custom-select"
                     name="buckaroo-ideal-issuer"
                     id="buckaroo-ideal-issuer"
-                    onChange={handleChange}
+                    onChange={(e) => updateFormState(`${methodName}-issuer`, e.target.value)}
                 >
                     <option value="">Select your bank</option>
 

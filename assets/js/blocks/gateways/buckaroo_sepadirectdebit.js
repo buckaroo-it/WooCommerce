@@ -1,16 +1,13 @@
-import React from 'react';
-import {__} from "@wordpress/i18n";
-import useFormData from "../hooks/useFormData";
+import React, { useContext, useEffect } from 'react';
+import { __ } from "@wordpress/i18n";
+import PaymentContext from '../PaymentProvider';
 
-const SepaDirectDebitForm = ({onStateChange, methodName, billing}) => {
+const SepaDirectDebitForm = ({ methodName, billing }) => {
+    const { updateFormState, state, handleChange } = useContext(PaymentContext);
 
-    const initialState = {
-        [`${methodName}-accountname`]: `${billing.first_name} ${billing.last_name}`,
-        [`${methodName}-iban`]: '',
-        [`${methodName}-bic`]: '',
-    };
-
-    const [formState, handleChange] = useFormData(initialState, onStateChange);
+    useEffect(() => {
+        updateFormState(`${methodName}-accountname`, `${billing?.first_name} ${billing?.last_name}`)
+    },[billing?.first_name,billing?.last_name])
 
     return (
         <div>
@@ -26,7 +23,7 @@ const SepaDirectDebitForm = ({onStateChange, methodName, billing}) => {
                     type="text"
                     maxLength="250"
                     autoComplete="off"
-                    value={formState[`${methodName}-accountname`]}
+                    value={state[`${methodName}-accountname`]}
                     onChange={handleChange}
                 />
             </div>
@@ -42,7 +39,7 @@ const SepaDirectDebitForm = ({onStateChange, methodName, billing}) => {
                     type="text"
                     maxLength="25"
                     autoComplete="off"
-                    value={formState[`${methodName}-iban`]}
+                    value={state[`${methodName}-iban`]}
                     onChange={handleChange}
                 />
             </div>
@@ -57,14 +54,14 @@ const SepaDirectDebitForm = ({onStateChange, methodName, billing}) => {
                     type="text"
                     maxLength="11"
                     autoComplete="off"
-                    value={formState[`${methodName}-bic`]}
+                    value={state[`${methodName}-bic`]}
                     onChange={handleChange}
                 />
             </div>
-            <div className="required" style={{float: 'right'}}>*
+            <div className="required" style={{ float: 'right' }}>*
                 {__('Required', 'wc-buckaroo-bpe-gateway')}
             </div>
-            <br/>
+            <br />
         </div>
     );
 };

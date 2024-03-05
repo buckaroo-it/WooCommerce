@@ -171,9 +171,9 @@ function get_woocommerce_payment_methods(): array {
 				$payment_method['b2b'] = $gateway->b2b;
 				$payment_method['type'] = get_type();
 			}
-			if($gateway_id === 'buckaroo_creditcard') {
+			if(strpos($gateway_id ,'buckaroo_creditcard') !== false) {
 				$payment_method['creditCardIssuers'] = $gateway->getCardsList();
-				$payment_method['creditCardMethod'] = $gateway->get_option('encrypt');
+				$payment_method['creditCardMethod'] = $gateway->get_option('creditcardmethod');
 				$payment_method['creditCardIsSecure'] = get_credtCard_is_secure();
 			}
 			$payment_methods[] = $payment_method;
