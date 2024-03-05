@@ -56,6 +56,8 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
                 ...activePaymentMethodState,
                 'isblocks': '1',
                 'billing_country': billing.billingAddress.country,
+                'billing_address_1': billing.billingAddress.address_1,
+                'billing_address_2': billing.billingAddress.address_2,
             };
 
             return response;
