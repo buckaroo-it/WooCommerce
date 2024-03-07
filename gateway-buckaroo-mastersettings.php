@@ -26,12 +26,6 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
 		return $settings;
 	}
 
-	public function enqueue_scripts() {
-		if(is_admin()) {
-			wp_enqueue_script('language', plugin_dir_url(__FILE__) . 'library/js/9yards/language.js', array('jquery'), '1.0.0', true);
-		}
-	}
-
     /**
      * Add fields to the form_fields() array, specific to this page.
      *
@@ -118,9 +112,6 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'default'     => 'dynamic',
             'id'          => 'woocommerce_buckaroo_mastersettings_culture',
         );
-	    if ($this->get_option('culture') === 'dynamic') {
-		    add_filter('woocommerce_settings_api_form_fields_' . $this->id, array($this, 'enqueue_scripts'));
-	    }
 
 	    $this->form_fields['debugmode'] = array(
             'title'       => __('Debug mode', 'wc-buckaroo-bpe-gateway'),
