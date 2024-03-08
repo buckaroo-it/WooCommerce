@@ -1,23 +1,17 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field';
 import FinancialWarning from '../partials/buckaroo_financial_warning';
 import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition';
 import {__} from '@wordpress/i18n';
 import PhoneDropdown from '../partials/buckaroo_phone';
-import useFormData from "../hooks/useFormData";
+import PaymentContext from '../PaymentProvider';
 
-const AfterPayNew = ({onStateChange, methodName, gateway: {customer_type, b2b}, billing}) => {
-    const initialState = {
-        [`${methodName}-phone`]: billing?.phone || '',
-        [`${methodName}-birthdate`]: '',
-        [`${methodName}-company-coc-registration`]: '',
-        [`${methodName}-accept`]: '',
-    };
+const AfterPayNew = ({ methodName, gateway: {customer_type, b2b}, billing}) => {
 
-    const [formState, handleChange, updateFormState] = useFormData(initialState, onStateChange);
+    const { updateFormState, handleChange } = useContext(PaymentContext);
 
     const handleTermsChange = (value) => {
-        updateFormState(`${methodName}-accept`, value);
+        updateFormState(`${methodName}-accept`, +value);
     };
 
     const handleBirthDayChange = (value) => {
@@ -29,7 +23,7 @@ const AfterPayNew = ({onStateChange, methodName, gateway: {customer_type, b2b}, 
 
     return (
         <div>
-            <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange}/>
+            <PhoneDropdown paymentMethod={methodName} billingData={billing} handlePhoneChange={handlePhoneChange}/>
 
             {(['BE', 'NL', 'DE'].includes(billing.country)) && (
                 <div>

@@ -1,16 +1,16 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
+import PaymentContext from '../PaymentProvider';
 
 const PayByBankDropdown = ({
-                               onStateChange,
-                               methodName,
-                               gateway: {payByBankIssuers, displayMode, buckarooImagesUrl}
-                           }) => {
+        methodName,
+        gateway: {payByBankIssuers, displayMode, buckarooImagesUrl}
+    }) => {
+    const { updateFormState } = useContext(PaymentContext);
     const [selectedIssuer, setSelectedIssuer] = useState('');
 
     const handleChange = (e) => {
-        const {value} = e.target;
-        setSelectedIssuer(value);
-        onStateChange({[`${methodName}-issuer`]: value});
+        setSelectedIssuer(e.target.value);
+        updateFormState(`${methodName}-issuer`, e.target.value);
     };
 
     const [showAllBanks, setShowAllBanks] = useState(false);

@@ -1,26 +1,19 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field'
 import GenderDropdown from "../partials/buckaroo_gender";
 import FinancialWarning from "../partials/buckaroo_financial_warning";
 import TermsAndConditionsCheckbox from "../partials/buckaroo_terms_and_condition";
-import useFormData from "../hooks/useFormData";
+import PaymentContext from '../PaymentProvider';
 
-const Billink = ({onStateChange, methodName, gateway: {genders, b2b}, billing}) => {
-
-    const initialState = {
-        [`${methodName}-gender`]: '',
-        [`${methodName}-birthdate`]: '',
-        [`${methodName}-b2b`]: '',
-    };
-
-    const [handleChange, updateFormState] = useFormData(initialState, onStateChange);
+const Billink = ({methodName, gateway: {genders, b2b}, billing}) => {
+    const { updateFormState, handleChange } = useContext(PaymentContext);
 
     const handleBirthDayChange = (value) => {
         updateFormState(`${methodName}-birthdate`, value);
     };
 
     const handleTermsChange = (value) => {
-        updateFormState(`${methodName}-accept`, value);
+        updateFormState(`${methodName}-accept`, +value);
     };
 
     return (

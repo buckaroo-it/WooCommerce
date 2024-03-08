@@ -1,39 +1,43 @@
-import React, {useEffect} from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import DefaultDropdown from "../partials/buckaroo_creditcard_dropdown";
-import {__} from "@wordpress/i18n";
+import { __ } from "@wordpress/i18n";
 import encryptCardData from "../services/BuckarooClientSideEncryption";
-import useFormData from "../hooks/useFormData";
+import PaymentContext from '../PaymentProvider';
 
 const CreditCard = ({
-                        onStateChange,
-                        methodName,
-                        gateway: {paymentMethodId, creditCardIssuers, creditCardMethod, creditCardIsSecure}
-                    }) => {
+    methodName,
+    gateway: { paymentMethodId, creditCardIssuers, creditCardMethod, creditCardIsSecure }
+}) => {
+    const { updateFormState } = useContext(PaymentContext);
 
-    const initialState = {
-        [`${paymentMethodId}-creditcard-issuer`]: '',
+    const isSingle = paymentMethodId !== 'buckaroo_creditcard';
+
+    useEffect(() => {
+        if (isSingle) {
+            updateFormState(`${paymentMethodId}-creditcard-issuer`, paymentMethodId.replace("buckaroo_creditcard_", ""))
+        }
+    }, [isSingle, paymentMethodId])
+    
+
+    const [clientState, setClientState] = useState({
         [`${paymentMethodId}-cardname`]: '',
         [`${paymentMethodId}-cardnumber`]: '',
         [`${paymentMethodId}-cardmonth`]: '',
         [`${paymentMethodId}-cardyear`]: '',
         [`${paymentMethodId}-cardcvc`]: '',
-        [`${paymentMethodId}-encrypted-data`]: '',
-    };
-
-    const [formData, handleChange, updateFormState] = useFormData(initialState, onStateChange);
+    })
 
     const handleEncryption = async () => {
         try {
             const cardData = {
-                cardName: initialState[`${paymentMethodId}-cardname`],
-                cardNumber: initialState[`${paymentMethodId}-cardnumber`],
-                cardMonth: initialState[`${paymentMethodId}-cardmonth`],
-                cardYear: initialState[`${paymentMethodId}-cardyear`],
-                cardCVC: initialState[`${paymentMethodId}-cardcvc`],
+                cardName: clientState[`${paymentMethodId}-cardname`],
+                cardNumber: clientState[`${paymentMethodId}-cardnumber`],
+                cardMonth: clientState[`${paymentMethodId}-cardmonth`],
+                cardYear: clientState[`${paymentMethodId}-cardyear`],
+                cardCVC: clientState[`${paymentMethodId}-cardcvc`],
             };
             const encryptedData = await encryptCardData(cardData);
-
-            updateFormState(`${methodName}-encrypted-data`, encryptedData);
+            updateFormState(`${paymentMethodId}-encrypted-data`, encryptedData);
         } catch (error) {
             console.error("Encryption error:", error);
         }
@@ -43,18 +47,22 @@ const CreditCard = ({
         if (creditCardMethod === 'encrypt' && creditCardIsSecure === true) {
             handleEncryption();
         }
-    }, [initialState[`${paymentMethodId}-cardnumber`], initialState[`${paymentMethodId}-cardname`], initialState[`${paymentMethodId}-cardmonth`], initialState[`${paymentMethodId}-cardyear`], initialState[`${paymentMethodId}-cardcvc`], creditCardMethod, creditCardIsSecure]);
+    }, [clientState]);
+
+    const handleChange = (e) => {
+        setClientState({...clientState, [`${e.target.name}`]: e.target.value});
+    }
 
     return (
         <div>
 
-            <p className="form-row form-row-wide">
-                <DefaultDropdown
-                    paymentMethodId={paymentMethodId}
-                    creditCardIssuers={creditCardIssuers}
-                    handleChange={handleChange}
-                />
-            </p>
+            {!isSingle && (<p className="form-row form-row-wide">
+                    <DefaultDropdown
+                        paymentMethodId={paymentMethodId}
+                        creditCardIssuers={creditCardIssuers}
+                        handleChange={(e) => updateFormState('buckaroo_creditcard-creditcard-issuer', e.target.value)}
+                    />
+                </p>)}
 
             {creditCardMethod === 'encrypt' && creditCardIsSecure === true && (
                 <div className="method--bankdata">
@@ -149,7 +157,7 @@ const CreditCard = ({
                     </div>
 
                     <div className="form-row form-row-wide validate-required"></div>
-                    <div className="required" style={{float: 'right'}}>*
+                    <div className="required" style={{ float: 'right' }}>*
                         {__('Required', 'wc-buckaroo-bpe-gateway')}
                     </div>
                 </div>

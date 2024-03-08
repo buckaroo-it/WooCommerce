@@ -1,22 +1,23 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import GenderDropdown from "../partials/buckaroo_gender";
-import {__} from "@wordpress/i18n";
-import useFormData from '../hooks/useFormData';
+import { __ } from "@wordpress/i18n";
+import PaymentContext from '../PaymentProvider';
 
-const PayPerEmailForm = ({onStateChange, methodName, gateway: {genders}, billing}) => {
-    const initialState = {
-        [`${methodName}-firstname`]: billing?.first_name || '',
-        [`${methodName}-lastname`]: billing?.last_name || '',
-        [`${methodName}-email`]: billing?.email || '',
-        [`${methodName}-gender`]: ''
-    };
+const PayPerEmailForm = ({ methodName, gateway: { genders }, billing }) => {
+    const { state, updateMultiple, handleChange } = useContext(PaymentContext);
 
-    const [formState, handleChange] = useFormData(initialState, onStateChange);
+    useEffect(() => {
+        updateMultiple({
+            [`${methodName}-firstname`]: billing?.first_name,
+            [`${methodName}-lastname`]: billing?.last_name,
+            [`${methodName}-email`]: billing?.email
+        })
+    }, [billing?.first_name, billing?.last_name, billing?.email])
 
     return (
         <div>
             <GenderDropdown paymentMethod={methodName} genders={genders}
-                            handleChange={handleChange}/>
+                handleChange={handleChange} />
 
             <div className="form-row validate-required">
                 <label htmlFor="buckaroo-payperemail-firstname">
@@ -29,7 +30,7 @@ const PayPerEmailForm = ({onStateChange, methodName, gateway: {genders}, billing
                     className="input-text"
                     type="text"
                     autoComplete="off"
-                    value={formState[`${methodName}-firstname`] || ''}
+                    value={state[`${methodName}-firstname`]}
                     onChange={handleChange}
                 />
             </div>
@@ -45,7 +46,7 @@ const PayPerEmailForm = ({onStateChange, methodName, gateway: {genders}, billing
                     className="input-text"
                     type="text"
                     autoComplete="off"
-                    value={formState[`${methodName}-lastname`] || ''}
+                    value={state[`${methodName}-lastname`]}
                     onChange={handleChange}
                 />
             </div>
@@ -61,15 +62,15 @@ const PayPerEmailForm = ({onStateChange, methodName, gateway: {genders}, billing
                     className="input-text"
                     type="email"
                     autoComplete="off"
-                    value={formState[`${methodName}-email`] || ''}
+                    value={state[`${methodName}-email`]}
                     onChange={handleChange}
                 />
             </div>
 
-            <div className="required" style={{float: 'right'}}>*
+            <div className="required" style={{ float: 'right' }}>*
                 {__('Required', 'wc-buckaroo-bpe-gateway')}
             </div>
-            <br/>
+            <br />
         </div>
     );
 };
