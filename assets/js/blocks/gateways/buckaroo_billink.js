@@ -13,7 +13,7 @@ const Billink = ({onStateChange, methodName, gateway: {genders, b2b}, billing}) 
         [`${methodName}-b2b`]: '',
     };
 
-    const [handleChange, updateFormState] = useFormData(initialState, onStateChange);
+    const [formState, handleChange, updateFormState] = useFormData(initialState, onStateChange);
 
     const handleBirthDayChange = (value) => {
         updateFormState(`${methodName}-birthdate`, value);
@@ -26,12 +26,12 @@ const Billink = ({onStateChange, methodName, gateway: {genders, b2b}, billing}) 
     return (
         <div id="buckaroo_billink_b2c">
             <GenderDropdown paymentMethod={methodName} genders={genders} handleChange={handleChange}></GenderDropdown>
-            <BirthDayField paymentMethod={methodName} handleChange={handleBirthDayChange}/>
+            <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange}/>
             <TermsAndConditionsCheckbox
                 paymentMethod={methodName}
-                b2b={b2b}
-                billingData={billing}
                 handleTermsChange={handleTermsChange}
+                billingData={billing}
+                b2b={b2b}
             />
             <FinancialWarning paymentMethod={methodName}></FinancialWarning>
         </div>
