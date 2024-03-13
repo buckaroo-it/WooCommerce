@@ -157,6 +157,7 @@ function get_woocommerce_payment_methods(): array {
 			);
             if($gateway_id === 'buckaroo_ideal') {
                 $payment_method['idealIssuers'] =  BuckarooIDeal::getIssuerList();
+                $payment_method['canShowIssuers'] =  $gateway->canShowIssuers();
             }
 			if($gateway_id === 'buckaroo_paybybank') {
 				$payment_method['payByBankIssuers'] =  BuckarooPayByBank::getIssuerList();
