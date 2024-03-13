@@ -17,7 +17,7 @@ const AfterPayView = ({onStateChange, methodName, gateway: {type, b2b}, billing}
         [`${methodName}-accept`]: '',
     };
 
-    const [formState, handleChange, updateFormState] = useFormData(initialState, onStateChange);
+    const { formState, handleChange, updateFormState } = useFormData(initialState, onStateChange);
 
     const handleTermsChange = (value) => {
         updateFormState(`${methodName}-accept`, value);

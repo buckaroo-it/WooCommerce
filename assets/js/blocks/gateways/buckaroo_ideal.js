@@ -7,7 +7,7 @@ const IdealDropdown = ({onStateChange, methodName, gateway: {idealIssuers}}) => 
         [`${methodName}-issuer`]: '',
     };
 
-    const [formState, handleChange] = useFormData(initialState, onStateChange);
+    const { handleChange } = useFormData(initialState, onStateChange);
 
     return (
         <div className="payment_box payment_method_buckaroo_ideal">

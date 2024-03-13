@@ -13,7 +13,7 @@ const Billink = ({onStateChange, methodName, gateway: {genders, b2b}, billing}) 
         [`${methodName}-b2b`]: '',
     };
 
-    const [formState, handleChange, updateFormState] = useFormData(initialState, onStateChange);
+    const { handleChange, updateFormState } = useFormData(initialState, onStateChange);
 
     const handleBirthDayChange = (value) => {
         updateFormState(`${methodName}-birthdate`, value);

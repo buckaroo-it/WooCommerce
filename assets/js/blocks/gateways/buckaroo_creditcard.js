@@ -20,7 +20,7 @@ const CreditCard = ({
         [`${paymentMethodId}-encrypted-data`]: '',
     };
 
-    const [formData, handleChange, updateFormState] = useFormData(initialState, onStateChange);
+    const { handleChange, updateFormState } = useFormData(initialState, onStateChange);
 
     const handleEncryption = async () => {
         try {

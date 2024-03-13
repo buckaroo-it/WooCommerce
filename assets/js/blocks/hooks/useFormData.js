@@ -16,7 +16,7 @@ const useFormData = (initialState, onStateChange) => {
         onStateChange(updatedState);
     };
 
-    return [formState, handleChange, updateFormState];
+    return { formState, handleChange, updateFormState };
 };
 
 export default useFormData;

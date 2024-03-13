@@ -10,7 +10,7 @@ const SepaDirectDebitForm = ({onStateChange, methodName, billing}) => {
         [`${methodName}-bic`]: '',
     };
 
-    const [formState, handleChange] = useFormData(initialState, onStateChange);
+    const {formState, handleChange } = useFormData(initialState, onStateChange);
 
     return (
         <div>

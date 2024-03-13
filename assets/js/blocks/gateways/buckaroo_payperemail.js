@@ -11,7 +11,7 @@ const PayPerEmailForm = ({onStateChange, methodName, gateway: {genders}, billing
         [`${methodName}-gender`]: ''
     };
 
-    const [formState, handleChange] = useFormData(initialState, onStateChange);
+    const {formState, handleChange } = useFormData(initialState, onStateChange);
 
     return (
         <div>
