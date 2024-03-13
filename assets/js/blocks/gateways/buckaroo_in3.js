@@ -11,7 +11,7 @@ const In3 = ({onStateChange, methodName, billing}) => {
         [`${methodName}-birthdate`]: '',
     };
 
-    const [formState, handleChange, updateFormState] = useFormData(initialState, onStateChange);
+    const {formState, updateFormState } = useFormData(initialState, onStateChange);
 
     const handlePhoneChange = (value) => {
         updateFormState(`${methodName}-phone`, value);

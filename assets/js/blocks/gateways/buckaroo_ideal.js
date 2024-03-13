@@ -7,7 +7,7 @@ const IdealDropdown = ({onStateChange, methodName, gateway: {idealIssuers, canSh
         [`${methodName}-issuer`]: '',
     };
 
-    const [formState, handleChange] = useFormData(initialState, onStateChange);
+    const { handleChange } = useFormData(initialState, onStateChange);
 
     return (
         canShowIssuers && (
