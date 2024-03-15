@@ -887,10 +887,10 @@ function fn_process_push_refund($order_id, $response){
             $tmp = get_post_meta($order_id, '_refundbuckaroo' . $response->transactions, true);
             if (empty($tmp)) {
                 add_post_meta($order_id, '_refundbuckaroo' . $response->transactions, 'ok', true);
-                $refund = wc_create_refund(
+                wc_create_refund(
                     array(
                         'amount'     => $response->amount_credit,
-                        'reason'     => 'Push automatic refund from BPE; Please restock items manually',
+                        'reason'     => __('Refunded', 'wc-buckaroo-bpe-gateway'),
                         'order_id'   => $order_id,
                         'line_items' => array(),
                     )
