@@ -176,6 +176,14 @@ function get_woocommerce_payment_methods(): array {
 				$payment_method['creditCardMethod'] = $gateway->get_option('encrypt');
 				$payment_method['creditCardIsSecure'] = get_credtCard_is_secure();
 			}
+
+            if($gateway_id === 'buckaroo_applepay') {
+                $payment_method = array_merge($payment_method, [
+                    'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE',
+                    'merchantIdentifier' => $gateway->get_option('merchant_guid')
+                ]);
+			}
+
 			$payment_methods[] = $payment_method;
 		}
 	}
@@ -231,7 +239,7 @@ function buckaroo_payment_frontend_scripts()
     
         wp_enqueue_script(
             'buckaroo_apple_pay',
-            plugin_dir_url(__FILE__) . 'assets/js/dist/apple-pay.js',
+            plugin_dir_url(__FILE__) . 'assets/js/dist/applepay.js',
             array('jquery', 'buckaroo_sdk'),
             BuckarooConfig::VERSION,
             true
