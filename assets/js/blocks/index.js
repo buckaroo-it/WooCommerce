@@ -116,7 +116,15 @@ const registerBuckarooExpressPaymentMethods = async ({ wc, buckaroo_gateways }) 
         return;
     }
 
-    const canDisplay = await window?.ApplePaySession?.canMakePaymentsWithActiveCard(applepay.merchantIdentifier);
+    const checkApplePaySupport = function (merchantIdentifier) {
+        if (!("ApplePaySession" in window))
+            return Promise.resolve(false);
+        if (ApplePaySession === undefined)
+            return Promise.resolve(false);
+        return ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
+    }
+
+    const canDisplay = await checkApplePaySupport(applepay.merchantIdentifier);
     if (applepay.showInCheckout && canDisplay) {
         const { registerExpressPaymentMethod } = wc.wcBlocksRegistry;
 
