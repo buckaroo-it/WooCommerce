@@ -15,6 +15,10 @@ jQuery(function() {
           applepay.init();
         }
       });
+
+      document.addEventListener("applepayRefresh", function() {
+        applepay.init();
+      })
   
       if (jQuery(".variations_form").length === 0) {
         rebuild_and_init();
