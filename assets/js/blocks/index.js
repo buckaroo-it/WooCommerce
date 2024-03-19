@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import DefaultPayment from "./gateways/default_payment";
 import {convertUnderScoreToDash, decodeHtmlEntities} from './utils/utils';
 import {BuckarooLabel} from "./components/BuckarooLabel";
+import {BuckarooApplepay} from "./components/BuckarooApplepay";
 
 const customTemplatePaymentMethodIds = [
     'buckaroo_afterpay', 'buckaroo_afterpaynew', 'buckaroo_billink', 'buckaroo_creditcard',
@@ -106,7 +107,28 @@ const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
         registerPaymentMethod(createOptions(gateway, BuckarooComponent));
     });
 }
+const registerBuckarooExpressPaymentMethods = async ({ wc, buckaroo_gateways }) => {
+    const applepay = buckaroo_gateways.find((gateway) => {
+        return gateway.paymentMethodId === "buckaroo_applepay";
+    })
 
+    if (applepay === undefined) {
+        return;
+    }
+
+    const canDisplay = await window?.ApplePaySession?.canMakePaymentsWithActiveCard(applepay.merchantIdentifier);
+    if (applepay.showInCheckout && canDisplay) {
+        const { registerExpressPaymentMethod } = wc.wcBlocksRegistry;
+
+        registerExpressPaymentMethod({
+            name: 'buckaroo_express_applepay',
+            content: <BuckarooApplepay />,
+            edit: <div />,
+            canMakePayment: () => true,
+            paymentMethodId: 'buckaroo_express_applepay',
+        })
+    }
+}
 const createOptions = (gateway, BuckarooComponent) => {
     return {
         name: gateway.paymentMethodId,
@@ -120,3 +142,4 @@ const createOptions = (gateway, BuckarooComponent) => {
 }
 
 registerBuckarooPaymentMethods(window)
+await registerBuckarooExpressPaymentMethods(window);
