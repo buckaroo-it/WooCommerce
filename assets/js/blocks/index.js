@@ -3,6 +3,7 @@ import DefaultPayment from "./gateways/default_payment";
 import {convertUnderScoreToDash, decodeHtmlEntities} from './utils/utils';
 import {BuckarooLabel} from "./components/BuckarooLabel";
 import {BuckarooApplepay} from "./components/BuckarooApplepay";
+import {BuckarooPaypalExpress} from "./components/BuckarooPaypalExpress";
 
 const customTemplatePaymentMethodIds = [
     'buckaroo_afterpay', 'buckaroo_afterpaynew', 'buckaroo_billink', 'buckaroo_creditcard',
@@ -108,10 +109,48 @@ const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
     });
 }
 const registerBuckarooExpressPaymentMethods = async ({ wc, buckaroo_gateways }) => {
+
+    const ready = async () => {
+        return new Promise((resolve) => {
+            document.addEventListener('bk-jquery-loaded', () => resolve(true), {once : true})
+            setTimeout(() => resolve(false), 5000)
+        });
+    };
+    if (!await ready()) {
+        return;
+    }
+    
     const applepay = buckaroo_gateways.find((gateway) => {
         return gateway.paymentMethodId === "buckaroo_applepay";
     })
+    await registerApplePay(applepay);
 
+    const paypalExpress = buckaroo_gateways.find((gateway) => {
+        return gateway.paymentMethodId === "buckaroo_paypal";
+    })
+
+    await registerPaypalExpress(paypalExpress);
+}
+
+const registerPaypalExpress = async(gateway) => {
+    if (gateway === undefined) {
+        return;
+    }
+   
+    if (gateway.showInCheckout) {
+        const { registerExpressPaymentMethod } = wc.wcBlocksRegistry;
+
+        registerExpressPaymentMethod({
+            name: 'buckaroo_paypal_express',
+            content: <BuckarooPaypalExpress />,
+            edit: <div />,
+            canMakePayment: () => true,
+            paymentMethodId: 'buckaroo_paypal_express',
+        })
+    }
+}
+
+const registerApplePay = async(applepay) => {
     if (applepay === undefined) {
         return;
     }
@@ -124,6 +163,13 @@ const registerBuckarooExpressPaymentMethods = async ({ wc, buckaroo_gateways }) 
         return ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
     }
 
+    window.ApplePaySession = {
+        canMakePaymentsWithActiveCard(merchantIdentifier) {
+          return Promise.resolve(true);
+        }
+      }
+
+    
     const canDisplay = await checkApplePaySupport(applepay.merchantIdentifier);
     if (applepay.showInCheckout && canDisplay) {
         const { registerExpressPaymentMethod } = wc.wcBlocksRegistry;

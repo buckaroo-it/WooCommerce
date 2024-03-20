@@ -184,6 +184,13 @@ function get_woocommerce_payment_methods(): array {
                 ]);
 			}
 
+            if ($gateway_id === 'buckaroo_paypal') {
+                $expressPages =  $gateway->get_option('express', []);
+                $payment_method = array_merge($payment_method, [
+                    'showInCheckout' => is_array($expressPages) && in_array(Buckaroo_Paypal_Express::LOCATION_CHECKOUT, $expressPages)
+                ]);
+            }
+
 			$payment_methods[] = $payment_method;
 		}
 	}
