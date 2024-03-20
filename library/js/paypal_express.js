@@ -1,5 +1,17 @@
 jQuery(document).ready(function () {
-    if (jQuery(".buckaroo-paypal-express").length && buckaroo_paypal_express.websiteKey.length) {
+    document.dispatchEvent(new Event("bk-jquery-loaded"));
+    if (jQuery(".buckaroo-paypal-express").length) {
+        BuckarooInitPaypalExpress();
+    }
+})
+
+const BuckarooInitPaypalExpress = function () {
+    if (jQuery === undefined) {
+        console.error("Cannot initialize PaypalExpress missing jquery");
+        return;
+    }
+
+    if (buckaroo_paypal_express.websiteKey.length) {
 
         if (buckaroo_paypal_express.merchant_id === null) {
             alert(buckaroo_paypal_express.i18n.merchant_id_required);
@@ -16,7 +28,7 @@ jQuery(document).ready(function () {
         )
         buckaroo_paypal_express_class.init();
     }
-})
+}
 
 class BuckarooPaypalExpress {
 
