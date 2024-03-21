@@ -43,6 +43,9 @@ class BuckarooResponseFactory {
             case 'transfer':
                 return new BuckarooTransferResponse($data);
                 break;
+            case 'paypal':
+                return new BuckarooPayPalResponse($data);
+                break;
             default:
                 if (stripos(BuckarooConfig::get('BUCKAROO_CREDITCARD_CARDS'), $paymentmethod) !== false) {
                     return new BuckarooCreditCardResponse($data);
