@@ -345,5 +345,5 @@ label.bk-in3-logo img {
 }
 #express-payment-method-buckaroo_paypal_express .buckaroo-paypal-express {
     margin: 18px 0;
-    max-width: auto;
+    max-width: none;
 }
