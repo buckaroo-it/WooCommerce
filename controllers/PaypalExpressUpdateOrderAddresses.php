@@ -27,9 +27,11 @@ class Buckaroo_Paypal_Express_Update_Order_Addresses
 
     public function update()
     {
-        $this->update_billing_address();
-        $this->update_shipping_address();
-        $this->order->save();
+        if ($this->response->is_paypal_express()) {
+            $this->update_billing_address();
+            $this->update_shipping_address();
+            $this->order->save();
+        }
     }
 
     private function update_billing_address()

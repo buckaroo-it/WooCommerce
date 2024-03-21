@@ -26,6 +26,10 @@ class BuckarooPayPalResponse extends BuckarooResponse {
        }
     }
 
+    public function is_paypal_express(): bool {
+        return $this->_setPostVariable('is_paypal_express') == true;
+    }
+
     /**
      * @access protected
      */
