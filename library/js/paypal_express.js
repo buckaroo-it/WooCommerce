@@ -91,9 +91,8 @@ class BuckarooPaypalExpress {
         return this.createTransaction(data.orderID)
     }
     onSuccessCallback() {
-        console.log(this.result);
         if (this.result.error === true) {
-            this.displayErrorMessage(message);
+            this.displayErrorMessage(this.result.message || buckaroo_paypal_express.i18n.cannot_create_payment);
         } else {
             if(this.result.data.redirect) {
                 window.location = this.result.data.redirect;
@@ -101,7 +100,6 @@ class BuckarooPaypalExpress {
                 this.displayErrorMessage(buckaroo_paypal_express.i18n.cannot_create_payment);
             }
         }
-        console.log('onSuccessCallback');
     }
 
     onErrorCallback(reason) {
@@ -170,7 +168,7 @@ class BuckarooPaypalExpress {
      */
     createTransaction(orderId) {
         return new Promise((resolve, reject) => {
-            $.post(this.url, {
+            jQuery.post(this.url, {
                 action: 'buckaroo_paypal_express_order',
                 orderId,
                 send_order_nonce: buckaroo_paypal_express.send_order_nonce
