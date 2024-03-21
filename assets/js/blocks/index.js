@@ -155,12 +155,6 @@ const registerApplePay = async(applepay) => {
         return;
     }
 
-    window.ApplePaySession = {
-        canMakePaymentsWithActiveCard(merchantIdentifier) {
-          return Promise.resolve(true);
-        }
-      }
-
     const checkApplePaySupport = function (merchantIdentifier) {
         if (!("ApplePaySession" in window))
             return Promise.resolve(false);
