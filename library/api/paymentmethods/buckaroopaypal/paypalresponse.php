@@ -18,6 +18,14 @@ class BuckarooPayPalResponse extends BuckarooResponse {
     public $payerLastname;
     public $paypalTransactionID;
 
+    public function string_service(string $key)
+    {
+       $value = $this->_setPostVariable('brq_SERVICE_paypal_'.$key);
+       if (is_string($value) && strlen(trim($value)) > 0) {
+           return $value;
+       }
+    }
+
     /**
      * @access protected
      */

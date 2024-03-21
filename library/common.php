@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__FILE__) . '/api/abstract.php';
+require_once dirname(__FILE__) . '/../controllers/PaypalExpressUpdateOrderAddresses.php';
 
 
 function fn_buckaroo_process_reservation_cancel($response, $order)
@@ -224,6 +225,10 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         $checkIfRedirectRequired = fn_process_check_redirect_required($response);
         if ($checkIfRedirectRequired){
             return $checkIfRedirectRequired;
+        }
+
+        if ($response instanceof BuckarooPayPalResponse) {
+            (new Buckaroo_Paypal_Express_Update_Order_Addresses($order, $response))->update();
         }
 
         $giftCardPartialPayment = ($response->statuscode == BuckarooAbstract::CODE_AWAITING_CONSUMER && $response->brq_transaction_type == 'I150');
