@@ -130,6 +130,10 @@ class BuckarooPaypalExpress {
      * listen to any change in the cart and get total
      */
     listen() {
+        document.addEventListener("paypalExpressRefresh", () => {
+            this.get_cart_total();
+        })
+
         jQuery(".cart .quantity input").on('change', () => {
             this.get_cart_total();
         });
