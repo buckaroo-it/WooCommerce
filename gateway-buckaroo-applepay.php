@@ -281,6 +281,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
 
             update_post_meta($order->get_id(), '_payment_method', $this->id);
             update_post_meta($order->get_id(), '_payment_method_title', $this->title);
+            $this->set_order_contribution($order);
 
             $order->calculate_totals();
             $order->update_status('pending payment', 'Order created using Apple pay', true);
@@ -296,6 +297,20 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
                 'items' => $items,
             ],
         ];
+    }
+
+    private function set_order_contribution(WC_Order $order)
+    {
+        $meta_data = $order->get_meta_data();
+        foreach ($meta_data as $meta) {
+            if (isset($meta->key) && strpos($meta->key, "attribution_source_type") !== false) {
+                $order->add_meta_data($meta->key, 'typein');
+            }
+
+            if (isset($meta->key) && strpos($meta->key, "attribution_utm_source") !== false) {
+                $order->add_meta_data($meta->key, '(direct)');
+            }
+        }
     }
 
     private static function orderAddresses($address)
