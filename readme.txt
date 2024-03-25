@@ -43,16 +43,23 @@ Payment method support list:
 24.Knaken Settle
 
 == Installation ==
-
-Easy installation to get the plug-in up and running!
-1. Contact Buckaroo by phone 030 711 5010 or by mail sales@buckaroo.nl to request a Buckaroo account.
-2. Use one of the manuals below to configure the plug-in and connect it with your Buckaroo account.
-
-[Implementatiehandleiding NL](https://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_3.9.x.NL.pdf)
-
-[Implementation manual EN](https://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_3.9.x.EN.pdf)
-
-Please go to the [signup page](https://www.buckaroo.eu/solutions/request-form) (demo account) to ask for a Buckaroo account. Also you can contact info@buckaroo.nl or +31 (0)30 711 50 00
+ 
+Before proceeding, ensure that you have a Buckaroo account. If you haven't already, you can create or request an account via the following links:
+For English: [Create Account](https://www.buckaroo.eu/create-account)
+For Dutch: [Account Aanmaken](https://www.buckaroo.nl/account-aanmaken)
+ 
+To install the Buckaroo plugin for WooCommerce, please refer to our comprehensive documentation pages. These guides provide detailed step-by-step instructions:
+For English: [WooCommerce Installation Guide](https://docs.buckaroo.io/docs/woocommerce-installation)
+For Dutch: [WooCommerce Installatiehandleiding](https://docs.buckaroo.io/docs/nl/woocommerce-installatie)
+ 
+For assistance with setting up your account, reach out to our customer care team:
+Email: wecare@buckaroo.nl
+Phone: +31 (0)30 711 50 00
+ 
+If you encounter any technical queries while installing or using the plugin, our dedicated technical support team is here to help:
+Email: support@buckaroo.nl
+ 
+We're committed to ensuring a smooth installation process and providing ongoing support for your WooCommerce integration with Buckaroo.
 
 == Screenshots ==
 
