@@ -82,9 +82,6 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         //set paypal express
         if($this->express_order_id !== null) {
             $this->set_order_contribution($order);
-
-            var_dump($order);
-            
             $customVars = array_merge(
                 $customVars,
                 ["PayPalOrderId" => $this->express_order_id]
