@@ -40,6 +40,7 @@ Payment method support list:
 21.EPS
 22.Multibanco
 23.MB Way
+24.Knaken Settle
 
 == Installation ==
 
@@ -123,7 +124,6 @@ BP-3483 Fix: PayPal Express button error "Can't place order"
 BP-3487 Fix: PayPal Express order is created with no address information
 BP-3485 Fix: Orders origin is unknown for Apple Pay and PayPal Express orders
 BP-3477 Fix: Apple pay button is not visible in WooCommerce Blocks checkout
-has context menu
 
 = 3.10.0 =
 Add support for Wordpress 6.3.2
