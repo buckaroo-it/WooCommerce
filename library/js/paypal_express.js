@@ -110,7 +110,7 @@ class BuckarooPaypalExpress {
         this.get_cart_total();
     }
     onCancelCallback() {
-        this.displayErrorMessage(buckaroo_paypal_express.i18n.cancel_error_message)
+                this.displayErrorMessage(buckaroo_paypal_express.i18n.cancel_error_message)
     }
 
     onClickCallback() {
