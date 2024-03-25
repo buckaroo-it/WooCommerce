@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 6.3.2
-Stable tag: 3.10.0
+Tested up to: 6.4.3
+Stable tag: 3.11.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,6 +98,32 @@ for more detailed release notes visit https://docs.buckaroo.io/docs/woocommerce-
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.11.0 =
+
+Add support for WordPress 6.4.3 & WooCommerce 8.7.0
+BP-3311 Add support for WooCommerce block based checkout
+BP-3422 Add payment method: Knaken Settle
+BP-3421 Add the option to show the payment page language dynamic (customer browser language)
+BP-3374 Add more translations for validations
+BP-3457 Update payment method logo's (Billink, iDEAL, iDEAL In3 Credit-debitcards)
+BP-3484 Align Express payment buttons for visual improvements
+BP-3499 Use the new payment method logo's by default
+BP-3476 Change refund description in e-mail to customer
+BP-3082 Add financial warning for the use of BNPL methods
+BP-3146 Add a option to not show the iDEAL issuers selection in the checkout
+BP-3284 Changed default credit and debitcard method to redirect instead of inline
+BP-3323 Change new required fields for Riverty (DE - Germany)
+BP-3379 Fix: Critical error
+BP-3388 Fix: When creating a PayPerEmail in the admin area it returns null
+BP-3374 Fix: Add a phone number field for iDEAL In3 (when a phone number field is not required in the checkout)
+BP-3404 Fix: iDEAL In3 is not changing the status to on hold when pending processing is communicated
+BP-3420 Fix: iDEAL without issuer is not sending ContinueOnIncomplete
+BP-3483 Fix: PayPal Express button error "Can't place order"
+BP-3487 Fix: PayPal Express order is created with no address information
+BP-3485 Fix: Orders origin is unknown for Apple Pay and PayPal Express orders
+BP-3477 Fix: Apple pay button is not visible in WooCommerce Blocks checkout
+has context menu
 
 = 3.10.0 =
 Add support for Wordpress 6.3.2
