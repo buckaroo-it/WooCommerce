@@ -48,16 +48,19 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
 
     private function set_order_contribution(WC_Order $order)
     {
-        $meta_data = $order->get_meta_data();
-        foreach ($meta_data as $meta) {
-            if (isset($meta->key) && strpos($meta->key, "attribution_source_type") !== false) {
-                $order->add_meta_data($meta->key, 'typein');
-            }
+        $prefix = (string) apply_filters(
+			'wc_order_attribution_tracking_field_prefix',
+			'wc_order_attribution_'
+		);
 
-            if (isset($meta->key) && strpos($meta->key, "attribution_utm_source") !== false) {
-                $order->add_meta_data($meta->key, '(direct)');
-            }
-        }
+		// Remove leading and trailing underscores.
+		$prefix = trim( $prefix, '_' );
+
+		// Ensure the prefix ends with _, and set the prefix.
+		$prefix = "_{$prefix}_";
+
+        $order->add_meta_data($prefix.'source_type', 'typein');
+        $order->add_meta_data($prefix.'utm_source', '(direct)');
         $order->save();
     }
 
