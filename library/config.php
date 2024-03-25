@@ -7,8 +7,19 @@ require_once dirname(__FILE__).'/api/config/configcore.php';
 class BuckarooConfig extends BuckarooConfigCore {
     const NAME = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
-    const VERSION = '3.10.0';
+    const VERSION = '3.11.0';
     const SHIPPING_SKU = "WC8888";
+
+    const GENDER_MALE = 1;
+    const GENDER_FEMALE = 2;
+    const GENDER_OTHER = 0;
+    const GENDER_NOT_SPECIFIED = 9;
+
+    const PAYMENT_PAYPEREMAIL = 'buckaroo-payperemail';
+    const PAYMENT_BILLINK = 'buckaroo-billink';
+    const PAYMENT_KLARNAKP = 'buckaroo-klarnakp';
+    const PAYMENT_KLARNAPAY = 'buckaroo-klarnapay';
+    const PAYMENT_KLARNAPII = 'buckaroo-klarnapii';
 
     private static $idinCategories;
 
@@ -76,7 +87,7 @@ class BuckarooConfig extends BuckarooConfigCore {
                 $val = $options['debugmode'] ?? null;
                 break;
             case 'BUCKAROO_USE_NEW_ICONS':
-                $val = (empty($options['usenewicons']) ?  FALSE : $options['usenewicons']);
+                $val = (empty($options['usenewicons']) ?  TRUE : $options['usenewicons']);
                 break;
             case 'BUCKAROO_USE_IDIN':
                 $val = (empty($options['useidin']) ?  FALSE : $options['useidin']);
@@ -211,6 +222,50 @@ class BuckarooConfig extends BuckarooConfigCore {
 
     public static function getIdinCategories() {
         return self::get('BUCKAROO_IDIN_CATEGORIES');
+    }
+
+    public static function getAllGendersForPaymentMethods(): array {
+        $defaultGenders = [
+            'male' => self::GENDER_MALE,
+            'female' => self::GENDER_FEMALE,
+            'they' => self::GENDER_OTHER,
+            'unknown' => self::GENDER_NOT_SPECIFIED
+        ];
+
+        $billinkGenders = [
+            'male' => 'Male',
+            'female' => 'Female',
+            'they' => 'Unknown',
+            'unknown' => 'Unknown'
+        ];
+
+        $klarnaGenders = [
+            'male' => 'male',
+            'female' => 'female'
+        ];
+
+        return [
+            self::PAYMENT_PAYPEREMAIL => $defaultGenders,
+            self::PAYMENT_BILLINK => $billinkGenders,
+            self::PAYMENT_KLARNAKP => $klarnaGenders,
+            self::PAYMENT_KLARNAPAY => $klarnaGenders,
+            self::PAYMENT_KLARNAPII => $klarnaGenders,
+        ];
+    }
+
+    public static function translateGender($genderKey) {
+        switch ($genderKey) {
+            case 'male':
+                return __('He/him', 'wc-buckaroo-bpe-gateway');
+            case 'female':
+                return __('She/her', 'wc-buckaroo-bpe-gateway');
+            case 'they':
+                return __('They/them', 'wc-buckaroo-bpe-gateway');
+            case 'unknown':
+                return __('I prefer not to say', 'wc-buckaroo-bpe-gateway');
+            default:
+                return $genderKey;
+        }
     }
     
 } ?>

@@ -1,5 +1,17 @@
 jQuery(document).ready(function () {
-    if (jQuery(".buckaroo-paypal-express").length && buckaroo_paypal_express.websiteKey.length) {
+    document.dispatchEvent(new Event("bk-jquery-loaded"));
+    if (jQuery(".buckaroo-paypal-express").length) {
+        BuckarooInitPaypalExpress();
+    }
+})
+
+const BuckarooInitPaypalExpress = function () {
+    if (jQuery === undefined) {
+        console.error("Cannot initialize PaypalExpress missing jquery");
+        return;
+    }
+
+    if (buckaroo_paypal_express.websiteKey.length) {
 
         if (buckaroo_paypal_express.merchant_id === null) {
             alert(buckaroo_paypal_express.i18n.merchant_id_required);
@@ -16,7 +28,7 @@ jQuery(document).ready(function () {
         )
         buckaroo_paypal_express_class.init();
     }
-})
+}
 
 class BuckarooPaypalExpress {
 
@@ -79,9 +91,8 @@ class BuckarooPaypalExpress {
         return this.createTransaction(data.orderID)
     }
     onSuccessCallback() {
-        console.log(this.result);
         if (this.result.error === true) {
-            this.displayErrorMessage(message);
+            this.displayErrorMessage(this.result.message || buckaroo_paypal_express.i18n.cannot_create_payment);
         } else {
             if(this.result.data.redirect) {
                 window.location = this.result.data.redirect;
@@ -89,7 +100,6 @@ class BuckarooPaypalExpress {
                 this.displayErrorMessage(buckaroo_paypal_express.i18n.cannot_create_payment);
             }
         }
-        console.log('onSuccessCallback');
     }
 
     onErrorCallback(reason) {
@@ -120,6 +130,10 @@ class BuckarooPaypalExpress {
      * listen to any change in the cart and get total
      */
     listen() {
+        document.addEventListener("paypalExpressRefresh", () => {
+            this.get_cart_total();
+        })
+
         jQuery(".cart .quantity input").on('change', () => {
             this.get_cart_total();
         });
@@ -158,7 +172,7 @@ class BuckarooPaypalExpress {
      */
     createTransaction(orderId) {
         return new Promise((resolve, reject) => {
-            $.post(this.url, {
+            jQuery.post(this.url, {
                 action: 'buckaroo_paypal_express_order',
                 orderId,
                 send_order_nonce: buckaroo_paypal_express.send_order_nonce

@@ -24,16 +24,20 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     {
         $this->id                     = 'buckaroo_in3';
         $this->has_fields             = false;
-        $this->method_title           = 'Buckaroo in3';
-        $this->set_icons();
+        $this->method_title           = 'Buckaroo In3';
 
-        $api_version = $this->get_option('api_version');
-        $this->title = $api_version === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
+        $this->title = $this->getTitleForVersion();
 
         $this->setCountry();
 
         parent::__construct();
+
+        $this->set_icons();
         $this->addRefundSupport();
+    }
+
+    private function getTitleForVersion() {
+        return $this->get_option('api_version') === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
     }
     /**  @inheritDoc */
     protected function setProperties()
@@ -70,7 +74,20 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         }
 
         if ($country === 'NL' && !$this->validateDate($birthdate, 'd-m-Y')) {
-            wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
+            wc_add_notice(__("You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.", 'wc-buckaroo-bpe-gateway'), 'error');
+        }
+        
+        if (
+            $this->request('billing_phone') === null &&
+            $this->request('buckaroo-in3-phone') === null
+        ) {
+            wc_add_notice(
+                sprintf(
+                    __("Please fill in a phone number for %s. This is required in order to use this payment method.", 'wc-buckaroo-bpe-gateway'),
+                    $this->getTitleForVersion()
+                ),
+                'error'
+            );
         }
 
         parent::validate_fields();
@@ -175,6 +192,12 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         );
         $method->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
 
+        $phone = $this->request('buckaroo-in3-phone');
+
+        if (is_scalar($phone) && trim(strlen((string) $phone)) > 0) {
+            $method->BillingPhoneNumber = $phone;
+        }
+
         return $method;
     }
 
@@ -187,7 +210,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     {
         parent::init_form_fields();
 
-
+        $this->add_financial_warning_field();
         $this->form_fields['api_version'] = array(
             'title'       => __('Api version', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',

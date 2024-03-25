@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 6.3.2
-Stable tag: 3.10.0
+Tested up to: 6.4.3
+Stable tag: 3.11.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,18 +40,26 @@ Payment method support list:
 21.EPS
 22.Multibanco
 23.MB Way
+24.Knaken Settle
 
 == Installation ==
-
-Easy installation to get the plug-in up and running!
-1. Contact Buckaroo by phone 030 711 5010 or by mail sales@buckaroo.nl to request a Buckaroo account.
-2. Use one of the manuals below to configure the plug-in and connect it with your Buckaroo account.
-
-[Implementatiehandleiding NL](https://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_3.9.x.NL.pdf)
-
-[Implementation manual EN](https://ps.w.org/wc-buckaroo-bpe-gateway/trunk/Wordpress_WooCommerce_3.9.x.EN.pdf)
-
-Please go to the [signup page](https://www.buckaroo.eu/solutions/request-form) (demo account) to ask for a Buckaroo account. Also you can contact info@buckaroo.nl or +31 (0)30 711 50 00
+ 
+Before proceeding, ensure that you have a Buckaroo account. If you haven't already, you can create or request an account via the following links:
+For English: [Create Account](https://www.buckaroo.eu/create-account)
+For Dutch: [Account Aanmaken](https://www.buckaroo.nl/account-aanmaken)
+ 
+To install the Buckaroo plugin for WooCommerce, please refer to our comprehensive documentation pages. These guides provide detailed step-by-step instructions:
+For English: [WooCommerce Installation Guide](https://docs.buckaroo.io/docs/woocommerce-installation)
+For Dutch: [WooCommerce Installatiehandleiding](https://docs.buckaroo.io/docs/nl/woocommerce-installatie)
+ 
+For assistance with setting up your account, reach out to our customer care team:
+Email: wecare@buckaroo.nl
+Phone: +31 (0)30 711 50 00
+ 
+If you encounter any technical queries while installing or using the plugin, our dedicated technical support team is here to help:
+Email: support@buckaroo.nl
+ 
+We're committed to ensuring a smooth installation process and providing ongoing support for your WooCommerce integration with Buckaroo.
 
 == Screenshots ==
 
@@ -98,6 +106,31 @@ for more detailed release notes visit https://docs.buckaroo.io/docs/woocommerce-
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.11.0 =
+
+Add support for WordPress 6.4.3 & WooCommerce 8.7.0
+BP-3311 Add support for WooCommerce block based checkout
+BP-3422 Add payment method: Knaken Settle
+BP-3421 Add the option to show the payment page language dynamic (customer browser language)
+BP-3374 Add more translations for validations
+BP-3457 Update payment method logo's (Billink, iDEAL, iDEAL In3 Credit-debitcards)
+BP-3484 Align Express payment buttons for visual improvements
+BP-3499 Use the new payment method logo's by default
+BP-3476 Change refund description in e-mail to customer
+BP-3082 Add financial warning for the use of BNPL methods
+BP-3146 Add a option to not show the iDEAL issuers selection in the checkout
+BP-3284 Changed default credit and debitcard method to redirect instead of inline
+BP-3323 Change new required fields for Riverty (DE - Germany)
+BP-3379 Fix: Critical error
+BP-3388 Fix: When creating a PayPerEmail in the admin area it returns null
+BP-3374 Fix: Add a phone number field for iDEAL In3 (when a phone number field is not required in the checkout)
+BP-3404 Fix: iDEAL In3 is not changing the status to on hold when pending processing is communicated
+BP-3420 Fix: iDEAL without issuer is not sending ContinueOnIncomplete
+BP-3483 Fix: PayPal Express button error "Can't place order"
+BP-3487 Fix: PayPal Express order is created with no address information
+BP-3485 Fix: Orders origin is unknown for Apple Pay and PayPal Express orders
+BP-3477 Fix: Apple pay button is not visible in WooCommerce Blocks checkout
 
 = 3.10.0 =
 Add support for Wordpress 6.3.2

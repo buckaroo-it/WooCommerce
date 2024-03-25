@@ -5,7 +5,7 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
-Version: 3.10.0
+Version: 3.11.0
 Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -99,17 +99,118 @@ function buckaroo_payment_setup_scripts()
         BuckarooConfig::VERSION,
         true
     );
-    wp_localize_script(
-        'buckaroo_certificate_management_js',
-        'buckaroo_php_vars',
-        array(
-            'version2' => WC_Gateway_Buckaroo_In3::VERSION2,
-            'in3_v2' => WC_Gateway_Buckaroo_In3::IN3_V2_TITLE,
-            'in3_v3' => WC_Gateway_Buckaroo_In3::IN3_V3_TITLE,
-        )
-    );
+	if ( class_exists( 'WooCommerce' ) ) {
+		wp_localize_script(
+			'buckaroo_certificate_management_js',
+			'buckaroo_php_vars',
+			array(
+				'version2' => WC_Gateway_Buckaroo_In3::VERSION2,
+				'in3_v2' => WC_Gateway_Buckaroo_In3::IN3_V2_TITLE,
+				'in3_v3' => WC_Gateway_Buckaroo_In3::IN3_V3_TITLE,
+			)
+		);
+	}
+	wp_enqueue_script('buckaroo-block-script', 'assets/js/dist/blocks.js', array('wp-blocks', 'wp-element'));
+
 }
 add_action('wp_enqueue_scripts', 'buckaroo_payment_frontend_scripts');
+
+
+function get_type() {
+	return (new WC_Gateway_Buckaroo_Afterpay())->type;
+}
+
+function get_credtCard_is_secure() {
+	return
+		(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+		|| !empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443;
+}
+
+/**
+ * Check if payment gateway is ours
+ * @param string $name
+ * @return boolean
+ */
+function isBuckarooPayment(string $name): bool {
+	return strncmp($name, 'buckaroo', strlen('buckaroo')) === 0;
+}
+
+
+function get_woocommerce_payment_methods(): array {
+	if (!class_exists('WC_Payment_Gateways')) {
+		return array();
+	}
+
+    $gateways = WC()->payment_gateways()->payment_gateways();
+	$payment_methods = array();
+
+    foreach ($gateways as $gateway_id => $gateway) {
+		if (isBuckarooPayment($gateway_id) && $gateway->enabled == 'yes') {
+			$payment_method = array(
+                'paymentMethodId' => $gateway_id ,
+                'title' => $gateway->get_title(),
+                'description' => $gateway->description,
+                'image_path' => $gateway->getIcon(),
+                'buckarooImagesUrl' => plugin_dir_url(__FILE__) . 'library/buckaroo_images/',
+                'genders' => BuckarooConfig::getAllGendersForPaymentMethods(),
+                'displayMode' => $gateway->get_option('displaymode')
+			);
+            if($gateway_id === 'buckaroo_ideal') {
+                $payment_method['idealIssuers'] =  BuckarooIDeal::getIssuerList();
+                $payment_method['canShowIssuers'] =  $gateway->canShowIssuers();
+            }
+			if($gateway_id === 'buckaroo_paybybank') {
+				$payment_method['payByBankIssuers'] =  BuckarooPayByBank::getIssuerList();
+				$payment_method['payByBankSelectedIssuer'] = BuckarooPayByBank::getActiveIssuerCode();
+				$payment_method['lastPayByBankIssuer'] = BuckarooPayByBank::getActiveIssuerCode();
+			}
+			if($gateway_id === 'buckaroo_afterpaynew') {
+				$payment_method['customer_type'] = $gateway->customer_type;
+			}
+			if($gateway_id === 'buckaroo_afterpay') {
+				$payment_method['b2b'] = $gateway->b2b;
+				$payment_method['type'] = get_type();
+			}
+			if($gateway_id === 'buckaroo_creditcard') {
+				$payment_method['creditCardIssuers'] = $gateway->getCardsList();
+				$payment_method['creditCardMethod'] = $gateway->get_option('encrypt');
+				$payment_method['creditCardIsSecure'] = get_credtCard_is_secure();
+			}
+
+            if($gateway_id === 'buckaroo_applepay') {
+                $payment_method = array_merge($payment_method, [
+                    'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE',
+                    'merchantIdentifier' => $gateway->get_option('merchant_guid')
+                ]);
+			}
+
+            if ($gateway_id === 'buckaroo_paypal') {
+                $expressPages =  $gateway->get_option('express', []);
+                $payment_method = array_merge($payment_method, [
+                    'showInCheckout' => is_array($expressPages) && in_array(Buckaroo_Paypal_Express::LOCATION_CHECKOUT, $expressPages)
+                ]);
+            }
+
+			$payment_methods[] = $payment_method;
+		}
+	}
+	wp_localize_script('buckaroo-blocks', 'buckaroo_gateways', $payment_methods);
+	return $payment_methods;
+}
+
+function enqueue_buckaroo_ideal_block_script() {
+    wp_enqueue_script(
+        'buckaroo-blocks',
+        plugins_url('/assets/js/dist/blocks.js', __FILE__),
+        ['wc-blocks-registry'],
+        '1.0.0',
+        true
+    );
+
+	get_woocommerce_payment_methods();
+}
+add_action('enqueue_block_assets', 'enqueue_buckaroo_ideal_block_script');
+
 
 /**
  * Enqueue frontend scripts
@@ -145,7 +246,7 @@ function buckaroo_payment_frontend_scripts()
     
         wp_enqueue_script(
             'buckaroo_apple_pay',
-            plugin_dir_url(__FILE__) . 'assets/js/dist/apple-pay.js',
+            plugin_dir_url(__FILE__) . 'assets/js/dist/applepay.js',
             array('jquery', 'buckaroo_sdk'),
             BuckarooConfig::VERSION,
             true
@@ -443,7 +544,7 @@ function buckaroo_init_gateway()
         $gateway = new WC_Gateway_Buckaroo_PayPerEmail();
         if (isset($gateway)) {
             $response = $gateway->process_payment($order->get_id());
-            wp_send_json($response);
+            wp_redirect($response);
         }
     }
     add_action( 'woocommerce_order_action_buckaroo_send_admin_payperemail', 'buckaroo_send_admin_payperemail', 10, 1 );
@@ -452,7 +553,7 @@ function buckaroo_init_gateway()
         $gateway = new WC_Gateway_Buckaroo_PayPerEmail();
         if (isset($gateway)) {
             $response = $gateway->process_payment($order->get_id(),1);
-            wp_send_json($response);
+            wp_redirect($response);
         }
     }
 

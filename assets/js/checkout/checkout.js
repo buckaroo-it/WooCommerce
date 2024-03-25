@@ -22,7 +22,7 @@ class BuckarooCheckout {
     jQuery("#billing_company").on("input", function () {
       self.bilink_toggle(jQuery(this).val());
 
-      jQuery("#buckaroo-afterpaynew-coc")
+      jQuery("#buckaroo-afterpaynew-company-coc-registration")
         .parent()
         .toggle(jQuery.trim(jQuery(this).val()).length !== 0);
     });
@@ -41,12 +41,12 @@ class BuckarooCheckout {
       jQuery("#showB2BBuckaroo").toggle(b2bActive);
 
       if (jQuery("#billing_company").length) {
-        jQuery("#buckaroo-afterpay-CompanyName").val(
+        jQuery("#buckaroo-afterpay-company-name").val(
           jQuery("#billing_company").val()
         );
       }
 
-      birthdate.prop("disabled", !b2bActive);
+      birthdate.prop("disabled", b2bActive);
       birthdateParent.toggle(!b2bActive);
       birthdateParent.toggleClass("validate-required", !b2bActive);
 
@@ -70,7 +70,7 @@ class BuckarooCheckout {
     if (jQuery("input[name=billing_phone]").length) {
       jQuery("#buckaroo-afterpaynew-phone").parent().hide();
     }
-    jQuery("#buckaroo-afterpaynew-coc")
+    jQuery("#buckaroo-afterpaynew-company-coc-registration")
       .parent()
       .toggle(
         jQuery.trim(jQuery("input[name=billing_company]").val()).length !== 0

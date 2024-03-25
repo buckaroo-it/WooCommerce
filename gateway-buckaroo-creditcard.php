@@ -242,7 +242,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         ))) {
             wc_add_notice(__("A valid credit card is required.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
-        if ($this->get_option('creditcardmethod') == 'encrypt') {
+        if ($this->get_option('creditcardmethod') == 'encrypt' && $this->isSecure()) {
             $card_year = $this->request($this->id.'-cardyear');
 
             if ($card_year === null) {
@@ -395,7 +395,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
             'type'        => 'select',
             'description' => __('Redirect user to Buckaroo or enter credit or debit card information (directly) inline in the checkout. SSL is required to enable inline credit or debit card information.', 'wc-buckaroo-bpe-gateway'),
             'options'     => array('redirect' => 'Redirect', 'encrypt' => 'Inline'),
-            'default'     => 'encrypt',
+            'default'     => 'redirect',
             'desc_tip'    =>__('Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.', 'wc-buckaroo-bpe-gateway'),
         
         );

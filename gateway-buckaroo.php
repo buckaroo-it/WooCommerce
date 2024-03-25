@@ -159,6 +159,17 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             BuckarooConfig::getIconPath($oldPath, $newPath)
         );
     }
+
+    /**
+     * Get gateway icon
+     *
+     * @return string
+     */
+
+	public function getIcon() {
+
+		return $this->icon;
+	}
     /**
      * Set country field
      *
@@ -508,7 +519,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
            return;
         }
         $value = map_deep( $_POST[$key], 'sanitize_text_field' );
-        if (is_string($value) && strlen($value) === 0) {
+        if (is_string($value) && strlen(trim($value)) === 0) {
             return;
         }
         return $value;
@@ -550,6 +561,22 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $d = DateTime::createFromFormat($format, $date);
         return $d && $d->format($format) == $date;
     }
+	/**
+	 * Check that a user is 18 years or older.
+	 *
+	 * @param String $birthdate Birthdate expressed as a string
+     *
+	 * @return Boolean Is user 18 years or older return true, else false
+	 */
+	public function validateBirthdate($birthdate) {
+
+		$currentDate = new DateTime();
+		$userBirthdate = DateTime::createFromFormat('d-m-Y', $birthdate);
+
+		$ageInterval = $currentDate->diff($userBirthdate)->y;
+
+		return $ageInterval >= 18;
+	}
 
     public function parseDate($date)
     {
@@ -1451,5 +1478,26 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             return apply_filters($tag, $value);
         }
         return null;
+    }
+
+    /**
+     * Add financial warning field to the setting page
+     *
+     * @return void
+     */
+    protected function add_financial_warning_field() {
+        
+        $this->form_fields['financial_warning'] = [
+            'title'       => __('Consumer Financial Warning'),
+            'type'        => 'select',
+            'description' => __('Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.', 'wc-buckaroo-bpe-gateway'),
+            'options'     => ['enable' => 'Enable', 'disable' => 'Disable'],
+            'default'     => 'enable'
+        ];
+    }
+
+    protected function can_show_financial_warining() {
+        $country = $this->getScalarCheckoutField('billing_country');
+        return $this->get_option('financial_warning') !== 'disable' && $country === "NL";
     }
 }

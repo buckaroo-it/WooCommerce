@@ -1,22 +1,66 @@
 const path = require('path');
+const defaultConfig = require('@wordpress/scripts/config/webpack.config');
+const WooCommerceDependencyExtractionWebpackPlugin = require('@woocommerce/dependency-extraction-webpack-plugin');
 
-const applepay =  {
-  entry: './applepay/index.js',
-  output: {
-    filename: './apple-pay.js',
-    path: path.resolve(__dirname, 'dist'),
-  },
+// WooCommerce dependency maps
+const wcDepMap = {
+  '@woocommerce/blocks-registry': ['wc', 'wcBlocksRegistry'],
+  '@woocommerce/settings': ['wc', 'wcSettings']
 };
 
-const checkout =  {
-  entry: './checkout/index.js',
-  output: {
-    filename: './checkout.js',
-    path: path.resolve(__dirname, 'dist'),
-  },
+const wcHandleMap = {
+  '@woocommerce/blocks-registry': 'wc-blocks-registry',
+  '@woocommerce/settings': 'wc-settings'
 };
 
-module.exports = [
-  applepay,
-  checkout
-]
+const requestToExternal = (request) => {
+  if (wcDepMap[request]) {
+    return wcDepMap[request];
+  }
+};
+
+const requestToHandle = (request) => {
+  if (wcHandleMap[request]) {
+    return wcHandleMap[request];
+  }
+};
+
+module.exports = {
+  entry: {
+    'applepay': './applepay/index.js',
+    'checkout': './checkout/index.js',
+    'blocks': './blocks/index.js' // Adjust this path to your blocks index.js
+  },
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].js', // Output each entry to a unique file
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env', '@babel/preset-react'] // Add React preset for JSX
+          }
+        }
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
+    ]
+  },
+  plugins: [
+    ...defaultConfig.plugins.filter(
+        (plugin) =>
+            plugin.constructor.name !== 'DependencyExtractionWebpackPlugin'
+    ),
+    new WooCommerceDependencyExtractionWebpackPlugin({
+      requestToExternal,
+      requestToHandle
+    })
+  ]
+};

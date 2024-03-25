@@ -46,6 +46,24 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         return $this->processDefaultRefund($order_id, $amount, $reason);
     }
 
+    private function set_order_contribution(WC_Order $order)
+    {
+        $prefix = (string) apply_filters(
+			'wc_order_attribution_tracking_field_prefix',
+			'wc_order_attribution_'
+		);
+
+		// Remove leading and trailing underscores.
+		$prefix = trim( $prefix, '_' );
+
+		// Ensure the prefix ends with _, and set the prefix.
+		$prefix = "_{$prefix}_";
+
+        $order->add_meta_data($prefix.'source_type', 'typein');
+        $order->add_meta_data($prefix.'utm_source', '(direct)');
+        $order->save();
+    }
+
     /**
      * Process payment
      *
@@ -63,6 +81,7 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
 
         //set paypal express
         if($this->express_order_id !== null) {
+            $this->set_order_contribution($order);
             $customVars = array_merge(
                 $customVars,
                 ["PayPalOrderId" => $this->express_order_id]

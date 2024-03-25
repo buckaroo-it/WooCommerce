@@ -90,6 +90,10 @@
             'filename' => 'gateway-buckaroo-klarnakp.php',
             'classname' => 'WC_Gateway_Buckaroo_KlarnaKp'
         ),
+        'KnakenSettle' => array(
+	        'filename' => 'gateway-buckaroo-knakensettle.php',
+	        'classname' => 'WC_Gateway_Buckaroo_KnakenSettle'
+        ),
         'P24' => array(
             'filename' =>
             'gateway-buckaroo-p24.php',

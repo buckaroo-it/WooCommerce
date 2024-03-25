@@ -55,14 +55,14 @@ $customer_phone = $this->getScalarCheckoutField('billing_phone');
     <?php if ($this->type == 'afterpayacceptgiro') {
         ?>
         <p class="form-row form-row-wide validate-required">
-            <label for="buckaroo-afterpay-CustomerAccountNumber">
+            <label for="buckaroo-afterpay-company-coc-registration">
                 <?php echo esc_html_e('IBAN:', 'wc-buckaroo-bpe-gateway') ?>
                 <span class="required">*</span>
             </label>
             
             <input 
-            id="buckaroo-afterpay-CustomerAccountNumber"
-            name="buckaroo-afterpay-CustomerAccountNumber"
+            id="buckaroo-afterpay-company-coc-registration"
+            name="buckaroo-afterpay-company-coc-registration"
             class="input-text"
             type="text"
             value="" />
@@ -70,5 +70,6 @@ $customer_phone = $this->getScalarCheckoutField('billing_phone');
         <?php
     }
     $this->getPaymentTemplate('partial_afterpay_tos');
+    $this->getPaymentTemplate('financial_warning');
     ?>
 </fieldset>

@@ -44,7 +44,7 @@
                             ));
                         } catch (Exception $e){ //(SoapFault $e) {
                             Buckaroo_Logger::log(__METHOD__, $e->getMessage());
-                            return $this->_error($e);
+                            return $this->_error();
                         }
                     }
                  }
@@ -78,10 +78,14 @@
                 }
                 $TransactionRequest->StartRecurrent = FALSE;
                 
-                if (isset($this->_vars['customVars']['servicesSelectableByClient']) && isset($this->_vars['customVars']['continueOnIncomplete'])) {
+                if (isset($this->_vars['customVars']['servicesSelectableByClient'])) {
                     $TransactionRequest->ServicesSelectableByClient = $this->_vars['customVars']['servicesSelectableByClient'];
+                }
+                
+                if (isset($this->_vars['customVars']['continueOnIncomplete'])) {
                     $TransactionRequest->ContinueOnIncomplete       = $this->_vars['customVars']['continueOnIncomplete'];
                 }
+                
 
                 $this->_addCustomParameters($TransactionRequest);
 
@@ -110,7 +114,7 @@
                 $Header->MessageControlBlock = new MessageControlBlock();
                 $Header->MessageControlBlock->Id = '_control';
                 $Header->MessageControlBlock->WebsiteKey = BuckarooConfig::get('BUCKAROO_MERCHANT_KEY');
-                $Header->MessageControlBlock->Culture = BuckarooConfig::get('CULTURE');
+                $Header->MessageControlBlock->Culture = $this->determineCulture();
                 $Header->MessageControlBlock->TimeStamp = time();
                 //Old Method 
                 // $Header->MessageControlBlock->Channel = BuckarooConfig::CHANNEL;
@@ -244,6 +248,25 @@
 
                 $TransactionRequest->Services->Service = $services;
             }
+
+            /**
+             * Determine the culture for the transaction based on the browser language.
+             *
+             * @return string The culture code to be used for the transaction.
+             */
+            public function determineCulture() {
+                // Check if the dynamic language option is selected.
+                if (BuckarooConfig::get('CULTURE') == 'dynamic') {
+                    // Get the first two characters of the browser's language setting.
+                    $browserLanguage = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+                    // Map of supported browser languages to Buckaroo culture codes.
+                    $supportedLanguages = ['nl' => 'nl-NL', 'en' => 'en-US', 'de' => 'de-DE', 'fr' => 'fr-FR'];
+                    // Use the browser language if supported, otherwise default to English.
+                    return $supportedLanguages[$browserLanguage] ?? 'en-US';
+                }
+
+                return BuckarooConfig::get('CULTURE');
+            }
             
             protected function _addCustomFields(&$TransactionRequest, $key, $name) {
                 $unsetGroupKey = false;
@@ -353,6 +376,9 @@
                 return $TransactionRequest;
             }
             
+            /**
+             * @param SoapClient|false $client
+             */
             protected function _error($client = false) {
                 $response = false;
 

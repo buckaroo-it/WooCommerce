@@ -79,7 +79,7 @@ class Buckaroo_Order_Details
      */
     public function getBillingAddressComponents()
     {
-        return $this->getAddressComponents(
+        return self::getAddressComponents(
             $this->getBilling('address_1') . " " . $this->getBilling('address_2')
         );
     }
@@ -90,7 +90,7 @@ class Buckaroo_Order_Details
      */
     public function getShippingAddressComponents()
     {
-        return $this->getAddressComponents(
+        return self::getAddressComponents(
             $this->getShipping('address_1') . " " . $this->getShipping('address_2')
         );
     }
@@ -143,14 +143,14 @@ class Buckaroo_Order_Details
 
         return $value;
     }
+
     /**
      * Split address to parts
      *
      * @param string $address
      * @return array
      */
-    protected function getAddressComponents($address)
-    {
+    public static function getAddressComponents($address) {
         $result                    = array();
         $result['house_number']    = '';
         $result['number_addition'] = '';
@@ -170,6 +170,7 @@ class Buckaroo_Order_Details
 
         return $result;
     }
+    
     /**
      * Cleanup a phonenumber handed to it as $phone.
      *

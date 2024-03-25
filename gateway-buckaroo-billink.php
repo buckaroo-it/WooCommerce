@@ -40,7 +40,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
     public function validate_fields()
     {
         if ($this->request('billing_company') !== null) {
-            if ($this->request('buckaroo-billink-CompanyCOCRegistration')=== null) {
+            if ($this->request('buckaroo-billink-company-coc-registration')=== null) {
                 wc_add_notice(__("Please enter correct COC (KvK) number", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         } else {
@@ -84,7 +84,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
 
 
         if ($billink->B2B) {
-            $billink->CompanyCOCRegistration = $this->request('buckaroo-billink-CompanyCOCRegistration');
+            $billink->CompanyCOCRegistration = $this->request('buckaroo-billink-company-coc-registration');
             $var_number = $this->request('buckaroo-billink-VatNumber');
             if ($var_number !== null) {
                 $billink->VatNumber = $var_number;
@@ -179,6 +179,13 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
     public function process_refund($order_id, $amount = null, $reason = '')
     {
         return $this->processDefaultRefund($order_id, $amount, $reason);
+    }
+
+    /** @inheritDoc */
+    public function init_form_fields()
+    {
+        parent::init_form_fields();
+        $this->add_financial_warning_field();
     }
 
 }

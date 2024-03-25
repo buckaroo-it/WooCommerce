@@ -308,8 +308,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $birthdate = $this->parseDate(
             $this->request('buckaroo-afterpaynew-birthdate')
         );
-        if (!$this->validateDate($birthdate, 'd-m-Y') && in_array($country, ['NL', 'BE'])) {
-            wc_add_notice(__("Please enter correct birthdate date", 'wc-buckaroo-bpe-gateway'), 'error');
+
+	    if (!($this->validateDate($birthdate, 'd-m-Y') && $this->validateBirthdate($birthdate)) && in_array($country, ['NL', 'BE']) ) {
+            wc_add_notice(__("You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
         if ($this->request("buckaroo-afterpaynew-accept") === null) {
@@ -321,7 +322,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $country === 'NL' &&
             $this->request('billing_company') !== null
         ) {
-            if ($this->request("buckaroo-afterpaynew-coc") === null) {
+            if ($this->request("buckaroo-afterpaynew-company-coc-registration") === null) {
                 wc_add_notice(__("Company registration number is required", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
@@ -330,7 +331,29 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             wc_add_notice(__("Please enter phone number", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
+        if (
+            $this->is_house_number_invalid('billing')
+        ) {
+            wc_add_notice(__("Invalid billing address, cannot find house number", 'wc-buckaroo-bpe-gateway'), 'error');
+        }
+
+        if (
+            $this->is_house_number_invalid('shipping') &&
+            $this->request('ship_to_different_address') == 1
+        ) {
+            wc_add_notice(__("Invalid shipping address, cannot find house number", 'wc-buckaroo-bpe-gateway'), 'error');
+        }
+
         parent::validate_fields();
+    }
+
+    private function is_house_number_invalid($type)
+    {
+        $components = Buckaroo_Order_Details::getAddressComponents(
+            $this->request($type.'_address_1') . " " . $this->request($type.'_address_2')
+        );
+
+        return !is_string($components['house_number']) || empty(trim($components['house_number']));
     }
 
     /**
@@ -363,12 +386,12 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $afterpay->Accept            = 'TRUE';
         $afterpay->CustomerType      = $this->customer_type;
 
-        if ($this->request("buckaroo-afterpaynew-IdentificationNumber") !== null) {
-            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-IdentificationNumber");
+        if ($this->request("buckaroo-afterpaynew-identification-number") !== null) {
+            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-identification-number");
         }
 
-        if ($this->request("buckaroo-afterpaynew-coc") !== null) {
-            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-coc");
+        if ($this->request("buckaroo-afterpaynew-company-coc-registration") !== null) {
+            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-company-coc-registration");
         }
 
         $afterpay->returnUrl = $this->notify_url;
@@ -475,7 +498,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     public function init_form_fields()
     {
         parent::init_form_fields();
-        
+        $this->add_financial_warning_field();
         $this->form_fields['afterpaynewpayauthorize'] = array(
             'title'       => __('Riverty | AfterPay Pay or Capture', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',

@@ -26,14 +26,14 @@ $country = !empty($country) ? $country : $this->country;
 <fieldset>
     <?php if ($country == "FI") {?>
     <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-afterpaynew-IdentificationNumber">
+        <label for="buckaroo-afterpaynew-identification-number">
             <?php echo esc_html_e('Identification Number', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
 
         <input 
-        id="buckaroo-afterpaynew-IdentificationNumber"
-        name="buckaroo-afterpaynew-IdentificationNumber"
+        id="buckaroo-afterpaynew-identification-number"
+        name="buckaroo-afterpaynew-identification-number"
         class="input-text"
         type="text"
         maxlength="250"
@@ -42,7 +42,7 @@ $country = !empty($country) ? $country : $this->country;
     </p>
     <?php }?>
 
-    <?php if (in_array($country, ["BE", "NL"])) {
+    <?php if (in_array($country, ["BE", "NL", "DE"])) {
         $this->getPaymentTemplate('partial_birth_field');
         ?>
     <p class="form-row validate-required">
@@ -62,14 +62,14 @@ $country = !empty($country) ? $country : $this->country;
 
     <?php if ($country == "NL" && WC_Gateway_Buckaroo_Afterpaynew::CUSTOMER_TYPE_B2C !==  $this->customer_type) {?>
     <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-afterpaynew-coc">
+        <label for="buckaroo-afterpaynew-company-coc-registration">
             <?php echo esc_html_e('CoC-number:', 'wc-buckaroo-bpe-gateway') ?>
             <span class="required">*</span>
         </label>
 
         <input 
-        id="buckaroo-afterpaynew-coc"
-        name="buckaroo-afterpaynew-coc"
+        id="buckaroo-afterpaynew-company-coc-registration"
+        name="buckaroo-afterpaynew-company-coc-registration"
         class="input-text"
         type="text"
         maxlength="250"
@@ -87,5 +87,7 @@ $country = !empty($country) ? $country : $this->country;
     value="1" />
     <?php }
     $this->getPaymentTemplate('partial_afterpay_tos');
+    $this->getPaymentTemplate('financial_warning');
     ?>
+    
 </fieldset>

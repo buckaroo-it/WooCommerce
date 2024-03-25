@@ -4,7 +4,31 @@ import Woocommerce  from './woocommerce.js';
 
 "use strict";
 
+const BuckarooListenToApplePayChange = function (applepay)  {
+    if (applepay === undefined) {
+      return;
+    }
+
+    return function() {
+      applepay.rebuild();
+      applepay.init();
+    }
+}
+window.BuckarooInitApplePay = function () {
+  if (jQuery === undefined) {
+    console.error("Cannot initialize ApplePay missing jquery");
+    return;
+  }
+  const applepay = new ApplePay;
+  applepay.rebuild();
+  applepay.init();
+  document.removeEventListener("applepayRefresh", BuckarooListenToApplePayChange(applepay))
+  document.addEventListener("applepayRefresh", BuckarooListenToApplePayChange(applepay))
+}
+
+
 jQuery(function() {
+  document.dispatchEvent(new Event("bk-jquery-loaded"));
   if (jQuery('.applepay-button-container')[0]) {
                 
       const applepay = new ApplePay;
@@ -42,5 +66,5 @@ jQuery(function() {
         applepay.rebuild();
         applepay.init();
       });
-  }  
+  }
 })

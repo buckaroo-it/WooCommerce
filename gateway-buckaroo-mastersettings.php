@@ -17,15 +17,15 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
         );
         parent::__construct();
     }
-  
+
     public function enqueue_script_exodus($settings)
-    {
-        if (is_admin()) {
-            wp_enqueue_script('buckaroo_exodus', plugin_dir_url(__FILE__) . 'library/js/9yards/exodus.js', array('jquery'), '1.0.0', true);
-        }
-        return $settings;
-    }
-    
+	{
+		if (is_admin()) {
+			wp_enqueue_script('buckaroo_exodus', plugin_dir_url(__FILE__) . 'library/js/9yards/exodus.js', array('jquery'), '1.0.0', true);
+		}
+		return $settings;
+	}
+
     /**
      * Add fields to the form_fields() array, specific to this page.
      *
@@ -104,10 +104,16 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
         $this->form_fields['culture'] = array(
             'title'       => __('Language', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
-            'description' => __('Buckaroo payment engine culture', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array('en-US' => 'English', 'nl-NL' => 'Dutch', 'fr-FR' => 'French', 'de-DE' => 'German'),
-            'default'     => 'nl-NL');
-        $this->form_fields['debugmode'] = array(
+            'description' => __("The chosen language (culture) for the Buckaroo payment engine <br>page.
+			When this is set to “Dynamic language” the plugin will <br>automatically determine the language based on the
+			language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>
+			English will be used as a fallback language for unknown language types.", 'wc-buckaroo-bpe-gateway'),
+            'options'     => array('dynamic' => 'Dynamic language (based on the web browser language)', 'en-US' => 'English', 'nl-NL' => 'Dutch', 'fr-FR' => 'French', 'de-DE' => 'German'),
+            'default'     => 'dynamic',
+            'id'          => 'woocommerce_buckaroo_mastersettings_culture',
+        );
+
+	    $this->form_fields['debugmode'] = array(
             'title'       => __('Debug mode', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Toggle debug mode on/off', 'wc-buckaroo-bpe-gateway'),
@@ -141,7 +147,7 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'type'        => 'select',
             'description' => __('By turning on this setting in checkout new payment method icons will be in use', 'wc-buckaroo-bpe-gateway'),
             'options'     => array(0 => 'No', 1 => 'Yes'),
-            'default'     => 0
+            'default'     => 1
         );
 
         $this->form_fields['useidin'] = array(

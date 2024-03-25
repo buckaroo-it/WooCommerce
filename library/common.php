@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__FILE__) . '/api/abstract.php';
+require_once dirname(__FILE__) . '/../controllers/PaypalExpressUpdateOrderAddresses.php';
 
 
 function fn_buckaroo_process_reservation_cancel($response, $order)
@@ -226,6 +227,10 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
             return $checkIfRedirectRequired;
         }
 
+        if ($response instanceof BuckarooPayPalResponse) {
+            (new Buckaroo_Paypal_Express_Update_Order_Addresses($order, $response))->update();
+        }
+
         $giftCardPartialPayment = ($response->statuscode == BuckarooAbstract::CODE_AWAITING_CONSUMER && $response->brq_transaction_type == 'I150');
 
         if ($response->brq_relatedtransaction_partialpayment != null || $giftCardPartialPayment) {
@@ -241,7 +246,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         }
         Buckaroo_Logger::log('Response order status: ' . $response->status);
         Buckaroo_Logger::log('Status message: ' . $response->statusmessage);
-        
+
         if (!fn_process_push_meta_update($order_id, $order, $response)){
             return;
         }
@@ -250,6 +255,15 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
             processPushTransactionSucceeded($order_id, $order, $response, $payment_method);
 
         } else {
+
+            if ($response->status == BuckarooAbstract::CODE_PENDING_PROCESSING && $order->get_payment_method() == 'buckaroo_in3'){
+                return;
+            }
+            if (in_array($order->get_payment_method(), ['buckaroo_payperemail', 'buckaroo_transfer'])) {
+                Buckaroo_Logger::log('Payperemail status check: ' . $response->statuscode);
+                if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
+            }
+
             Buckaroo_Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
             if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled'))) {
                 //We receive a valid response that the payment is canceled/failed.
@@ -343,7 +357,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     } else {
         $order_id = $response->brq_ordernumber;
     }
-    
+
     if (is_int($response->real_order_id)) {
         $order_id = $response->real_order_id;
     }
@@ -359,9 +373,9 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     }
 
     if ($response->isValid()) {
-        
+
         update_post_meta(
-            $order_id, 
+            $order_id,
             '_buckaroo_order_in_test_mode',
             $response->isTest() == true
         );
@@ -373,12 +387,12 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         }
 
         Buckaroo_Logger::log(__METHOD__ . "|20|", [$order_id, $response->payment_method,$response->hasSucceeded()]);
-        
+
         $process_response_idin = fn_process_response_idin($response, $order_id);
         if (is_array($process_response_idin)){
             return $process_response_idin;
         }
-        
+
         Buckaroo_Logger::log('Order status: ' . $order->get_status());
         if (($response->status == BuckarooAbstract::STATUS_ON_HOLD) && ($payment_method->id == 'buckaroo_paypal')) {
             $response->status = BuckarooAbstract::STATUS_CANCELED;
@@ -387,18 +401,21 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         Buckaroo_Logger::log('Status message: ' . $response->statusmessage);
 
         //Payperemail response
-        if(fn_process_response_payperemail($payment_method, $response)){
-            return;
+        if(fn_process_response_payperemail($payment_method, $response,$order)){
+            return array(
+                'result'   => 'success',
+                'redirect' => $payment_method->get_return_url($order),
+            );
         }
 
         if($order->get_payment_method() == 'buckaroo_klarnakp') {
             update_post_meta(
-                $order->get_id(), 
+                $order->get_id(),
                 '_buckaroo_klarnakp_reservation_number',
                 $response->reservation_number
             );
         }
-        
+
         if ($response->hasSucceeded()) {
             Buckaroo_Logger::log(
                 'Order already in final state or  have the same status as response. Order status: ' . $order->get_status()
@@ -423,9 +440,15 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     return;
             }
         } else {
-
-            Buckaroo_Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
             Buckaroo_Logger::log('||| infoLog ' . $response->status);
+
+            if ($response->status == BuckarooAbstract::CODE_PENDING_PROCESSING && $order->get_payment_method() == 'buckaroo_in3'){
+                return;
+            }
+            if (in_array($order->get_payment_method(),['buckaroo_payperemail', 'buckaroo_transfer'])) {
+                Buckaroo_Logger::log('Payperemail status check: ' . $response->statuscode);
+                if(buckaroo_handle_unsuccessful_payment($response->statuscode)) return;
+            }
             if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                 //We receive a valid response that the payment is canceled/failed.
                 Buckaroo_Logger::log('Update status 4. Order status: failed');
@@ -523,6 +546,11 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
     }
 
 }
+function buckaroo_handle_unsuccessful_payment($status_code)
+{
+    return in_array($status_code, [BuckarooAbstract::CODE_CANCELLED_BY_USER, BuckarooAbstract::CODE_REJECTED]);
+}
+
 
 function parsePPENewTransactionId($transactions)
 {
@@ -849,7 +877,7 @@ function getClientIpBuckaroo()
 
 function roundAmount($amount) {
     if(is_scalar($amount)) {
-        return round(floatval($amount), 2);
+	    return (float) number_format($amount, 2 );
     }
     return 0;
 }
@@ -864,10 +892,10 @@ function fn_process_push_refund($order_id, $response){
             $tmp = get_post_meta($order_id, '_refundbuckaroo' . $response->transactions, true);
             if (empty($tmp)) {
                 add_post_meta($order_id, '_refundbuckaroo' . $response->transactions, 'ok', true);
-                $refund = wc_create_refund(
+                wc_create_refund(
                     array(
                         'amount'     => $response->amount_credit,
-                        'reason'     => 'Push automatic refund from BPE; Please restock items manually',
+                        'reason'     => __('Refunded', 'wc-buckaroo-bpe-gateway'),
                         'order_id'   => $order_id,
                         'line_items' => array(),
                     )
@@ -978,9 +1006,9 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                 $prefix     = "buckaroo_settlement_";
                 $settlement = $prefix . $response->payment;
 
-                $orderAmount            = (float) $order->get_total();
-                $paidAmount             = (float) $response->amount;
-                $alreadyPaidSettlements = 0;
+	            $orderAmount = (float) number_format( $order->get_total(), 2 );
+	            $paidAmount = (float) number_format( $response->amount, 2 );
+	            $alreadyPaidSettlements = 0;
                 $isNewPayment           = true;
                 if ($items = get_post_meta($order_id)) {
                     foreach ($items as $key => $meta) {
@@ -1040,16 +1068,21 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
 
 }
 
-function fn_process_response_payperemail($payment_method, $response){
+function fn_process_response_payperemail($payment_method, $response,$order){
     if ($payment_method->id == 'buckaroo_payperemail') {
         Buckaroo_Logger::log(__METHOD__, "Process paypermail");
         if (is_admin()) {
             if ($response->hasSucceeded()) {
                 if (!isset($response->getResponse()->ConsumerMessage)) {
+                    $message = 'Your paylink: <a target="_blank" href="' . $response->getPayLink() . '">' . $response->getPayLink() . '</a>';
+                    $order->add_order_note($message);
                     $buckaroo_admin_notice = array(
                         'type'    => 'success',
-                        'message' => 'Your paylink: <a target="_blank" href="' . $response->getPayLink() . '">' . $response->getPayLink() . '</a>',
+                        'message' => $message
                     );
+                }else{
+                    $message = 'Email sent successfully.<br>';
+                    $order->add_order_note($message);
                 }
             } else {
                 $parameterError = '';
@@ -1155,28 +1188,4 @@ function buckaroo_request_sanitized_json($key)
         $result,
         'sanitize_text_field'
     );
-}
-
-function getGenderValues($payment_method)
-{
-    switch($payment_method)
-    {
-        case 'buckaroo-payperemail' :
-            $genders = ['male' => 1, 'female' => 2, 'they'=> 0, 'unknown' => 9];
-            break;
-        case 'buckaroo-billink' :
-            $genders = ['male' => 'Male', 'female' => 'Female', 'they'=> 'Unknown', 'unknown' => 'Unknown'];
-            break;
-        case 'buckaroo-klarnapay' :
-            $genders = ['male' => 'male', 'female' => 'female'];
-            break;
-        case 'buckaroo-klarnapii' :
-            $genders = ['male' => 'male', 'female' => 'female'];
-            break;
-        default :
-            $genders = ['male' => 'male', 'female' => 'female', 'they'=> 'unknown', 'unknown' => 'unknown'];
-            break;
-    }
-
-    return $genders;
 }
