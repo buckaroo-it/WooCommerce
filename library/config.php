@@ -87,7 +87,7 @@ class BuckarooConfig extends BuckarooConfigCore {
                 $val = $options['debugmode'] ?? null;
                 break;
             case 'BUCKAROO_USE_NEW_ICONS':
-                $val = (empty($options['usenewicons']) ?  FALSE : $options['usenewicons']);
+                $val = (empty($options['usenewicons']) ?  TRUE : $options['usenewicons']);
                 break;
             case 'BUCKAROO_USE_IDIN':
                 $val = (empty($options['useidin']) ?  FALSE : $options['useidin']);
