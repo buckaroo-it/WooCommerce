@@ -107,6 +107,9 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 
 == Changelog ==
 
+= 3.11.1 =
+BP-3518 Price is wrongly communicated
+
 = 3.11.0 =
 
 Add support for WordPress 6.4.3 & WooCommerce 8.7.0
