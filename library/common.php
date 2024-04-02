@@ -877,9 +877,9 @@ function getClientIpBuckaroo()
 
 function roundAmount($amount) {
 	if (is_scalar($amount) && is_numeric($amount)) {
-	    return (float) number_format($amount, 2, '.', '');
-    }
-    return 0;
+		return wc_format_decimal($amount, 2);
+	}
+	return 0.0;
 }
 
 function fn_process_push_refund($order_id, $response){
