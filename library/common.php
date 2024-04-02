@@ -876,10 +876,10 @@ function getClientIpBuckaroo()
 }
 
 function roundAmount($amount) {
-    if(is_scalar($amount)) {
-	    return (float) number_format($amount, 2, '.', '');
-    }
-    return 0;
+	if (is_numeric($amount)) {
+		return wc_format_decimal($amount, 2);
+	}
+	return 0;
 }
 
 function fn_process_push_refund($order_id, $response){
@@ -1006,8 +1006,8 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                 $prefix     = "buckaroo_settlement_";
                 $settlement = $prefix . $response->payment;
 
-	            $orderAmount = (float) number_format( $order->get_total(), 2 );
-	            $paidAmount = (float) number_format( $response->amount, 2 );
+	            $orderAmount = roundAmount( $order->get_total() );
+	            $paidAmount = roundAmount( $response->amount );
 	            $alreadyPaidSettlements = 0;
                 $isNewPayment           = true;
                 if ($items = get_post_meta($order_id)) {
@@ -1034,7 +1034,7 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
 
                 $message = 'Received Buckaroo payment push notification.<br>';
                 $message .= 'Paid amount: ' . wc_price($paidAmount);
-                $message .= '<br>Total amount paid (incl previous payments): ' . wc_price(($totalPaid));
+                $message .= '<br>Total amount paid (incl previous payments): ' . wc_price($totalPaid);
                 $message .= '<br>Order total: ' . wc_price($orderAmount);
                 $message .= '<br>Open amount: ' . wc_price(($orderAmount - $totalPaid));
 
