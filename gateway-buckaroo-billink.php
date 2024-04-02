@@ -7,7 +7,6 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
 {
     public $type;
     public $b2b;
-    public $vattype;
 
     public function __construct()
     {
@@ -26,7 +25,6 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
     {
         parent::setProperties();
         $this->type = 'billink';
-        $this->vattype    = $this->get_option('vattype');
     }
     /**
      * Validate fields

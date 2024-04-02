@@ -15,7 +15,6 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     public const IN3_V3_TITLE = 'iDEAL In3';
 
     public $type;
-    public $vattype;
     public function __construct()
     {
         $this->id                     = 'buckaroo_in3';
@@ -39,7 +38,6 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     {
         parent::setProperties();
         $this->type       = 'in3';
-        $this->vattype    = $this->get_option('vattype');
     }
 
     /**

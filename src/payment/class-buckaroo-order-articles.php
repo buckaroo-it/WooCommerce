@@ -130,9 +130,6 @@ class Buckaroo_Order_Articles
                 'vatPercentage' => 0
             ];
 
-            if ($this->gateway->get_option('vattype') !== null) {
-                $product['vatCategory'] = $this->gateway->get_option('vattype');
-            }
             return $product;
         }
     }

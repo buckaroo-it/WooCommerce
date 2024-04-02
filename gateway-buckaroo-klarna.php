@@ -7,7 +7,6 @@
 class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 {
     protected $type;
-    protected $vattype;
     protected $klarnaPaymentFlowId = '';
 
     public function __construct()
@@ -18,12 +17,6 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
 
         parent::__construct();
         $this->add_refund_support();
-    }
-    /**  @inheritDoc */
-    protected function setProperties()
-    {
-        parent::setProperties();
-        $this->vattype = $this->get_option('vattype');
     }
     public function getKlarnaSelector()
     {

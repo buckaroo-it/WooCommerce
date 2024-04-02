@@ -8,7 +8,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 {
     public $type;
     public $b2b;
-    public $vattype;
     public $sendimageinfo;
     protected $afterpaynewpayauthorize;
     public $customer_type;
@@ -41,7 +40,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         parent::setProperties();
         $this->afterpaynewpayauthorize = $this->get_option('afterpaynewpayauthorize');
         $this->sendimageinfo = $this->get_option('sendimageinfo');
-        $this->vattype    = $this->get_option('vattype');
         $this->type       = 'afterpay';
         $this->customer_type = $this->get_option('customer_type', self::CUSTOMER_TYPE_BOTH);
     }
