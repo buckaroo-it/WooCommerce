@@ -10,8 +10,8 @@
  */
 
 if (\PHP_VERSION_ID < 80100) {
-    #[WC_Buckaroo_Attribute(Attribute::TARGET_METHOD)]
-    final class WC_Buckaroo_ReturnTypeWillChange
+    #[WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_Attribute(Attribute::TARGET_METHOD)]
+    final class WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_ReturnTypeWillChange
     {
         public function __construct()
         {

@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace WC_Buckaroo\Dependencies\Ramsey\Uuid\Fields;
 
-use WC_Buckaroo_ValueError;
+use WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_ValueError;
 
 use function base64_decode;
 use function sprintf;
@@ -77,7 +77,7 @@ trait SerializableFieldsTrait
     {
         // @codeCoverageIgnoreStart
         if (!isset($data['bytes'])) {
-            throw new WC_Buckaroo_ValueError(sprintf('%s(): Argument #1 ($data) is invalid', __METHOD__));
+            throw new WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_ValueError(sprintf('%s(): Argument #1 ($data) is invalid', __METHOD__));
         }
         // @codeCoverageIgnoreEnd
 

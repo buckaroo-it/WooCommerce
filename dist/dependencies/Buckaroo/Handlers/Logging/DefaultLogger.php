@@ -23,7 +23,7 @@ namespace WC_Buckaroo\Dependencies\Buckaroo\Handlers\Logging;
 use WC_Buckaroo\Dependencies\Buckaroo\Handlers\Logging\Observers\ErrorReporter;
 use WC_Buckaroo\Dependencies\Buckaroo\Handlers\Logging\Observers\Monolog;
 use WC_Buckaroo\Dependencies\Psr\Log\LoggerInterface;
-use WC_Buckaroo_Stringable;
+use WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_Stringable;
 
 class DefaultLogger implements Subject, LoggerInterface
 {
@@ -86,7 +86,7 @@ class DefaultLogger implements Subject, LoggerInterface
     }
 
     /**
-     * @param string|WC_Buckaroo_Stringable $message The log message
+     * @param string|WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_Stringable $message The log message
      * @param array $context
      * @return void
      */
@@ -96,7 +96,7 @@ class DefaultLogger implements Subject, LoggerInterface
     }
 
     /**
-     * @param string|WC_Buckaroo_Stringable $message The log message
+     * @param string|WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_Stringable $message The log message
      * @param array $context
      * @return void
      */
