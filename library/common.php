@@ -876,10 +876,10 @@ function getClientIpBuckaroo()
 }
 
 function roundAmount($amount) {
-	if (is_scalar($amount) && is_numeric($amount)) {
+	if (is_numeric($amount)) {
 		return wc_format_decimal($amount, 2);
 	}
-	return 0.0;
+	return 0;
 }
 
 function fn_process_push_refund($order_id, $response){
