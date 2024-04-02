@@ -1,14 +1,11 @@
 <?php
 
 
-require_once dirname(__FILE__) . '/library/api/paymentmethods/afterpaynew/afterpaynew.php';
-
 /**
  * @package Buckaroo
  */
 class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 {
-    const PAYMENT_CLASS = BuckarooAfterPayNew::class;
     public $type;
     public $b2b;
     public $vattype;
@@ -31,6 +28,13 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         parent::__construct();
         $this->addRefundSupport();
     }
+
+    /** @inheritDoc */
+    public function get_sdk_code(): string
+    {
+        return 'afterpay';
+    }
+
     /**  @inheritDoc */
     protected function setProperties()
     {
@@ -349,83 +353,15 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
     private function is_house_number_invalid($type)
     {
-        $components = Buckaroo_Order_Details::getAddressComponents(
+        $components = Buckaroo_Order_Details::get_address_components(
             $this->request($type.'_address_1') . " " . $this->request($type.'_address_2')
         );
 
         return !is_string($components['house_number']) || empty(trim($components['house_number']));
     }
 
-    /**
-     * Process payment
-     *
-     * @param integer $order_id
-     * @return callable|void fn_buckaroo_process_response() or void
-     */
-    public function process_payment($order_id)
-    {
-        $this->setOrderCapture($order_id, 'Afterpaynew');
-        $order = getWCOrder($order_id);
-        /** @var BuckarooAfterPayNew */
-        $afterpay = $this->createDebitRequest($order);
-        $afterpay->setType($this->type);
-        $afterpay->invoiceId = (string)getUniqInvoiceId(
-            preg_replace('/\./', '-', $order->get_order_number())
-        );
-        $order_details = new Buckaroo_Order_Details($order);
-     
-        $birthdate        = $this->parseDate($this->request('buckaroo-afterpaynew-birthdate'));
 
-        $afterpay = $this->get_billing_info($order_details, $afterpay, $birthdate);
-        $afterpay = $this->get_shipping_info($order_details, $afterpay);
-        
-        /** @var BuckarooAfterPayNew */
-        $afterpay = $this->handleThirdPartyShippings($afterpay, $order, $this->country);
-
-        $afterpay->CustomerIPAddress = getClientIpBuckaroo();
-        $afterpay->Accept            = 'TRUE';
-        $afterpay->CustomerType      = $this->customer_type;
-
-        if ($this->request("buckaroo-afterpaynew-identification-number") !== null) {
-            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-identification-number");
-        }
-
-        if ($this->request("buckaroo-afterpaynew-company-coc-registration") !== null) {
-            $afterpay->IdentificationNumber = $this->request("buckaroo-afterpaynew-company-coc-registration");
-        }
-
-        $afterpay->returnUrl = $this->notify_url;
-
-
-        $action = ucfirst(isset($this->afterpaynewpayauthorize) ? $this->afterpaynewpayauthorize : 'pay');
-
-        if ($action == 'Authorize') {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes');
-        }
-
-        $response = $afterpay->PayOrAuthorizeAfterpay(
-            $this->get_products_for_payment($order_details),
-            $action
-        );
-        return fn_buckaroo_process_response($this, $response, $this->mode);
-    }
-
-    public function get_product_data(Buckaroo_Order_Item $order_item)
-    {
-        $product = parent::get_product_data($order_item);
-        
-        if($order_item->get_type() === 'line_item') {
-
-            $img = $this->getProductImage($order_item->get_order_item()->get_product());
-            
-            if(!empty($img)) {
-                $product['imgUrl'] = $img;
-            }
-        
-            $product['url']  = get_permalink($order_item->get_id());
-        }
-        return $product;
-    }
+    
     /**
      * Get billing info for pay request
      *
@@ -439,7 +375,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     {
         /** @var BuckarooAfterPayNew */
         $method = $this->set_billing($method, $order_details);
-        $method->BillingInitials  = $order_details->getInitials(
+        $method->BillingInitials  = $order_details->get_initials(
             $order_details->getBilling('first_name')
         );
         $method->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
@@ -468,7 +404,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             $method->AddressesDiffer = 'TRUE';
             /** @var BuckarooAfterPayNew */
             $method = $this->set_shipping($method, $order_details);
-            $method->ShippingInitials = $order_details->getInitials(
+            $method->ShippingInitials = $order_details->get_initials(
                 $order_details->getShipping('first_name')
             );
 
@@ -541,34 +477,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
             'default'           => '0',
         );
     }
-
-    public function getProductImage($product) {
-
-        if ($this->sendimageinfo){
-            $src = get_the_post_thumbnail_url($product->get_id());
-            if (!$src) {
-                $imgTag = $product->get_image();
-                $doc = new DOMDocument();
-                $doc->loadHTML($imgTag);
-                $xpath = new DOMXPath($doc);
-                $src = $xpath->evaluate("string(//img/@src)");
-            }
-
-            if (strpos($src, '?') !== false) {
-                $src = substr($src, 0, strpos($src, '?'));
-            }
-
-            if ($srcInfo = @getimagesize($src)) {
-                if (!empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg'])) {
-                    if (!empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280)) {
-                        return $src;
-                    }
-                }
-            } 
-        }
-    }
-
-
 
     /**
      * Show payment if available

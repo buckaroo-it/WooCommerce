@@ -1,7 +1,6 @@
 <?php
 
 
-require_once(dirname(__FILE__) . '/library/api/paymentmethods/klarna/klarna.php');
 require_once(dirname(__FILE__) . '/gateway-buckaroo-klarna.php');
 
 class WC_Gateway_Buckaroo_KlarnaPay extends WC_Gateway_Buckaroo_Klarna {

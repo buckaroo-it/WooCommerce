@@ -1,15 +1,12 @@
 <?php
 
 
-require_once dirname(__FILE__) . '/library/api/paymentmethods/in3/in3.php';
-require_once dirname(__FILE__) . '/library/api/paymentmethods/in3/in3v2.php';
 
 /**
  * @package Buckaroo
  */
 class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
 {
-    const PAYMENT_CLASS = BuckarooIn3::class;
     public const DEFAULT_ICON_VALUE = 'defaultIcon';
     public const VERSION_FLAG = 'buckaroo_in3_version';
     public const VERSION3 = 'v3';
@@ -45,17 +42,6 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         parent::setProperties();
         $this->type       = 'in3';
         $this->vattype    = $this->get_option('vattype');
-    }
-    /**
-     * Can the order be refunded
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_refund($order_id, $amount = null, $reason = '', $line_item_qtys = null, $line_item_totals = null, $line_item_tax_totals = null, $originalTransactionKey = null)
-    {
-        return $this->processDefaultRefund($order_id, $amount, $reason);
     }
 
     /**
@@ -94,42 +80,6 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     }
 
     /**
-     * Process payment
-     *
-     * @param integer $order_id
-     * @return callable|void fn_buckaroo_process_response() or void
-     */
-    public function process_payment($order_id)
-    {
-        $this->setOrderCapture($order_id, 'In3');
-
-        $order = getWCOrder($order_id);
-
-        $version = $this->get_option('api_version');
-        update_post_meta(
-            $order->get_id(),
-            self::VERSION_FLAG,
-            $version
-        );
-
-        if ($version === self::VERSION2) {
-            return $this->pay_with_v2($order);
-        }
-
-        $order_details = new Buckaroo_Order_Details($order);
-        /** @var BuckarooIn3 */
-        $in3 = $this->createDebitRequest($order);
-        $in3->setData(
-            $order_details,
-            $this->get_products_for_payment($order_details),
-            new Buckaroo_Http_Request()
-        );
-
-        $response = $in3->pay();
-        return fn_buckaroo_process_response($this, $response);
-    }
-
-    /**
      * Set icons based on version
      *
      * @return void
@@ -148,59 +98,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         $this->setIcon($icon, $icon);
     }
 
-    /**
-     * Pay with old version
-     *
-     * @param WC_Order $order
-     *
-     * @return void
-     */
-    private function pay_with_v2($order)
-    {
-
-        /** @var BuckarooIn3v2 */
-        $in3 = $this->createDebitRequest($order);
-
-        $order_details = new Buckaroo_Order_Details($order);
-
-        $birthdate = date('Y-m-d', strtotime($this->request('buckaroo-in3-birthdate')));
-
-        $in3 = $this->get_billing_info($order_details, $in3, $birthdate);
-
-        $response = $in3->PayIn3(
-            $this->get_products_for_payment($order_details),
-            'PayInInstallments'
-        );
-        return fn_buckaroo_process_response($this, $response, $this->mode);
-    }
-
-    /**
-     * Get billing info for pay request
-     *
-     * @param Buckaroo_Order_Details $order_details
-     * @param BuckarooIn3 $method
-     * @param string $birthdate
-     *
-     * @return BuckarooIn3v2  $method
-     */
-    protected function get_billing_info($order_details, $method, $birthdate)
-    {
-        /** @var BuckarooIn3v2 */
-        $method = $this->set_billing($method, $order_details);
-        $method->BillingInitials  = $order_details->getInitials(
-            $order_details->getBilling('first_name')
-        );
-        $method->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
-
-        $phone = $this->request('buckaroo-in3-phone');
-
-        if (is_scalar($phone) && trim(strlen((string) $phone)) > 0) {
-            $method->BillingPhoneNumber = $phone;
-        }
-
-        return $method;
-    }
-
+   
     /**
      * Add fields to the form_fields() array, specific to this page.
      *

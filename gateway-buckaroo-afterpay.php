@@ -1,14 +1,10 @@
 <?php
 
-
-require_once dirname(__FILE__) . '/library/api/paymentmethods/afterpay/afterpay.php';
-
 /**
  * @package Buckaroo
  */
 class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 {
-    const PAYMENT_CLASS = BuckarooAfterPay::class;
     public $type;
     public $b2b;
     public $vattype;
@@ -290,70 +286,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     }
 
     /**
-     * Process payment
-     *
-     * @param integer $order_id
-     * @return callable|void fn_buckaroo_process_response() or void
-     */
-    public function process_payment($order_id)
-    {
-        $order = getWCOrder($order_id);
-        $this->setOrderCapture($order_id, 'Afterpay');
-        /** @var BuckarooAfterPay */
-        $afterpay = $this->createDebitRequest($order);
-        $afterpay->setType($this->type);
-
-        
-        $birthdate                 = $this->parseDate(
-            $this->request('buckaroo-afterpay-birthdate')
-        );
-        
-        $shippingCosts    = $order->get_shipping_total('edit');
-        $shippingCostsTax = (float)$order->get_shipping_tax('edit');
-        if (floatval($shippingCosts) > 0) {
-            $afterpay->ShippingCosts = number_format($shippingCosts, 2) + number_format($shippingCostsTax, 2);
-        }
-        if ($this->request("buckaroo-afterpay-b2b") == 'ON') {
-        
-            $afterpay->B2B                    = 'TRUE';
-            $afterpay->CompanyCOCRegistration = $this->request("buckaroo-afterpay-company-coc-registration");
-            $afterpay->CompanyName            = $this->request("buckaroo-afterpay-company-name");
-        }
-
-        $order_details = new Buckaroo_Order_Details($order);
-        $afterpay = $this->getBillingInfo($order_details, $afterpay, $birthdate);
-        $afterpay = $this->getShippingInfo($order_details, $afterpay);
-        
-        if ($this->type == 'afterpayacceptgiro') {
-            $afterpay->CustomerAccountNumber = $this->request("buckaroo-afterpay-company-coc-registration");
-        }
-        /** @var BuckarooAfterPay */
-        $afterpay = $this->handleThirdPartyShippings($afterpay, $order, $this->country);
-
-        $afterpay->CustomerIPAddress = getClientIpBuckaroo();
-        $afterpay->Accept            = 'TRUE';
-
-        $afterpay->returnUrl = $this->notify_url;
-
-       
-        $action = ucfirst(isset($this->afterpaypayauthorize) ? $this->afterpaypayauthorize : 'pay');
-
-        if ($action == 'Authorize') {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes');
-        }
-
-        $response = $afterpay->PayOrAuthorizeAfterpay(
-            $this->get_products_for_payment($order_details),
-            $action
-        );
-
-        // Save the original tranaction ID from the authorize or capture, we need it to do the refund
-        // JM REMOVE???
-        //update_post_meta( $order->get_id(), '_wc_order_payment_original_transaction_key', $this->type);
-
-        return fn_buckaroo_process_response($this, $response, $this->mode);
-    }
-    /**
      * Get billing info for pay request
      *
      * @param Buckaroo_Order_Details $order_details
@@ -366,7 +298,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     {
         /** @var BuckarooAfterPay */
         $method = $this->set_billing($method, $order_details);
-        $method->BillingInitials  = $order_details->getInitials(
+        $method->BillingInitials  = $order_details->get_initials(
             $order_details->getBilling('first_name')
         );
         $method->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
@@ -390,7 +322,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             $method->AddressesDiffer = 'TRUE';
             /** @var BuckarooAfterPay */
             $method = $this->set_shipping($method, $order_details);
-            $method->ShippingInitials = $order_details->getInitials(
+            $method->ShippingInitials = $order_details->get_initials(
                 $order_details->getShipping('first_name')
             );
 

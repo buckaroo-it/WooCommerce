@@ -1,13 +1,11 @@
 <?php
 
-require_once dirname(__FILE__) . '/library/api/paymentmethods/buckaroopaypal/buckaroopaypal.php';
 
 /**
  * @package Buckaroo
  */
 class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
 {
-    const PAYMENT_CLASS = BuckarooPayPal::class;
 
     public $sellerprotection;
 
@@ -34,17 +32,6 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         parent::setProperties();
         $this->sellerprotection = $this->get_option('sellerprotection', 'TRUE');
     }
-    /**
-     * Can the order be refunded
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_refund($order_id, $amount = null, $reason = '')
-    {
-        return $this->processDefaultRefund($order_id, $amount, $reason);
-    }
 
     private function set_order_contribution(WC_Order $order)
     {
@@ -64,51 +51,6 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         $order->save();
     }
 
-    /**
-     * Process payment
-     *
-     * @param integer $order_id
-     * @return callable fn_buckaroo_process_response()
-     */
-    public function process_payment($order_id)
-    {
-        $order = getWCOrder($order_id);
-        /** @var BuckarooPayPal */
-        $paypal = $this->createDebitRequest($order);
-        $order_details = new Buckaroo_Order_Details($order);
-
-        $customVars = array();
-
-        //set paypal express
-        if($this->express_order_id !== null) {
-            $this->set_order_contribution($order);
-            $customVars = array_merge(
-                $customVars,
-                ["PayPalOrderId" => $this->express_order_id]
-            );
-        }
-
-        if ($this->sellerprotection == 'TRUE') {
-            $paypal->sellerprotection = 1;
-            $address =  $order_details->getShippingAddressComponents();
-
-            $customVars = array_merge(
-                $customVars,
-                array(
-                    'CustomerName'       => $order_details->getShipping('first_name')." ".$order_details->getShipping('last_name'),
-                    'ShippingPostalCode' => $order_details->getShipping('postcode'),
-                    'ShippingCity'       => $order_details->getShipping('city'),
-                    'ShippingStreet'     => $address['street'],
-                    'ShippingHouse'      => $address['house_number'],
-                    'StateOrProvince'    => $order_details->getShipping('state'),
-                    'Country'            => $order_details->getShipping('country')
-                )
-            );
-        }
-        $response = $paypal->Pay($customVars);
-
-        return fn_buckaroo_process_response($this, $response);
-    }
     /**
      * Add fields to the form_fields() array, specific to this page.
      *
@@ -153,5 +95,11 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
     public function set_express_order_id($express_order_id)
     {
         $this->express_order_id = $express_order_id;
+    }
+
+
+    public function get_express_order_id()
+    {
+        return $this->express_order_id;
     }
 }

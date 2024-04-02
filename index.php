@@ -22,11 +22,10 @@ if(isset($_GET['buckaroo_download_log_file']) && is_string($_GET['buckaroo_downl
     $report_name = preg_replace('/[^A-Za-z0-9-.]+/', '-',$_GET['buckaroo_download_log_file']);
     Buckaroo_Logger_Storage::downloadFile($report_name);
 }
-
+require_once dirname(__FILE__). "/vendor/autoload.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Logger.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Order_Fee.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Cron_Events.php";
-require_once dirname(__FILE__). "/library/Buckaroo_Order_Details.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Order_Item.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Order_Capture.php";
 require_once dirname(__FILE__). "/library/Buckaroo_Capture_Transaction.php";
@@ -40,6 +39,7 @@ require_once dirname(__FILE__). "/install/class-wcb-install.php";
 require_once dirname(__FILE__). "/install/migration/Buckaroo_Migration_Handler.php";
 require_once dirname(__FILE__). "/Buckaroo_Load_Gateways.php";
 require_once dirname(__FILE__). "/controllers/PaypalExpress.php";
+require_once dirname(__FILE__). "/src/index.php";
 
 /**
  * Remove gateways based on min/max value or idin verification
@@ -69,6 +69,7 @@ new Buckaroo_Paypal_Express(
 new Buckaroo_Capture_Form();
 new Buckaroo_Cancel_Reservation();
 new Buckaroo_KlarnaKP_Refund();
+new Buckaroo_Return_Page();
 
 add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
 

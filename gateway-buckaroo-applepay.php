@@ -1,8 +1,6 @@
 <?php
 
 require_once __DIR__ . '/controllers/ApplePayController.php';
-require_once dirname(__FILE__) . '/library/api/paymentmethods/applepay/applepay.php';
-
 /**
  * @package Buckaroo
  */
@@ -14,7 +12,6 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
 
     protected $amount;
 
-    const PAYMENT_CLASS = BuckarooApplepay::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_applepay';
@@ -39,18 +36,6 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         add_action("{$namespace}-get-shipping-methods", [ApplePayController::class, 'getShippingMethods']);
         add_action("{$namespace}-get-shop-information", [ApplePayController::class, 'getShopInformation']);
         add_action("{$namespace}-create-transaction", [$this, 'createTransaction']);
-    }
-
-    /**
-     * Can the order be refunded
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_refund($order_id, $amount = null, $reason = '')
-    {
-        return $this->processDefaultRefund($order_id, $amount, $reason, true);
     }
 
     /**
@@ -157,39 +142,6 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         );
     }
 
-    /**
-     * Process payment
-     *
-     * @param integer $order_id
-     * @return callable fn_buckaroo_process_response()
-     */
-    public function process_payment($order_id)
-    {
-        $order = getWCOrder($order_id);
-        /** @var BuckarooApplepay */
-        $applepay = $this->createDebitRequest($order);
-
-        $customVars                     = array();
-        $customVars['PaymentData']      = base64_encode(json_encode($this->paymentData['token']));
-        $customVars['CustomerCardName'] = $this->CustomerCardName;
-
-    
-
-        $response          = $applepay->Pay($customVars);
-        $buckaroo_response = fn_buckaroo_process_response($this, $response);
-
-        if ($response->status === BuckarooAbstract::STATUS_COMPLETED) {
-            $order->update_status('processing', 'Order paid with Apple pay');
-        } else {
-            $buckaroo_response = [
-                'status'  => 'fail',
-                'message' => $response->message,
-            ];
-        }
-
-        echo json_encode($buckaroo_response);
-        exit;
-    }
 
     public function createOrder($billing_addresses, $shipping_addresses, $items, $selected_method_id)
     {

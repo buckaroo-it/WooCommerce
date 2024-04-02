@@ -6,7 +6,6 @@ require_once(dirname(__FILE__) . '/library/class-wc-session-handler-buckaroo.php
  */
 class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 {
-    const PAYMENT_CLASS = null;
     const BUCKAROO_TEMPLATE_LOCATION = '/templates/gateways/';
 
     public $notify_url;
@@ -67,6 +66,56 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $this->minvalue               = $this->get_option('minvalue', 0);
         $this->maxvalue               = $this->get_option('maxvalue', 0);
     }
+
+    /**
+     * Process payment
+     *
+     * @param integer $order_id
+     * @return callable fn_buckaroo_process_response()
+     */
+    public function process_payment($order_id)
+    {
+        try {
+            $payment = Buckaroo_Payment_Factory::get_payment($this, (int)$order_id);
+            $payment = new Buckaroo_Client_Processor($payment);
+            $return = new Buckaroo_Return_Processor($this, (int)$order_id);
+            return $return->process($payment->process());
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    /**
+     * Can the order be refunded
+     * @param integer $order_id
+     * @param integer $amount defaults to null
+     * @param string $reason
+     * @return callable|string function or error
+     */
+    public function process_refund($order_id, $amount = null, $reason = '')
+    {
+        try {
+            $refund = Buckaroo_Refund_Factory::get_refund($this, (int)$order_id, floatval($amount), (string)$reason);
+            $refund = new Buckaroo_Client_Processor($refund);
+            $refund->process();
+            // $return = new Buckaroo_Return_Processor($this, (int)$order_id);
+            // return $return->process($refund->process());
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    /**
+     * Get payment code used for sdk
+     *
+     * @return string
+     */
+    public function get_sdk_code(): string
+    {
+        return str_replace("buckaroo_", "", $this->id);
+    }
+
+
     /**
      * Get checkout payment description field
      *
@@ -74,7 +123,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     public function getPaymentDescription()
     {
-        $desc = $this->get_option('description','');
+        $desc = $this->get_option('description', '');
         if (strlen($desc) === 0) {
             $desc = sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         }
@@ -85,9 +134,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      * Get Payment fee VAT
      */
     public function getPaymentFeeVat($amount)
-    {   
+    {
         //Allow this to run only on checkout page
-        if(!is_checkout()) {
+        if (!is_checkout()) {
             return 0;
         }
 
@@ -105,14 +154,14 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         // Loop through tax classes
         foreach (wc_get_product_tax_class_options() as $tax_class => $tax_class_label) {
-        
+
             $tax_rates = WC_Tax::find_rates(array_merge($location, array('tax_class' => $tax_class)));
 
             if (!empty($tax_rates) && $tax_class == $taxRate && $vatIncluded == 'off') {
-                return WC_Tax::get_tax_total(WC_Tax::calc_exclusive_tax($amount, $tax_rates));          
+                return WC_Tax::get_tax_total(WC_Tax::calc_exclusive_tax($amount, $tax_rates));
             }
         }
-        return 0; 
+        return 0;
     }
 
     /**
@@ -126,23 +175,23 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $fee = $this->get_option('extrachargeamount', 0);
         $is_percentage = strpos($fee, "%") !== false;
         $fee = floatval(str_replace("%", "", $fee));
-        
-        if($fee != 0) {
-            if($is_percentage) {
+
+        if ($fee != 0) {
+            if ($is_percentage) {
                 $fee = str_replace("&nbsp;", "", wc_price(
                     $fee,
                     [
                         "currency" => 'null',
                     ]
-                )). '%';
+                )) . '%';
             } else {
-                $fee = wc_price( $fee + $this->getPaymentFeeVat($fee));
+                $fee = wc_price($fee + $this->getPaymentFeeVat($fee));
             }
-            
-            $feeText = " (+ ".$fee.")";
+
+            $feeText = " (+ " . $fee . ")";
         }
 
-        $this->title = strip_tags($this->get_option('title', $this->title ?? '').$feeText);
+        $this->title = strip_tags($this->get_option('title', $this->title ?? '') . $feeText);
     }
     /**
      * Set gateway icon
@@ -155,7 +204,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     protected function setIcon($oldPath, $newPath)
     {
         $this->icon = apply_filters(
-            'woocommerce_'.$this->id.'_icon',
+            'woocommerce_' . $this->id . '_icon',
             BuckarooConfig::getIconPath($oldPath, $newPath)
         );
     }
@@ -166,10 +215,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      * @return string
      */
 
-	public function getIcon() {
+    public function getIcon()
+    {
 
-		return $this->icon;
-	}
+        return $this->icon;
+    }
     /**
      * Set country field
      *
@@ -205,7 +255,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             );
 
             add_action(
-                'woocommerce_api_'.strtolower(wc_clean($class)),
+                'woocommerce_api_' . strtolower(wc_clean($class)),
                 array($this, 'response_handler')
             );
 
@@ -245,7 +295,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             ($oldSettings = get_option($oldKey))
         ) {
             add_option('woocommerce_' . $this->id . '_settings', $oldSettings);
-            delete_option($oldKey);//clean the table
+            delete_option($oldKey); //clean the table
         }
     }
     public function thankyou_description()
@@ -286,15 +336,15 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     public function generate_buckaroo_notice_html($key, $data)
     {
         //Add Warning, if currency set in Buckaroo is unsupported
-        if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && !checkCurrencySupported($this->id) && is_admin()): 
-        ob_start();
-        ?>
-        <div class="error notice">
-            <p><?php echo esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')'; ?>
-            </p>
-        </div>
-        <?php 
-        return ob_get_clean();
+        if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && !checkCurrencySupported($this->id) && is_admin()) :
+            ob_start();
+?>
+            <div class="error notice">
+                <p><?php echo esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')'; ?>
+                </p>
+            </div>
+<?php
+            return ob_get_clean();
         endif;
     }
     /**
@@ -307,9 +357,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $charset        = strtolower(ini_get('default_charset'));
         $addDescription = '';
         if ($charset != 'utf-8') {
-            $addDescription = '<fieldset style="border: 1px solid #ffac0e; padding: 10px;"><legend><b style="color: #ffac0e">'.__('Warning', 'wc-buckaroo-bpe-gateway').'!</b></legend>'.__('default_charset is not set.<br>This might cause a problems on receiving push message.<br>Please set default_charset="UTF-8" in your php.ini and add AddDefaultCharset UTF-8 to .htaccess file.', 'wc-buckaroo-bpe-gateway').'</fieldset>';
+            $addDescription = '<fieldset style="border: 1px solid #ffac0e; padding: 10px;"><legend><b style="color: #ffac0e">' . __('Warning', 'wc-buckaroo-bpe-gateway') . '!</b></legend>' . __('default_charset is not set.<br>This might cause a problems on receiving push message.<br>Please set default_charset="UTF-8" in your php.ini and add AddDefaultCharset UTF-8 to .htaccess file.', 'wc-buckaroo-bpe-gateway') . '</fieldset>';
         }
-        
+
 
         $this->title       = (!isset($this->title) ? '' : $this->title);
         $this->id          = (!isset($this->id) ? '' : $this->id);
@@ -402,12 +452,14 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 'title'       => '',
                 'type'        => 'hidden',
                 'description' => '',
-                'default'     => '');
+                'default'     => ''
+            );
             $this->form_fields["certificatename$while_key"] = array(
                 'title'       => '',
                 'type'        => 'hidden',
                 'description' => '',
-                'default'     => '');
+                'default'     => ''
+            );
             $selectcertificate_options["$while_key"] = $options["certificatename$while_key"];
 
             $while_key++;
@@ -417,17 +469,20 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'title'       => '',
             'type'        => 'hidden',
             'description' => '',
-            'default'     => '');
+            'default'     => ''
+        );
         $this->form_fields["certificateuploadtime$final_ccontent"] = array(
             'title'       => '',
             'type'        => 'hidden',
             'description' => '',
-            'default'     => '');
+            'default'     => ''
+        );
         $this->form_fields["certificatename$final_ccontent"] = array(
             'title'       => '',
             'type'        => 'hidden',
             'description' => '',
-            'default'     => '');
+            'default'     => ''
+        );
 
         $this->form_fields['selectcertificate'] = array(
             'title'       => __('Select Certificate', 'wc-buckaroo-bpe-gateway'),
@@ -440,7 +495,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'title'       => '',
             'type'        => 'file',
             'description' => '',
-            'default'     => '');
+            'default'     => ''
+        );
     }
     /**
      * Check response data
@@ -473,8 +529,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     public function get_failed_url()
     {
         $thanks_page_id = wc_get_page_id('checkout');
-        if ($thanks_page_id):
-            $return_url = get_permalink($thanks_page_id);else:
+        if ($thanks_page_id) :
+            $return_url = get_permalink($thanks_page_id);
+        else :
             $return_url = home_url();
         endif;
         if (is_ssl() || get_option('woocommerce_force_ssl_checkout') == 'yes') {
@@ -516,9 +573,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     public function request($key)
     {
         if (!isset($_POST[$key])) {
-           return;
+            return;
         }
-        $value = map_deep( $_POST[$key], 'sanitize_text_field' );
+        $value = map_deep($_POST[$key], 'sanitize_text_field');
         if (is_string($value) && strlen(trim($value)) === 0) {
             return;
         }
@@ -534,15 +591,15 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     public function requestGet($key)
     {
         if (!isset($_GET[$key])) {
-           return;
+            return;
         }
-        $value = map_deep( $_GET[$key], 'sanitize_text_field' );
+        $value = map_deep($_GET[$key], 'sanitize_text_field');
         if (is_string($value) && strlen($value) === 0) {
             return;
         }
         return $value;
     }
-    
+
 
     /**
      * Check that a date is valid.
@@ -561,22 +618,23 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $d = DateTime::createFromFormat($format, $date);
         return $d && $d->format($format) == $date;
     }
-	/**
-	 * Check that a user is 18 years or older.
-	 *
-	 * @param String $birthdate Birthdate expressed as a string
+    /**
+     * Check that a user is 18 years or older.
      *
-	 * @return Boolean Is user 18 years or older return true, else false
-	 */
-	public function validateBirthdate($birthdate) {
+     * @param String $birthdate Birthdate expressed as a string
+     *
+     * @return Boolean Is user 18 years or older return true, else false
+     */
+    public function validateBirthdate($birthdate)
+    {
 
-		$currentDate = new DateTime();
-		$userBirthdate = DateTime::createFromFormat('d-m-Y', $birthdate);
+        $currentDate = new DateTime();
+        $userBirthdate = DateTime::createFromFormat('d-m-Y', $birthdate);
 
-		$ageInterval = $currentDate->diff($userBirthdate)->y;
+        $ageInterval = $currentDate->diff($userBirthdate)->y;
 
-		return $ageInterval >= 18;
-	}
+        return $ageInterval >= 18;
+    }
 
     public function parseDate($date)
     {
@@ -625,8 +683,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     protected function getPaymentTemplate($name)
     {
-        $location = dirname(BK_PLUGIN_FILE).self::BUCKAROO_TEMPLATE_LOCATION;
-        $file = $location.$name.".php";
+        $location = dirname(BK_PLUGIN_FILE) . self::BUCKAROO_TEMPLATE_LOCATION;
+        $file = $location . $name . ".php";
 
         if (file_exists($file)) {
             include $file;
@@ -645,12 +703,12 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         $name = str_replace("buckaroo_", "", $id);
 
-        do_action("buckaroo_before_render_gateway_template_".$name, $this);
+        do_action("buckaroo_before_render_gateway_template_" . $name, $this);
 
         $this->getPaymentTemplate('global');
         $this->getPaymentTemplate($name);
 
-        do_action("buckaroo_after_render_gateway_template_".$name, $this);
+        do_action("buckaroo_after_render_gateway_template_" . $name, $this);
     }
     /**
      * Get checkout field values
@@ -725,123 +783,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         update_post_meta($order_id, '_wc_order_payment_issuer', $paymentType);
     }
-    /**
-     * Process default refund
-     *
-     * @param int      $order_id Order id
-     * @param float    $amount Refund amount
-     * @param string   $reason Refund reason
-     * @param boolean  $setType Set request type from meta
-     * @param callable $callback Set additional params to the $request object
-     *
-     * @return WP_Error|String|Boolean
-     */
-    protected function processDefaultRefund($order_id, $amount, $reason, $setType = false, $callback = null)
-    {
-        $order = wc_get_order($order_id);
-        if (!$this->can_refund_order($order)) {
-            return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
-        }
-        update_post_meta($order_id, '_pushallowed', 'busy');
 
-        $request = $this->createCreditRequest($order, $amount, $reason);
-
-        if ($setType) {
-            $request->setType(
-                get_post_meta(
-                    $order->get_id(),
-                    '_payment_method_transaction',
-                    true
-                )
-            );
-        }
-
-        if (is_callable($callback)) {
-            $callback($request);
-        }
-
-        try {
-            $response = $request->Refund();
-        } catch (exception $e) {
-            Buckaroo_Logger::log(__METHOD__, $e->getMessage());
-            update_post_meta($order_id, '_pushallowed', 'ok');
-            return new WP_Error('refund_error', __($e->getMessage()));
-        }
-        return fn_buckaroo_process_refund($response ?? null, $order, $amount, $this->currency);
-    }
-    /**
-     * Create a request for credit
-     *
-     * @param WC_Order $order Woocommerce order
-     *
-     * @return BuckarooPaymentMethod
-     */
-    protected function createCreditRequest($order, $amount, $reason)
-    {
-
-        $payment = $this->createPaymentRequest($order, true);
-        $payment->amountCredit = $amount;
-        $payment->description = $reason;
-        $payment->invoiceId = $order->get_order_number();
-        $payment->OriginalTransactionKey = $order->get_transaction_id();
-        return $payment;
-    }
-    /**
-     * Create a request for debit
-     *
-     * @param WC_Order $order Woocommerce order
-     *
-     * @return BuckarooPaymentMethod
-     */
-    protected function createDebitRequest($order)
-    {
-
-        $payment = $this->createPaymentRequest($order);
-        if (method_exists($order, 'get_order_total')) {
-            $payment->amountDedit = $order->get_order_total();
-        } else {
-            $payment->amountDedit = $order->get_total();
-        }
-        return $payment;
-    }
-
-    /**
-     * Get payment class
-     *
-     * @param WC_Order $order
-     * @param boolean $isRefund
-     *
-     * @return string
-     */
-    protected function get_payment_class($order, $isRefund = false)
-    {
-        return static::PAYMENT_CLASS;
-    }
-    /**
-     * Create the payment method
-     *
-     * @param WC_Order $order Woocommerce order
-     * @param bool $isRefund
-     *
-     * @return BuckarooPaymentMethod
-     */
-    protected function createPaymentRequest($order, $isRefund = false)
-    {
-        $paymentClass = $this->get_payment_class($order, $isRefund);
-        
-        $payment = new $paymentClass();
-        $payment->currency = get_woocommerce_currency();
-        $payment->amountDedit = 0;
-        $payment->amountCredit = 0;
-        $payment->invoiceId = (string)getUniqInvoiceId($order->get_order_number());
-        $payment->orderId = (string)$order->get_id();
-        $payment->real_order_id = $order->get_id();
-        $payment->description = $this->getParsedLabel($order);
-        $payment->returnUrl = $this->notify_url;
-        $payment->mode = $this->mode;
-        $payment->channel = BuckarooConfig::CHANNEL;
-        return $payment;
-    }
     /**
      * Get the parsed label, we replace the template variables with the values
      *
@@ -1080,11 +1022,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $shippingCostsToRefund = 0;
             foreach ($shipping_item as $item) {
                 if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                    if ($this->id == 'buckaroo_afterpay') { 
+                    if ($this->id == 'buckaroo_afterpay') {
                         $shippingCostsToRefund = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
-                    } else { 
+                    } else {
                         $shippingCostsToRefund = $line_item_totals[$item->get_id()];
-                    }                    
+                    }
                     $shippingIdToRefund    = $item->get_id();
                 }
             }
@@ -1161,12 +1103,13 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             return $this->process_partial_refunds($order_id, $amount, $reason);
         }
     }
-    public function getAfterPayShippingInfo($afterpay_version, $method, $order, $line_item_totals, $line_item_tax_totals){
+    public function getAfterPayShippingInfo($afterpay_version, $method, $order, $line_item_totals, $line_item_tax_totals)
+    {
 
         $shipping_item = $order->get_items('shipping');
         $shippingCosts = 0;
 
-        if ($afterpay_version == 'afterpay-new' && $method == 'partial_refunds'){
+        if ($afterpay_version == 'afterpay-new' && $method == 'partial_refunds') {
             $shippingTaxClassKey = 0;
 
             foreach ($shipping_item as $item) {
@@ -1188,17 +1131,17 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                 }
             }
         }
-    
+
         if ($shippingCosts > 0) {
             // Add virtual shipping cost product
             $tmp["ArticleDescription"] = "Shipping";
             $tmp["ArticleId"]          = BuckarooConfig::SHIPPING_SKU;
             $tmp["ArticleQuantity"]    = 1;
             $tmp["ArticleUnitprice"]   = $shippingCosts;
-            
+
             if ($afterpay_version == 'afterpay') {
                 $tmp["ArticleVatcategory"] = 1;
-            } elseif ($afterpay_version == 'afterpay-new' && $method == 'partial_refunds'){
+            } elseif ($afterpay_version == 'afterpay-new' && $method == 'partial_refunds') {
                 $tmp["ArticleVatcategory"] = WC_Tax::_get_tax_rate($shippingTaxClassKey)['tax_rate'] ?? 0;
             }
 
@@ -1214,7 +1157,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return void
      */
-    public function getProductTaxRate($product) {
+    public function getProductTaxRate($product)
+    {
         if ($product->get_tax_status() != 'taxable') {
             return 0;
         }
@@ -1225,122 +1169,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             return 0;
         }
         $taxRate    = array_shift($taxes);
-        if(!isset($taxRate['rate'])) {
+        if (!isset($taxRate['rate'])) {
             return 0;
         }
 
         return number_format($taxRate['rate'], 2);
-    }
-
-
-    /**
-     * Get all the products from order for a payment
-     *
-     * @param Buckaroo_Order_Details $order_details
-     *
-     * @return array
-     */
-    public function get_products_for_payment(
-        Buckaroo_Order_Details $order_details
-    ): array
-    {
-
-        $products = array_map(
-            function(Buckaroo_Order_Item $item) {
-                return $this->get_product_data($item);
-            },
-            array_merge(
-                $order_details->get_products(),
-                $order_details->get_shipping_items(),
-                $order_details->get_fees()
-            )
-        );
-
-        $productDiff = $this->get_product_with_diffrences($products, $order_details->get_order()->get_total());
-
-        if(is_array($productDiff)) {
-            $products[] = $productDiff;
-        }
-        return $products;
-    }
-
-    /**
-     * Get formated product data
-     *
-     * @param Buckaroo_Order_Item $item
-     *
-     * @return array
-     */
-    public function get_product_data(Buckaroo_Order_Item $item)
-    {
-        $product = [
-            'identifier' => $item->get_id(),
-            'description' => $item->get_title(),
-            'price' => round($item->get_unit_price(), 2),
-            'quantity' => $item->get_quantity(),
-            'vatPercentage' => $item->get_vat()
-        ];
-
-        if($this->id === 'buckaroo_afterpay') {
-            $product['type'] = $item->get_type();
-        }
-
-        if($this->get_option('vattype') !== null) {
-            $product['vatCategory'] = $this->get_option('vattype');
-        }
-        return $product;
-    }
-
-    /**
-     * Get any rounding errors between the final amount and the sum of the products
-     *
-     * @param array $products
-     * @param float $total_order_amount
-     *
-     * @return array|null
-     */
-    protected function get_product_with_diffrences(array $products, float $total_order_amount)
-    {
-        $product_amount =$this->sum_products_amount($products);
-        
-        $diffAmount = round(round($total_order_amount, 2) - $product_amount, 2);
-
-        if(abs($diffAmount) >= 0.01) {
-            $product = [
-                'identifier' => 'rounding_errors',
-                'description' => 'Rounding errors',
-                'price' => $diffAmount,
-                'quantity' => 1,
-                'vatPercentage' => 0
-            ];
-
-            if($this->get_option('vattype') !== null) {
-                $product['vatCategory'] = $this->get_option('vattype');
-            }
-            return $product;
-        }
-    }
-
-    /**
-     * Sum all products amounts
-     *
-     * @param array $products
-     *
-     * @return float
-     */
-    protected function sum_products_amount(array $products)
-    {
-        return array_reduce(
-            $products,
-            function ($carier, $product) {
-                if (isset($product['price']) && isset($product['quantity'])) {
-                    return $carier + ($product['price'] * $product['quantity']);
-                }
-                return $carier;
-            },
-            0
-        );
-
     }
 
     public function formatStreet($street)
@@ -1367,66 +1200,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         return $format;
     }
-    /**
-     * Set common billing details
-     *
-     * @param BuckarooPaymentMethod $method
-     * @param Buckaroo_Order_Details $order_details
-     *
-     * @return BuckarooPaymentMethod $method
-     */
-    protected function set_billing(
-        BuckarooPaymentMethod $method,
-        Buckaroo_Order_Details $order_details
-    ) {
-        $address = $order_details->getBillingAddressComponents();
 
-        $method->BillingLastName           = $order_details->getBilling('last_name');
 
-        $method->BillingStreet             = $address['street'];
-        $method->BillingHouseNumber        = $address['house_number'];
-        $method->BillingHouseNumberSuffix  = $address['number_addition'];
-
-        $method->BillingPostalCode        = $order_details->getBilling('postcode');
-        $method->BillingCity              = $order_details->getBilling('city');
-        $method->BillingCountry           = $order_details->getBilling('country');
-
-        $method->BillingEmail             = $order_details->getBilling('email', '');
-        $method->BillingPhoneNumber       = $order_details->getBillingPhone();
-        $method->BillingLanguage          = 'nl';
-
-        return $method;
-    }
-    /**
-     * Set common shipping details
-     *
-     * @param BuckarooPaymentMethod $method
-     * @param Buckaroo_Order_Details $order_details
-     *
-     * @return BuckarooPaymentMethod $method
-     */
-    protected function set_shipping(
-        BuckarooPaymentMethod $method,
-        Buckaroo_Order_Details $order_details
-    ) {
-        $address = $order_details->getShippingAddressComponents();
-
-        $method->ShippingLastName          = $order_details->getShipping('last_name');
-
-        $method->ShippingStreet            = $address['street'];
-        $method->ShippingHouseNumber       = $address['house_number'];
-        $method->ShippingHouseNumberSuffix = $address['number_addition'];
-
-        $method->ShippingPostalCode        = $order_details->getShipping('postcode');
-        $method->ShippingCity              = $order_details->getShipping('city');
-        $method->ShippingCountryCode       = $order_details->getShipping('country');
-
-        $method->ShippingEmail             = $order_details->getBilling('email', '');
-        $method->ShippingPhoneNumber       = $order_details->getBillingPhone();
-        $method->ShippingLanguage          = 'nl';
-
-        return $method;
-    }
 
     /**
      * Return properly formated capture error
@@ -1439,7 +1214,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     {
         return [
             "errors" => [
-                "error_capture"=>[
+                "error_capture" => [
                     [$message]
                 ]
             ]
@@ -1454,7 +1229,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      * @param mixed ...$args
      * @return array | null
      */
-    function apply_filters_or_error($tag, $value, ...$args) {
+    function apply_filters_or_error($tag, $value, ...$args)
+    {
         if (!has_filter($tag)) {
             return null;
         }
@@ -1470,7 +1246,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return array | null
      */
-    function apply_filter_or_error($tag, $value) {
+    function apply_filter_or_error($tag, $value)
+    {
         if (has_filter($tag)) {
             return apply_filters($tag, $value);
         }
@@ -1482,8 +1259,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return void
      */
-    protected function add_financial_warning_field() {
-        
+    protected function add_financial_warning_field()
+    {
+
         $this->form_fields['financial_warning'] = [
             'title'       => __('Consumer Financial Warning'),
             'type'        => 'select',
@@ -1493,7 +1271,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         ];
     }
 
-    protected function can_show_financial_warining() {
+    protected function can_show_financial_warining()
+    {
         $country = $this->getScalarCheckoutField('billing_country');
         return $this->get_option('financial_warning') !== 'disable' && $country === "NL";
     }

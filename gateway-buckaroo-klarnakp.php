@@ -1,11 +1,9 @@
 <?php
 
 
-require_once(dirname(__FILE__) . '/library/api/paymentmethods/klarna/klarnakp.php');
 
 class WC_Gateway_Buckaroo_KlarnaKp extends WC_Gateway_Buckaroo
 {
-    const PAYMENT_CLASS = BuckarooKlarnaKp::class;
 
     public function __construct()
     {
@@ -20,33 +18,10 @@ class WC_Gateway_Buckaroo_KlarnaKp extends WC_Gateway_Buckaroo
         $this->addRefundSupport();
     }
 
-    /**
-     * Process order
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_refund($order_id, $amount = null, $reason = '', $transaction_id = null)
-    {
-        return $this->processDefaultRefund(
-            $order_id,
-            $amount,
-            $reason,
-            false,
-            function($request) use($transaction_id) {
-                if ($transaction_id != null) {
-                    $request->OriginalTransactionKey =  $transaction_id;
-                }
-            }
-        );
-    }
-
-
     public function cancel_reservation(WC_Order $order)
     {
         /** @var BuckarooKlarnaKp */
-        $klarna = $this->createDebitRequest($order);
+        // $klarna = $this->createDebitRequest($order);
 
         $reservation_number = get_post_meta(
             $order->get_id(), 
@@ -68,31 +43,7 @@ class WC_Gateway_Buckaroo_KlarnaKp extends WC_Gateway_Buckaroo
         //todo flash success/failed message
     }
 
-    /**
-     * Process payment
-     *
-     * @param integer $order_id
-     * @return callable|void fn_buckaroo_process_response() or void
-     */
-    public function process_payment($order_id)
-    {
-
-        update_post_meta($order_id, '_wc_order_authorized', 'yes');
-        $this->setOrderCapture($order_id, 'KlarnaKp');
-
-        $order = getWCOrder($order_id);
-        /** @var BuckarooKlarnaKp */
-        $klarna = $this->createDebitRequest($order);
-        return fn_buckaroo_process_response(
-            $this, 
-            $klarna->reserve(
-                new Buckaroo_Order_Details($order),
-                new Buckaroo_Http_Request()
-            ),
-            $this->mode
-        );
-    }
-
+ 
     /**
      * Send capture request
      *
@@ -114,7 +65,7 @@ class WC_Gateway_Buckaroo_KlarnaKp extends WC_Gateway_Buckaroo
 
         $order = getWCOrder($order_id);
         /** @var BuckarooKlarnaKp */
-        $klarna = $this->createDebitRequest($order);
+        // $klarna = $this->createDebitRequest($order);
         $klarna->amountDedit = str_replace(wc_get_price_decimal_separator(), '.', $capture_amount);
         $reservation_number = get_post_meta(
             $order_id, 

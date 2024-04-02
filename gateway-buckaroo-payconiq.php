@@ -1,13 +1,11 @@
 <?php
 
-require_once dirname(__FILE__) . '/library/api/paymentmethods/payconiq/payconiq.php';
 
 /**
  * @package Buckaroo
  */
 class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
 {
-    const PAYMENT_CLASS = BuckarooPayconiq::class;
     public function __construct()
     {
         $this->id                     = 'buckaroo_payconiq';
@@ -18,33 +16,6 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
 
         parent::__construct();
         $this->addRefundSupport();
-    }
-
-    /**
-     * Can the order be refunded
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_refund($order_id, $amount = null, $reason = '')
-    {
-        return $this->processDefaultRefund($order_id, $amount, $reason, true);
-    }
-
-    /**
-     * Process payment
-     *
-     * @param integer $order_id
-     * @return callable fn_buckaroo_process_response()
-     */
-    public function process_payment($order_id)
-    {
-        $order = getWCOrder($order_id);
-        /** @var BuckarooPayconiq */
-        $payconiq = $this->createDebitRequest($order);
-        $response = $payconiq->Pay();
-        return fn_buckaroo_process_response($this, $response);
     }
 
     /**

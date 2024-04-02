@@ -1,6 +1,5 @@
 <?php
 
-require_once(dirname(__FILE__) . '/library/api/paymentmethods/paybybank/paybybank.php');
 
 /**
  * @package Buckaroo
@@ -8,7 +7,6 @@ require_once(dirname(__FILE__) . '/library/api/paymentmethods/paybybank/paybyban
 class WC_Gateway_Buckaroo_PayByBank extends WC_Gateway_Buckaroo
 {
 
-    const PAYMENT_CLASS = BuckarooPayByBank::class;
     public function __construct()
     {
         $this->id = 'buckaroo_paybybank';
@@ -21,18 +19,7 @@ class WC_Gateway_Buckaroo_PayByBank extends WC_Gateway_Buckaroo
         $this->addRefundSupport();
         apply_filters('buckaroo_init_payment_class', $this);
     }
-    /**
-     * Can the order be refunded
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_refund($order_id, $amount = null, $reason = '')
-    {
-        return $this->processDefaultRefund($order_id, $amount, $reason);
-    }
-
+  
     /**
      * Validate frontend fields.
      *
@@ -53,27 +40,6 @@ class WC_Gateway_Buckaroo_PayByBank extends WC_Gateway_Buckaroo
         parent::validate_fields();
     }
 
-    /**
-     * Process payment
-     * 
-     * @param integer $order_id
-     * @return callable fn_buckaroo_process_response()
-     */
-    function process_payment($order_id)
-    {
-        $order = getWCOrder($order_id);
-        /** @var BuckarooPayByBank */
-        $payByBank = $this->createDebitRequest($order);
-        $payByBank->issuer = $this->request('buckaroo-paybybank-issuer');
-
-        $response = $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $payByBank);
-        if ($response) {
-            return $response;
-        }
-
-        $response = $payByBank->Pay();
-        return fn_buckaroo_process_response($this, $response);
-    }
 
     public function init_form_fields()
     {

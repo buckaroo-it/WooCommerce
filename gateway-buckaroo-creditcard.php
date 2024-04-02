@@ -1,13 +1,10 @@
 <?php
 
-require_once dirname(__FILE__) . '/library/api/paymentmethods/creditcard/creditcard.php';
-
 /**
  * @package Buckaroo
  */
 class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 {
-    const PAYMENT_CLASS = BuckarooCreditCard::class;
     public const SHOW_IN_CHECKOUT_FIELD = 'show_in_checkout';
     public $creditCardProvider = [];
 
@@ -25,6 +22,13 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 
         $this->addRefundSupport();
     }
+
+    /** @inheritDoc */
+    public function get_sdk_code(): string
+    {
+        return 'creditcard';
+    }
+
     /**
      * Set gateway parameters
      *
@@ -265,65 +269,6 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         return;
     }
 
-    /**
-     * Process payment
-     *
-     * @param integer $order_id
-     * @return callable fn_buckaroo_process_response()
-     */
-    public function process_payment($order_id)
-    {
-        $this->setOrderCapture(
-            $order_id,
-            'Creditcard',
-            $this->request($this->id."-creditcard-issuer")
-        );
-        $order = getWCOrder($order_id);
-        /** @var BuckarooCreditCard */
-        $creditcard = $this->createDebitRequest($order);
-
-        $creditCardMethod       = isset($this->creditcardmethod) ? $this->creditcardmethod : 'redirect';
-        $creditCardPayAuthorize = isset($this->creditcardpayauthorize) ? $this->creditcardpayauthorize : 'pay';
-
-        $customVars = array();
-
-        if ($this->request($this->id."-encrypted-data") !== null) {
-            $customVars['CreditCardDataEncrypted'] = $this->request($this->id."-encrypted-data");
-        } else {
-            $customVars['CreditCardDataEncrypted'] = null;
-        }
-
-        if ($this->request($this->id."-creditcard-issuer") !== null) {
-            $customVars['CreditCardIssuer'] = $this->request($this->id."-creditcard-issuer");
-        } else {
-            $customVars['CreditCardIssuer'] = null;
-        }
-
-        if ($creditCardMethod == 'encrypt' && $this->isSecure()) {
-
-            if ($creditCardPayAuthorize == 'pay') {
-                $response = $creditcard->PayEncrypt($customVars);
-            } else if ($creditCardPayAuthorize == 'authorize') {
-                $response = $creditcard->AuthorizeEncrypt($customVars, $order);
-            } else {
-                wc_add_notice(__("The type of credit card request is not defined. Contact Buckaroo.", 'wc-buckaroo-bpe-gateway'), 'error');
-                return;
-            }
-
-            return fn_buckaroo_process_response($this, $response);
-        }
-
-        if ($creditCardPayAuthorize == 'pay') {
-            $response = $creditcard->Pay($customVars);
-        } else if ($creditCardPayAuthorize == 'authorize') {
-            $response = $creditcard->AuthorizeCC($customVars, $order);
-        } else {
-            wc_add_notice(__("The type of credit card request is not defined. Contact Buckaroo.", 'wc-buckaroo-bpe-gateway'), 'error');
-            return;
-        }
-
-        return fn_buckaroo_process_response($this, $response);
-    }
 
     public function process_capture()
     {
