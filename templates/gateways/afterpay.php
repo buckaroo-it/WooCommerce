@@ -25,9 +25,9 @@ $customer_phone = $this->request_scalar('billing_phone');
     <?php
 
     if ($this->b2b == 'enable' && $this->type == 'afterpaydigiaccept') {
-        $this->getPaymentTemplate('partial_afterpay_b2b');
+        $this->get_template('partial_afterpay_b2b');
     }
-    $this->getPaymentTemplate('partial_birth_field');
+    $this->get_template('partial_birth_field');
     ?>
     <p class="form-row validate-required">
         <label for="buckaroo-afterpay-phone">
@@ -69,7 +69,7 @@ $customer_phone = $this->request_scalar('billing_phone');
         </p>
         <?php
     }
-    $this->getPaymentTemplate('partial_afterpay_tos');
-    $this->getPaymentTemplate('financial_warning');
+    $this->get_template('partial_afterpay_tos');
+    $this->get_template('financial_warning');
     ?>
 </fieldset>

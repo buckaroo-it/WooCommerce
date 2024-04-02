@@ -21,10 +21,10 @@ $customer_phone = $this->request_scalar('billing_phone');
 ?>
 <fieldset>
     <?php if ($country == "NL") :
-        $this->getPaymentTemplate('partial_birth_field');
+        $this->get_template('partial_birth_field');
     ?>
     <?php endif;
-    $this->getPaymentTemplate('financial_warning');
+    $this->get_template('financial_warning');
     ?>
 
     <?php if (strlen(trim($customer_phone)) === 0) : ?>

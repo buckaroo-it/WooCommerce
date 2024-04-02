@@ -15,5 +15,5 @@
 defined('ABSPATH') || exit;
 ?>
 <fieldset>
-    <?php $this->getPaymentTemplate('financial_warning'); ?>
+    <?php $this->get_template('financial_warning'); ?>
 </fieldset>

@@ -22,7 +22,7 @@ $customerEmail     = $this->request_scalar('billing_email');
 <fieldset>
 
 <?php
-    $this->getPaymentTemplate('partial_gender_field');
+    $this->get_template('partial_gender_field');
 ?>
 
 <p class="form-row validate-required">

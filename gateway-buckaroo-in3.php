@@ -30,7 +30,8 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         $this->add_refund_support();
     }
 
-    private function getTitleForVersion() {
+    private function getTitleForVersion()
+    {
         return $this->get_option('api_version') === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
     }
     /**  @inheritDoc */
@@ -39,6 +40,43 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         parent::setProperties();
         $this->type       = 'in3';
         $this->vattype    = $this->get_option('vattype');
+    }
+
+    /**
+     * Process payment
+     *
+     * @param integer $order_id
+     * @return callable fn_buckaroo_process_response()
+     */
+    public function process_payment($order_id)
+    {
+        if ($this->get_option('api_version') === 'v2') {
+            return $this->process_payment_v2($order_id);
+        }
+        return parent::process_payment($order_id);
+    }
+
+    private function process_payment_v2($order_id)
+    {
+        try {
+            $payment = $this->get_v2_payload((int)$order_id);
+            $payment = new Buckaroo_Client_Processor($payment);
+            $return = new Buckaroo_Return_Processor($this, (int)$order_id);
+            return $return->process($payment->process());
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    private function get_v2_payload(int $order_id)
+    {
+        $order_details = new Buckaroo_Order_Details(new WC_Order($order_id));
+        return new Buckaroo_In3_V2(
+            $this,
+            new Buckaroo_Http_Request(),
+            $order_details,
+            new Buckaroo_Order_Articles($order_details, $this)
+        );
     }
 
     /**
@@ -56,7 +94,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         if ($country === 'NL' && !$this->validate_date($birthdate, 'd-m-Y')) {
             wc_add_notice(__("You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
-        
+
         if (
             $this->request('billing_phone') === null &&
             $this->request('buckaroo-in3-phone') === null
@@ -92,7 +130,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         $this->set_icon($icon, $icon);
     }
 
-   
+
     /**
      * Add fields to the form_fields() array, specific to this page.
      *
@@ -155,7 +193,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         $value = $this->get_option($key);
 
         ob_start();
-        ?>
+?>
         <tr valign="top">
             <th scope="row" class="titledesc">
                 <label for="<?php echo esc_attr($field_key); ?>"><?php echo wp_kses_post($data['title']); ?> <?php echo $this->get_tooltip_html($data); // WPCS: XSS ok. 
@@ -177,7 +215,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
                 </fieldset>
             </td>
         </tr>
-        <?php
+<?php
 
         return ob_get_clean();
     }

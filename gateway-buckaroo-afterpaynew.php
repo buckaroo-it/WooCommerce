@@ -11,7 +11,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     public $vattype;
     public $sendimageinfo;
     protected $afterpaynewpayauthorize;
-    protected $customer_type;
+    public $customer_type;
 
     public const CUSTOMER_TYPE_B2C = 'b2c';
     public const CUSTOMER_TYPE_B2B = 'b2b';
@@ -45,19 +45,6 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $this->type       = 'afterpay';
         $this->customer_type = $this->get_option('customer_type', self::CUSTOMER_TYPE_BOTH);
     }
-    /**
-     * Can the order be refunded
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_refund($order_id, $amount = null, $reason = '')
-    {
-        $action = ucfirst(isset($this->afterpaynewpayauthorize) ? $this->afterpaynewpayauthorize : 'pay');
-        return $this->process_refund_common($action, $order_id, $amount, $reason);
-    }
-
 
     public function process_capture()
     {

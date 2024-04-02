@@ -128,7 +128,11 @@ class Buckaroo_Order_Details
      */
     public function get($field, $default = '')
     {
-        $value = $this->order->{$field};
+        $value = '';
+        $method = "get_" . $field;
+        if (method_exists($this->order, $method)) {
+            $value = $this->order->{$method}();
+        }
 
         if (empty($value)) {
             $value = $default;

@@ -16,6 +16,7 @@
 class Buckaroo_Capture_Transaction
 {
 
+    protected array $data;
     /**
      * @var Buckaroo_Order_Item[]
      */

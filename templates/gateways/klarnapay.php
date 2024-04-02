@@ -31,7 +31,7 @@ endif;?>
 
 <fieldset>
     <?php
-    $this->getPaymentTemplate('partial_gender_field');
+    $this->get_template('partial_gender_field');
     ?>
 
     <p class="form-row validate-required">
@@ -59,5 +59,5 @@ endif;?>
     <p class="required" style="float:right;">*
         <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway') ?>
     </p>
-    <?php $this->getPaymentTemplate('financial_warning'); ?>
+    <?php $this->get_template('financial_warning'); ?>
 </fieldset>

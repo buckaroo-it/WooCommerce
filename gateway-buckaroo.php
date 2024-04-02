@@ -97,9 +97,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         try {
             $refund = Buckaroo_Refund_Factory::get_refund($this, (int)$order_id, floatval($amount), (string)$reason);
             $refund = new Buckaroo_Client_Processor($refund);
-            $refund->process();
-            // $return = new Buckaroo_Return_Processor($this, (int)$order_id);
-            // return $return->process($refund->process());
+            $return = new Buckaroo_Refund_Processor(new WC_Order($order_id));
+            return $return->process($refund->process());
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -215,7 +214,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      * @return string
      */
 
-    public function get_icon()
+    public function get_icon_path()
     {
 
         return $this->icon;

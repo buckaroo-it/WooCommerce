@@ -42,7 +42,7 @@ $country = $this->request_scalar('billing_country');
     <?php }?>
 
     <?php if (in_array($country, ["BE", "NL", "DE"])) {
-        $this->getPaymentTemplate('partial_birth_field');
+        $this->get_template('partial_birth_field');
         ?>
     <p class="form-row validate-required">
         <label for="buckaroo-afterpaynew-phone">
@@ -85,8 +85,8 @@ $country = $this->request_scalar('billing_country');
     type="hidden"
     value="1" />
     <?php }
-    $this->getPaymentTemplate('partial_afterpay_tos');
-    $this->getPaymentTemplate('financial_warning');
+    $this->get_template('partial_afterpay_tos');
+    $this->get_template('financial_warning');
     ?>
     
 </fieldset>

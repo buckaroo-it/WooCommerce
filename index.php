@@ -151,7 +151,7 @@ function get_woocommerce_payment_methods(): array {
                 'paymentMethodId' => $gateway_id ,
                 'title' => $gateway->get_title(),
                 'description' => $gateway->description,
-                'image_path' => $gateway->getIcon(),
+                'image_path' => $gateway->get_icon_path(),
                 'buckarooImagesUrl' => plugin_dir_url(__FILE__) . 'library/buckaroo_images/',
                 'genders' => BuckarooConfig::getAllGendersForPaymentMethods(),
                 'displayMode' => $gateway->get_option('displaymode')

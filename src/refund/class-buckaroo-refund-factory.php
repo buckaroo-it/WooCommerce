@@ -5,6 +5,7 @@ require_once dirname(__FILE__) . "/methods/class-buckaroo-default-refund.php";
 require_once dirname(__FILE__) . "/methods/class-buckaroo-afterpay-refund.php";
 require_once dirname(__FILE__) . "/methods/class-buckaroo-billink-refund.php";
 require_once dirname(__FILE__) . "/methods/class-buckaroo-klarna-refund.php";
+require_once dirname(__FILE__) . "/class-buckaroo-refund-processor.php";
 
 
 /**
@@ -27,7 +28,7 @@ class Buckaroo_Refund_Factory
         'klarna' => Buckaroo_Klarna_Refund::class,
     );
 
-    public static function get_refund(WC_Gateway_Buckaroo $gateway, int $order_id, int $amount, string $reason): Buckaroo_Sdk_Payload_Interface
+    public static function get_refund(WC_Gateway_Buckaroo $gateway, int $order_id, float $amount, string $reason): Buckaroo_Sdk_Payload_Interface
     {
         $order_details = new Buckaroo_Order_Details(new WC_Order($order_id));
         $class = Buckaroo_Default_Refund::class;
