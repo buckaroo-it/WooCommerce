@@ -1,5 +1,6 @@
 <?php
 
+require_once(dirname(__FILE__) . '/library/api/paymentmethods/ideal/ideal.php');
 
 /**
  * @package Buckaroo

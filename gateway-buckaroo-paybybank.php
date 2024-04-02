@@ -1,5 +1,6 @@
 <?php
 
+require_once(dirname(__FILE__) . '/library/api/paymentmethods/paybybank/paybybank.php');
 
 /**
  * @package Buckaroo
