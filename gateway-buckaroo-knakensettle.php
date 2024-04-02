@@ -13,9 +13,9 @@ class WC_Gateway_Buckaroo_KnakenSettle extends WC_Gateway_Buckaroo
         $this->title                  = 'Knaken Settle';
 	    $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Knaken Settle';
-        $this->setIcon('24x24/knaken.png', 'svg/knaken.svg');
+        $this->set_icon('24x24/knaken.png', 'svg/knaken.svg');
 
         parent::__construct();
-        $this->addRefundSupport();
+        $this->add_refund_support();
     }
 }

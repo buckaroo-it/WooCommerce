@@ -12,43 +12,11 @@ class WC_Gateway_Buckaroo_Payconiq extends WC_Gateway_Buckaroo
         $this->title                  = 'Payconiq';
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Payconiq";
-        $this->setIcon('24x24/payconiq.png', 'svg/payconiq.svg');
+        $this->set_icon('24x24/payconiq.png', 'svg/payconiq.svg');
 
         parent::__construct();
-        $this->addRefundSupport();
+        $this->add_refund_support();
     }
-
-    /**
-     * Check response data
-     *
-     * @access public
-     */
-    public function response_handler()
-    {
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $result               = fn_buckaroo_process_response($this);
-        $order_id             = isset($_GET["order_id"]) && is_scalar($_GET["order_id"]) ? intval($_GET["order_id"]) : false;
-        if (!is_null($result)) {
-            wp_safe_redirect($result['redirect']);
-        } elseif ($order_id) {
-            // if we are here we are the redirect from the "cancel payment" link
-            // So we have to cancel the payment.
-            $order = new WC_Order($order_id);
-            if (isset($order)) {
-                $order->update_status('cancelled', __('890', 'wc-buckaroo-bpe-gateway'));
-                wc_add_notice(
-                    __(
-                        'Payment cancelled. Please try again or choose another payment method.',
-                        'wc-buckaroo-bpe-gateway'
-                    ),
-                    'error'
-                );
-                wp_safe_redirect($order->get_cancel_order_url());
-            }
-        }
-        exit;
-    }
-
 }
 
 function payconiqQrcode()

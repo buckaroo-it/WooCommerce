@@ -15,9 +15,8 @@
 
 defined('ABSPATH') || exit;
 
-$country = $this->getScalarCheckoutField('billing_country');
-$country = !empty($country) ? $country : $this->country;
-$customer_phone = $this->getScalarCheckoutField('billing_phone');
+$country = $this->request_scalar('billing_country');
+$customer_phone = $this->request_scalar('billing_phone');
 
 ?>
 <fieldset>

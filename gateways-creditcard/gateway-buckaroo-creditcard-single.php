@@ -25,7 +25,7 @@ class Buckaroo_Creditcard_Single extends WC_Gateway_Buckaroo_Creditcard
         }
         
         $icon = "creditcards/{$name}.svg";
-        $this->setIcon($icon, $icon);
+        $this->set_icon($icon, $icon);
     }
     /**
      * Payment form on checkout page
@@ -34,7 +34,7 @@ class Buckaroo_Creditcard_Single extends WC_Gateway_Buckaroo_Creditcard
      */
     public function payment_fields()
     {
-        $this->renderTemplate('buckaroo_creditcard');
+        $this->render_template('buckaroo_creditcard');
     }
     /**
      * Add fields to the form_fields() array, specific to this page.

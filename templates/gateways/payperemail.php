@@ -14,9 +14,9 @@
 
 defined('ABSPATH') || exit;
 
-$customerFirstName = $this->getScalarCheckoutField('billing_first_name');
-$customerLastName  = $this->getScalarCheckoutField('billing_last_name');
-$customerEmail     = $this->getScalarCheckoutField('billing_email');
+$customerFirstName = $this->request_scalar('billing_first_name');
+$customerLastName  = $this->request_scalar('billing_last_name');
+$customerEmail     = $this->request_scalar('billing_email');
 
 ?>
 <fieldset>

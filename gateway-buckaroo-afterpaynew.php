@@ -9,8 +9,9 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     public $type;
     public $b2b;
     public $vattype;
-    public $country;
     public $sendimageinfo;
+    protected $afterpaynewpayauthorize;
+    protected $customer_type;
 
     public const CUSTOMER_TYPE_B2C = 'b2c';
     public const CUSTOMER_TYPE_B2B = 'b2b';
@@ -22,11 +23,10 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $this->title                  = 'Riverty | AfterPay (by Buckaroo)';
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Riverty | AfterPay New';
-        $this->setIcon('afterpay.png', 'svg/afterpay.svg');
-        $this->setCountry();
+        $this->set_icon('afterpay.png', 'svg/afterpay.svg');
 
         parent::__construct();
-        $this->addRefundSupport();
+        $this->add_refund_support();
     }
 
     /** @inheritDoc */
@@ -58,241 +58,86 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         return $this->process_refund_common($action, $order_id, $amount, $reason);
     }
 
-    /**
-     * Can the order be refunded
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_partial_refunds($order_id, $amount = null, $reason = '', $line_item_qtys = null, $line_item_totals = null, $line_item_tax_totals = null, $originalTransactionKey = null)
-    {
-        $order = wc_get_order($order_id);
-
-        if (!$this->can_refund_order($order)) {
-            return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
-        }
-
-        update_post_meta($order_id, '_pushallowed', 'busy');
-
-        /** @var BuckarooAfterPayNew */
-        $afterpay = $this->createCreditRequest($order, $amount, $reason);
-
-        if ($originalTransactionKey !== null) {
-            $afterpay->OriginalTransactionKey = $originalTransactionKey;
-        }
-
-        // add items to refund call for afterpay
-        $issuer = get_post_meta($order_id, '_wc_order_payment_issuer', true);
-
-        $products         = array();
-        $items            = $order->get_items();
-        $itemsTotalAmount = 0;
-
-        if ($line_item_qtys === null) {
-            $line_item_qtys = buckaroo_request_sanitized_json('line_item_qtys');
-        }
-        
-        
-        if ($line_item_totals === null) {
-            $line_item_totals = buckaroo_request_sanitized_json('line_item_totals');
-        }
-        
-        if ($line_item_tax_totals === null) {
-            $line_item_tax_totals  = buckaroo_request_sanitized_json('line_item_tax_totals');
-        }
-
-        $orderDataForChecking = $afterpay->getOrderRefundData($order);
-
-        foreach ($items as $item) {
-            if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
-                $product = new WC_Product($item['product_id']);
-
-                $tax      = new WC_Tax();
-                $taxes    = $tax->get_rates($product->get_tax_class());
-                $rates    = array_shift($taxes);
-                $itemRate = number_format(array_shift($rates), 2);
-
-                $tmp["ArticleDescription"] = $item['name'];
-                $tmp["ArticleId"]          = $item['product_id'];
-                $tmp["ArticleQuantity"]    = $line_item_qtys[$item->get_id()];
-                $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4, '.', '') / $item["qty"], 2, '.', '');
-                $itemsTotalAmount += number_format($tmp["ArticleUnitprice"] * $line_item_qtys[$item->get_id()], 2, '.', '');
-                $tmp["ArticleVatcategory"] = $itemRate;
-                $products[]                = $tmp;
-            } else if (!empty($orderDataForChecking[$item->get_id()]['tax'])) {
-                $product = new WC_Product($item['product_id']);
-                $tax     = new WC_Tax();
-                $taxes   = $tax->get_rates($product->get_tax_class());
-                $taxId   = 3; // Standard tax
-                foreach ($taxes as $taxIdItem => $taxItem) {
-                    $taxId = $taxIdItem;
-                }
-
-                $rates    = array_shift($taxes);
-                $itemRate = number_format(array_shift($rates), 2);
-
-                $tmp["ArticleDescription"] = $rates['label'];
-                $tmp["ArticleId"]          = $taxId;
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($orderDataForChecking[$item->get_id()]['tax'], 2, '.', '');
-
-                $itemsTotalAmount += $tmp["ArticleUnitprice"];
-
-                $tmp["ArticleVatcategory"] = $itemRate;
-                $products[]                = $tmp;
-            }
-        }
-
-        $fees = $order->get_fees();
-
-        foreach ($fees as $key => $item) {
-            if (!empty($line_item_totals[$key])) {
-                $feeTaxRate = $this->getProductTaxRate($item);
-
-                $tmp["ArticleDescription"] = $item['name'];
-                $tmp["ArticleId"]          = $key;
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format(($item["line_total"] + $item["line_tax"]), 2);
-                $tmp["ArticleVatcategory"] = $feeTaxRate;
-                $products[]                = $tmp;
-                $itemsTotalAmount += $tmp["ArticleUnitprice"];
-            }
-        }
-
-        // Add shippingCosts
-        $shippingInfo = $this->getAfterPayShippingInfo('afterpay-new', 'partial_refunds', $order, $line_item_totals, $line_item_tax_totals);
-        if ($shippingInfo['costs'] > 0) {
-            $products[] = $shippingInfo['shipping_virtual_product'];
-            $itemsTotalAmount += $shippingInfo['costs'];
-        }
-
-        if ($orderDataForChecking['totalRefund'] != $itemsTotalAmount) {
-            if (number_format($orderDataForChecking['totalRefund'] - $itemsTotalAmount, 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($orderDataForChecking['totalRefund'] - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"] = 0;
-                $products[]                = $tmp;
-                $itemsTotalAmount += 0.01;
-            } elseif (number_format($itemsTotalAmount - $orderDataForChecking['totalRefund'], 2) >= 0.01) {
-                $tmp["ArticleDescription"] = 'Remaining Price';
-                $tmp["ArticleId"]          = 'remaining_price';
-                $tmp["ArticleQuantity"]    = 1;
-                $tmp["ArticleUnitprice"]   = number_format($orderDataForChecking['totalRefund'] - $itemsTotalAmount, 2);
-                $tmp["ArticleVatcategory"] = 0;
-                $products[]                = $tmp;
-                $itemsTotalAmount -= 0.01;
-            }
-        }
-        // end add items
-
-        $ref_amount = $this->request('refund_amount');
-        if ($ref_amount !== null && $itemsTotalAmount == 0) {
-            $afterpay->amountCredit = $ref_amount;
-        } else {
-            $amount                 = $itemsTotalAmount;
-            $afterpay->amountCredit = $amount;
-        }
-
-        if (!(count($products) > 0)) {
-            return new WP_Error('error_refund_afterpay_no_products', __("To refund an Riverty | AfterPay transaction you need to refund at least one product."));
-        }
-
-        try {
-            $afterpay->checkRefundData($orderDataForChecking);
-            $response = $afterpay->AfterPayRefund($products, $issuer);
-
-        } catch (Exception $e) {
-            update_post_meta($order_id, '_pushallowed', 'ok');
-            return new WP_Error('refund_error', __($e->getMessage()));
-        }
-
-        $final_response = fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
-
-        return $final_response;
-    }
 
     public function process_capture()
     {
-        $order_id = $this->request('order_id');
+        // $order_id = $this->request('order_id');
         
-        if ($order_id === null || !is_numeric($order_id)) {
-            return $this->create_capture_error(__('A valid order number is required'));
-        }
+        // if ($order_id === null || !is_numeric($order_id)) {
+        //     return $this->create_capture_error(__('A valid order number is required'));
+        // }
 
-        $capture_amount = $this->request('capture_amount');
-        if($capture_amount === null || !is_scalar($capture_amount)) {
-            return $this->create_capture_error(__('A valid capture amount is required'));
-        }
+        // $capture_amount = $this->request('capture_amount');
+        // if($capture_amount === null || !is_scalar($capture_amount)) {
+        //     return $this->create_capture_error(__('A valid capture amount is required'));
+        // }
 
-        $previous_captures = get_post_meta($order_id, '_wc_order_captures') ? get_post_meta($order_id, '_wc_order_captures') : false;
+        // $previous_captures = get_post_meta($order_id, '_wc_order_captures') ? get_post_meta($order_id, '_wc_order_captures') : false;
 
-        $woocommerce          = getWooCommerceObject();
+        // $woocommerce          = getWooCommerceObject();
 
-        $order = getWCOrder($order_id);
-        /** @var BuckarooAfterPayNew */
-        $afterpay = $this->createDebitRequest($order);
-        $afterpay->amountDedit            = str_replace(',', '.', $capture_amount);
-        $afterpay->OriginalTransactionKey = $order->get_transaction_id();
-        $afterpay->invoiceId              = (string) getUniqInvoiceId($woocommerce->order ? $woocommerce->order->get_order_number() : $order_id) . (is_array($previous_captures) ? '-' . count($previous_captures) : "");
+        // $order = getWCOrder($order_id);
+        // /** @var BuckarooAfterPayNew */
+        // // $afterpay = $this->createDebitRequest($order);
+        // $afterpay->amountDedit            = str_replace(',', '.', $capture_amount);
+        // $afterpay->OriginalTransactionKey = $order->get_transaction_id();
+        // $afterpay->invoiceId              = (string) getUniqInvoiceId($woocommerce->order ? $woocommerce->order->get_order_number() : $order_id) . (is_array($previous_captures) ? '-' . count($previous_captures) : "");
 
-        // add items to capture call for afterpay
-        $customVars['payment_issuer'] = get_post_meta($order_id, '_wc_order_payment_issuer', true);
+        // // add items to capture call for afterpay
+        // $customVars['payment_issuer'] = get_post_meta($order_id, '_wc_order_payment_issuer', true);
 
-        $products         = array();
-        $items            = $order->get_items();
-        $itemsTotalAmount = 0;
+        // $products         = array();
+        // $items            = $order->get_items();
+        // $itemsTotalAmount = 0;
 
-        $line_item_qtys         = buckaroo_request_sanitized_json('line_item_qtys');
-		$line_item_totals       = buckaroo_request_sanitized_json('line_item_totals');
-		$line_item_tax_totals   = buckaroo_request_sanitized_json('line_item_tax_totals');
+        // $line_item_qtys         = buckaroo_request_sanitized_json('line_item_qtys');
+		// $line_item_totals       = buckaroo_request_sanitized_json('line_item_totals');
+		// $line_item_tax_totals   = buckaroo_request_sanitized_json('line_item_tax_totals');
 
-        foreach ($items as $item) {
-            if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
-                $product = new WC_Product($item['product_id']);
+        // foreach ($items as $item) {
+        //     if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
+        //         $product = new WC_Product($item['product_id']);
 
-                $tax                       = new WC_Tax();
-                $taxes                     = $tax->get_rates($product->get_tax_class());
-                $rates                     = array_shift($taxes);
-                $itemRate                  = number_format(array_shift($rates), 2);
-                $tmp["ArticleDescription"] = $item['name'];
-                $tmp["ArticleId"]          = $item['product_id'];
-                $tmp["ArticleQuantity"]    = $line_item_qtys[$item->get_id()];
-                $tmp["ArticleUnitprice"]   = (float) number_format(number_format($item["line_total"] + $item["line_tax"], 4, '.', '') / $item["qty"], 2, '.', '');
-                $itemsTotalAmount += $tmp["ArticleUnitprice"] * $item["qty"];
-                $tmp["ArticleVatcategory"] = $itemRate;
-                $products[]                = $tmp;
-            }
-        }
+        //         $tax                       = new WC_Tax();
+        //         $taxes                     = $tax->get_rates($product->get_tax_class());
+        //         $rates                     = array_shift($taxes);
+        //         $itemRate                  = number_format(array_shift($rates), 2);
+        //         $tmp["ArticleDescription"] = $item['name'];
+        //         $tmp["ArticleId"]          = $item['product_id'];
+        //         $tmp["ArticleQuantity"]    = $line_item_qtys[$item->get_id()];
+        //         $tmp["ArticleUnitprice"]   = (float) number_format(number_format($item["line_total"] + $item["line_tax"], 4, '.', '') / $item["qty"], 2, '.', '');
+        //         $itemsTotalAmount += $tmp["ArticleUnitprice"] * $item["qty"];
+        //         $tmp["ArticleVatcategory"] = $itemRate;
+        //         $products[]                = $tmp;
+        //     }
+        // }
 
-        if (!$previous_captures) {
-            $fees = $order->get_fees();
-            foreach ($fees as $key => $item) {
-                $feeTaxRate = $this->getProductTaxRate($item);
-                $tmp["ArticleDescription"] = $item['name'];
-                $tmp["ArticleId"] = $key;
-                $tmp["ArticleQuantity"] = 1;
-                $tmp["ArticleUnitprice"] = number_format(($item["line_total"] + $item["line_tax"]), 2, '.', '');
-                $itemsTotalAmount += $tmp["ArticleUnitprice"];
-                $tmp["ArticleVatcategory"] = $feeTaxRate;
-                $products[] = $tmp;
-            }
-        }
+        // if (!$previous_captures) {
+        //     $fees = $order->get_fees();
+        //     foreach ($fees as $key => $item) {
+        //         $feeTaxRate = $this->getProductTaxRate($item);
+        //         $tmp["ArticleDescription"] = $item['name'];
+        //         $tmp["ArticleId"] = $key;
+        //         $tmp["ArticleQuantity"] = 1;
+        //         $tmp["ArticleUnitprice"] = number_format(($item["line_total"] + $item["line_tax"]), 2, '.', '');
+        //         $itemsTotalAmount += $tmp["ArticleUnitprice"];
+        //         $tmp["ArticleVatcategory"] = $feeTaxRate;
+        //         $products[] = $tmp;
+        //     }
+        // }
 
-        // Add shippingCosts
-        $shippingInfo = $this->getAfterPayShippingInfo('afterpay', 'capture', $order, $line_item_totals, $line_item_tax_totals);
-        if ($shippingInfo['costs'] > 0) {
-            $products[] = $shippingInfo['shipping_virtual_product'];
-        }
+        // // Add shippingCosts
+        // $shippingInfo = $this->getAfterPayShippingInfo('afterpay', 'capture', $order, $line_item_totals, $line_item_tax_totals);
+        // if ($shippingInfo['costs'] > 0) {
+        //     $products[] = $shippingInfo['shipping_virtual_product'];
+        // }
 
-        // end add items
+        // // end add items
 
-        $response         = $afterpay->Capture($customVars, $products);
-        $process_response = fn_buckaroo_process_capture($response, $order, $this->currency, $products);
+        // $response         = $afterpay->Capture($customVars, $products);
+        // $process_response = fn_buckaroo_process_capture($response, $order, $this->currency, $products);
 
-        return $process_response;
+        // return $process_response;
 
     }
 
@@ -305,15 +150,12 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     public function validate_fields()
     {
         $country = $this->request('billing_country');
-        if ($country === null) {
-            $country =  $this->country;
-        }
 
-        $birthdate = $this->parseDate(
+        $birthdate = $this->parse_date(
             $this->request('buckaroo-afterpaynew-birthdate')
         );
 
-	    if (!($this->validateDate($birthdate, 'd-m-Y') && $this->validateBirthdate($birthdate)) && in_array($country, ['NL', 'BE']) ) {
+	    if (!($this->validate_date($birthdate, 'd-m-Y') && $this->validate_birthdate($birthdate)) && in_array($country, ['NL', 'BE']) ) {
             wc_add_notice(__("You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
@@ -353,79 +195,13 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
 
     private function is_house_number_invalid($type)
     {
-        $components = Buckaroo_Order_Details::get_address_components(
+        $components = new Buckaroo_Address_Components(
             $this->request($type.'_address_1') . " " . $this->request($type.'_address_2')
         );
 
-        return !is_string($components['house_number']) || empty(trim($components['house_number']));
-    }
-
-
-    
-    /**
-     * Get billing info for pay request
-     *
-     * @param Buckaroo_Order_Details $order_details
-     * @param BuckarooAfterPayNew $method
-     * @param string $birthdate
-     *
-     * @return BuckarooAfterPayNew  $method
-     */
-    protected function get_billing_info($order_details, $method, $birthdate)
-    {
-        /** @var BuckarooAfterPayNew */
-        $method = $this->set_billing($method, $order_details);
-        $method->BillingInitials  = $order_details->get_initials(
-            $order_details->getBilling('first_name')
-        );
-        $method->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
-        if (empty($method->BillingPhoneNumber)) {
-            $method->BillingPhoneNumber =  $this->request("buckaroo-afterpaynew-phone");
-        }
-
-        if (strlen($order_details->getBilling('company'))) {
-            $method->BillingCompanyName = $order_details->getBilling('company');
-        }
-
-        return $method;
-    }
-    /**
-     * Get shipping info for pay request
-     *
-     * @param Buckaroo_Order_Details $order_details
-     * @param BuckarooAfterPayNew $method
-     *
-     * @return BuckarooAfterPayNew $method
-     */
-    protected function get_shipping_info($order_details, $method)
-    {
-        $method->AddressesDiffer = 'FALSE';
-        if ($this->request("buckaroo-afterpaynew-shipping-differ") !== null) {
-            $method->AddressesDiffer = 'TRUE';
-            /** @var BuckarooAfterPayNew */
-            $method = $this->set_shipping($method, $order_details);
-            $method->ShippingInitials = $order_details->get_initials(
-                $order_details->getShipping('first_name')
-            );
-
-            if (strlen($order_details->getShipping('company'))) {
-                $method->ShippingCompanyName = $order_details->getShipping('company');
-            }
-        }
-        return $method;
+        return empty(trim($components->get_house_number()));
     }
  
-    /**
-     * Check response data
-     *
-     * @access public
-     */
-    public function response_handler()
-    {
-        fn_buckaroo_process_response($this);
-        exit;
-    }
-
     /**
      * Add fields to the form_fields() array, specific to this page.
      *

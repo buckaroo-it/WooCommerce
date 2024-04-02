@@ -19,10 +19,10 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo Apple Pay";
         $this->CustomerCardName       = '';
-        $this->setIcon('svg/applepay.svg', 'svg/applepay.svg');
+        $this->set_icon('svg/applepay.svg', 'svg/applepay.svg');
 
         parent::__construct();
-        $this->addRefundSupport();
+        $this->add_refund_support();
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
             $this->registerControllers();
         }

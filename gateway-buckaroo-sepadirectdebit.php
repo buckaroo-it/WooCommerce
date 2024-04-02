@@ -11,10 +11,10 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
         $this->title                  = 'SEPA Direct Debit';
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo SEPA Direct Debit';
-        $this->setIcon('24x24/directdebit.png', 'svg/sepa-directdebit.svg');
+        $this->set_icon('24x24/directdebit.png', 'svg/sepa-directdebit.svg');
 
         parent::__construct();
-        $this->addRefundSupport();
+        $this->add_refund_support();
     }
    
     /**
@@ -39,17 +39,5 @@ class WC_Gateway_Buckaroo_SepaDirectDebit extends WC_Gateway_Buckaroo
         // }
 
         parent::validate_fields();
-    }
-
-
-    /**
-     * Check response data
-     *
-     * @access public
-     */
-    public function response_handler()
-    {
-        fn_buckaroo_process_response($this);
-        exit;
     }
 }

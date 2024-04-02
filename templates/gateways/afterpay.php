@@ -16,7 +16,7 @@ defined('ABSPATH') || exit;
 
 
 //set customer phone
-$customer_phone = $this->getScalarCheckoutField('billing_phone');
+$customer_phone = $this->request_scalar('billing_phone');
 
 
 ?>
@@ -43,7 +43,7 @@ $customer_phone = $this->getScalarCheckoutField('billing_phone');
         value="<?php echo esc_html($customer_phone) ?? '' ?>">
     </p>
     <?php 
-    if (!empty($this->getScalarCheckoutField('ship_to_different_address'))) {
+    if (!empty($this->request_scalar('ship_to_different_address'))) {
         ?>
         <input id="buckaroo-afterpay-shipping-differ"
         name="buckaroo-afterpay-shipping-differ"

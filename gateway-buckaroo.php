@@ -40,10 +40,10 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             add_filter('woocommerce_order_button_html', array($this, 'replace_order_button_html'));
         }
 
-        // [JM] Compatibility with WC3.6+
-        add_action('woocommerce_checkout_process', array($this, 'action_woocommerce_checkout_process'));
-
-        $this->addGatewayHooks(static::class);
+        add_action(
+            'woocommerce_update_options_payment_gateways_' . $this->id,
+            array($this, 'process_admin_options')
+        );
     }
 
     public function woocommerce_session_handler()
@@ -59,8 +59,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     protected function setProperties()
     {
         $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
-        $this->setTitle();
-        $this->description            = $this->getPaymentDescription();
+        $this->set_title();
+        $this->description            = $this->get_payment_description();
         $this->currency               = get_woocommerce_currency();
         $this->mode                   = $this->get_option('mode');
         $this->minvalue               = $this->get_option('minvalue', 0);
@@ -121,7 +121,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return string
      */
-    public function getPaymentDescription()
+    public function get_payment_description()
     {
         $desc = $this->get_option('description', '');
         if (strlen($desc) === 0) {
@@ -133,7 +133,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     /**
      * Get Payment fee VAT
      */
-    public function getPaymentFeeVat($amount)
+    public function get_payment_fee_vat($amount)
     {
         //Allow this to run only on checkout page
         if (!is_checkout()) {
@@ -169,7 +169,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return void
      */
-    public function setTitle()
+    public function set_title()
     {
         $feeText = '';
         $fee = $this->get_option('extrachargeamount', 0);
@@ -185,7 +185,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                     ]
                 )) . '%';
             } else {
-                $fee = wc_price($fee + $this->getPaymentFeeVat($fee));
+                $fee = wc_price($fee + $this->get_payment_fee_vat($fee));
             }
 
             $feeText = " (+ " . $fee . ")";
@@ -201,7 +201,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return void
      */
-    protected function setIcon($oldPath, $newPath)
+    protected function set_icon($oldPath, $newPath)
     {
         $this->icon = apply_filters(
             'woocommerce_' . $this->id . '_icon',
@@ -215,66 +215,18 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      * @return string
      */
 
-    public function getIcon()
+    public function get_icon()
     {
 
         return $this->icon;
     }
-    /**
-     * Set country field
-     *
-     * @return void
-     */
-    protected function setCountry()
-    {
-        $woocommerce = getWooCommerceObject();
 
-        $country = null;
-        if (!empty($woocommerce->customer)) {
-            $country = get_user_meta($woocommerce->customer->get_id(), 'shipping_country', true);
-        }
-        $this->country = $country;
-    }
-    /**
-     * Add the gateway hooks
-     *
-     * @param string $class Gateway Class name
-     *
-     * @return void
-     */
-    protected function addGatewayHooks($class)
-    {
-        $this->showpayproc = isset($this->settings['showpayproc']) && $this->settings['showpayproc'] == 'TRUE';
-
-        $this->notify_url = home_url('/');
-        if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-
-            add_action(
-                'woocommerce_update_options_payment_gateways_' . $this->id,
-                array($this, 'process_admin_options')
-            );
-
-            add_action(
-                'woocommerce_api_' . strtolower(wc_clean($class)),
-                array($this, 'response_handler')
-            );
-
-            if ($this->showpayproc) {
-                add_action(
-                    'woocommerce_thankyou_' . $this->id,
-                    array($this, 'thankyou_description')
-                );
-            }
-
-            $this->notify_url = add_query_arg('wc-api', $class, $this->notify_url);
-        }
-    }
     /**
      * Add refund support
      *
      * @return void
      */
-    protected function addRefundSupport()
+    protected function add_refund_support()
     {
         $this->supports = [
             'products',
@@ -288,7 +240,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return void
      */
-    protected function migrateOldSettings($oldKey)
+    protected function migrate_old_setting($oldKey)
     {
         if (
             !get_option('woocommerce_' . $this->id . '_settings') &&
@@ -298,10 +250,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             delete_option($oldKey); //clean the table
         }
     }
-    public function thankyou_description()
-    {
-        //not implemented
-    }
     public function replace_order_button_html($button)
     {
         if (!BuckarooIdin::checkCurrentUserIsVerified()) {
@@ -310,12 +258,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         return $button;
     }
 
-    public function action_woocommerce_checkout_process()
-    {
-        if (version_compare(WC()->version, '3.6', '>=')) {
-            resetOrder();
-        }
-    }
 
     public function init_settings()
     {
@@ -397,7 +339,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
                     'This controls the description which the user sees during checkout.',
                     'wc-buckaroo-bpe-gateway'
                 ),
-                'default'     => $this->getPaymentDescription(),
+                'default'     => $this->get_payment_description(),
             ],
             'extrachargeamount'     => [
                 'title'             => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
@@ -421,100 +363,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             ]
         ];
     }
-    /**
-     * Add certificate fields to the gateway settings page
-     *
-     * @return void
-     */
-    public function initCerificateFields()
-    {
-        //Start Dynamic Rendering of Hidden Fields
-        $options      = get_option("woocommerce_" . $this->id . "_settings", null);
-        $ccontent_arr = array();
-        $keybase      = 'certificatecontents';
-        $keycount     = 1;
-        if (!empty($options["$keybase$keycount"])) {
-            while (!empty($options["$keybase$keycount"])) {
-                $ccontent_arr[] = "$keybase$keycount";
-                $keycount++;
-            }
-        }
-        $while_key                 = 1;
-        $selectcertificate_options = array('none' => 'None selected');
-        while ($while_key != $keycount) {
-            $this->form_fields["certificatecontents$while_key"] = array(
-                'title'       => '',
-                'type'        => 'hidden',
-                'description' => '',
-                'default'     => '',
-            );
-            $this->form_fields["certificateuploadtime$while_key"] = array(
-                'title'       => '',
-                'type'        => 'hidden',
-                'description' => '',
-                'default'     => ''
-            );
-            $this->form_fields["certificatename$while_key"] = array(
-                'title'       => '',
-                'type'        => 'hidden',
-                'description' => '',
-                'default'     => ''
-            );
-            $selectcertificate_options["$while_key"] = $options["certificatename$while_key"];
-
-            $while_key++;
-        }
-        $final_ccontent                                          = $keycount;
-        $this->form_fields["certificatecontents$final_ccontent"] = array(
-            'title'       => '',
-            'type'        => 'hidden',
-            'description' => '',
-            'default'     => ''
-        );
-        $this->form_fields["certificateuploadtime$final_ccontent"] = array(
-            'title'       => '',
-            'type'        => 'hidden',
-            'description' => '',
-            'default'     => ''
-        );
-        $this->form_fields["certificatename$final_ccontent"] = array(
-            'title'       => '',
-            'type'        => 'hidden',
-            'description' => '',
-            'default'     => ''
-        );
-
-        $this->form_fields['selectcertificate'] = array(
-            'title'       => __('Select Certificate', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'select',
-            'description' => __('Select your certificate by name.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => $selectcertificate_options,
-            'default'     => 'none',
-        );
-        $this->form_fields['choosecertificate'] = array(
-            'title'       => '',
-            'type'        => 'file',
-            'description' => '',
-            'default'     => ''
-        );
-    }
-    /**
-     * Check response data
-     *
-     * @access public
-     */
-    public function response_handler()
-    {
-        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $result               = fn_buckaroo_process_response($this);
-
-        if (!is_null($result)) {
-            wp_safe_redirect($result['redirect']);
-        } else {
-            wp_safe_redirect($this->get_failed_url());
-        }
-        exit;
-    }
 
     /**
      * Payment form on checkout page
@@ -523,23 +371,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     public function payment_fields()
     {
-        $this->renderTemplate();
+        $this->render_template();
     }
 
-    public function get_failed_url()
-    {
-        $thanks_page_id = wc_get_page_id('checkout');
-        if ($thanks_page_id) :
-            $return_url = get_permalink($thanks_page_id);
-        else :
-            $return_url = home_url();
-        endif;
-        if (is_ssl() || get_option('woocommerce_force_ssl_checkout') == 'yes') {
-            $return_url = str_replace('http:', 'https:', $return_url);
-        }
-
-        return apply_filters('woocommerce_get_return_url', $return_url);
-    }
     /**
      *
      *
@@ -609,7 +443,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      * @return Object Datetime
      * @return Boolean Format correct returns True, else returns false
      */
-    public function validateDate($date, $format = 'Y-m-d H:i:s')
+    public function validate_date($date, $format = 'Y-m-d H:i:s')
     {
         if ($date === null) {
             return false;
@@ -625,7 +459,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return Boolean Is user 18 years or older return true, else false
      */
-    public function validateBirthdate($birthdate)
+    public function validate_birthdate($birthdate)
     {
 
         $currentDate = new DateTime();
@@ -636,9 +470,9 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         return $ageInterval >= 18;
     }
 
-    public function parseDate($date)
+    public function parse_date($date)
     {
-        if ($this->validateDate($date, 'd-m-Y')) return $date;
+        if ($this->validate_date($date, 'd-m-Y')) return $date;
 
         if (preg_match('/^\d{6}$/', $date)) {
             return DateTime::createFromFormat('dmy', $date)->format('d-m-Y');
@@ -681,7 +515,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return void
      */
-    protected function getPaymentTemplate($name)
+    protected function get_template($name)
     {
         $location = dirname(BK_PLUGIN_FILE) . self::BUCKAROO_TEMPLATE_LOCATION;
         $file = $location . $name . ".php";
@@ -695,7 +529,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return void
      */
-    protected function renderTemplate($id = null)
+    protected function render_template($id = null)
     {
         if (is_null($id)) {
             $id = $this->id;
@@ -705,8 +539,8 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         do_action("buckaroo_before_render_gateway_template_" . $name, $this);
 
-        $this->getPaymentTemplate('global');
-        $this->getPaymentTemplate($name);
+        $this->get_template('global');
+        $this->get_template($name);
 
         do_action("buckaroo_after_render_gateway_template_" . $name, $this);
     }
@@ -717,7 +551,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return mixt
      */
-    protected function getScalarCheckoutField($key)
+    protected function request_scalar($key)
     {
         $value = '';
         $post_data   = array();
@@ -763,443 +597,116 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      *
      * @return void
      */
-    protected function setOrderCapture($order_id, $paymentName, $paymentType = null)
+    protected function set_order_capture($order_id, $paymentName, $paymentType = null)
     {
         update_post_meta($order_id, '_wc_order_selected_payment_method', $paymentName);
-        $this->setOrderIssuer($order_id, $paymentType);
-    }
-    /**
-     * Set order issuer
-     *
-     * @param int $order_id Order id
-     * @param string|null $paymentType Payment type
-     *
-     * @return void
-     */
-    protected function setOrderIssuer($order_id, $paymentType = null)
-    {
-        if (is_null($paymentType)) {
-            $paymentType = $this->type;
-        }
         update_post_meta($order_id, '_wc_order_payment_issuer', $paymentType);
     }
 
-    /**
-     * Get the parsed label, we replace the template variables with the values
-     *
-     * @param WC_Order $order
-     *
-     * @return string
-     */
-    public function getParsedLabel(WC_Order $order)
-    {
-        $label =  $this->get_option('transactiondescription', 'Order #' . $order->get_order_number());
 
-        $label = preg_replace('/\{order_number\}/', $order->get_order_number(), $label);
-        $label = preg_replace('/\{shop_name\}/', get_bloginfo('name'), $label);
+    // protected function handleThirdPartyShippings($method, $order, $country)
+    // {
+    //     $shippingMethod = $this->request('shipping_method');
 
-        $products = $order->get_items('line_item');
-        if (count($products)) {
-            $label = preg_replace('/\{product_name\}/', array_values($products)[0]->get_name(), $label);
-        }
+    //     if (is_array($shippingMethod) && $shippingMethod[0] == 'dhlpwc-parcelshop') {
+    //         $dhlConnectorData                    = $order->get_meta('_dhlpwc_order_connectors_data');
+    //         $dhlCountry                          = !empty($country) ? $country : $this->request('billing_country');
+    //         $requestPart                         = $dhlCountry . '/' . $dhlConnectorData['id'];
+    //         $dhlParcelShopAddressData            = $this->getDHLParcelShopLocation($requestPart);
+    //         $method->AddressesDiffer           = 'TRUE';
+    //         $method->ShippingStreet            = $dhlParcelShopAddressData->street;
+    //         $method->ShippingHouseNumber       = $dhlParcelShopAddressData->number;
+    //         $method->ShippingPostalCode        = $dhlParcelShopAddressData->postalCode;
+    //         $method->ShippingHouseNumberSuffix = '';
+    //         $method->ShippingCity              = $dhlParcelShopAddressData->city;
+    //         $method->ShippingCountryCode       = $dhlParcelShopAddressData->countryCode;
+    //     }
 
-        $label = preg_replace("/\r?\n|\r/", '', $label);
+    //     if ($this->request('post-deliver-or-pickup') == 'post-pickup') {
+    //         $postNL                              = $order->get_meta('_postnl_delivery_options');
+    //         $method->AddressesDiffer           = 'TRUE';
+    //         $method->ShippingStreet            = $postNL['street'];
+    //         $method->ShippingHouseNumber       = $postNL['number'];
+    //         $method->ShippingPostalCode        = $postNL['postal_code'];
+    //         $method->ShippingHouseNumberSuffix = trim(str_replace('-', ' ', $postNL['number_suffix']));
+    //         $method->ShippingCity              = $postNL['city'];
+    //         $method->ShippingCountryCode       = $postNL['cc'];
+    //     }
 
-        return mb_substr($label, 0, 244);
-    }
-    protected function handleThirdPartyShippings($method, $order, $country)
-    {
-        $shippingMethod = $this->request('shipping_method');
+    //     if ($this->request('sendcloudshipping_service_point_selected') !== null) {
+    //         $method->AddressesDiffer = 'TRUE';
+    //         $sendcloudPointAddress     = $order->get_meta('sendcloudshipping_service_point_meta');
+    //         $addressData               = $this->parseSendCloudPointAddress($sendcloudPointAddress['extra']);
 
-        if (is_array($shippingMethod) && $shippingMethod[0] == 'dhlpwc-parcelshop') {
-            $dhlConnectorData                    = $order->get_meta('_dhlpwc_order_connectors_data');
-            $dhlCountry                          = !empty($country) ? $country : $this->request('billing_country');
-            $requestPart                         = $dhlCountry . '/' . $dhlConnectorData['id'];
-            $dhlParcelShopAddressData            = $this->getDHLParcelShopLocation($requestPart);
-            $method->AddressesDiffer           = 'TRUE';
-            $method->ShippingStreet            = $dhlParcelShopAddressData->street;
-            $method->ShippingHouseNumber       = $dhlParcelShopAddressData->number;
-            $method->ShippingPostalCode        = $dhlParcelShopAddressData->postalCode;
-            $method->ShippingHouseNumberSuffix = '';
-            $method->ShippingCity              = $dhlParcelShopAddressData->city;
-            $method->ShippingCountryCode       = $dhlParcelShopAddressData->countryCode;
-        }
+    //         $method->ShippingStreet            = $addressData['street']['name'];
+    //         $method->ShippingHouseNumber       = $addressData['street']['house_number'];
+    //         $method->ShippingPostalCode        = $addressData['postal_code'];
+    //         $method->ShippingHouseNumberSuffix = $addressData['street']['number_addition'];
+    //         $method->ShippingCity              = $addressData['city'];
+    //         $method->ShippingCountryCode       = $method->BillingCountry;
+    //     }
 
-        if ($this->request('post-deliver-or-pickup') == 'post-pickup') {
-            $postNL                              = $order->get_meta('_postnl_delivery_options');
-            $method->AddressesDiffer           = 'TRUE';
-            $method->ShippingStreet            = $postNL['street'];
-            $method->ShippingHouseNumber       = $postNL['number'];
-            $method->ShippingPostalCode        = $postNL['postal_code'];
-            $method->ShippingHouseNumberSuffix = trim(str_replace('-', ' ', $postNL['number_suffix']));
-            $method->ShippingCity              = $postNL['city'];
-            $method->ShippingCountryCode       = $postNL['cc'];
-        }
+    //     if ($this->request('_myparcel_delivery_options') !== null) {
+    //         $myparselDeliveryOptions = $order->get_meta('_myparcel_delivery_options');
+    //         if (!empty($myparselDeliveryOptions)) {
+    //             if ($myparselDeliveryOptions = unserialize($myparselDeliveryOptions)) {
+    //                 if ($myparselDeliveryOptions->isPickup()) {
+    //                     $method->AddressesDiffer = 'TRUE';
+    //                     $pickupOptions = $myparselDeliveryOptions->getPickupLocation();
+    //                     $method->ShippingStreet = $pickupOptions->getStreet();
+    //                     $method->ShippingHouseNumber = $pickupOptions->getNumber();
+    //                     $method->ShippingPostalCode = $pickupOptions->getPostalCode();
+    //                     $method->ShippingCity = $pickupOptions->getCity();
+    //                     $method->ShippingCountryCode = $pickupOptions->getCountry();
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return $method;
+    // }
 
-        if ($this->request('sendcloudshipping_service_point_selected') !== null) {
-            $method->AddressesDiffer = 'TRUE';
-            $sendcloudPointAddress     = $order->get_meta('sendcloudshipping_service_point_meta');
-            $addressData               = $this->parseSendCloudPointAddress($sendcloudPointAddress['extra']);
+    // private function parseSendCloudPointAddress($addressData)
+    // {
+    //     $formattedAddress = [];
+    //     $addressData      = explode('|', $addressData);
 
-            $method->ShippingStreet            = $addressData['street']['name'];
-            $method->ShippingHouseNumber       = $addressData['street']['house_number'];
-            $method->ShippingPostalCode        = $addressData['postal_code'];
-            $method->ShippingHouseNumberSuffix = $addressData['street']['number_addition'];
-            $method->ShippingCity              = $addressData['city'];
-            $method->ShippingCountryCode       = $method->BillingCountry;
-        }
+    //     $streetData = $addressData[1];
+    //     $cityData   = $addressData[2];
 
-        if ($this->request('_myparcel_delivery_options') !== null) {
-            $myparselDeliveryOptions = $order->get_meta('_myparcel_delivery_options');
-            if (!empty($myparselDeliveryOptions)) {
-                if ($myparselDeliveryOptions = unserialize($myparselDeliveryOptions)) {
-                    if ($myparselDeliveryOptions->isPickup()) {
-                        $method->AddressesDiffer = 'TRUE';
-                        $pickupOptions = $myparselDeliveryOptions->getPickupLocation();
-                        $method->ShippingStreet = $pickupOptions->getStreet();
-                        $method->ShippingHouseNumber = $pickupOptions->getNumber();
-                        $method->ShippingPostalCode = $pickupOptions->getPostalCode();
-                        $method->ShippingCity = $pickupOptions->getCity();
-                        $method->ShippingCountryCode = $pickupOptions->getCountry();
-                    }
-                }
-            }
-        }
-        return $method;
-    }
+    //     $formattedCityData = $this->parseSendcloudCityData($cityData);
+    //     $formattedStreet   = $this->formatStreet($streetData);
 
-    private function parseSendCloudPointAddress($addressData)
-    {
-        $formattedAddress = [];
-        $addressData      = explode('|', $addressData);
+    //     $formattedAddress['street']      = $formattedStreet;
+    //     $formattedAddress['postal_code'] = $formattedCityData[0];
+    //     $formattedAddress['city']        = $formattedCityData[1];
 
-        $streetData = $addressData[1];
-        $cityData   = $addressData[2];
+    //     return $formattedAddress;
+    // }
 
-        $formattedCityData = $this->parseSendcloudCityData($cityData);
-        $formattedStreet   = $this->formatStreet($streetData);
+    // private function parseSendcloudCityData($cityData)
+    // {
+    //     $cityData = preg_split('/\s/', $cityData, 2);
 
-        $formattedAddress['street']      = $formattedStreet;
-        $formattedAddress['postal_code'] = $formattedCityData[0];
-        $formattedAddress['city']        = $formattedCityData[1];
+    //     return $cityData;
+    // }
 
-        return $formattedAddress;
-    }
+    // private function getDHLParcelShopLocation($parcelShopUrl)
+    // {
+    //     $url  = "https://api-gw.dhlparcel.nl/parcel-shop-locations/" . $parcelShopUrl;
+    //     $data = wp_remote_request($url);
 
-    private function parseSendcloudCityData($cityData)
-    {
-        $cityData = preg_split('/\s/', $cityData, 2);
+    //     if ($data['response']['code'] !== 200) {
+    //         throw new Exception(__('Parcel Shop not found'));
+    //     }
 
-        return $cityData;
-    }
+    //     $data = json_decode($data['body']);
 
-    private function getDHLParcelShopLocation($parcelShopUrl)
-    {
-        $url  = "https://api-gw.dhlparcel.nl/parcel-shop-locations/" . $parcelShopUrl;
-        $data = wp_remote_request($url);
+    //     if (empty($data->address)) {
+    //         throw new Exception(__('Parcel Shop address is incorrect'));
+    //     }
 
-        if ($data['response']['code'] !== 200) {
-            throw new Exception(__('Parcel Shop not found'));
-        }
-
-        $data = json_decode($data['body']);
-
-        if (empty($data->address)) {
-            throw new Exception(__('Parcel Shop address is incorrect'));
-        }
-
-        return $data->address;
-    }
-
-    protected function process_refund_common($action, $order_id, $amount = null, $reason = '')
-    {
-        if ($action == 'Authorize') {
-            // check if order is captured
-            $captures         = get_post_meta($order_id, 'buckaroo_capture', false);
-            $previous_refunds = get_post_meta($order_id, 'buckaroo_refund', false);
-
-            if ($captures == false || count($captures) < 1) {
-                return new WP_Error('error_refund_trid', __("Order is not captured yet, you can only refund captured orders"));
-            }
-
-            // Merge previous refunds with captures
-            foreach ($captures as &$captureJson) {
-                $capture = json_decode($captureJson, true);
-                foreach ($previous_refunds as &$refundJson) {
-                    $refund = json_decode($refundJson, true);
-
-                    if (isset($refund['OriginalCaptureTransactionKey']) && $capture['OriginalTransactionKey'] == $refund['OriginalCaptureTransactionKey']) {
-
-                        foreach ($capture['products'] as &$capture_product) {
-                            foreach ($refund['products'] as &$refund_product) {
-                                if ($capture_product['ArticleId'] != BuckarooConfig::SHIPPING_SKU && $capture_product['ArticleId'] == $refund_product['ArticleId'] && $refund_product['ArticleQuantity'] > 0) {
-                                    if ($capture_product['ArticleQuantity'] >= $refund_product['ArticleQuantity']) {
-                                        $capture_product['ArticleQuantity'] -= $refund_product['ArticleQuantity'];
-                                        $refund_product['ArticleQuantity'] = 0;
-                                    } else {
-                                        $refund_product['ArticleQuantity'] -= $capture_product['ArticleQuantity'];
-                                        $capture_product['ArticleQuantity'] = 0;
-                                    }
-                                } elseif ($capture_product['ArticleId'] == BuckarooConfig::SHIPPING_SKU && $capture_product['ArticleId'] == $refund_product['ArticleId'] && $refund_product['ArticleUnitprice'] > 0) {
-                                    if ($capture_product['ArticleUnitprice'] >= $refund_product['ArticleUnitprice']) {
-                                        $capture_product['ArticleUnitprice'] -= $refund_product['ArticleUnitprice'];
-                                        $refund_product['ArticleUnitprice'] = 0;
-                                    } else {
-                                        $refund_product['ArticleUnitprice'] -= $capture_product['ArticleUnitprice'];
-                                        $capture_product['ArticleUnitprice'] = 0;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    $refundJson = json_encode($refund);
-                }
-                $captureJson = json_encode($capture);
-            }
-
-            $captures = json_decode(json_encode($captures), true);
-
-            $line_item_qtys         = buckaroo_request_sanitized_json('line_item_qtys');
-            $line_item_totals       = buckaroo_request_sanitized_json('line_item_totals');
-            $line_item_tax_totals   = buckaroo_request_sanitized_json('line_item_tax_totals');
-
-            $line_item_qtys_new                 = array();
-            $line_item_totals_new               = array();
-            $line_item_tax_totals_new           = array();
-
-            $order = wc_get_order($order_id);
-            $items = $order->get_items();
-
-            // Items to products
-            $item_ids = array();
-
-            foreach ($items as $item) {
-                $item_ids[$item->get_id()] = $item->get_product_id();
-            }
-
-            $totalQtyToRefund = 0;
-
-            // Loop through products
-            if (is_array($line_item_qtys)) {
-                foreach ($line_item_qtys as $id_to_refund => $qty_to_refund) {
-                    // Find free `slots` in captures
-                    foreach ($captures as $captureJson) {
-                        $capture = json_decode($captureJson, true);
-                        foreach ($capture['products'] as $product) {
-                            if ($product['ArticleId'] == $item_ids[$id_to_refund]) {
-                                // Found the product in the capture.
-                                // See if qty is sufficent.
-                                if ($qty_to_refund > 0) {
-                                    if ($qty_to_refund <= $product['ArticleQuantity']) {
-                                        $line_item_qtys_new[$id_to_refund] = $qty_to_refund;
-                                        $qty_to_refund                               = 0;
-                                    } else {
-                                        $line_item_qtys_new[$id_to_refund] = $product['ArticleQuantity'];
-                                        $qty_to_refund -= $product['ArticleQuantity'];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    $totalQtyToRefund += $qty_to_refund;
-                }
-            }
-
-            // loop for fees
-            $fee_items = $order->get_items('fee');
-
-            $feeCostsToRefund = 0;
-            foreach ($fee_items as $fee_item) {
-                if (isset($line_item_totals[$fee_item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                    $feeCostsToRefund = $line_item_totals[$fee_item->get_id()];
-                    $feeIdToRefund    = $fee_item->get_id();
-                }
-            }
-
-            // loop for shipping costs
-            $shipping_item = $order->get_items('shipping');
-
-            $shippingCostsToRefund = 0;
-            foreach ($shipping_item as $item) {
-                if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                    if ($this->id == 'buckaroo_afterpay') {
-                        $shippingCostsToRefund = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
-                    } else {
-                        $shippingCostsToRefund = $line_item_totals[$item->get_id()];
-                    }
-                    $shippingIdToRefund    = $item->get_id();
-                }
-            }
-
-            // Find free `slots` in captures
-            foreach ($captures as $captureJson) {
-                $capture = json_decode($captureJson, true);
-                foreach ($capture['products'] as $product) {
-                    if ($product['ArticleId'] == BuckarooConfig::SHIPPING_SKU) {
-                        // Found the shipping in the capture.
-                        // See if amount is sufficent.
-                        if ($shippingCostsToRefund > 0) {
-                            if ($shippingCostsToRefund <= $product['ArticleUnitprice']) {
-                                $line_item_totals_new[$shippingIdToRefund]     = $shippingCostsToRefund;
-                                $line_item_tax_totals_new[$shippingIdToRefund] = array(1 => 0);
-                                $shippingCostsToRefund                                   = 0;
-                            } else {
-                                $line_item_totals_new[$shippingIdToRefund]     = $product['ArticleUnitprice'];
-                                $line_item_tax_totals_new[$shippingIdToRefund] = array(1 => 0);
-                                $shippingCostsToRefund -= $product['ArticleUnitprice'];
-                            }
-                        }
-                    } elseif ($product['ArticleId'] == $feeIdToRefund) {
-                        // Found the payment fee in the capture.
-                        // See if amount is sufficent.
-                        if ($feeCostsToRefund > 0) {
-                            if ($feeCostsToRefund <= $product['ArticleUnitprice']) {
-                                $line_item_totals_new[$feeIdToRefund]     = $feeCostsToRefund;
-                                $line_item_tax_totals_new[$feeIdToRefund] = array(1 => 0);
-                                $feeCostsToRefund                         = 0;
-                            } else {
-                                $line_item_totals_new[$feeIdToRefund]     = $product['ArticleUnitprice'];
-                                $line_item_tax_totals_new[$feeIdToRefund] = array(1 => 0);
-                                $feeCostsToRefund -= $product['ArticleUnitprice'];
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Check if something cannot be refunded
-            $NotRefundable = false;
-
-            if ($shippingCostsToRefund > 0 || $totalQtyToRefund > 0) {
-                $NotRefundable = true;
-            }
-
-            if ($NotRefundable) {
-                return new WP_Error('error_refund_trid', __("Selected items or amount is not fully captured, you can only refund captured items"));
-            }
-
-            if ($amount > 0) {
-                $refund_result = $this->process_partial_refunds(
-                    $order_id,
-                    $amount,
-                    $reason,
-                    $line_item_qtys_new,
-                    $line_item_totals_new,
-                    $line_item_tax_totals_new,
-                    $capture['OriginalTransactionKey']
-                );
-            }
-
-            if ($refund_result !== true) {
-                if (isset($refund_result->errors['error_refund'][0])) {
-                    return new WP_Error('error_refund_trid', __($result->errors['error_refund'][0]));
-                } else {
-                    return new WP_Error('error_refund_trid', __("Unexpected error occured while processing refund, please check your transactions in the Buckaroo plaza."));
-                }
-            }
-
-            return true;
-        } else {
-            return $this->process_partial_refunds($order_id, $amount, $reason);
-        }
-    }
-    public function getAfterPayShippingInfo($afterpay_version, $method, $order, $line_item_totals, $line_item_tax_totals)
-    {
-
-        $shipping_item = $order->get_items('shipping');
-        $shippingCosts = 0;
-
-        if ($afterpay_version == 'afterpay-new' && $method == 'partial_refunds') {
-            $shippingTaxClassKey = 0;
-
-            foreach ($shipping_item as $item) {
-                if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                    $shippingCosts   = $line_item_totals[$item->get_id()];
-                    $shippingTaxInfo = $item->get_taxes();
-                    if (isset($line_item_tax_totals[$item->get_id()])) {
-                        foreach ($shippingTaxInfo['total'] as $shippingTaxClass => $shippingTaxClassValue) {
-                            $shippingTaxClassKey = $shippingTaxClass;
-                            $shippingCosts += $shippingTaxClassValue;
-                        }
-                    }
-                }
-            }
-        } else {
-            foreach ($shipping_item as $item) {
-                if (isset($line_item_totals[$item->get_id()]) && $line_item_totals[$item->get_id()] > 0) {
-                    $shippingCosts = $line_item_totals[$item->get_id()] + (isset($line_item_tax_totals[$item->get_id()]) ? current($line_item_tax_totals[$item->get_id()]) : 0);
-                }
-            }
-        }
-
-        if ($shippingCosts > 0) {
-            // Add virtual shipping cost product
-            $tmp["ArticleDescription"] = "Shipping";
-            $tmp["ArticleId"]          = BuckarooConfig::SHIPPING_SKU;
-            $tmp["ArticleQuantity"]    = 1;
-            $tmp["ArticleUnitprice"]   = $shippingCosts;
-
-            if ($afterpay_version == 'afterpay') {
-                $tmp["ArticleVatcategory"] = 1;
-            } elseif ($afterpay_version == 'afterpay-new' && $method == 'partial_refunds') {
-                $tmp["ArticleVatcategory"] = WC_Tax::_get_tax_rate($shippingTaxClassKey)['tax_rate'] ?? 0;
-            }
-
-            return ['costs' => $shippingCosts, 'shipping_virtual_product' => $tmp];
-        }
-        return ['costs' => 0];
-    }
-
-    /**
-     * Get product tax(VAT) rate
-     *
-     * @param WC_Product|WC_Order_Item_Product $product
-     *
-     * @return void
-     */
-    public function getProductTaxRate($product)
-    {
-        if ($product->get_tax_status() != 'taxable') {
-            return 0;
-        }
-
-        $tax      = new WC_Tax();
-        $taxes    = $tax->get_rates($product->get_tax_class());
-        if (!count($taxes)) {
-            return 0;
-        }
-        $taxRate    = array_shift($taxes);
-        if (!isset($taxRate['rate'])) {
-            return 0;
-        }
-
-        return number_format($taxRate['rate'], 2);
-    }
-
-    public function formatStreet($street)
-    {
-        $format = [
-            'house_number'    => '',
-            'number_addition' => '',
-            'name'            => $street,
-        ];
-
-        if (preg_match('#^(.*?)([0-9\-]+)(.*)#s', $street, $matches)) {
-            // Check if the number is at the beginning of streetname
-            if ('' == $matches[1]) {
-                $format['house_number'] = trim($matches[2]);
-                $format['name']         = trim($matches[3]);
-            } else {
-                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
-                    $format['name']            = trim($matches[1]);
-                    $format['house_number']    = trim($matches[2]);
-                    $format['number_addition'] = trim($matches[3]);
-                }
-            }
-        }
-
-        return $format;
-    }
+    //     return $data->address;
+    // }
 
 
 
@@ -1273,7 +780,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
     protected function can_show_financial_warining()
     {
-        $country = $this->getScalarCheckoutField('billing_country');
+        $country = $this->request_scalar('billing_country');
         return $this->get_option('financial_warning') !== 'disable' && $country === "NL";
     }
 }

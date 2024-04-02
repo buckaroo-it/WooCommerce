@@ -69,14 +69,7 @@ class WC_Gateway_Buckaroo_MasterSettings extends WC_Gateway_Buckaroo
             'type'        => 'text',
             'description' => __('Certificate thumbprint (Configuration -> Security -> Certificates -> See "Fingerprint" after a certificate has been generated).', 'wc-buckaroo-bpe-gateway'),
             'default'     => '');
-        $this->form_fields['upload'] = array(
-            'title'       => __('Upload certificate', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'button',
-            'description' => __('Click to select and upload your certificate. Note: Please save after uploading.', 'wc-buckaroo-bpe-gateway'),
-            'default'     => '');
-
-        $this->initCerificateFields();
-        
+      
         $this->form_fields['test_credentials'] = array(
             'title'       => __('Test credentials', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'button',

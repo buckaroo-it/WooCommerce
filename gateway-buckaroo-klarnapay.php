@@ -20,6 +20,6 @@ class WC_Gateway_Buckaroo_KlarnaPay extends WC_Gateway_Buckaroo_Klarna {
      */
     public function payment_fields()
     {
-        $this->renderTemplate();
+        $this->render_template();
     }
 }

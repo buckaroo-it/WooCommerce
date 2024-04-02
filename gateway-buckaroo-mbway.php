@@ -11,9 +11,9 @@ class WC_Gateway_Buckaroo_MBWay extends WC_Gateway_Buckaroo
         $this->title                  = 'MBWay';
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo MBWay";
-        $this->setIcon('svg/mbway.svg', 'svg/mbway.svg');
+        $this->set_icon('svg/mbway.svg', 'svg/mbway.svg');
 
         parent::__construct();
-        $this->addRefundSupport();
+        $this->add_refund_support();
     }
 }

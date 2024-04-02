@@ -17,8 +17,8 @@ defined('ABSPATH') || exit;
 $creditCardMethod = isset($this->creditcardmethod) ? $this->creditcardmethod : 'redirect';
 
 
-$customer_name = $this->getScalarCheckoutField('billing_first_name');
-$customer_name.= " ".$this->getScalarCheckoutField('billing_last_name');
+$customer_name = $this->request_scalar('billing_first_name');
+$customer_name.= " ".$this->request_scalar('billing_last_name');
 ?>
 
 

@@ -8,7 +8,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     public $type;
     public $b2b;
     public $vattype;
-    public $country;
     public $productQtyLoop = true;
     
     public function __construct()
@@ -17,11 +16,10 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $this->title                  = 'Riverty | AfterPay';
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Riverty | AfterPay';
-        $this->setIcon('afterpay.png', 'svg/afterpay.svg');
-        $this->setCountry();
+        $this->set_icon('afterpay.png', 'svg/afterpay.svg');
 
         parent::__construct();
-        $this->addRefundSupport();
+        $this->add_refund_support();
     }
     /**  @inheritDoc */
     protected function setProperties()
@@ -257,9 +255,9 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
             wc_add_notice(__("Please accept licence agreements", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
-        $birthdate = $this->parseDate($this->request('buckaroo-afterpay-birthdate'));
+        $birthdate = $this->parse_date($this->request('buckaroo-afterpay-birthdate'));
         $b2b       = $this->request("buckaroo-afterpay-b2b");
-        if (!$this->validateDate($birthdate, 'd-m-Y') && $b2b != 'ON') {
+        if (!$this->validate_date($birthdate, 'd-m-Y') && $b2b != 'ON') {
             wc_add_notice(__("You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
@@ -328,17 +326,6 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
 
         }
         return $method;
-    }
-
-    /**
-     * Check response data
-     *
-     * @access public
-     */
-    public function response_handler()
-    {
-        fn_buckaroo_process_response($this);
-        exit;
     }
 
     /**

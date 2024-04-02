@@ -17,10 +17,22 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         $this->title                  = 'PayPal';
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo PayPal";
-        $this->setIcon('24x24/paypal.gif', 'svg/paypal.svg');
+        $this->set_icon('24x24/paypal.gif', 'svg/paypal.svg');
 
         parent::__construct();
-        $this->addRefundSupport();
+        $this->add_refund_support();
+    }
+
+     /**
+     * Process payment
+     *
+     * @param integer $order_id
+     * @return callable fn_buckaroo_process_response()
+     */
+    public function process_payment($order_id)
+    {
+        $this->set_order_contribution(new WC_Order($order_id));
+        return parent::process_payment($order_id);
     }
     /**
      * Init class fields from settings

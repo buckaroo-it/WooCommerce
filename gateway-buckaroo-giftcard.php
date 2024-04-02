@@ -13,7 +13,7 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo
         $this->title                  = 'Giftcards';
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Giftcards";
-        $this->setIcon('24x24/giftcard.gif', 'svg/giftcards.svg');
+        $this->set_icon('24x24/giftcard.gif', 'svg/giftcards.svg');
 
         parent::__construct();
         //disabled refunds by request see BP-1337

@@ -11,9 +11,9 @@ class WC_Gateway_Buckaroo_Multibanco extends WC_Gateway_Buckaroo
         $this->title                  = 'Multibanco';
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Multibanco";
-        $this->setIcon('svg/multibanco.svg', 'svg/multibanco.svg');
+        $this->set_icon('svg/multibanco.svg', 'svg/multibanco.svg');
 
         parent::__construct();
-        $this->addRefundSupport();
+        $this->add_refund_support();
     }
 }

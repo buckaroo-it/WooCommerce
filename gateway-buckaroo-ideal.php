@@ -14,10 +14,10 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo
         $this->title = 'iDEAL';
         $this->has_fields   = true;
         $this->method_title = "Buckaroo iDEAL";
-        $this->setIcon('24x24/ideal.png', 'svg/ideal.svg');
+        $this->set_icon('24x24/ideal.png', 'svg/ideal.svg');
 
         parent::__construct();
-        $this->addRefundSupport();
+        $this->add_refund_support();
         apply_filters('buckaroo_init_payment_class', $this);
     }
 

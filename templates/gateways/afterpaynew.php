@@ -15,10 +15,9 @@
 defined('ABSPATH') || exit;
 
 //set customer phone
-$customer_phone = $this->getScalarCheckoutField('billing_phone');
+$customer_phone = $this->request_scalar('billing_phone');
 
-$country = $this->getScalarCheckoutField('billing_country');
-$country = !empty($country) ? $country : $this->country;
+$country = $this->request_scalar('billing_country');
 
 ?>
 
@@ -78,7 +77,7 @@ $country = !empty($country) ? $country : $this->country;
     </p>
     <?php }?>
 
-    <?php if (!empty($this->getScalarCheckoutField('ship_to_different_address'))) {?>
+    <?php if (!empty($this->request_scalar('ship_to_different_address'))) {?>
     <input
     id="buckaroo-afterpaynew-shipping-differ"
     name="buckaroo-afterpaynew-shipping-differ"

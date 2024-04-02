@@ -14,10 +14,10 @@ class WC_Gateway_Buckaroo_PayByBank extends WC_Gateway_Buckaroo
         $this->title = 'PayByBank';
         $this->has_fields   = true;
         $this->method_title = "Buckaroo PayByBank";
-        $this->setIcon('24x24/paybybank.gif', 'svg/paybybank.gif');
+        $this->set_icon('24x24/paybybank.gif', 'svg/paybybank.gif');
 
         parent::__construct();
-        $this->addRefundSupport();
+        $this->add_refund_support();
         apply_filters('buckaroo_init_payment_class', $this);
     }
   

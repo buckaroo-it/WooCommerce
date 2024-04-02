@@ -16,7 +16,6 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
 
     public $type;
     public $vattype;
-    public $country;
     public function __construct()
     {
         $this->id                     = 'buckaroo_in3';
@@ -25,12 +24,10 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
 
         $this->title = $this->getTitleForVersion();
 
-        $this->setCountry();
-
         parent::__construct();
 
         $this->set_icons();
-        $this->addRefundSupport();
+        $this->add_refund_support();
     }
 
     private function getTitleForVersion() {
@@ -55,11 +52,8 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         $birthdate = $this->request('buckaroo-in3-birthdate');
 
         $country = $this->request('billing_country');
-        if ($country === null) {
-            $country = $this->country;
-        }
 
-        if ($country === 'NL' && !$this->validateDate($birthdate, 'd-m-Y')) {
+        if ($country === 'NL' && !$this->validate_date($birthdate, 'd-m-Y')) {
             wc_add_notice(__("You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.", 'wc-buckaroo-bpe-gateway'), 'error');
         }
         
@@ -92,10 +86,10 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             $this->get_option('api_version') === 'v2' ||
             $icon === self::DEFAULT_ICON_VALUE
         ) {
-            $this->setIcon('svg/in3.svg', 'svg/in3.svg');
+            $this->set_icon('svg/in3.svg', 'svg/in3.svg');
             return;
         }
-        $this->setIcon($icon, $icon);
+        $this->set_icon($icon, $icon);
     }
 
    
@@ -186,38 +180,5 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         <?php
 
         return ob_get_clean();
-    }
-
-    /**
-     * Select the correct class in order to do the request
-     *
-     * @param WC_Order $order
-     * @param boolean $isRefund
-     *
-     * @return void
-     */
-    protected function get_payment_class($order, $isRefund = false)
-    {
-        if ($isRefund) {
-            $orderIn3Version = get_post_meta(
-                $order->get_id(),
-                self::VERSION_FLAG,
-                true
-            );
-
-            
-            if ($orderIn3Version === self::VERSION3) {
-                return BuckarooIn3::class;
-            }
-            return BuckarooIn3v2::class;
-        }
-
-        if (
-            $this->get_option('api_version') === self::VERSION2
-        ) {
-            return BuckarooIn3v2::class;
-        }
-
-        return BuckarooIn3::class;
     }
 }

@@ -14,8 +14,8 @@
 
 defined('ABSPATH') || exit;
 
-$customerPhone = $this->getScalarCheckoutField('billing_phone');
-$country = $this->getScalarCheckoutField('billing_country');
+$customerPhone = $this->request_scalar('billing_phone');
+$country = $this->request_scalar('billing_country');
 
 if (strtoupper($country) == 'NL' && strtolower($this->klarnaPaymentFlowId) !== 'pay') :
     ?>
@@ -47,7 +47,7 @@ endif;?>
         value="<?php echo esc_html($customerPhone) ?? '' ?>">
     </p>
 
-    <?php if (!empty($this->getScalarCheckoutField('ship_to_different_address'))) {?>
+    <?php if (!empty($this->request_scalar('ship_to_different_address'))) {?>
     <input
     id="<?php echo esc_attr($this->getKlarnaSelector()) ?>-shipping-differ"
     name="<?php echo esc_attr($this->getKlarnaSelector()) ?>-shipping-differ"

@@ -31,8 +31,7 @@ $tosLinks = [
     "FI"=>"https://documents.myafterpay.com/consumer-terms-conditions/fi_fi/",
     "AT"=>"https://documents.myafterpay.com/consumer-terms-conditions/de_at/"
 ];
-$country = $this->getScalarCheckoutField('billing_country');
-$country = !empty($country) ? $country : $this->country;
+$country = $this->request_scalar('billing_country');
     
 //set default to NL
 if (!isset($tosLinks[$country])) { 

@@ -8,7 +8,6 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
     public $type;
     public $b2b;
     public $vattype;
-    public $country;
 
     public function __construct()
     {
@@ -17,11 +16,10 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $this->title                  = 'Billink - postpay';
         $this->has_fields             = true;
         $this->method_title           = 'Buckaroo Billink';
-        $this->setIcon('24x24/billink.png', 'svg/billink.svg');
-        $this->setCountry();
+        $this->set_icon('24x24/billink.png', 'svg/billink.svg');
 
         parent::__construct();
-        $this->addRefundSupport();
+        $this->add_refund_support();
     }
     /**  @inheritDoc */
     protected function setProperties()
@@ -41,7 +39,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
                 wc_add_notice(__("Please enter correct COC (KvK) number", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         } else {
-            if (!$this->validateDate($this->request('buckaroo-billink-birthdate'), 'd-m-Y')
+            if (!$this->validate_date($this->request('buckaroo-billink-birthdate'), 'd-m-Y')
              ) {
                 wc_add_notice(__("Please enter correct birth date", 'wc-buckaroo-bpe-gateway'), 'error');
             }
@@ -63,7 +61,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
      * @return Object Datetime
      * @return Boolean Format correct returns True, else returns false
      */
-    public function validateDate($date, $format = 'Y-m-d H:i:s')
+    public function validate_date($date, $format = 'Y-m-d H:i:s')
     {
         $d = DateTime::createFromFormat($format, $date);
         return $d && ($d->format($format) == $date);

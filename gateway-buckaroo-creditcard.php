@@ -20,7 +20,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 
         parent::__construct();
 
-        $this->addRefundSupport();
+        $this->add_refund_support();
     }
 
     /** @inheritDoc */
@@ -47,7 +47,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
      */
     public function setCreditcardIcon()
     {
-        $this->setIcon('24x24/cc.gif', 'svg/creditcards.svg');
+        $this->set_icon('24x24/cc.gif', 'svg/creditcards.svg');
     }
     /**  @inheritDoc */
     protected function setProperties()
@@ -56,165 +56,6 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
         $this->creditCardProvider     = $this->get_option('AllowedProvider', []);
         $this->creditcardmethod       = $this->get_option('creditcardmethod', "redirect");
         $this->creditcardpayauthorize = $this->get_option('creditcardpayauthorize', "Pay");
-    }
-
-    /**
-     * Can the order be refunded
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_refund($order_id, $amount = null, $reason = '')
-    {
-
-        $action = ucfirst(isset($this->creditcardpayauthorize) ? $this->creditcardpayauthorize : 'pay');
-
-        if ($action == 'Authorize') {
-            $captures         = get_post_meta($order_id, 'buckaroo_capture', false);
-            $previous_refunds = get_post_meta($order_id, 'buckaroo_refund', false);
-
-            if ($captures == false || count($captures) < 1) {
-                return new WP_Error('error_refund_trid', __("Order is not captured yet, you can only refund captured orders"));
-            }
-
-            // Merge captures with previous refunds
-            foreach ($captures as &$captureJson) {
-                $capture = json_decode($captureJson, true);
-                foreach ($previous_refunds as &$refundJson) {
-                    $refund = json_decode($refundJson, true);
-                    if (isset($refund['OriginalCaptureTransactionKey']) && $capture['OriginalTransactionKey'] == $refund['OriginalCaptureTransactionKey']) {
-                        if ($capture['amount'] >= $refund['amount']) {
-                            $capture['amount'] -= $refund['amount'];
-                            $refund['amount'] = 0;
-                        } else {
-                            $refund['amount'] -= $capture['amount'];
-                            $capture['amount'] = 0;
-                        }
-                    }
-                    $refundJson = json_encode($refund);
-                }
-                $captureJson = json_encode($capture);
-            }
-
-            $captures = json_decode(json_encode($captures), true);
-
-            $refundQueue = array();
-
-            // Find free `slots` in captures
-            foreach ($captures as $captureJson) {
-                $capture = json_decode($captureJson, true);
-
-                if ($amount > 0) {
-                    if ($amount > $capture['amount']) {
-                        $refundQueue[$capture['OriginalTransactionKey']] = $capture['amount'];
-                        $amount -= $capture['amount'];
-                    } else {
-                        $refundQueue[$capture['OriginalTransactionKey']] = $amount;
-                        $amount                                          = 0;
-                    }
-                }
-            }
-
-            // Check if something cannot be refunded
-            $NotRefundable = false;
-
-            if ($amount > 0) {
-                $NotRefundable = true;
-            }
-
-            if ($NotRefundable) {
-                return new WP_Error('error_refund_trid', __("Refund amount cannot be bigger than the amount you have captured"));
-            }
-
-            $refund_result = array();
-            foreach ($refundQueue as $OriginalTransactionKey => $amount) {
-                if ($amount > 0) {
-                    $refund_result[] = $this->process_partial_refunds($order_id, $amount, $reason, $OriginalTransactionKey);
-                }
-            }
-
-            foreach ($refund_result as $result) {
-                if ($result !== true) {
-                    if (isset($result->errors['error_refund'][0])) {
-                        return new WP_Error('error_refund_trid', __($result->errors['error_refund'][0]));
-                    } else {
-                        return new WP_Error('error_refund_trid', __("Unexpected error occured while processing refund, please check your transactions in the Buckaroo plaza."));
-                    }
-                }
-            }
-
-            return true;
-
-        } else {
-            return $this->process_partial_refunds($order_id, $amount, $reason);
-        }
-    }
-
-    /**
-     * Can the order be refunded
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_partial_refunds($order_id, $amount = null, $reason = '', $OriginalTransactionKey = null,
-        $line_item_totals = null, $line_item_tax_totals = null, $line_item_qtys = null) {
-        $order = wc_get_order($order_id);
-        if (!$this->can_refund_order($order)) {
-            return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
-        }
-        update_post_meta($order_id, '_pushallowed', 'busy');
-        
-        /** @var BuckarooCreditCard */
-        $creditcard = $this->createCreditRequest($order, $amount, $reason);
-
-        if ($line_item_qtys === null) {
-            $line_item_qtys = buckaroo_request_sanitized_json('line_item_qtys');
-        }
-        
-        
-        if ($line_item_totals === null) {
-            $line_item_totals = buckaroo_request_sanitized_json('line_item_totals');
-        }
-        
-        if ($line_item_tax_totals === null) {
-            $line_item_tax_totals  = buckaroo_request_sanitized_json('line_item_tax_totals');
-        }
-
-
-        if ($OriginalTransactionKey !== null) {
-            $creditcard->OriginalTransactionKey = $OriginalTransactionKey;
-        }
-
-        $creditcard->setType(
-            get_post_meta(
-                 $order->get_id(),
-                '_payment_method_transaction',
-                true
-            )
-        );
-
-        try {
-            $creditcard->checkRefundData(
-                $creditcard->getOrderRefundData()
-            );
-            $response = $creditcard->Refund();
-        } catch (exception $e) {
-            update_post_meta($order_id, '_pushallowed', 'ok');
-            return new WP_Error('refund_error', __($e->getMessage()));
-        }
-
-        $final_response = fn_buckaroo_process_refund($response ?? null, $order, $amount, $this->currency);
-
-        if ($final_response === true) {
-            // Store the transaction_key together with refunded products, we need this for later refunding actions
-            $refund_data = json_encode(['OriginalTransactionKey' => $response->transactions, 'OriginalCaptureTransactionKey' => $creditcard->OriginalTransactionKey, 'amount' => $amount]);
-            add_post_meta($order_id, 'buckaroo_refund', $refund_data, false);
-        }
-
-        return $final_response;
-
     }
 
     /**
@@ -272,34 +113,7 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo
 
     public function process_capture()
     {
-        $order_id             = $this->request('order_id');
-        if ($order_id === null || !is_numeric($order_id)) {
-            return $this->create_capture_error(__('A valid order number is required'));
-        }
-
-        $capture_amount = $this->request('capture_amount');
-        if($capture_amount === null || !is_scalar($capture_amount)) {
-            return $this->create_capture_error(__('A valid capture amount is required'));
-        }
-
-       
-        
-        $order = getWCOrder($order_id);
-        /** @var BuckarooCreditCard */
-        $creditcard = $this->createDebitRequest($order);
-        $creditcard->amountDedit            = str_replace(',', '.', $capture_amount);
-        $creditcard->OriginalTransactionKey = $order->get_transaction_id();
-        $creditcard->channel                = BuckarooConfig::CHANNEL_BACKOFFICE;
-        
-        $customVars['CreditCardIssuer'] = get_post_meta($order->get_id(), '_wc_order_payment_issuer', true);
-        $response = $creditcard->Capture($customVars);
-
-        // Store the transaction_key together with captured amount, we need this for refunding
-        $capture_data = json_encode(array('OriginalTransactionKey' => $response->transactions, 'amount' => $creditcard->amountDedit));
-        add_post_meta($order_id, 'buckaroo_capture', $capture_data, false);
-
-        return fn_buckaroo_process_capture($response, $order, $this->currency);
-
+        //todo
     }
     public function getCardsList()
     {
