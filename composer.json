@@ -41,7 +41,7 @@
         "psr-4": {
             "WC_Buckaroo\\Dependencies\\": "dist/dependencies/"
         },
-        "classmap": ["dist/classes/dependencies"]
+        "classmap": ["dist/classes/dependencies/"]
     },
     "extra": {
         "mozart": {

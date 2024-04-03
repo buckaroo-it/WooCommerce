@@ -6,14 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
-    'CURLStringFile' => $vendorDir . '/symfony/polyfill-php81/Resources/stubs/CURLStringFile.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'PhpToken' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/PhpToken.php',
-    'ReturnTypeWillChange' => $vendorDir . '/symfony/polyfill-php81/Resources/stubs/ReturnTypeWillChange.php',
-    'Stringable' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
-    'UnhandledMatchError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
-    'ValueError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
     'WC_Buckaroo_Attribute' => $baseDir . '/dist/classes/dependencies/symfony/polyfill-php80/Resources/stubs/Attribute.php',
     'WC_Buckaroo_CURLStringFile' => $baseDir . '/dist/classes/dependencies/symfony/polyfill-php81/Resources/stubs/CURLStringFile.php',
     'WC_Buckaroo_Normalizer' => $baseDir . '/dist/classes/dependencies/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
