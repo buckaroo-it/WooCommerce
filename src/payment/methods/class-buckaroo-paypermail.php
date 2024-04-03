@@ -22,8 +22,8 @@ class Buckaroo_PayPerEmail extends Buckaroo_Default_Method
                 'gender' => $this->request_string('buckaroo-payperemail-gender'),
 
             ],
-            'expirationDate'        => $this->getExpirationDate(),
-            'paymentMethodsAllowed' => $this->gateway->get_option('paymentmethodppe', '')
+            'expirationDate'        => $this->get_expiration_date(),
+            'paymentMethodsAllowed' => $this->get_allowed_methods()
         ];
     }
 
@@ -33,7 +33,16 @@ class Buckaroo_PayPerEmail extends Buckaroo_Default_Method
         return 'paymentInvitation';
     }
 
-    private function getExpirationDate(): string
+    private function get_allowed_methods(): string
+    {
+        $methods = $this->gateway->get_option('paymentmethodppe');
+        if (is_array($methods)) {
+            return implode(",", $methods);
+        }
+        return '';
+    }
+
+    private function get_expiration_date(): string
     {
         $payperemailExpireDays = $this->gateway->get_option('expirationDate');
 
