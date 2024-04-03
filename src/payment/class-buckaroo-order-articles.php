@@ -80,10 +80,6 @@ class Buckaroo_Order_Articles
         if ($this->gateway->id === 'buckaroo_afterpay') {
             $product = array_merge($product, $this->get_afterpay_data($item));
         }
-
-        if ($this->gateway->get_option('vattype') !== null) {
-            $product['vatCategory'] = $this->gateway->get_option('vattype');
-        }
         return $product;
     }
 

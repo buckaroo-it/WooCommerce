@@ -71,4 +71,20 @@ class Buckaroo_In3_V2 extends Buckaroo_Default_Method
 
         return $data;
     }
+
+    /**
+     * Get order articles
+     *
+     * @return array
+     */
+    protected function get_articles(): array
+    {
+        return array_map(
+            function ($article) {
+                unset($article['vatPercentage']);
+                return $article;
+            },
+            $this->order_articles->get_products_for_payment()
+        );
+    }
 }

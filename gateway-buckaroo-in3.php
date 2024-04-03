@@ -21,7 +21,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo In3';
 
-        $this->title = $this->getTitleForVersion();
+        $this->title = $this->get_title_for_version();
 
         parent::__construct();
 
@@ -29,7 +29,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         $this->add_refund_support();
     }
 
-    private function getTitleForVersion()
+    private function get_title_for_version()
     {
         return $this->get_option('api_version') === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
     }
@@ -38,6 +38,19 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
     {
         parent::setProperties();
         $this->type       = 'in3';
+    }
+
+    /**
+     * Get payment code used for sdk
+     *
+     * @return string
+     */
+    public function get_sdk_code(): string
+    {
+        if ($this->get_option('api_version') === 'v2') {
+            return 'in3Old';
+        }
+        return parent::get_sdk_code();
     }
 
     /**
@@ -100,7 +113,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             wc_add_notice(
                 sprintf(
                     __("Please fill in a phone number for %s. This is required in order to use this payment method.", 'wc-buckaroo-bpe-gateway'),
-                    $this->getTitleForVersion()
+                    $this->get_title_for_version()
                 ),
                 'error'
             );

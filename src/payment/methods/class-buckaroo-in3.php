@@ -5,7 +5,6 @@ class Buckaroo_In3 extends Buckaroo_Default_Method
     /** @inheritDoc */
     protected function get_method_body(): array
     {
-
         return array_merge(
             $this->get_billing(),
             $this->get_shipping(),
@@ -72,17 +71,15 @@ class Buckaroo_In3 extends Buckaroo_Default_Method
         $country_code = $this->get_address($address_type, 'country');
 
         $data = [
-            'address' => [
-                'street'                => $streetParts->get_street(),
-                'houseNumber'           => $streetParts->get_house_number(),
-                'zipcode'               => $this->get_address($address_type, 'postcode'),
-                'city'                  => $this->get_address($address_type, 'city'),
-                'country'               => $country_code,
-            ]
+            'street'                => $streetParts->get_street(),
+            'houseNumber'           => $streetParts->get_house_number(),
+            'zipcode'               => $this->get_address($address_type, 'postcode'),
+            'city'                  => $this->get_address($address_type, 'city'),
+            'country'               => $country_code,
         ];
 
         if (strlen($streetParts->get_number_additional()) > 0) {
-            $data['address']['houseNumberAdditional'] = $streetParts->get_number_additional();
+            $data['houseNumberAdditional'] = $streetParts->get_number_additional();
         }
 
         return $data;
