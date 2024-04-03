@@ -55,7 +55,7 @@ class Buckaroo_Payment_Factory
         'paybybank' => Buckaroo_Paybybank::class,
         'paypal' => Buckaroo_Paypal::class,
         'payperemail' => Buckaroo_PayPerEmail::class,
-        'sepa' => Buckaroo_Sepa::class,
+        'sepadirectdebit' => Buckaroo_Sepa::class,
         'trustly' => Buckaroo_Trustly::class,
         'wechatpay' => Buckaroo_Wechatpay::class,
         'transfer' => Buckaroo_Transfer::class,
