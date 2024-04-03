@@ -4,9 +4,7 @@
     "type": "wordpress-plugin",
     "license": "CC-BY-NC-ND-3.0",
     "require": {
-        "buckaroo/sdk": "^1.11",
-        "guzzlehttp/guzzle": "^7.8",
-        "phpro/grumphp": "^1.13"
+        "buckaroo/sdk": "^1.11"
     },
     "require-dev": {
         "phpunit/phpunit" : "7.5.20",
@@ -17,7 +15,7 @@
         "phpcompatibility/phpcompatibility-wp": "*",
         "object-calisthenics/phpcs-calisthenics-rules": "^3.7",
         "yoast/phpunit-polyfills": "^1.0",
-        "coenjacobs/mozart": "^0.7.1"
+        "phpro/grumphp": "^1.13"
     },
     "authors": [
         {
@@ -52,15 +50,5 @@
             "classmap_directory": "/dist/classes/dependencies/",
             "classmap_prefix": "WC_Buckaroo_"
         }
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "\"vendor/bin/mozart\" compose",
-            "composer dump-autoload"
-        ],
-        "post-update-cmd": [
-            "\"vendor/bin/mozart\" compose",
-            "composer dump-autoload"
-        ]
     }
 }

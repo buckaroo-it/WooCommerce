@@ -16,7 +16,7 @@ namespace WC_Buckaroo\Dependencies\Ramsey\Uuid\Type;
 
 use WC_Buckaroo\Dependencies\Ramsey\Uuid\Exception\UnsupportedOperationException;
 use WC_Buckaroo\Dependencies\Ramsey\Uuid\Type\Integer as IntegerObject;
-use WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_ValueError;
+use WC_Buckaroo_ValueError;
 use stdClass;
 
 use function json_decode;
@@ -130,7 +130,7 @@ final class Time implements TypeInterface
     {
         // @codeCoverageIgnoreStart
         if (!isset($data['seconds']) || !isset($data['microseconds'])) {
-            throw new WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_ValueError(sprintf('%s(): Argument #1 ($data) is invalid', __METHOD__));
+            throw new WC_Buckaroo_ValueError(sprintf('%s(): Argument #1 ($data) is invalid', __METHOD__));
         }
         // @codeCoverageIgnoreEnd
 

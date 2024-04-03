@@ -10,7 +10,7 @@
  */
 
 if (\PHP_VERSION_ID < 80000) {
-    class WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_UnhandledMatchError extends Error
+    class WC_Buckaroo_UnhandledMatchError extends Error
     {
     }
 }

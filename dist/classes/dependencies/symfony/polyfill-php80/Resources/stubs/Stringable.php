@@ -10,7 +10,7 @@
  */
 
 if (\PHP_VERSION_ID < 80000) {
-    interface WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_Stringable
+    interface WC_Buckaroo_Stringable
     {
         /**
          * @return string

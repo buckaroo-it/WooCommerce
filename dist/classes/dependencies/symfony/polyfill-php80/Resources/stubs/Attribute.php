@@ -9,8 +9,8 @@
  * file that was distributed with this source code.
  */
 
-#[WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_Attribute(Attribute::TARGET_CLASS)]
-final class WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_Attribute
+#[WC_Buckaroo_Attribute(Attribute::TARGET_CLASS)]
+final class WC_Buckaroo_Attribute
 {
     public const TARGET_CLASS = 1;
     public const TARGET_FUNCTION = 2;

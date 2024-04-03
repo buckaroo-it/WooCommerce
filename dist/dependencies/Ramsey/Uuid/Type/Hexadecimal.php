@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace WC_Buckaroo\Dependencies\Ramsey\Uuid\Type;
 
 use WC_Buckaroo\Dependencies\Ramsey\Uuid\Exception\InvalidArgumentException;
-use WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_ValueError;
+use WC_Buckaroo_ValueError;
 
 use function ctype_xdigit;
 use function sprintf;
@@ -107,7 +107,7 @@ final class Hexadecimal implements TypeInterface
     {
         // @codeCoverageIgnoreStart
         if (!isset($data['string'])) {
-            throw new WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_ValueError(sprintf('%s(): Argument #1 ($data) is invalid', __METHOD__));
+            throw new WC_Buckaroo_ValueError(sprintf('%s(): Argument #1 ($data) is invalid', __METHOD__));
         }
         // @codeCoverageIgnoreEnd
 

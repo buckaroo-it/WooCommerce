@@ -10,7 +10,7 @@
  */
 
 if (\PHP_VERSION_ID < 80000 && extension_loaded('tokenizer')) {
-    class WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_PhpToken extends Symfony\Polyfill\Php80\WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_WC_Buckaroo_PhpToken
+    class WC_Buckaroo_PhpToken extends Symfony\Polyfill\Php80\WC_Buckaroo_PhpToken
     {
     }
 }
