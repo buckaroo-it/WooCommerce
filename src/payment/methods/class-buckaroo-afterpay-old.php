@@ -1,6 +1,6 @@
 <?php
 
-class Buckaroo_Afterpay extends Buckaroo_Default_Method
+class Buckaroo_Afterpay_Old extends Buckaroo_Default_Method
 {
 
     public const CUSTOMER_TYPE_B2C = 'b2c';
@@ -11,9 +11,12 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
     protected function get_method_body(): array
     {
         return array_merge_recursive(
+            [
+                'customerIPAddress' => $this->get_ip()
+            ],
             $this->get_billing_data(),
             $this->getShippingData(),
-            ['articles' =>$this->get_articles()]
+            ['articles' => $this->get_articles()]
         );
     }
 
@@ -41,10 +44,12 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
         $data = [
             'billing' => [
                 'recipient' => [
-                    'category'              => $this->get_category('billing'),
-                    'careOf'                => $this->get_care_of('billing'),
                     'firstName'             => $this->get_address('billing', 'first_name'),
-                    'lastName'              => $this->get_address('billing', 'last_name')
+                    'lastName'              => $this->get_address('billing', 'last_name'),
+                    'initials'              => $this->order_details->get_initials(
+                        $this->order_details->get_full_name('shipping')
+                    ),
+                    'culture'               => $country_code
                 ],
                 'address' => [
                     'street'                => $streetParts->get_street(),
@@ -62,7 +67,6 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
         ];
         return array_merge_recursive(
             $data,
-            $this->get_company(),
             $this->get_birth_date($country_code)
         );
     }
@@ -78,10 +82,11 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
         $data = [
             'shipping' => [
                 'recipient' => [
-                    'category'              => $this->get_category('shipping'),
-                    'careOf'                => $this->get_care_of('shipping'),
                     'firstName'             => $this->get_address('shipping', 'first_name'),
-                    'lastName'              => $this->get_address('shipping', 'last_name')
+                    'lastName'              => $this->get_address('shipping', 'last_name'),
+                    'initials'              => $this->order_details->get_initials(
+                        $this->order_details->get_full_name('shipping')
+                    )
                 ],
                 'address' => [
                     'street'                => $streetParts->get_street(),
@@ -95,36 +100,10 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
         ];
         return array_merge_recursive(
             $data,
-            $this->get_company('shipping'),
             $this->get_birth_date($country_code, 'shipping')
         );
     }
 
-    /**
-     * @param string $address_type
-     *
-     * @return array<mixed>
-     */
-    protected function get_company(
-        string $address_type = 'billing'
-    ): array {
-        $company = $this->get_address($address_type, "company");
-        if (
-            $this->is_b2b() &&
-            $this->get_address($address_type, "country") === 'NL' &&
-            !$this->is_company_empty($company)
-        ) {
-            return [
-                $address_type => [
-                    'recipient'        => [
-                        'companyName'   => $company,
-                        'chamberOfCommerce' => $this->request('buckaroo-afterpaynew-company-coc-registration'),
-                    ]
-                ]
-            ];
-        }
-        return [];
-    }
 
     /**
      * @param string $country_code
@@ -154,41 +133,6 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
     }
 
     /**
-     * Get  careOf
-     *
-     * @param string $address_type
-     *
-     * @return string
-     */
-    private function get_care_of(string $address_type = 'billing'): string
-    {
-        $company = $this->get_address($address_type, "company");
-        if (!$this->is_company_empty()) {
-            return $company;
-        }
-
-        return $this->order_details->get_full_name($address_type);
-    }
-
-    /**
-     * Get type of request b2b or b2c
-     *
-     * @param string $address_type
-     * @return string
-     */
-    private function get_category(string $address_type = 'billing'): string
-    {
-        if (
-            $this->is_b2b() &&
-            $this->get_address($address_type, "country") === 'NL' &&
-            !$this->is_company_empty($this->get_address($address_type, "company"))
-        ) {
-            return 'Company';
-        }
-        return 'Person';
-    }
-
-    /**
      * Get birth date
      *
      * @return null|string
@@ -208,11 +152,6 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
         return @date("d-m-Y", $date);
     }
 
-    public function is_b2b(): bool
-    {
-        return $this->gateway->get_option('customer_type') !== self::CUSTOMER_TYPE_B2C;
-    }
-
     /**
      * Check if company is empty
      *
@@ -223,5 +162,15 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
     public function is_company_empty(string $company = null): bool
     {
         return null === $company || strlen(trim($company)) === 0;
+    }
+
+    /**
+     * Get order articles
+     *
+     * @return array
+     */
+    protected function get_articles(): array
+    {
+        return $this->order_articles->get_products_for_payment();
     }
 }

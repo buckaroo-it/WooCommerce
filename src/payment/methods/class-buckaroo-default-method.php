@@ -144,7 +144,7 @@ class Buckaroo_Default_Method implements Buckaroo_Sdk_Payload_Interface
      *
      * @return string
      */
-    private function get_ip(): string
+    protected function get_ip(): string
     {
         $ipaddress = '';
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {

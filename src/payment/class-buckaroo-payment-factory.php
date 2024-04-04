@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . "/class-buckaroo-order-details.php";
 require_once dirname(__FILE__) . "/methods/class-buckaroo-default-method.php";
 
 require_once dirname(__FILE__) . "/methods/class-buckaroo-afterpay.php";
+require_once dirname(__FILE__) . "/methods/class-buckaroo-afterpay-old.php";
 require_once dirname(__FILE__) . "/methods/class-buckaroo-alipay.php";
 require_once dirname(__FILE__) . "/methods/class-buckaroo-applepay.php";
 require_once dirname(__FILE__) . "/methods/class-buckaroo-billink.php";
@@ -42,6 +43,7 @@ class Buckaroo_Payment_Factory
 {
     private static array $classes = array(
         'afterpay' => Buckaroo_Afterpay::class,
+        'afterpaydigiaccept' => Buckaroo_Afterpay_Old::class,
         'alipay' => Buckaroo_Alipay::class,
         'applepay' => Buckaroo_Applepay::class,
         'billink' => Buckaroo_Billink::class,

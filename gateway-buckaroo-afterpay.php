@@ -30,6 +30,12 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
         $this->b2b        = $this->get_option('enable_bb');
         $this->vattype    = $this->get_option('vattype');
     }
+
+    public function get_sdk_code(): string
+    {
+        return 'afterpaydigiaccept';
+    }
+    
     // /**
     //  * Can the order be refunded
     //  * @param integer $order_id

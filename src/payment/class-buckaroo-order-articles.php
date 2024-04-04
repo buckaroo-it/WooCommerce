@@ -52,7 +52,7 @@ class Buckaroo_Order_Articles
             )
         );
 
-        $productDiff = $this->get_product_with_differences($products, $this->order_details->get_total());
+        $productDiff = $this->get_product_with_differences($products, $this->order_details->get_total('edit'));
 
         if (is_array($productDiff)) {
             $products[] = $productDiff;
@@ -77,9 +77,19 @@ class Buckaroo_Order_Articles
             'vatPercentage' => $item->get_vat()
         ];
 
-        if ($this->gateway->id === 'buckaroo_afterpay') {
+        if ($this->gateway->id === 'buckaroo_afterpaynew') {
             $product = array_merge($product, $this->get_afterpay_data($item));
         }
+
+        if ($this->gateway->id === 'buckaroo_afterpay') {
+            $vat_category = $this->gateway->get_option('vattype');
+            if (!is_scalar($vat_category) || $item->get_type() !== 'line_item') {
+                $vat_category = 4;
+            }
+            unset($product['vatPercentage']);
+            $product['vatCategory'] = intval($vat_category);
+        }
+
         return $product;
     }
 
@@ -115,7 +125,7 @@ class Buckaroo_Order_Articles
     {
         $product_amount = $this->sum_products_amount($products);
 
-        $diffAmount = round(round($total_order_amount, 2) - $product_amount, 2);
+        $diffAmount = round((float)number_format($total_order_amount, 2) - $product_amount, 2);
 
         if (abs($diffAmount) >= 0.01) {
             $product = [
@@ -125,6 +135,11 @@ class Buckaroo_Order_Articles
                 'quantity' => 1,
                 'vatPercentage' => 0
             ];
+
+            if ($this->gateway->id === 'buckaroo_afterpay') {
+                unset($product['vatPercentage']);
+                $product['vatCategory'] = 4;
+            }
 
             return $product;
         }
