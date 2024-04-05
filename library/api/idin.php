@@ -70,7 +70,8 @@ class BuckarooIdin
     {
         if (!BuckarooConfig::isIdin(BuckarooIdin::getCartProductIds())) return true;
 
-        if ($currentIserId = get_current_user_id()) {
+        $currentIserId = get_current_user_id();
+        if ($currentIserId !== 0) {
             return get_user_meta($currentIserId, 'buckaroo_idin', true);
         } else {
             return WC()->session->get('buckaroo_idin');
@@ -85,7 +86,7 @@ class BuckarooIdin
             add_user_meta($currentIserId, 'buckaroo_idin_bin', $bin, true);
         } else {
             WC()->session->set('buckaroo_idin', 1);
-            WC()->session->set('buckaroo_idin', $bin);
+            WC()->session->set('buckaroo_idin_bin', $bin);
         }
     }
 

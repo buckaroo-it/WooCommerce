@@ -113,8 +113,6 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
         if ($current_section === '') {
             $this->gateway->process_admin_options();
             $this->getErrors();
-            //update certificate list with new values
-            $this->gateway->initCerificateFields();
         }
     }
     /**
