@@ -307,54 +307,14 @@ function buckaroo_test_credentials()
         );
     }
 
-    $url = 'https://testcheckout.buckaroo.nl/json/Transaction/Specification/ideal?serviceVersion=2';
 
-    $timeStamp = time();
-    $nonce = bin2hex(random_bytes(8));
 
     $website_key = sanitize_text_field($_POST['website_key']);
     $secret_key = sanitize_text_field($_POST['secret_key']);
 
-    $body = implode(
-        "",
-        [
-            $website_key,
-            'GET',
-            strtolower(
-                rawurlencode(
-                    str_replace('https://', '', $url)
-                )
-            ),
-            $timeStamp,
-            $nonce,
-            ''
-        ]
-    );
-
-    $hmacAuthorization =  "Authorization: hmac " . implode(
-        ':',
-        [
-            $website_key,
-            base64_encode(
-                hash_hmac(
-                    'sha256',
-                    $body,
-                    $secret_key,
-                    true
-                )
-            ),
-            $nonce,
-            $timeStamp,
-        ]
-    );
-
-    $response = wp_remote_get(
-        $url,
-        array(
-            "headers" =>   $hmacAuthorization
-        )
-    );
-    if ($response['response']['code'] === 200) {
+    $client = new Buckaroo_Test_Credentials_Processor($website_key, $secret_key);
+   
+    if ($client->validate_credentials()) {
         wp_die(
             esc_html__('Credentials are OK',  'wc-buckaroo-bpe-gateway')
         );

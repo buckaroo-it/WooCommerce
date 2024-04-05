@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname(__FILE__) . "/return/class-buckaroo-return-processor.php";
+require_once dirname(__FILE__) . "/sdk/class-buckaroo-test-credentials-processor.php";
 require_once dirname(__FILE__) . "/finish/class-buckaroo-finish-processor.php";
 require_once dirname(__FILE__) . "/finish/class-buckaroo-finish-page.php";
 require_once dirname(__FILE__) . "/finish/class-buckaroo-finish-payload.php";
