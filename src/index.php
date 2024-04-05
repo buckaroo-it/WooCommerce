@@ -15,3 +15,5 @@ require_once dirname(__FILE__) . "/sdk/class-buckaroo-client-processor.php";
 
 require_once dirname(__FILE__) . "/idin/class-buckaroo-idin-processor.php";
 require_once dirname(__FILE__) . "/idin/class-buckaroo-idin-payload.php";
+
+require_once dirname(__FILE__) . "/capture/index.php";

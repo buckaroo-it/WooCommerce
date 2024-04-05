@@ -31,7 +31,7 @@ class Buckaroo_Afterpay_Old extends Buckaroo_Default_Method
 
     private function is_authorization(): bool
     {
-        return $this->gateway->get_option('afterpaynewpayauthorize', 'pay') === 'authorize';
+        return $this->gateway->get_option('afterpaypayauthorize', 'pay') === 'authorize';
     }
 
     /**

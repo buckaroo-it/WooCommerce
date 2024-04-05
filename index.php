@@ -579,7 +579,9 @@ function orderCapture()
         );
     }
 
-    $paymentMethod = get_post_meta( (int)sanitize_text_field($_POST['order_id']), '_wc_order_selected_payment_method', true);
+    $order_id = (int)sanitize_text_field($_POST['order_id']);
+
+    $paymentMethod = get_post_meta( $order_id, '_wc_order_selected_payment_method', true);
 
     switch ($paymentMethod) {
         case "Afterpay":
@@ -599,11 +601,17 @@ function orderCapture()
             $gateway = new WC_Gateway_Buckaroo_KlarnaKp();
             break;                               
     }
-   
     if (isset($gateway)) {
+        $total_amount = isset( $_POST['capture_amount'] ) ? wc_format_decimal( sanitize_text_field( wp_unslash( $_POST['capture_amount'] ) ), wc_get_price_decimals() ) : 0;
+        
+        $capture = Buckaroo_Capture_Factory::get_payment($gateway, $order_id, $total_amount);
+        $request = new Buckaroo_Client_Processor($capture);
+        $processor = new Buckaroo_Capture_Processor(new Buckaroo_Http_Request());
+        
+
         
         wp_send_json(
-            $gateway->process_capture()
+            $processor->process($request->process())
         );
     }
     exit;

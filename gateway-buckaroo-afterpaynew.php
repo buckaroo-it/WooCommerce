@@ -44,86 +44,19 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $this->customer_type = $this->get_option('customer_type', self::CUSTOMER_TYPE_BOTH);
     }
 
-    public function process_capture()
+   /**
+     * Process payment
+     *
+     * @param integer $order_id
+     * @return callable fn_buckaroo_process_response()
+     */
+    public function process_payment($order_id)
     {
-        // $order_id = $this->request('order_id');
-        
-        // if ($order_id === null || !is_numeric($order_id)) {
-        //     return $this->create_capture_error(__('A valid order number is required'));
-        // }
-
-        // $capture_amount = $this->request('capture_amount');
-        // if($capture_amount === null || !is_scalar($capture_amount)) {
-        //     return $this->create_capture_error(__('A valid capture amount is required'));
-        // }
-
-        // $previous_captures = get_post_meta($order_id, '_wc_order_captures') ? get_post_meta($order_id, '_wc_order_captures') : false;
-
-        // $woocommerce          = getWooCommerceObject();
-
-        // $order = getWCOrder($order_id);
-        // /** @var BuckarooAfterPayNew */
-        // // $afterpay = $this->createDebitRequest($order);
-        // $afterpay->amountDedit            = str_replace(',', '.', $capture_amount);
-        // $afterpay->OriginalTransactionKey = $order->get_transaction_id();
-        // $afterpay->invoiceId              = (string) getUniqInvoiceId($woocommerce->order ? $woocommerce->order->get_order_number() : $order_id) . (is_array($previous_captures) ? '-' . count($previous_captures) : "");
-
-        // // add items to capture call for afterpay
-        // $customVars['payment_issuer'] = get_post_meta($order_id, '_wc_order_payment_issuer', true);
-
-        // $products         = array();
-        // $items            = $order->get_items();
-        // $itemsTotalAmount = 0;
-
-        // $line_item_qtys         = buckaroo_request_sanitized_json('line_item_qtys');
-		// $line_item_totals       = buckaroo_request_sanitized_json('line_item_totals');
-		// $line_item_tax_totals   = buckaroo_request_sanitized_json('line_item_tax_totals');
-
-        // foreach ($items as $item) {
-        //     if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
-        //         $product = new WC_Product($item['product_id']);
-
-        //         $tax                       = new WC_Tax();
-        //         $taxes                     = $tax->get_rates($product->get_tax_class());
-        //         $rates                     = array_shift($taxes);
-        //         $itemRate                  = number_format(array_shift($rates), 2);
-        //         $tmp["ArticleDescription"] = $item['name'];
-        //         $tmp["ArticleId"]          = $item['product_id'];
-        //         $tmp["ArticleQuantity"]    = $line_item_qtys[$item->get_id()];
-        //         $tmp["ArticleUnitprice"]   = (float) number_format(number_format($item["line_total"] + $item["line_tax"], 4, '.', '') / $item["qty"], 2, '.', '');
-        //         $itemsTotalAmount += $tmp["ArticleUnitprice"] * $item["qty"];
-        //         $tmp["ArticleVatcategory"] = $itemRate;
-        //         $products[]                = $tmp;
-        //     }
-        // }
-
-        // if (!$previous_captures) {
-        //     $fees = $order->get_fees();
-        //     foreach ($fees as $key => $item) {
-        //         $feeTaxRate = $this->getProductTaxRate($item);
-        //         $tmp["ArticleDescription"] = $item['name'];
-        //         $tmp["ArticleId"] = $key;
-        //         $tmp["ArticleQuantity"] = 1;
-        //         $tmp["ArticleUnitprice"] = number_format(($item["line_total"] + $item["line_tax"]), 2, '.', '');
-        //         $itemsTotalAmount += $tmp["ArticleUnitprice"];
-        //         $tmp["ArticleVatcategory"] = $feeTaxRate;
-        //         $products[] = $tmp;
-        //     }
-        // }
-
-        // // Add shippingCosts
-        // $shippingInfo = $this->getAfterPayShippingInfo('afterpay', 'capture', $order, $line_item_totals, $line_item_tax_totals);
-        // if ($shippingInfo['costs'] > 0) {
-        //     $products[] = $shippingInfo['shipping_virtual_product'];
-        // }
-
-        // // end add items
-
-        // $response         = $afterpay->Capture($customVars, $products);
-        // $process_response = fn_buckaroo_process_capture($response, $order, $this->currency, $products);
-
-        // return $process_response;
-
+        if ($this->afterpaynewpayauthorize == 'authorize') {
+            update_post_meta($order_id, '_wc_order_authorized', 'yes');
+            $this->set_order_capture($order_id, "AfterpayNew");
+        }
+        return parent::process_payment($order_id);
     }
 
     /**

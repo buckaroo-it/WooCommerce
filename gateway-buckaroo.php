@@ -77,6 +77,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     {
         try {
             $payment = Buckaroo_Payment_Factory::get_payment($this, (int)$order_id);
+
             $payment = new Buckaroo_Client_Processor($payment);
             $return = new Buckaroo_Return_Processor($this, (int)$order_id);
             return $return->process($payment->process());
@@ -601,112 +602,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         update_post_meta($order_id, '_wc_order_selected_payment_method', $paymentName);
         update_post_meta($order_id, '_wc_order_payment_issuer', $paymentType);
     }
-
-
-    // protected function handleThirdPartyShippings($method, $order, $country)
-    // {
-    //     $shippingMethod = $this->request('shipping_method');
-
-    //     if (is_array($shippingMethod) && $shippingMethod[0] == 'dhlpwc-parcelshop') {
-    //         $dhlConnectorData                    = $order->get_meta('_dhlpwc_order_connectors_data');
-    //         $dhlCountry                          = !empty($country) ? $country : $this->request('billing_country');
-    //         $requestPart                         = $dhlCountry . '/' . $dhlConnectorData['id'];
-    //         $dhlParcelShopAddressData            = $this->getDHLParcelShopLocation($requestPart);
-    //         $method->AddressesDiffer           = 'TRUE';
-    //         $method->ShippingStreet            = $dhlParcelShopAddressData->street;
-    //         $method->ShippingHouseNumber       = $dhlParcelShopAddressData->number;
-    //         $method->ShippingPostalCode        = $dhlParcelShopAddressData->postalCode;
-    //         $method->ShippingHouseNumberSuffix = '';
-    //         $method->ShippingCity              = $dhlParcelShopAddressData->city;
-    //         $method->ShippingCountryCode       = $dhlParcelShopAddressData->countryCode;
-    //     }
-
-    //     if ($this->request('post-deliver-or-pickup') == 'post-pickup') {
-    //         $postNL                              = $order->get_meta('_postnl_delivery_options');
-    //         $method->AddressesDiffer           = 'TRUE';
-    //         $method->ShippingStreet            = $postNL['street'];
-    //         $method->ShippingHouseNumber       = $postNL['number'];
-    //         $method->ShippingPostalCode        = $postNL['postal_code'];
-    //         $method->ShippingHouseNumberSuffix = trim(str_replace('-', ' ', $postNL['number_suffix']));
-    //         $method->ShippingCity              = $postNL['city'];
-    //         $method->ShippingCountryCode       = $postNL['cc'];
-    //     }
-
-    //     if ($this->request('sendcloudshipping_service_point_selected') !== null) {
-    //         $method->AddressesDiffer = 'TRUE';
-    //         $sendcloudPointAddress     = $order->get_meta('sendcloudshipping_service_point_meta');
-    //         $addressData               = $this->parseSendCloudPointAddress($sendcloudPointAddress['extra']);
-
-    //         $method->ShippingStreet            = $addressData['street']['name'];
-    //         $method->ShippingHouseNumber       = $addressData['street']['house_number'];
-    //         $method->ShippingPostalCode        = $addressData['postal_code'];
-    //         $method->ShippingHouseNumberSuffix = $addressData['street']['number_addition'];
-    //         $method->ShippingCity              = $addressData['city'];
-    //         $method->ShippingCountryCode       = $method->BillingCountry;
-    //     }
-
-    //     if ($this->request('_myparcel_delivery_options') !== null) {
-    //         $myparselDeliveryOptions = $order->get_meta('_myparcel_delivery_options');
-    //         if (!empty($myparselDeliveryOptions)) {
-    //             if ($myparselDeliveryOptions = unserialize($myparselDeliveryOptions)) {
-    //                 if ($myparselDeliveryOptions->isPickup()) {
-    //                     $method->AddressesDiffer = 'TRUE';
-    //                     $pickupOptions = $myparselDeliveryOptions->getPickupLocation();
-    //                     $method->ShippingStreet = $pickupOptions->getStreet();
-    //                     $method->ShippingHouseNumber = $pickupOptions->getNumber();
-    //                     $method->ShippingPostalCode = $pickupOptions->getPostalCode();
-    //                     $method->ShippingCity = $pickupOptions->getCity();
-    //                     $method->ShippingCountryCode = $pickupOptions->getCountry();
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return $method;
-    // }
-
-    // private function parseSendCloudPointAddress($addressData)
-    // {
-    //     $formattedAddress = [];
-    //     $addressData      = explode('|', $addressData);
-
-    //     $streetData = $addressData[1];
-    //     $cityData   = $addressData[2];
-
-    //     $formattedCityData = $this->parseSendcloudCityData($cityData);
-    //     $formattedStreet   = $this->formatStreet($streetData);
-
-    //     $formattedAddress['street']      = $formattedStreet;
-    //     $formattedAddress['postal_code'] = $formattedCityData[0];
-    //     $formattedAddress['city']        = $formattedCityData[1];
-
-    //     return $formattedAddress;
-    // }
-
-    // private function parseSendcloudCityData($cityData)
-    // {
-    //     $cityData = preg_split('/\s/', $cityData, 2);
-
-    //     return $cityData;
-    // }
-
-    // private function getDHLParcelShopLocation($parcelShopUrl)
-    // {
-    //     $url  = "https://api-gw.dhlparcel.nl/parcel-shop-locations/" . $parcelShopUrl;
-    //     $data = wp_remote_request($url);
-
-    //     if ($data['response']['code'] !== 200) {
-    //         throw new Exception(__('Parcel Shop not found'));
-    //     }
-
-    //     $data = json_decode($data['body']);
-
-    //     if (empty($data->address)) {
-    //         throw new Exception(__('Parcel Shop address is incorrect'));
-    //     }
-
-    //     return $data->address;
-    // }
-
 
 
     /**

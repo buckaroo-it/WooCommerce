@@ -9,7 +9,8 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     public $b2b;
     public $vattype;
     public $productQtyLoop = true;
-    
+    public $afterpaypayauthorize;
+
     public function __construct()
     {
         $this->id                     = 'buckaroo_afterpay';
@@ -35,219 +36,22 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     {
         return 'afterpaydigiaccept';
     }
-    
-    // /**
-    //  * Can the order be refunded
-    //  * @param integer $order_id
-    //  * @param integer $amount defaults to null
-    //  * @param string $reason
-    //  * @return callable|string function or error
-    //  */
-    // public function process_refund($order_id, $amount = null, $reason = '')
-    // {
-    //     $action = ucfirst(isset($this->afterpaypayauthorize) ? $this->afterpaypayauthorize : 'pay');
-    //     return $this->process_refund_common($action, $order_id, $amount, $reason);
-    // }
 
-    // /**
-    //  * Can the order be refunded
-    //  * @param integer $order_id
-    //  * @param integer $amount defaults to null
-    //  * @param string $reason
-    //  * @return callable|string function or error
-    //  */
-    // public function process_partial_refunds($order_id, $amount = null, $reason = '', $line_item_qtys = null, $line_item_totals = null, $line_item_tax_totals = null, $originalTransactionKey = null)
-    // {
-    //     $order = wc_get_order($order_id);
+    /**
+     * Process payment
+     *
+     * @param integer $order_id
+     * @return callable fn_buckaroo_process_response()
+     */
+    public function process_payment($order_id)
+    {
+        if ($this->afterpaypayauthorize == 'authorize') {
+            update_post_meta($order_id, '_wc_order_authorized', 'yes');
+            $this->set_order_capture($order_id, "Afterpay");
+        }
 
-    //     if (!$this->can_refund_order($order)) {
-    //         return new WP_Error('error_refund_trid', __("Refund failed: Order not in ready state, Buckaroo transaction ID do not exists."));
-    //     }
-
-    //     update_post_meta($order_id, '_pushallowed', 'busy');
-
-    //     /** @var BuckarooAfterPay */
-    //     $afterpay = $this->createCreditRequest($order, $amount, $reason);
-    //     $afterpay->channel   = BuckarooConfig::CHANNEL_BACKOFFICE;
-        
-    //     if ($originalTransactionKey !== null) {
-    //         $afterpay->OriginalTransactionKey = $originalTransactionKey;
-    //     }
-
-    //     // add items to refund call for afterpay
-    //     $issuer = get_post_meta($order_id, '_wc_order_payment_issuer', true);
-
-    //     $products         = array();
-    //     $items            = $order->get_items();
-    //     $itemsTotalAmount = 0;
-
-    //     if ($line_item_qtys === null) {
-    //         $line_item_qtys = buckaroo_request_sanitized_json('line_item_qtys');
-    //     }
-
-    //     if ($line_item_totals === null) {
-    //         $line_item_totals = buckaroo_request_sanitized_json('line_item_totals');
-    //     }
-
-    //     if ($line_item_tax_totals === null) {
-    //         $line_item_tax_totals = buckaroo_request_sanitized_json('line_item_tax_totals');
-    //     }
-
-    //     $orderDataForChecking = $afterpay->getOrderRefundData();
-
-    //     foreach ($items as $item) {
-    //         if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
-    //             $product   = new WC_Product($item['product_id']);
-    //             $tax_class = $product->get_attribute("vat_category");
-    //             if (empty($tax_class)) {
-    //                 $tax_class = $this->vattype;
-    //             }
-    //             $tmp["ArticleDescription"] = $item['name'];
-    //             $tmp["ArticleId"]          = $item['product_id'];
-    //             $tmp["ArticleQuantity"]    = $line_item_qtys[$item->get_id()];
-    //             $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
-    //             $itemsTotalAmount += $tmp["ArticleUnitprice"] * $line_item_qtys[$item->get_id()];
-    //             $tmp["ArticleVatcategory"] = $tax_class;
-    //             $products[]                = $tmp;
-    //         }
-    //     }
-    //     $fees = $order->get_fees();
-    //     foreach ($fees as $key => $item) {
-    //         if (!empty($line_item_totals[$key])) {
-    //             $tmp["ArticleDescription"] = $item['name'];
-    //             $tmp["ArticleId"] = $key;
-    //             $tmp["ArticleQuantity"] = 1;
-    //             $tmp["ArticleUnitprice"] = number_format(($item["line_total"] + $item["line_tax"]), 2);
-    //             $itemsTotalAmount += $tmp["ArticleUnitprice"];
-    //             $tmp["ArticleVatcategory"] = '4';
-    //             $products[] = $tmp;
-    //         }
-    //     }
-
-    //     // Add shippingCosts
-    //     $shippingInfo = $this->getAfterPayShippingInfo('afterpay', 'partial_refunds', $order, $line_item_totals, $line_item_tax_totals);
-    //     if ($shippingInfo['costs'] > 0) {
-    //         $products[] = $shippingInfo['shipping_virtual_product'];
-    //         $itemsTotalAmount += $shippingInfo['costs'];
-    //     }
-
-    //     $ref_amount = $this->request('refund_amount');
-    //     // end add items
-    //     if ($ref_amount !== null && $itemsTotalAmount == 0) {
-    //         $afterpay->amountCredit = $ref_amount;
-    //     } else {
-    //         $amount                 = $itemsTotalAmount;
-    //         $afterpay->amountCredit = $amount;
-    //     }
-
-    //     if (!(count($products) > 0)) {
-    //         return true;
-    //     }
-
-    //     try {
-    //         $afterpay->checkRefundData($orderDataForChecking);
-    //         $response = $afterpay->AfterPayRefund($products, $issuer);
-    //     } catch (exception $e) {
-    //         update_post_meta($order_id, '_pushallowed', 'ok');
-    //     }
-
-    //     $final_response = fn_buckaroo_process_refund($response, $order, $amount, $this->currency);
-
-    //     return $final_response;
-    // }
-
-    // public function process_capture()
-    // {
-    //     $order_id = $this->request('order_id');
-        
-    //     if ($order_id === null || !is_numeric($order_id)) {
-    //         return $this->create_capture_error(__('A valid order number is required'));
-    //     }
-
-    //     $capture_amount = $this->request('capture_amount');
-    //     if($capture_amount === null || !is_scalar($capture_amount)) {
-    //         return $this->create_capture_error(__('A valid capture amount is required'));
-    //     }
-
-    //     $previous_captures = get_post_meta($order_id, '_wc_order_captures') ? get_post_meta($order_id, '_wc_order_captures') : false;
-
-    //     $order = getWCOrder($order_id);
-    //     /** @var BuckarooAfterPay */
-    //     $afterpay = $this->createDebitRequest($order);
-
-    //     $afterpay->amountDedit            = str_replace(',', '.', $capture_amount);
-    //     $afterpay->OriginalTransactionKey = $order->get_transaction_id();
-    //     $afterpay->invoiceId              = (string) getUniqInvoiceId($order->get_order_number()) . (is_array($previous_captures) ? '-' . count($previous_captures) : "");
-
-    //     if (!isset($customVars)) {
-    //         $customVars = null;
-    //     }
-
-    //     // add items to capture call for afterpay
-    //     $customVars['payment_issuer'] = get_post_meta($order_id, '_wc_order_payment_issuer', true);
-
-    //     $products         = array();
-    //     $items            = $order->get_items();
-    //     $itemsTotalAmount = 0;
-        
-    //     $line_item_qtys         = buckaroo_request_sanitized_json('line_item_qtys');
-	// 	$line_item_totals       = buckaroo_request_sanitized_json('line_item_totals');
-	// 	$line_item_tax_totals   = buckaroo_request_sanitized_json('line_item_tax_totals');
-
-    //     foreach ($items as $item) {
-    //         if (isset($line_item_qtys[$item->get_id()]) && $line_item_qtys[$item->get_id()] > 0) {
-    //             $product   = new WC_Product($item['product_id']);
-    //             $tax_class = $product->get_attribute("vat_category");
-    //             if (empty($tax_class)) {
-    //                 $tax_class = $this->vattype;
-    //             }
-    //             $tmp["ArticleDescription"] = $item['name'];
-    //             $tmp["ArticleId"]          = $item['product_id'];
-    //             $tmp["ArticleQuantity"]    = $line_item_qtys[$item->get_id()];
-    //             $tmp["ArticleUnitprice"]   = number_format(number_format($item["line_total"] + $item["line_tax"], 4) / $item["qty"], 2);
-    //             $itemsTotalAmount += $tmp["ArticleUnitprice"] * $item["qty"];
-    //             $tmp["ArticleVatcategory"] = $tax_class;
-    //             $products[]                = $tmp;
-    //         }
-    //     }
-
-    //     if (!$previous_captures) {
-    //         $fees = $order->get_fees();
-    //         foreach ($fees as $key => $item) {
-    //             $tmp["ArticleDescription"] = $item['name'];
-    //             $tmp["ArticleId"] = $key;
-    //             $tmp["ArticleQuantity"] = 1;
-    //             $tmp["ArticleUnitprice"] = number_format(($item["line_total"] + $item["line_tax"]), 2);
-    //             $itemsTotalAmount += $tmp["ArticleUnitprice"];
-    //             $tmp["ArticleVatcategory"] = '4';
-    //             $products[] = $tmp;
-    //         }
-    //     }
-
-    //     // Add shippingCosts
-    //     $shippingInfo = $this->getAfterPayShippingInfo('afterpay', 'capture', $order, $line_item_totals, $line_item_tax_totals);
-    //     if ($shippingInfo['costs'] > 0) {
-    //         $products[] = $shippingInfo['shipping_virtual_product'];
-    //     }
-
-    //     // Merge products with same SKU
-    //     $mergedProducts = array();
-    //     foreach ($products as $product) {
-    //         if (!isset($mergedProducts[$product['ArticleId']])) {
-    //             $mergedProducts[$product['ArticleId']] = $product;
-    //         } else {
-    //             $mergedProducts[$product['ArticleId']]["ArticleQuantity"] += 1;
-    //         }
-    //     }
-
-    //     $products = $mergedProducts;
-    //     //  end add items
-
-    //     $response         = $afterpay->Capture($customVars, $products);
-    //     $process_response = fn_buckaroo_process_capture($response, $order, $this->currency, $products);
-
-    //     return $process_response;
-    // }
+        return parent::process_payment($order_id);
+    }
 
     /**
      * Validate payment fields on the frontend.
@@ -275,7 +79,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                 wc_add_notice(__("Company name is required", 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
-        
+
 
         if ($this->request('buckaroo-afterpay-phone') === null && $this->request('billing_phone') === null) {
             wc_add_notice(__("Please enter phone number", 'wc-buckaroo-bpe-gateway'), 'error');
@@ -299,21 +103,23 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     public function init_form_fields()
     {
         parent::init_form_fields();
-        
+
         $this->add_financial_warning_field();
         $this->form_fields['service'] = [
             'title'       => __('Select afterpay service', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Please select the service', 'wc-buckaroo-bpe-gateway'),
             'options'     => ['afterpayacceptgiro' => __('Offer customer to pay afterwards by SEPA Direct Debit.', 'wc-buckaroo-bpe-gateway'), 'afterpaydigiaccept' => __('Offer customer to pay afterwards by digital invoice.', 'wc-buckaroo-bpe-gateway')],
-            'default'     => 'afterpaydigiaccept'];
+            'default'     => 'afterpaydigiaccept'
+        ];
 
         $this->form_fields['enable_bb'] = [
             'title'       => __('Enable B2B option for Riverty | AfterPay', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Enables or disables possibility to pay using company credentials', 'wc-buckaroo-bpe-gateway'),
             'options'     => ['enable' => 'Enable', 'disable' => 'Disable'],
-            'default'     => 'disable'];
+            'default'     => 'disable'
+        ];
 
         $this->form_fields['vattype'] = [
             'title'       => __('Default product VAT type', 'wc-buckaroo-bpe-gateway'),
@@ -324,14 +130,17 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
                 '2' => '2 = Low rate',
                 '3' => '3 = Zero rate',
                 '4' => '4 = Null rate',
-                '5' => '5 = middle rate'],
-            'default'     => '1'];
+                '5' => '5 = middle rate'
+            ],
+            'default'     => '1'
+        ];
 
         $this->form_fields['afterpaypayauthorize'] = [
             'title'       => __('AfterPay Pay or Capture', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'select',
             'description' => __('Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway'),
             'options'     => ['pay' => 'Pay', 'authorize' => 'Authorize'],
-            'default'     => 'pay'];
+            'default'     => 'pay'
+        ];
     }
 }

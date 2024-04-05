@@ -159,11 +159,21 @@ class Buckaroo_Sdk_Response
         if (is_scalar($order_id)) {
             return (int) $order_id;
         }
+        return null;
     }
 
     public function get_refund_amount(): float
     {
         $amount = $this->response->get('AmountCredit');
+        if (is_scalar($amount)) {
+            return (float) $amount;
+        }
+        return 0;
+    }
+
+    public function get_captured_amount(): float
+    {
+        $amount = $this->response->get('AmountDebit');
         if (is_scalar($amount)) {
             return (float) $amount;
         }
