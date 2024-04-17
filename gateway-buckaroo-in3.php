@@ -10,7 +10,6 @@ require_once dirname(__FILE__) . '/library/api/paymentmethods/in3/in3v2.php';
 class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
 {
     const PAYMENT_CLASS = BuckarooIn3::class;
-    public const DEFAULT_ICON_VALUE = 'defaultIcon';
     public const VERSION_FLAG = 'buckaroo_in3_version';
     public const VERSION3 = 'v3';
     public const VERSION2 = 'v2';
@@ -136,16 +135,13 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
      */
     private function set_icons()
     {
-        $icon = $this->get_option('icon');
-
         if (
-            $this->get_option('api_version') === 'v2' ||
-            $icon === self::DEFAULT_ICON_VALUE
+            $this->get_option('api_version') === 'v2'
         ) {
             $this->setIcon('svg/in3.svg', 'svg/in3.svg');
             return;
         }
-        $this->setIcon($icon, $icon);
+        $this->setIcon('svg/in3-ideal.svg', 'svg/in3-ideal.svg');
     }
 
     /**
@@ -221,17 +217,6 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             ),
             'default'     => self::VERSION3
         );
-
-        $this->form_fields['icon'] = array(
-            'title'       => __('Payment Logo', 'wc-buckaroo-bpe-gateway'),
-            'type'        => 'in3_logo',
-            'description' => __('Determines the logo that will be shown in the checkout', 'wc-buckaroo-bpe-gateway'),
-            'options'     => array(
-                'svg/in3-ideal.svg' => BuckarooConfig::getIconPath('svg/in3-ideal.svg', 'svg/in3-ideal.svg'),
-                self::DEFAULT_ICON_VALUE => BuckarooConfig::getIconPath('svg/in3.svg', 'svg/in3.svg'),
-            ),
-            'default'     => 'svg/in3-ideal.svg'
-        );
     }
 
 
@@ -266,7 +251,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
         ?>
         <tr valign="top">
             <th scope="row" class="titledesc">
-                <label for="<?php echo esc_attr($field_key); ?>"><?php echo wp_kses_post($data['title']); ?> <?php echo $this->get_tooltip_html($data); // WPCS: XSS ok. 
+                <label for="<?php echo esc_attr($field_key); ?>"><?php echo wp_kses_post($data['title']); ?> <?php echo $this->get_tooltip_html($data); // WPCS: XSS ok.
                                                                                                                 ?></label>
             </th>
             <td>
@@ -280,7 +265,7 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
                             </label>
                         <?php endforeach; ?>
                     </div>
-                    <?php echo $this->get_description_html($data); // WPCS: XSS ok. 
+                    <?php echo $this->get_description_html($data); // WPCS: XSS ok.
                     ?>
                 </fieldset>
             </td>
