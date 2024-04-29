@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 6.4.3
-Stable tag: 3.11.1
+Stable tag: 3.12.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -106,6 +106,14 @@ for more detailed release notes visit https://docs.buckaroo.io/docs/woocommerce-
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.12.0 =
+Add support for WordPress 6.5.2
+Add support for WooCommerce 8.8.2
+
+BP-3507 PayByBank transaction description is not identical to the other payment methods (no spaces)
+BP-3523 / BP-3529 Wrong amount in PUSH notification order notes
+BP-3535 Remove logo selection for “In3” and “iDEAL In3”
 
 = 3.11.1 =
 BP-3518 Price is wrongly communicated
