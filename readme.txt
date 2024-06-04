@@ -108,7 +108,9 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 == Changelog ==
 
 = 3.12.1 =
-Update the plugin WSDL file with HTTPS
+BP-3585 Fix: Update the plugin WSDL file with HTTPS URL
+BP-3596 Fix: Credit and debitcards error “Expirationyear” value missing
+BP-3574 Wrong amount in PUSH notification order notes (visual issue)
 
 = 3.12.0 =
 Add support for WordPress 6.5.2
