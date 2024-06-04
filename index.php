@@ -173,7 +173,7 @@ function get_woocommerce_payment_methods(): array {
 			}
 			if($gateway_id === 'buckaroo_creditcard') {
 				$payment_method['creditCardIssuers'] = $gateway->getCardsList();
-				$payment_method['creditCardMethod'] = $gateway->get_option('encrypt');
+				$payment_method['creditCardMethod'] = $gateway->get_option('creditcardmethod');
 				$payment_method['creditCardIsSecure'] = get_credtCard_is_secure();
 			}
 
