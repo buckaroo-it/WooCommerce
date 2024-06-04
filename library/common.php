@@ -1006,8 +1006,8 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                 $prefix     = "buckaroo_settlement_";
                 $settlement = $prefix . $response->payment;
 
-	            $orderAmount = (float) number_format( $order->get_total(), 2 );
-	            $paidAmount = (float) number_format( $response->amount, 2 );
+	            $orderAmount = roundAmount( $order->get_total() );
+	            $paidAmount =  roundAmount( $response->amount );
 	            $alreadyPaidSettlements = 0;
                 $isNewPayment           = true;
                 if ($items = get_post_meta($order_id)) {
