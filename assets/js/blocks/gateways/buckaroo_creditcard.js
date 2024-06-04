@@ -33,7 +33,7 @@ const CreditCard = ({
             };
             const encryptedData = await encryptCardData(cardData);
 
-            updateFormState(`${methodName}-encrypted-data`, encryptedData);
+            updateFormState(`${paymentMethodId}-encrypted-data`, encryptedData);
         } catch (error) {
             console.error("Encryption error:", error);
         }
