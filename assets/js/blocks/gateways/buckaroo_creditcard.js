@@ -1,13 +1,13 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import DefaultDropdown from "../partials/buckaroo_creditcard_dropdown";
-import {__} from "@wordpress/i18n";
+import { __ } from "@wordpress/i18n";
 import encryptCardData from "../services/BuckarooClientSideEncryption";
 import useFormData from "../hooks/useFormData";
 
 const CreditCard = ({
                         onStateChange,
                         methodName,
-                        gateway: {paymentMethodId, creditCardIssuers, creditCardMethod, creditCardIsSecure}
+                        gateway: { paymentMethodId, creditCardIssuers, creditCardMethod, creditCardIsSecure }
                     }) => {
 
     const initialState = {
@@ -20,20 +20,20 @@ const CreditCard = ({
         [`${paymentMethodId}-encrypted-data`]: '',
     };
 
-    const { handleChange, updateFormState } = useFormData(initialState, onStateChange);
+    const { formState, handleChange, updateFormState } = useFormData(initialState, onStateChange);
 
     const handleEncryption = async () => {
         try {
             const cardData = {
-                cardName: initialState[`${paymentMethodId}-cardname`],
-                cardNumber: initialState[`${paymentMethodId}-cardnumber`],
-                cardMonth: initialState[`${paymentMethodId}-cardmonth`],
-                cardYear: initialState[`${paymentMethodId}-cardyear`],
-                cardCVC: initialState[`${paymentMethodId}-cardcvc`],
+                cardName: formState[`${paymentMethodId}-cardname`],
+                cardNumber: formState[`${paymentMethodId}-cardnumber`],
+                cardMonth: formState[`${paymentMethodId}-cardmonth`],
+                cardYear: formState[`${paymentMethodId}-cardyear`],
+                cardCVC: formState[`${paymentMethodId}-cardcvc`],
             };
             const encryptedData = await encryptCardData(cardData);
 
-            updateFormState(`${methodName}-encrypted-data`, encryptedData);
+            updateFormState(`${paymentMethodId}-encrypted-data`, encryptedData);
         } catch (error) {
             console.error("Encryption error:", error);
         }
@@ -43,11 +43,18 @@ const CreditCard = ({
         if (creditCardMethod === 'encrypt' && creditCardIsSecure === true) {
             handleEncryption();
         }
-    }, [initialState[`${paymentMethodId}-cardnumber`], initialState[`${paymentMethodId}-cardname`], initialState[`${paymentMethodId}-cardmonth`], initialState[`${paymentMethodId}-cardyear`], initialState[`${paymentMethodId}-cardcvc`], creditCardMethod, creditCardIsSecure]);
+    }, [
+        formState[`${paymentMethodId}-cardname`],
+        formState[`${paymentMethodId}-cardnumber`],
+        formState[`${paymentMethodId}-cardmonth`],
+        formState[`${paymentMethodId}-cardyear`],
+        formState[`${paymentMethodId}-cardcvc`],
+        creditCardMethod,
+        creditCardIsSecure
+    ]);
 
     return (
         <div>
-
             <p className="form-row form-row-wide">
                 <DefaultDropdown
                     paymentMethodId={paymentMethodId}
@@ -58,12 +65,10 @@ const CreditCard = ({
 
             {creditCardMethod === 'encrypt' && creditCardIsSecure === true && (
                 <div className="method--bankdata">
-
                     <div className="form-row">
                         <label className="buckaroo-label" htmlFor={`${paymentMethodId}-cardname`}>
                             {__('Cardholder Name:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
-
                         </label>
                         <input
                             type="text"
@@ -75,7 +80,6 @@ const CreditCard = ({
                             autoComplete="off"
                             onChange={handleChange}
                         />
-
                     </div>
 
                     <div className="form-row">
@@ -83,7 +87,6 @@ const CreditCard = ({
                             {__('Card Number:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
                         </label>
-
                         <input
                             type="text"
                             name={`${paymentMethodId}-cardnumber`}
@@ -101,7 +104,6 @@ const CreditCard = ({
                             {__('Expiration Month:', 'wc-buckaroo-bpe-gateway')}
                             <span className="required">*</span>
                         </label>
-
                         <input
                             type="text"
                             maxLength="2"
@@ -149,7 +151,7 @@ const CreditCard = ({
                     </div>
 
                     <div className="form-row form-row-wide validate-required"></div>
-                    <div className="required" style={{float: 'right'}}>*
+                    <div className="required" style={{ float: 'right' }}>*
                         {__('Required', 'wc-buckaroo-bpe-gateway')}
                     </div>
                 </div>
@@ -159,4 +161,3 @@ const CreditCard = ({
 };
 
 export default CreditCard;
-

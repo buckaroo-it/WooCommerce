@@ -1,13 +1,13 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field';
 import FinancialWarning from '../partials/buckaroo_financial_warning';
 import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition';
 import AfterPayB2B from '../partials/buckaroo_afterpay_b2b';
 import PhoneDropdown from '../partials/buckaroo_phone';
-import {__} from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import useFormData from '../hooks/useFormData';
 
-const AfterPayView = ({onStateChange, methodName, gateway: {type, b2b}, billing}) => {
+const AfterPayView = ({ onStateChange, methodName, gateway: { type, b2b }, billing }) => {
     const initialState = {
         [`${methodName}-phone`]: billing?.phone || '',
         [`${methodName}-birthdate`]: '',
@@ -31,7 +31,6 @@ const AfterPayView = ({onStateChange, methodName, gateway: {type, b2b}, billing}
         updateFormState(`${methodName}-phone`, value);
     };
 
-
     const [isAdditionalCheckboxChecked, setIsAdditionalCheckboxChecked] = useState(false);
 
     const handleAdditionalCheckboxChange = (isChecked) => {
@@ -41,7 +40,7 @@ const AfterPayView = ({onStateChange, methodName, gateway: {type, b2b}, billing}
 
     return (
         <div>
-            <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange}/>
+            <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange} />
             {type === 'afterpayacceptgiro' && (
                 <div className="form-row form-row-wide validate-required">
                     <label htmlFor="buckaroo-afterpay-company-coc-registration">
@@ -59,8 +58,9 @@ const AfterPayView = ({onStateChange, methodName, gateway: {type, b2b}, billing}
                 </div>
             )}
 
-            {!isAdditionalCheckboxChecked &&
-                <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange}/>}
+            {!isAdditionalCheckboxChecked && (
+                <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange} />
+            )}
 
             {b2b === 'enable' && type === 'afterpaydigiaccept' && (
                 <div>
@@ -75,7 +75,7 @@ const AfterPayView = ({onStateChange, methodName, gateway: {type, b2b}, billing}
                             />
                         </label>
                     </div>
-                    {isAdditionalCheckboxChecked && <AfterPayB2B handleChange={handleChange}/>}
+                    {isAdditionalCheckboxChecked && <AfterPayB2B handleChange={handleChange} />}
                 </div>
             )}
             <TermsAndConditionsCheckbox
@@ -84,7 +84,7 @@ const AfterPayView = ({onStateChange, methodName, gateway: {type, b2b}, billing}
                 billingData={billing}
                 b2b={b2b}
             />
-            <FinancialWarning paymentMethod={methodName}/>
+            <FinancialWarning paymentMethod={methodName} />
         </div>
     );
 };

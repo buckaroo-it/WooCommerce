@@ -1,10 +1,9 @@
-import React, {useEffect} from 'react';
-import {__} from "@wordpress/i18n";
+import React, { useEffect } from 'react';
+import { __ } from "@wordpress/i18n";
 import encryptCardData from "../services/BuckarooClientSideEncryption";
 import useFormData from "../hooks/useFormData";
 
-const SeparateCreditCard = ({onStateChange, gateway: {paymentMethodId, creditCardMethod, creditCardIsSecure}}) => {
-
+const SeparateCreditCard = ({ onStateChange, gateway: { paymentMethodId, creditCardMethod, creditCardIsSecure } }) => {
     const initialState = {
         [`${paymentMethodId}-creditcard-issuer`]: paymentMethodId.replace("buckaroo_creditcard_", ""),
         [`${paymentMethodId}-cardname`]: '',
@@ -15,7 +14,8 @@ const SeparateCreditCard = ({onStateChange, gateway: {paymentMethodId, creditCar
         [`${paymentMethodId}-encrypted-data`]: '',
     };
 
-    const [formState, handleChange, updateFormState] = useFormData(initialState, onStateChange);
+    // Destructure the object returned by useFormData
+    const { formState, handleChange, updateFormState } = useFormData(initialState, onStateChange);
 
     useEffect(() => {
         updateFormState(`${paymentMethodId}-creditcard-issuer`, initialState[`${paymentMethodId}-creditcard-issuer`]);
@@ -32,7 +32,7 @@ const SeparateCreditCard = ({onStateChange, gateway: {paymentMethodId, creditCar
                 cardYear: formState[`${paymentMethodId}-cardyear`],
                 cardCVC: formState[`${paymentMethodId}-cardcvc`],
             });
-            onStateChange({...formState, [`${paymentMethodId}-encrypted-data`]: encryptedData});
+            onStateChange({ ...formState, [`${paymentMethodId}-encrypted-data`]: encryptedData });
         } catch (error) {
             console.error("Encryption error:", error);
         }
@@ -40,13 +40,17 @@ const SeparateCreditCard = ({onStateChange, gateway: {paymentMethodId, creditCar
 
     useEffect(() => {
         handleEncryption();
-    }, [formState[`${paymentMethodId}-cardname`], formState[`${paymentMethodId}-cardnumber`], formState[`${paymentMethodId}-cardmonth`], formState[`${paymentMethodId}-cardyear`], formState[`${paymentMethodId}-cardcvc`]]);
+    }, [
+        formState[`${paymentMethodId}-cardname`],
+        formState[`${paymentMethodId}-cardnumber`],
+        formState[`${paymentMethodId}-cardmonth`],
+        formState[`${paymentMethodId}-cardyear`],
+        formState[`${paymentMethodId}-cardcvc`],
+    ]);
 
     return (
         <div>
-
             <div className="method--bankdata">
-
                 <input
                     type="hidden"
                     name={`${paymentMethodId}-creditcard-issuer`}
@@ -60,7 +64,6 @@ const SeparateCreditCard = ({onStateChange, gateway: {paymentMethodId, creditCar
                             <label className="buckaroo-label" htmlFor={`${paymentMethodId}-cardname`}>
                                 {__('Cardholder Name:', 'wc-buckaroo-bpe-gateway')}
                                 <span className="required">*</span>
-
                             </label>
                             <input
                                 type="text"
@@ -72,7 +75,6 @@ const SeparateCreditCard = ({onStateChange, gateway: {paymentMethodId, creditCar
                                 autoComplete="off"
                                 onChange={handleChange}
                             />
-
                         </div>
 
                         <div className="form-row">
@@ -80,7 +82,6 @@ const SeparateCreditCard = ({onStateChange, gateway: {paymentMethodId, creditCar
                                 {__('Card Number:', 'wc-buckaroo-bpe-gateway')}
                                 <span className="required">*</span>
                             </label>
-
                             <input
                                 type="text"
                                 name={`${paymentMethodId}-cardnumber`}
@@ -98,7 +99,6 @@ const SeparateCreditCard = ({onStateChange, gateway: {paymentMethodId, creditCar
                                 {__('Expiration Month:', 'wc-buckaroo-bpe-gateway')}
                                 <span className="required">*</span>
                             </label>
-
                             <input
                                 type="text"
                                 maxLength="2"
@@ -146,7 +146,7 @@ const SeparateCreditCard = ({onStateChange, gateway: {paymentMethodId, creditCar
                         </div>
 
                         <div className="form-row form-row-wide validate-required"></div>
-                        <div className="required" style={{float: 'right'}}>*
+                        <div className="required" style={{ float: 'right' }}>*
                             {__('Required', 'wc-buckaroo-bpe-gateway')}
                         </div>
                     </div>
@@ -157,4 +157,3 @@ const SeparateCreditCard = ({onStateChange, gateway: {paymentMethodId, creditCar
 };
 
 export default SeparateCreditCard;
-
