@@ -2,11 +2,11 @@ import React from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field';
 import FinancialWarning from '../partials/buckaroo_financial_warning';
 import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition';
-import {__} from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import PhoneDropdown from '../partials/buckaroo_phone';
 import useFormData from "../hooks/useFormData";
 
-const AfterPayNew = ({onStateChange, methodName, gateway: {customer_type, b2b}, billing}) => {
+const AfterPayNew = ({ onStateChange, methodName, gateway: { customer_type, b2b }, billing }) => {
     const initialState = {
         [`${methodName}-phone`]: billing?.phone || '',
         [`${methodName}-birthdate`]: '',
@@ -23,17 +23,18 @@ const AfterPayNew = ({onStateChange, methodName, gateway: {customer_type, b2b}, 
     const handleBirthDayChange = (value) => {
         updateFormState(`${methodName}-birthdate`, value);
     };
+
     const handlePhoneChange = (value) => {
         updateFormState(`${methodName}-phone`, value);
     };
 
     return (
         <div>
-            <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange}/>
+            <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange} />
 
             {(['BE', 'NL', 'DE'].includes(billing.country)) && (
                 <div>
-                    <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange}/>
+                    <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange} />
                 </div>
             )}
 
@@ -80,7 +81,7 @@ const AfterPayNew = ({onStateChange, methodName, gateway: {customer_type, b2b}, 
                 b2b={b2b}
             />
 
-            <FinancialWarning paymentMethod={methodName}/>
+            <FinancialWarning paymentMethod={methodName} />
         </div>
     );
 };
