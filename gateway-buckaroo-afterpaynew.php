@@ -14,6 +14,8 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     public $vattype;
     public $country;
     public $sendimageinfo;
+	public $afterpaynewpayauthorize;
+	public $customer_type;
 
     public const CUSTOMER_TYPE_B2C = 'b2c';
     public const CUSTOMER_TYPE_B2B = 'b2b';

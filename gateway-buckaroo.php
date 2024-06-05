@@ -12,13 +12,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     public $notify_url;
     public $minvalue;
     public $maxvalue;
-
     public $showpayproc = false;
     public $productQtyLoop = false;
-
     public $currency;
-
     public $mode;
+    public $country;
 
     public function __construct()
     {

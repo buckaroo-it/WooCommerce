@@ -14,8 +14,9 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo
     public $vattype;
     public $country;
     public $productQtyLoop = true;
-    
-    public function __construct()
+	public $afterpaypayauthorize;
+
+	public function __construct()
     {
         $this->id                     = 'buckaroo_afterpay';
         $this->title                  = 'Riverty | AfterPay';

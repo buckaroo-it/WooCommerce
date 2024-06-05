@@ -9,6 +9,7 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
 {
     const PAYMENT_CLASS = BuckarooPayPerEmail::class;
     public $paymentmethodppe;
+	public $frontendVisible;
     public function __construct()
     {
         $this->id                     = 'buckaroo_payperemail';

@@ -6,6 +6,7 @@ require_once(dirname(__FILE__) . '/library/api/paymentmethods/klarna/klarnakp.ph
 class WC_Gateway_Buckaroo_KlarnaKp extends WC_Gateway_Buckaroo
 {
     const PAYMENT_CLASS = BuckarooKlarnaKp::class;
+	public $type;
 
     public function __construct()
     {
