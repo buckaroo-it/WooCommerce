@@ -39,19 +39,14 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
      */
     public function validate_fields()
     {
-        if ($this->request('billing_company') !== null) {
-            if ($this->request('buckaroo-billink-company-coc-registration')=== null) {
-                wc_add_notice(__("Please enter correct COC (KvK) number", 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-        } else {
-            if (!$this->validateDate($this->request('buckaroo-billink-birthdate'), 'd-m-Y')
-             ) {
-                wc_add_notice(__("Please enter correct birth date", 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-            if(!in_array($this->request('buckaroo-billink-gender'), ["Male","Female","Unknown"])) {
-                wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-        }
+	    if (!$this->validateDate($this->request('buckaroo-billink-birthdate'), 'd-m-Y')
+	    ) {
+		    wc_add_notice(__("Please enter correct birth date", 'wc-buckaroo-bpe-gateway'), 'error');
+	    }
+
+	    if(!in_array($this->request('buckaroo-billink-gender'), ["Male","Female","Unknown"])) {
+		    wc_add_notice(__("Unknown gender", 'wc-buckaroo-bpe-gateway'), 'error');
+	    }
 
         if ($this->request("buckaroo-billink-accept") === null) {
             wc_add_notice(__("Please accept license agreements", 'wc-buckaroo-bpe-gateway'), 'error');
@@ -82,17 +77,7 @@ class WC_Gateway_Buckaroo_Billink extends WC_Gateway_Buckaroo
         $billink->setCategory(!empty($billink->B2B) ? 'B2B': 'B2C');
         $billink->setCompany(!empty($billink->B2B) ? $billink->B2B : '');
 
-
-        if ($billink->B2B) {
-            $billink->CompanyCOCRegistration = $this->request('buckaroo-billink-company-coc-registration');
-            $var_number = $this->request('buckaroo-billink-VatNumber');
-            if ($var_number !== null) {
-                $billink->VatNumber = $var_number;
-            }
-        } else {
-            $billink->BillingBirthDate = $this->request('buckaroo-billink-birthdate');
-
-        }
+		$billink->BillingBirthDate = $this->request('buckaroo-billink-birthdate');
         
         $billink = $this->getBillingInfo($order_details, $billink);
         $billink = $this->getShippingInfo($order_details, $billink);
