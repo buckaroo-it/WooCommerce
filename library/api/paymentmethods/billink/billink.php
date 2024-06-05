@@ -33,6 +33,9 @@ class BuckarooBillink extends BuckarooPaymentMethod
 
     public $B2B;
     public $Company;
+    public $CompanyCOCRegistration;
+    public $VatNumber;
+
     private $category;
     private $billingFirstName;
     /**
@@ -127,9 +130,18 @@ class BuckarooBillink extends BuckarooPaymentMethod
                 $shipping['StreetNumberAdditional'] =  $this->diffAddress($this->ShippingHouseNumberSuffix, $this->BillingHouseNumberSuffix);
             }
         }
+        
 
-        $billing['Salutation'] = $this->BillingGender;
-        $billing['BirthDate'] = $this->BillingBirthDate;
+        if ($this->B2B) {
+            $billing['ChamberOfCommerce'] = $this->CompanyCOCRegistration;
+
+            if (!empty($this->VatNumber)){
+                $billing['VATNumber'] = $this->VatNumber;
+            }
+        } else {
+            $billing['Salutation'] = $this->BillingGender;
+            $billing['BirthDate'] = $this->BillingBirthDate;
+        }
 
         $this->setCustomVarsAtPosition($billing, 0, 'BillingCustomer');
         $this->setCustomVarsAtPosition($shipping, 1, 'ShippingCustomer');
