@@ -463,7 +463,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 } else {
                     Buckaroo_Logger::log('Response. Order status cannot be changed.');
                 }
-//                wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
+                wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
             } else {
                 if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                     Buckaroo_Logger::log('Update status 6. Order status: failed');
@@ -533,7 +533,9 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     }
                 }
             }
-            return;
+	        return [
+		        'redirect' => $payment_method->get_failed_url()
+	        ];
         }
     } else {
         Buckaroo_Logger::log(
