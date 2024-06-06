@@ -268,10 +268,6 @@ msgstr ""
 msgid "Company registration number is required (KvK)"
 msgstr ""
 
-#: templates/payconiq/qrcode.php:319
-msgid "Confirm payment with your PIN or fingerprint. "
-msgstr ""
-
 #: index.php:284 index.php:290 index.php:347
 msgid "Credentials are incorrect"
 msgstr ""
@@ -618,10 +614,6 @@ msgstr ""
 msgid "Offer customer to pay afterwards by SEPA Direct Debit."
 msgstr ""
 
-#: templates/payconiq/qrcode.php:317
-msgid "Open your Payconiq app. "
-msgstr ""
-
 #: gateway-buckaroo.php:79
 #, php-format
 msgid "Pay with %s"
@@ -745,10 +737,6 @@ msgstr ""
 
 #: gateway-buckaroo-afterpay.php:425
 msgid "Please select the service"
-msgstr ""
-
-#: templates/payconiq/qrcode.php:318
-msgid "Point your camera at this QR code. "
 msgstr ""
 
 #: gateway-buckaroo-paypal.php:120

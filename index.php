@@ -394,8 +394,6 @@ function fw_reserve_page_template()
         wc_add_notice( esc_html__( 'Checkout is not available whilst your cart is empty.', 'woocommerce' ), 'notice' );
         wp_safe_redirect( wc_get_page_permalink( 'cart' ) );
         exit;
-    } else {
-        include 'templates/payconiq/qrcode.php' ;
     }
     return ob_get_clean();
 }
