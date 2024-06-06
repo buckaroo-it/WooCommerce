@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field';
 import GenderDropdown from "../partials/buckaroo_gender";
 import FinancialWarning from "../partials/buckaroo_financial_warning";
@@ -18,7 +18,11 @@ const Billink = ({ onStateChange, methodName, gateway: { genders, b2b }, billing
     };
 
     const { handleChange, updateFormState } = useFormData(initialState, onStateChange);
+    const [company, setCompany] = useState(billing?.company || '');
 
+    useEffect(() => {
+        setCompany(billing?.company || '');
+    }, [billing?.company]);
     const handleBirthDayChange = (value) => {
         updateFormState(`${methodName}-birthdate`, value);
     };
@@ -29,7 +33,7 @@ const Billink = ({ onStateChange, methodName, gateway: { genders, b2b }, billing
 
     return (
         <div>
-            {billing?.company !== '' ? (
+            {company !== '' ? (
                 <div id="buckaroo_billink_b2b">
                     <CoCField methodName={methodName} handleChange={handleChange} />
                     <p className="form-row form-row-wide validate-required">
