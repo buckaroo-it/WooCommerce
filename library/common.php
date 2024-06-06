@@ -463,7 +463,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 } else {
                     Buckaroo_Logger::log('Response. Order status cannot be changed.');
                 }
-                wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
+//                wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
             } else {
                 if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                     Buckaroo_Logger::log('Update status 6. Order status: failed');
@@ -781,55 +781,6 @@ function checkCurrencySupported($payment_method = '')
     }
     $is_selected_currency_supported = (!in_array(get_woocommerce_currency(), $supported_currencies)) ? false : true;
     return $is_selected_currency_supported;
-}
-
-function createPayConicPage()
-{
-    $new_page_title    = 'Payconiq';
-    $new_page_content  = '[buckaroo_payconiq]';
-    $new_page_template = '';
-    $page_check        = get_page_by_title($new_page_title);
-    $new_page          = array(
-        'post_type'    => 'page',
-        'post_title'   => $new_page_title,
-        'post_content' => $new_page_content,
-        'post_status'  => 'publish',
-        'post_author'  => 1,
-    );
-    if (!isset($page_check->ID)) {
-        $new_page_id = wp_insert_post($new_page);
-        if (!empty($new_page_template)) {
-            update_post_meta($new_page_id, '_wp_page_template', $new_page_template);
-        }
-    }
-}
-
-function pages_with_shortcode($shortcode, $args = array())
-{
-    if (!shortcode_exists($shortcode)) {
-        // shortcode was not registered (yet?)
-        return null;
-    }
-
-    // replace get_pages with get_posts
-    // if you want to search in posts
-    $pages = get_pages($args);
-    $list  = array();
-
-    foreach ($pages as $page) {
-        if (has_shortcode($page->post_content, $shortcode)) {
-            $list[] = $page;
-            break;
-        }
-    }
-
-    if (count($list) == 0) {
-        // Page doesn't exist. create new
-        createPayConicPage();
-        return pages_with_shortcode($shortcode, $args);
-    }
-
-    return $list;
 }
 
 function getCreditcardsProviders()
