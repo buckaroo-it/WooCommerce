@@ -56,6 +56,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
             response.meta.paymentMethodData = {
                 ...activePaymentMethodState,
                 'isblocks': '1',
+                'billing_company': billing.billingAddress.company,
                 'billing_country': billing.billingAddress.country,
                 'billing_address_1': billing.billingAddress.address_1,
                 'billing_address_2': billing.billingAddress.address_2,
