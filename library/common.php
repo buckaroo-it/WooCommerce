@@ -381,7 +381,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
         );
 
         //Check if redirect required
-        $checkIfRedirectRequired = fn_process_check_redirect_required($response, 'response', $payment_method, $order_id);
+        $checkIfRedirectRequired = fn_process_check_redirect_required($response);
         if ($checkIfRedirectRequired){
             return $checkIfRedirectRequired;
         }
@@ -1139,29 +1139,12 @@ function fn_process_response_idin($response, $order_id = null){
     }
 }
 
-function fn_process_check_redirect_required($response, $mode = null, $payment_method = null, $order_id = null){
+function fn_process_check_redirect_required($response){
     if ($response->isRedirectRequired()) {
-        if ($payment_method->id == 'buckaroo_payconiq' && $mode == 'response' && !empty($order_id)) {
-            $key           = $response->transactionId;
-            $invoiceNumber = $response->invoicenumber;
-            $amount        = $response->amount;
-            $currency      = get_woocommerce_currency();
-            return array(
-                'result'   => 'success',
-                'redirect' => home_url('/') . 'payconiqQrcode?' .
-                "transactionKey=" . $key .
-                "&invoicenumber=" . $invoiceNumber .
-                "&amount=" . $amount .
-                "&returnUrl=" . $payment_method->notify_url .
-                "&order_id=" . (int) $order_id .
-                "&currency=" . $currency,
-            );
-        } else {
-            return array(
-                'result'   => 'success',
-                'redirect' => $response->getRedirectUrl(),
-            );
-        }
+        return array(
+            'result'   => 'success',
+            'redirect' => $response->getRedirectUrl(),
+        );
     }
     return false;
 }
