@@ -35,7 +35,6 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
         setActivePaymentMethodState(newState);
     };
 
-
     useEffect(() => {
         const unsubscribe = eventRegistration.onCheckoutFail((props) => {
             setErrorMessage(props.processingResponse.paymentDetails.errorMessage);
@@ -87,7 +86,7 @@ const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) 
         };
 
         loadPaymentComponent(gateway.paymentMethodId);
-    }, [gateway.paymentMethodId]);
+    }, [gateway.paymentMethodId, billing.billingData]); // Make sure billing.billingData is included here
 
     if (!PaymentComponent) {
         return <div>Loading...</div>;
@@ -119,7 +118,7 @@ const registerBuckarooExpressPaymentMethods = async ({ wc, buckaroo_gateways }) 
     if (!await ready()) {
         return;
     }
-    
+
     const applepay = buckaroo_gateways.find((gateway) => {
         return gateway.paymentMethodId === "buckaroo_applepay";
     })
@@ -136,7 +135,7 @@ const registerPaypalExpress = async(gateway) => {
     if (gateway === undefined) {
         return;
     }
-   
+
     if (gateway.showInCheckout) {
         const { registerExpressPaymentMethod } = wc.wcBlocksRegistry;
 
@@ -162,7 +161,7 @@ const registerApplePay = async(applepay) => {
             return Promise.resolve(false);
         return ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
     }
-    
+
     const canDisplay = await checkApplePaySupport(applepay.merchantIdentifier);
     if (applepay.showInCheckout && canDisplay) {
         const { registerExpressPaymentMethod } = wc.wcBlocksRegistry;
