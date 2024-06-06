@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import BirthDayField from '../partials/buckaroo_partial_birth_field';
 import FinancialWarning from '../partials/buckaroo_financial_warning';
 import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition';
@@ -16,6 +16,12 @@ const AfterPayNew = ({ onStateChange, methodName, gateway: { customer_type, b2b 
     };
 
     const { formState, handleChange, updateFormState } = useFormData(initialState, onStateChange);
+
+    const [company, setCompany] = useState(billing?.company || '');
+
+    useEffect(() => {
+        setCompany(billing?.company || '');
+    }, [billing?.company]);
 
     const handleTermsChange = (value) => {
         updateFormState(`${methodName}-accept`, value);
@@ -39,7 +45,7 @@ const AfterPayNew = ({ onStateChange, methodName, gateway: { customer_type, b2b 
                 </div>
             )}
 
-            {billing.country === 'NL' && customer_type !== 'b2c' && (
+            {company !== '' && billing.country === 'NL' && customer_type !== 'b2c' && (
                 <CoCField methodName={methodName} handleChange={handleChange} />
             )}
 
