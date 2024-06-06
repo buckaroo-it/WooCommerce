@@ -6,6 +6,7 @@ import AfterPayB2B from '../partials/buckaroo_afterpay_b2b';
 import PhoneDropdown from '../partials/buckaroo_phone';
 import { __ } from '@wordpress/i18n';
 import useFormData from '../hooks/useFormData';
+import CoCField from "../partials/buckaroo_coc_field";
 
 const AfterPayView = ({ onStateChange, methodName, gateway: { type, b2b }, billing }) => {
     const initialState = {
@@ -42,20 +43,7 @@ const AfterPayView = ({ onStateChange, methodName, gateway: { type, b2b }, billi
         <div>
             <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange} />
             {type === 'afterpayacceptgiro' && (
-                <div className="form-row form-row-wide validate-required">
-                    <label htmlFor="buckaroo-afterpay-company-coc-registration">
-                        {__('IBAN:', 'wc-buckaroo-bpe-gateway')}
-                        <span className="required">*</span>
-                    </label>
-
-                    <input
-                        id="buckaroo-afterpay-company-coc-registration"
-                        name="buckaroo-afterpay-company-coc-registration"
-                        className="input-text"
-                        type="text"
-                        onChange={handleChange}
-                    />
-                </div>
+                <CoCField methodName={methodName} handleChange={handleChange} />
             )}
 
             {!isAdditionalCheckboxChecked && (
