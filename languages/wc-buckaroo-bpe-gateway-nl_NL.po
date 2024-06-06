@@ -281,10 +281,6 @@ msgstr ""
 msgid "Company registration number is required (KvK)"
 msgstr "Kamer van Koophandel nummer is verplicht (KvK)"
 
-#: templates/payconiq/qrcode.php:319
-msgid "Confirm payment with your PIN or fingerprint. "
-msgstr "Bevestigen met je PIN of vingerafdruk."
-
 #: index.php:284 index.php:290 index.php:347
 msgid "Credentials are incorrect"
 msgstr ""
@@ -636,10 +632,6 @@ msgstr "Bied de klant aan om achteraf te betalen per digitale factuur."
 msgid "Offer customer to pay afterwards by SEPA Direct Debit."
 msgstr "Bied de klant aan om achteraf te betalen via SEPA-incasso."
 
-#: templates/payconiq/qrcode.php:317
-msgid "Open your Payconiq app. "
-msgstr "Open uw Payconiq app."
-
 #: gateway-buckaroo.php:79
 #, php-format
 msgid "Pay with %s"
@@ -769,10 +761,6 @@ msgstr "Kies standaard BTW type voor uw producten"
 #: gateway-buckaroo-afterpay.php:425
 msgid "Please select the service"
 msgstr "Kies de gewenste Riverty | AfterPay service"
-
-#: templates/payconiq/qrcode.php:318
-msgid "Point your camera at this QR code. "
-msgstr "Richt je camera op de QR-code."
 
 #: gateway-buckaroo-paypal.php:120
 msgid "Product page"
