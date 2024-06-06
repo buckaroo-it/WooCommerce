@@ -218,7 +218,7 @@ add_action('enqueue_block_assets', 'enqueue_buckaroo_ideal_block_script');
 function buckaroo_payment_frontend_scripts() {
 	$page = filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL);
 
-	if (class_exists('WC_Order') && (is_product() || is_checkout() || is_cart() || strpos($page, 'payconiq') !== false)) {
+	if (class_exists('WC_Order') && (is_product() || is_checkout() || is_cart())) {
 		wp_enqueue_style(
 			'buckaroo-custom-styles',
 			plugin_dir_url(__FILE__) . 'library/css/buckaroo-custom.css',
@@ -383,21 +383,6 @@ register_deactivation_hook(__FILE__, 'buckaroo_deactivation');
 function buckaroo_deactivation()
 {
     Buckaroo_Cron_Events::unschedule();
-}
-
-add_shortcode('buckaroo_payconiq', 'fw_reserve_page_template');
-
-function fw_reserve_page_template()
-{
-    if (!isset($_GET["invoicenumber"]) && !isset($_GET["transactionKey"]) && !isset($_GET["currency"]) && !isset($_GET["amount"])){
-        // When no parameters, redirect to cart page.
-        wc_add_notice( esc_html__( 'Checkout is not available whilst your cart is empty.', 'woocommerce' ), 'notice' );
-        wp_safe_redirect( wc_get_page_permalink( 'cart' ) );
-        exit;
-    } else {
-        include 'templates/payconiq/qrcode.php' ;
-    }
-    return ob_get_clean();
 }
 
 function buckaroo_push_class_init()

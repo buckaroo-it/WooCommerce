@@ -84,7 +84,7 @@ class WC_Gateway_Buckaroo_Giftcard extends WC_Gateway_Buckaroo
             'title'       => __('List of authorized giftcards', 'wc-buckaroo-bpe-gateway'),
             'type'        => 'text',
             'description' => __('Giftcards must be comma separated', 'wc-buckaroo-bpe-gateway'),
-            'default'     => 'westlandbon,ideal,ippies,babygiftcard,babyparkgiftcard,beautywellness,boekenbon,boekenvoordeel,designshopsgiftcard,fashioncheque,fashionucadeaukaart,fijncadeau,koffiecadeau,kokenzo,kookcadeau,nationaleentertainmentcard,naturesgift,podiumcadeaukaart,shoesaccessories,webshopgiftcard,wijncadeau,wonenzo,yourgift,vvvgiftcard,parfumcadeaukaart');
+            'default'     => 'vvvgiftcard,boekenbon,ideal,bancontact,boekenvoordeel,fashioncheque,yourgift,webshopgiftcard');
     }
 
 }

@@ -24,7 +24,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
     public function __construct()
     {
         $this->id                     = 'buckaroo_afterpaynew';
-        $this->title                  = 'Riverty | AfterPay (by Buckaroo)';
+        $this->title                  = 'Riverty | AfterPay';
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Riverty | AfterPay New';
         $this->setIcon('afterpay.png', 'svg/afterpay.svg');

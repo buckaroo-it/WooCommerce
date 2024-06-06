@@ -40,7 +40,7 @@ abstract class BuckarooConfigCore {
                 $value = 'amex,cartebancaire,cartebleuevisa,dankort,mastercard,postepay,visa,visaelectron,vpay';
                 break;
             case 'BUCKAROO_GIFTCARD_ALLOWED_CARDS':
-                $value = 'westlandbon,ideal,ippies,babygiftcard,babyparkgiftcard,beautywellness,boekenbon,boekenvoordeel,designshopsgiftcard,fashioncheque,fashionucadeaukaart,fijncadeau,koffiecadeau,kokenzo,kookcadeau,nationaleentertainmentcard,naturesgift,podiumcadeaukaart,shoesaccessories,webshopgiftcard,wijncadeau,wonenzo,yourgift,vvvgiftcard,parfumcadeaukaart';
+                $value = 'westlandbon,ideal,ippies,babygiftcard,bancontact,babyparkgiftcard,beautywellness,boekenbon,boekenvoordeel,designshopsgiftcard,fashioncheque,fashionucadeaukaart,fijncadeau,koffiecadeau,kokenzo,kookcadeau,nationaleentertainmentcard,naturesgift,podiumcadeaukaart,shoesaccessories,webshopgiftcard,wijncadeau,wonenzo,yourgift,vvvgiftcard,parfumcadeaukaart';
                 break;
         }
         return $value;
