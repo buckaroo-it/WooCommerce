@@ -15,6 +15,7 @@ class WC_Gateway_Buckaroo_EPS extends WC_Gateway_Buckaroo
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo EPS";
         $this->setIcon('24x24/eps.png', 'svg/eps.svg');
+        $this->setBackendIcon('svg/eps.svg', 'svg_backend/eps.svg');
 
         parent::__construct();
         $this->addRefundSupport();

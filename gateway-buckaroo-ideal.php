@@ -16,6 +16,7 @@ class WC_Gateway_Buckaroo_Ideal extends WC_Gateway_Buckaroo
         $this->has_fields   = true;
         $this->method_title = "Buckaroo iDEAL";
         $this->setIcon('24x24/ideal.png', 'svg/ideal.svg');
+        $this->setBackendIcon('svg/ideal.svg', 'svg_backend/ideal.svg');
 
         parent::__construct();
         $this->addRefundSupport();

@@ -23,6 +23,7 @@ class WC_Gateway_Buckaroo_Applepay extends WC_Gateway_Buckaroo
         $this->method_title           = "Buckaroo Apple Pay";
         $this->CustomerCardName       = '';
         $this->setIcon('svg/applepay.svg', 'svg/applepay.svg');
+        $this->setBackendIcon('svg/applepay.svg', 'svg_backend/applepay.svg');
 
         parent::__construct();
         $this->addRefundSupport();

@@ -20,6 +20,7 @@ class WC_Gateway_Buckaroo_Paypal extends WC_Gateway_Buckaroo
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo PayPal";
         $this->setIcon('24x24/paypal.gif', 'svg/paypal.svg');
+        $this->setBackendIcon('svg/paypal.svg', 'svg_backend/paypal.svg');
 
         parent::__construct();
         $this->addRefundSupport();

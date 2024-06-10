@@ -15,6 +15,7 @@ class WC_Gateway_Buckaroo_P24 extends WC_Gateway_Buckaroo
         $this->has_fields             = false;
         $this->method_title           = "Buckaroo Przelewy24";
         $this->setIcon('24x24/p24.png', 'svg/przelewy24.svg');
+        $this->setBackendIcon('svg/przelewy24.svg', 'svg_backend/przelewy24.svg');
         $this->migrateOldSettings('woocommerce_buckaroo_p24_settings');
         
         parent::__construct();

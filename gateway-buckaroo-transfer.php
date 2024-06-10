@@ -18,6 +18,7 @@ class WC_Gateway_Buckaroo_Transfer extends WC_Gateway_Buckaroo
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Bank Transfer';
         $this->setIcon('24x24/transfer.jpg', 'svg/sepa-credittransfer.svg');
+        $this->setBackendIcon('svg/sepa-credittransfer.svg', 'svg_backend/sepa-credittransfer.svg');
 
         parent::__construct();
         $this->addRefundSupport();

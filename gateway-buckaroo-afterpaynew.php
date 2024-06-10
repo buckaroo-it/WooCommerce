@@ -26,6 +26,7 @@ class WC_Gateway_Buckaroo_Afterpaynew extends WC_Gateway_Buckaroo
         $this->has_fields             = false;
         $this->method_title           = 'Buckaroo Riverty | AfterPay New';
         $this->setIcon('afterpay.png', 'svg/afterpay.svg');
+        $this->setBackendIcon('svg/afterpay.svg', 'svg_backend/afterpay.svg');
         $this->setCountry();
 
         parent::__construct();

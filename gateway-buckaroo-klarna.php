@@ -17,6 +17,7 @@ class WC_Gateway_Buckaroo_Klarna extends WC_Gateway_Buckaroo
         $this->has_fields = true;
         $this->type       = 'klarna';
         $this->setIcon('24x24/klarna.svg', 'svg/klarna.svg');
+        $this->setBackendIcon('svg/klarna.svg', 'svg_backend/klarna.svg');
         $this->setCountry();
 
         parent::__construct();
