@@ -139,11 +139,9 @@ class WC_Gateway_Buckaroo_In3 extends WC_Gateway_Buckaroo
             $this->get_option('api_version') === 'v2'
         ) {
             $this->setIcon('svg/in3.svg', 'svg/in3.svg');
-            $this->setBackendIcon('svg/in3.svg', 'svg_backend/in3.svg');
             return;
         }
         $this->setIcon('svg/in3-ideal.svg', 'svg/in3-ideal.svg');
-        $this->setBackendIcon('svg/in3.svg', 'svg_backend/in3-ideal.svg');
     }
 
     /**

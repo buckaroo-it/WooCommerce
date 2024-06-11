@@ -225,9 +225,9 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
         ?>
             <li>
                 <?php 
-                if ($gateway->backendicon !== null) {
+                if ($gateway->icon !== null) {
                     ?>
-                    <img class="buckaroo-payment-list-icon" src="<?php echo esc_url($gateway->backendicon); ?>">
+                    <img class="buckaroo-payment-list-icon" src="<?php echo esc_url($gateway->icon); ?>">
                     <?php 
                 }
                 echo wp_kses_post(str_replace("Buckaroo ", "", $method_title));

@@ -16,7 +16,6 @@ class WC_Gateway_Buckaroo_PayPerEmail extends WC_Gateway_Buckaroo
         $this->has_fields             = true;
         $this->method_title           = "Buckaroo PayPerEmail";
         $this->setIcon('payperemail.png', 'svg/payperemail.svg');
-        $this->setBackendIcon('svg/payperemail.svg', 'svg_backend/payperemail.svg');
 
         parent::__construct();
     }

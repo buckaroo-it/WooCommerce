@@ -161,23 +161,6 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     }
 
     /**
-     * Set gateway icon back-end
-     *
-     * @param string $oldPath  Old image path
-     * @param string $newPath  New image path
-     *
-     * @return void
-     */
-
-    protected function setBackendIcon($oldPath, $newPath)
-    {
-        $this->backendicon = apply_filters(
-            'woocommerce_'.$this->id.'_backendicon',
-            BuckarooConfig::getIconPath($oldPath, $newPath)
-        );
-    }
-
-    /**
      * Get gateway icon
      *
      * @return string
