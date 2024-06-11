@@ -207,7 +207,7 @@ function enqueue_buckaroo_ideal_block_script() {
 		'buckaroo-blocks',
 		plugins_url( '/assets/js/dist/blocks.js', __FILE__ ),
 		array( 'wc-blocks-registry' ),
-		'1.0.0',
+		BuckarooConfig::VERSION,
 		true
 	);
 
