@@ -67,7 +67,7 @@ function BuckarooComponent({
       return response;
     });
     return () => unsubscribe();
-  }, [eventRegistration, emitResponse, gateway.paymentMethodId]);
+  }, [eventRegistration, emitResponse, gateway.paymentMethodId, activePaymentMethodState, billing.billingAddress]);
 
   useEffect(() => {
     const loadPaymentComponent = async (methodId) => {
@@ -95,7 +95,7 @@ function BuckarooComponent({
     };
 
     loadPaymentComponent(gateway.paymentMethodId);
-  }, [gateway.paymentMethodId, billing.billingData]); // Make sure billing.billingData is included here
+  }, [gateway.paymentMethodId, billing.billingData, methodName]);
 
   if (!PaymentComponent) {
     return <div>Loading...</div>;
@@ -110,14 +110,14 @@ function BuckarooComponent({
   );
 }
 
-const registerBuckarooPaymentMethods = ({ wc, buckaroo_gateways }) => {
+const registerBuckarooPaymentMethods = ({ wc, buckarooGateways }) => {
   const { registerPaymentMethod } = wc.wcBlocksRegistry;
-  buckaroo_gateways.forEach((gateway) => {
-    registerPaymentMethod(createOptions(gateway, BuckarooComponent));
+  buckarooGateways.forEach((gateway) => {
+    registerPaymentMethod(createOptions(gateway));
   });
 };
 
-const registerBuckarooExpressPaymentMethods = async ({ buckaroo_gateways }) => {
+const registerBuckarooExpressPaymentMethods = async ({ buckarooGateways }) => {
   const ready = async () => new Promise((resolve) => {
     document.addEventListener('bk-jquery-loaded', () => resolve(true), { once: true });
     setTimeout(() => resolve(false), 5000);
@@ -127,10 +127,10 @@ const registerBuckarooExpressPaymentMethods = async ({ buckaroo_gateways }) => {
     return;
   }
 
-  const applepay = buckaroo_gateways.find((gateway) => gateway.paymentMethodId === 'buckaroo_applepay');
+  const applepay = buckarooGateways.find((gateway) => gateway.paymentMethodId === 'buckaroo_applepay');
   await registerApplePay(applepay);
 
-  const paypalExpress = buckaroo_gateways.find((gateway) => gateway.paymentMethodId === 'buckaroo_paypal');
+  const paypalExpress = buckarooGateways.find((gateway) => gateway.paymentMethodId === 'buckaroo_paypal');
   await registerPaypalExpress(paypalExpress);
 };
 
@@ -177,9 +177,9 @@ const registerApplePay = async (applepay) => {
   }
 };
 
-const createOptions = (gateway, BuckarooComponent) => ({
+const createOptions = (gateway) => ({
   name: gateway.paymentMethodId,
-  label: <BuckarooLabel image_path={gateway.image_path} title={decodeHtmlEntities(gateway.title)} />,
+  label: <BuckarooLabel imagePath={gateway.image_path} title={decodeHtmlEntities(gateway.title)} />,
   paymentMethodId: gateway.paymentMethodId,
   edit: <div />,
   canMakePayment: () => true,

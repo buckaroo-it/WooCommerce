@@ -197,7 +197,7 @@ function get_woocommerce_payment_methods(): array {
 			$payment_methods[] = $payment_method;
 		}
 	}
-	wp_localize_script( 'buckaroo-blocks', 'buckaroo_gateways', $payment_methods );
+	wp_localize_script( 'buckaroo-blocks', 'buckarooGateways', $payment_methods );
 
 	return $payment_methods;
 }
