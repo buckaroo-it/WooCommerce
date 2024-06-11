@@ -11,14 +11,14 @@
  * @version   GIT: 2.25.0
  * @link      https://www.buckaroo.eu/
  */
-interface Buckaroo_Migration
-{
-    /**
-     * Execute migration, 
-     * each version should attempt to be backward compatible with previous versions
-     * if the users decides to downgrade
-     *
-     * @return void
-     */
-    public function execute();
+interface Buckaroo_Migration {
+
+	/**
+	 * Execute migration,
+	 * each version should attempt to be backward compatible with previous versions
+	 * if the users decides to downgrade
+	 *
+	 * @return void
+	 */
+	public function execute();
 }

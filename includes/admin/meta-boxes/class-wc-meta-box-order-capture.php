@@ -27,13 +27,12 @@ class BK_Meta_Box_Order_Items {
 
 		$order = $theorder;
 		$data  = get_post_meta( $post->ID );
-		
-		if(get_post_meta( $order->get_id(), '_wc_order_authorized', true)){
+
+		if ( get_post_meta( $order->get_id(), '_wc_order_authorized', true ) ) {
 			include 'views/html-order-capture.php';
 		} else {
 			include 'views/html-order-capture-blocked.php';
 		}
-
 	}
 
 	/**

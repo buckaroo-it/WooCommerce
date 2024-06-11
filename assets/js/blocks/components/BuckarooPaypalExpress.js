@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react';
 
-export const BuckarooPaypalExpress = ({ billing }) => {
-    useEffect(() => {
-        if (BuckarooInitPaypalExpress) {
-            BuckarooInitPaypalExpress();
-        }
-    }, []);
+function BuckarooPaypalExpress({ billing }) {
+  useEffect(() => {
+    if (typeof BuckarooInitPaypalExpress !== 'undefined') {
+      BuckarooInitPaypalExpress();
+    }
+  }, []);
 
-    const totalValue = billing.cartTotal.value;
-    useEffect(() => {
-        document.dispatchEvent(new Event("paypalExpressRefresh"));
-    }, [
-        totalValue
-    ]);
+  const totalValue = billing.cartTotal.value;
+  useEffect(() => {
+    document.dispatchEvent(new Event('paypalExpressRefresh'));
+  }, [totalValue]);
 
-    return (
-        <div class="buckaroo-paypal-express"></div>
-    );
-};
+  return (
+    <div className="buckaroo-paypal-express" />
+  );
+}
+
+export default BuckarooPaypalExpress;

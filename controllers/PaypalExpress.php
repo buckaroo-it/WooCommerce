@@ -1,7 +1,7 @@
 <?php
 
-require_once dirname(__FILE__). "/PaypalExpressException.php";
-require_once dirname(__FILE__). "/PaypalExpressCart.php";
-require_once dirname(__FILE__). "/PaypalExpressOrder.php";
-require_once dirname(__FILE__). "/PaypalExpressShipping.php";
-require_once dirname(__FILE__). "/PaypalExpressController.php";
+require_once __DIR__ . '/PaypalExpressException.php';
+require_once __DIR__ . '/PaypalExpressCart.php';
+require_once __DIR__ . '/PaypalExpressOrder.php';
+require_once __DIR__ . '/PaypalExpressShipping.php';
+require_once __DIR__ . '/PaypalExpressController.php';

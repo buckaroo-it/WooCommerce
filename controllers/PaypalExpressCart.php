@@ -13,43 +13,41 @@
  * @link      https://www.buckaroo.eu/
  */
 
-class Buckaroo_Paypal_Express_Cart
-{
-    /**
-     * Cart content for restoring cart in product page
-     *
-     * @var array
-     */
-    protected $cart = null;
-    /**
-     * Set cart data to be restored 
-     *
-     * @return void
-     */
-    public function store_current()
-    {
-        $cart = WC()->cart;
+class Buckaroo_Paypal_Express_Cart {
 
-        $this->cart = [
-            "cart_contents" => $cart->get_cart_contents(),
-            "applied_coupons" => $cart->get_applied_coupons(),
-            "removed_cart_contents" => $cart->get_removed_cart_contents(),
-        ];
-    }
-    /**
-     * Restore cart
-     *
-     * @return void
-     */
-    public function restore()
-    {
-        if($this->cart !== null) {
-            $cart = WC()->cart;
-            $cart->empty_cart();
-            $cart->set_cart_contents($this->cart['cart_contents']);
-            $cart->set_applied_coupons($this->cart['applied_coupons']);
-            $cart->set_removed_cart_contents($this->cart['removed_cart_contents']);
-            $cart->calculate_totals();
-        }
-    }
+	/**
+	 * Cart content for restoring cart in product page
+	 *
+	 * @var array
+	 */
+	protected $cart = null;
+	/**
+	 * Set cart data to be restored
+	 *
+	 * @return void
+	 */
+	public function store_current() {
+		$cart = WC()->cart;
+
+		$this->cart = array(
+			'cart_contents'         => $cart->get_cart_contents(),
+			'applied_coupons'       => $cart->get_applied_coupons(),
+			'removed_cart_contents' => $cart->get_removed_cart_contents(),
+		);
+	}
+	/**
+	 * Restore cart
+	 *
+	 * @return void
+	 */
+	public function restore() {
+		if ( $this->cart !== null ) {
+			$cart = WC()->cart;
+			$cart->empty_cart();
+			$cart->set_cart_contents( $this->cart['cart_contents'] );
+			$cart->set_applied_coupons( $this->cart['applied_coupons'] );
+			$cart->set_removed_cart_contents( $this->cart['removed_cart_contents'] );
+			$cart->calculate_totals();
+		}
+	}
 }

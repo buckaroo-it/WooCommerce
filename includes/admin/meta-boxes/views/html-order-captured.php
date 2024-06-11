@@ -18,9 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php
 			printf(
 				esc_html__( 'Capture - #%s', 'woocommerce' ),
-				esc_attr($singleCapture['id'])
+				esc_attr( $singleCapture['id'] )
 			);
-		?>
+			?>
 		<input type="hidden" class="order_capture_id" name="order_capture_id[]" value="<?php echo esc_attr( $singleCapture['id'] ); ?>" />
 	</td>
 
@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="view">
 			<?php
 			echo wp_kses_post(
-				wc_price(str_replace(',', '.', $singleCapture['amount']), array( 'currency' => $singleCapture['currency'] ) )
+				wc_price( str_replace( ',', '.', $singleCapture['amount'] ), array( 'currency' => $singleCapture['currency'] ) )
 			);
 			?>
 		</div>
