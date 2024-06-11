@@ -12,24 +12,24 @@
  * @link      https://www.buckaroo.eu/
  */
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
-$section_id = str_replace("_", "-", $this->id);
+$section_id = str_replace( '_', '-', $this->id );
 
 $allGenders = BuckarooConfig::getAllGendersForPaymentMethods();
-$genderVal = $allGenders[$section_id] ?? [];
+$genderVal  = $allGenders[ $section_id ] ?? array();
 ?>
 <p class="form-row">
-    <label for="<?php echo esc_attr($section_id)?>-gender">
-        <?php echo __('Gender:', 'wc-buckaroo-bpe-gateway') ?>
-        <span class="required">*</span>
-    </label>
-    <select name="<?php echo esc_attr($section_id)?>-gender" id="<?php echo esc_attr($section_id)?>-gender">
-        <?php
-            foreach ($genderVal as $key => $value) {
-	            $translatedLabel = BuckarooConfig::translateGender($key);
-	            echo '<option value="' . esc_attr($value) . '">' . esc_html($translatedLabel) . '</option>';
-            }
-        ?>
-    </select>
+	<label for="<?php echo esc_attr( $section_id ); ?>-gender">
+		<?php echo __( 'Gender:', 'wc-buckaroo-bpe-gateway' ); ?>
+		<span class="required">*</span>
+	</label>
+	<select name="<?php echo esc_attr( $section_id ); ?>-gender" id="<?php echo esc_attr( $section_id ); ?>-gender">
+		<?php
+		foreach ( $genderVal as $key => $value ) {
+			$translatedLabel = BuckarooConfig::translateGender( $key );
+			echo '<option value="' . esc_attr( $value ) . '">' . esc_html( $translatedLabel ) . '</option>';
+		}
+		?>
+	</select>
 </p>

@@ -18,8 +18,8 @@ require_once $_tests_dir . '/includes/functions.php';
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin() {
-	require dirname( dirname( __FILE__ ) ) . '/gateway-buckaroo.php';
-	require dirname(dirname( dirname( __FILE__ )) ) . '/woocommerce/woocommerce.php';
+	require dirname( __DIR__ ) . '/gateway-buckaroo.php';
+	require dirname( dirname( __DIR__ ) ) . '/woocommerce/woocommerce.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 

@@ -26,10 +26,9 @@ class BK_Admin_Post_Types {
 	 * Constructor.
 	 */
 	public function __construct() {
-		include_once dirname( __FILE__ ) . '/class-wc-admin-meta-boxes.php';
+		include_once __DIR__ . '/class-wc-admin-meta-boxes.php';
 
 		add_filter( 'default_hidden_meta_boxes', array( $this, 'hidden_meta_boxes' ), 10, 2 );
-
 	}
 
 	/**
@@ -57,7 +56,6 @@ class BK_Admin_Post_Types {
 
 		return $hidden;
 	}
-
 }
 
 new BK_Admin_Post_Types();

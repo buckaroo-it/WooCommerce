@@ -39,7 +39,6 @@ class BK_Admin_Meta_Boxes {
 	public function __construct() {
 		add_action( 'add_meta_boxes_shop_order', array( $this, 'add_meta_boxes' ), 30 );
 
-		
 		/**
 		 * Save Order Meta Boxes.
 		 *
@@ -111,9 +110,9 @@ class BK_Admin_Meta_Boxes {
 	 * Add WC Meta boxes.
 	 */
 	public function add_meta_boxes( $post ) {
-		$screen    = get_current_screen();
-		$order = wc_get_order($post->ID);
-        if ($order->get_payment_method() === 'buckaroo_klarnakp') {
+		$screen = get_current_screen();
+		$order  = wc_get_order( $post->ID );
+		if ( $order->get_payment_method() === 'buckaroo_klarnakp' ) {
 			return;
 		}
 		// Orders.
@@ -121,10 +120,7 @@ class BK_Admin_Meta_Boxes {
 			$order_type_object = get_post_type_object( $type );
 			add_meta_box( 'buckaroo-order-capture', __( 'Capture order', 'woocommerce' ), 'BK_Meta_Box_Order_Items::output', $type, 'normal', 'low' );
 		}
-
 	}
-
-
 }
 
 new BK_Admin_Meta_Boxes();

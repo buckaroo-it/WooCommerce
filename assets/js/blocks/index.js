@@ -1,192 +1,220 @@
-import React, {useEffect, useState} from 'react';
-import DefaultPayment from "./gateways/default_payment";
-import {convertUnderScoreToDash, decodeHtmlEntities} from './utils/utils';
-import {BuckarooLabel} from "./components/BuckarooLabel";
-import {BuckarooApplepay} from "./components/BuckarooApplepay";
-import {BuckarooPaypalExpress} from "./components/BuckarooPaypalExpress";
+import React, { useEffect, useState } from 'react';
+import DefaultPayment from './gateways/default_payment';
+import { convertUnderScoreToDash, decodeHtmlEntities } from './utils/utils';
+import BuckarooLabel from './components/BuckarooLabel';
+import { BuckarooApplepay } from './components/BuckarooApplepay';
+import BuckarooPaypalExpress from './components/BuckarooPaypalExpress';
 
 const customTemplatePaymentMethodIds = [
-    'buckaroo_afterpay', 'buckaroo_afterpaynew', 'buckaroo_billink', 'buckaroo_creditcard',
-    'buckaroo_ideal', 'buckaroo_in3', 'buckaroo_klarnakp', 'buckaroo_klarnapay',
-    'buckaroo_klarnapii', 'buckaroo_paybybank', 'buckaroo_payperemail', 'buckaroo_sepadirectdebit'
+  'buckaroo_afterpay',
+  'buckaroo_afterpaynew',
+  'buckaroo_billink',
+  'buckaroo_creditcard',
+  'buckaroo_ideal',
+  'buckaroo_in3',
+  'buckaroo_klarnakp',
+  'buckaroo_klarnapay',
+  'buckaroo_klarnapii',
+  'buckaroo_paybybank',
+  'buckaroo_payperemail',
+  'buckaroo_sepadirectdebit',
 ];
 
 const separateCreditCards = [
-    "buckaroo_creditcard_amex",
-    "buckaroo_creditcard_cartebancaire",
-    "buckaroo_creditcard_cartebleuevisa",
-    "buckaroo_creditcard_dankort",
-    "buckaroo_creditcard_maestro",
-    "buckaroo_creditcard_mastercard",
-    "buckaroo_creditcard_nexi",
-    "buckaroo_creditcard_postepay",
-    "buckaroo_creditcard_visa",
-    "buckaroo_creditcard_visaelectron",
-    "buckaroo_creditcard_vpay",
+  'buckaroo_creditcard_amex',
+  'buckaroo_creditcard_cartebancaire',
+  'buckaroo_creditcard_cartebleuevisa',
+  'buckaroo_creditcard_dankort',
+  'buckaroo_creditcard_maestro',
+  'buckaroo_creditcard_mastercard',
+  'buckaroo_creditcard_nexi',
+  'buckaroo_creditcard_postepay',
+  'buckaroo_creditcard_visa',
+  'buckaroo_creditcard_visaelectron',
+  'buckaroo_creditcard_vpay',
 ];
 
-const BuckarooComponent = ({billing, gateway, eventRegistration, emitResponse}) => {
-    const [errorMessage, setErrorMessage] = useState('');
-    const [PaymentComponent, setPaymentComponent] = useState(null);
-    const [activePaymentMethodState, setActivePaymentMethodState] = useState({});
-    const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
+function PaymentComponentLoader({
+  methodId, methodName, gateway, billing, onPaymentStateChange, setErrorMessage,
+}) {
+  const [PaymentComponent, setPaymentComponent] = useState(null);
 
-    const onPaymentStateChange = (newState) => {
-        setActivePaymentMethodState(newState);
+  useEffect(() => {
+    const loadPaymentComponent = async () => {
+      try {
+        let LoadedComponent = DefaultPayment;
+        if (customTemplatePaymentMethodIds.includes(methodId)) {
+          ({ default: LoadedComponent } = await import(`./gateways/${methodId}`));
+        } else if (separateCreditCards.includes(methodId)) {
+          ({ default: LoadedComponent } = await import('./gateways/buckaroo_separate_credit_card'));
+        }
+        setPaymentComponent(() => LoadedComponent);
+      } catch (error) {
+        console.error(`Error importing payment method module for ${methodId}:`, error);
+        setErrorMessage(`Error loading payment component for ${methodId}`);
+      }
     };
 
-    useEffect(() => {
-        const unsubscribe = eventRegistration.onCheckoutFail((props) => {
-            setErrorMessage(props.processingResponse.paymentDetails.errorMessage);
-            return {
-                type: emitResponse.responseTypes.FAIL,
-                errorMessage: 'Error',
-                message: 'Error occurred, please try again',
-            };
-        });
-        return () => unsubscribe();
-    }, [eventRegistration, emitResponse]);
+    loadPaymentComponent();
+  }, [methodId, setErrorMessage]);
 
-    useEffect(() => {
-        const unsubscribe = eventRegistration.onPaymentSetup(() => {
-            let response = {
-                type: emitResponse.responseTypes.SUCCESS, meta: {},
-            };
+  if (!PaymentComponent) {
+    return <div>Loading...</div>;
+  }
 
-            response.meta.paymentMethodData = {
-                ...activePaymentMethodState,
-                'isblocks': '1',
-                'billing_company': billing.billingAddress.company,
-                'billing_country': billing.billingAddress.country,
-                'billing_address_1': billing.billingAddress.address_1,
-                'billing_address_2': billing.billingAddress.address_2,
-            };
-
-            return response;
-        });
-        return () => unsubscribe();
-    }, [eventRegistration, emitResponse, gateway.paymentMethodId]);
-
-
-    useEffect(() => {
-        const loadPaymentComponent = async (methodId) => {
-            try {
-                let LoadedComponent = DefaultPayment;
-                if (customTemplatePaymentMethodIds.includes(methodId)) {
-                    ({default: LoadedComponent} = await import(`./gateways/${methodId}`));
-                } else if (separateCreditCards.includes(methodId)) {
-                    ({default: LoadedComponent} = await import(`./gateways/buckaroo_separate_credit_card`));
-                }
-                setPaymentComponent(() => () => <LoadedComponent onStateChange={onPaymentStateChange}
-                                                                 methodName={methodName} gateway={gateway}
-                                                                 billing={billing.billingData}/>);
-            } catch (error) {
-                console.error(`Error importing payment method module for ${methodId}:`, error);
-                setErrorMessage(`Error loading payment component for ${methodId}`);
-            }
-        };
-
-        loadPaymentComponent(gateway.paymentMethodId);
-    }, [gateway.paymentMethodId, billing.billingData]); // Make sure billing.billingData is included here
-
-    if (!PaymentComponent) {
-        return <div>Loading...</div>;
-    }
-
-    return (
-        <div className='container'>
-            <span className='description'>{gateway.description}</span>
-            <span className='descriptionError'>{errorMessage}</span>
-            <PaymentComponent/>
-        </div>
-    );
+  return (
+    <PaymentComponent
+      onStateChange={onPaymentStateChange}
+      methodName={methodName}
+      gateway={gateway}
+      billing={billing.billingData}
+    />
+  );
 }
 
-const registerBuckarooPaymentMethods = ({wc, buckaroo_gateways}) => {
-    const {registerPaymentMethod} = wc.wcBlocksRegistry;
-    buckaroo_gateways.forEach((gateway) => {
-        registerPaymentMethod(createOptions(gateway, BuckarooComponent));
+PaymentComponentLoader.displayName = 'PaymentComponentLoader';
+
+function BuckarooComponent({
+  billing, gateway, eventRegistration, emitResponse,
+}) {
+  const [errorMessage, setErrorMessage] = useState('');
+  const [activePaymentMethodState, setActivePaymentMethodState] = useState({});
+  const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
+
+  const onPaymentStateChange = (newState) => {
+    setActivePaymentMethodState(newState);
+  };
+
+  useEffect(() => {
+    const unsubscribe = eventRegistration.onCheckoutFail((props) => {
+      setErrorMessage(props.processingResponse.paymentDetails.errorMessage);
+      return {
+        type: emitResponse.responseTypes.FAIL,
+        errorMessage: 'Error',
+        message: 'Error occurred, please try again',
+      };
     });
-}
-const registerBuckarooExpressPaymentMethods = async ({ wc, buckaroo_gateways }) => {
+    return () => unsubscribe();
+  }, [eventRegistration, emitResponse]);
 
-    const ready = async () => {
-        return new Promise((resolve) => {
-            document.addEventListener('bk-jquery-loaded', () => resolve(true), {once : true})
-            setTimeout(() => resolve(false), 5000)
-        });
-    };
-    if (!await ready()) {
-        return;
-    }
+  useEffect(() => {
+    const unsubscribe = eventRegistration.onPaymentSetup(() => {
+      const response = {
+        type: emitResponse.responseTypes.SUCCESS,
+        meta: {},
+      };
 
-    const applepay = buckaroo_gateways.find((gateway) => {
-        return gateway.paymentMethodId === "buckaroo_applepay";
-    })
-    await registerApplePay(applepay);
+      response.meta.paymentMethodData = {
+        ...activePaymentMethodState,
+        isblocks: '1',
+        billing_company: billing.billingAddress.company,
+        billing_country: billing.billingAddress.country,
+        billing_address_1: billing.billingAddress.address_1,
+        billing_address_2: billing.billingAddress.address_2,
+      };
 
-    const paypalExpress = buckaroo_gateways.find((gateway) => {
-        return gateway.paymentMethodId === "buckaroo_paypal";
-    })
+      return response;
+    });
+    return () => unsubscribe();
+  }, [eventRegistration, emitResponse, gateway.paymentMethodId, activePaymentMethodState, billing.billingAddress]);
 
-    await registerPaypalExpress(paypalExpress);
-}
-
-const registerPaypalExpress = async(gateway) => {
-    if (gateway === undefined) {
-        return;
-    }
-
-    if (gateway.showInCheckout) {
-        const { registerExpressPaymentMethod } = wc.wcBlocksRegistry;
-
-        registerExpressPaymentMethod({
-            name: 'buckaroo_paypal_express',
-            content: <BuckarooPaypalExpress />,
-            edit: <div />,
-            canMakePayment: () => true,
-            paymentMethodId: 'buckaroo_paypal_express',
-        })
-    }
+  return (
+    <div className="container">
+      <span className="description">{gateway.description}</span>
+      <span className="descriptionError">{errorMessage}</span>
+      <PaymentComponentLoader
+        methodId={gateway.paymentMethodId}
+        methodName={methodName}
+        gateway={gateway}
+        billing={billing}
+        onPaymentStateChange={onPaymentStateChange}
+        setErrorMessage={setErrorMessage}
+      />
+    </div>
+  );
 }
 
-const registerApplePay = async(applepay) => {
-    if (applepay === undefined) {
-        return;
-    }
+BuckarooComponent.displayName = 'BuckarooComponent';
 
-    const checkApplePaySupport = function (merchantIdentifier) {
-        if (!("ApplePaySession" in window))
-            return Promise.resolve(false);
-        if (ApplePaySession === undefined)
-            return Promise.resolve(false);
-        return ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
-    }
+const createOptions = (gateway, Component) => ({
+  name: gateway.paymentMethodId,
+  label: <BuckarooLabel imagePath={gateway.image_path} title={decodeHtmlEntities(gateway.title)} />,
+  paymentMethodId: gateway.paymentMethodId,
+  edit: <div />,
+  canMakePayment: () => true,
+  ariaLabel: gateway.title,
+  content: <Component gateway={gateway} />,
+});
 
-    const canDisplay = await checkApplePaySupport(applepay.merchantIdentifier);
-    if (applepay.showInCheckout && canDisplay) {
-        const { registerExpressPaymentMethod } = wc.wcBlocksRegistry;
+const registerBuckarooPaymentMethods = ({ wc, buckarooGateways }) => {
+  const { registerPaymentMethod } = wc.wcBlocksRegistry;
+  buckarooGateways.forEach((gateway) => {
+    registerPaymentMethod(createOptions(gateway, BuckarooComponent));
+  });
+};
 
-        registerExpressPaymentMethod({
-            name: 'buckaroo_express_applepay',
-            content: <BuckarooApplepay />,
-            edit: <div />,
-            canMakePayment: () => true,
-            paymentMethodId: 'buckaroo_express_applepay',
-        })
-    }
-}
-const createOptions = (gateway, BuckarooComponent) => {
-    return {
-        name: gateway.paymentMethodId,
-        label: <BuckarooLabel image_path={gateway.image_path} title={decodeHtmlEntities(gateway.title)}/>,
-        paymentMethodId: gateway.paymentMethodId,
-        edit: <div/>,
-        canMakePayment: () => true,
-        ariaLabel: gateway.title,
-        content: <BuckarooComponent gateway={gateway}/>
-    }
-}
+const checkApplePaySupport = (merchantIdentifier) => {
+  if (!('ApplePaySession' in window)) return Promise.resolve(false);
+  if (window.ApplePaySession === undefined) return Promise.resolve(false);
+  return window.ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
+};
 
-registerBuckarooPaymentMethods(window)
-await registerBuckarooExpressPaymentMethods(window);
+const registerApplePay = async (applepay, wc) => {
+  if (applepay === undefined) {
+    return;
+  }
+
+  const canDisplay = await checkApplePaySupport(applepay.merchantIdentifier);
+  if (applepay.showInCheckout && canDisplay) {
+    const { registerExpressPaymentMethod } = wc.wcBlocksRegistry;
+
+    registerExpressPaymentMethod({
+      name: 'buckaroo_express_applepay',
+      content: <BuckarooApplepay />,
+      edit: <div />,
+      canMakePayment: () => true,
+      paymentMethodId: 'buckaroo_express_applepay',
+    });
+  }
+};
+
+const registerPaypalExpress = async (paypalExpress, wc) => {
+  if (paypalExpress === undefined) {
+    return;
+  }
+
+  if (paypalExpress.showInCheckout) {
+    const { registerExpressPaymentMethod } = wc.wcBlocksRegistry;
+
+    registerExpressPaymentMethod({
+      name: 'buckaroo_paypal_express',
+      content: <BuckarooPaypalExpress />,
+      edit: <div />,
+      canMakePayment: () => true,
+      paymentMethodId: 'buckaroo_paypal_express',
+    });
+  }
+};
+
+const registerBuckarooExpressPaymentMethods = async ({ wc, buckarooGateways }) => {
+  const ready = async () => new Promise((resolve) => {
+    document.addEventListener('bk-jquery-loaded', () => resolve(true), { once: true });
+    setTimeout(() => resolve(false), 5000);
+  });
+  if (!(await ready())) {
+    return;
+  }
+
+  const applepay = buckarooGateways.find((gateway) => gateway.paymentMethodId === 'buckaroo_applepay');
+  await registerApplePay(applepay, wc);
+
+  const paypalExpress = buckarooGateways.find((gateway) => gateway.paymentMethodId === 'buckaroo_paypal');
+
+  await registerPaypalExpress(paypalExpress, wc);
+};
+
+(async () => {
+  const { wc, buckarooGateways } = window;
+  registerBuckarooPaymentMethods({ wc, buckarooGateways });
+  await registerBuckarooExpressPaymentMethods({ wc, buckarooGateways });
+})();
