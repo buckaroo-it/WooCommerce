@@ -33,10 +33,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<td class="line_cost" width="1%">
 		<div class="view">
 			<?php
-			echo wp_kses_post(wc_price( $item->get_total(), array( 'currency' => $order->get_currency() ) ));
+			echo wp_kses_post( wc_price( $item->get_total(), array( 'currency' => $order->get_currency() ) ) );
 
 			if ( $refunded = $order->get_total_refunded_for_item( $item_id, 'fee' ) ) {
-				echo '<small class="refunded">-' . wp_kses_post(wc_price( $refunded, array( 'currency' => $order->get_currency() ) )) . '</small>';
+				echo '<small class="refunded">-' . wp_kses_post( wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) ) . '</small>';
 			}
 			?>
 		</div>
@@ -57,15 +57,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<td class="line_tax" width="1%">
 				<div class="view">
 					<?php
-					echo ( '' !== $tax_item_total ) ? wp_kses_post(wc_price( wc_round_tax_total( $tax_item_total ), array( 'currency' => $order->get_currency() ) )) : '&ndash;';
+					echo ( '' !== $tax_item_total ) ? wp_kses_post( wc_price( wc_round_tax_total( $tax_item_total ), array( 'currency' => $order->get_currency() ) ) ) : '&ndash;';
 
 					if ( $refunded = $order->get_tax_refunded_for_item( $item_id, $tax_item_id, 'fee' ) ) {
-						echo '<small class="refunded">-' . wp_kses_post(wc_price( $refunded, array( 'currency' => $order->get_currency() ) )) . '</small>';
+						echo '<small class="refunded">-' . wp_kses_post( wc_price( $refunded, array( 'currency' => $order->get_currency() ) ) ) . '</small>';
 					}
 					?>
 				</div>
 				<div class="capture" style="display: none;">
-					<input type="text" name="line_tax[<?php echo absint( $item_id ); ?>][<?php echo esc_attr( $tax_item_id ); ?>]" placeholder="<?php echo esc_attr( 0 ); ?>" value="<?php echo ( isset( $tax_item_total ) ) ? esc_attr( roundAmount($tax_item_total) ) : ''; ?>" class="line_tax wc_input_price" />
+					<input type="text" name="line_tax[<?php echo absint( $item_id ); ?>][<?php echo esc_attr( $tax_item_id ); ?>]" placeholder="<?php echo esc_attr( 0 ); ?>" value="<?php echo ( isset( $tax_item_total ) ) ? esc_attr( roundAmount( $tax_item_total ) ) : ''; ?>" class="line_tax wc_input_price" />
 				</div>
 				<div class="refund" style="display: none;">
 					<input type="text" name="refund_line_tax[<?php echo absint( $item_id ); ?>][<?php echo esc_attr( $tax_item_id ); ?>]" placeholder="<?php echo esc_attr( wc_format_localized_price( 0 ) ); ?>" class="refund_line_tax wc_input_price" data-tax_id="<?php echo esc_attr( $tax_item_id ); ?>" />

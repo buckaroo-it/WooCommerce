@@ -12,8 +12,8 @@
  * @link      https://www.buckaroo.eu/
  */
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 ?>
 <fieldset>
-    <?php $this->getPaymentTemplate('financial_warning'); ?>
+	<?php $this->getPaymentTemplate( 'financial_warning' ); ?>
 </fieldset>

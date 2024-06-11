@@ -4,4 +4,5 @@
 vendor/
 .idea/
 composer.lock
+.eslintrc.json
 

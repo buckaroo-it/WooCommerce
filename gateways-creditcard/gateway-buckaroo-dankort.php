@@ -11,11 +11,11 @@
  * @version   GIT: 2.25.0
  * @link      https://www.buckaroo.eu/
  */
-class WC_Gateway_Buckaroo_Dankort extends Buckaroo_Creditcard_Single
-{
-    public function setParameters() {
-        $this->id                     = 'buckaroo_creditcard_dankort';
-        $this->title                  = 'Dankort';
-        $this->method_title           = "Buckaroo Dankort";
-    }
+class WC_Gateway_Buckaroo_Dankort extends Buckaroo_Creditcard_Single {
+
+	public function setParameters() {
+		$this->id           = 'buckaroo_creditcard_dankort';
+		$this->title        = 'Dankort';
+		$this->method_title = 'Buckaroo Dankort';
+	}
 }

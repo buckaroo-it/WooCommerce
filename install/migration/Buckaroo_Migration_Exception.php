@@ -11,7 +11,7 @@
  * @version   GIT: 2.25.0
  * @link      https://www.buckaroo.eu/
  */
-class Buckaroo_Migration_Exception extends \Exception
-{
+class Buckaroo_Migration_Exception extends \Exception {
+
 
 }

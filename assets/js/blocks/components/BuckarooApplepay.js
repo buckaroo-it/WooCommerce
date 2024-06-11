@@ -1,22 +1,21 @@
 import React, { useEffect } from 'react';
 
-export const BuckarooApplepay = ({ billing }) => {
+function BuckarooApplepay({ billing }) {
+  const totalValue = billing.cartTotal.value;
 
-    const totalValue = billing.cartTotal.value;
-    useEffect(() => {
-        document.dispatchEvent(new Event("applepayRefresh"));
-    }, [
-        totalValue
-    ]);
+  useEffect(() => {
+    document.dispatchEvent(new Event('applepayRefresh'));
+  }, [totalValue]);
 
+  useEffect(() => {
+    if (window.BuckarooInitApplePay) {
+      window.BuckarooInitApplePay();
+    }
+  }, []);
 
-    useEffect(() => {
-        if (BuckarooInitApplePay) {
-            BuckarooInitApplePay();
-        }
-    }, []);
+  return (
+    <div className="applepay-button-container"><div /></div>
+  );
+}
 
-    return (
-        <div class='applepay-button-container'><div></div></div>
-    );
-};
+export default BuckarooApplepay;

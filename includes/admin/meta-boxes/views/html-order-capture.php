@@ -34,7 +34,7 @@ if ( wc_tax_enabled() ) {
 }
 
 #order_line_items .capture-item {
-    border: none;
+	border: none;
 }
 
 #order_line_items .capture-item td.name
@@ -65,7 +65,7 @@ if ( wc_tax_enabled() ) {
 }	
 
 #order_shipping_line_items .display_meta td {
-    border:  none;
+	border:  none;
 }
 
 #order_shipping_line_items .line_cost {
@@ -84,7 +84,7 @@ if ( wc_tax_enabled() ) {
 .capture-totals  {
 	width: 100%!important;
 	background-color: rgb(248, 248, 248);
-    float: right;
+	float: right;
 	
 	
 }
@@ -107,7 +107,7 @@ if ( wc_tax_enabled() ) {
 }
 
 .capture-actions {
-    float: right;
+	float: right;
 	height: 40px;
 	padding-right: 30px;
 	padding-top:10px;
@@ -154,22 +154,22 @@ if ( wc_tax_enabled() ) {
 		</thead>
 		<tbody id="order_line_items">
 			<?php
-            
-			$captures = get_post_meta( $order->get_id(), '_wc_order_captures') ? get_post_meta( $order->get_id(), '_wc_order_captures') : false;
 
-				foreach ( $line_items as $item_id => $item ) {
-					do_action( 'woocommerce_before_order_item_' . $item->get_type() . '_html', $item_id, $item, $order );
-	
-					include 'html-order-item.php';
-	
-					do_action( 'woocommerce_order_item_' . $item->get_type() . '_html', $item_id, $item, $order );
-				}
+			$captures = get_post_meta( $order->get_id(), '_wc_order_captures' ) ? get_post_meta( $order->get_id(), '_wc_order_captures' ) : false;
+
+			foreach ( $line_items as $item_id => $item ) {
+				do_action( 'woocommerce_before_order_item_' . $item->get_type() . '_html', $item_id, $item, $order );
+
+				include 'html-order-item.php';
+
+				do_action( 'woocommerce_order_item_' . $item->get_type() . '_html', $item_id, $item, $order );
+			}
 
 			do_action( 'woocommerce_admin_order_items_after_line_items', $order->get_id() );
 			?>
 		</tbody>
 		<tbody>
-				<tr><td class="shipping_spacer" colspan="<?php echo (wc_tax_enabled() ? 7 : 6) ?>">&nbsp;</td></tr>
+				<tr><td class="shipping_spacer" colspan="<?php echo ( wc_tax_enabled() ? 7 : 6 ); ?>">&nbsp;</td></tr>
 		</tbody>
 		<tbody id="order_shipping_line_items">
 			<?php
@@ -181,8 +181,8 @@ if ( wc_tax_enabled() ) {
 			?>
 		</tbody>
 		<?php
-		if ( !$captures ) { 
-		?>
+		if ( ! $captures ) {
+			?>
 		<tbody id="order_fee_line_items">
 			<?php
 			foreach ( $line_items_fee as $item_id => $item ) {
@@ -193,17 +193,17 @@ if ( wc_tax_enabled() ) {
 		</tbody>
 		<?php } ?>
 		<tbody>
-				<tr><td class="shipping_spacer" colspan="<?php echo (wc_tax_enabled() ? 7 : 6) ?>">&nbsp;</td></tr>
+				<tr><td class="shipping_spacer" colspan="<?php echo ( wc_tax_enabled() ? 7 : 6 ); ?>">&nbsp;</td></tr>
 		</tbody>		
 		<tbody id="order_captures">
 			<?php
-			
+
 			if ( $captures ) {
-			?>
-			<tr><td colspan="<?php echo (wc_tax_enabled() ? 7 : 6) ?>"><strong>
-			<?php echo esc_html__( 'Previous capture(s)', 'woocommerce');  ?>
+				?>
+			<tr><td colspan="<?php echo ( wc_tax_enabled() ? 7 : 6 ); ?>"><strong>
+				<?php echo esc_html__( 'Previous capture(s)', 'woocommerce' ); ?>
 			</strong></td></tr>
-			<?php
+				<?php
 
 				foreach ( $captures as $singleCapture ) {
 
@@ -212,7 +212,7 @@ if ( wc_tax_enabled() ) {
 				do_action( 'woocommerce_admin_order_items_after_captures', $order->get_id() );
 			}
 			?>
-			<tr><td colspan="<?php echo (wc_tax_enabled() ? 7 : 6) ?>">&nbsp;</td></tr>			
+			<tr><td colspan="<?php echo ( wc_tax_enabled() ? 7 : 6 ); ?>">&nbsp;</td></tr>			
 		</tbody>
 	</table>
 </div>
@@ -227,7 +227,7 @@ if ( wc_tax_enabled() ) {
 				<?php
 				foreach ( $coupons as $item_id => $item ) :
 					$cp_post_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_title = %s AND post_type = 'shop_coupon' AND post_status = 'publish' LIMIT 1;", $item->get_code() ) ); // phpcs:disable WordPress.WP.GlobalVariablesOverride.OverrideProhibited
-					$class   = $order->is_editable() ? 'code editable' : 'code';
+					$class      = $order->is_editable() ? 'code editable' : 'code';
 					?>
 					<li class="<?php echo esc_attr( $class ); ?>">
 						<?php if ( $cp_post_id ) : ?>
@@ -267,7 +267,7 @@ if ( wc_tax_enabled() ) {
 				<td class="label"><?php esc_html_e( 'Discount:', 'woocommerce' ); ?></td>
 				<td width="1%"></td>
 				<td class="total">
-					<?php echo wp_kses_post(wc_price( $order->get_total_discount(), array( 'currency' => $order->get_currency() ) ));  ?>
+					<?php echo wp_kses_post( wc_price( $order->get_total_discount(), array( 'currency' => $order->get_currency() ) ) ); ?>
 				</td>
 			</tr>
 		<?php endif; ?>
@@ -280,11 +280,11 @@ if ( wc_tax_enabled() ) {
 				<td width="1%"></td>
 				<td class="total">
 					<?php
-                    $captured = false;
+					$captured = false;
 					if ( $captured > 0 ) {
-						echo '<del>' . wp_kses_post( wc_price( $order->get_shipping_total(), array( 'currency' => $order->get_currency() ) ) ) . '</del> <ins>' . wp_kses_post(wc_price( $order->get_shipping_total() - $captured, array( 'currency' => $order->get_currency() ) )) . '</ins>';
+						echo '<del>' . wp_kses_post( wc_price( $order->get_shipping_total(), array( 'currency' => $order->get_currency() ) ) ) . '</del> <ins>' . wp_kses_post( wc_price( $order->get_shipping_total() - $captured, array( 'currency' => $order->get_currency() ) ) ) . '</ins>';
 					} else {
-						echo wp_kses_post(wc_price( $order->get_shipping_total(), array( 'currency' => $order->get_currency() ) ));
+						echo wp_kses_post( wc_price( $order->get_shipping_total(), array( 'currency' => $order->get_currency() ) ) );
 					}
 					?>
 				</td>
@@ -300,9 +300,9 @@ if ( wc_tax_enabled() ) {
 					<td width="1%"></td>
 					<td class="total">
 						<?php
-                        $captured = false;
+						$captured = false;
 						if ( $captured > 0 ) {
-							echo '<del>' . wp_kses_post( $tax_total->formatted_amount ) . '</del> <ins>' . wp_kses_post(wc_price( roundAmount( $tax_total->amount ) - roundAmount( $captured ), array( 'currency' => $order->get_currency() ) )) . '</ins>';
+							echo '<del>' . wp_kses_post( $tax_total->formatted_amount ) . '</del> <ins>' . wp_kses_post( wc_price( roundAmount( $tax_total->amount ) - roundAmount( $captured ), array( 'currency' => $order->get_currency() ) ) ) . '</ins>';
 						} else {
 							echo wp_kses_post( $tax_total->formatted_amount );
 						}
@@ -318,17 +318,17 @@ if ( wc_tax_enabled() ) {
 			<td class="label"><?php esc_html_e( 'Total', 'woocommerce' ); ?>:</td>
 			<td width="1%"></td>
 			<td class="total">
-				<?php echo wp_kses_post($order->get_formatted_order_total());  ?>
+				<?php echo wp_kses_post( $order->get_formatted_order_total() ); ?>
 			</td>
 		</tr>
 
 		<?php do_action( 'woocommerce_admin_order_totals_after_total', $order->get_id() ); ?>
 
-		<?php if ( isset($amountAlreadyCaptured) && $amountAlreadyCaptured ) : ?>
+		<?php if ( isset( $amountAlreadyCaptured ) && $amountAlreadyCaptured ) : ?>
 			<tr>
 				<td class="label captured-total"><?php esc_html_e( 'Captured', 'woocommerce' ); ?>:</td>
 				<td width="1%"></td>
-				<td class="total captured-total">-<?php echo wp_kses_post(wc_price( $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) ));  ?></td>
+				<td class="total captured-total">-<?php echo wp_kses_post( wc_price( $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) ) ); ?></td>
 			</tr>
 		<?php endif; ?>
 
@@ -339,11 +339,12 @@ if ( wc_tax_enabled() ) {
 </div>
 <div class="wc-order-data-row wc-capture-bulk-actions wc-order-capture-data-row-toggle">
 	<p class="add-items">
-		<?php 
-			if (!isset($amountAlreadyCaptured)) {
-                $amountAlreadyCaptured = 0;
-			}
-			if ( 0 < $order->get_total() - $amountAlreadyCaptured || 0 < absint( $order->get_item_count() - $order->get_item_count_captured() ) ) : ?>
+		<?php
+		if ( ! isset( $amountAlreadyCaptured ) ) {
+			$amountAlreadyCaptured = 0;
+		}
+		if ( 0 < $order->get_total() - $amountAlreadyCaptured || 0 < absint( $order->get_item_count() - $order->get_item_count_captured() ) ) :
+			?>
 			<button type="button" class="button capture-items">Capture</button>
 		<?php endif; ?>
 		<?php
@@ -367,30 +368,30 @@ if ( wc_tax_enabled() ) {
 	<button type="button" class="button cancel-action"><?php esc_html_e( 'Cancel', 'woocommerce' ); ?></button>
 	<button type="button" class="button button-primary save-action"><?php esc_html_e( 'Save', 'woocommerce' ); ?></button>
 </div>
-<?php 
+<?php
 
-$amountAlreadyCaptured = get_post_meta( $order->get_id(), '_wc_order_amount_captured', true ) ? (float) str_replace(',', '.', get_post_meta( $order->get_id(), '_wc_order_amount_captured', true )) : 0;
+$amountAlreadyCaptured = get_post_meta( $order->get_id(), '_wc_order_amount_captured', true ) ? (float) str_replace( ',', '.', get_post_meta( $order->get_id(), '_wc_order_amount_captured', true ) ) : 0;
 
-if ( $order->get_total() - $amountAlreadyCaptured  > 0) :
+if ( $order->get_total() - $amountAlreadyCaptured > 0 ) :
 
-?>
+	?>
 <div class="wc-order-data-row wc-order-capture-items wc-order-capture-data-row-toggle" style="display: none;">
 	<table class="wc-order-totals capture-totals">
 		<tr>
 	
 			<td class="label"><?php esc_html_e( 'Amount already captured', 'woocommerce' ); ?>:</td>
-			<td class="total"><?php echo wp_kses_post(wc_price( $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) ));  ?></td>
+			<td class="total"><?php echo wp_kses_post( wc_price( $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) ) ); ?></td>
 		</tr>
 		<tr>
 		
 			<td class="label"><?php esc_html_e( 'Total available to capture', 'woocommerce' ); ?>:</td>
-			<td class="total"><?php echo wp_kses_post(wc_price( $order->get_total() - $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) ));  ?></td>
+			<td class="total"><?php echo wp_kses_post( wc_price( $order->get_total() - $amountAlreadyCaptured, array( 'currency' => $order->get_currency() ) ) ); ?></td>
 		</tr>
 		<tr>
 	
 			<td class="label">
 				<label for="capture_amount">
-					<?php echo wp_kses_post(wc_help_tip( __( 'Capture the line items above. This will show the total amount to be captured', 'woocommerce' ) )); ?>
+					<?php echo wp_kses_post( wc_help_tip( __( 'Capture the line items above. This will show the total amount to be captured', 'woocommerce' ) ) ); ?>
 					<?php esc_html_e( 'Capture amount', 'woocommerce' ); ?>:
 				</label>
 			</td>
@@ -404,7 +405,7 @@ if ( $order->get_total() - $amountAlreadyCaptured  > 0) :
 	<div class="capture-actions">
 		<?php
 		$capture_amount = '<span class="wc-order-capture-amount">' . wc_price( 0, array( 'currency' => $order->get_currency() ) ) . '</span>';
-		$gateway_name  = false !== $payment_gateway ? ( ! empty( $payment_gateway->method_title ) ? $payment_gateway->method_title : $payment_gateway->get_title() ) : __( 'Payment gateway', 'woocommerce' );
+		$gateway_name   = false !== $payment_gateway ? ( ! empty( $payment_gateway->method_title ) ? $payment_gateway->method_title : $payment_gateway->get_title() ) : __( 'Payment gateway', 'woocommerce' );
 		?>
 		<?php /* translators: capture amount  */ ?>
 		<button type="button" class="button button-primary do-manual-capture tips" ><?php printf( esc_html__( 'Capture %s', 'woocommerce' ), wp_kses_post( $capture_amount ) ); ?></button>
@@ -442,7 +443,7 @@ if ( $order->get_total() - $amountAlreadyCaptured  > 0) :
 							?>
 							<tbody data-row="<?php echo esc_attr( $row ); ?>">
 								<tr>
-									<?php echo esc_html($row);  ?>
+									<?php echo esc_html( $row ); ?>
 								</tr>
 							</tbody>
 						</table>
@@ -488,12 +489,12 @@ if ( $order->get_total() - $amountAlreadyCaptured  > 0) :
 							echo '
 									<tr>
 										<td><input type="radio" id="add_order_tax_' . absint( $rate->tax_rate_id ) . '" name="add_order_tax" value="' . absint( $rate->tax_rate_id ) . '" /></td>
-										<td><label for="add_order_tax_' . absint( $rate->tax_rate_id ) . '">' . esc_html(WC_Tax::get_rate_label( $rate )) . '</label></td>
-										<td>' . ( isset( $classes_options[ $rate->tax_rate_class ] ) ? esc_html($classes_options[ $rate->tax_rate_class ]) : '-' ) . '</td>
-										<td>' . esc_html(WC_Tax::get_rate_code( $rate )) . '</td>
-										<td>' . esc_html(WC_Tax::get_rate_percent( $rate )) . '</td>
+										<td><label for="add_order_tax_' . absint( $rate->tax_rate_id ) . '">' . esc_html( WC_Tax::get_rate_label( $rate ) ) . '</label></td>
+										<td>' . ( isset( $classes_options[ $rate->tax_rate_class ] ) ? esc_html( $classes_options[ $rate->tax_rate_class ] ) : '-' ) . '</td>
+										<td>' . esc_html( WC_Tax::get_rate_code( $rate ) ) . '</td>
+										<td>' . esc_html( WC_Tax::get_rate_percent( $rate ) ) . '</td>
 									</tr>
-								'; 
+								';
 						}
 						?>
 						</table>

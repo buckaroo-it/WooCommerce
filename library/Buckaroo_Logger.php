@@ -13,25 +13,22 @@ require_once 'config.php';
  * @version   GIT: 2.25.0
  * @link      https://www.buckaroo.eu/
  */
-class Buckaroo_Logger
-{
-    /**
-     * Log into into storage
-     *
-     * @param mixed $message
-     * @param string $locationId
-     * @param string|null $method
-     *
-     * @return void
-     */
-    public static function log($locationId, $message = null)
-    {   
-        if ($message === null) {
-            $message = $locationId;
-            $locationId = '';
-        }
-        $loggerStorage = Buckaroo_Logger_Storage::get_instance();
-        $loggerStorage->log($locationId, $message);
-    }
+class Buckaroo_Logger {
+
+	/**
+	 * Log into into storage
+	 *
+	 * @param string $locationId
+	 * @param mixed $message
+	 *
+	 * @return void
+	 */
+	public static function log( $locationId, $message = null ) {
+		if ( $message === null ) {
+			$message    = $locationId;
+			$locationId = '';
+		}
+		$loggerStorage = Buckaroo_Logger_Storage::get_instance();
+		$loggerStorage->log( $locationId, $message );
+	}
 }
-?>
