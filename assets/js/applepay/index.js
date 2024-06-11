@@ -21,10 +21,14 @@ window.BuckarooInitApplePay = function () {
     return;
   }
   const applepay = new ApplePay();
-  applepay.rebuild();
-  applepay.init();
-  document.removeEventListener('applepayRefresh', BuckarooListenToApplePayChange(applepay));
-  document.addEventListener('applepayRefresh', BuckarooListenToApplePayChange(applepay));
+  const handleApplePayChange = BuckarooListenToApplePayChange(applepay);
+
+  if (handleApplePayChange) {
+    applepay.rebuild();
+    applepay.init();
+    document.removeEventListener('applepayRefresh', handleApplePayChange);
+    document.addEventListener('applepayRefresh', handleApplePayChange);
+  }
 };
 
 jQuery(() => {

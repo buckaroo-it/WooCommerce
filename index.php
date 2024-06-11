@@ -197,7 +197,7 @@ function get_woocommerce_payment_methods(): array {
 			$payment_methods[] = $payment_method;
 		}
 	}
-	wp_localize_script( 'buckaroo-blocks', 'buckaroo_gateways', $payment_methods );
+	wp_localize_script( 'buckaroo-blocks', 'buckarooGateways', $payment_methods );
 
 	return $payment_methods;
 }
@@ -207,7 +207,7 @@ function enqueue_buckaroo_ideal_block_script() {
 		'buckaroo-blocks',
 		plugins_url( '/assets/js/dist/blocks.js', __FILE__ ),
 		array( 'wc-blocks-registry' ),
-		'1.0.0',
+		BuckarooConfig::VERSION,
 		true
 	);
 

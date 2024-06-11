@@ -1,16 +1,15 @@
 import React, { useEffect } from 'react';
 
-export function BuckarooApplepay({ billing }) {
+function BuckarooApplepay({ billing }) {
   const totalValue = billing.cartTotal.value;
-  useEffect(() => {
-    document.dispatchEvent(new Event('applepayRefresh'));
-  }, [
-    totalValue,
-  ]);
 
   useEffect(() => {
-    if (BuckarooInitApplePay) {
-      BuckarooInitApplePay();
+    document.dispatchEvent(new Event('applepayRefresh'));
+  }, [totalValue]);
+
+  useEffect(() => {
+    if (window.BuckarooInitApplePay) {
+      window.BuckarooInitApplePay();
     }
   }, []);
 
@@ -18,3 +17,5 @@ export function BuckarooApplepay({ billing }) {
     <div className="applepay-button-container"><div /></div>
   );
 }
+
+export default BuckarooApplepay;
