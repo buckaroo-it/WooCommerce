@@ -11,12 +11,12 @@
  * @version   GIT: 2.25.0
  * @link      https://www.buckaroo.eu/
  */
-class WC_Gateway_Buckaroo_Cartebleuevisa extends Buckaroo_Creditcard_Single
-{
+class WC_Gateway_Buckaroo_Cartebleuevisa extends Buckaroo_Creditcard_Single {
 
-    public function setParameters() {
-        $this->id                     = 'buckaroo_creditcard_cartebleuevisa';
-        $this->title                  = 'Carte Bleue';
-        $this->method_title           = "Buckaroo Carte Bleue";
-    }
+
+	public function setParameters() {
+		$this->id           = 'buckaroo_creditcard_cartebleuevisa';
+		$this->title        = 'Carte Bleue';
+		$this->method_title = 'Buckaroo Carte Bleue';
+	}
 }

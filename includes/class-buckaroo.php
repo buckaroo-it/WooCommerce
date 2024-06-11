@@ -57,7 +57,6 @@ final class Buckaroo {
 		if ( $this->is_request( 'admin' ) ) {
 			include_once BK_ABSPATH . 'includes/admin/class-wc-admin.php';
 		}
-	
 	}
 
 	/**
@@ -66,7 +65,6 @@ final class Buckaroo {
 	private function define_constants() {
 
 		$this->define( 'BK_ABSPATH', dirname( BK_PLUGIN_FILE ) . '/' );
-		
 	}
 
 	/**
@@ -100,5 +98,4 @@ final class Buckaroo {
 				return ( ! is_admin() || defined( 'DOING_AJAX' ) ) && ! defined( 'DOING_CRON' ) && ! $this->is_rest_api_request();
 		}
 	}
-
 }

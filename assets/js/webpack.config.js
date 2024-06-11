@@ -5,12 +5,12 @@ const WooCommerceDependencyExtractionWebpackPlugin = require('@woocommerce/depen
 // WooCommerce dependency maps
 const wcDepMap = {
   '@woocommerce/blocks-registry': ['wc', 'wcBlocksRegistry'],
-  '@woocommerce/settings': ['wc', 'wcSettings']
+  '@woocommerce/settings': ['wc', 'wcSettings'],
 };
 
 const wcHandleMap = {
   '@woocommerce/blocks-registry': 'wc-blocks-registry',
-  '@woocommerce/settings': 'wc-settings'
+  '@woocommerce/settings': 'wc-settings',
 };
 
 const requestToExternal = (request) => {
@@ -27,9 +27,9 @@ const requestToHandle = (request) => {
 
 module.exports = {
   entry: {
-    'applepay': './applepay/index.js',
-    'checkout': './checkout/index.js',
-    'blocks': './blocks/index.js' // Adjust this path to your blocks index.js
+    applepay: './applepay/index.js',
+    checkout: './checkout/index.js',
+    blocks: './blocks/index.js', // Adjust this path to your blocks index.js
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -38,29 +38,31 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.jsx?$/, // Allow both .js and .jsx files
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env', '@babel/preset-react'] // Add React preset for JSX
-          }
-        }
+            presets: ['@babel/preset-env', '@babel/preset-react'], // Add React preset for JSX
+          },
+        },
       },
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
-    ]
+    ],
+  },
+  resolve: {
+    extensions: ['.js', '.jsx'], // Resolve both .js and .jsx
   },
   plugins: [
     ...defaultConfig.plugins.filter(
-        (plugin) =>
-            plugin.constructor.name !== 'DependencyExtractionWebpackPlugin'
+      (plugin) => plugin.constructor.name !== 'DependencyExtractionWebpackPlugin',
     ),
     new WooCommerceDependencyExtractionWebpackPlugin({
       requestToExternal,
-      requestToHandle
-    })
-  ]
+      requestToHandle,
+    }),
+  ],
 };

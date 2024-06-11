@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
-Tested up to: 6.4.3
-Stable tag: 3.12.0
+Tested up to: 6.5.4
+Stable tag: 3.13.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -106,6 +106,19 @@ for more detailed release notes visit https://docs.buckaroo.io/docs/woocommerce-
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.13.0 =
+Add support for WordPress 6.5.3
+Add Support for WooCommerce 8.9.2
+BP-3570 Change the default values for authorized giftcard brands.
+BP-3569 Adjustments for the payment method frontend-label and descriptions.
+BP-3572 Payconiq transactions are now being redirected to the Buckaroo Hosted Payment page.
+BP-3585 Fix: Update the plugin WSDL file with HTTPS URL (visual issue).
+BP-3596 Fix: Credit and debitcards error “Expirationyear” value missing.
+BP-3599 Fix: User interface issue for PayByBank.
+BP-3574 Fix: Wrong amount in PUSH notification order notes (visual issue).
+BP-3598 Fix: Remove unnecessary COC & VAT number field for Billink.
+BP-3586 Fix: Astra theme issue on iOS devices (payment logo’s nto aligned correctly)
 
 = 3.12.0 =
 Add support for WordPress 6.5.2

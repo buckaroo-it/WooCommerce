@@ -12,7 +12,7 @@
  * @link      https://www.buckaroo.eu/
  */
 
-class Buckaroo_Paypal_Express_Exception extends \Exception
-{
-    
+class Buckaroo_Paypal_Express_Exception extends \Exception {
+
+
 }

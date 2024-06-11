@@ -58,10 +58,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<td class="line_cost" width="1%">
 		<div class="view">
 			<?php
-			echo wp_kses_post(wc_price( $item->get_total(), array( 'currency' => $order->get_currency() ) ));
-            $captured = false;
+			echo wp_kses_post( wc_price( $item->get_total(), array( 'currency' => $order->get_currency() ) ) );
+			$captured = false;
 			if ( $captured ) {
-				echo '<small class="captured">-' . wp_kses_post(wc_price( $captured, array( 'currency' => $order->get_currency() ) )) . '</small>';
+				echo '<small class="captured">-' . wp_kses_post( wc_price( $captured, array( 'currency' => $order->get_currency() ) ) ) . '</small>';
 			}
 			?>
 		</div>
@@ -69,7 +69,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<input type="text" name="shipping_cost[<?php echo esc_attr( $item_id ); ?>]" placeholder="<?php echo esc_attr( wc_format_localized_price( 0 ) ); ?>" value="<?php echo esc_attr( wc_format_localized_price( $item->get_total() ) ); ?>" class="line_total wc_input_price" />
 		</div>
 		<div class="capture" style="display: none;">
-			<input type="text" value="<?php echo esc_attr($item->get_total()); ?>" name="capture_line_total[<?php echo absint( $item_id ); ?>]" placeholder="<?php echo esc_attr( wc_format_localized_price( 0 ) ); ?>" class="capture_line_total wc_input_price" />
+			<input type="text" value="<?php echo esc_attr( $item->get_total() ); ?>" name="capture_line_total[<?php echo absint( $item_id ); ?>]" placeholder="<?php echo esc_attr( wc_format_localized_price( 0 ) ); ?>" class="capture_line_total wc_input_price" />
 		</div>
 	</td>
 
@@ -82,10 +82,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<td class="line_tax" width="1%">
 				<div class="view">
 					<?php
-					echo ( '' !== $tax_item_total ) ? wp_kses_post(wc_price( wc_round_tax_total( $tax_item_total ), array( 'currency' => $order->get_currency() ) )) : '&ndash;';
-                    $captured = false;
+					echo ( '' !== $tax_item_total ) ? wp_kses_post( wc_price( wc_round_tax_total( $tax_item_total ), array( 'currency' => $order->get_currency() ) ) ) : '&ndash;';
+					$captured = false;
 					if ( $captured ) {
-						echo '<small class="captured">-' . wp_kses_post(wc_price( $captured, array( 'currency' => $order->get_currency() ) )) . '</small>';
+						echo '<small class="captured">-' . wp_kses_post( wc_price( $captured, array( 'currency' => $order->get_currency() ) ) ) . '</small>';
 					}
 					?>
 				</div>
@@ -93,7 +93,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<input type="text" name="shipping_taxes[<?php echo absint( $item_id ); ?>][<?php echo esc_attr( $tax_item_id ); ?>]" placeholder="<?php echo esc_attr( wc_format_localized_price( 0 ) ); ?>" value="<?php echo ( isset( $tax_item_total ) ) ? esc_attr( wc_format_localized_price( $tax_item_total ) ) : ''; ?>" class="line_tax wc_input_price" />
 				</div>
 				<div class="capture" style="display: none;">
-					<input type="text" value="<?php echo esc_attr(roundAmount($tax_item_total)); ?>" name="capture_line_tax[<?php echo absint( $item_id ); ?>][<?php echo esc_attr( $tax_item_id ); ?>]" placeholder="<?php echo esc_attr( wc_format_localized_price( 0 ) ); ?>" class="capture_line_tax wc_input_price" data-tax_id="<?php echo esc_attr( $tax_item_id ); ?>" />
+					<input type="text" value="<?php echo esc_attr( roundAmount( $tax_item_total ) ); ?>" name="capture_line_tax[<?php echo absint( $item_id ); ?>][<?php echo esc_attr( $tax_item_id ); ?>]" placeholder="<?php echo esc_attr( wc_format_localized_price( 0 ) ); ?>" class="capture_line_tax wc_input_price" data-tax_id="<?php echo esc_attr( $tax_item_id ); ?>" />
 				</div>
 			</td>
 			<?php
