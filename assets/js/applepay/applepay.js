@@ -30,7 +30,7 @@ export default class ApplePay {
           const all_items = first_shipping_item !== null
             ? [].concat(cart_items, first_shipping_item)
             : cart_items;
-
+          console.log(all_items);
           const total_to_pay = this.sumTotalAmount(all_items);
 
           const total_item = {
@@ -66,7 +66,7 @@ export default class ApplePay {
             '.applepay-button-container div',
             applepay_options,
           );
-
+          console.log(applepay_payment);
           applepay_payment.showPayButton('black');
         }
       });
