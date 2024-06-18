@@ -185,6 +185,7 @@ table.woocommerce_order_items tbody tr:first-child td {
 label[for^="payment_method_buckaroo_"] img {
 	max-height: 25px;
 	width: 32px;
+	float: right;
 }
 .buckaroo-paypal-express {
 	margin: 10px 0;
