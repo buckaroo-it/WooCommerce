@@ -32,12 +32,13 @@ export default class ApplePay {
             ? [].concat(cartItems, firstShippingItem)
             : cartItems;
           const totalToPay = ApplePay.sumTotalAmount(allItems);
-
+          console.log(`All items: ${allItems}`);
           const totalItem = {
             label: 'Totaal',
             amount: totalToPay,
             type: 'final',
           };
+          console.log(`Total to pay ${totalItem}`);
 
           if (shippingMethods.length > 0) {
             this.selectedShippingMethod = shippingMethods[0].identifier;
