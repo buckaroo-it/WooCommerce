@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 6.5.4
-Stable tag: 3.13.0
+Stable tag: 3.13.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -107,6 +107,9 @@ Please contact support@buckaroo.nl if you need help installing the WooCommerce p
 
 == Changelog ==
 
+= 3.13.1 =
+BP-3586 Fix: Astra theme issue on iOS devices
+
 = 3.13.0 =
 Add support for WordPress 6.5.3
 Add Support for WooCommerce 8.9.2
@@ -118,7 +121,7 @@ BP-3596 Fix: Credit and debitcards error “Expirationyear” value missing.
 BP-3599 Fix: User interface issue for PayByBank.
 BP-3574 Fix: Wrong amount in PUSH notification order notes (visual issue).
 BP-3598 Fix: Remove unnecessary COC & VAT number field for Billink.
-BP-3586 Fix: Astra theme issue on iOS devices (payment logo’s nto aligned correctly)
+BP-3586 Fix: Astra theme issue on iOS devices (payment logo’s not aligned correctly)
 
 = 3.12.0 =
 Add support for WordPress 6.5.2
