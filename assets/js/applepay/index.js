@@ -2,13 +2,16 @@ import debounce from './helpers/async';
 import ApplePay from './applepay';
 import Woocommerce from './woocommerce';
 
+// eslint-disable-next-line no-unused-expressions
 'use strict';
 
 const BuckarooListenToApplePayChange = function (applepay) {
   if (applepay === undefined) {
+    // Do nothing if applepay is undefined
     return;
   }
 
+  // eslint-disable-next-line consistent-return
   return function () {
     applepay.rebuild();
     applepay.init();
@@ -17,7 +20,7 @@ const BuckarooListenToApplePayChange = function (applepay) {
 
 window.BuckarooInitApplePay = function () {
   if (typeof jQuery === 'undefined') {
-    console.error('Cannot initialize ApplePay missing jquery');
+    console.error('Cannot initialize ApplePay, missing jQuery');
     return;
   }
   const applepay = new ApplePay();

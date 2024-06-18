@@ -1,30 +1,30 @@
-import Woocommerce from './woocommerce.js';
+import Woocommerce from './woocommerce';
 
 export default class Buckaroo {
   constructor() {
     this.woocommerce = new Woocommerce();
   }
 
-  createTransaction(payment_data, total_price, selected_shipping_method, items) {
+  createTransaction(paymentData, amount, selectedShippingMethod, items) {
     jQuery.ajax({
       url: '/?wc-api=WC_Gateway_Buckaroo_applepay-create-transaction',
       method: 'post',
       data: {
-        selected_shipping_method,
-        paymentData: payment_data,
-        amount: total_price,
+        selectedShippingMethod,
+        paymentData,
+        amount,
         items,
       },
       dataType: 'json',
       async: false,
     })
-      .done((buckaroo_response) => {
-        if (buckaroo_response.result == 'success') {
-          window.location.replace(buckaroo_response.redirect);
+      .done((buckarooResponse) => {
+        if (buckarooResponse.result === 'success') {
+          window.location.replace(buckarooResponse.redirect);
         } else {
           let errorMessage = 'Something went wrong while processing your payment.';
-          if (buckaroo_response.message) {
-            errorMessage = buckaroo_response.message;
+          if (buckarooResponse.message) {
+            errorMessage = buckarooResponse.message;
           }
 
           this.woocommerce.displayErrorMessage(errorMessage);

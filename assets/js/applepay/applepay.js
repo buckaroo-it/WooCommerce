@@ -1,182 +1,180 @@
-import * as convert from './helpers/convert.js';
-import Woocommerce from './woocommerce.js';
-import Buckaroo from './buckaroo.js';
+import * as convert from './helpers/convert';
+import Woocommerce from './woocommerce';
+import Buckaroo from './buckaroo';
+/* global BuckarooSdk, ApplePayError, ApplePaySession */
 
 export default class ApplePay {
   constructor() {
     this.buckaroo = new Buckaroo();
     this.woocommerce = new Woocommerce();
-    this.store_info = this.woocommerce.getStoreInformation();
-    this.selected_shipping_method = null;
-    this.selected_shipping_amount = null;
-    this.total_price = null;
-    this.country_code = this.store_info.country_code;
+    this.storeInfo = this.woocommerce.getStoreInformation();
+    this.selectedShippingMethod = null;
+    this.selectedShippingAmount = null;
+    this.totalPrice = null;
+    this.countryCode = this.storeInfo.country_code;
   }
 
-  rebuild() {
+  static rebuild() {
     jQuery('.applepay-button-container div').remove();
     jQuery('.applepay-button-container').append('<div>');
   }
 
   init() {
     BuckarooSdk.ApplePay
-      .checkApplePaySupport(this.store_info.merchant_id)
-      .then((is_applepay_supported) => {
-        if (is_applepay_supported) {
-          const cart_items = this.getItems();
-          const shipping_methods = this.woocommerce.getShippingMethods(this.country_code);
-          const first_shipping_item = this.getFirstShippingItem(shipping_methods);
+      .checkApplePaySupport(this.storeInfo.merchant_id)
+      .then((isApplePaySupported) => {
+        if (isApplePaySupported) {
+          const cartItems = this.getItems();
+          const shippingMethods = this.woocommerce.getShippingMethods(this.countryCode);
+          const firstShippingItem = ApplePay.getFirstShippingItem(shippingMethods);
 
-          const all_items = first_shipping_item !== null
-            ? [].concat(cart_items, first_shipping_item)
-            : cart_items;
-          console.log(all_items);
-          const total_to_pay = this.sumTotalAmount(all_items);
+          const allItems = firstShippingItem !== null
+            ? [].concat(cartItems, firstShippingItem)
+            : cartItems;
+          const totalToPay = ApplePay.sumTotalAmount(allItems);
 
-          const total_item = {
+          const totalItem = {
             label: 'Totaal',
-            amount: total_to_pay,
+            amount: totalToPay,
             type: 'final',
           };
 
-          if (shipping_methods.length > 0) {
-            this.selected_shipping_method = shipping_methods[0].identifier;
-            this.selected_shipping_amount = shipping_methods[0].amount;
+          if (shippingMethods.length > 0) {
+            this.selectedShippingMethod = shippingMethods[0].identifier;
+            this.selectedShippingAmount = shippingMethods[0].amount;
           }
-          this.total_price = total_to_pay;
+          this.totalPrice = totalToPay;
 
           const requiredContactFields = ['name', 'email', 'postalAddress', 'phone'];
-          const applepay_options = new BuckarooSdk.ApplePay.ApplePayOptions(
-            this.store_info.store_name,
-            this.store_info.country_code,
-            this.store_info.currency_code,
-            this.store_info.culture_code,
-            this.store_info.merchant_id,
-            all_items,
-            total_item,
+          const applePayOptions = new BuckarooSdk.ApplePay.ApplePayOptions(
+            this.storeInfo.store_name,
+            this.storeInfo.country_code,
+            this.storeInfo.currency_code,
+            this.storeInfo.culture_code,
+            this.storeInfo.merchant_id,
+            allItems,
+            totalItem,
             'shipping',
-            shipping_methods,
-            this.processApplepayCallback.bind(this),
+            shippingMethods,
+            this.processApplePayCallback.bind(this),
             this.processShippingMethodsCallback.bind(this),
             this.processChangeContactInfoCallback.bind(this),
             requiredContactFields,
             requiredContactFields,
           );
-          const applepay_payment = new BuckarooSdk.ApplePay.ApplePayPayment(
+          const applePayPayment = new BuckarooSdk.ApplePay.ApplePayPayment(
             '.applepay-button-container div',
-            applepay_options,
+            applePayOptions,
           );
-          console.log(applepay_payment);
-          applepay_payment.showPayButton('black');
+          applePayPayment.showPayButton('black');
         }
       });
   }
 
-  processChangeContactInfoCallback(contact_info) {
-    this.country_code = contact_info.countryCode;
+  processChangeContactInfoCallback(contactInfo) {
+    this.countryCode = contactInfo.countryCode;
 
-    const cart_items = this.getItems();
-    const shipping_methods = this.woocommerce.getShippingMethods(this.country_code);
-    const first_shipping_item = this.getFirstShippingItem(shipping_methods);
+    const cartItems = this.getItems();
+    const shippingMethods = this.woocommerce.getShippingMethods(this.countryCode);
+    const firstShippingItem = ApplePay.getFirstShippingItem(shippingMethods);
 
-    const all_items = first_shipping_item !== null
-      ? [].concat(cart_items, first_shipping_item)
-      : cart_items;
+    const allItems = firstShippingItem !== null
+      ? [].concat(cartItems, firstShippingItem)
+      : cartItems;
 
-    const total_to_pay = this.sumTotalAmount(all_items);
+    const totalToPay = ApplePay.sumTotalAmount(allItems);
 
-    const total_item = {
+    const totalItem = {
       label: 'Totaal',
-      amount: total_to_pay,
+      amount: totalToPay,
       type: 'final',
     };
 
     const info = {
-      newShippingMethods: shipping_methods,
-      newTotal: total_item,
-      newLineItems: all_items,
+      newShippingMethods: shippingMethods,
+      newTotal: totalItem,
+      newLineItems: allItems,
     };
 
-    if (shipping_methods.length > 0) {
-      var errors = {};
-      this.selected_shipping_method = shipping_methods[0].identifier;
-      this.selected_shipping_amount = shipping_methods[0].amount;
+    let errors = {};
+    if (shippingMethods.length > 0) {
+      this.selectedShippingMethod = shippingMethods[0].identifier;
+      this.selectedShippingAmount = shippingMethods[0].amount;
     } else {
-      var errors = this.shippingCountryError(contact_info);
+      errors = ApplePay.shippingCountryError();
     }
 
-    this.total_price = total_to_pay;
+    this.totalPrice = totalToPay;
 
     return Promise.resolve(
       Object.assign(info, errors),
     );
   }
 
-  processShippingMethodsCallback(selected_method) {
-    const cart_items = this.getItems();
-    const shipping_item = {
+  processShippingMethodsCallback(selectedMethod) {
+    const cartItems = this.getItems();
+    const shippingItem = {
       type: 'final',
-      label: selected_method.label,
-      amount: convert.toDecimal(selected_method.amount) || 0,
+      label: selectedMethod.label,
+      amount: convert.toDecimal(selectedMethod.amount) || 0,
       qty: 1,
     };
 
-    const all_items = [].concat(cart_items, shipping_item);
-    const total_to_pay = this.sumTotalAmount(all_items);
+    const allItems = [].concat(cartItems, shippingItem);
+    const totalToPay = ApplePay.sumTotalAmount(allItems);
 
-    const total_item = {
+    const totalItem = {
       label: 'Totaal',
-      amount: total_to_pay,
+      amount: totalToPay,
       type: 'final',
     };
 
-    this.selected_shipping_method = selected_method.identifier;
-    this.selected_shipping_amount = selected_method.amount;
-    this.total_price = total_to_pay;
+    this.selectedShippingMethod = selectedMethod.identifier;
+    this.selectedShippingAmount = selectedMethod.amount;
+    this.totalPrice = totalToPay;
 
     return Promise.resolve({
       status: ApplePaySession.STATUS_SUCCESS,
-      newTotal: total_item,
-      newLineItems: all_items,
+      newTotal: totalItem,
+      newLineItems: allItems,
     });
   }
 
-  processApplepayCallback(payment) {
-    const authorization_result = {
+  processApplePayCallback(payment) {
+    const authorizationResult = {
       status: ApplePaySession.STATUS_SUCCESS,
       errors: [],
     };
 
-    if (authorization_result.status === ApplePaySession.STATUS_SUCCESS) {
+    if (authorizationResult.status === ApplePaySession.STATUS_SUCCESS) {
       this.buckaroo.createTransaction(
         payment,
-        this.total_price,
-        this.selected_shipping_method,
-        this.woocommerce.getItems(this.country_code),
+        this.totalPrice,
+        this.selectedShippingMethod,
+        this.woocommerce.getItems(this.countryCode),
       );
     } else {
-      const errors = authorization_result.errors.map((error) => error.message).join(' ');
+      const errors = authorizationResult.errors.map((error) => error.message).join(' ');
 
       this.woocommerce.displayErrorMessage(
         `Your payment could not be processed. ${errors}`,
       );
     }
 
-    return Promise.resolve(authorization_result);
+    return Promise.resolve(authorizationResult);
   }
 
-  sumTotalAmount(items) {
+  static sumTotalAmount(items) {
     const total = items.reduce((a, b) => a + b.amount, 0);
-
     return convert.toDecimal(total);
   }
 
-  getFirstShippingItem(shipping_methods) {
-    if (shipping_methods.length > 0) {
+  static getFirstShippingItem(shippingMethods) {
+    if (shippingMethods.length > 0) {
       return {
         type: 'final',
-        label: shipping_methods[0].label,
-        amount: shipping_methods[0].amount || 0,
+        label: shippingMethods[0].label,
+        amount: shippingMethods[0].amount || 0,
         qty: 1,
       };
     }
@@ -184,7 +182,7 @@ export default class ApplePay {
   }
 
   getItems() {
-    return this.woocommerce.getItems(this.country_code)
+    return this.woocommerce.getItems(this.countryCode)
       .map((item) => {
         const label = `${item.quantity} x ${item.name}`;
         return {
@@ -196,7 +194,7 @@ export default class ApplePay {
       });
   }
 
-  shippingCountryError(contact_info) {
+  static shippingCountryError() {
     return {
       errors: [new ApplePayError(
         'shippingContactInvalid',

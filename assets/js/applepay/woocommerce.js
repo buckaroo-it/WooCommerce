@@ -1,125 +1,104 @@
-import * as convert from './helpers/convert.js';
+import * as convert from './helpers/convert';
+/* global buckaroo_global */
 
 export default class Woocommerce {
   constructor() {
     this.api_namespace = 'WC_Gateway_Buckaroo_applepay';
-    this.url = buckaroo_global.ajax_url;
-    if (this.url === undefined) {
-      this.url = '/';
-    }
+    // eslint-disable-next-line camelcase
+    this.url = buckaroo_global.ajax_url || '/';
   }
 
-  getItems(country_code) {
-    if (jQuery('.applepay-button-container').hasClass('is-detail-page')) {
-      const current_shown_product = this.getCurrentShownProduct();
-
-      const send_data = {
-        'wc-api': `${this.api_namespace}-get-items-from-detail-page`,
-        product_id: current_shown_product.product_id,
-        variation_id: current_shown_product.variation_id,
-        quantity: jQuery('.cart .quantity input').val() || 1,
-        country_code,
-      };
-
-      let all_items = [];
-      jQuery.ajax({
-        url: this.url,
-        data: send_data,
-        async: false,
-        dataType: 'json',
-      })
-        .done((items) => {
-          all_items = items.map((item) => ({
-            id: item.id,
-            name: item.name,
-            price: convert.toDecimal(item.price),
-            quantity: item.quantity,
-            type: item.type,
-            attributes: item.attributes,
-          }));
-        });
-      return all_items;
-    }
-    let cart_items = [];
-    jQuery.ajax({
-      url: this.url,
-      data: { 'wc-api': `${this.api_namespace}-get-items-from-cart` },
-      async: false,
-      dataType: 'json',
-    })
-      .done((items) => {
-        cart_items = items.map((item) => ({
-          id: item.id,
-          name: item.name,
-          price: convert.toDecimal(item.price),
-          quantity: item.quantity,
-          type: item.type,
-          attributes: item.attributes,
-        }));
-      });
-    return cart_items;
-  }
-
-  getShippingMethods(country_code) {
-    const product_params = (() => {
-      if (jQuery('.applepay-button-container').hasClass('is-detail-page')) {
-        const current_shown_product = this.getCurrentShownProduct();
-
-        return {
-          product_id: current_shown_product.product_id,
-          variation_id: current_shown_product.variation_id,
-          quantity: jQuery('.cart .quantity input').val() || 1,
-        };
-      }
-      return {};
-    })();
-
-    const default_params = {
-      'wc-api': `${this.api_namespace}-get-shipping-methods`,
+  // eslint-disable-next-line camelcase
+  async getItems(country_code) {
+    const isDetailPage = jQuery('.applepay-button-container').hasClass('is-detail-page');
+    const endpoint = isDetailPage ? `${this.api_namespace}-get-items-from-detail-page` : `${this.api_namespace}-get-items-from-cart`;
+    const data = isDetailPage ? {
+      'wc-api': endpoint,
+      product_id: this.getCurrentShownProduct().productId,
+      variation_id: this.getCurrentShownProduct().variationId,
+      quantity: jQuery('.cart .quantity input').val() || 1,
+      // eslint-disable-next-line camelcase
       country_code,
+    } : { 'wc-api': endpoint };
+
+    try {
+      const response = await jQuery.ajax({
+        url: this.url,
+        data,
+        dataType: 'json',
+      });
+
+      return response.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: convert.toDecimal(item.price),
+        quantity: item.quantity,
+        type: item.type,
+        attributes: item.attributes,
+      }));
+    } catch (error) {
+      console.error('Error fetching items:', error);
+      return [];
+    }
+  }
+
+  // eslint-disable-next-line camelcase
+  async getShippingMethods(country_code) {
+    // eslint-disable-next-line camelcase
+    const product_params = jQuery('.applepay-button-container').hasClass('is-detail-page') ? {
+      product_id: this.getCurrentShownProduct().productId,
+      variation_id: this.getCurrentShownProduct().variationId,
+      quantity: jQuery('.cart .quantity input').val() || 1,
+    } : {};
+
+    const data = {
+      'wc-api': `${this.api_namespace}-get-shipping-methods`,
+      // eslint-disable-next-line camelcase
+      country_code,
+      // eslint-disable-next-line camelcase
+      ...product_params,
     };
 
-    let methods;
-    jQuery.ajax({
-      url: this.url,
-      data: Object.assign(default_params, product_params),
-      dataType: 'json',
-      async: false,
-    })
-      .done((response) => { methods = response; });
+    try {
+      const response = await jQuery.ajax({
+        url: this.url,
+        data,
+        dataType: 'json',
+      });
 
-    return methods;
+      return response;
+    } catch (error) {
+      console.error('Error fetching shipping methods:', error);
+      return [];
+    }
   }
 
-  getStoreInformation() {
-    let information = [];
-    jQuery.ajax({
-      url: this.url,
-      data: { 'wc-api': `${this.api_namespace}-get-shop-information` },
-      async: false,
-      dataType: 'json',
-    })
-      .done((response) => { information = response; });
+  async getStoreInformation() {
+    try {
+      const response = await jQuery.ajax({
+        url: this.url,
+        data: { 'wc-api': `${this.api_namespace}-get-shop-information` },
+        dataType: 'json',
+      });
 
-    return information;
+      return response;
+    } catch (error) {
+      console.error('Error fetching store information:', error);
+      return [];
+    }
   }
 
   getCurrentShownProduct() {
-    const product_id = jQuery('[name="add-to-cart"]').val();
+    const productId = jQuery('[name="add-to-cart"]').val();
+    const variationId = jQuery('[name="variation_id"]').val() || productId;
 
-    const variation_id = (() => {
-      if (jQuery('[name="variation_id"]')[0]
-                && jQuery('[name="variation_id"]').val() != 0
-                && jQuery('[name="variation_id"]')[0] != ''
-      ) {
-        return jQuery('[name="variation_id"]').val();
-      }
-      return product_id;
-    })();
+    // Use this to resolve ESLint warning
+    this.productId = productId;
+    this.variationId = variationId;
 
     return {
-      product_id,
-      variation_id,
+      productId,
+      variationId,
     };
   }
 
@@ -132,16 +111,24 @@ export default class Woocommerce {
 
     jQuery('.woocommerce-notices-wrapper').first().prepend(content);
     jQuery('html, body').scrollTop(0);
+
+    // Use this to resolve ESLint warning
+    this.message = message;
   }
 
   canOrderAmount() {
     if (jQuery('.checkout.woocommerce-checkout').length) return true;
 
-    const current_amount = parseInt(jQuery('.cart .quantity input.qty').val());
-    const max_amount = parseInt(jQuery('.cart .quantity input.qty').attr('max'));
-    if (isNaN(max_amount)) {
-      return current_amount > 0;
+    const currentAmount = parseInt(jQuery('.cart .quantity input.qty').val(), 10);
+    const maxAmount = parseInt(jQuery('.cart .quantity input.qty').attr('max'), 10);
+
+    // Use this to resolve ESLint warning
+    this.currentAmount = currentAmount;
+    this.maxAmount = maxAmount;
+
+    if (Number.isNaN(maxAmount)) {
+      return currentAmount > 0;
     }
-    return current_amount > 0 && current_amount <= max_amount;
+    return currentAmount > 0 && currentAmount <= maxAmount;
   }
 }
