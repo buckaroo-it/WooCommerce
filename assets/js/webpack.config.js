@@ -1,5 +1,4 @@
 const path = require('path');
-const defaultConfig = require('@wordpress/scripts/config/webpack.config');
 const WooCommerceDependencyExtractionWebpackPlugin = require('@woocommerce/dependency-extraction-webpack-plugin');
 
 // WooCommerce dependency maps
@@ -57,9 +56,6 @@ module.exports = {
     extensions: ['.js', '.jsx'], // Resolve both .js and .jsx
   },
   plugins: [
-    ...defaultConfig.plugins.filter(
-      (plugin) => plugin.constructor.name !== 'DependencyExtractionWebpackPlugin',
-    ),
     new WooCommerceDependencyExtractionWebpackPlugin({
       requestToExternal,
       requestToHandle,
