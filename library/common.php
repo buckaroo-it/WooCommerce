@@ -580,6 +580,10 @@ function fn_buckaroo_get_address_components($address)
     $result['house_number']    = '';
     $result['number_addition'] = '';
 
+	if (is_null($address)) {
+		$address = '';
+	}
+
     $address = str_replace(array('?', '*', '[', ']', ',', '!'), ' ', $address);
     $address = preg_replace('/\s\s+/', ' ', $address);
 
