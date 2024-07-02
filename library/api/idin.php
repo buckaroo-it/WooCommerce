@@ -69,8 +69,8 @@ class BuckarooIdin {
 			return true;
 		}
 
-		if ( $currentIserId = get_current_user_id() ) {
-			return get_user_meta( $currentIserId, 'buckaroo_idin', true );
+		if ( $currentUserId = get_current_user_id() ) {
+			return get_user_meta( $currentUserId, 'buckaroo_idin', true );
 		} else {
 			return WC()->session->get( 'buckaroo_idin' );
 		}
@@ -78,9 +78,11 @@ class BuckarooIdin {
 	}
 
 	public static function setCurrentUserIsVerified( $bin ) {
-		if ( $currentIserId = get_current_user_id() ) {
-			add_user_meta( $currentIserId, 'buckaroo_idin', 1, true );
-			add_user_meta( $currentIserId, 'buckaroo_idin_bin', $bin, true );
+		if ( $currentUserId = get_current_user_id() ) {
+			Buckaroo_Logger::log('get_current_user_id:', $currentUserId);
+
+			add_user_meta( $currentUserId, 'buckaroo_idin', 1, true );
+			add_user_meta( $currentUserId, 'buckaroo_idin_bin', $bin, true );
 		} else {
 			WC()->session->set( 'buckaroo_idin', 1 );
 			WC()->session->set( 'buckaroo_idin_bin', $bin );
@@ -88,9 +90,9 @@ class BuckarooIdin {
 	}
 
 	public static function setCurrentUserIsNotVerified() {
-		if ( $currentIserId = get_current_user_id() ) {
-			delete_user_meta( $currentIserId, 'buckaroo_idin' );
-			delete_user_meta( $currentIserId, 'buckaroo_idin_bin' );
+		if ( $currentUserId = get_current_user_id() ) {
+			delete_user_meta( $currentUserId, 'buckaroo_idin' );
+			delete_user_meta( $currentUserId, 'buckaroo_idin_bin' );
 		} else {
 			WC()->session->set( 'buckaroo_idin', 0 );
 			WC()->session->set( 'buckaroo_idin_bin', 0 );
