@@ -656,12 +656,13 @@ function getUniqInvoiceId($order_id, $mode = 'live')
  */
 function getOrderIdFromInvoiceId($invoice_id, $mode = 'live')
 {
-    if ($mode == 'test') {
-        $invoice_id = str_replace("WP_", "", $invoice_id);
-    }
+	if ($mode == 'test' && is_string($invoice_id)) {
+		$invoice_id = str_replace("WP_", "", $invoice_id);
+	}
 
-    return $invoice_id;
+	return $invoice_id;
 }
+
 
 /**
  * Checks if WooCommerce Version 3 or greater is installed
