@@ -628,6 +628,7 @@ class MessageControlBlock {
 }
 
 class Body {
+	public $AdditionalParameters;
 	public $Currency;
 	public $AmountDebit;
 	public $AmountCredit;

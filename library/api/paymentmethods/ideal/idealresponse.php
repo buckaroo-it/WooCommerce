@@ -12,6 +12,8 @@ class BuckarooIDealResponse extends BuckarooResponse {
 	public $consumerName;
 	public $consumerAccountNumber;
 	public $consumerCity;
+	public $order;
+	public $transactionId;
 
 	/**
 	 * @access protected
