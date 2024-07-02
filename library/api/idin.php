@@ -83,7 +83,7 @@ class BuckarooIdin {
 			add_user_meta( $currentIserId, 'buckaroo_idin_bin', $bin, true );
 		} else {
 			WC()->session->set( 'buckaroo_idin', 1 );
-			WC()->session->set( 'buckaroo_idin', $bin );
+			WC()->session->set( 'buckaroo_idin_bin', $bin );
 		}
 	}
 

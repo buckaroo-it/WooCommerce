@@ -6,6 +6,9 @@ class IdinController {
 
 
 	public function returnHandler() {
+		wc_add_notice(__('Debug Notice: Return handler initiated', 'wc-buckaroo-bpe-gateway'), 'success');
+		Buckaroo_Logger::log(__METHOD__ . '|0| Debug Notice added');
+
 		Buckaroo_Logger::log(__METHOD__ . '|1|', wc_clean($_POST));
 
 		$post_data = wc_clean($_POST);
@@ -23,9 +26,12 @@ class IdinController {
 
 			if ($isEighteen) {
 				BuckarooIdin::setCurrentUserIsVerified($bin);
+				Buckaroo_Logger::log(__METHOD__ . '|7| User Verified');
 				wc_add_notice(__('You have been verified successfully', 'wc-buckaroo-bpe-gateway'), 'success');
+				Buckaroo_Logger::log(__METHOD__ . '|8| Notice Added: You have been verified successfully');
 			} else {
 				wc_add_notice(__('According to iDIN you are under 18 years old', 'wc-buckaroo-bpe-gateway'), 'error');
+				Buckaroo_Logger::log(__METHOD__ . '|9| Notice Added: According to iDIN you are under 18 years old');
 			}
 		} else {
 			Buckaroo_Logger::log(__METHOD__ . '|10|');
@@ -34,6 +40,7 @@ class IdinController {
 					__('Verification has been failed', 'wc-buckaroo-bpe-gateway') : stripslashes($response->statusmessage),
 				'error'
 			);
+			Buckaroo_Logger::log(__METHOD__ . '|11| Notice Added: Verification has been failed');
 		}
 
 		if (!empty($_REQUEST['bk_redirect']) && is_string($_REQUEST['bk_redirect'])) {
@@ -42,7 +49,6 @@ class IdinController {
 			exit;
 		}
 	}
-
 
 	public function identify() {
 		Buckaroo_Logger::log( __METHOD__ . '|1|' );
