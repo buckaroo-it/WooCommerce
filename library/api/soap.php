@@ -345,31 +345,32 @@ if ( ! class_exists( 'SoapClient' ) ) {
 
 		protected function _addCustomParameters( &$TransactionRequest ) {
 			$requestParameters = array();
-			foreach ( $this->_vars['customParameters'] as $fieldName => $value ) {
-				if (
-					( is_null( $value ) || $value === '' )
-					|| (
-						is_array( $value )
-						&& ( is_null( $value['value'] ) || $value['value'] === '' )
-						)
-				) {
-					continue;
-				}
 
-				$requestParameter       = new RequestParameter();
-				$requestParameter->Name = $fieldName;
-				if ( is_array( $value ) ) {
-					$requestParameter->Group = $value['group'];
-					$requestParameter->_     = $value['value'];
-				} else {
-					$requestParameter->_ = $value;
-				}
+			// Ensure customParameters is set and is an array
+			if (isset($this->_vars['customParameters']) && is_array($this->_vars['customParameters'])) {
+				foreach ($this->_vars['customParameters'] as $fieldName => $value) {
+					if (
+						(is_null($value) || $value === '') ||
+						(is_array($value) && (is_null($value['value']) || $value['value'] === ''))
+					) {
+						continue;
+					}
 
-				$requestParameters[] = $requestParameter;
+					$requestParameter       = new RequestParameter();
+					$requestParameter->Name = $fieldName;
+					if (is_array($value)) {
+						$requestParameter->Group = $value['group'];
+						$requestParameter->_     = $value['value'];
+					} else {
+						$requestParameter->_ = $value;
+					}
+
+					$requestParameters[] = $requestParameter;
+				}
 			}
 
-			if ( empty( $requestParameters ) ) {
-				unset( $TransactionRequest->AdditionalParameters );
+			if (empty($requestParameters)) {
+				unset($TransactionRequest->AdditionalParameters);
 				return;
 			} else {
 				$TransactionRequest->AdditionalParameters = $requestParameters;
@@ -572,6 +573,7 @@ if ( ! class_exists( 'SoapClient' ) ) {
 }
 class Header {
 	public $MessageControlBlock;
+	public $Security;
 }
 
 class SecurityType {
@@ -626,6 +628,7 @@ class MessageControlBlock {
 }
 
 class Body {
+	public $AdditionalParameters;
 	public $Currency;
 	public $AmountDebit;
 	public $AmountCredit;

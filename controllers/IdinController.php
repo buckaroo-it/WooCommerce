@@ -6,32 +6,35 @@ class IdinController {
 
 
 	public function returnHandler() {
-		Buckaroo_Logger::log( __METHOD__ . '|1|', wc_clean( $_POST ) );
+		wc_add_notice(__('Debug Notice: Return handler initiated', 'wc-buckaroo-bpe-gateway'), 'success');
+		Buckaroo_Logger::log(__METHOD__ . '|1|', wc_clean($_POST));
 
-		$response = new BuckarooResponseDefault( wc_clean( $_POST ) );
+		$post_data = wc_clean($_POST);
+		$response = new BuckarooResponseDefault($post_data);
 
-		if ( $response && $response->isValid() && $response->hasSucceeded() ) {
-			$bin        = ! empty( $response->brq_service_idin_consumerbin ) ? $response->brq_service_idin_consumerbin : 0;
-			$isEighteen = $response->brq_service_idin_iseighteenorolder === 'True' ? 1 : 0;
-			Buckaroo_Logger::log( __METHOD__ . '|5|', $bin );
-			if ( $isEighteen ) {
-				BuckarooIdin::setCurrentUserIsVerified( $bin );
-				wc_add_notice( __( 'You have been verified successfully', 'wc-buckaroo-bpe-gateway' ), 'success' );
+		if ($response && $response->isValid() && $response->hasSucceeded()) {
+			$bin = !empty($post_data['brq_SERVICE_idin_ConsumerBIN']) ? $post_data['brq_SERVICE_idin_ConsumerBIN'] : 0;
+			$isEighteen = isset($post_data['brq_SERVICE_idin_IsEighteenOrOlder']) && $post_data['brq_SERVICE_idin_IsEighteenOrOlder'] === 'True';
+
+			Buckaroo_Logger::log(__METHOD__ . '|5| ConsumerBIN:', $bin);
+			Buckaroo_Logger::log(__METHOD__ . '|6| IsEighteenOrOlder:', $isEighteen);
+
+			if ($isEighteen) {
+				BuckarooIdin::setCurrentUserIsVerified($bin);
+				wc_add_notice(__('You have been verified successfully', 'wc-buckaroo-bpe-gateway'), 'success');
 			} else {
-				wc_add_notice( __( 'According to iDIN you are under 18 years old', 'wc-buckaroo-bpe-gateway' ), 'error' );
+				wc_add_notice(__('According to iDIN you are under 18 years old', 'wc-buckaroo-bpe-gateway'), 'error');
 			}
 		} else {
-			Buckaroo_Logger::log( __METHOD__ . '|10|' );
 			wc_add_notice(
-				empty( $response->statusmessage ) ?
-					__( 'Verification has been failed', 'wc-buckaroo-bpe-gateway' ) : stripslashes( $response->statusmessage ),
+				empty($response->statusmessage) ?
+					__('Verification has been failed', 'wc-buckaroo-bpe-gateway') : stripslashes($response->statusmessage),
 				'error'
 			);
 		}
 
-		if ( ! empty( $_REQUEST['bk_redirect'] ) && is_string( $_REQUEST['bk_redirect'] ) ) {
-			Buckaroo_Logger::log( __METHOD__ . '|15|' );
-			wp_safe_redirect( $_REQUEST['bk_redirect'] );
+		if (!empty($_REQUEST['bk_redirect']) && is_string($_REQUEST['bk_redirect'])) {
+			wp_safe_redirect($_REQUEST['bk_redirect']);
 			exit;
 		}
 	}

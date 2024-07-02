@@ -8,6 +8,7 @@ require_once __DIR__ . '/../paymentmethod.php';
 class BuckarooIDeal extends BuckarooPaymentMethod {
 	public $issuer;
 	protected $data;
+	public $channel;
 
 	/**
 	 * @access public
