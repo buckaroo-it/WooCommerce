@@ -8,13 +8,16 @@ class IdinController {
 	public function returnHandler() {
 		Buckaroo_Logger::log(__METHOD__ . '|1|', wc_clean($_POST));
 
-		$response = new BuckarooResponseDefault(wc_clean($_POST));
+		$post_data = wc_clean($_POST);
+		Buckaroo_Logger::log(__METHOD__ . '|2| POST Data:', $post_data);
+
+		$response = new BuckarooResponseDefault($post_data);
+		Buckaroo_Logger::log(__METHOD__ . '|3| Response Object:', $response);
 
 		if ($response && $response->isValid() && $response->hasSucceeded()) {
-			Buckaroo_Logger::log(__METHOD__ . '|2|', $response);
+			$bin = !empty($post_data['brq_SERVICE_idin_ConsumerBIN']) ? $post_data['brq_SERVICE_idin_ConsumerBIN'] : 0;
+			$isEighteen = isset($post_data['brq_SERVICE_idin_IsEighteenOrOlder']) && $post_data['brq_SERVICE_idin_IsEighteenOrOlder'] === 'True';
 
-			$bin = !empty($response->brq_service_idin_consumerbin) ? $response->brq_service_idin_consumerbin : 0;
-			$isEighteen = isset($response->brq_service_idin_iseighteenorolder) && $response->brq_service_idin_iseighteenorolder === 'True';
 			Buckaroo_Logger::log(__METHOD__ . '|5| ConsumerBIN:', $bin);
 			Buckaroo_Logger::log(__METHOD__ . '|6| IsEighteenOrOlder:', $isEighteen);
 
@@ -39,6 +42,7 @@ class IdinController {
 			exit;
 		}
 	}
+
 
 	public function identify() {
 		Buckaroo_Logger::log( __METHOD__ . '|1|' );
