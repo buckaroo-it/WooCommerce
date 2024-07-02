@@ -78,22 +78,38 @@ class BuckarooIdin {
 	}
 
 	public static function setCurrentUserIsVerified( $bin ) {
-		if ( $currentUserId = get_current_user_id() ) {
-			Buckaroo_Logger::log('get_current_user_id:', $currentUserId);
+		$currentUserId = get_current_user_id();
+		Buckaroo_Logger::log('get_current_user_id result:', $currentUserId);
 
-			add_user_meta( $currentUserId, 'buckaroo_idin', 1, true );
-			add_user_meta( $currentUserId, 'buckaroo_idin_bin', $bin, true );
+		if ( $currentUserId ) {
+			Buckaroo_Logger::log('Setting user meta for user ID:', $currentUserId);
+			if (!add_user_meta( $currentUserId, 'buckaroo_idin', 1, true )) {
+				Buckaroo_Logger::log('Failed to add user meta for buckaroo_idin');
+			}
+			if (!add_user_meta( $currentUserId, 'buckaroo_idin_bin', $bin, true )) {
+				Buckaroo_Logger::log('Failed to add user meta for buckaroo_idin_bin');
+			}
 		} else {
+			Buckaroo_Logger::log('Setting session data as no user ID found');
 			WC()->session->set( 'buckaroo_idin', 1 );
 			WC()->session->set( 'buckaroo_idin_bin', $bin );
 		}
 	}
 
 	public static function setCurrentUserIsNotVerified() {
-		if ( $currentUserId = get_current_user_id() ) {
-			delete_user_meta( $currentUserId, 'buckaroo_idin' );
-			delete_user_meta( $currentUserId, 'buckaroo_idin_bin' );
+		$currentUserId = get_current_user_id();
+		Buckaroo_Logger::log('get_current_user_id result:', $currentUserId);
+
+		if ( $currentUserId ) {
+			Buckaroo_Logger::log('Deleting user meta for user ID:', $currentUserId);
+			if (!delete_user_meta( $currentUserId, 'buckaroo_idin' )) {
+				Buckaroo_Logger::log('Failed to delete user meta for buckaroo_idin');
+			}
+			if (!delete_user_meta( $currentUserId, 'buckaroo_idin_bin' )) {
+				Buckaroo_Logger::log('Failed to delete user meta for buckaroo_idin_bin');
+			}
 		} else {
+			Buckaroo_Logger::log('Setting session data as no user ID found');
 			WC()->session->set( 'buckaroo_idin', 0 );
 			WC()->session->set( 'buckaroo_idin_bin', 0 );
 		}
