@@ -834,7 +834,7 @@ function getClientIpBuckaroo()
 }
 
 function roundAmount($amount) {
-    if(is_scalar($amount)) {
+    if(is_scalar($amount) && is_numeric($amount)) {
 	    return (float) number_format($amount, 2, '.', '');
     }
     return 0;
