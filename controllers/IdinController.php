@@ -6,18 +6,12 @@ class IdinController {
 
 
 	public function returnHandler() {
-		wc_add_notice(__('Debug Notice: Return handler initiated', 'wc-buckaroo-bpe-gateway'), 'success');
-		Buckaroo_Logger::log(__METHOD__ . '|1|', wc_clean($_POST));
-
 		$post_data = wc_clean($_POST);
 		$response = new BuckarooResponseDefault($post_data);
 
 		if ($response && $response->isValid() && $response->hasSucceeded()) {
 			$bin = !empty($post_data['brq_SERVICE_idin_ConsumerBIN']) ? $post_data['brq_SERVICE_idin_ConsumerBIN'] : 0;
 			$isEighteen = isset($post_data['brq_SERVICE_idin_IsEighteenOrOlder']) && $post_data['brq_SERVICE_idin_IsEighteenOrOlder'] === 'True';
-
-			Buckaroo_Logger::log(__METHOD__ . '|5| ConsumerBIN:', $bin);
-			Buckaroo_Logger::log(__METHOD__ . '|6| IsEighteenOrOlder:', $isEighteen);
 
 			if ($isEighteen) {
 				BuckarooIdin::setCurrentUserIsVerified($bin);
@@ -40,8 +34,6 @@ class IdinController {
 	}
 
 	public function identify() {
-		Buckaroo_Logger::log( __METHOD__ . '|1|' );
-
 		if ( ! BuckarooConfig::isIdin( BuckarooIdin::getCartProductIds() ) ) {
 			$this->sendError( esc_html__( 'iDIN is disabled' ) );
 		}
@@ -72,11 +64,11 @@ class IdinController {
 
 		$response = BuckarooResponseFactory::getResponse( $soap->transactionRequest( 'DataRequest' ) );
 
-		Buckaroo_Logger::log( __METHOD__ . '|5|', $response );
+//		Buckaroo_Logger::log( __METHOD__ . '|5|', $response );
 
 		$processedResponse = fn_buckaroo_process_response( null, $response );
 
-		Buckaroo_Logger::log( __METHOD__ . '|10|', $processedResponse );
+//		Buckaroo_Logger::log( __METHOD__ . '|10|', $processedResponse );
 
 		wp_send_json( $processedResponse );
 	}
