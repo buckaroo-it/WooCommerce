@@ -41,6 +41,7 @@ Payment method support list:
 22.Multibanco
 23.MB Way
 24.Knaken Settle
+24.Blik
 
 == Installation ==
  

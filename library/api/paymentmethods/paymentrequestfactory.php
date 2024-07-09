@@ -19,6 +19,7 @@ class BuckarooPaymentRequestFactory {
 	const REQUEST_TYPE_EMAESTRO        = 'maestro';
 	const REQUEST_TYPE_SOFORTBANKING   = 'sofortueberweisung';
 	const REQUEST_TYPE_BELFIUS         = 'belfius';
+	const REQUEST_TYPE_BLIK            = 'blik';
 	const REQUEST_TYPE_GIFTCARD        = 'giftcard';
 	const REQUEST_TYPE_CREDITCARD      = 'creditcard';
 	const REQUEST_TYPE_TRANSFER        = 'transfer';
@@ -35,6 +36,7 @@ class BuckarooPaymentRequestFactory {
 		self::REQUEST_TYPE_EMAESTRO        => 'EMaestro',
 		self::REQUEST_TYPE_SOFORTBANKING   => 'Sofortbanking',
 		self::REQUEST_TYPE_BELFIUS         => 'Belfius',
+		self::REQUEST_TYPE_BLIK            => 'Blik',
 		self::REQUEST_TYPE_GIFTCARD        => 'GiftCard',
 		self::REQUEST_TYPE_CREDITCARD      => 'CreditCard',
 		self::REQUEST_TYPE_TRANSFER        => 'Transfer',
