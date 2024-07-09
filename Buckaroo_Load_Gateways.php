@@ -39,6 +39,10 @@ class Buckaroo_Load_Gateways {
 			'filename'  => 'gateway-buckaroo-transfer.php',
 			'classname' => 'WC_Gateway_Buckaroo_Transfer',
 		),
+        'Blik'                    => array(
+            'filename'  => 'gateway-buckaroo-blik.php',
+            'classname' => 'WC_Gateway_Buckaroo_Blik',
+        ),
 		'Belfius'                 => array(
 			'filename'  => 'gateway-buckaroo-belfius.php',
 			'classname' => 'WC_Gateway_Buckaroo_Belfius',

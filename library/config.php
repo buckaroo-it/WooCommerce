@@ -193,6 +193,11 @@ class BuckarooConfig extends BuckarooConfigCore {
 					'process_capture' => '',
 					'process_refund'  => '',
 				),
+                'blik'         => array(
+					'process_payment' => '',
+					'process_capture' => '',
+					'process_refund'  => '',
+				),
 				'transfer'        => array(
 					'process_payment' => '',
 					'process_capture' => '',
