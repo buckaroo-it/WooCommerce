@@ -361,26 +361,6 @@ function buckaroo_test_credentials() {
 	}
 }
 
-require plugin_dir_path( __FILE__ ) . 'includes/admin/meta-boxes/class-wc-meta-box-order-capture.php';
-
-
-// Include the main Buckaroo class.
-if ( ! class_exists( 'Buckaroo' ) ) {
-	include_once __DIR__ . '/includes/class-buckaroo.php';
-}
-
-/**
- * Returns the main instance of WC.
- *
- * @return Buckaroo
- */
-function BK() {
-	return Buckaroo::instance();
-}
-
-// Global for backwards compatibility.
-$GLOBALS['buckaroo'] = BK();
-
 register_activation_hook( __FILE__, array( 'WC_Buckaroo_Install', 'install' ) );
 register_deactivation_hook( __FILE__, 'buckaroo_deactivation' );
 
