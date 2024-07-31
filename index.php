@@ -109,7 +109,11 @@ function buckaroo_payment_setup_scripts() {
 			)
 		);
 	}
-	wp_enqueue_script( 'buckaroo-block-script', 'assets/js/dist/blocks.js', array( 'wp-blocks', 'wp-element' ) );
+	wp_enqueue_script(
+        'buckaroo-block-script',
+        plugin_dir_url( __FILE__ ) . 'assets/js/dist/blocks.js',
+        array( 'wp-blocks', 'wp-element' )
+    );
 }
 
 function get_type() {
