@@ -20,11 +20,11 @@ $tosLinks  = array(
 	'BE' => array(
 		array(
 			'link'  => 'https://documents.myafterpay.com/consumer-terms-conditions/nl_be/',
-			'label' => 'Riverty | AfterPay conditions (Dutch)',
+			'label' => 'Riverty conditions (Dutch)',
 		),
 		array(
 			'link'  => 'https://documents.myafterpay.com/consumer-terms-conditions/fr_be/',
-			'label' => 'Riverty | AfterPay conditions (French)',
+			'label' => 'Riverty conditions (French)',
 		),
 	),
 	'DE' => 'https://documents.myafterpay.com/consumer-terms-conditions/de_at/',
@@ -50,11 +50,11 @@ if ( ! is_array( $tos ) ) {
 	<a 
 	href="<?php echo esc_url( $tos ); ?>"
 	target="_blank">
-		<?php echo esc_html_e( 'Accept Riverty | AfterPay conditions:', 'wc-buckaroo-bpe-gateway' ); ?>
+		<?php echo esc_html_e( 'Accept Riverty conditions:', 'wc-buckaroo-bpe-gateway' ); ?>
 	</a>
 	<?php
 } else {
-	echo esc_html_e( 'Accept Riverty | AfterPay conditions:', 'wc-buckaroo-bpe-gateway' );
+	echo esc_html_e( 'Accept Riverty conditions:', 'wc-buckaroo-bpe-gateway' );
 }
 ?>
 	<span class="required">*</span> 

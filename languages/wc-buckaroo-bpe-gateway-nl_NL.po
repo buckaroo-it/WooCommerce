@@ -55,8 +55,8 @@ msgstr ""
 
 #: templates/gateways/partial_afterpay_tos.php:53
 #: templates/gateways/partial_afterpay_tos.php:57
-msgid "Accept Riverty | AfterPay conditions:"
-msgstr "Riverty | AfterPay voorwaarden accepteren:"
+msgid "Accept Riverty conditions:"
+msgstr "Riverty voorwaarden accepteren:"
 
 #: templates/gateways/billink.php:57 templates/gateways/billink.php:81
 msgid "Accept terms of use"
@@ -67,7 +67,7 @@ msgid "According to iDIN you are under 18 years old"
 msgstr "Volgens iDIN ben je jonger dan 18 jaar"
 
 #: gateway-buckaroo-afterpay.php:449
-msgid "AfterPay Pay or Capture"
+msgid "Riverty Pay or Capture"
 msgstr ""
 
 #: templates/idin/checkout.php:8 templates/idin/checkout.php:26
@@ -377,8 +377,8 @@ msgid "Enable %s Payment Method"
 msgstr "Betaalmethode %s inschakelen"
 
 #: gateway-buckaroo-afterpay.php:430
-msgid "Enable B2B option for Riverty | AfterPay"
-msgstr "Zet B2B aan voor Riverty | AfterPay"
+msgid "Enable B2B option for Riverty"
+msgstr "Zet B2B aan voor Riverty"
 
 #: gateway-buckaroo-paypal.php:117
 msgid "Enable PayPal express for the following pages."
@@ -760,7 +760,7 @@ msgstr "Kies standaard BTW type voor uw producten"
 
 #: gateway-buckaroo-afterpay.php:425
 msgid "Please select the service"
-msgstr "Kies de gewenste Riverty | AfterPay service"
+msgstr "Kies de gewenste Riverty service"
 
 #: gateway-buckaroo-paypal.php:120
 msgid "Product page"
@@ -805,12 +805,12 @@ msgid "Required"
 msgstr "Verplicht"
 
 #: gateway-buckaroo-afterpaynew.php:520
-msgid "Riverty | AfterPay customer type"
+msgid "Riverty customer type"
 msgstr ""
 
 #: gateway-buckaroo-afterpaynew.php:504
-msgid "Riverty | AfterPay Pay or Capture"
-msgstr "Riverty | AfterPay Pay of Capture"
+msgid "Riverty Pay or Capture"
+msgstr "Riverty Pay of Capture"
 
 #: gateway-buckaroo-mastersettings.php:59
 msgid "Secret key"
@@ -821,8 +821,8 @@ msgid "Select a credit or debit card."
 msgstr "Selecteer een CreditCard."
 
 #: gateway-buckaroo-afterpay.php:423
-msgid "Select afterpay service"
-msgstr "Kies Riverty | AfterPay service"
+msgid "Select Riverty service"
+msgstr "Kies Riverty service"
 
 #: gateway-buckaroo.php:433
 msgid "Select Certificate"
@@ -1085,7 +1085,7 @@ msgstr "Deze betaalmethode wordt niet ondersteund voor de geselecteerde valuta"
 
 #: gateway-buckaroo-afterpaynew.php:522
 msgid ""
-"This setting determines whether you accept Riverty | AfterPay payments for "
+"This setting determines whether you accept Riverty payments for "
 "B2C, B2B or both customer types. When B2B is selected, this method is only "
 "shown when a company name is entered in the checkout process."
 msgstr ""
@@ -1146,20 +1146,19 @@ msgstr "WC Buckaroo BPE Gateway"
 
 #: library/common.php:281 library/common.php:304 library/common.php:471
 msgid ""
-"We are sorry to inform you that the request to pay afterwards with Riverty | "
-"AfterPay is not possible at this time. This can be due to various (temporary)"
-" reasons. For questions about your rejection you can contact the customer "
-"service of Riverty | AfterPay. Or you can visit the website of Riverty | "
-"AfterPay and check the 'Frequently asked questions' through this <a "
+"We are sorry to inform you that the request to pay afterwards with Riverty "
+"reasons. For questions about your rejection you can contact the customer "
+"service of Riverty. Or you can visit the website of Riverty "
+"and check the 'Frequently asked questions' through this <a "
 "href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" "
 "target=\"_blank\">link</a>. We advise you to choose another payment method "
 "to complete your order."
 msgstr ""
 "Het spijt ons u te moeten mededelen dat het verzoek om achteraf te betalen "
-"met Riverty | AfterPay op dit moment niet mogelijk is. Dit kan verschillende "
+"met Riverty op dit moment niet mogelijk is. Dit kan verschillende "
 "(tijdelijke) redenen hebben. Voor vragen over uw afwijzing kunt u contact "
-"opnemen met de klantenservice van Riverty | AfterPay. Of bezoek de website "
-"van Riverty | AfterPay en bekijk de 'Veelgestelde vragen' via deze <a "
+"opnemen met de klantenservice van Riverty. Of bezoek de website "
+"van Riverty en bekijk de 'Veelgestelde vragen' via deze <a "
 "href=\"https://www.afterpay.nl/nl/consumenten/vragen-en- Antwoord\" "
 "target=\"_blank\">link </a>. Wij adviseren u om een ​​andere betaalmethode "
 "te kiezen om uw bestelling af te ronden."
