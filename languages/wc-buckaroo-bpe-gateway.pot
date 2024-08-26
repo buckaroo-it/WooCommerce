@@ -54,7 +54,7 @@ msgstr ""
 
 #: templates/gateways/partial_afterpay_tos.php:53
 #: templates/gateways/partial_afterpay_tos.php:57
-msgid "Accept Riverty | AfterPay conditions:"
+msgid "Accept Riverty conditions:"
 msgstr ""
 
 #: templates/gateways/billink.php:57 templates/gateways/billink.php:81
@@ -66,7 +66,7 @@ msgid "According to iDIN you are under 18 years old"
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:449
-msgid "AfterPay Pay or Capture"
+msgid "Riverty Pay or Capture"
 msgstr ""
 
 #: templates/idin/checkout.php:8 templates/idin/checkout.php:26
@@ -359,7 +359,7 @@ msgid "Enable %s Payment Method"
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:430
-msgid "Enable B2B option for Riverty | AfterPay"
+msgid "Enable B2B option for Riverty"
 msgstr ""
 
 #: gateway-buckaroo-paypal.php:117
@@ -767,11 +767,11 @@ msgid "Required"
 msgstr ""
 
 #: gateway-buckaroo-afterpaynew.php:520
-msgid "Riverty | AfterPay customer type"
+msgid "Riverty customer type"
 msgstr ""
 
 #: gateway-buckaroo-afterpaynew.php:504
-msgid "Riverty | AfterPay Pay or Capture"
+msgid "Riverty Pay or Capture"
 msgstr ""
 
 #: gateway-buckaroo-mastersettings.php:59
@@ -783,7 +783,7 @@ msgid "Select a credit or debit card."
 msgstr ""
 
 #: gateway-buckaroo-afterpay.php:423
-msgid "Select afterpay service"
+msgid "Select Riverty service"
 msgstr ""
 
 #: gateway-buckaroo.php:433
@@ -1024,7 +1024,7 @@ msgstr ""
 
 #: gateway-buckaroo-afterpaynew.php:522
 msgid ""
-"This setting determines whether you accept Riverty | AfterPay payments for "
+"This setting determines whether you accept Riverty payments for "
 "B2C, B2B or both customer types. When B2B is selected, this method is only "
 "shown when a company name is entered in the checkout process."
 msgstr ""
@@ -1085,11 +1085,11 @@ msgstr ""
 
 #: library/common.php:281 library/common.php:304 library/common.php:471
 msgid ""
-"We are sorry to inform you that the request to pay afterwards with Riverty | "
-"AfterPay is not possible at this time. This can be due to various (temporary)"
+"We are sorry to inform you that the request to pay afterwards with Riverty "
+"is not possible at this time. This can be due to various (temporary)"
 " reasons. For questions about your rejection you can contact the customer "
-"service of Riverty | AfterPay. Or you can visit the website of Riverty | "
-"AfterPay and check the 'Frequently asked questions' through this <a "
+"service of Riverty. Or you can visit the website of Riverty "
+"and check the 'Frequently asked questions' through this <a "
 "href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" "
 "target=\"_blank\">link</a>. We advise you to choose another payment method "
 "to complete your order."
