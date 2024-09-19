@@ -20,7 +20,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
 		$this->id           = 'buckaroo_afterpay';
 		$this->title        = 'Riverty';
 		$this->has_fields   = false;
-		$this->method_title = 'Buckaroo Riverty Old';
+		$this->method_title = 'Buckaroo Riverty (Old)';
 		$this->setIcon( 'afterpay.png', 'svg/afterpay.svg' );
 		$this->setCountry();
 
