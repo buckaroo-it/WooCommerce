@@ -64,11 +64,6 @@ class Buckaroo_Load_Gateways {
 			'gateway-buckaroo-giftcard.php',
 			'classname' => 'WC_Gateway_Buckaroo_Giftcard',
 		),
-		'Giropay'                 => array(
-			'filename'  =>
-			'gateway-buckaroo-giropay.php',
-			'classname' => 'WC_Gateway_Buckaroo_Giropay',
-		),
 		'iDeal'                   => array(
 			'filename'  =>
 			'gateway-buckaroo-ideal.php',

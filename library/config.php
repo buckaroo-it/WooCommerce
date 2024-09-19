@@ -158,11 +158,6 @@ class BuckarooConfig extends BuckarooConfigCore {
 					'process_capture' => '',
 					'process_refund'  => '',
 				),
-				'giropay'         => array(
-					'process_payment' => '',
-					'process_capture' => '',
-					'process_refund'  => '',
-				),
 				'ideal'           => array(
 					'process_payment' => '',
 					'process_capture' => '',

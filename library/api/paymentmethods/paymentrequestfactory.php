@@ -12,7 +12,6 @@ class BuckarooPaymentRequestFactory {
 	const REQUEST_TYPE_EMPAYMENT       = 'empayment';
 	const REQUEST_TYPE_IDEAL           = 'ideal';
 	const REQUEST_TYPE_PAYCONIQ        = 'payconiq';
-	const REQUEST_TYPE_GIROPAY         = 'giropay';
 	const REQUEST_TYPE_DIRECTDEBIT     = 'directdebit';
 	const REQUEST_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
 	const REQUEST_TYPE_MISTERCASH      = 'bancontactmrcash';
@@ -31,7 +30,6 @@ class BuckarooPaymentRequestFactory {
 		self::REQUEST_TYPE_DIRECTDEBIT     => 'DirectDebit',
 		self::REQUEST_TYPE_SEPADIRECTDEBIT => 'SepaDirectDebit',
 		self::REQUEST_TYPE_PAYCONIQ        => 'Payconiq',
-		self::REQUEST_TYPE_GIROPAY         => 'Giropay',
 		self::REQUEST_TYPE_MISTERCASH      => 'MisterCash',
 		self::REQUEST_TYPE_EMAESTRO        => 'EMaestro',
 		self::REQUEST_TYPE_SOFORTBANKING   => 'Sofortbanking',
