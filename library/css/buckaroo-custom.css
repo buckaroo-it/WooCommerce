@@ -266,6 +266,7 @@ label[for^="payment_method_buckaroo_"] img {
 	}
 	.bk-paybybank-selector .bank-method-label img {
 		padding: 10px 20px;
+		max-width: 120px;
 	}
 
 	.bk-paybybank-selector .bank-method-input {
