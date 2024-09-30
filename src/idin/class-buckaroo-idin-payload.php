@@ -1,5 +1,10 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Idin;
+
+use BuckarooConfig;
+use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Payload_Interface;
+
 class Buckaroo_Idin_Payload implements Buckaroo_Sdk_Payload_Interface
 {
 
@@ -7,7 +12,8 @@ class Buckaroo_Idin_Payload implements Buckaroo_Sdk_Payload_Interface
 
     public function __construct(
         string $issuer
-    ) {
+    )
+    {
         $this->issuer = $issuer;
     }
 
@@ -53,9 +59,9 @@ class Buckaroo_Idin_Payload implements Buckaroo_Sdk_Payload_Interface
             // 'invoice'       => '0',
             // 'amountDebit'   => '0',
             // 'currency'      => 'EUR',
-            'returnURL'     => $this->get_return_url(),
-            'cancelURL'     => $this->get_return_url(),
-            'pushURL'       => $this->get_push_url(),
+            'returnURL' => $this->get_return_url(),
+            'cancelURL' => $this->get_return_url(),
+            'pushURL' => $this->get_push_url(),
             'clientIP' => $this->get_ip(),
             'issuer' => $this->issuer
         ];

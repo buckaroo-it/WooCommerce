@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
 class Buckaroo_Billink extends Buckaroo_Default_Method
 {
     /** @inheritDoc */
@@ -28,32 +29,32 @@ class Buckaroo_Billink extends Buckaroo_Default_Method
      */
     protected function get_billing_data(): array
     {
-        $streetParts  = $this->order_details->get_billing_address_components();
+        $streetParts = $this->order_details->get_billing_address_components();
         $country_code = $this->get_address('billing', 'country');
         $first_name = $this->get_address('billing', 'first_name');
         return [
             'billing' => [
                 'recipient' => [
-                    'category'              => $this->get_category('billing'),
-                    'careOf'                => $this->get_care_of('billing'),
-                    'initials'              => $this->get_initials($first_name),
-                    'firstName'             => $first_name,
-                    'lastName'              => $this->get_address('billing', 'last_name'),
-                    'birthDate'             => $this->get_birth_date(),
-                    'salutation'            => $this->request('buckaroo-billink-gender')
+                    'category' => $this->get_category('billing'),
+                    'careOf' => $this->get_care_of('billing'),
+                    'initials' => $this->get_initials($first_name),
+                    'firstName' => $first_name,
+                    'lastName' => $this->get_address('billing', 'last_name'),
+                    'birthDate' => $this->get_birth_date(),
+                    'salutation' => $this->request('buckaroo-billink-gender')
                 ],
                 'address' => [
-                    'street'                => $streetParts->get_street(),
-                    'houseNumber'           => $streetParts->get_house_number(),
+                    'street' => $streetParts->get_street(),
+                    'houseNumber' => $streetParts->get_house_number(),
                     'houseNumberAdditional' => $streetParts->get_number_additional(),
-                    'zipcode'               => $this->get_address('billing', 'postcode'),
-                    'city'                  => $this->get_address('billing', 'city'),
-                    'country'               => $country_code,
+                    'zipcode' => $this->get_address('billing', 'postcode'),
+                    'city' => $this->get_address('billing', 'city'),
+                    'country' => $country_code,
                 ],
                 'phone' => [
-                    'mobile'        => $this->order_details->get_billing_phone(),
+                    'mobile' => $this->order_details->get_billing_phone(),
                 ],
-                'email'         => $this->get_address('billing', 'email')
+                'email' => $this->get_address('billing', 'email')
             ]
         ];
     }
@@ -64,27 +65,27 @@ class Buckaroo_Billink extends Buckaroo_Default_Method
      */
     protected function get_shipping_data(): array
     {
-        $streetParts  = $this->order_details->get_shipping_address_components();
+        $streetParts = $this->order_details->get_shipping_address_components();
         $country_code = $this->get_address('shipping', 'country');
         $first_name = $this->get_address('shipping', 'first_name');
 
         return [
             'shipping' => [
                 'recipient' => [
-                    'category'              =>  $this->get_category('shipping'),
-                    'careOf'                =>  $this->get_care_of('shipping'),
-                    'initials'              =>  $this->get_initials($first_name),
-                    'firstName'             => $first_name,
-                    'lastName'              => $this->get_address('shipping', 'last_name'),
-                    'birthDate'             =>  $this->get_birth_date(),
+                    'category' => $this->get_category('shipping'),
+                    'careOf' => $this->get_care_of('shipping'),
+                    'initials' => $this->get_initials($first_name),
+                    'firstName' => $first_name,
+                    'lastName' => $this->get_address('shipping', 'last_name'),
+                    'birthDate' => $this->get_birth_date(),
                 ],
                 'address' => [
-                    'street'                => $streetParts->get_street(),
-                    'houseNumber'           => $streetParts->get_house_number(),
+                    'street' => $streetParts->get_street(),
+                    'houseNumber' => $streetParts->get_house_number(),
                     'houseNumberAdditional' => $streetParts->get_number_additional(),
-                    'zipcode'               => $this->get_address('shipping', 'postcode'),
-                    'city'                  => $this->get_address('shipping', 'city'),
-                    'country'               => $country_code,
+                    'zipcode' => $this->get_address('shipping', 'postcode'),
+                    'city' => $this->get_address('shipping', 'city'),
+                    'country' => $country_code,
                 ],
             ],
         ];

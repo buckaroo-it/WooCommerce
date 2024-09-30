@@ -1,5 +1,12 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment;
+
+use Buckaroo_Http_Request;
+use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Payload_Interface;
+use WC_Gateway_Buckaroo;
+use WC_Order;
+
 require_once dirname(__FILE__) . "/class-buckaroo-address-components.php";
 require_once dirname(__FILE__) . "/class-buckaroo-order-articles.php";
 require_once dirname(__FILE__) . "/class-buckaroo-order-details.php";
@@ -42,31 +49,31 @@ require_once dirname(__FILE__) . "/methods/class-bukcaroo-transfer.php";
 class Buckaroo_Payment_Factory
 {
     private static array $classes = array(
-        'afterpay' => Buckaroo_Afterpay::class,
-        'afterpaydigiaccept' => Buckaroo_Afterpay_Old::class,
-        'alipay' => Buckaroo_Alipay::class,
-        'applepay' => Buckaroo_Applepay::class,
-        'billink' => Buckaroo_Billink::class,
-        'credicard' => Buckaroo_CreditCard::class,
-        'giftcard' => Buckaroo_Giftcard::class,
-        'ideal' => Buckaroo_Ideal::class,
-        'in3' => Buckaroo_In3::class,
-        'klarna' => Buckaroo_Klarna::class,
-        'klarnain' => Buckaroo_Klarnain::class,
-        'p24' => Buckaroo_P24::class,
-        'paybybank' => Buckaroo_Paybybank::class,
-        'paypal' => Buckaroo_Paypal::class,
-        'payperemail' => Buckaroo_PayPerEmail::class,
-        'sepadirectdebit' => Buckaroo_Sepa::class,
-        'trustly' => Buckaroo_Trustly::class,
-        'wechatpay' => Buckaroo_Wechatpay::class,
-        'transfer' => Buckaroo_Transfer::class,
+        'afterpay' => Methods\Buckaroo_Afterpay::class,
+        'afterpaydigiaccept' => Methods\Buckaroo_Afterpay_Old::class,
+        'alipay' => Methods\Buckaroo_Alipay::class,
+        'applepay' => Methods\Buckaroo_ApplePay::class,
+        'billink' => Methods\Buckaroo_Billink::class,
+        'credicard' => Methods\Buckaroo_CreditCard::class,
+        'giftcard' => Methods\Buckaroo_Giftcard::class,
+        'ideal' => Methods\Buckaroo_Ideal::class,
+        'in3' => Methods\Buckaroo_In3::class,
+        'klarna' => Methods\Buckaroo_Klarna::class,
+        'klarnain' => Methods\Buckaroo_KlarnaIn::class,
+        'p24' => Methods\Buckaroo_P24::class,
+        'paybybank' => Methods\Buckaroo_PayByBank::class,
+        'paypal' => Methods\Buckaroo_Paypal::class,
+        'payperemail' => Methods\Buckaroo_PayPerEmail::class,
+        'sepadirectdebit' => Methods\Buckaroo_Sepa::class,
+        'trustly' => Methods\Buckaroo_Trustly::class,
+        'wechatpay' => Methods\Buckaroo_Wechatpay::class,
+        'transfer' => Methods\Buckaroo_Transfer::class,
     );
 
     public static function get_payment(WC_Gateway_Buckaroo $gateway, int $order_id): Buckaroo_Sdk_Payload_Interface
     {
         $order_details = new Buckaroo_Order_Details(new WC_Order($order_id));
-        $class = Buckaroo_Default_Method::class;
+        $class = Methods\Buckaroo_Default_Method::class;
 
         $code = strtolower($gateway->get_sdk_code());
         if (array_key_exists($code, self::$classes)) {

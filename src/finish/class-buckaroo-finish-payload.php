@@ -1,6 +1,9 @@
 <?php
 
-use WC_Buckaroo\Dependencies\Buckaroo\Resources\Constants\ResponseStatus;
+namespace WC_Buckaroo\WooCommerce\Finish;
+
+use Buckaroo\Resources\Constants\ResponseStatus;
+use Buckaroo_Http_Request;
 
 class Buckaroo_Return_Payload
 {
@@ -60,6 +63,7 @@ class Buckaroo_Return_Payload
         }
         return $message;
     }
+
     private function get_status_code(): string
     {
         $status = $this->request->request("brq_statuscode");

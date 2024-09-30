@@ -1,5 +1,9 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
+
+use DateTime;
+
 class Buckaroo_Transfer extends Buckaroo_Default_Method
 {
     /** @inheritDoc */
@@ -8,9 +12,9 @@ class Buckaroo_Transfer extends Buckaroo_Default_Method
         return [
             'email' => $this->get_address('billing', 'email'),
             'country' => $this->get_address('billing', 'country'),
-            'customer'      => [
+            'customer' => [
                 'firstName' => $this->get_address('billing', 'first_name'),
-                'lastName'  => $this->get_address('billing', 'last_name')
+                'lastName' => $this->get_address('billing', 'last_name')
             ],
             'dateDue' => $this->get_due_date(),
             'sendMail' => $this->can_send_email(),
@@ -19,7 +23,7 @@ class Buckaroo_Transfer extends Buckaroo_Default_Method
 
     protected function get_due_date(): string
     {
-        $now = new \DateTime();
+        $now = new DateTime();
         $days = $this->gateway->get_option('datedue');
 
         if (is_scalar($days) && (int)$days <= 0) {

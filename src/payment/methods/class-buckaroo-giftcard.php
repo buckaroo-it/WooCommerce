@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
 class Buckaroo_Giftcard extends Buckaroo_Default_Method
 {
     /** @inheritDoc */

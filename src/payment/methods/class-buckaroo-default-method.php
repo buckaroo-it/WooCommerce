@@ -1,5 +1,14 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
+
+use Buckaroo_Http_Request;
+use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Articles;
+use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Payload_Interface;
+use WC_Gateway_Buckaroo;
+use WC_Order;
+
 class Buckaroo_Default_Method implements Buckaroo_Sdk_Payload_Interface
 {
     protected WC_Gateway_Buckaroo $gateway;
@@ -8,14 +17,15 @@ class Buckaroo_Default_Method implements Buckaroo_Sdk_Payload_Interface
 
     protected Buckaroo_Order_Details $order_details;
 
-    protected  Buckaroo_Order_Articles $order_articles;
+    protected Buckaroo_Order_Articles $order_articles;
 
     public function __construct(
-        WC_Gateway_Buckaroo $gateway,
-        Buckaroo_Http_Request $request,
+        WC_Gateway_Buckaroo    $gateway,
+        Buckaroo_Http_Request  $request,
         Buckaroo_Order_Details $order_details,
         Buckaroo_Order_Articles $order_articles
-    ) {
+    )
+    {
         $this->gateway = $gateway;
         $this->request = $request;
         $this->order_details = $order_details;
@@ -62,13 +72,13 @@ class Buckaroo_Default_Method implements Buckaroo_Sdk_Payload_Interface
         return array_merge(
             $this->get_method_body(),
             [
-                'order'         => (string)$this->get_order()->get_id(),
-                'invoice'       => $this->get_invoice_number(),
-                'amountDebit'   => number_format((float)$this->get_order()->get_total('edit'), 2, '.', ''),
-                'currency'      => get_woocommerce_currency(),
-                'returnURL'     => $this->get_return_url(),
-                'cancelURL'     => $this->get_return_url(),
-                'pushURL'       => $this->get_push_url(),
+                'order' => (string)$this->get_order()->get_id(),
+                'invoice' => $this->get_invoice_number(),
+                'amountDebit' => number_format((float)$this->get_order()->get_total('edit'), 2, '.', ''),
+                'currency' => get_woocommerce_currency(),
+                'returnURL' => $this->get_return_url(),
+                'cancelURL' => $this->get_return_url(),
+                'pushURL' => $this->get_push_url(),
                 'additionalParameters' => [
                     'real_order_id' => $this->get_order()->get_id(),
                 ],
@@ -95,7 +105,7 @@ class Buckaroo_Default_Method implements Buckaroo_Sdk_Payload_Interface
         $value = $this->request($key);
         if (!is_string($value) || empty(trim($value))) {
             return $default;
-        };
+        }
         return $value;
     }
 
@@ -124,7 +134,7 @@ class Buckaroo_Default_Method implements Buckaroo_Sdk_Payload_Interface
      */
     private function get_description(): string
     {
-        $label =  $this->gateway->get_option('transactiondescription', 'Order #' . $this->get_order()->get_order_number());
+        $label = $this->gateway->get_option('transactiondescription', 'Order #' . $this->get_order()->get_order_number());
 
         $label = preg_replace('/\{order_number\}/', $this->get_order()->get_order_number(), $label);
         $label = preg_replace('/\{shop_name\}/', get_bloginfo('name'), $label);

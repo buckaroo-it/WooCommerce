@@ -1,5 +1,12 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Capture;
+
+use Buckaroo_Http_Request;
+use Buckaroo_Order_Item;
+use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Gateway_Buckaroo;
+
 class Buckaroo_Capture_Items
 {
     private Buckaroo_Order_Details $order_details;
@@ -11,8 +18,9 @@ class Buckaroo_Capture_Items
     public function __construct(
         Buckaroo_Order_Details $order_details,
         Buckaroo_Http_Request $request,
-        WC_Gateway_Buckaroo $gateway
-    ) {
+        WC_Gateway_Buckaroo   $gateway
+    )
+    {
         $this->order_details = $order_details;
         $this->request = $request;
         $this->gateway = $gateway;
@@ -68,7 +76,7 @@ class Buckaroo_Capture_Items
     public function get_product_data(Buckaroo_Order_Item $item): array
     {
         $quantity = $item->get_quantity($item);
-        $product =  [
+        $product = [
             'identifier' => $item->get_id(),
             'description' => $item->get_title(),
             'price' => round($item->get_unit_price(), 2),
@@ -98,7 +106,7 @@ class Buckaroo_Capture_Items
             return 0;
         }
 
-        return (int) $quantity;
+        return (int)$quantity;
     }
 
     /**

@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
 class Buckaroo_Trustly extends Buckaroo_Default_Method
 {
     /** @inheritDoc */
@@ -7,9 +8,9 @@ class Buckaroo_Trustly extends Buckaroo_Default_Method
     {
         return [
             'country' => $this->get_address('billing', 'country'),
-            'customer'      => [
+            'customer' => [
                 'firstName' => $this->get_address('billing', 'first_name'),
-                'lastName'  => $this->get_address('billing', 'last_name')
+                'lastName' => $this->get_address('billing', 'last_name')
             ]
         ];
     }

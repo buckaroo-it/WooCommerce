@@ -1,5 +1,11 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Finish;
+
+use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Gateway_Buckaroo;
+use WC_Order;
+
 class Buckaroo_Finish_Processor
 {
     private Buckaroo_Order_Details $order_details;
@@ -13,8 +19,9 @@ class Buckaroo_Finish_Processor
 
     public function process(
         Buckaroo_Return_Payload $response
-    ) {
-        $message = __('Payment unsuccessful. Please try again or choose another payment method.',  'wc-buckaroo-bpe-gateway');
+    )
+    {
+        $message = __('Payment unsuccessful. Please try again or choose another payment method.', 'wc-buckaroo-bpe-gateway');
 
         $order_id = $response->get_order_id();
         if ($order_id === null) {
@@ -35,7 +42,7 @@ class Buckaroo_Finish_Processor
             $response->is_success()
         ) {
             return [
-                'result'   => 'success',
+                'result' => 'success',
                 'redirect' => $this->gateway->get_return_url($this->order_details->get_order()),
             ];
         }
@@ -92,7 +99,7 @@ class Buckaroo_Finish_Processor
     {
         wc_add_notice($message, 'error');
         return [
-            'result'   => 'error',
+            'result' => 'error',
             'redirect' => wc_get_checkout_url(),
         ];
     }

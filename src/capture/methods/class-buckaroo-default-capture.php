@@ -1,5 +1,13 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Capture\Methods;
+
+use Buckaroo_Http_Request;
+use WC_Buckaroo\WooCommerce\Capture\Buckaroo_Capture_Items;
+use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Payload_Interface;
+use WC_Gateway_Buckaroo;
+use WC_Order;
+
 class Buckaroo_Default_Capture implements Buckaroo_Sdk_Payload_Interface
 {
     protected WC_Gateway_Buckaroo $gateway;
@@ -13,8 +21,9 @@ class Buckaroo_Default_Capture implements Buckaroo_Sdk_Payload_Interface
     public function __construct(
         WC_Gateway_Buckaroo $gateway,
         Buckaroo_Capture_Items $capture_service,
-        float $amount
-    ) {
+        float               $amount
+    )
+    {
         $this->gateway = $gateway;
         $this->capture_service = $capture_service;
         $this->amount = $amount;
@@ -60,13 +69,13 @@ class Buckaroo_Default_Capture implements Buckaroo_Sdk_Payload_Interface
         return array_merge(
             $this->get_method_body(),
             [
-                'order'         => (string)$this->get_order()->get_id(),
-                'invoice'       => $this->get_invoice_number(),
-                'amountDebit'   => number_format($this->amount, 2, '.', ''),
-                'currency'      => $this->get_order()->get_currency('edit'),
-                'returnURL'     => $this->get_return_url(),
-                'cancelURL'     => $this->get_return_url(),
-                'pushURL'       => $this->get_push_url(),
+                'order' => (string)$this->get_order()->get_id(),
+                'invoice' => $this->get_invoice_number(),
+                'amountDebit' => number_format($this->amount, 2, '.', ''),
+                'currency' => $this->get_order()->get_currency('edit'),
+                'returnURL' => $this->get_return_url(),
+                'cancelURL' => $this->get_return_url(),
+                'pushURL' => $this->get_push_url(),
                 'originalTransactionKey' => (string)$this->get_order()->get_transaction_id('edit'),
                 'additionalParameters' => [
                     'real_order_id' => $this->get_order()->get_id(),
@@ -97,7 +106,7 @@ class Buckaroo_Default_Capture implements Buckaroo_Sdk_Payload_Interface
         $value = $this->request($key);
         if (!is_string($value) || empty(trim($value))) {
             return $default;
-        };
+        }
         return $value;
     }
 

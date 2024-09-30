@@ -1,5 +1,14 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Refund;
+
+use WC_Buckaroo\WooCommerce\Methods\Buckaroo_Afterpay_Refund;
+use WC_Buckaroo\WooCommerce\Methods\Buckaroo_Billink_Refund;
+use WC_Buckaroo\WooCommerce\Methods\Buckaroo_Default_Refund;
+use WC_Buckaroo\WooCommerce\Methods\Buckaroo_Klarna_Refund;
+use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Gateway_Buckaroo;
+use WC_Order;
 
 require_once dirname(__FILE__) . "/methods/class-buckaroo-default-refund.php";
 require_once dirname(__FILE__) . "/methods/class-buckaroo-afterpay-refund.php";

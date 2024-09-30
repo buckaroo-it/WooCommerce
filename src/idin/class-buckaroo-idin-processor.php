@@ -1,13 +1,18 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Idin;
+
+use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Response;
+
 class Buckaroo_Idin_Processor
 {
     public function process(
         Buckaroo_Sdk_Response $response
-    ) {
+    )
+    {
         if ($response->has_redirect()) {
             return [
-                'result'   => 'success',
+                'result' => 'success',
                 'redirect' => $response->get_redirect_url(),
             ];
         }
@@ -25,7 +30,7 @@ class Buckaroo_Idin_Processor
     {
         wc_add_notice($message, 'error');
         return [
-            'result'   => 'error',
+            'result' => 'error',
             'redirect' => wc_get_checkout_url(),
         ];
     }

@@ -1,8 +1,10 @@
 <?php
 
-use WC_Buckaroo\Dependencies\Buckaroo\Config\Config;
-use WC_Buckaroo\Dependencies\Buckaroo\BuckarooClient;
-use WC_Buckaroo\Dependencies\Buckaroo\Config\DefaultConfig;
+namespace WC_Buckaroo\WooCommerce\SDK;
+
+use Buckaroo\BuckarooClient;
+use Buckaroo\Config\DefaultConfig;
+use BuckarooConfig;
 
 
 class Buckaroo_Client_Processor
@@ -13,6 +15,7 @@ class Buckaroo_Client_Processor
     {
         $this->payload = $payload;
     }
+
     public function process(): Buckaroo_Sdk_Response
     {
         $client = $this->get_client()->method($this->payload->get_sdk_code());
@@ -31,7 +34,7 @@ class Buckaroo_Client_Processor
             new DefaultConfig(
                 $this->get_website_key($config),
                 $this->get_secret_key($config),
-                $this->payload->request_mode() == 'test' ? Config::TEST_MODE : Config::LIVE_MODE,
+                $this->payload->request_mode() == 'test' ? 'test' : 'live',
                 null,
                 null,
                 null,
@@ -44,6 +47,7 @@ class Buckaroo_Client_Processor
             )
         );
     }
+
     private function get_website_key(array $config): string
     {
         return $config['merchantkey'] ?? '';

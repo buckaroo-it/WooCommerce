@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
 class Buckaroo_Sepa extends Buckaroo_Default_Method
 {
     /** @inheritDoc */
@@ -10,9 +11,9 @@ class Buckaroo_Sepa extends Buckaroo_Default_Method
             $this->request_string('buckaroo-sepadirectdebit-iban') !== null
         ) {
             return [
-                'iban'              => $this->request_string('buckaroo-sepadirectdebit-iban'),
-                'customer'      => [
-                    'name'          => $this->request_string('buckaroo-sepadirectdebit-accountname')
+                'iban' => $this->request_string('buckaroo-sepadirectdebit-iban'),
+                'customer' => [
+                    'name' => $this->request_string('buckaroo-sepadirectdebit-accountname')
                 ]
             ];
         }

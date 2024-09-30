@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
 class Buckaroo_In3_V2 extends Buckaroo_Default_Method
 {
     /** @inheritDoc */
@@ -7,10 +8,10 @@ class Buckaroo_In3_V2 extends Buckaroo_Default_Method
     {
         return array_merge(
             [
-                'invoiceDate'  => date('Y-m-d'),
+                'invoiceDate' => date('Y-m-d'),
                 'customerType' => 'Debtor',
-                'email'        =>  $this->get_address('billing', 'email'),
-                'phone'        => [
+                'email' => $this->get_address('billing', 'email'),
+                'phone' => [
                     'mobile' => $this->get_address('billing', 'phone')
                 ],
             ],
@@ -35,12 +36,12 @@ class Buckaroo_In3_V2 extends Buckaroo_Default_Method
     {
         return [
             'customer' => [
-                'initials'              => $this->order_details->get_initials($this->get_address('billing', 'last_name')),
-                'lastName'              => $this->get_address('billing', 'last_name'),
-                'email'                 => $this->get_address('billing', 'email'),
-                'phone'                 => $this->get_address('billing', 'phone'),
-                'culture'               => 'nl-NL',
-                'birthDate'             => date('Y-m-d', strtotime($this->request_string('buckaroo-in3-birthdate'))),
+                'initials' => $this->order_details->get_initials($this->get_address('billing', 'last_name')),
+                'lastName' => $this->get_address('billing', 'last_name'),
+                'email' => $this->get_address('billing', 'email'),
+                'phone' => $this->get_address('billing', 'phone'),
+                'culture' => 'nl-NL',
+                'birthDate' => date('Y-m-d', strtotime($this->request_string('buckaroo-in3-birthdate'))),
             ]
         ];
     }
@@ -52,16 +53,16 @@ class Buckaroo_In3_V2 extends Buckaroo_Default_Method
      */
     private function get_address_payload(): array
     {
-        $streetParts  = $this->order_details->get_billing_address_components();
+        $streetParts = $this->order_details->get_billing_address_components();
         $country_code = $this->get_address('billing', 'country');
 
         $data = [
             'address' => [
-                'street'                => $streetParts->get_street(),
-                'houseNumber'           => $streetParts->get_house_number(),
-                'zipcode'               => $this->get_address('billing', 'postcode'),
-                'city'                  => $this->get_address('billing', 'city'),
-                'country'               => $country_code,
+                'street' => $streetParts->get_street(),
+                'houseNumber' => $streetParts->get_house_number(),
+                'zipcode' => $this->get_address('billing', 'postcode'),
+                'city' => $this->get_address('billing', 'city'),
+                'country' => $country_code,
             ]
         ];
 

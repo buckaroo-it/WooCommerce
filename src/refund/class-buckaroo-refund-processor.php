@@ -1,5 +1,11 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Refund;
+
+use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Response;
+use WC_Order;
+use WP_Error;
+
 /**
  * Core class for payment factory
  * php version 7.2
@@ -20,9 +26,11 @@ class Buckaroo_Refund_Processor
     {
         $this->order = $order;
     }
+
     public function process(
         Buckaroo_Sdk_Response $response
-    ) {
+    )
+    {
 
         if ($response->is_success()) {
             $this->order->add_order_note(

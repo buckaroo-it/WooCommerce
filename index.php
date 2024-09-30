@@ -69,7 +69,7 @@ new Buckaroo_Paypal_Express(
 new Buckaroo_Capture_Form();
 new Buckaroo_Cancel_Reservation();
 new Buckaroo_KlarnaKP_Refund();
-new Buckaroo_Return_Page();
+new \WC_Buckaroo\WooCommerce\Finish\Buckaroo_Return_Page();
 
 add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
 
@@ -312,7 +312,7 @@ function buckaroo_test_credentials()
     $website_key = sanitize_text_field($_POST['website_key']);
     $secret_key = sanitize_text_field($_POST['secret_key']);
 
-    $client = new Buckaroo_Test_Credentials_Processor($website_key, $secret_key);
+    $client = new \WC_Buckaroo\WooCommerce\SDK\Buckaroo_Test_Credentials_Processor($website_key, $secret_key);
    
     if ($client->validate_credentials()) {
         wp_die(
@@ -463,7 +463,7 @@ function buckaroo_init_gateway()
   
 
     load_plugin_textdomain('wc-buckaroo-bpe-gateway', false, dirname(plugin_basename(__FILE__)) . '/languages/');
-    
+
     $gateway_loader = new Buckaroo_Load_Gateways();
     $gateway_loader->load();
 
@@ -603,10 +603,10 @@ function orderCapture()
     }
     if (isset($gateway)) {
         $total_amount = isset( $_POST['capture_amount'] ) ? wc_format_decimal( sanitize_text_field( wp_unslash( $_POST['capture_amount'] ) ), wc_get_price_decimals() ) : 0;
-        
-        $capture = Buckaroo_Capture_Factory::get_payment($gateway, $order_id, $total_amount);
-        $request = new Buckaroo_Client_Processor($capture);
-        $processor = new Buckaroo_Capture_Processor(new Buckaroo_Http_Request());
+
+        $capture = \WC_Buckaroo\WooCommerce\Capture\Buckaroo_Capture_Factory::get_payment($gateway, $order_id, $total_amount);
+        $request = new \WC_Buckaroo\WooCommerce\SDK\Buckaroo_Client_Processor($capture);
+        $processor = new \WC_Buckaroo\WooCommerce\Capture\Buckaroo_Capture_Processor(new Buckaroo_Http_Request());
         
 
         

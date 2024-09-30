@@ -1,5 +1,15 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Capture;
+
+use Buckaroo_Http_Request;
+use WC_Buckaroo\WooCommerce\Capture\Methods\Buckaroo_Creditcard_Capture;
+use WC_Buckaroo\WooCommerce\Capture\Methods\Buckaroo_Default_Capture;
+use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Payload_Interface;
+use WC_Gateway_Buckaroo;
+use WC_Order;
+
 require_once dirname(__FILE__) . "/methods/class-buckaroo-default-capture.php";
 require_once dirname(__FILE__) . "/methods/class-buckaroo-creditcard-capture.php";
 

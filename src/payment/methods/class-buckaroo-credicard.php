@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
 class Buckaroo_CreditCard extends Buckaroo_Default_Method
 {
     /** @inheritDoc */
@@ -13,7 +14,7 @@ class Buckaroo_CreditCard extends Buckaroo_Default_Method
             $body = array_merge(
                 $body,
                 [
-                    'encryptedCardData' =>  $this->request_string('encrypted-data')
+                    'encryptedCardData' => $this->request_string('encrypted-data')
                 ]
             );
         }

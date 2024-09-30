@@ -1,5 +1,12 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment;
+
+use Buckaroo_Order_Item;
+use DOMDocument;
+use DOMXPath;
+use WC_Gateway_Buckaroo;
+
 /**
  * Core class for logging
  * php version 7.2
@@ -26,9 +33,10 @@ class Buckaroo_Order_Articles
     public function __construct(
         Buckaroo_Order_Details $order_details,
         WC_Gateway_Buckaroo $gateway
-    ) {
+    )
+    {
         $this->order_details = $order_details;
-        $this->gateway       = $gateway;
+        $this->gateway = $gateway;
     }
 
     /**
@@ -108,7 +116,7 @@ class Buckaroo_Order_Articles
             if (!empty($img)) {
                 $data['imgUrl'] = $img;
             }
-            $data['url']  = get_permalink($item->get_id());
+            $data['url'] = get_permalink($item->get_id());
         }
         return $data;
     }

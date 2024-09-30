@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
 class Buckaroo_Afterpay extends Buckaroo_Default_Method
 {
 
@@ -13,7 +14,7 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
         return array_merge_recursive(
             $this->get_billing_data(),
             $this->getShippingData(),
-            ['articles' =>$this->get_articles()]
+            ['articles' => $this->get_articles()]
         );
     }
 
@@ -36,28 +37,28 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
      */
     protected function get_billing_data(): array
     {
-        $streetParts  = $this->order_details->get_billing_address_components();
+        $streetParts = $this->order_details->get_billing_address_components();
         $country_code = $this->get_address('billing', 'country');
         $data = [
             'billing' => [
                 'recipient' => [
-                    'category'              => $this->get_category('billing'),
-                    'careOf'                => $this->get_care_of('billing'),
-                    'firstName'             => $this->get_address('billing', 'first_name'),
-                    'lastName'              => $this->get_address('billing', 'last_name')
+                    'category' => $this->get_category('billing'),
+                    'careOf' => $this->get_care_of('billing'),
+                    'firstName' => $this->get_address('billing', 'first_name'),
+                    'lastName' => $this->get_address('billing', 'last_name')
                 ],
                 'address' => [
-                    'street'                => $streetParts->get_street(),
-                    'houseNumber'           => $streetParts->get_house_number(),
+                    'street' => $streetParts->get_street(),
+                    'houseNumber' => $streetParts->get_house_number(),
                     'houseNumberAdditional' => $streetParts->get_number_additional(),
-                    'zipcode'               => $this->get_address('billing', 'postcode'),
-                    'city'                  => $this->get_address('billing', 'city'),
-                    'country'               => $country_code,
+                    'zipcode' => $this->get_address('billing', 'postcode'),
+                    'city' => $this->get_address('billing', 'city'),
+                    'country' => $country_code,
                 ],
                 'phone' => [
-                    'mobile'        => $this->get_phone($this->order_details->get_billing_phone()),
+                    'mobile' => $this->get_phone($this->order_details->get_billing_phone()),
                 ],
-                'email'         => $this->get_address('billing', 'email')
+                'email' => $this->get_address('billing', 'email')
             ]
         ];
         return array_merge_recursive(
@@ -72,24 +73,24 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
      */
     protected function getShippingData(): array
     {
-        $streetParts  = $this->order_details->get_shipping_address_components();
+        $streetParts = $this->order_details->get_shipping_address_components();
         $country_code = $this->get_address('shipping', 'country');
 
         $data = [
             'shipping' => [
                 'recipient' => [
-                    'category'              => $this->get_category('shipping'),
-                    'careOf'                => $this->get_care_of('shipping'),
-                    'firstName'             => $this->get_address('shipping', 'first_name'),
-                    'lastName'              => $this->get_address('shipping', 'last_name')
+                    'category' => $this->get_category('shipping'),
+                    'careOf' => $this->get_care_of('shipping'),
+                    'firstName' => $this->get_address('shipping', 'first_name'),
+                    'lastName' => $this->get_address('shipping', 'last_name')
                 ],
                 'address' => [
-                    'street'                => $streetParts->get_street(),
-                    'houseNumber'           => $streetParts->get_house_number(),
+                    'street' => $streetParts->get_street(),
+                    'houseNumber' => $streetParts->get_house_number(),
                     'houseNumberAdditional' => $streetParts->get_number_additional(),
-                    'zipcode'               => $this->get_address('shipping', 'postcode'),
-                    'city'                  => $this->get_address('shipping', 'city'),
-                    'country'               => $country_code,
+                    'zipcode' => $this->get_address('shipping', 'postcode'),
+                    'city' => $this->get_address('shipping', 'city'),
+                    'country' => $country_code,
                 ],
             ],
         ];
@@ -107,7 +108,8 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
      */
     protected function get_company(
         string $address_type = 'billing'
-    ): array {
+    ): array
+    {
         $company = $this->get_address($address_type, "company");
         if (
             $this->is_b2b() &&
@@ -116,8 +118,8 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
         ) {
             return [
                 $address_type => [
-                    'recipient'        => [
-                        'companyName'   => $company,
+                    'recipient' => [
+                        'companyName' => $company,
                         'chamberOfCommerce' => $this->request('buckaroo-afterpaynew-company-coc-registration'),
                     ]
                 ]
@@ -135,7 +137,8 @@ class Buckaroo_Afterpay extends Buckaroo_Default_Method
     protected function get_birth_date(
         string $country_code,
         string $type = 'billing'
-    ): array {
+    ): array
+    {
         if (in_array($country_code, ['NL', 'BE'])) {
             return [
                 $type => [

@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment;
 /**
  * Core class for logging
  * php version 7.2
@@ -25,10 +26,12 @@ class Buckaroo_Address_Components
     {
         return $this->components['house_number'];
     }
+
     public function get_number_additional()
     {
         return $this->components['number_addition'];
     }
+
     public function get_street()
     {
         return $this->components['street'];
@@ -42,8 +45,8 @@ class Buckaroo_Address_Components
      */
     public function get_address_components($address)
     {
-        $result                    = array();
-        $result['house_number']    = '';
+        $result = array();
+        $result['house_number'] = '';
         $result['number_addition'] = '';
 
         $address = str_replace(array('?', '*', '[', ']', ',', '!'), ' ', $address);
@@ -52,8 +55,8 @@ class Buckaroo_Address_Components
         preg_match('/^([0-9]*)(.*?)([0-9]+)(.*)/', $address, $matches);
 
         if (!empty($matches[2])) {
-            $result['street']          = trim($matches[1] . $matches[2]);
-            $result['house_number']    = trim($matches[3]);
+            $result['street'] = trim($matches[1] . $matches[2]);
+            $result['house_number'] = trim($matches[3]);
             $result['number_addition'] = trim($matches[4]);
         } else {
             $result['street'] = $address;

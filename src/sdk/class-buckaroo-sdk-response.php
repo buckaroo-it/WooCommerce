@@ -1,6 +1,8 @@
 <?php
 
-use WC_Buckaroo\Dependencies\Buckaroo\Transaction\Response\TransactionResponse;
+namespace WC_Buckaroo\WooCommerce\SDK;
+
+use Buckaroo\Transaction\Response\TransactionResponse;
 
 class Buckaroo_Sdk_Response
 {
@@ -157,7 +159,7 @@ class Buckaroo_Sdk_Response
         $parameters = $this->response->getCustomParameters();
         $order_id = $parameters['real_order_id'] ?? null;
         if (is_scalar($order_id)) {
-            return (int) $order_id;
+            return (int)$order_id;
         }
         return null;
     }
@@ -166,7 +168,7 @@ class Buckaroo_Sdk_Response
     {
         $amount = $this->response->get('AmountCredit');
         if (is_scalar($amount)) {
-            return (float) $amount;
+            return (float)$amount;
         }
         return 0;
     }
@@ -175,7 +177,7 @@ class Buckaroo_Sdk_Response
     {
         $amount = $this->response->get('AmountDebit');
         if (is_scalar($amount)) {
-            return (float) $amount;
+            return (float)$amount;
         }
         return 0;
     }

@@ -110,12 +110,12 @@ class Buckaroo_Order_Item
      */
     public function get_vat()
     {
-        $tax      = new WC_Tax();
-        $taxes    = $tax->get_rates($this->order_item->get_tax_class());
+        $tax = new WC_Tax();
+        $taxes = $tax->get_rates($this->order_item->get_tax_class());
         if (!count($taxes)) {
             return 0;
         }
-        $taxRate    = array_shift($taxes);
+        $taxRate = array_shift($taxes);
         if (!isset($taxRate['rate'])) {
             return 0;
         }

@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
 class Buckaroo_In3 extends Buckaroo_Default_Method
 {
     /** @inheritDoc */
@@ -8,7 +9,7 @@ class Buckaroo_In3 extends Buckaroo_Default_Method
         return array_merge(
             $this->get_billing(),
             $this->get_shipping(),
-            ['articles' =>$this->get_articles()]
+            ['articles' => $this->get_articles()]
         );
     }
 
@@ -18,16 +19,16 @@ class Buckaroo_In3 extends Buckaroo_Default_Method
         return [
             'billing' => [
                 'recipient' => [
-                    'category'      =>  'B2C',
-                    'initials'      => $this->order_details->get_initials(
+                    'category' => 'B2C',
+                    'initials' => $this->order_details->get_initials(
                         $this->order_details->get_full_name()
                     ),
-                    'firstName'     => $this->get_address('billing', 'first_name'),
-                    'lastName'      => $this->get_address('billing', 'last_name'),
-                    'birthDate'     => date('Y-m-d', strtotime($this->request('buckaroo-in3-birthdate'))),
+                    'firstName' => $this->get_address('billing', 'first_name'),
+                    'lastName' => $this->get_address('billing', 'last_name'),
+                    'birthDate' => date('Y-m-d', strtotime($this->request('buckaroo-in3-birthdate'))),
                     'customerNumber' => get_current_user_id(),
-                    'phone'         => $phone,
-                    'country'       => $this->get_address('billing', 'country')
+                    'phone' => $phone,
+                    'country' => $this->get_address('billing', 'country')
                 ],
                 'email' => $this->get_address('billing', 'email'),
                 'phone' => [
@@ -37,7 +38,6 @@ class Buckaroo_In3 extends Buckaroo_Default_Method
             ]
         ];
     }
-
 
 
     /**
@@ -50,10 +50,10 @@ class Buckaroo_In3 extends Buckaroo_Default_Method
         return [
             'shipping' => [
                 'recipient' => [
-                    'category'      => 'B2C',
-                    'firstName'     => $this->get_address('shipping', 'first_name'),
-                    'lastName'      => $this->get_address('shipping', 'last_name'),
-                    'careOf'        => $this->order_details->get_full_name()
+                    'category' => 'B2C',
+                    'firstName' => $this->get_address('shipping', 'first_name'),
+                    'lastName' => $this->get_address('shipping', 'last_name'),
+                    'careOf' => $this->order_details->get_full_name()
                 ],
                 'address' => $this->get_address_payload('shipping')
             ]
@@ -67,15 +67,15 @@ class Buckaroo_In3 extends Buckaroo_Default_Method
      */
     private function get_address_payload(string $address_type): array
     {
-        $streetParts  = $this->order_details->get_billing_address_components();
+        $streetParts = $this->order_details->get_billing_address_components();
         $country_code = $this->get_address($address_type, 'country');
 
         $data = [
-            'street'                => $streetParts->get_street(),
-            'houseNumber'           => $streetParts->get_house_number(),
-            'zipcode'               => $this->get_address($address_type, 'postcode'),
-            'city'                  => $this->get_address($address_type, 'city'),
-            'country'               => $country_code,
+            'street' => $streetParts->get_street(),
+            'houseNumber' => $streetParts->get_house_number(),
+            'zipcode' => $this->get_address($address_type, 'postcode'),
+            'city' => $this->get_address($address_type, 'city'),
+            'country' => $country_code,
         ];
 
         if (strlen($streetParts->get_number_additional()) > 0) {

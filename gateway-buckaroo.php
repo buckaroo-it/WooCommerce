@@ -1,6 +1,14 @@
 <?php
+
+use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Payment_Factory;
+use WC_Buckaroo\WooCommerce\Refund\Buckaroo_Refund_Factory;
+use WC_Buckaroo\WooCommerce\Refund\Buckaroo_Refund_Processor;
+use WC_Buckaroo\WooCommerce\Return\Buckaroo_Return_Processor;
+use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Client_Processor;
+
 require_once(dirname(__FILE__) . '/library/api/idin.php');
 require_once(dirname(__FILE__) . '/library/class-wc-session-handler-buckaroo.php');
+
 /**
  * @package Buckaroo
  */
@@ -58,13 +66,13 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     protected function setProperties()
     {
-        $GLOBALS['plugin_id']         = $this->plugin_id . $this->id . '_settings';
+        $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
         $this->set_title();
-        $this->description            = $this->get_payment_description();
-        $this->currency               = get_woocommerce_currency();
-        $this->mode                   = $this->get_option('mode');
-        $this->minvalue               = $this->get_option('minvalue', 0);
-        $this->maxvalue               = $this->get_option('maxvalue', 0);
+        $this->description = $this->get_payment_description();
+        $this->currency = get_woocommerce_currency();
+        $this->mode = $this->get_option('mode');
+        $this->minvalue = $this->get_option('minvalue', 0);
+        $this->maxvalue = $this->get_option('maxvalue', 0);
     }
 
     /**
@@ -81,7 +89,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $payment = new Buckaroo_Client_Processor($payment);
             $return = new Buckaroo_Return_Processor($this, (int)$order_id);
             return $return->process($payment->process());
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             throw $th;
         }
     }
@@ -100,7 +108,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $refund = new Buckaroo_Client_Processor($refund);
             $return = new Buckaroo_Refund_Processor(new WC_Order($order_id));
             return $return->process($refund->process());
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             throw $th;
         }
     }
@@ -146,10 +154,10 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $vatIncluded = $this->get_option('paymentfeevat', 'on');
 
         $location = array(
-            'country'   => WC()->customer->get_shipping_country() ? WC()->customer->get_shipping_country() : WC()->customer->get_billing_country(),
-            'state'     => WC()->customer->get_shipping_state() ? WC()->customer->get_shipping_state() : WC()->customer->get_billing_state(),
-            'city'      => WC()->customer->get_shipping_city() ? WC()->customer->get_shipping_city() : WC()->customer->get_billing_city(),
-            'postcode'  => WC()->customer->get_shipping_postcode() ? WC()->customer->get_shipping_postcode() : WC()->customer->get_billing_postcode(),
+            'country' => WC()->customer->get_shipping_country() ? WC()->customer->get_shipping_country() : WC()->customer->get_billing_country(),
+            'state' => WC()->customer->get_shipping_state() ? WC()->customer->get_shipping_state() : WC()->customer->get_billing_state(),
+            'city' => WC()->customer->get_shipping_city() ? WC()->customer->get_shipping_city() : WC()->customer->get_billing_city(),
+            'postcode' => WC()->customer->get_shipping_postcode() ? WC()->customer->get_shipping_postcode() : WC()->customer->get_billing_postcode(),
         );
 
         // Loop through tax classes
@@ -179,11 +187,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         if ($fee != 0) {
             if ($is_percentage) {
                 $fee = str_replace("&nbsp;", "", wc_price(
-                    $fee,
-                    [
-                        "currency" => 'null',
-                    ]
-                )) . '%';
+                        $fee,
+                        [
+                            "currency" => 'null',
+                        ]
+                    )) . '%';
             } else {
                 $fee = wc_price($fee + $this->get_payment_fee_vat($fee));
             }
@@ -193,11 +201,12 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         $this->title = strip_tags($this->get_option('title', $this->title ?? '') . $feeText);
     }
+
     /**
      * Set gateway icon
      *
-     * @param string $oldPath  Old image path
-     * @param string $newPath  New image path
+     * @param string $oldPath Old image path
+     * @param string $newPath New image path
      *
      * @return void
      */
@@ -233,6 +242,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             'refunds',
         ];
     }
+
     /**
      * Migrate old named setting to new name
      *
@@ -250,6 +260,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             delete_option($oldKey); //clean the table
         }
     }
+
     public function replace_order_button_html($button)
     {
         if (!BuckarooIdin::checkCurrentUserIsVerified()) {
@@ -275,20 +286,22 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             $this->settings = array_replace($this->settings, $options);
         }
     }
+
     public function generate_buckaroo_notice_html($key, $data)
     {
         //Add Warning, if currency set in Buckaroo is unsupported
         if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && !checkCurrencySupported($this->id) && is_admin()) :
             ob_start();
-?>
+            ?>
             <div class="error notice">
                 <p><?php echo esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')'; ?>
                 </p>
             </div>
-<?php
+            <?php
             return ob_get_clean();
         endif;
     }
+
     /**
      * Initialize Gateway Settings Form Fields
      *
@@ -296,70 +309,70 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
      */
     public function init_form_fields()
     {
-        $charset        = strtolower(ini_get('default_charset'));
+        $charset = strtolower(ini_get('default_charset'));
         $addDescription = '';
         if ($charset != 'utf-8') {
             $addDescription = '<fieldset style="border: 1px solid #ffac0e; padding: 10px;"><legend><b style="color: #ffac0e">' . __('Warning', 'wc-buckaroo-bpe-gateway') . '!</b></legend>' . __('default_charset is not set.<br>This might cause a problems on receiving push message.<br>Please set default_charset="UTF-8" in your php.ini and add AddDefaultCharset UTF-8 to .htaccess file.', 'wc-buckaroo-bpe-gateway') . '</fieldset>';
         }
 
 
-        $this->title       = (!isset($this->title) ? '' : $this->title);
-        $this->id          = (!isset($this->id) ? '' : $this->id);
+        $this->title = (!isset($this->title) ? '' : $this->title);
+        $this->id = (!isset($this->id) ? '' : $this->id);
         $this->form_fields = [
-            'buckaroo_notice'               => [
-                'type'              => 'buckaroo_notice',
+            'buckaroo_notice' => [
+                'type' => 'buckaroo_notice',
             ],
-            'enabled'               => [
-                'title'             => __('Enable/Disable', 'wc-buckaroo-bpe-gateway'),
-                'label'             => sprintf(__('Enable %s Payment Method', 'wc-buckaroo-bpe-gateway'), (isset($this->method_title) ? $this->method_title : '')),
-                'type'              => 'checkbox',
-                'description'       => $addDescription,
-                'default'           => 'no',
+            'enabled' => [
+                'title' => __('Enable/Disable', 'wc-buckaroo-bpe-gateway'),
+                'label' => sprintf(__('Enable %s Payment Method', 'wc-buckaroo-bpe-gateway'), (isset($this->method_title) ? $this->method_title : '')),
+                'type' => 'checkbox',
+                'description' => $addDescription,
+                'default' => 'no',
             ],
-            'mode'                  => [
-                'title'             => __('Transaction mode', 'wc-buckaroo-bpe-gateway'),
-                'type'              => 'select',
-                'description'       => __('Transaction mode used for processing orders', 'wc-buckaroo-bpe-gateway'),
-                'options'           => ['live' => 'Live', 'test' => 'Test'],
-                'default'           => 'test',
+            'mode' => [
+                'title' => __('Transaction mode', 'wc-buckaroo-bpe-gateway'),
+                'type' => 'select',
+                'description' => __('Transaction mode used for processing orders', 'wc-buckaroo-bpe-gateway'),
+                'options' => ['live' => 'Live', 'test' => 'Test'],
+                'default' => 'test',
             ],
-            'title'                 => [
-                'title'             => __('Front-end label', 'wc-buckaroo-bpe-gateway'),
-                'type'              => 'text',
-                'description'       => __(
+            'title' => [
+                'title' => __('Front-end label', 'wc-buckaroo-bpe-gateway'),
+                'type' => 'text',
+                'description' => __(
                     'Determines how the payment method is named in the checkout.',
                     'wc-buckaroo-bpe-gateway'
                 ),
-                'default'           => __($this->title, 'wc-buckaroo-bpe-gateway'),
+                'default' => __($this->title, 'wc-buckaroo-bpe-gateway'),
             ],
-            'description'            => [
-                'title'       => __('Description', 'wc-buckaroo-bpe-gateway'),
-                'type'        => 'textarea',
+            'description' => [
+                'title' => __('Description', 'wc-buckaroo-bpe-gateway'),
+                'type' => 'textarea',
                 'description' => __(
                     'This controls the description which the user sees during checkout.',
                     'wc-buckaroo-bpe-gateway'
                 ),
-                'default'     => $this->get_payment_description(),
+                'default' => $this->get_payment_description(),
             ],
-            'extrachargeamount'     => [
-                'title'             => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
-                'type'              => 'text',
-                'description'       => __('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
-                'default'           => '0',
+            'extrachargeamount' => [
+                'title' => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
+                'type' => 'text',
+                'description' => __('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
+                'default' => '0',
             ],
-            'minvalue'              => [
-                'title'             => __('Minimum order amount allowed', 'wc-buckaroo-bpe-gateway'),
-                'type'              => 'number',
+            'minvalue' => [
+                'title' => __('Minimum order amount allowed', 'wc-buckaroo-bpe-gateway'),
+                'type' => 'number',
                 'custom_attributes' => ['step' => '0.01'],
-                'description'       => __('Specify minimum order amount allowed to show the current method. Zero or empty value means no rule will be applied.', 'wc-buckaroo-bpe-gateway'),
-                'default'           => '0',
+                'description' => __('Specify minimum order amount allowed to show the current method. Zero or empty value means no rule will be applied.', 'wc-buckaroo-bpe-gateway'),
+                'default' => '0',
             ],
-            'maxvalue'              => [
-                'title'             => __('Maximum order amount allowed', 'wc-buckaroo-bpe-gateway'),
-                'type'              => 'number',
+            'maxvalue' => [
+                'title' => __('Maximum order amount allowed', 'wc-buckaroo-bpe-gateway'),
+                'type' => 'number',
                 'custom_attributes' => ['step' => '0.01'],
-                'description'       => __('Specify maximum order amount allowed to show the current method. Zero or empty value means no rule will be applied.', 'wc-buckaroo-bpe-gateway'),
-                'default'           => '0',
+                'description' => __('Specify maximum order amount allowed to show the current method. Zero or empty value means no rule will be applied.', 'wc-buckaroo-bpe-gateway'),
+                'default' => '0',
             ]
         ];
     }
@@ -397,6 +410,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         return parent::validate_text_field($key, $text);
     }
+
     /**
      * Get clean $_POST data
      *
@@ -415,6 +429,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         return $value;
     }
+
     /**
      * Get clean $_GET data
      *
@@ -452,6 +467,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         $d = DateTime::createFromFormat($format, $date);
         return $d && $d->format($format) == $date;
     }
+
     /**
      * Check that a user is 18 years or older.
      *
@@ -508,6 +524,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         return $date;
     }
+
     /**
      * Get the template for the payment gateway if exists
      *
@@ -524,6 +541,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
             include $file;
         }
     }
+
     /**
      * Render the gateway template
      *
@@ -544,6 +562,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
 
         do_action("buckaroo_after_render_gateway_template_" . $name, $this);
     }
+
     /**
      * Get checkout field values
      *
@@ -554,7 +573,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     protected function request_scalar($key)
     {
         $value = '';
-        $post_data   = array();
+        $post_data = array();
         if (!empty($_POST["post_data"]) && is_string($_POST["post_data"])) {
             parse_str(
                 $_POST["post_data"],
@@ -567,6 +586,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         return sanitize_text_field($value);
     }
+
     /**
      * Can the order be refunded
      * @access public
@@ -577,6 +597,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     {
         return $order && $order->get_transaction_id();
     }
+
     /**
      * Validate fields
      * @return void;
@@ -588,6 +609,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
         }
         return;
     }
+
     /**
      * Set order capture
      *
@@ -664,11 +686,11 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway
     {
 
         $this->form_fields['financial_warning'] = [
-            'title'       => __('Consumer Financial Warning'),
-            'type'        => 'select',
+            'title' => __('Consumer Financial Warning'),
+            'type' => 'select',
             'description' => __('Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.', 'wc-buckaroo-bpe-gateway'),
-            'options'     => ['enable' => 'Enable', 'disable' => 'Disable'],
-            'default'     => 'enable'
+            'options' => ['enable' => 'Enable', 'disable' => 'Disable'],
+            'default' => 'enable'
         ];
     }
 

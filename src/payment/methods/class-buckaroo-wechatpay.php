@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
 class Buckaroo_Wechatpay extends Buckaroo_Default_Method
 {
     /** @inheritDoc */

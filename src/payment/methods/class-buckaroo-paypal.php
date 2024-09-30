@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
 class Buckaroo_Paypal extends Buckaroo_Default_Method
 {
     /** @inheritDoc */
@@ -49,10 +50,10 @@ class Buckaroo_Paypal extends Buckaroo_Default_Method
                 'name' => $this->order_details->get_full_name(),
             ],
             'address' => [
-                'street'  => $this->get_address('billing', 'address_1'),
+                'street' => $this->get_address('billing', 'address_1'),
                 'zipcode' => $this->get_address('billing', 'postcode'),
-                'city'    => $this->get_address('billing', 'city'),
-                'state'   => $this->get_address('billing', 'state'),
+                'city' => $this->get_address('billing', 'city'),
+                'state' => $this->get_address('billing', 'state'),
                 'country' => $this->get_address('billing', 'country')
             ],
             'phone' => [

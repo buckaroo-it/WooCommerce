@@ -1,5 +1,12 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Return;
+
+use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Response;
+use WC_Gateway_Buckaroo;
+use WC_Order;
+
 class Buckaroo_Return_Processor
 {
     private Buckaroo_Order_Details $order_details;
@@ -14,8 +21,9 @@ class Buckaroo_Return_Processor
 
     public function process(
         Buckaroo_Sdk_Response $response
-    ) {
-        $message = __('Payment unsuccessful. Please try again or choose another payment method.',  'wc-buckaroo-bpe-gateway');
+    )
+    {
+        $message = __('Payment unsuccessful. Please try again or choose another payment method.', 'wc-buckaroo-bpe-gateway');
 
         if (
             $response->is_success() ||
@@ -29,7 +37,7 @@ class Buckaroo_Return_Processor
                 return $this->redirect_to_payconiq($response);
             }
             return [
-                'result'   => 'success',
+                'result' => 'success',
                 'redirect' => $response->get_redirect_url(),
             ];
         }
@@ -40,7 +48,7 @@ class Buckaroo_Return_Processor
             $response->is_pending_processing()
         ) {
             return [
-                'result'   => 'success',
+                'result' => 'success',
                 'redirect' => $this->gateway->get_return_url($this->order_details->get_order()),
             ];
         }
@@ -102,7 +110,7 @@ class Buckaroo_Return_Processor
     {
         wc_add_notice($message, 'error');
         return [
-            'result'   => 'error',
+            'result' => 'error',
             'redirect' => wc_get_checkout_url(),
         ];
     }
@@ -126,15 +134,15 @@ class Buckaroo_Return_Processor
     {
         $key = $response->get_transaction_key();
         $invoiceNumber = $response->get('Invoice');
-        $amount        = $response->get('AmountDebit');
+        $amount = $response->get('AmountDebit');
         return array(
-            'result'   => 'success',
+            'result' => 'success',
             'redirect' => home_url('/') . 'payconiqQrcode?' .
                 "transactionKey=" . $key .
                 "&invoicenumber=" . $invoiceNumber .
                 "&amount=" . $amount .
                 "&returnUrl=" . add_query_arg('wc-api', 'wc_buckaroo_return', home_url('/')) .
-                "&order_id=" . (int) $this->order_details->get_order()->get_id() .
+                "&order_id=" . (int)$this->order_details->get_order()->get_id() .
                 "&currency=" . $this->order_details->get_order()->get_currency(),
         );
     }

@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
 class Buckaroo_ApplePay extends Buckaroo_Default_Method
 {
     /** @inheritDoc */
@@ -56,7 +57,7 @@ class Buckaroo_ApplePay extends Buckaroo_Default_Method
             !empty($data->billingContact->givenName) &&
             !empty($data->billingContact->familyName)
         ) {
-            return  $data->billingContact->givenName . ' ' . $data->billingContact->familyName;
+            return $data->billingContact->givenName . ' ' . $data->billingContact->familyName;
         }
         return '';
     }

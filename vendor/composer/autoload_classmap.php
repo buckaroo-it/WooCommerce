@@ -7,13 +7,4 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'WC_Buckaroo_Attribute' => $baseDir . '/dist/classes/dependencies/symfony/polyfill-php80/Resources/stubs/Attribute.php',
-    'WC_Buckaroo_CURLStringFile' => $baseDir . '/dist/classes/dependencies/symfony/polyfill-php81/Resources/stubs/CURLStringFile.php',
-    'WC_Buckaroo_Normalizer' => $baseDir . '/dist/classes/dependencies/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
-    'WC_Buckaroo_PhpToken' => $baseDir . '/dist/classes/dependencies/symfony/polyfill-php80/Resources/stubs/PhpToken.php',
-    'WC_Buckaroo_ReturnTypeWillChange' => $baseDir . '/dist/classes/dependencies/symfony/polyfill-php81/Resources/stubs/ReturnTypeWillChange.php',
-    'WC_Buckaroo_Stringable' => $baseDir . '/dist/classes/dependencies/symfony/polyfill-php80/Resources/stubs/Stringable.php',
-    'WC_Buckaroo_UnhandledMatchError' => $baseDir . '/dist/classes/dependencies/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
-    'WC_Buckaroo_ValueError' => $baseDir . '/dist/classes/dependencies/symfony/polyfill-php80/Resources/stubs/ValueError.php',
-    'WC_Buckaroo_WC_Buckaroo_JsonException' => $baseDir . '/dist/classes/dependencies/symfony/polyfill-php73/Resources/stubs/JsonException.php',
 );

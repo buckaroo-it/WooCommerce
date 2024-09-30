@@ -1,5 +1,11 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment;
+
+use Buckaroo_Order_Item;
+use WC_Order;
+use WC_Order_Factory;
+
 /**
  * Core class for order details
  * php version 7.2
@@ -58,6 +64,7 @@ class Buckaroo_Order_Details
     {
         return $this->get("billing_" . $field, $default);
     }
+
     /**
      * Get shipping info from order or billing info if shipping is empty
      *
@@ -74,6 +81,7 @@ class Buckaroo_Order_Details
         }
         return $value;
     }
+
     /**
      * Get billing address components
      *
@@ -85,6 +93,7 @@ class Buckaroo_Order_Details
             $this->get_billing('address_1') . " " . $this->get_billing('address_2')
         );
     }
+
     /**
      * Get shipping address components
      *
@@ -96,6 +105,7 @@ class Buckaroo_Order_Details
             $this->get_shipping('address_1') . " " . $this->get_shipping('address_2')
         );
     }
+
     /**
      * Get billing phone
      *
@@ -107,6 +117,7 @@ class Buckaroo_Order_Details
             $this->get_billing('phone')
         );
     }
+
     /**
      * Get shipping phone
      *
@@ -118,6 +129,7 @@ class Buckaroo_Order_Details
             $this->get_shipping('phone')
         );
     }
+
     /**
      * Get info from order
      *
@@ -163,6 +175,7 @@ class Buckaroo_Order_Details
         }
         return $phone;
     }
+
     /**
      * Get intials
      *
@@ -178,6 +191,7 @@ class Buckaroo_Order_Details
         }
         return $ret;
     }
+
     /**
      * Get articles
      *
@@ -189,6 +203,7 @@ class Buckaroo_Order_Details
             $this->order->get_items('line_item')
         );
     }
+
     /**
      * Get shipment
      *
@@ -226,6 +241,7 @@ class Buckaroo_Order_Details
             $this->get_fees()
         );
     }
+
     /**
      * Format woocommerce order items
      *
@@ -262,14 +278,17 @@ class Buckaroo_Order_Details
             $this->order
         );
     }
+
     public function update_meta(string $key, $value)
     {
         return update_post_meta($this->order->get_id(), $key, $value);
     }
+
     public function add_meta(string $key, $value, $unique = false)
     {
         return add_post_meta($this->order->get_id(), $key, $value, $unique);
     }
+
     public function get_meta(string $key, $single = false)
     {
         return get_post_meta($this->order->get_id(), $key, $single);

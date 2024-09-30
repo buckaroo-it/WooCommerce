@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Payment\Methods;
 class Buckaroo_PayPerEmail extends Buckaroo_Default_Method
 {
     /** @inheritDoc */
@@ -10,19 +11,19 @@ class Buckaroo_PayPerEmail extends Buckaroo_Default_Method
                 'buckaroo-payperemail-email',
                 $this->get_address('billing', 'email'),
             ),
-            'customer'  => [
-                'firstName'     =>  $this->request_string(
+            'customer' => [
+                'firstName' => $this->request_string(
                     'buckaroo-payperemail-firstname',
                     $this->get_address('billing', 'first_name'),
                 ),
-                'lastName'      => $this->request_string(
+                'lastName' => $this->request_string(
                     'buckaroo-payperemail-lastname',
                     $this->get_address('billing', 'last_name'),
                 ),
                 'gender' => $this->request_string('buckaroo-payperemail-gender'),
 
             ],
-            'expirationDate'        => $this->get_expiration_date(),
+            'expirationDate' => $this->get_expiration_date(),
             'paymentMethodsAllowed' => $this->get_allowed_methods()
         ];
     }

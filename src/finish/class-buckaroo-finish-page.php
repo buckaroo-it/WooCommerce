@@ -1,5 +1,9 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Finish;
+
+use Buckaroo_Http_Request;
+
 class Buckaroo_Return_Page
 {
     public function __construct()
@@ -18,5 +22,5 @@ class Buckaroo_Return_Page
         );
     }
 
-    
+
 }

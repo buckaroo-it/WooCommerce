@@ -1,5 +1,12 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\Capture;
+
+use Buckaroo_Http_Request;
+use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Response;
+use WC_Order;
+
 class Buckaroo_Capture_Processor
 {
     private Buckaroo_Order_Details $order_details;
@@ -13,7 +20,8 @@ class Buckaroo_Capture_Processor
 
     public function process(
         Buckaroo_Sdk_Response $response
-    ) {
+    )
+    {
         $order_id = $response->get_order_id() ?? $this->request->request('order_id');
         if ($order_id === null) {
             return $this->failed(__('Could not process payment', 'wc-buckaroo-bpe-gateway'));
@@ -26,7 +34,7 @@ class Buckaroo_Capture_Processor
         ) {
             $this->save_capture($response);
             return [
-                'success'   => true,
+                'success' => true,
             ];
         }
 
@@ -38,6 +46,7 @@ class Buckaroo_Capture_Processor
         $order = new WC_Order($order_id);
         $this->order_details = new Buckaroo_Order_Details($order);
     }
+
     private function save_capture(Buckaroo_Sdk_Response $response)
     {
         $capture_amount = $response->get_captured_amount();
@@ -50,8 +59,8 @@ class Buckaroo_Capture_Processor
 
             // Order already captured
             // Add the other values of the capture so we have the full value captured
-            $previousCaptures = (float) get_post_meta($order_id, '_wc_order_amount_captured', true);
-            $total            = $previousCaptures + (float) $capture_amount;
+            $previousCaptures = (float)get_post_meta($order_id, '_wc_order_amount_captured', true);
+            $total = $previousCaptures + (float)$capture_amount;
             update_post_meta($order_id, '_wc_order_amount_captured', $total);
         } else {
 
@@ -63,13 +72,13 @@ class Buckaroo_Capture_Processor
 
         // Set the flag that contains all the items and taxes that have been captured
         add_post_meta($order_id, '_wc_order_captures', array(
-            'currency'             => $currency,
-            'id'                   => $order_id . "-" . $response->get_transaction_key(),
-            'amount'               => $capture_amount,
-            'line_item_qtys'         => $this->request->request('line_item_qtys') ?? '',
-            'line_item_totals'       => $this->request->request('line_item_totals') ?? '',
-            'line_item_tax_totals'   => $this->request->request('line_item_tax_totals') ?? '',
-            'transaction_id'        => $response->get_transaction_key()
+            'currency' => $currency,
+            'id' => $order_id . "-" . $response->get_transaction_key(),
+            'amount' => $capture_amount,
+            'line_item_qtys' => $this->request->request('line_item_qtys') ?? '',
+            'line_item_totals' => $this->request->request('line_item_totals') ?? '',
+            'line_item_tax_totals' => $this->request->request('line_item_tax_totals') ?? '',
+            'transaction_id' => $response->get_transaction_key()
         ));
 
         add_post_meta($order_id, '_capturebuckaroo' . $response->get_transaction_key(), 'ok', true);
@@ -95,7 +104,7 @@ class Buckaroo_Capture_Processor
     private function failed(string $message): array
     {
         return [
-            'success'   => false,
+            'success' => false,
             'message' => $message,
         ];
     }

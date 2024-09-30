@@ -1,5 +1,6 @@
 <?php
 
+namespace WC_Buckaroo\WooCommerce\SDK;
 
 interface Buckaroo_Sdk_Payload_Interface
 {
