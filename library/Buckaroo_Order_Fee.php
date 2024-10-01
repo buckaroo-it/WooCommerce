@@ -1,5 +1,7 @@
 <?php
 
+use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
+
 /**
  * Core class for order fee
  * php version 7.2
@@ -46,7 +48,7 @@ class Buckaroo_Order_Fee
         //no gateway found or not ours
         if (
             !isset($available_gateways[$chosen_payment_method]) ||
-            !$available_gateways[$chosen_payment_method] instanceof WC_Gateway_Buckaroo
+            !$available_gateways[$chosen_payment_method] instanceof PaymentGatewayHandler
         ) {
             return;
         }

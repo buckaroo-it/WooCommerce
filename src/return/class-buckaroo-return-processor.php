@@ -3,17 +3,17 @@
 namespace WC_Buckaroo\WooCommerce\Return;
 
 use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
 use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Response;
-use WC_Gateway_Buckaroo;
 use WC_Order;
 
 class Buckaroo_Return_Processor
 {
     private Buckaroo_Order_Details $order_details;
 
-    private WC_Gateway_Buckaroo $gateway;
+    private PaymentGatewayHandler $gateway;
 
-    public function __construct(WC_Gateway_Buckaroo $gateway, int $order_id)
+    public function __construct(PaymentGatewayHandler $gateway, int $order_id)
     {
         $this->order_details = new Buckaroo_Order_Details(new WC_Order($order_id));
         $this->gateway = $gateway;

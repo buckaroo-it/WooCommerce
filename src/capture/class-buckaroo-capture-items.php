@@ -5,7 +5,7 @@ namespace WC_Buckaroo\WooCommerce\Capture;
 use Buckaroo_Http_Request;
 use Buckaroo_Order_Item;
 use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
-use WC_Gateway_Buckaroo;
+use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
 
 class Buckaroo_Capture_Items
 {
@@ -13,12 +13,12 @@ class Buckaroo_Capture_Items
 
     private Buckaroo_Http_Request $request;
 
-    private WC_Gateway_Buckaroo $gateway;
+    private PaymentGatewayHandler $gateway;
 
     public function __construct(
         Buckaroo_Order_Details $order_details,
         Buckaroo_Http_Request $request,
-        WC_Gateway_Buckaroo   $gateway
+        PaymentGatewayHandler $gateway
     )
     {
         $this->order_details = $order_details;

@@ -24,15 +24,15 @@ $customer_name.= " ".$this->request_scalar('billing_last_name');
 
 <fieldset>
     <div class="method--bankdata">
-        <?php 
-            if ($this instanceof Buckaroo_Creditcard_Single) {
+        <?php
+        if ($this instanceof \WC_Buckaroo\WooCommerce\PaymentMethods\CreditCards\DefaultCreditCard) {
         ?>
-        <input 
-        type="hidden" 
-        name="<?php echo  esc_attr($this->id) ?>-creditcard-issuer" 
+            <input
+                    type="hidden"
+                    name="<?php echo esc_attr($this->id) ?>-creditcard-issuer"
         value="<?php echo esc_attr(str_replace("buckaroo_creditcard_", "", $this->id)) ?>"
         />
-        <?php 
+            <?php
         } else {
             ?>
             <p class="form-row form-row-wide">
@@ -51,9 +51,9 @@ $customer_name.= " ".$this->request_scalar('billing_last_name');
                     <?php endforeach?>
                 </select>
             </p>
-            <?php 
+            <?php
         }
-        if ($creditCardMethod == 'encrypt' && $this->isSecure()) : 
+        if ($creditCardMethod == 'encrypt' && $this->isSecure()) :
         ?>
 
         <p class="form-row">

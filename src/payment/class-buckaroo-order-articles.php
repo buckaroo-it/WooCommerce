@@ -5,7 +5,7 @@ namespace WC_Buckaroo\WooCommerce\Payment;
 use Buckaroo_Order_Item;
 use DOMDocument;
 use DOMXPath;
-use WC_Gateway_Buckaroo;
+use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
 
 /**
  * Core class for logging
@@ -27,12 +27,12 @@ class Buckaroo_Order_Articles
      */
     protected $order_details;
 
-    protected WC_Gateway_Buckaroo $gateway;
+    protected PaymentGatewayHandler $gateway;
 
 
     public function __construct(
         Buckaroo_Order_Details $order_details,
-        WC_Gateway_Buckaroo $gateway
+        PaymentGatewayHandler $gateway
     )
     {
         $this->order_details = $order_details;

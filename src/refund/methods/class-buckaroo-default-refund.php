@@ -3,13 +3,13 @@
 namespace WC_Buckaroo\WooCommerce\Methods;
 
 use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
 use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Payload_Interface;
-use WC_Gateway_Buckaroo;
 use WC_Order;
 
 class Buckaroo_Default_Refund implements Buckaroo_Sdk_Payload_Interface
 {
-    protected WC_Gateway_Buckaroo $gateway;
+    protected PaymentGatewayHandler $gateway;
 
     protected Buckaroo_Order_Details $order_details;
 
@@ -18,7 +18,7 @@ class Buckaroo_Default_Refund implements Buckaroo_Sdk_Payload_Interface
     private string $reason;
 
     public function __construct(
-        WC_Gateway_Buckaroo $gateway,
+        PaymentGatewayHandler $gateway,
         Buckaroo_Order_Details $order_details,
         float               $amount,
         string              $reason

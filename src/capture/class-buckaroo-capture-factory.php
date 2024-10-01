@@ -6,8 +6,8 @@ use Buckaroo_Http_Request;
 use WC_Buckaroo\WooCommerce\Capture\Methods\Buckaroo_Creditcard_Capture;
 use WC_Buckaroo\WooCommerce\Capture\Methods\Buckaroo_Default_Capture;
 use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
 use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Payload_Interface;
-use WC_Gateway_Buckaroo;
 use WC_Order;
 
 require_once dirname(__FILE__) . "/methods/class-buckaroo-default-capture.php";
@@ -31,7 +31,7 @@ class Buckaroo_Capture_Factory
         "creditcard" => Buckaroo_Creditcard_Capture::class
     );
 
-    public static function get_payment(WC_Gateway_Buckaroo $gateway, int $order_id, float $amount): Buckaroo_Sdk_Payload_Interface
+    public static function get_payment(PaymentGatewayHandler $gateway, int $order_id, float $amount): Buckaroo_Sdk_Payload_Interface
     {
         $order_details = new Buckaroo_Order_Details(new WC_Order($order_id));
         $class = Buckaroo_Default_Capture::class;

@@ -1,5 +1,7 @@
 <?php
 
+use WC_Buckaroo\WooCommerce\PaymentMethods\KlarnaKp;
+
 /**
  * Core class for order refund
  * php version 7.2
@@ -51,7 +53,7 @@ class Buckaroo_KlarnaKP_Refund
         $successful_refund = false;
 
         if ($capture !== null && isset($capture['transaction_id'])) {
-            $successful_refund = (new WC_Gateway_Buckaroo_KlarnaKp())->process_refund(
+            $successful_refund = (new KlarnaKp())->process_refund(
                 $order_id,
                 $capture['amount'],
                 '',
@@ -59,7 +61,7 @@ class Buckaroo_KlarnaKP_Refund
             );
         }
 
-        if(is_object($successful_refund) && $successful_refund instanceof WP_Error) {
+        if (is_object($successful_refund) && $successful_refund instanceof WP_Error) {
             wp_send_json(
                 [
                     "error" => $successful_refund->get_error_message()
@@ -76,7 +78,7 @@ class Buckaroo_KlarnaKP_Refund
         }
 
         $this->refund_in_woocommerce($request, $order_id, $capture);
-        $this->set_refunded_capture($order_id,  $capture_id);
+        $this->set_refunded_capture($order_id, $capture_id);
     }
 
     public function set_refunded_capture(int $order_id, string $capture_id)
@@ -89,6 +91,7 @@ class Buckaroo_KlarnaKP_Refund
             json_encode($refunded_captures)
         );
     }
+
     /**
      * Get refunded captures for $order_id
      *
@@ -107,6 +110,7 @@ class Buckaroo_KlarnaKP_Refund
         }
         return [];
     }
+
     /**
      * Get a stored capture by its id
      *
@@ -148,8 +152,8 @@ class Buckaroo_KlarnaKP_Refund
                 'restock_items' => $request->request('restock') == "true"
             ]
         );
-        
-        
+
+
     }
 
     protected function get_refund_items(Buckaroo_Capture_Transaction $capture_transaction)
@@ -167,10 +171,12 @@ class Buckaroo_KlarnaKP_Refund
         }
         return $items_for_refund;
     }
+
     protected function get_refund_item_total(Buckaroo_Order_Item $item, $qty)
     {
         return $item->get_unit_price(false) * $qty;
     }
+
     public function get_refund_item_tax_total(Buckaroo_Order_Item $item, $qty)
     {
         $item_tax_total = array();

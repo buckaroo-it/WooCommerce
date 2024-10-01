@@ -12,6 +12,9 @@
  * @version   GIT: 2.25.0
  * @link      https://www.buckaroo.eu/
  */
+
+use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
+
 return new class implements Buckaroo_Migration
 {
     public function execute()
@@ -68,7 +71,7 @@ return new class implements Buckaroo_Migration
     {
         
         $gateways = $this->get_our_gateways();
-        /** @var WC_Gateway_Buckaroo */
+        /** @var PaymentGatewayHandler */
         foreach ($gateways as $gateway) {
             $extrachargeamount = str_replace("%", "", $gateway->get_option('extrachargeamount', 0));
             
@@ -96,7 +99,7 @@ return new class implements Buckaroo_Migration
         return array_filter(
             $gateways,
             function ($gateway) {
-                return $gateway instanceof WC_Gateway_Buckaroo;
+                return $gateway instanceof PaymentGatewayHandler;
             }
         );
     }

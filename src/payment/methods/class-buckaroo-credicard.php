@@ -18,6 +18,7 @@ class Buckaroo_CreditCard extends Buckaroo_Default_Method
                 ]
             );
         }
+
         return $body;
     }
 

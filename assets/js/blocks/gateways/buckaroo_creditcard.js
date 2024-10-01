@@ -20,20 +20,20 @@ const CreditCard = ({
         [`${paymentMethodId}-encrypted-data`]: '',
     };
 
-    const { handleChange, updateFormState } = useFormData(initialState, onStateChange);
+    const {formState, handleChange} = useFormData(initialState, onStateChange);
 
     const handleEncryption = async () => {
         try {
             const cardData = {
-                cardName: initialState[`${paymentMethodId}-cardname`],
-                cardNumber: initialState[`${paymentMethodId}-cardnumber`],
-                cardMonth: initialState[`${paymentMethodId}-cardmonth`],
-                cardYear: initialState[`${paymentMethodId}-cardyear`],
-                cardCVC: initialState[`${paymentMethodId}-cardcvc`],
+                cardName: formState[`${paymentMethodId}-cardname`],
+                cardNumber: formState[`${paymentMethodId}-cardnumber`],
+                cardMonth: formState[`${paymentMethodId}-cardmonth`],
+                cardYear: formState[`${paymentMethodId}-cardyear`],
+                cardCVC: formState[`${paymentMethodId}-cardcvc`],
             };
             const encryptedData = await encryptCardData(cardData);
 
-            updateFormState(`${methodName}-encrypted-data`, encryptedData);
+            onStateChange({...formState, [`${paymentMethodId}-encrypted-data`]: encryptedData});
         } catch (error) {
             console.error("Encryption error:", error);
         }
@@ -43,7 +43,7 @@ const CreditCard = ({
         if (creditCardMethod === 'encrypt' && creditCardIsSecure === true) {
             handleEncryption();
         }
-    }, [initialState[`${paymentMethodId}-cardnumber`], initialState[`${paymentMethodId}-cardname`], initialState[`${paymentMethodId}-cardmonth`], initialState[`${paymentMethodId}-cardyear`], initialState[`${paymentMethodId}-cardcvc`], creditCardMethod, creditCardIsSecure]);
+    }, [formState[`${paymentMethodId}-cardnumber`], formState[`${paymentMethodId}-cardname`], formState[`${paymentMethodId}-cardmonth`], formState[`${paymentMethodId}-cardyear`], formState[`${paymentMethodId}-cardcvc`], creditCardMethod, creditCardIsSecure]);
 
     return (
         <div>

@@ -3,14 +3,14 @@
 namespace WC_Buckaroo\WooCommerce\Finish;
 
 use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
-use WC_Gateway_Buckaroo;
+use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
 use WC_Order;
 
 class Buckaroo_Finish_Processor
 {
     private Buckaroo_Order_Details $order_details;
 
-    /** @var WC_Gateway_Buckaroo|null */
+    /** @var PaymentGatewayHandler|null */
     private $gateway;
 
     public function __construct()
@@ -71,7 +71,7 @@ class Buckaroo_Finish_Processor
         $this->gateway = $this->get_gateway($order->get_payment_method('edit'));
     }
 
-    private function get_gateway(string $payment_method_id): ?WC_Gateway_Buckaroo
+    private function get_gateway(string $payment_method_id): ?PaymentGatewayHandler
     {
         $gateways = WC()->payment_gateways->payment_gateways();
         return $gateways[$payment_method_id] ?? null;

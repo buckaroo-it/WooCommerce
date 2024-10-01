@@ -3,8 +3,9 @@ import {__} from "@wordpress/i18n";
 import encryptCardData from "../services/BuckarooClientSideEncryption";
 import useFormData from "../hooks/useFormData";
 
-const SeparateCreditCard = ({onStateChange, gateway: {paymentMethodId, creditCardMethod, creditCardIsSecure}}) => {
+const SeparateCreditCard = ({onStateChange, gateway}) => {
 
+    const {paymentMethodId, creditCardMethod, creditCardIsSecure} = gateway;
     const initialState = {
         [`${paymentMethodId}-creditcard-issuer`]: paymentMethodId.replace("buckaroo_creditcard_", ""),
         [`${paymentMethodId}-cardname`]: '',
@@ -15,7 +16,7 @@ const SeparateCreditCard = ({onStateChange, gateway: {paymentMethodId, creditCar
         [`${paymentMethodId}-encrypted-data`]: '',
     };
 
-    const [formState, handleChange, updateFormState] = useFormData(initialState, onStateChange);
+    const {formState, handleChange, updateFormState} = useFormData(initialState, onStateChange);
 
     useEffect(() => {
         updateFormState(`${paymentMethodId}-creditcard-issuer`, initialState[`${paymentMethodId}-creditcard-issuer`]);

@@ -3,8 +3,8 @@
 namespace WC_Buckaroo\WooCommerce\Payment;
 
 use Buckaroo_Http_Request;
+use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
 use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Payload_Interface;
-use WC_Gateway_Buckaroo;
 use WC_Order;
 
 require_once dirname(__FILE__) . "/class-buckaroo-address-components.php";
@@ -54,7 +54,7 @@ class Buckaroo_Payment_Factory
         'alipay' => Methods\Buckaroo_Alipay::class,
         'applepay' => Methods\Buckaroo_ApplePay::class,
         'billink' => Methods\Buckaroo_Billink::class,
-        'credicard' => Methods\Buckaroo_CreditCard::class,
+        'creditcard' => Methods\Buckaroo_CreditCard::class,
         'giftcard' => Methods\Buckaroo_Giftcard::class,
         'ideal' => Methods\Buckaroo_Ideal::class,
         'in3' => Methods\Buckaroo_In3::class,
@@ -70,7 +70,7 @@ class Buckaroo_Payment_Factory
         'transfer' => Methods\Buckaroo_Transfer::class,
     );
 
-    public static function get_payment(WC_Gateway_Buckaroo $gateway, int $order_id): Buckaroo_Sdk_Payload_Interface
+    public static function get_payment(PaymentGatewayHandler $gateway, int $order_id): Buckaroo_Sdk_Payload_Interface
     {
         $order_details = new Buckaroo_Order_Details(new WC_Order($order_id));
         $class = Methods\Buckaroo_Default_Method::class;
@@ -79,6 +79,7 @@ class Buckaroo_Payment_Factory
         if (array_key_exists($code, self::$classes)) {
             $class = self::$classes[$code];
         }
+
         return new $class(
             $gateway,
             new Buckaroo_Http_Request(),

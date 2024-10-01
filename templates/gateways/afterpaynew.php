@@ -59,7 +59,7 @@ $country = $this->request_scalar('billing_country');
     </p>
     <?php }?>
 
-    <?php if ($country == "NL" && WC_Gateway_Buckaroo_Afterpaynew::CUSTOMER_TYPE_B2C !==  $this->customer_type) {?>
+    <?php if ($country == "NL" && \WC_Buckaroo\WooCommerce\PaymentMethods\AfterPayNew::CUSTOMER_TYPE_B2C !== $this->customer_type) { ?>
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-afterpaynew-company-coc-registration">
             <?php echo esc_html_e('CoC-number:', 'wc-buckaroo-bpe-gateway') ?>

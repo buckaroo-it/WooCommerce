@@ -5,13 +5,13 @@ namespace WC_Buckaroo\WooCommerce\Payment\Methods;
 use Buckaroo_Http_Request;
 use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Articles;
 use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
 use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Payload_Interface;
-use WC_Gateway_Buckaroo;
 use WC_Order;
 
 class Buckaroo_Default_Method implements Buckaroo_Sdk_Payload_Interface
 {
-    protected WC_Gateway_Buckaroo $gateway;
+    protected PaymentGatewayHandler $gateway;
 
     private Buckaroo_Http_Request $request;
 
@@ -20,7 +20,7 @@ class Buckaroo_Default_Method implements Buckaroo_Sdk_Payload_Interface
     protected Buckaroo_Order_Articles $order_articles;
 
     public function __construct(
-        WC_Gateway_Buckaroo    $gateway,
+        PaymentGatewayHandler $gateway,
         Buckaroo_Http_Request  $request,
         Buckaroo_Order_Details $order_details,
         Buckaroo_Order_Articles $order_articles
