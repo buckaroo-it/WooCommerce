@@ -1,6 +1,7 @@
 <?php
 
-use WC_Buckaroo\WooCommerce\PaymentMethods\KlarnaKp;
+use WC_Buckaroo\WooCommerce\PaymentMethods\Klarna\KlarnaKpGateway;
+
 
 /**
  * Core class for klarnakp cancel reservation
@@ -60,7 +61,7 @@ class Buckaroo_Cancel_Reservation
      */
     public function cancel_reservation($order)
     {
-        $gateway = new KlarnaKp();
+        $gateway = new KlarnaKpGateway();
         if (isset($gateway)) {
             $gateway->cancel_reservation($order);
         }

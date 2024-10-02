@@ -2,9 +2,7 @@
 
 namespace WC_Buckaroo\WooCommerce\PaymentMethods\CreditCards;
 
-use WC_Buckaroo\WooCommerce\PaymentMethods\CreditCard;
-
-class DefaultCreditCard extends CreditCard
+class DefaultCreditCard extends CreditCardGateway
 {
     public function __construct()
     {

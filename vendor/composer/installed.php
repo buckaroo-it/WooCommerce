@@ -3,7 +3,7 @@
         'name' => 'buckaroo/woocommerce',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'dcf86860a327bfe13cc49808954943455643cc45',
+        'reference' => 'a86cfde04e3e2cd5292e80c2b85f96860babd9a6',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -31,7 +31,7 @@
         'buckaroo/woocommerce' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'dcf86860a327bfe13cc49808954943455643cc45',
+            'reference' => 'a86cfde04e3e2cd5292e80c2b85f96860babd9a6',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

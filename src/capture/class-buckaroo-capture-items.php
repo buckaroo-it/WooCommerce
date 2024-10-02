@@ -4,19 +4,19 @@ namespace WC_Buckaroo\WooCommerce\Capture;
 
 use Buckaroo_Http_Request;
 use Buckaroo_Order_Item;
-use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Buckaroo\WooCommerce\Payment\OrderDetails;
 use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
 
 class Buckaroo_Capture_Items
 {
-    private Buckaroo_Order_Details $order_details;
+    private OrderDetails $order_details;
 
     private Buckaroo_Http_Request $request;
 
     private PaymentGatewayHandler $gateway;
 
     public function __construct(
-        Buckaroo_Order_Details $order_details,
+        OrderDetails $order_details,
         Buckaroo_Http_Request $request,
         PaymentGatewayHandler $gateway
     )
@@ -26,7 +26,7 @@ class Buckaroo_Capture_Items
         $this->gateway = $gateway;
     }
 
-    public function get_order_details(): Buckaroo_Order_Details
+    public function get_order_details(): OrderDetails
     {
         return $this->order_details;
     }

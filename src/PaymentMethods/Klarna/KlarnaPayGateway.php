@@ -1,0 +1,30 @@
+<?php
+
+namespace WC_Buckaroo\WooCommerce\PaymentMethods\Klarna;
+
+use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
+
+
+class KlarnaPayGateway extends PaymentGatewayHandler
+{
+    function __construct()
+    {
+        $this->id = 'buckaroo_klarnapay';
+        $this->title = 'Klarna: Pay later';
+        $this->method_title = 'Buckaroo Klarna Pay later';
+
+        $this->klarnaPaymentFlowId = 'pay';
+
+        parent::__construct();
+    }
+
+    /**
+     * Payment form on checkout page
+     *
+     * @return void
+     */
+    public function payment_fields()
+    {
+        $this->render_template();
+    }
+}

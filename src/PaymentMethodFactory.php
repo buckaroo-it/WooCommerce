@@ -2,36 +2,47 @@
 
 namespace WC_Buckaroo\WooCommerce;
 
+use Buckaroo_Http_Request;
+use WC_Buckaroo\WooCommerce\Payment\OrderArticles;
+use WC_Buckaroo\WooCommerce\Payment\OrderDetails;
+use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
+use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentProcessorHandler;
+use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Payload_Interface;
+use WC_Order;
+
 class PaymentMethodFactory
 {
     protected const HANDLERS = [
-        'iDeal' => ['classname' => PaymentMethods\Ideal::class],
-        'Belfius' => ['classname' => PaymentMethods\Belfius::class],
-        'Billink' => ['classname' => PaymentMethods\Billink::class],
-        'Bank Transfer' => ['classname' => PaymentMethods\Transfer::class],
-        'Bancontact / MisterCash' => ['classname' => PaymentMethods\Bancontact::class],
-        'Applepay' => ['classname' => PaymentMethods\ApplePay::class],
-        'AfterPayNew' => ['classname' => PaymentMethods\AfterPayNew::class],
-        'AfterPay' => ['classname' => PaymentMethods\AfterPay::class],
-        'Creditcards' => ['classname' => PaymentMethods\CreditCard::class],
-        'EPS' => ['classname' => PaymentMethods\EPS::class],
-        'Giftcards' => ['classname' => PaymentMethods\GiftCard::class],
-        'Giropay' => ['classname' => PaymentMethods\Giropay::class],
-        'In3' => ['classname' => PaymentMethods\In3::class],
-        'KBC' => ['classname' => PaymentMethods\KBC::class],
-        'KlarnaPay' => ['classname' => PaymentMethods\KlarnaPay::class],
-        'KlarnaPII' => ['classname' => PaymentMethods\KlarnaPII::class],
-        'KlarnaKp' => ['classname' => PaymentMethods\KlarnaKp::class],
-        'KnakenSettle' => ['classname' => PaymentMethods\KnakenSettle::class],
-        'P24' => ['classname' => PaymentMethods\P24::class],
-        'Payconiq' => ['classname' => PaymentMethods\Payconiq::class],
-        'PayPal' => ['classname' => PaymentMethods\PayPal::class],
-        'PayPerEmail' => ['classname' => PaymentMethods\PayPerEmail::class],
-        'SepaDirectDebit' => ['classname' => PaymentMethods\SepaDirectDebit::class],
-        'Sofortbanking' => ['classname' => PaymentMethods\Sofortbanking::class],
-        'PayByBank' => ['classname' => PaymentMethods\PayByBank::class],
-        'Multibanco' => ['classname' => PaymentMethods\Multibanco::class],
-        'MBWay' => ['classname' => PaymentMethods\MBWay::class],
+        'Alipay' => ['processor_class' => PaymentMethods\Alipay\AlipayProcessor::class],
+        'iDeal' => ['gateway_class' => PaymentMethods\Ideal\IdealGateway::class, 'processor_class' => PaymentMethods\Ideal\IdealProcessor::class],
+        'Belfius' => ['gateway_class' => PaymentMethods\Belfius\BelfiusGateway::class],
+        'Billink' => ['gateway_class' => PaymentMethods\Billink\BillinkGateway::class, 'processor_class' => PaymentMethods\Billink\BillinkProcessor::class],
+        'transfer' => ['gateway_class' => PaymentMethods\Transfer\TransferGateway::class, 'processor_class' => PaymentMethods\Transfer\TransferProcessor::class],
+        'Bancontact / MisterCash' => ['gateway_class' => PaymentMethods\Bancontact\BancontactGateway::class],
+        'Applepay' => ['gateway_class' => PaymentMethods\Applepay\ApplePayGateway::class, 'processor_class' => PaymentMethods\Applepay\ApplePayProcessor::class],
+        'AfterPayNew' => ['gateway_class' => PaymentMethods\Afterpay\AfterpayNewGateway::class, 'processor_class' => PaymentMethods\Afterpay\AfterpayNewProcessor::class],
+        'AfterPay' => ['gateway_class' => PaymentMethods\Afterpay\AfterpayOldGateway::class, 'processor_class' => PaymentMethods\Afterpay\AfterpayOldProcessor::class],
+        'Creditcards' => ['gateway_class' => PaymentMethods\CreditCards\CreditCardGateway::class, 'processor_class' => PaymentMethods\CreditCards\CreditCardProcessor::class],
+        'EPS' => ['gateway_class' => PaymentMethods\Eps\EpsGateway::class],
+        'Giftcards' => ['gateway_class' => PaymentMethods\GiftCard\GiftCardGateway::class, 'processor_class' => PaymentMethods\GiftCard\GiftCardProcessor::class],
+        'Giropay' => ['gateway_class' => PaymentMethods\Giropay\GiropayGateway::class],
+        'In3' => ['gateway_class' => PaymentMethods\In3\In3Gateway::class, 'processor_class' => PaymentMethods\In3\In3Processor::class],
+        'KBC' => ['gateway_class' => PaymentMethods\Kbc\KbcGateway::class],
+        'KlarnaPay' => ['gateway_class' => PaymentMethods\Klarna\KlarnaPayGateway::class, 'processor_class' => PaymentMethods\Klarna\KlarnaProcessor::class],
+        'KlarnaPII' => ['gateway_class' => PaymentMethods\Klarna\KlarnaPiiGateway::class],
+        'KlarnaKp' => ['gateway_class' => PaymentMethods\Klarna\KlarnaKpGateway::class],
+        'KnakenSettle' => ['gateway_class' => PaymentMethods\KnakenSettle\KnakenSettleGateway::class],
+        'P24' => ['gateway_class' => PaymentMethods\P24\P24Gateway::class, 'processor_class' => PaymentMethods\P24\P24Processor::class],
+        'Payconiq' => ['gateway_class' => PaymentMethods\Payconiq\PayconiqGateway::class],
+        'PayPal' => ['gateway_class' => PaymentMethods\Paypal\PaypalGateway::class, 'processor_class' => PaymentMethods\Paypal\PaypalProcessor::class],
+        'PayPerEmail' => ['gateway_class' => PaymentMethods\PayPerEmail\PayPerEmailGateway::class, 'processor_class' => PaymentMethods\PayPerEmail\PayPerEmailProcessor::class],
+        'SepaDirectDebit' => ['gateway_class' => PaymentMethods\SepaDirectDebit\SepaDirectDebitGateway::class, 'processor_class' => PaymentMethods\SepaDirectDebit\SepaDirectDebitProcessor::class],
+        'Sofortbanking' => ['gateway_class' => PaymentMethods\Sofort\SofortGateway::class],
+        'PayByBank' => ['gateway_class' => PaymentMethods\PayByBank\PayByBankGateway::class, 'processor_class' => PaymentMethods\PayByBank\PayByBankProcessor::class],
+        'Multibanco' => ['gateway_class' => PaymentMethods\Multibanco\MultibancoGateway::class],
+        'MBWay' => ['gateway_class' => PaymentMethods\MbWay\MbWayGateway::class],
+        'Trustly' => ['processor_class' => PaymentMethods\Trustly\TrustlyProcessor::class],
+        'WeChatPay' => ['processor_class' => PaymentMethods\WeChatPay\WeChatPayProcessor::class],
     ];
 
     public function load()
@@ -61,7 +72,7 @@ class PaymentMethodFactory
         }
 
         foreach ($gatewayNames as $name) {
-            $class = $this->get_creditcard_methods()[$name . '_creditcard']['classname'] ?? null;
+            $class = $this->get_creditcard_methods()[$name . '_creditcard']['gateway_class'] ?? null;
 
             if (class_exists($class)) {
                 (new $class())->update_option('enabled', 'yes');
@@ -81,7 +92,9 @@ class PaymentMethodFactory
     public function hook_gateways_to_woocommerce($methods)
     {
         foreach ($this->sort_gateways_alfa($this->get_all_gateways()) as $method) {
-            $methods[] = new $method['classname'];
+            if (class_exists($method['gateway_class'] ?? null)) {
+                $methods[] = new $method['gateway_class'];
+            }
         }
 
         return $methods;
@@ -95,8 +108,8 @@ class PaymentMethodFactory
     protected function load_gateways()
     {
         foreach ($this->get_all_gateways() as $method) {
-            if (class_exists($method['classname'])) {
-                new $method['classname']();
+            if (class_exists($method['gateway_class'] ?? null)) {
+                new $method['gateway_class']();
             }
         }
     }
@@ -142,7 +155,7 @@ class PaymentMethodFactory
 
         foreach ($this->get_creditcards_to_show() as $creditcard) {
             if (strlen(trim($creditcard)) !== 0 && class_exists($class = 'WC_Buckaroo\WooCommerce\PaymentMethods\CreditCards\\' . ucfirst($creditcard))) {
-                $creditcardMethods[$creditcard . '_creditcard'] = ['classname' => $class];
+                $creditcardMethods[$creditcard . '_creditcard'] = ['gateway_class' => $class];
             }
         }
         return $creditcardMethods;
@@ -199,8 +212,27 @@ class PaymentMethodFactory
     {
         if (file_exists(dirname(BK_PLUGIN_FILE) . '/buckaroo-exodus.php') && !get_option('woocommerce_buckaroo_exodus')) {
             $this->methods['Exodus Script'] = array(
-                'classname' => PaymentMethods\Exodus::class,
+                'gateway_class' => PaymentMethods\Exodus::class,
             );
         }
+    }
+
+    public static function get_payment(PaymentGatewayHandler $gateway, int $order_id): Buckaroo_Sdk_Payload_Interface
+    {
+        $order_details = new OrderDetails(new WC_Order($order_id));
+        $class = PaymentProcessorHandler::class;
+
+        $code = strtolower($gateway->get_sdk_code());
+        ray($code);
+        if (array_key_exists($code, self::HANDLERS)) {
+            $class = self::HANDLERS[$code]['processor_class'];
+        }
+
+        return new $class(
+            $gateway,
+            new Buckaroo_Http_Request(),
+            $order_details,
+            new OrderArticles($order_details, $gateway)
+        );
     }
 }

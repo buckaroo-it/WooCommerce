@@ -16,13 +16,13 @@ use WC_Buckaroo\WooCommerce\Capture\Buckaroo_Capture_Factory;
 use WC_Buckaroo\WooCommerce\Capture\Buckaroo_Capture_Processor;
 use WC_Buckaroo\WooCommerce\Finish\Buckaroo_Return_Page;
 use WC_Buckaroo\WooCommerce\PaymentMethodFactory;
-use WC_Buckaroo\WooCommerce\PaymentMethods\AfterPay;
-use WC_Buckaroo\WooCommerce\PaymentMethods\AfterPayNew;
-use WC_Buckaroo\WooCommerce\PaymentMethods\CreditCard;
-use WC_Buckaroo\WooCommerce\PaymentMethods\In3;
-use WC_Buckaroo\WooCommerce\PaymentMethods\KlarnaKp;
-use WC_Buckaroo\WooCommerce\PaymentMethods\PayByBank;
-use WC_Buckaroo\WooCommerce\PaymentMethods\PayPerEmail;
+use WC_Buckaroo\WooCommerce\PaymentMethods\AfterPay\AfterpayNewGateway;
+use WC_Buckaroo\WooCommerce\PaymentMethods\AfterPay\AfterpayOldGateway;
+use WC_Buckaroo\WooCommerce\PaymentMethods\CreditCards\CreditCardGateway;
+use WC_Buckaroo\WooCommerce\PaymentMethods\In3\In3Gateway;
+use WC_Buckaroo\WooCommerce\PaymentMethods\Klarna\KlarnaKpGateway;
+use WC_Buckaroo\WooCommerce\PaymentMethods\PayByBank\PayByBankGateway;
+use WC_Buckaroo\WooCommerce\PaymentMethods\PayPerEmail\PayPerEmailGateway;
 use WC_Buckaroo\WooCommerce\PaymentProcessing\PushService;
 use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Client_Processor;
 use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Test_Credentials_Processor;
@@ -121,9 +121,9 @@ function buckaroo_payment_setup_scripts()
             'buckaroo_certificate_management_js',
             'buckaroo_php_vars',
             array(
-                'version2' => In3::VERSION2,
-                'in3_v2' => In3::IN3_V2_TITLE,
-                'in3_v3' => In3::IN3_V3_TITLE,
+                'version2' => In3Gateway::VERSION2,
+                'in3_v2' => In3Gateway::IN3_V2_TITLE,
+                'in3_v3' => In3Gateway::IN3_V3_TITLE,
             )
         );
     }
@@ -136,7 +136,7 @@ add_action('wp_enqueue_scripts', 'buckaroo_payment_frontend_scripts');
 
 function get_type()
 {
-    return (new AfterPay())->type;
+    return (new AfterpayOldGateway())->type;
 }
 
 function get_credtCard_is_secure()
@@ -182,9 +182,9 @@ function get_woocommerce_payment_methods(): array
                 $payment_method['canShowIssuers'] = $gateway->canShowIssuers();
             }
             if ($gateway_id === 'buckaroo_paybybank') {
-                $payment_method['payByBankIssuers'] = PayByBank::getIssuerList();
-                $payment_method['payByBankSelectedIssuer'] = PayByBank::getActiveIssuerCode();
-                $payment_method['lastPayByBankIssuer'] = PayByBank::getActiveIssuerCode();
+                $payment_method['payByBankIssuers'] = PayByBankGateway::getIssuerList();
+                $payment_method['payByBankSelectedIssuer'] = PayByBankGateway::getActiveIssuerCode();
+                $payment_method['lastPayByBankIssuer'] = PayByBankGateway::getActiveIssuerCode();
             }
             if ($gateway_id === 'buckaroo_afterpaynew') {
                 $payment_method['customer_type'] = $gateway->customer_type;
@@ -287,7 +287,7 @@ function buckaroo_payment_frontend_scripts()
                     "general_error" => esc_html__("Something went wrong while processing your identification."),
                     "bank_required" => esc_html__("You need to select your bank!")
                 ),
-                "payByBankLogos" => PayByBank::getIssuerLogoUrls()
+                "payByBankLogos" => PayByBankGateway::getIssuerLogoUrls()
             )
         );
 
@@ -528,7 +528,7 @@ function buckaroo_init_gateway()
 
     function buckaroo_send_admin_payperemail($order)
     {
-        $gateway = new PayPerEmail();
+        $gateway = new PayPerEmailGateway();
         if (isset($gateway)) {
             $response = $gateway->process_payment($order->get_id());
             wp_redirect($response);
@@ -620,13 +620,13 @@ function orderCapture()
             break;
         case "Afterpaynew":
             require_once(dirname(__FILE__) . '/gateway-buckaroo-afterpaynew.php');
-            $gateway = new AfterPayNew();
+            $gateway = new AfterpayNewGateway();
             break;
         case "Creditcard":
-            $gateway = new CreditCard();
+            $gateway = new CreditCardGateway();
             break;
         case "KlarnaKp":
-            $gateway = new KlarnaKp();
+            $gateway = new KlarnaKpGateway();
             break;
     }
     if (isset($gateway)) {

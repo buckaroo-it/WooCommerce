@@ -1,4 +1,7 @@
 <?php
+
+use WC_Buckaroo\WooCommerce\Payment\OrderDetails;
+
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
 /**
@@ -7,7 +10,7 @@ require_once dirname(__FILE__) . '/../paymentmethod.php';
 class BuckarooIn3 extends BuckarooPaymentMethod
 {
     /**
-     * @var Buckaroo_Order_Details
+     * @var OrderDetails
      */
     protected $order_details;
 
@@ -24,15 +27,16 @@ class BuckarooIn3 extends BuckarooPaymentMethod
      */
     public function __construct()
     {
-        $this->type    = 'In3';
+        $this->type = 'In3';
         $this->version = '1';
     }
 
     public function setData(
-        Buckaroo_Order_Details $order_details,
-        array $articles,
+        OrderDetails $order_details,
+        array        $articles,
         Buckaroo_Http_Request $request
-    ) {
+    )
+    {
         $this->order_details = $order_details;
         $this->articles = $articles;
         $this->request = $request;
@@ -45,14 +49,14 @@ class BuckarooIn3 extends BuckarooPaymentMethod
      */
     public function Pay($customVars = array())
     {
-        if (!$this->order_details instanceof Buckaroo_Order_Details) {
+        if (!$this->order_details instanceof OrderDetails) {
             return;
         }
 
         $address = $this->order_details->getShippingAddressComponents();
 
         $data = [
-            "Street" =>  $address['street'],
+            "Street" => $address['street'],
             "StreetNumber" => $address['house_number'],
             "PostalCode" => $this->order_details->getShipping('postcode'),
             "City" => $this->order_details->getShipping('city'),
@@ -81,7 +85,7 @@ class BuckarooIn3 extends BuckarooPaymentMethod
             'Email' => $this->order_details->getBilling('email'),
             'Category' => 'B2C',
 
-            "Street" =>  $address['street'],
+            "Street" => $address['street'],
             "StreetNumber" => $address['house_number'],
             "PostalCode" => $this->order_details->getBilling('postcode'),
             "City" => $this->order_details->getBilling('city'),
@@ -101,13 +105,14 @@ class BuckarooIn3 extends BuckarooPaymentMethod
         return parent::pay();
     }
 
-    private function getPhoneNumber() {
+    private function getPhoneNumber()
+    {
         $phone = $this->request->request('buckaroo-in3-phone');
 
-        if (is_scalar($phone) && trim(strlen((string) $phone)) > 0) {
+        if (is_scalar($phone) && trim(strlen((string)$phone)) > 0) {
             return $phone;
         }
-        
+
         return $this->order_details->getBillingPhone();
     }
 
@@ -135,8 +140,8 @@ class BuckarooIn3 extends BuckarooPaymentMethod
      *
      * @access public
      * * @param array $products
-     * @throws Exception
      * @return callable $this->RefundGlobal()
+     * @throws Exception
      */
     public function In3Refund()
     {

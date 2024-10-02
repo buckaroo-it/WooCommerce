@@ -1,5 +1,7 @@
 <?php
 
+use WC_Buckaroo\WooCommerce\Payment\OrderDetails;
+
 /**
  * Core class for order capture form
  * php version 7.2
@@ -27,7 +29,7 @@ class Buckaroo_Capture_Form
         $order = wc_get_order($post->ID);
 
         $order_capture = new Buckaroo_Order_Capture(
-            new Buckaroo_Order_Details($order),
+            new OrderDetails($order),
             new Buckaroo_Http_Request()
         );
         include 'capture-form.php';
@@ -70,8 +72,9 @@ class Buckaroo_Capture_Form
             }
             $available_to_capture_by_type[$item_type][] = $item;
         }
-        return  $available_to_capture_by_type;
+        return $available_to_capture_by_type;
     }
+
     /**
      * Get refunded captures for $order_id
      *

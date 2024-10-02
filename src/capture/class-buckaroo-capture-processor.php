@@ -3,13 +3,13 @@
 namespace WC_Buckaroo\WooCommerce\Capture;
 
 use Buckaroo_Http_Request;
-use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Buckaroo\WooCommerce\Payment\OrderDetails;
 use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Response;
 use WC_Order;
 
 class Buckaroo_Capture_Processor
 {
-    private Buckaroo_Order_Details $order_details;
+    private OrderDetails $order_details;
 
     private Buckaroo_Http_Request $request;
 
@@ -44,7 +44,7 @@ class Buckaroo_Capture_Processor
     private function init(int $order_id)
     {
         $order = new WC_Order($order_id);
-        $this->order_details = new Buckaroo_Order_Details($order);
+        $this->order_details = new OrderDetails($order);
     }
 
     private function save_capture(Buckaroo_Sdk_Response $response)

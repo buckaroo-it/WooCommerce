@@ -1,6 +1,7 @@
 <?php
 
-use WC_Buckaroo\WooCommerce\PaymentMethods\KlarnaKp;
+use WC_Buckaroo\WooCommerce\PaymentMethods\Klarna\KlarnaKpGateway;
+
 
 /**
  * Core class for order refund
@@ -53,7 +54,7 @@ class Buckaroo_KlarnaKP_Refund
         $successful_refund = false;
 
         if ($capture !== null && isset($capture['transaction_id'])) {
-            $successful_refund = (new KlarnaKp())->process_refund(
+            $successful_refund = (new KlarnaKpGateway())->process_refund(
                 $order_id,
                 $capture['amount'],
                 '',

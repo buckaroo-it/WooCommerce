@@ -6,7 +6,7 @@ use WC_Buckaroo\WooCommerce\Methods\Buckaroo_Afterpay_Refund;
 use WC_Buckaroo\WooCommerce\Methods\Buckaroo_Billink_Refund;
 use WC_Buckaroo\WooCommerce\Methods\Buckaroo_Default_Refund;
 use WC_Buckaroo\WooCommerce\Methods\Buckaroo_Klarna_Refund;
-use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Buckaroo\WooCommerce\Payment\OrderDetails;
 use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
 use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Payload_Interface;
 use WC_Order;
@@ -40,7 +40,7 @@ class Buckaroo_Refund_Factory
 
     public static function get_refund(PaymentGatewayHandler $gateway, int $order_id, float $amount, string $reason): Buckaroo_Sdk_Payload_Interface
     {
-        $order_details = new Buckaroo_Order_Details(new WC_Order($order_id));
+        $order_details = new OrderDetails(new WC_Order($order_id));
         $class = Buckaroo_Default_Refund::class;
 
         $code = strtolower($gateway->get_sdk_code());

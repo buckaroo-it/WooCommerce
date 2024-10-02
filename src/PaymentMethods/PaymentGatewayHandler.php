@@ -6,7 +6,7 @@ use BuckarooConfig;
 use BuckarooIdin;
 use DateTime;
 use Throwable;
-use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Payment_Factory;
+use WC_Buckaroo\WooCommerce\PaymentMethodFactory;
 use WC_Buckaroo\WooCommerce\Refund\Buckaroo_Refund_Factory;
 use WC_Buckaroo\WooCommerce\Refund\Buckaroo_Refund_Processor;
 use WC_Buckaroo\WooCommerce\Return\Buckaroo_Return_Processor;
@@ -90,8 +90,7 @@ class PaymentGatewayHandler extends WC_Payment_Gateway
     public function process_payment($order_id)
     {
         try {
-            $payment = Buckaroo_Payment_Factory::get_payment($this, (int)$order_id);
-            ray($payment);
+            $payment = PaymentMethodFactory::get_payment($this, (int)$order_id);
             $payment = new Buckaroo_Client_Processor($payment);
             $return = new Buckaroo_Return_Processor($this, (int)$order_id);
             return $return->process($payment->process());

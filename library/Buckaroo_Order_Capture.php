@@ -1,5 +1,7 @@
 <?php
 
+use WC_Buckaroo\WooCommerce\Payment\OrderDetails;
+
 /**
  * Core class for order capture
  * php version 7.2
@@ -16,7 +18,7 @@
 class Buckaroo_Order_Capture
 {
     /**
-     * @var Buckaroo_Order_Details
+     * @var OrderDetails
      */
     protected $order_details;
 
@@ -40,7 +42,7 @@ class Buckaroo_Order_Capture
     protected $previous_captures = [];
 
 
-    public function __construct(Buckaroo_Order_Details $order_details, Buckaroo_Http_Request $request)
+    public function __construct(OrderDetails $order_details, Buckaroo_Http_Request $request)
     {
         $this->order_details = $order_details;
         $this->request = $request;
@@ -52,7 +54,7 @@ class Buckaroo_Order_Capture
     /**
      * Get order details
      *
-     * @return Buckaroo_Order_Details
+     * @return OrderDetails
      */
     public function get_order_details()
     {
@@ -114,7 +116,7 @@ class Buckaroo_Order_Capture
     }
 
     /**
-     * Get transactions that have item 
+     * Get transactions that have item
      *
      * @param Buckaroo_Order_Item $item
      *
@@ -129,6 +131,7 @@ class Buckaroo_Order_Capture
             }
         );
     }
+
     /**
      * Get item qty from form
      *
@@ -180,9 +183,9 @@ class Buckaroo_Order_Capture
     }
 
     /**
-     * Get qty/totals/tax value for item with item id, 
+     * Get qty/totals/tax value for item with item id,
      * returns 0 if not found
-     * 
+     *
      * @param array $item_list
      * @param integer $item_id
      *
@@ -202,10 +205,11 @@ class Buckaroo_Order_Capture
      */
     private function init_form_inputs()
     {
-        $this->item_qtys         = $this->sanitize_json('line_item_qtys');
-        $this->item_totals       = $this->sanitize_json('line_item_totals');
-        $this->item_tax_totals   = $this->sanitize_json('line_item_tax_totals');
+        $this->item_qtys = $this->sanitize_json('line_item_qtys');
+        $this->item_totals = $this->sanitize_json('line_item_totals');
+        $this->item_tax_totals = $this->sanitize_json('line_item_tax_totals');
     }
+
     /**
      * Init order items from item ids
      *
@@ -228,8 +232,9 @@ class Buckaroo_Order_Capture
             }
         );
     }
+
     /**
-     * Convert $_POST json string to array and sanitize it  
+     * Convert $_POST json string to array and sanitize it
      *
      * @param string $key
      *

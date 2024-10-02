@@ -5,7 +5,7 @@ namespace WC_Buckaroo\WooCommerce\Capture;
 use Buckaroo_Http_Request;
 use WC_Buckaroo\WooCommerce\Capture\Methods\Buckaroo_Creditcard_Capture;
 use WC_Buckaroo\WooCommerce\Capture\Methods\Buckaroo_Default_Capture;
-use WC_Buckaroo\WooCommerce\Payment\Buckaroo_Order_Details;
+use WC_Buckaroo\WooCommerce\Payment\OrderDetails;
 use WC_Buckaroo\WooCommerce\PaymentMethods\PaymentGatewayHandler;
 use WC_Buckaroo\WooCommerce\SDK\Buckaroo_Sdk_Payload_Interface;
 use WC_Order;
@@ -33,7 +33,7 @@ class Buckaroo_Capture_Factory
 
     public static function get_payment(PaymentGatewayHandler $gateway, int $order_id, float $amount): Buckaroo_Sdk_Payload_Interface
     {
-        $order_details = new Buckaroo_Order_Details(new WC_Order($order_id));
+        $order_details = new OrderDetails(new WC_Order($order_id));
         $class = Buckaroo_Default_Capture::class;
 
         $code = strtolower($gateway->get_sdk_code());
