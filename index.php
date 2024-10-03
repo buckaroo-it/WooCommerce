@@ -523,8 +523,10 @@ function buckaroo_init_gateway() {
 	add_action( 'woocommerce_order_action_buckaroo_create_paylink', 'buckaroo_create_paylink', 10, 1 );
 
 	require_once __DIR__ . '/controllers/IdinController.php';
+	require_once __DIR__ . '/controllers/RivertyController.php';
 
 	$idinController = new IdinController();
+    $afterpayController = new RivertyController();
 
 	add_action( 'woocommerce_before_single_product', 'buckaroo_idin_product' );
 	add_action( 'woocommerce_before_cart', 'buckaroo_idin_cart' );
@@ -533,7 +535,7 @@ function buckaroo_init_gateway() {
 	add_action( 'woocommerce_api_wc_gateway_buckaroo_idin-identify', array( $idinController, 'identify' ) );
 	add_action( 'woocommerce_api_wc_gateway_buckaroo_idin-reset', array( $idinController, 'reset' ) );
 	add_action( 'woocommerce_api_wc_gateway_buckaroo_idin-return', array( $idinController, 'returnHandler' ) );
-	add_action( 'woocommerce_api_wc_gateway_buckaroo_afterpaynew', array( $idinController, 'returnHandler' ) );
+	add_action( 'woocommerce_api_wc_gateway_buckaroo_afterpaynew', array( $afterpayController, 'returnHandler' ) );
 
 	// do a install if the plugin was installed prior to 2.24.1
 	// make sure we have all our plugin files loaded
