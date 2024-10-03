@@ -2,7 +2,6 @@
 
 namespace Buckaroo\Woocommerce\Gateways\CreditCard\Cards;
 
-use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
 
 /**
@@ -29,7 +28,6 @@ class SingleCreditCardGateway extends CreditCardGateway
     public function setCreditcardIcon()
     {
         $name = str_replace('buckaroo_creditcard_', '', $this->id);
-
         if ($name === 'cartebleuevisa') {
             $name = 'cartebleue';
         }
@@ -111,15 +109,5 @@ class SingleCreditCardGateway extends CreditCardGateway
         $this->updateList(
             $this->get_option('enabled', 'no') === 'yes'
         );
-    }
-
-
-    public function getServiceCode(?AbstractProcessor $processor = null)
-    {
-        if ($processor?->getAction() == 'refund') {
-            return 'creditcard';
-        }
-
-        return str_replace("buckaroo_creditcard_", "", $this->id);
     }
 }

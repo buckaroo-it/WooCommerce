@@ -40,7 +40,6 @@ require_once __DIR__ . '/library/klarnakp/Cancel_Reservation.php';
 require_once __DIR__ . '/library/Buckaroo_Disable_Gateways.php';
 require_once __DIR__ . '/install/class-wcb-install.php';
 require_once __DIR__ . '/install/migration/Buckaroo_Migration_Handler.php';
-require_once __DIR__ . '/Buckaroo_Load_Gateways.php';
 require_once __DIR__ . '/controllers/PaypalExpress.php';
 
 /**
@@ -159,13 +158,13 @@ function get_woocommerce_payment_methods(): array {
 				'displayMode'       => $gateway->get_option( 'displaymode' ),
 			);
 			if ( $gateway_id === 'buckaroo_ideal' ) {
-				$payment_method['idealIssuers']   = BuckarooIDeal::getIssuerList();
+                $payment_method['idealIssuers'] = \Buckaroo\Woocommerce\Gateways\Ideal\IdealProcessor::getIssuerList();
 				$payment_method['canShowIssuers'] = $gateway->canShowIssuers();
 			}
 			if ( $gateway_id === 'buckaroo_paybybank' ) {
-				$payment_method['payByBankIssuers']        = BuckarooPayByBank::getIssuerList();
-				$payment_method['payByBankSelectedIssuer'] = BuckarooPayByBank::getActiveIssuerCode();
-				$payment_method['lastPayByBankIssuer']     = BuckarooPayByBank::getActiveIssuerCode();
+                $payment_method['payByBankIssuers'] = \Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor::getIssuerList();
+                $payment_method['payByBankSelectedIssuer'] = \Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor::getActiveIssuerCode();
+                $payment_method['lastPayByBankIssuer'] = \Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor::getActiveIssuerCode();
 			}
 			if ( $gateway_id === 'buckaroo_afterpaynew' ) {
 				$payment_method['customer_type'] = $gateway->customer_type;
@@ -262,7 +261,7 @@ function buckaroo_payment_frontend_scripts() {
 					'general_error' => esc_html__( 'Something went wrong while processing your identification.' ),
 					'bank_required' => esc_html__( 'You need to select your bank!' ),
 				),
-				'payByBankLogos' => BuckarooPayByBank::getIssuerLogoUrls(),
+                'payByBankLogos' => \Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor::getIssuerLogoUrls(),
 			)
 		);
 
@@ -437,9 +436,9 @@ function buckaroo_add_setting_link( $actions ) {
  * @return array $settings Array of woocommerce tabs
  */
 function buckaroo_add_woocommerce_settings_page( $settings ) {
-	include_once __DIR__ . '/templates/Buckaroo_Report_Page.php';
-	include_once __DIR__ . '/gateway-buckaroo-mastersettings.php';
-	$settings[] = include_once plugin_dir_path( __FILE__ ) . 'WC_Buckaroo_Settings_Page.php';
+//	include_once __DIR__ . '/templates/Buckaroo_Report_Page.php';
+
+    $settings[] = new \Buckaroo\Woocommerce\Admin\GeneralSettings(new \Buckaroo\Woocommerce\Admin\PaymentMethodSettings());
 
 	return $settings;
 }
@@ -467,8 +466,9 @@ function buckaroo_init_gateway() {
 
 	load_plugin_textdomain( 'wc-buckaroo-bpe-gateway', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
-	$gateway_loader = new Buckaroo_Load_Gateways();
-	$gateway_loader->load();
+//    require_once 'Buckaroo_Load_Gateways.php';
+//	$gateway_loader = new Buckaroo_Load_Gateways();
+//	$gateway_loader->load();
 
     $plugin = new Buckaroo\Woocommerce\Core\Plugin();
     $gatewayLoader = $plugin->registerGateways();
@@ -506,7 +506,6 @@ function buckaroo_init_gateway() {
 
 	add_filter( 'woocommerce_order_actions', 'add_buckaroo_send_admin_payperemail', 10, 1 );
 
-	require_once __DIR__ . '/gateway-buckaroo-payperemail.php';
 	function buckaroo_send_admin_payperemail( $order ) {
 		$gateway = new \Buckaroo\Woocommerce\Gateways\PayPerEmail\PayPerEmailGateway();
 		if ( isset( $gateway ) ) {

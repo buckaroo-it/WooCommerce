@@ -2,8 +2,9 @@
 
 namespace Buckaroo\Woocommerce\Admin;
 
-use Buckaroo\Woocommerce\Services\Logger;
-use Buckaroo\Woocommerce\Services\LoggerStorage;
+use Buckaroo_Logger;
+use Buckaroo_Logger_Storage;
+use BuckarooConfig;
 use DateTime;
 use Throwable;
 use WP_List_Table;
@@ -72,9 +73,9 @@ class ReportPage extends WP_List_Table
      */
     public function get_total_items_count_for_storage()
     {
-        $storage = LoggerStorage::getStorage();
-        if (strlen($storage) === 0 || $storage === LoggerStorage::STORAGE_ALL) {
-            $storage = LoggerStorage::STORAGE_FILE;
+        $storage = BuckarooConfig::get('logstorage') ?? Buckaroo_Logger_Storage::STORAGE_FILE;
+        if (strlen($storage) === 0 || $storage === Buckaroo_Logger_Storage::STORAGE_ALL) {
+            $storage = Buckaroo_Logger_Storage::STORAGE_FILE;
         }
         $method = 'get_total_count_' . $storage;
         if (method_exists($this, $method)) {
@@ -158,7 +159,7 @@ class ReportPage extends WP_List_Table
      */
     public function get_items_from_storage($current_page)
     {
-        $storage = LoggerStorage::getStorage();
+        $storage = BuckarooConfig::get('logstorage') ?? Buckaroo_Logger_Storage::STORAGE_FILE;
         $method = $this->get_storage_method($storage);
 
         if (method_exists($this, $method)) {
@@ -176,8 +177,8 @@ class ReportPage extends WP_List_Table
      */
     protected function get_storage_method($storage)
     {
-        if (strlen($storage) === 0 || $storage === LoggerStorage::STORAGE_ALL) {
-            $storage = LoggerStorage::STORAGE_FILE;
+        if (strlen($storage) === 0 || $storage === Buckaroo_Logger_Storage::STORAGE_ALL) {
+            $storage = Buckaroo_Logger_Storage::STORAGE_FILE;
         }
         return 'get_page_item_from_' . $storage;
     }
@@ -203,7 +204,7 @@ class ReportPage extends WP_List_Table
         global $wpdb;
         $wpdb->hide_errors();
 
-        $table = $wpdb->prefix . LoggerStorage::STORAGE_DB_TABLE;
+        $table = $wpdb->prefix . Buckaroo_Logger_Storage::STORAGE_DB_TABLE;
         $result = $wpdb->get_results(
             'SELECT count(`id`) as `count` FROM `' . $table . '`',
             ARRAY_A
@@ -220,7 +221,7 @@ class ReportPage extends WP_List_Table
     {
         $backButton = '<a style="margin-right:10px" href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=buckaroo_settings&section=report')) . '">' . esc_html__('Back') . '</a>';
         $downloadButton = '<a style="margin-left:10px" href="' . esc_url(plugin_dir_url(BK_PLUGIN_FILE) . '?buckaroo_download_log_file=' . $fileName) . '">' . esc_html__('Download') . '</a>';
-        $directory = LoggerStorage::get_file_storage_location();
+        $directory = Buckaroo_Logger_Storage::get_file_storage_location();
         $logs = glob($directory . '*.log');
 
         $logData = '<p>' . $backButton . esc_html__('No log file found') . '</p>';
@@ -255,7 +256,7 @@ class ReportPage extends WP_List_Table
      */
     public function get_total_count_file()
     {
-        $directory = LoggerStorage::get_file_storage_location();
+        $directory = Buckaroo_Logger_Storage::get_file_storage_location();
         $logs = glob($directory . '*.log');
         return count($logs);
     }
@@ -270,7 +271,7 @@ class ReportPage extends WP_List_Table
     protected function get_page_item_from_file($current_page)
     {
 
-        $directory = LoggerStorage::get_file_storage_location();
+        $directory = Buckaroo_Logger_Storage::get_file_storage_location();
         $logs = glob($directory . '*.log');
 
         $items = array();
@@ -284,7 +285,7 @@ class ReportPage extends WP_List_Table
                 );
 
             } catch (Throwable $th) {
-                Logger::log(__METHOD__, 'Invalid file name for log: ' . $fileName);
+                Buckaroo_Logger::log(__METHOD__, 'Invalid file name for log: ' . $fileName);
             }
             $items[] = array(
                 'date' => $date,
@@ -323,7 +324,7 @@ class ReportPage extends WP_List_Table
         global $wpdb;
         $wpdb->hide_errors();
 
-        $table = $wpdb->prefix . LoggerStorage::STORAGE_DB_TABLE;
+        $table = $wpdb->prefix . Buckaroo_Logger_Storage::STORAGE_DB_TABLE;
         $rows = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT `date`, `message` as `description` FROM {$table} ORDER BY `date` DESC LIMIT %d,%d",
