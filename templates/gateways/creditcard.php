@@ -25,7 +25,7 @@ $customer_name .= ' ' . $this->getScalarCheckoutField( 'billing_last_name' );
 <fieldset>
 	<div class="method--bankdata">
 		<?php
-		if ( $this instanceof Buckaroo_Creditcard_Single ) {
+        if ($this instanceof \Buckaroo\Woocommerce\Gateways\CreditCard\Cards\SingleCreditCardGateway) {
 			?>
 		<input 
 		type="hidden" 
