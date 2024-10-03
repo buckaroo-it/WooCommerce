@@ -423,8 +423,6 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
 
             addSepaDirectOrderNote($response, $order);
             Buckaroo_Logger::log('||| $response->status ' . $response->status);
-            Buckaroo_Logger::log('||| $payment_method ' . print_r($payment_method));
-            Buckaroo_Logger::log('||| $payment_method ' . $payment_method->get_return_url($order));
 
             switch ($response->status) {
                 case 'completed':
@@ -433,6 +431,8 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 case 'on-hold':
                     if (!is_null($payment_method)) {
                         $woocommerce->cart->empty_cart();
+                        Buckaroo_Logger::log('||| $payment_method ' . $payment_method->get_return_url($order));
+
                         return array(
                             'result'   => 'success',
                             'redirect' => $payment_method->get_return_url($order),
