@@ -92,7 +92,7 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
 			'Email'        => $this->BillingEmail,
 		);
 
-		if ( WC_Gateway_Buckaroo_Afterpaynew::CUSTOMER_TYPE_B2C != $this->CustomerType ) {
+		if ( \Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway::CUSTOMER_TYPE_B2C != $this->CustomerType ) {
 			if ( $this->BillingCompanyName !== null && $this->BillingCountry === 'NL' ) {
 				$billing = array_merge(
 					$billing,

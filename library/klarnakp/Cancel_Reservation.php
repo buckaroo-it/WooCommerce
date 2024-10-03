@@ -56,7 +56,7 @@ class Buckaroo_Cancel_Reservation {
 	 */
 	public function cancel_reservation( $order ) {
 
-		$gateway = new WC_Gateway_Buckaroo_KlarnaKp();
+		$gateway = new \Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway();
 		if ( isset( $gateway ) ) {
 			$gateway->cancel_reservation( $order );
 		}

@@ -372,7 +372,7 @@ class WC_Buckaroo_Settings_Page extends WC_Settings_Page
         $gateways = array_filter(
             $gateways,
             function ($gateway) {
-                return $gateway instanceof WC_Gateway_Buckaroo;
+                return $gateway instanceof Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
             }
         );
         return $this->sortGatewaysAlfa($gateways);
