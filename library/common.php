@@ -422,6 +422,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             );
 
             addSepaDirectOrderNote($response, $order);
+            Buckaroo_Logger::log('||| $response->status ' . $response->status);
 
             switch ($response->status) {
                 case 'completed':
