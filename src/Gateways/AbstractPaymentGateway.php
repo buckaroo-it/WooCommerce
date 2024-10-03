@@ -57,7 +57,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         // [JM] Compatibility with WC3.6+
         add_action('woocommerce_checkout_process', array($this, 'action_woocommerce_checkout_process'));
 
-        $this->addGatewayHooks(static::class);
+        $this->addGatewayHooks('WC_Gateway_' . ucfirst($this->id));
     }
 
     /**

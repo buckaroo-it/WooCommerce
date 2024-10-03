@@ -3,7 +3,7 @@
 namespace Buckaroo\Woocommerce\Admin;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo\Woocommerce\Services\LoggerStorage;
+use Buckaroo_Logger_Storage;
 use WC_Tax;
 
 class PaymentMethodSettings extends AbstractPaymentGateway
@@ -68,6 +68,21 @@ class PaymentMethodSettings extends AbstractPaymentGateway
                 'required' => 'required',
             ),
         );
+        $this->form_fields['thumbprint'] = array(
+            'title' => __('Fingerprint', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'text',
+            'description' => __('Certificate thumbprint (Configuration -> Security -> Certificates -> See "Fingerprint" after a certificate has been generated).', 'wc-buckaroo-bpe-gateway'),
+            'default' => '',
+        );
+        $this->form_fields['upload'] = array(
+            'title' => __('Upload certificate', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'button',
+            'description' => __('Click to select and upload your certificate. Note: Please save after uploading.', 'wc-buckaroo-bpe-gateway'),
+            'default' => '',
+        );
+
+        $this->initCerificateFields();
+
         $this->form_fields['test_credentials'] = array(
             'title' => __('Test credentials', 'wc-buckaroo-bpe-gateway'),
             'type' => 'button',
@@ -133,11 +148,11 @@ class PaymentMethodSettings extends AbstractPaymentGateway
             'type' => 'select',
             'description' => __('Select where to store debug data', 'wc-buckaroo-bpe-gateway'),
             'options' => array(
-                LoggerStorage::STORAGE_ALL => __('Both'),
-                LoggerStorage::STORAGE_FILE => __('File'),
-                LoggerStorage::STORAGE_DB => __('Database'),
+                Buckaroo_Logger_Storage::STORAGE_ALL => __('Both'),
+                Buckaroo_Logger_Storage::STORAGE_FILE => __('File'),
+                Buckaroo_Logger_Storage::STORAGE_DB => __('Database'),
             ),
-            'default' => LoggerStorage::STORAGE_ALL,
+            'default' => Buckaroo_Logger_Storage::STORAGE_ALL,
         );
 
         $this->form_fields['transactiondescription'] = array(

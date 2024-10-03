@@ -138,7 +138,7 @@ class PaymentGatewayRegistry
         $creditcardMethods = array();
 
         foreach ($this->get_creditcards_to_show() as $creditcard) {
-            if (strlen(trim($creditcard)) !== 0 && class_exists($class = 'Buckaroo\WooCommerce\PaymentMethods\CreditCards\\' . ucfirst($creditcard))) {
+            if (strlen(trim($creditcard)) !== 0 && class_exists($class = 'Buckaroo\Woocommerce\Gateways\CreditCard\Cards\\' . ucfirst($creditcard) . 'Gateway')) {
                 $creditcardMethods[$creditcard . '_creditcard'] = ['gateway_class' => $class];
             }
         }
