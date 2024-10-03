@@ -533,6 +533,7 @@ function buckaroo_init_gateway() {
 	add_action( 'woocommerce_api_wc_gateway_buckaroo_idin-identify', array( $idinController, 'identify' ) );
 	add_action( 'woocommerce_api_wc_gateway_buckaroo_idin-reset', array( $idinController, 'reset' ) );
 	add_action( 'woocommerce_api_wc_gateway_buckaroo_idin-return', array( $idinController, 'returnHandler' ) );
+	add_action( 'woocommerce_api_wc_gateway_buckaroo_afterpaynew', array( $idinController, 'returnHandler' ) );
 
 	// do a install if the plugin was installed prior to 2.24.1
 	// make sure we have all our plugin files loaded
