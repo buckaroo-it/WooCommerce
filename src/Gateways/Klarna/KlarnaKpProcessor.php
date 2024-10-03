@@ -2,148 +2,277 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
-use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
-use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway;
+use Buckaroo_Order_Capture;
+use BuckarooPaymentMethod;
+use Buckaroo_Http_Request;
+use Buckaroo_Order_Details;
 
 class KlarnaKpProcessor extends AbstractPaymentProcessor
 {
 
     /**
-     * @var OrderDetails
+     * @var Buckaroo_Order_Details
      */
-    protected OrderDetails $order_details;
+    protected $order_details;
+    /**
+     * @var Buckaroo_Http_Request
+     */
+    protected $request;
 
-    public function getAction(): string
+    public function __construct()
     {
-        if (get_post_meta($this->get_order()->get_id(), '_buckaroo_klarnakp_reservation_number', true)) {
-            return 'pay';
-        }
-
-        return 'reserve';
-    }
-
-    protected function getMethodBody(): array
-    {
-        $reservation_number = get_post_meta(
-            $this->get_order()->get_id(),
-            '_buckaroo_klarnakp_reservation_number',
-            true
-        );
-
-
-        return array_merge_recursive(
-            $reservation_number ? ['reservationNumber' => $reservation_number] : [],
-            $this->getBillingData(),
-            $this->getShippingData(),
-            ['articles' => $this->getArticles()]
-        );
-    }
-
-    protected function getBillingData(): array
-    {
-        $streetParts = $this->order_details->get_billing_address_components();
-        $country_code = $this->getAddress('billing', 'country');
-        $data = [
-            'operatingCountry' => $country_code,
-            'billing' => [
-                'recipient' => [
-                    'firstName' => $this->getAddress('billing', 'first_name'),
-                    'lastName' => $this->getAddress('billing', 'last_name'),
-                ],
-                'address' => [
-                    'street' => $streetParts->get_street(),
-                    'houseNumber' => $streetParts->get_house_number(),
-                    'zipcode' => '2521VA',
-                    'city' => $this->getAddress('billing', 'city'),
-                    'country' => $country_code,
-                ],
-                'phone' => [
-                    'mobile' => $this->getPhone($this->order_details->get_billing_phone()),
-                ],
-                'email' => $this->getAddress('billing', 'email')
-            ]
-        ];
-        return array_merge_recursive(
-            $data,
-            $this->getCompany(),
-        );
-    }
-
-    private function getPhone(string $phone): string
-    {
-        return $this->request->input('buckaroo-afterpaynew-phone', $phone);
+        $this->type = 'klarnakp';
+        $this->version = 0;
     }
 
     /**
+     * Reserve order
+     *
+     * @param Buckaroo_Order_Details $order_details
+     * @param Buckaroo_Http_Request $request
+     *
+     * @return void
+     */
+    public function reserve(
+        Buckaroo_Order_Details $order_details,
+        Buckaroo_Http_Request  $request
+    )
+    {
+        $this->order_details = $order_details;
+        $this->request = $request;
+
+        $this->setServiceActionAndVersion('Reserve');
+        $this->setRequestType(BuckarooPaymentMethod::REQUEST_TYPE_DATA_REQUEST);
+
+        $this->setCustomVar(
+            array_merge(
+                $this->get_billing(),
+                $this->get_shipping_same_as_billing()
+            )
+        );
+        if (!$this->is_shipping_same_as_billing()) {
+            $this->setCustomVar(
+                $this->get_shipping()
+            );
+        }
+
+        $articles = array_merge(
+            $this->get_article_list(),
+            $this->get_fees(),
+            $this->get_shipping_fees()
+        );
+
+        foreach ($articles as $key => $article) {
+            $this->setCustomVarsAtPosition($article, $key, 'Article');
+        }
+        return $this->PayGlobal();
+    }
+
+    /**
+     * Get billing data
+     *
      * @return array
      */
-    protected function getShippingData(): array
+    protected function get_billing()
     {
-        $streetParts = $this->order_details->get_shipping_address_components();
-        $country_code = $this->getAddress('shipping', 'country');
+        $address = $this->order_details->getShippingAddressComponents();
+        $billing = array(
+            'BillingFirstName' => $this->order_details->getBilling('first_name'),
+            'BillingLastName' => $this->order_details->getBilling('last_name'),
+            'BillingStreet' => $address['street'],
+            'BillingPostalCode' => $this->order_details->getShipping('postcode'),
+            'BillingCity' => $this->order_details->getBilling('city'),
+            'BillingCountry' => $this->order_details->getBilling('country'),
+            'BillingPhoneNumber' => $this->order_details->getBillingPhone(),
+            'BillingEmail' => $this->order_details->getBilling('email', ''),
+            'OperatingCountry' => $this->order_details->getBilling('country'),
+        );
 
-        $data = [
-            'shipping' => [
-                'recipient' => [
-                    'firstName' => $this->getAddress('shipping', 'first_name'),
-                    'lastName' => $this->getAddress('shipping', 'last_name'),
-                ],
-                'address' => [
-                    'street' => $streetParts->get_street(),
-                    'houseNumber' => $streetParts->get_house_number(),
-                    'zipcode' => '2521VA',
-                    'city' => $this->getAddress('shipping', 'city'),
-                    'country' => $country_code,
-                ],
-                'email' => $this->getAddress('billing', 'email')
-            ],
-        ];
-        return array_merge_recursive(
-            $data,
-            $this->getCompany('shipping'),
+        if (strlen($address['house_number'])) {
+            $billing['BillingHouseNumber'] = $address['house_number'];
+        }
+
+        if (strlen($address['number_addition'])) {
+            $billing['BillingHouseNumberSuffix'] = $address['number_addition'];
+        }
+        return $billing;
+    }
+
+    /**
+     * Get shipping same as billing
+     *
+     * @return array
+     */
+    public function get_shipping_same_as_billing()
+    {
+        return array(
+            'ShippingSameAsBilling' => $this->is_shipping_same_as_billing() ? 'true' : 'false',
         );
     }
 
     /**
-     * @param string $address_type
-     *
-     * @return array<mixed>
-     */
-    protected function getCompany(string $address_type = 'billing'): array
-    {
-        $company = $this->getAddress($address_type, "company");
-        if (
-            $this->isB2b() &&
-            $this->getAddress($address_type, "country") === 'NL' &&
-            !$this->isCompanyEmpty($company)
-        ) {
-            return [
-                $address_type => [
-                    'recipient' => [
-                        'companyName' => $company,
-                        'chamberOfCommerce' => $this->request->input('buckaroo-afterpaynew-company-coc-registration'),
-                    ]
-                ]
-            ];
-        }
-        return [];
-    }
-
-    public function isB2b(): bool
-    {
-        return $this->gateway->get_option('customer_type') !== AfterpayNewGateway::CUSTOMER_TYPE_B2C;
-    }
-
-    /**
-     * Check if company is empty
-     *
-     * @param string $company
+     * Is shipping same as billing
      *
      * @return boolean
      */
-    public function isCompanyEmpty(string $company = null): bool
+    public function is_shipping_same_as_billing()
     {
-        return null === $company || strlen(trim($company)) === 0;
+        return $this->request->request('ship_to_different_address') === null;
+    }
+
+    /**
+     * Get shipping data
+     *
+     * @return array
+     */
+    protected function get_shipping()
+    {
+        $address = $this->order_details->getShippingAddressComponents();
+        $shipping = array(
+            'ShippingFirstName' => $this->order_details->getShipping('first_name'),
+            'ShippingLastName' => $this->order_details->getShipping('last_name'),
+            'ShippingStreet' => $address['street'],
+            'ShippingPostalCode' => $this->order_details->getShipping('postcode'),
+            'ShippingCity' => $this->order_details->getShipping('city'),
+            'ShippingCountry' => $this->order_details->getShipping('country'),
+            'ShippingPhoneNumber' => $this->order_details->getShippingPhone(),
+            'ShippingEmail' => $this->order_details->getShipping('email', ''),
+        );
+
+        if (strlen($address['house_number'])) {
+            $shipping['ShippingHouseNumber'] = $address['house_number'];
+        }
+
+        if (strlen($address['number_addition'])) {
+            $shipping['ShippingHouseNumberSuffix'] = $address['number_addition'];
+        }
+        return $shipping;
+    }
+
+    /**
+     * Get articles from order
+     *
+     * @return array
+     */
+    protected function get_article_list()
+    {
+        $articles = array();
+        foreach ($this->order_details->get_products() as $article) {
+            $articles[] = array(
+                'ArticleTitle' => $article->get_title(),
+                'ArticleNumber' => $article->get_id(),
+                'ArticleQuantity' => $article->get_quantity(),
+                'ArticlePrice' => $article->get_unit_price(),
+                'ArticleVat' => $article->get_vat(),
+                'ArticleType' => 'General',
+            );
+        }
+        return $articles;
+    }
+
+    /**
+     * Get order fees
+     *
+     * @return array
+     */
+    protected function get_fees()
+    {
+        $fees = array();
+        foreach ($this->order_details->get_fees() as $fee) {
+            $fees[] = array(
+                'ArticleTitle' => $fee->get_title(),
+                'ArticleNumber' => $fee->get_id(),
+                'ArticleQuantity' => $fee->get_quantity(),
+                'ArticlePrice' => $fee->get_unit_price(),
+                'ArticleVat' => $fee->get_vat(),
+                'ArticleType' => 'HandlingFee',
+            );
+        }
+        return $fees;
+    }
+
+    /**
+     * Get shipping fee
+     *
+     * @return array
+     */
+    protected function get_shipping_fees()
+    {
+        $fees = array();
+        foreach ($this->order_details->get_shipping_items() as $fee) {
+            $fees[] = array(
+                'ArticleTitle' => $fee->get_title(),
+                'ArticleNumber' => $fee->get_id(),
+                'ArticleQuantity' => $fee->get_quantity(),
+                'ArticlePrice' => $fee->get_unit_price(),
+                'ArticleVat' => $fee->get_vat(),
+                'ArticleType' => 'ShipmentFee',
+            );
+        }
+        return $fees;
+    }
+
+    /**
+     * Cancel reservation order
+     *
+     * @param Buckaroo_Order_Capture $order_capture
+     * @param string $reservation_number
+     *
+     * @return void
+     */
+    public function cancel_reservation(
+        string $reservation_number
+    )
+    {
+        $this->setRequestType(BuckarooPaymentMethod::REQUEST_TYPE_DATA_REQUEST);
+        $this->setServiceActionAndVersion('CancelReservation');
+        $this->setCustomVar('ReservationNumber', $reservation_number);
+        return $this->PayGlobal();
+    }
+
+    /**
+     * Capture order
+     *
+     * @param Buckaroo_Order_Capture $order_capture
+     * @param string $reservation_number
+     *
+     * @return void
+     */
+    public function capture(
+        Buckaroo_Order_Capture $order_capture,
+        string                 $reservation_number
+    )
+    {
+        foreach ($this->get_capture_items($order_capture) as $key => $item) {
+            $this->setCustomVarsAtPosition($item, $key, 'Article');
+        }
+
+        $this->setCustomVar('ReservationNumber', $reservation_number);
+        return $this->Pay();
+    }
+
+    /**
+     * Get items that are ready for capture
+     *
+     * @param Buckaroo_Order_Capture $order_capture
+     *
+     * @return array
+     */
+    public function get_capture_items(Buckaroo_Order_Capture $order_capture)
+    {
+        $items = array();
+        foreach ($order_capture->get_form_items() as $item) {
+
+            $qty = $order_capture->get_item_qty($item->get_line_item_id());
+            if ($qty > 0) {
+                $items[] = array(
+                    'ArticleNumber' => $item->get_id(),
+                    'ArticleQuantity' => $qty,
+                );
+            }
+        }
+
+        return $items;
     }
 }

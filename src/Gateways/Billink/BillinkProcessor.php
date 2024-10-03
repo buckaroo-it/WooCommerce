@@ -6,200 +6,189 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 
 class BillinkProcessor extends AbstractPaymentProcessor
 {
-    /** @inheritDoc */
-    public function getAction(): string
+
+    public $BillingGender;
+    public $BillingInitials;
+    public $BillingLastName;
+    public $BillingBirthDate;
+    public $BillingStreet;
+    public $BillingHouseNumber;
+    public $BillingHouseNumberSuffix;
+    public $BillingPostalCode;
+    public $BillingCity;
+    public $BillingCountry;
+    public $BillingEmail;
+    public $BillingPhoneNumber;
+    public $BillingLanguage;
+    public $AddressesDiffer;
+    public $ShippingGender;
+    public $ShippingInitials;
+    public $ShippingFirstName;
+    public $ShippingLastName;
+    public $ShippingStreet;
+    public $ShippingHouseNumber;
+    public $ShippingHouseNumberSuffix;
+    public $ShippingPostalCode;
+    public $ShippingCity;
+    public $ShippingCountryCode;
+    public $ShippingEmail;
+    public $ShippingPhoneNumber;
+    public $CustomerIPAddress;
+    public $Accept;
+
+    public $B2B;
+    public $Company;
+    public $CompanyCOCRegistration;
+    public $VatNumber;
+
+    private $category;
+    private $billingFirstName;
+
+    /**
+     * @access public
+     * @param string $type
+     */
+    public function __construct($type = 'Billink')
     {
-        if (!empty(trim($this->order_details->get_billing("company")))) {
-            return 'authorize';
-        }
-        return 'pay';
+        $this->type = $type;
+        $this->version = '1';
     }
 
-    /** @inheritDoc */
-    protected function getMethodBody(): array
+    /**
+     * @access public
+     * @param array $products
+     * @return callable parent::Pay();
+     */
+    public function PayOrAuthorizeBillink($products = array(), $action = 'Pay')
     {
-        return array_merge_recursive(
-            $this->getVatnumber(),
-            $this->getCoc(),
-            $this->getBillingData(),
-            $this->getShippingData(),
-            ['articles' => $this->getArticles()]
+
+        $billing = array(
+            'Category' => $this->getCategory(),
+            'Initials' => $this->BillingInitials,
+            'FirstName' => $this->getBillingFirstName(),
+            'LastName' => $this->BillingLastName,
+            'Street' => $this->BillingStreet,
+            'StreetNumber' => $this->BillingHouseNumber,
+            'PostalCode' => $this->BillingPostalCode,
+            'City' => $this->BillingCity,
+            'Country' => $this->BillingCountry,
+            'Email' => $this->BillingEmail,
+            'MobilePhone' => $this->BillingPhoneNumber,
+        );
+        $shipping = array(
+            'FirstName' => $this->diffAddress($this->ShippingInitials, $this->getBillingFirstName()),
+            'LastName' => $this->diffAddress($this->ShippingLastName, $this->BillingLastName),
+            'Street' => $this->diffAddress($this->ShippingStreet, $this->BillingStreet),
+            'StreetNumber' => $this->diffAddress($this->ShippingHouseNumber, $this->BillingHouseNumber),
+            'PostalCode' => $this->diffAddress($this->ShippingPostalCode, $this->BillingPostalCode),
+            'City' => $this->diffAddress($this->ShippingCity, $this->BillingCity),
+            'Country' => $this->diffAddress($this->ShippingCountryCode, $this->BillingCountry),
+        );
+
+        if ($this->B2B) {
+            $billingCareOf = $shippingCareOf = $this->getCompany();
+        } else {
+            $billingCareOf = trim($this->getBillingFirstName() . ' ' . $this->BillingLastName);
+            $shippingCareOf = $this->diffAddress(trim($this->ShippingFirstName . ' ' . $this->ShippingLastName), $billingCareOf);
+        }
+
+        $billing['CareOf'] = $billingCareOf;
+        $shipping['CareOf'] = $shippingCareOf;
+
+        if (!empty($this->BillingHouseNumberSuffix)) {
+            $billing['StreetNumberAdditional'] = $this->BillingHouseNumberSuffix;
+        }
+
+        if (!empty($this->BillingHouseNumberSuffix) || !empty($this->ShippingHouseNumberSuffix)) {
+            if (!empty($this->diffAddress($this->ShippingHouseNumberSuffix, $this->BillingHouseNumberSuffix))) {
+                $shipping['StreetNumberAdditional'] = $this->diffAddress($this->ShippingHouseNumberSuffix, $this->BillingHouseNumberSuffix);
+            }
+        }
+
+        if ($this->B2B) {
+            $billing['ChamberOfCommerce'] = $this->CompanyCOCRegistration;
+
+            if (!empty($this->VatNumber)) {
+                $billing['VATNumber'] = $this->VatNumber;
+            }
+        } else {
+            $billing['Salutation'] = $this->BillingGender;
+            $billing['BirthDate'] = $this->BillingBirthDate;
+        }
+
+        $this->setCustomVarsAtPosition($billing, 0, 'BillingCustomer');
+        $this->setCustomVarsAtPosition($shipping, 1, 'ShippingCustomer');
+
+        foreach ($products as $pos => $product) {
+            $this->setDefaultProductParams($product, $pos);
+        }
+        return parent::Pay();
+    }
+
+    public function getCategory()
+    {
+        return $this->category;
+    }
+
+    public function setCategory($category)
+    {
+        $this->category = $category;
+    }
+
+    public function getBillingFirstName()
+    {
+        return $this->billingFirstName;
+    }
+
+    public function setBillingFirstName($billingFirstName)
+    {
+        $this->billingFirstName = $billingFirstName;
+    }
+
+    private function diffAddress($shippingField, $billingField)
+    {
+        if ($this->AddressesDiffer == 'TRUE') {
+            return $shippingField;
+        }
+        return $billingField;
+    }
+
+    public function getCompany()
+    {
+        return $this->Company;
+    }
+
+    public function setCompany($company)
+    {
+        $this->Company = $company;
+    }
+
+    private function setDefaultProductParams($product, $position)
+    {
+
+        $productData = array(
+            'Description' => $product['description'],
+            'Identifier' => $product['identifier'],
+            'Quantity' => $product['quantity'],
+            'GrossUnitPriceIncl' => $product['price'],
+            'VatPercentage' => $product['vatPercentage'],
+
+        );
+
+        $this->setCustomVarsAtPosition(
+            $productData,
+            $position,
+            'Article'
         );
     }
 
     /**
-     * Get vat number
-     *
-     * @return array<mixed>
+     * @access public
+     * @param array $customVars
+     * @return void
      */
-    protected function getVatnumber(): array
+    public function Pay($customVars = array())
     {
-        $vatNumber = $this->request->input('buckaroo-billink-VatNumber');
-        if (
-            is_string($vatNumber) &&
-            !empty(trim($vatNumber))
-        ) {
-            return ['vATNumber' => $vatNumber];
-        }
-        return [];
-    }
-
-    /**
-     * Get chamber of commerce number
-     *
-     * @return array<mixed>
-     */
-    protected function getCoc(): array
-    {
-        if (is_string($this->request->input('buckaroo-billink-company-coc-registration'))) {
-            return [
-                'billing' => [
-                    'recipient' => [
-                        'chamberOfCommerce' => $this->request->input('buckaroo-billink-company-coc-registration')
-                    ]
-                ]
-            ];
-        }
-        return [];
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    protected function getBillingData(): array
-    {
-        $streetParts = $this->order_details->get_billing_address_components();
-        $country_code = $this->getAddress('billing', 'country');
-        $first_name = $this->getAddress('billing', 'first_name');
-        return [
-            'billing' => [
-                'recipient' => [
-                    'category' => $this->getCategory('billing'),
-                    'careOf' => $this->getCareOf('billing'),
-                    'initials' => $this->getInitials($first_name),
-                    'firstName' => $first_name,
-                    'lastName' => $this->getAddress('billing', 'last_name'),
-                    'birthDate' => $this->getBirthDate(),
-                    'salutation' => $this->request->input('buckaroo-billink-gender')
-                ],
-                'address' => [
-                    'street' => $streetParts->get_street(),
-                    'houseNumber' => $streetParts->get_house_number(),
-                    'houseNumberAdditional' => $streetParts->get_number_additional(),
-                    'zipcode' => $this->getAddress('billing', 'postcode'),
-                    'city' => $this->getAddress('billing', 'city'),
-                    'country' => $country_code,
-                ],
-                'phone' => [
-                    'mobile' => $this->order_details->get_billing_phone(),
-                ],
-                'email' => $this->getAddress('billing', 'email')
-            ]
-        ];
-    }
-
-    /**
-     * Get type of request b2b or b2c
-     *
-     * @param string $address_type
-     * @return string
-     */
-    private function getCategory(string $address_type = 'billing'): string
-    {
-        if (!$this->isCompanyEmpty($this->getAddress($address_type, "company"))) {
-            return 'B2B';
-        }
-        return 'B2C';
-    }
-
-    /**
-     * Check if company is empty
-     *
-     * @param string $company
-     *
-     * @return boolean
-     */
-    public function isCompanyEmpty(string $company = null): bool
-    {
-        return null === $company || strlen(trim($company)) === 0;
-    }
-
-    /**
-     * Get  careOf
-     *
-     * @param string $address_type
-     *
-     * @return string
-     */
-    private function getCareOf(string $address_type = 'billing'): string
-    {
-        $company = $this->getAddress($address_type, "company");
-        if (!$this->isCompanyEmpty()) {
-            return $company;
-        }
-
-        return $this->order_details->get_full_name($address_type);
-    }
-
-    /**
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    private function getInitials(string $name): string
-    {
-        return strtoupper(substr($name, 0, 1));
-    }
-
-    /**
-     * Get birth date
-     *
-     * @return null|string
-     */
-    private function getBirthDate()
-    {
-        $dateString = $this->request->input('buckaroo-billink-birthdate');
-        if (!is_scalar($dateString)) {
-            return null;
-        }
-        $date = strtotime((string)$dateString);
-        if ($date === false) {
-            return null;
-        }
-
-        return @date("d-m-Y", $date);
-    }
-
-    /**
-     *
-     * @return array<mixed>
-     */
-    protected function getShippingData(): array
-    {
-        $streetParts = $this->order_details->get_shipping_address_components();
-        $country_code = $this->getAddress('shipping', 'country');
-        $first_name = $this->getAddress('shipping', 'first_name');
-
-        return [
-            'shipping' => [
-                'recipient' => [
-                    'category' => $this->getCategory('shipping'),
-                    'careOf' => $this->getCareOf('shipping'),
-                    'initials' => $this->getInitials($first_name),
-                    'firstName' => $first_name,
-                    'lastName' => $this->getAddress('shipping', 'last_name'),
-                    'birthDate' => $this->getBirthDate(),
-                ],
-                'address' => [
-                    'street' => $streetParts->get_street(),
-                    'houseNumber' => $streetParts->get_house_number(),
-                    'houseNumberAdditional' => $streetParts->get_number_additional(),
-                    'zipcode' => $this->getAddress('shipping', 'postcode'),
-                    'city' => $this->getAddress('shipping', 'city'),
-                    'country' => $country_code,
-                ],
-            ],
-        ];
+        return null;
     }
 }

@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\SepaDirectDebit;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use BuckarooConfig;
 
 class SepaDirectDebitGateway extends AbstractPaymentGateway
 {
@@ -21,6 +22,27 @@ class SepaDirectDebitGateway extends AbstractPaymentGateway
     }
 
     /**
+     * Can the order be refunded
+     *
+     * @param integer $order_id
+     * @param integer $amount defaults to null
+     * @param string $reason
+     * @return callable|string function or error
+     */
+    public function process_refund($order_id, $amount = null, $reason = '')
+    {
+        return $this->processDefaultRefund(
+            $order_id,
+            $amount,
+            $reason,
+            false,
+            function ($request) {
+                $request->channel = BuckarooConfig::CHANNEL_BACKOFFICE;
+            }
+        );
+    }
+
+    /**
      * Validate frontend fields.
      *
      * Validate payment fields on the frontend.
@@ -29,15 +51,15 @@ class SepaDirectDebitGateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        $iban = $this->request->input('buckaroo-sepadirectdebit-iban');
+        $iban = $this->request('buckaroo-sepadirectdebit-iban');
         if (
-            $this->request->input('buckaroo-sepadirectdebit-accountname') === null ||
+            $this->request('buckaroo-sepadirectdebit-accountname') === null ||
             $iban === null
         ) {
             wc_add_notice(__('Please fill in all required fields', 'wc-buckaroo-bpe-gateway'), 'error');
         }
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        if (!$this->isIBAN($iban)) {
+        if (!SepaDirectDebitProcessor::isIBAN($iban)) {
             wc_add_notice(__('Wrong IBAN number', 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
@@ -45,40 +67,40 @@ class SepaDirectDebitGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Calculate checksum from iban and confirm validity of iban
+     * Process payment
+     *
+     * @param integer $order_id
+     * @return callable fn_buckaroo_process_response()
+     */
+    public function process_payment($order_id)
+    {
+
+        $order = getWCOrder($order_id);
+        /** @var SepaDirectDebitProcessor */
+        $sepadirectdebit = $this->createDebitRequest($order);
+
+        if (!$sepadirectdebit->isIBAN($this->request('buckaroo-sepadirectdebit-iban'))) {
+            wc_add_notice(__('Wrong IBAN number', 'wc-buckaroo-bpe-gateway'), 'error');
+            return;
+        }
+
+        $sepadirectdebit->customeraccountname = $this->request('buckaroo-sepadirectdebit-accountname');
+        $sepadirectdebit->CustomerBIC = $this->request('buckaroo-sepadirectdebit-bic');
+        $sepadirectdebit->CustomerIBAN = $this->request('buckaroo-sepadirectdebit-iban');
+
+        $sepadirectdebit->returnUrl = $this->notify_url;
+        $response = $sepadirectdebit->PayDirectDebit();
+        return fn_buckaroo_process_response($this, $response, $this->mode);
+    }
+
+    /**
+     * Check response data
      *
      * @access public
-     * @param string $iban
-     * @return boolean
      */
-    public static function isIBAN($iban)
+    public function response_handler()
     {
-        // Normalize input (remove spaces and make upcase)
-        $iban = strtoupper(str_replace(' ', '', $iban));
-
-        if (preg_match('/^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$/', $iban)) {
-            $country = substr($iban, 0, 2);
-            $check = intval(substr($iban, 2, 2));
-            $account = substr($iban, 4);
-
-            // To numeric representation
-            $search = range('A', 'Z');
-            foreach (range(10, 35) as $tmp) {
-                $replace[] = strval($tmp);
-            }
-            $numstr = str_replace($search, $replace, $account . $country . '00');
-
-            // Calculate checksum
-            $checksum = intval(substr($numstr, 0, 1));
-            for ($pos = 1; $pos < strlen($numstr); $pos++) {
-                $checksum *= 10;
-                $checksum += intval(substr($numstr, $pos, 1));
-                $checksum %= 97;
-            }
-
-            return ((98 - $checksum) == $check);
-        } else {
-            return false;
-        }
+        fn_buckaroo_process_response($this);
+        exit;
     }
 }

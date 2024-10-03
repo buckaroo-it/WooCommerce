@@ -2,39 +2,45 @@
 
 namespace Buckaroo\Woocommerce\Gateways\SepaDirectDebit;
 
-use Buckaroo\Transaction\Response\TransactionResponse;
-use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 
 class SepaDirectDebitProcessor extends AbstractPaymentProcessor
 {
-    /** @inheritDoc */
-    protected function getMethodBody(): array
+    public $customeraccountname;
+    public $CustomerBIC;
+    public $CustomerIBAN;
+
+    /**
+     * @access public
+     */
+    public function __construct()
     {
-        if (
-            $this->request->input('buckaroo-sepadirectdebit-accountname') !== null &&
-            $this->request->input('buckaroo-sepadirectdebit-iban') !== null
-        ) {
-            return [
-                'iban' => $this->request->input('buckaroo-sepadirectdebit-iban'),
-                'customer' => [
-                    'name' => $this->request->input('buckaroo-sepadirectdebit-accountname')
-                ]
-            ];
-        }
-        return [];
+        $this->type = 'sepadirectdebit';
+        $this->version = '1';
     }
 
-    public function afterProcessPayment(OrderDetails $orderDetails, TransactionResponse $transactionResponse): array
+    /**
+     * @access public
+     * @param array $customVars
+     * @return parent::Pay()
+     */
+    public function PayDirectDebit()
     {
-        if ($transactionResponse->isSuccess() || $transactionResponse->isAwaitingConsumer() || $transactionResponse->isPendingProcessing()) {
-            $params = $transactionResponse->getServiceParameters();
-            $order = $orderDetails->get_order();
 
-            $order->add_order_note('MandateReference: ' . $params['mandatereference'] ?? '', true);
-            $order->add_order_note('MandateDate: ' . $params['mandatedate'] ?? '', true);
-        }
+        $this->setCustomVar('customeraccountname', $this->customeraccountname);
+        $this->setCustomVar('CustomerBIC', $this->CustomerBIC);
+        $this->setCustomVar('CustomerIBAN', $this->CustomerIBAN);
 
-        return [];
+        return parent::Pay();
+    }
+
+    /**
+     * @access public
+     * @param array $customVars
+     * @return void
+     */
+    public function Pay($customVars = array())
+    {
+        return null;
     }
 }

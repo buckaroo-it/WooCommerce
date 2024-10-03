@@ -13,11 +13,11 @@
  * @link      https://www.buckaroo.eu/
  */
 
-class Buckaroo_Afterpay_Refund {
+class Buckaroo_KlarnaKP_Refund {
 
 
 	public function __construct() {
-		add_action( 'wp_ajax_bl_refund_afterpay_capture', array( $this, 'refund_capture' ) );
+		add_action( 'wp_ajax_bl_refund_klarnakp_capture', array( $this, 'refund_capture' ) );
 	}
 
 	/**
@@ -49,7 +49,7 @@ class Buckaroo_Afterpay_Refund {
 		$successful_refund = false;
 
 		if ( $capture !== null && isset( $capture['transaction_id'] ) ) {
-			$successful_refund = ( new WC_Gateway_Buckaroo_Afterpay() )->process_capture_refund(
+			$successful_refund = ( new \Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway() )->process_refund(
 				$order_id,
 				$capture['amount'],
 				'',

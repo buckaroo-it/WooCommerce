@@ -3,85 +3,125 @@
 namespace Buckaroo\Woocommerce\Gateways\In3;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use BuckarooPaymentMethod;
+use Exception;
 
 class In3V2Processor extends AbstractPaymentProcessor
 {
-    protected function getMethodBody(): array
+    public $BillingInitials;
+    public $BillingLastName;
+    public $BillingBirthDate;
+    public $BillingStreet;
+    public $BillingHouseNumber;
+    public $BillingHouseNumberSuffix;
+    public $BillingPostalCode;
+    public $BillingCity;
+    public $BillingCountry;
+    public $BillingEmail;
+    public $BillingPhoneNumber;
+    public $BillingLanguage;
+    public $IdentificationNumber;
+    public $InvoiceDate;
+    public $cocNumber;
+    public $companyName;
+    public $orderId;
+
+    /**
+     * @access public
+     * @param string $type
+     */
+    public function __construct()
     {
-        return array_merge(
-            [
-                'invoiceDate' => date('Y-m-d'),
-                'customerType' => 'Debtor',
-                'email' => $this->getAddress('billing', 'email'),
-                'phone' => [
-                    'mobile' => $this->getAddress('billing', 'phone')
-                ],
-            ],
-            $this->getCustomer(),
-            $this->getAddressPayload(),
-            ['articles' => $this->getArticles()]
+        $this->type = 'Capayable';
+        $this->version = '1';
+    }
+
+    /**
+     * @access public
+     * @param array $customVars
+     * @return void
+     */
+    public function Pay($customVars = array())
+    {
+        return null;
+    }
+
+    /**
+     * @access public
+     * @param array $products
+     * @return callable parent::Pay();
+     */
+    public function PayIn3($products, $action)
+    {
+        $this->setParameter('customParameters', array('order_id' => $this->getRealOrderId()));
+        $this->setCustomVar('CustomerType', array('value' => 'Debtor'));
+        $this->setCustomVar('InvoiceDate', array('value' => date('d-m-Y')));
+
+        $this->setCustomVar(
+            array(
+                'LastName' => $this->BillingLastName,
+                'Culture' => 'nl-NL',
+                'Initials' => $this->BillingInitials,
+                'BirthDate' => $this->BillingBirthDate,
+            ),
+            null,
+            'Person'
         );
-    }
 
-    /**
-     * Get customer info
-     *
-     * @return array<mixed>
-     */
-    private function getCustomer(): array
-    {
-        return [
-            'customer' => [
-                'initials' => $this->order_details->get_initials($this->getAddress('billing', 'last_name')),
-                'lastName' => $this->getAddress('billing', 'last_name'),
-                'email' => $this->getAddress('billing', 'email'),
-                'phone' => $this->getAddress('billing', 'phone'),
-                'culture' => 'nl-NL',
-                'birthDate' => date('Y-m-d', strtotime($this->request->input('buckaroo-in3-birthdate'))),
-            ]
-        ];
-    }
+        $this->setCustomVar(
+            array(
+                'Street' => $this->BillingStreet,
+                'HouseNumber' => isset($this->BillingHouseNumber) ? $this->BillingHouseNumber . ' ' : $this->BillingHouseNumber,
+                'HouseNumberSuffix' => $this->BillingHouseNumberSuffix,
+                'ZipCode' => $this->BillingPostalCode,
+                'City' => $this->BillingCity,
+                'Country' => $this->BillingCountry,
+            ),
+            null,
+            'Address'
+        );
+        $this->setCustomVar('Phone', $this->BillingPhoneNumber, 'Phone');
+        $this->setCustomVar('Email', $this->BillingEmail, 'Email');
 
-    /**
-     * Get billing address data
-     *
-     * @return array<mixed>
-     */
-    private function getAddressPayload(): array
-    {
-        $streetParts = $this->order_details->get_billing_address_components();
-        $country_code = $this->getAddress('billing', 'country');
-
-        $data = [
-            'address' => [
-                'street' => $streetParts->get_street(),
-                'houseNumber' => $streetParts->get_house_number(),
-                'zipcode' => $this->getAddress('billing', 'postcode'),
-                'city' => $this->getAddress('billing', 'city'),
-                'country' => $country_code,
-            ]
-        ];
-
-        if (strlen($streetParts->get_number_additional()) > 0) {
-            $data['address']['houseNumberAdditional'] = $streetParts->get_number_additional();
+        foreach ($products as $pos => $product) {
+            $this->setDefaultProductParams($product, $pos);
         }
+        return parent::$action();
+    }
 
-        return $data;
+    private function setDefaultProductParams($product, $position)
+    {
+
+        $productData = array(
+            'Name' => $product['description'],
+            'Code' => $product['identifier'],
+            'Quantity' => $product['quantity'],
+            'Price' => $product['price'],
+        );
+
+        $this->setCustomVarsAtPosition(
+            $productData,
+            $position,
+            'ProductLine'
+        );
     }
 
     /**
-     * Get order articles
+     * Populate generic fields for a refund
      *
-     * @return array
+     * @access public
+     * * @param array $products
+     * @return callable $this->RefundGlobal()
+     * @throws Exception
      */
-    protected function getArticles(): array
+    public function In3Refund()
     {
-        return array_map(
-            function ($article) {
-                unset($article['vatPercentage']);
-                return $article;
-            },
-            $this->order_articles->get_products_for_payment()
+        $this->setServiceTypeActionAndVersion(
+            'Capayable',
+            'Refund',
+            BuckarooPaymentMethod::VERSION_ONE
         );
+
+        return $this->RefundGlobal();
     }
 }

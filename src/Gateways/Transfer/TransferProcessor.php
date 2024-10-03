@@ -3,39 +3,40 @@
 namespace Buckaroo\Woocommerce\Gateways\Transfer;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
-use DateTime;
 
 class TransferProcessor extends AbstractPaymentProcessor
 {
-    /** @inheritDoc */
-    protected function getMethodBody(): array
+    public function __construct()
     {
-        return [
-            'email' => $this->getAddress('billing', 'email'),
-            'country' => $this->getAddress('billing', 'country'),
-            'customer' => [
-                'firstName' => $this->getAddress('billing', 'first_name'),
-                'lastName' => $this->getAddress('billing', 'last_name')
-            ],
-            'dateDue' => $this->getDueDate(),
-            'sendMail' => $this->canSendEmail(),
-        ];
+        $this->type = 'transfer';
+        $this->version = 1;
     }
 
-    protected function getDueDate(): string
+    public function PayTransfer($customVars)
     {
-        $now = new DateTime();
-        $days = $this->gateway->get_option('datedue');
 
-        if (is_scalar($days) && (int)$days <= 0) {
-            $days = 14;
+        if (isset($customVars['CustomerFirstName'])) {
+            $this->setCustomVar('customerFirstName', $customVars['CustomerFirstName']);
         }
-        $now->modify('+' . $days . ' day');
-        return $now->format('Y-m-d');
+        if (isset($customVars['CustomerLastName'])) {
+            $this->setCustomVar('customerLastName', $customVars['CustomerLastName']);
+        }
+        if (isset($customVars['Customeremail'])) {
+            $this->setCustomVar('customeremail', $customVars['Customeremail']);
+        }
+        if (isset($customVars['DateDue'])) {
+            $this->setCustomVar('DateDue', $customVars['DateDue']);
+        }
+        if (isset($customVars['CustomerCountry'])) {
+            $this->setCustomVar('customercountry', $customVars['CustomerCountry']);
+        }
+        $this->setCustomVar('SendMail', $customVars['SendMail']);
+
+        return parent::Pay($customVars);
     }
 
-    protected function canSendEmail(): bool
+    public function Pay($customVars = array())
     {
-        return $this->gateway->get_option('sendmail') == 'TRUE';
+        return null;
     }
 }

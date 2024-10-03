@@ -6,6 +6,7 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class IdealGateway extends AbstractPaymentGateway
 {
+
     const PAYMENT_CLASS = IdealProcessor::class;
 
     public function __construct()
@@ -22,6 +23,19 @@ class IdealGateway extends AbstractPaymentGateway
     }
 
     /**
+     * Can the order be refunded
+     *
+     * @param integer $order_id
+     * @param integer $amount defaults to null
+     * @param string $reason
+     * @return callable|string function or error
+     */
+    public function process_refund($order_id, $amount = null, $reason = '')
+    {
+        return $this->processDefaultRefund($order_id, $amount, $reason);
+    }
+
+    /**
      * Validate frontend fields.
      *
      * Validate payment fields on the frontend.
@@ -31,7 +45,7 @@ class IdealGateway extends AbstractPaymentGateway
     public function validate_fields()
     {
         if ($this->canShowIssuers()) {
-            $issuer = $this->request->input('buckaroo-ideal-issuer');
+            $issuer = $this->request('buckaroo-ideal-issuer');
 
             if ($issuer === null) {
                 wc_add_notice(__('<strong>iDEAL bank </strong> is a required field.', 'wc-buckaroo-bpe-gateway'), 'error');
@@ -45,6 +59,31 @@ class IdealGateway extends AbstractPaymentGateway
     public function canShowIssuers()
     {
         return $this->get_option('show_issuers') !== 'no';
+    }
+
+    /**
+     * Process payment
+     *
+     * @param integer $order_id
+     * @return callable fn_buckaroo_process_response()
+     */
+    function process_payment($order_id)
+    {
+        $order = getWCOrder($order_id);
+        /** @var IdealProcessor */
+        $ideal = $this->createDebitRequest($order);
+
+        if ($this->canShowIssuers()) {
+            $ideal->issuer = $this->request('buckaroo-ideal-issuer');
+        }
+
+        $response = $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $ideal);
+        if ($response) {
+            return $response;
+        }
+
+        $response = $ideal->Pay();
+        return fn_buckaroo_process_response($this, $response);
     }
 
     /**

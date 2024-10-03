@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Transfer;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo_Order_Details;
 
 class TransferGateway extends AbstractPaymentGateway
 {
@@ -10,8 +11,6 @@ class TransferGateway extends AbstractPaymentGateway
     public $datedue;
     public $sendemail;
     public $showpayproc;
-
-    protected array $supportedCurrencies = ['EUR', 'GBP', 'PLN'];
 
     public function __construct()
     {
@@ -23,6 +22,61 @@ class TransferGateway extends AbstractPaymentGateway
 
         parent::__construct();
         $this->addRefundSupport();
+    }
+
+    /**
+     * Can the order be refunded
+     *
+     * @param integer $order_id
+     * @param integer $amount defaults to null
+     * @param string $reason
+     * @return callable|string function or error
+     */
+    public function process_refund($order_id, $amount = null, $reason = '')
+    {
+        return $this->processDefaultRefund($order_id, $amount, $reason);
+    }
+
+    /**
+     * Process payment
+     *
+     * @param integer $order_id
+     * @return callable fn_buckaroo_process_response()
+     */
+    public function process_payment($order_id)
+    {
+        $order = getWCOrder($order_id);
+        /** @var TransferProcessor */
+        $transfer = $this->createDebitRequest($order);
+        $order_details = new Buckaroo_Order_Details($order);
+
+        $customVars = array(
+            'CustomerFirstName' => $order_details->getBilling('first_name'),
+            'CustomerLastName' => $order_details->getBilling('last_name'),
+            'Customeremail' => $order_details->getBilling('email'),
+            'CustomerCountry' => $order_details->getBilling('country'),
+            'SendMail' => $this->sendemail,
+        );
+
+        if ((int)$this->datedue > -1) {
+            $customVars['DateDue'] = date('Y-m-d', strtotime('now + ' . (int)$this->datedue . ' day'));
+        } else {
+            $customVars['DateDue'] = date('Y-m-d', strtotime('now + 14 day'));
+        }
+
+        $response = $transfer->PayTransfer($customVars);
+        return fn_buckaroo_process_response($this, $response);
+    }
+
+    /**
+     * Check response data
+     *
+     * @access public
+     */
+    public function response_handler()
+    {
+        fn_buckaroo_process_response($this);
+        exit;
     }
 
     /**
@@ -97,6 +151,5 @@ class TransferGateway extends AbstractPaymentGateway
         parent::setProperties();
         $this->datedue = $this->get_option('datedue');
         $this->sendemail = $this->get_option('sendmail');
-        $this->showpayproc = $this->get_option('showpayproc') == 'TRUE';
     }
 }

@@ -7,7 +7,39 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 class PayByBankProcessor extends AbstractPaymentProcessor
 {
     private const SESSION_LAST_ISSUER_LABEL = 'buckaroo_last_payByBank_issuer';
+    public $issuer;
+    protected $data;
 
+    /**
+     * @access public
+     */
+    public function __construct()
+    {
+        $this->type = 'PayByBank';
+        $this->version = 2;
+    }
+
+    /**
+     * @access public
+     * @return array $issuerArray
+     */
+    public static function getIssuerLogoUrls()
+    {
+
+        $issuers = self::getIssuerList();
+        $logos = array();
+
+        foreach ($issuers as $code => $issuer) {
+            $logos[$code] = esc_url(plugin_dir_url(BK_PLUGIN_FILE) . '/library/buckaroo_images/ideal/' . $issuer['logo']);
+        }
+
+        return $logos;
+    }
+
+    /**
+     * @access public
+     * @return array $issuerArray
+     */
     public static function getIssuerList()
     {
         $savedBankIssuer = self::getActiveIssuerCode();
@@ -43,10 +75,10 @@ class PayByBankProcessor extends AbstractPaymentProcessor
             'NTSBDEB1' => array(
                 'name' => 'N26',
                 'logo' => 'n26.svg',
-            )
+            ),
         );
 
-        $issuers = [];
+        $issuers = array();
 
         foreach ($issuerArray as $key => $issuer) {
             $issuer['selected'] = $key === $savedBankIssuer;
@@ -65,23 +97,22 @@ class PayByBankProcessor extends AbstractPaymentProcessor
         return WC()->session->get(self::SESSION_LAST_ISSUER_LABEL);
     }
 
-    protected function getMethodBody(): array
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::Pay();
+     */
+    public function Pay($customVars = array())
     {
-        return [
-            'issuer' => $this->request->input('buckaroo-paybybank-issuer')
-        ];
-    }
+        WC()->session->set(self::SESSION_LAST_ISSUER_LABEL, $this->issuer);
 
-    public static function getIssuerLogoUrls()
-    {
-        $issuers = self::getIssuerList();
-        $logos = array();
-
-        foreach ($issuers as $code => $issuer) {
-            $logos[$code] = esc_url(plugin_dir_url(BK_PLUGIN_FILE) . "/library/buckaroo_images/ideal/" . $issuer['logo']);
+        if ($this->issuer === 'INGBNL2A' && function_exists('wp_is_mobile') && wp_is_mobile()) {
+            $this->type = 'ideal'; // send ideal request if issuer is ING and is on mobile
         }
-
-        return $logos;
+        $this->setCustomVar(
+            'issuer',
+            $this->issuer
+        );
+        return parent::Pay();
     }
-
 }

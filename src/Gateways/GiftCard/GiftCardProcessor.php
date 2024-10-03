@@ -3,21 +3,33 @@
 namespace Buckaroo\Woocommerce\Gateways\GiftCard;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use BuckarooConfig;
 
 class GiftCardProcessor extends AbstractPaymentProcessor
 {
-    /** @inheritDoc */
-    public function getAction(): string
-    {
-        return 'payRedirect';
-    }
+    public $cardtype = '';
 
-    /** @inheritDoc */
-    protected function getMethodBody(): array
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::Pay()
+     */
+    public function Pay($customVars = array())
     {
-        return [
-            'continueOnIncomplete' => '1',
-            'servicesSelectableByClient' => $this->gateway->get_option('giftcards', '')
-        ];
+
+        $servicesSelectableByClient = BuckarooConfig::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS');
+
+        if (!empty($customVars['servicesSelectableByClient'])) {
+            $servicesSelectableByClient = $customVars['servicesSelectableByClient'];
+        }
+        $this->setCustomVarWithoutType(
+            array(
+                'servicesSelectableByClient' => $servicesSelectableByClient,
+                'continueOnIncomplete' => 'RedirectToHTML',
+            )
+        );
+
+        $this->data['services'] = array();
+        return parent::PayGlobal();
     }
 }
