@@ -479,7 +479,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                         ),
                         'error'
                     );
-                } elseif ($payment_method instanceof WC_Gateway_Buckaroo_Giftcard && $response->statuscode == BuckarooAbstract::CODE_FAILED) {
+                } elseif ($payment_method instanceof \Buckaroo\Woocommerce\Gateways\GiftCard\GiftCardGateway && $response->statuscode == BuckarooAbstract::CODE_FAILED) {
                     if ($response->statusmessage == 'Failed') {
                         wc_add_notice(
                             sprintf(
