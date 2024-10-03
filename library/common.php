@@ -514,7 +514,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     Buckaroo_Logger::log('wc session after: ' . var_export(WC()->session, true));
                     if (WooV3Plus()) {
                         if ($order->get_billing_country() == 'NL') {
-                            if (strrpos($response->ChannelError, ': ') !== false) {
+                            if (!empty($response->ChannelError) && is_string($response->ChannelError) && strrpos($response->ChannelError, ': ') !== false) {
                                 $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
                                 Buckaroo_Logger::log('||| failed status message: ' . $error_description);
                                 wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
@@ -522,7 +522,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                         }
                     } else {
                         if ($order->billing_country == 'NL') {
-                            if (strrpos($response->ChannelError, ': ') !== false) {
+                            if (!empty($response->ChannelError) && is_string($response->ChannelError) && strrpos($response->ChannelError, ': ') !== false) {
                                 $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
                                 wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
                             }
