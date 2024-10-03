@@ -3,12 +3,11 @@
 namespace Buckaroo\Woocommerce\Gateways\Przelewy24;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo_Order_Details;
 
 class Przelewy24Gateway extends AbstractPaymentGateway
 {
     const PAYMENT_CLASS = Przelewy24Processor::class;
-
-    protected array $supportedCurrencies = ['PLN'];
 
     public function __construct()
     {
@@ -21,5 +20,40 @@ class Przelewy24Gateway extends AbstractPaymentGateway
 
         parent::__construct();
         $this->addRefundSupport();
+    }
+
+    /**
+     * Can the order be refunded
+     *
+     * @param integer $order_id
+     * @param integer $amount defaults to null
+     * @param string $reason
+     * @return callable|string function or error
+     */
+    public function process_refund($order_id, $amount = null, $reason = '')
+    {
+        return $this->processDefaultRefund($order_id, $amount, $reason, true);
+    }
+
+    /**
+     * Process payment
+     *
+     * @param integer $order_id
+     * @return callable fn_buckaroo_process_response()
+     */
+    public function process_payment($order_id)
+    {
+        $order = getWCOrder($order_id);
+        /** @var Przelewy24Processor */
+        $p24 = $this->createDebitRequest($order);
+        $order_details = new Buckaroo_Order_Details($order);
+        $response = $p24->Pay(
+            array(
+                'Customeremail' => $order_details->getBilling('email'),
+                'CustomerFirstName' => $order_details->getBilling('first_name'),
+                'CustomerLastName' => $order_details->getBilling('last_name'),
+            )
+        );
+        return fn_buckaroo_process_response($this, $response);
     }
 }

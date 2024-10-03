@@ -2,10 +2,11 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
-
+use ApplePayController;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo\Woocommerce\Services\Helper;
-use Buckaroo\Woocommerce\Services\Logger;
+use Buckaroo_Logger;
+use BuckarooAbstract;
+use BuckarooApplepay;
 use Exception;
 use Throwable;
 use WC_Order;
@@ -38,11 +39,24 @@ class ApplepayGateway extends AbstractPaymentGateway
     {
         $namespace = 'woocommerce_api_wc_gateway_buckaroo_applepay';
 
-        add_action("{$namespace}-get-items-from-detail-page", array(ApplepayController::class, 'getItemsFromDetailPage'));
-        add_action("{$namespace}-get-items-from-cart", array(ApplepayController::class, 'getItemsFromCart'));
-        add_action("{$namespace}-get-shipping-methods", array(ApplepayController::class, 'getShippingMethods'));
-        add_action("{$namespace}-get-shop-information", array(ApplepayController::class, 'getShopInformation'));
+        add_action("{$namespace}-get-items-from-detail-page", array(ApplePayController::class, 'getItemsFromDetailPage'));
+        add_action("{$namespace}-get-items-from-cart", array(ApplePayController::class, 'getItemsFromCart'));
+        add_action("{$namespace}-get-shipping-methods", array(ApplePayController::class, 'getShippingMethods'));
+        add_action("{$namespace}-get-shop-information", array(ApplePayController::class, 'getShopInformation'));
         add_action("{$namespace}-create-transaction", array($this, 'createTransaction'));
+    }
+
+    /**
+     * Can the order be refunded
+     *
+     * @param integer $order_id
+     * @param integer $amount defaults to null
+     * @param string $reason
+     * @return callable|string function or error
+     */
+    public function process_refund($order_id, $amount = null, $reason = '')
+    {
+        return $this->processDefaultRefund($order_id, $amount, $reason, true);
     }
 
     /**
@@ -52,15 +66,15 @@ class ApplepayGateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        Helper::resetOrder();
+        resetOrder();
         return;
     }
 
     public function createTransaction()
     {
-        Logger::log(__METHOD__ . '|1|', $_POST);
+        Buckaroo_Logger::log(__METHOD__ . '|1|', $_POST);
 
-        $this->paymentData = $this->request->input('paymentData');
+        $this->paymentData = $this->request('paymentData');
 
         if (!is_array($this->paymentData)) {
             $this->error_response('ApplePay data is invalid.');
@@ -75,16 +89,16 @@ class ApplepayGateway extends AbstractPaymentGateway
             $this->error_response('ApplePay data is invalid.');
         }
 
-        $items = $this->request->input('items');
+        $items = $this->request('items');
         if ($items === null || !is_array($items)) {
             $this->error_response('ApplePay data is invalid.');
         }
 
-        $shipping_method = $this->request->input('selected_shipping_method');
+        $shipping_method = $this->request('selected_shipping_method');
         if ($shipping_method === null || !is_scalar($shipping_method)) {
             $this->error_response('Invalid shipping method.');
         }
-        $amount = $this->request->input('amount');
+        $amount = $this->request('amount');
         if ($amount === null || !is_scalar($amount)) {
             $this->error_response('Invalid amount.');
         }
@@ -149,7 +163,7 @@ class ApplepayGateway extends AbstractPaymentGateway
 
     public function createOrder($billing_addresses, $shipping_addresses, $items, $selected_method_id)
     {
-        Logger::log(__METHOD__ . '|1|');
+        Buckaroo_Logger::log(__METHOD__ . '|1|');
 
         $order = wc_create_order();
 
@@ -248,7 +262,7 @@ class ApplepayGateway extends AbstractPaymentGateway
 
             update_post_meta($order->get_id(), '_payment_method', $this->id);
             update_post_meta($order->get_id(), '_payment_method_title', $this->title);
-            $this->setOrderContribution($order);
+            $this->set_order_contribution($order);
 
             $order->calculate_totals();
             $order->update_status('pending payment', 'Order created using Apple pay', true);
@@ -349,7 +363,7 @@ class ApplepayGateway extends AbstractPaymentGateway
         );
     }
 
-    private function setOrderContribution(WC_Order $order)
+    private function set_order_contribution(WC_Order $order)
     {
         $prefix = (string)apply_filters(
             'wc_order_attribution_tracking_field_prefix',
@@ -365,6 +379,38 @@ class ApplepayGateway extends AbstractPaymentGateway
         $order->add_meta_data($prefix . 'source_type', 'typein');
         $order->add_meta_data($prefix . 'utm_source', '(direct)');
         $order->save();
+    }
+
+    /**
+     * Process payment
+     *
+     * @param integer $order_id
+     * @return callable fn_buckaroo_process_response()
+     */
+    public function process_payment($order_id)
+    {
+        $order = getWCOrder($order_id);
+        /** @var BuckarooApplepay */
+        $applepay = $this->createDebitRequest($order);
+
+        $customVars = array();
+        $customVars['PaymentData'] = base64_encode(json_encode($this->paymentData['token']));
+        $customVars['CustomerCardName'] = $this->CustomerCardName;
+
+        $response = $applepay->Pay($customVars);
+        $buckaroo_response = fn_buckaroo_process_response($this, $response);
+
+        if ($response->status === BuckarooAbstract::STATUS_COMPLETED) {
+            $order->update_status('processing', 'Order paid with Apple pay');
+        } else {
+            $buckaroo_response = array(
+                'status' => 'fail',
+                'message' => $response->message,
+            );
+        }
+
+        echo json_encode($buckaroo_response);
+        exit;
     }
 
     /**
@@ -434,34 +480,5 @@ class ApplepayGateway extends AbstractPaymentGateway
             }
         }
         $this->form_fields = $new_form_fields;
-    }
-
-    public function handleHooks()
-    {
-        $afterpayButtons = new ApplepayButtons();
-        $afterpayButtons->loadActions();
-
-        $destinationDir = ABSPATH . '.well-known';
-        $destinationFile = $destinationDir . '/apple-developer-merchantid-domain-association';
-        $sourceFile = plugin_dir_path(BK_PLUGIN_FILE) . 'assets/apple-developer-merchantid-domain-association';
-
-        /**
-         * Ensure the Apple Developer Domain Association file exists.
-         * Creates the necessary directories and copies the association file if it doesn't exist.
-         */
-        if (!file_exists($destinationFile)) {
-            if (!is_dir($destinationDir)) {
-                if (!mkdir($destinationDir, 0775, true) && !is_dir($destinationDir)) {
-                    // Handle the error appropriately, e.g., log it or throw an exception
-                    error_log("Failed to create directory: {$destinationDir}");
-                    return;
-                }
-            }
-
-            if (!copy($sourceFile, $destinationFile)) {
-                // Handle the error appropriately, e.g., log it or throw an exception
-                error_log("Failed to copy {$sourceFile} to {$destinationFile}");
-            }
-        }
     }
 }

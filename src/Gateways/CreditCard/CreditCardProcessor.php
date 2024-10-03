@@ -3,58 +3,129 @@
 namespace Buckaroo\Woocommerce\Gateways\CreditCard;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use BuckarooPaymentMethod;
 
 class CreditCardProcessor extends AbstractPaymentProcessor
 {
 
-    /** @inheritDoc */
-    public function getAction(): string
+    public function __construct()
     {
-        if ($this->isAuthorization()) {
-            if (get_post_meta($this->get_order()->get_id(), '_wc_order_authorized', true) == 'yes') {
-                return 'capture';
-            }
-
-            return $this->isEncripted() ? 'authorizeEncrypted' : 'authorize';
-        }
-
-        if ($this->isEncripted()) {
-            return 'payEncrypted';
-        }
-        return parent::getAction();
+        $this->version = 1;
     }
 
-    private function isAuthorization(): bool
+    /**
+     * @access public
+     * @return callable parent::Refund()
+     */
+    public function Refund()
     {
-        return $this->gateway->get_option('creditcardpayauthorize', 'pay') === 'authorize';
+        $this->setType(
+            get_post_meta($this->getRealOrderId(), '_wc_order_payment_issuer', true)
+        );
+        return parent::Refund();
     }
 
-    private function isEncripted(): bool
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::PayGlobal()
+     */
+    public function Pay($customVars = array())
     {
-        return
-            ($this->request->input('creditcard-issuer') ?: null) !== null &&
-            ($this->request->input('encrypted-data') ?: null) !== null;
+
+        $this->setServiceTypeActionAndVersion(
+            $customVars['CreditCardIssuer'],
+            'Pay',
+            BuckarooPaymentMethod::VERSION_ZERO
+        );
+
+        // add the flag
+        update_post_meta($this->getRealOrderId(), '_wc_order_authorized', 'yes');
+
+        return $this->PayGlobal();
     }
 
-    /** @inheritDoc */
-    protected function getMethodBody(): array
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::PayGlobal()
+     */
+    public function AuthorizeCC($customVars, $order)
     {
-        $body = [
-            'name' => $this->request->input($this->gateway->id . '-creditcard-issuer', '') ?: get_post_meta($this->get_order()->get_id(), '_payment_method_transaction', true),
-        ];
 
-        if ($this->isEncripted()) {
-            $encryptedData = $this->request->input($this->gateway->id . '-encrypted-data') ?: get_post_meta($this->get_order()->get_id(), '_payload_encrypted_card_data', true);
-            add_post_meta($this->get_order()->get_id(), '_payload_encrypted_card_data', $encryptedData, true);
+        $this->setServiceTypeActionAndVersion(
+            $customVars['CreditCardIssuer'],
+            'Authorize',
+            BuckarooPaymentMethod::VERSION_ZERO
+        );
 
-            $body = array_merge(
-                $body,
-                [
-                    'encryptedCardData' => $encryptedData
-                ]
-            );
-        }
+        // add the flag
+        update_post_meta($order->get_id(), '_wc_order_authorized', 'yes');
 
-        return $body;
+        return $this->PayGlobal();
+    }
+
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::PayGlobal()
+     */
+    public function Capture($customVars = array())
+    {
+
+        $this->setServiceTypeActionAndVersion(
+            $customVars['CreditCardIssuer'],
+            'Capture',
+            BuckarooPaymentMethod::VERSION_ZERO
+        );
+
+        return $this->CaptureGlobal();
+    }
+
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::PayGlobal()
+     */
+    public function PayEncrypt($customVars = array())
+    {
+
+        $this->setServiceTypeActionAndVersion(
+            $customVars['CreditCardIssuer'],
+            'PayEncrypted',
+            BuckarooPaymentMethod::VERSION_ZERO
+        );
+
+        $this->setCustomVar(
+            'EncryptedCardData',
+            $customVars['CreditCardDataEncrypted']
+        );
+
+        return $this->PayGlobal();
+    }
+
+    /**
+     * @access public
+     * @param array $customVars
+     * @return callable parent::PayGlobal()
+     */
+    public function AuthorizeEncrypt($customVars, $order)
+    {
+
+        $this->setServiceTypeActionAndVersion(
+            $customVars['CreditCardIssuer'],
+            'AuthorizeEncrypted',
+            BuckarooPaymentMethod::VERSION_ZERO
+        );
+
+        $this->setCustomVar(
+            'EncryptedCardData',
+            $customVars['CreditCardDataEncrypted']
+        );
+
+        // add the flag
+        update_post_meta($order->get_id(), '_wc_order_authorized', 'yes');
+
+        return $this->PayGlobal();
     }
 }
