@@ -2,152 +2,222 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
-use Buckaroo\Transaction\Response\TransactionResponse;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
-use Buckaroo\Woocommerce\Order\OrderDetails;
+use BuckarooPaymentMethod;
+use Exception;
 
 class AfterpayOldProcessor extends AbstractPaymentProcessor
 {
-    public function getAction(): string
+    public $BillingInitials;
+    public $BillingLastName;
+    public $BillingBirthDate;
+    public $BillingStreet;
+    public $BillingHouseNumber;
+    public $BillingHouseNumberSuffix;
+    public $BillingPostalCode;
+    public $BillingCity;
+    public $BillingCountry;
+    public $BillingEmail;
+    public $BillingPhoneNumber;
+    public $BillingLanguage;
+    public $AddressesDiffer;
+    public $ShippingInitials;
+    public $ShippingLastName;
+    public $ShippingBirthDate;
+    public $ShippingStreet;
+    public $ShippingHouseNumber;
+    public $ShippingHouseNumberSuffix;
+    public $ShippingPostalCode;
+    public $ShippingCity;
+    public $ShippingCountryCode;
+    public $ShippingEmail;
+    public $ShippingPhoneNumber;
+    public $ShippingLanguage;
+    public $ShippingCosts;
+    public $CustomerAccountNumber;
+    public $CustomerIPAddress;
+    public $Accept;
+    public $B2B;
+    public $CompanyCOCRegistration;
+    public $CompanyName;
+    public $CostCentre;
+    public $VatNumber;
+
+    /**
+     * @access public
+     * @param string $type
+     */
+    public function __construct($type = 'afterpaydigiaccept')
     {
-        if ($this->isAuthorization()) {
-            if (get_post_meta($this->get_order()->get_id(), '_wc_order_authorized', true) == 'yes') {
-                return 'capture';
+        $this->type = $type;
+        $this->version = '1';
+    }
+
+    /**
+     * @access public
+     * @param array $customVars
+     * @return void
+     */
+    public function Pay($customVars = array())
+    {
+        return null;
+    }
+
+    /**
+     * @access public
+     * @param array $products
+     * @return callable parent::Pay();
+     */
+    public function PayOrAuthorizeAfterpay($products, $action)
+    {
+        $this->data['customVars'][$this->type]['BillingInitials'] = $this->BillingInitials;
+        $this->data['customVars'][$this->type]['BillingLastName'] = $this->BillingLastName;
+        $this->data['customVars'][$this->type]['BillingBirthDate'] = ($this->B2B) ? '01-01-1900' : $this->BillingBirthDate;
+        $this->data['customVars'][$this->type]['BillingStreet'] = $this->BillingStreet;
+        $this->data['customVars'][$this->type]['BillingHouseNumber'] = isset($this->BillingHouseNumber) ? $this->BillingHouseNumber . ' ' : $this->BillingHouseNumber;
+        $this->data['customVars'][$this->type]['BillingHouseNumberSuffix'] = $this->BillingHouseNumberSuffix;
+        $this->data['customVars'][$this->type]['BillingPostalCode'] = $this->BillingPostalCode;
+        $this->data['customVars'][$this->type]['BillingCity'] = $this->BillingCity;
+        $this->data['customVars'][$this->type]['BillingCountry'] = $this->BillingCountry;
+        $this->data['customVars'][$this->type]['BillingEmail'] = $this->BillingEmail;
+        $this->data['customVars'][$this->type]['BillingPhoneNumber'] = $this->BillingPhoneNumber;
+        $this->data['customVars'][$this->type]['BillingLanguage'] = $this->BillingLanguage;
+        $this->data['customVars'][$this->type]['AddressesDiffer'] = $this->AddressesDiffer;
+        if ($this->AddressesDiffer == 'TRUE') {
+            $this->setCommonShippingInfo();
+        }
+        if ($this->B2B == 'TRUE') {
+            $this->data['customVars'][$this->type]['B2B'] = $this->B2B;
+            $this->data['customVars'][$this->type]['CompanyCOCRegistration'] = $this->CompanyCOCRegistration;
+            $this->data['customVars'][$this->type]['CompanyName'] = $this->CompanyName;
+            $this->data['customVars'][$this->type]['CostCentre'] = $this->CostCentre;
+            $this->data['customVars'][$this->type]['VatNumber'] = $this->VatNumber;
+        }
+        $this->data['customVars'][$this->type]['ShippingLanguage'] = $this->ShippingLanguage;
+        if ($this->type == 'afterpayacceptgiro') {
+            $this->data['customVars'][$this->type]['CustomerAccountNumber'] = $this->CustomerAccountNumber;
+        }
+        if ($this->ShippingCosts > 0) {
+            $this->data['customVars'][$this->type]['ShippingCosts'] = $this->ShippingCosts;
+        }
+        $this->data['customVars'][$this->type]['CustomerIPAddress'] = $this->CustomerIPAddress;
+        $this->data['customVars'][$this->type]['Accept'] = $this->Accept;
+
+        foreach ($products as $pos => $product) {
+            if (isset($product['type']) && $product['type'] === 'shipping') {
+                continue;
             }
 
-            return 'authorize';
+            $this->setDefaultProductParams($product, $pos);
         }
 
-        return parent::getAction();
+        $this->setCommonShippingInfo();
+
+        return parent::$action();
     }
 
-    private function isAuthorization(): bool
+    private function setCommonShippingInfo()
     {
-        return $this->gateway->get_option('afterpaypayauthorize', 'pay') === 'authorize';
+        $this->data['customVars'][$this->type]['ShippingInitials'] = $this->ShippingInitials ?? $this->BillingInitials;
+        $this->data['customVars'][$this->type]['ShippingLastName'] = $this->ShippingLastName ?? $this->BillingLastName;
+        $this->data['customVars'][$this->type]['ShippingBirthDate'] = $this->ShippingBirthDate;
+        $this->data['customVars'][$this->type]['ShippingStreet'] = $this->ShippingStreet;
+        $this->data['customVars'][$this->type]['ShippingHouseNumber'] = isset($this->ShippingHouseNumber) ? $this->ShippingHouseNumber . ' ' : $this->ShippingHouseNumber;
+        $this->data['customVars'][$this->type]['ShippingHouseNumberSuffix'] = $this->ShippingHouseNumberSuffix;
+        $this->data['customVars'][$this->type]['ShippingPostalCode'] = $this->ShippingPostalCode;
+        $this->data['customVars'][$this->type]['ShippingCity'] = $this->ShippingCity;
+        $this->data['customVars'][$this->type]['ShippingCountryCode'] = $this->ShippingCountryCode;
+        $this->data['customVars'][$this->type]['ShippingEmail'] = $this->ShippingEmail;
+        $this->data['customVars'][$this->type]['ShippingPhoneNumber'] = $this->ShippingPhoneNumber;
+        $this->data['customVars'][$this->type]['ShippingLanguage'] = $this->ShippingLanguage;
     }
 
-    protected function getMethodBody(): array
+    private function setDefaultProductParams($product, $position)
     {
-        return array_merge_recursive(
-            [
-                'customerIPAddress' => $this->getIp()
-            ],
-            $this->getBillingData(),
-            $this->getShippingData(),
-            ['articles' => $this->getArticles()]
+
+        $productData = array(
+            'ArticleDescription' => $product['description'],
+            'ArticleId' => $product['identifier'],
+            'ArticleQuantity' => $product['quantity'],
+            'ArticleUnitprice' => $product['price'],
+            'ArticleVatcategory' => $product['vatCategory'],
+
+        );
+
+        $this->setCustomVarsAtPosition(
+            $productData,
+            $position,
+            'Article'
         );
     }
 
-    protected function getBillingData(): array
+    /**
+     * Populate generic fields for a refund
+     *
+     * @access public
+     * * @param array $products
+     * @return callable $this->RefundGlobal()
+     */
+    public function AfterPayRefund($products, $issuer)
     {
-        $streetParts = $this->order_details->get_billing_address_components();
-        $country_code = $this->getAddress('billing', 'country');
-        $data = [
-            'billing' => [
-                'recipient' => [
-                    'firstName' => $this->getAddress('billing', 'first_name'),
-                    'lastName' => $this->getAddress('billing', 'last_name'),
-                    'initials' => $this->order_details->get_initials(
-                        $this->order_details->get_full_name('shipping')
-                    ),
-                    'culture' => $country_code
-                ],
-                'address' => [
-                    'street' => $streetParts->get_street(),
-                    'houseNumber' => $streetParts->get_house_number(),
-                    'houseNumberAdditional' => $streetParts->get_number_additional(),
-                    'zipcode' => $this->getAddress('billing', 'postcode'),
-                    'city' => $this->getAddress('billing', 'city'),
-                    'country' => $country_code,
-                ],
-                'phone' => [
-                    'mobile' => $this->getPhone($this->order_details->get_billing_phone()),
-                ],
-                'email' => $this->getAddress('billing', 'email')
-            ]
-        ];
-        return array_merge_recursive(
-            $data,
-            $this->getBirthDate($country_code)
+        $this->setServiceTypeActionAndVersion(
+            $issuer,
+            'Refund',
+            BuckarooPaymentMethod::VERSION_ONE
         );
+
+        // Refunds have to be done on the captures (if authorize/capture is enabled)
+        $i = 1;
+        $this->setProducts($products, $i);
+
+        return $this->RefundGlobal();
     }
 
-    private function getPhone(string $phone): string
+    private function setProducts($products, $i)
     {
-        return $this->request->input('buckaroo-afterpaynew-phone', $phone);
-    }
-
-    protected function getBirthDate(string $country_code, string $type = 'billing'): array
-    {
-        if (in_array($country_code, ['NL', 'BE'])) {
-            return [
-                $type => [
-                    'recipient' => [
-                        'birthDate' => $this->getFormatedDate(),
-                    ]
-                ]
-            ];
+        foreach ($products as $p) {
+            $this->data['customVars'][$this->type]['ArticleDescription'][$i - 1]['value'] = $p['ArticleDescription'];
+            $this->data['customVars'][$this->type]['ArticleDescription'][$i - 1]['group'] = $i;
+            $this->data['customVars'][$this->type]['ArticleId'][$i - 1]['value'] = $p['ArticleId'];
+            $this->data['customVars'][$this->type]['ArticleId'][$i - 1]['group'] = $i;
+            $this->data['customVars'][$this->type]['ArticleQuantity'][$i - 1]['value'] = $p['ArticleQuantity'];
+            $this->data['customVars'][$this->type]['ArticleQuantity'][$i - 1]['group'] = $i;
+            $this->data['customVars'][$this->type]['ArticleUnitprice'][$i - 1]['value'] = $p['ArticleUnitprice'];
+            $this->data['customVars'][$this->type]['ArticleUnitprice'][$i - 1]['group'] = $i;
+            $this->data['customVars'][$this->type]['ArticleVatcategory'][$i - 1]['value'] = $p['ArticleVatcategory'];
+            $this->data['customVars'][$this->type]['ArticleVatcategory'][$i - 1]['group'] = $i;
+            ++$i;
         }
-        return [];
     }
 
-    private function getFormatedDate()
+    /**
+     * @access public
+     * @param array $customVars
+     * @param array $products
+     * @return callable parent::PayGlobal()
+     */
+    public function Capture($customVars = array(), $products = array())
     {
-        $dateString = $this->request->input('buckaroo-afterpaynew-birthdate');
-        if (!is_scalar($dateString)) {
-            return null;
-        }
-        $date = strtotime((string)$dateString);
-        if ($date === false) {
-            return null;
-        }
-
-        return @date("d-m-Y", $date);
-    }
-
-    protected function getShippingData(): array
-    {
-        $streetParts = $this->order_details->get_shipping_address_components();
-        $country_code = $this->getAddress('shipping', 'country');
-
-        $data = [
-            'shipping' => [
-                'recipient' => [
-                    'firstName' => $this->getAddress('shipping', 'first_name'),
-                    'lastName' => $this->getAddress('shipping', 'last_name'),
-                    'initials' => $this->order_details->get_initials(
-                        $this->order_details->get_full_name('shipping')
-                    )
-                ],
-                'address' => [
-                    'street' => $streetParts->get_street(),
-                    'houseNumber' => $streetParts->get_house_number(),
-                    'houseNumberAdditional' => $streetParts->get_number_additional(),
-                    'zipcode' => $this->getAddress('shipping', 'postcode'),
-                    'city' => $this->getAddress('shipping', 'city'),
-                    'country' => $country_code,
-                ],
-            ],
-        ];
-        return array_merge_recursive(
-            $data,
-            $this->getBirthDate($country_code, 'shipping')
+        $this->setServiceTypeActionAndVersion(
+            $customVars['payment_issuer'],
+            'Capture',
+            BuckarooPaymentMethod::VERSION_ONE
         );
+
+        $i = 1;
+        $this->setProducts($products, $i);
+
+        return $this->CaptureGlobal();
     }
 
-    protected function getArticles(): array
+    /**
+     * @access public
+     * @param $data array
+     * @return callable parent::checkRefundData($data);
+     * @throws Exception
+     */
+    public function checkRefundData($data)
     {
-        return $this->order_articles->get_products_for_payment();
-    }
-
-
-    public function afterProcessPayment(OrderDetails $orderDetails, TransactionResponse $transactionResponse)
-    {
-        return array(
-            'on-error-message' => __(
-                "We are sorry to inform you that the request to pay afterwards with Riverty | AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty | AfterPay. Or you can visit the website of Riverty | AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
-                'wc-buckaroo-bpe-gateway'
-            ),
-        );
+        $this->checkRefundDataAp($data);
     }
 }

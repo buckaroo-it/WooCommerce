@@ -22,6 +22,19 @@ class PayByBankGateway extends AbstractPaymentGateway
     }
 
     /**
+     * Can the order be refunded
+     *
+     * @param integer $order_id
+     * @param integer $amount defaults to null
+     * @param string $reason
+     * @return callable|string function or error
+     */
+    public function process_refund($order_id, $amount = null, $reason = '')
+    {
+        return $this->processDefaultRefund($order_id, $amount, $reason);
+    }
+
+    /**
      * Validate frontend fields.
      *
      * Validate payment fields on the frontend.
@@ -30,7 +43,7 @@ class PayByBankGateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        $issuer = $this->request->input('buckaroo-paybybank-issuer');
+        $issuer = $this->request('buckaroo-paybybank-issuer');
 
         if ($issuer === null) {
             wc_add_notice(__('<strong>PayByBank </strong> is a required field.', 'wc-buckaroo-bpe-gateway'), 'error');
@@ -38,6 +51,28 @@ class PayByBankGateway extends AbstractPaymentGateway
             wc_add_notice(__('A valid PayByBank is required.', 'wc-buckaroo-bpe-gateway'), 'error');
         }
         parent::validate_fields();
+    }
+
+    /**
+     * Process payment
+     *
+     * @param integer $order_id
+     * @return callable fn_buckaroo_process_response()
+     */
+    function process_payment($order_id)
+    {
+        $order = getWCOrder($order_id);
+        /** @var PayByBankProcessor */
+        $payByBank = $this->createDebitRequest($order);
+        $payByBank->issuer = $this->request('buckaroo-paybybank-issuer');
+
+        $response = $this->apply_filters_or_error('buckaroo_before_payment_request', $order, $payByBank);
+        if ($response) {
+            return $response;
+        }
+
+        $response = $payByBank->Pay();
+        return fn_buckaroo_process_response($this, $response);
     }
 
     public function init_form_fields()

@@ -3,17 +3,12 @@
 namespace Buckaroo\Woocommerce\Gateways\In3;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
-use Buckaroo\Woocommerce\Order\OrderArticles;
-use Buckaroo\Woocommerce\Order\OrderDetails;
-use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
-use Buckaroo\Woocommerce\Services\Helper;
-use Buckaroo\Woocommerce\Traits\HasDateValidation;
+use Buckaroo_Http_Request;
+use Buckaroo_Order_Details;
+use WC_Order;
 
 class In3Gateway extends AbstractPaymentGateway
 {
-    use HasDateValidation;
-
     const PAYMENT_CLASS = In3Processor::class;
     public const VERSION_FLAG = 'buckaroo_in3_version';
     public const VERSION3 = 'v3';
@@ -37,7 +32,7 @@ class In3Gateway extends AbstractPaymentGateway
 
         parent::__construct();
 
-        $this->setIcons();
+        $this->set_icons();
         $this->addRefundSupport();
     }
 
@@ -51,7 +46,7 @@ class In3Gateway extends AbstractPaymentGateway
      *
      * @return void
      */
-    private function setIcons()
+    private function set_icons()
     {
         if (
             $this->get_option('api_version') === 'v2'
@@ -62,9 +57,17 @@ class In3Gateway extends AbstractPaymentGateway
         $this->setIcon('svg/in3-ideal.svg', 'svg/in3-ideal.svg');
     }
 
-    public function getServiceCode(?AbstractProcessor $processor = null)
+    /**
+     * Can the order be refunded
+     *
+     * @param integer $order_id
+     * @param integer $amount defaults to null
+     * @param string $reason
+     * @return callable|string function or error
+     */
+    public function process_refund($order_id, $amount = null, $reason = '', $line_item_qtys = null, $line_item_totals = null, $line_item_tax_totals = null, $originalTransactionKey = null)
     {
-        return $this->get_option('api_version') === self::VERSION2 ? 'in3Old' : 'in3';
+        return $this->processDefaultRefund($order_id, $amount, $reason);
     }
 
     /**
@@ -75,9 +78,9 @@ class In3Gateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        $birthdate = $this->request->input('buckaroo-in3-birthdate');
+        $birthdate = $this->request('buckaroo-in3-birthdate');
 
-        $country = $this->request->input('billing_country');
+        $country = $this->request('billing_country');
         if ($country === null) {
             $country = $this->country;
         }
@@ -87,8 +90,8 @@ class In3Gateway extends AbstractPaymentGateway
         }
 
         if (
-            $this->request->input('billing_phone') === null &&
-            $this->request->input('buckaroo-in3-phone') === null
+            $this->request('billing_phone') === null &&
+            $this->request('buckaroo-in3-phone') === null
         ) {
             wc_add_notice(
                 sprintf(
@@ -102,24 +105,93 @@ class In3Gateway extends AbstractPaymentGateway
         parent::validate_fields();
     }
 
-
+    /**
+     * Process payment
+     *
+     * @param integer $order_id
+     * @return callable|void fn_buckaroo_process_response() or void
+     */
     public function process_payment($order_id)
     {
-        if ($this->get_option('api_version') === 'v2') {
-            return (new PayAction($this->getV2Payload((int)$order_id), $order_id))->process();
+        $this->setOrderCapture($order_id, 'In3');
+
+        $order = getWCOrder($order_id);
+
+        $version = $this->get_option('api_version');
+        update_post_meta(
+            $order->get_id(),
+            self::VERSION_FLAG,
+            $version
+        );
+
+        if ($version === self::VERSION2) {
+            return $this->pay_with_v2($order);
         }
-        return parent::process_payment($order_id);
+
+        $order_details = new Buckaroo_Order_Details($order);
+        /** @var In3Processor */
+        $in3 = $this->createDebitRequest($order);
+        $in3->setData(
+            $order_details,
+            $this->get_products_for_payment($order_details),
+            new Buckaroo_Http_Request()
+        );
+
+        $response = $in3->pay();
+        return fn_buckaroo_process_response($this, $response);
     }
 
-    private function getV2Payload(int $order_id)
+    /**
+     * Pay with old version
+     *
+     * @param WC_Order $order
+     *
+     * @return void
+     */
+    private function pay_with_v2($order)
     {
-        $order = Helper::findOrder($order_id);
 
-        return new In3V2Processor(
-            $this,
-            $order_details = new OrderDetails($order),
-            new OrderArticles($order_details, $this)
+        /** @var In3V2Processor */
+        $in3 = $this->createDebitRequest($order);
+
+        $order_details = new Buckaroo_Order_Details($order);
+
+        $birthdate = date('Y-m-d', strtotime($this->request('buckaroo-in3-birthdate')));
+
+        $in3 = $this->get_billing_info($order_details, $in3, $birthdate);
+
+        $response = $in3->PayIn3(
+            $this->get_products_for_payment($order_details),
+            'PayInInstallments'
         );
+        return fn_buckaroo_process_response($this, $response, $this->mode);
+    }
+
+    /**
+     * Get billing info for pay request
+     *
+     * @param Buckaroo_Order_Details $order_details
+     * @param In3Processor $method
+     * @param string $birthdate
+     *
+     * @return In3V2Processor  $method
+     */
+    protected function get_billing_info($order_details, $method, $birthdate)
+    {
+        /** @var In3V2Processor */
+        $method = $this->set_billing($method, $order_details);
+        $method->BillingInitials = $order_details->getInitials(
+            $order_details->getBilling('first_name')
+        );
+        $method->BillingBirthDate = date('Y-m-d', strtotime($birthdate));
+
+        $phone = $this->request('buckaroo-in3-phone');
+
+        if (is_scalar($phone) && trim(strlen((string)$phone)) > 0) {
+            $method->BillingPhoneNumber = $phone;
+        }
+
+        return $method;
     }
 
     /**
@@ -144,6 +216,67 @@ class In3Gateway extends AbstractPaymentGateway
         );
     }
 
+    /**
+     * Create custom logo selector
+     *
+     * @param mixed $key
+     * @param mixed $data
+     *
+     * @return void
+     */
+    public function generate_in3_logo_html($key, $data)
+    {
+        $field_key = $this->get_field_key($key);
+        $defaults = array(
+            'title' => '',
+            'disabled' => false,
+            'class' => '',
+            'css' => '',
+            'placeholder' => '',
+            'type' => 'text',
+            'desc_tip' => false,
+            'description' => '',
+            'custom_attributes' => array(),
+            'options' => array(),
+        );
+
+        $data = wp_parse_args($data, $defaults);
+        $value = $this->get_option($key);
+
+        ob_start();
+        ?>
+        <tr valign="top">
+            <th scope="row" class="titledesc">
+                <label for="<?php echo esc_attr($field_key); ?>"><?php echo wp_kses_post($data['title']); ?><?php
+                    echo $this->get_tooltip_html($data); // WPCS: XSS ok.
+                    ?>
+                </label>
+            </th>
+            <td>
+                <fieldset>
+                    <div class="bk-in3-logo-wrap">
+                        <legend class="screen-reader-text"><span><?php echo wp_kses_post($data['title']); ?></span>
+                        </legend>
+                        <?php foreach ((array)$data['options'] as $option_key => $option_value) : ?>
+                            <label class="bk-in3-logo" for="bk-logo-<?php echo esc_attr($option_key); ?>">
+                                <input type="radio" id="bk-logo-<?php echo esc_attr($option_key); ?>"
+                                       name="<?php echo esc_attr($field_key); ?>"
+                                       value="<?php echo esc_attr($option_key); ?>" <?php checked((string)$option_key, esc_attr($value)); ?>>
+                                <img src="<?php echo esc_url($option_value); ?>" /
+                                alt="<?php echo esc_attr($option_key); ?>">
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php
+                    echo $this->get_description_html($data); // WPCS: XSS ok.
+                    ?>
+                </fieldset>
+            </td>
+        </tr>
+        <?php
+
+        return ob_get_clean();
+    }
 
     /**  @inheritDoc */
     protected function setProperties()
@@ -151,5 +284,37 @@ class In3Gateway extends AbstractPaymentGateway
         parent::setProperties();
         $this->type = 'in3';
         $this->vattype = $this->get_option('vattype');
+    }
+
+    /**
+     * Select the correct class in order to do the request
+     *
+     * @param WC_Order $order
+     * @param boolean $isRefund
+     *
+     * @return void
+     */
+    protected function get_payment_class($order, $isRefund = false)
+    {
+        if ($isRefund) {
+            $orderIn3Version = get_post_meta(
+                $order->get_id(),
+                self::VERSION_FLAG,
+                true
+            );
+
+            if ($orderIn3Version === self::VERSION3) {
+                return In3Processor::class;
+            }
+            return In3V2Processor::class;
+        }
+
+        if (
+            $this->get_option('api_version') === self::VERSION2
+        ) {
+            return In3V2Processor::class;
+        }
+
+        return In3Processor::class;
     }
 }
