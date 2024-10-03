@@ -23,6 +23,8 @@ if ( isset( $_GET['buckaroo_download_log_file'] ) && is_string( $_GET['buckaroo_
 	Buckaroo_Logger_Storage::downloadFile( $report_name );
 }
 
+
+require_once __DIR__ . "/vendor/autoload.php";
 require_once __DIR__ . '/library/Buckaroo_Logger.php';
 require_once __DIR__ . '/library/Buckaroo_Order_Fee.php';
 require_once __DIR__ . '/library/Buckaroo_Cron_Events.php';
@@ -111,9 +113,9 @@ function buckaroo_payment_setup_scripts() {
 			'buckaroo_certificate_management_js',
 			'buckaroo_php_vars',
 			array(
-				'version2' => WC_Gateway_Buckaroo_In3::VERSION2,
-				'in3_v2'   => WC_Gateway_Buckaroo_In3::IN3_V2_TITLE,
-				'in3_v3'   => WC_Gateway_Buckaroo_In3::IN3_V3_TITLE,
+				'version2' => \Buckaroo\Woocommerce\Gateways\In3\In3Gateway::VERSION2,
+				'in3_v2'   => \Buckaroo\Woocommerce\Gateways\In3\In3Gateway::IN3_V2_TITLE,
+				'in3_v3'   => \Buckaroo\Woocommerce\Gateways\In3\In3Gateway::IN3_V3_TITLE,
 			)
 		);
 	}
@@ -125,7 +127,7 @@ function buckaroo_payment_setup_scripts() {
 }
 
 function get_type() {
-	return ( new WC_Gateway_Buckaroo_Afterpay() )->type;
+	return ( new \Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway() )->type;
 }
 
 function get_credtCard_is_secure() {
@@ -481,7 +483,10 @@ function buckaroo_init_gateway() {
     $gateway_loader = new Buckaroo_Load_Gateways();
 	$gateway_loader->load();
 
-	add_filter( 'woocommerce_payment_gateways', array( $gateway_loader, 'hook_gateways_to_woocommerce' ) );
+    $plugin = new Buckaroo\Woocommerce\Core\Plugin();
+    $gatewayLoader = $plugin->registerGateways();
+
+	add_filter( 'woocommerce_payment_gateways', array( $gatewayLoader, 'hook_gateways_to_woocommerce' ) );
 
 	require_once __DIR__ . '/library/wp-actions/ApplePayButtons.php';
 	( new ApplePayButtons() )->loadActions();
@@ -516,7 +521,7 @@ function buckaroo_init_gateway() {
 
 	require_once __DIR__ . '/gateway-buckaroo-payperemail.php';
 	function buckaroo_send_admin_payperemail( $order ) {
-		$gateway = new WC_Gateway_Buckaroo_PayPerEmail();
+		$gateway = new \Buckaroo\Woocommerce\Gateways\PayPerEmail\PayPerEmailGateway();
 		if ( isset( $gateway ) ) {
 			$response = $gateway->process_payment( $order->get_id() );
 			wp_redirect( $response );
@@ -526,7 +531,7 @@ function buckaroo_init_gateway() {
 	add_action( 'woocommerce_order_action_buckaroo_send_admin_payperemail', 'buckaroo_send_admin_payperemail', 10, 1 );
 
 	function buckaroo_create_paylink( $order ) {
-		$gateway = new WC_Gateway_Buckaroo_PayPerEmail();
+		$gateway = new \Buckaroo\Woocommerce\Gateways\PayPerEmail\PayPerEmailGateway();
 		if ( isset( $gateway ) ) {
 			$response = $gateway->process_payment( $order->get_id(), 1 );
 			wp_redirect( $response );
@@ -597,20 +602,16 @@ function orderCapture() {
 
 	switch ( $paymentMethod ) {
 		case 'Afterpay':
-			require_once __DIR__ . '/gateway-buckaroo-afterpay.php';
-			$gateway = new WC_Gateway_Buckaroo_Afterpay();
+			$gateway = new \Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway();
 			break;
 		case 'Afterpaynew':
-			require_once __DIR__ . '/gateway-buckaroo-afterpaynew.php';
-			$gateway = new WC_Gateway_Buckaroo_Afterpaynew();
+			$gateway = new \Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway();
 			break;
 		case 'Creditcard':
-			require_once __DIR__ . '/gateway-buckaroo-creditcard.php';
-			$gateway = new WC_Gateway_Buckaroo_Creditcard();
+			$gateway = new \Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway();
 			break;
 		case 'KlarnaKp':
-			require_once __DIR__ . '/gateway-buckaroo-creditcard.php';
-			$gateway = new WC_Gateway_Buckaroo_KlarnaKp();
+			$gateway = new \Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway();
 			break;
 	}
 
