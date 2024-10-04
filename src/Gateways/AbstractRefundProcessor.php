@@ -2,12 +2,13 @@
 
 namespace Buckaroo\Woocommerce\Gateways;
 
-use Buckaroo\Woocommerce\Order\OrderDetails;
+use Buckaroo\Woocommerce\Components\OrderDetails;
 use WC_Order;
 use WC_Payment_Gateway;
 
-class AbstractRefundProcessor extends AbstractProcessor
+class AbstractRefundProcessor extends WC_Payment_Gateway
 {
+    public AbstractPaymentGateway $gateway;
 
     protected OrderDetails $order_details;
 
@@ -39,6 +40,26 @@ class AbstractRefundProcessor extends AbstractProcessor
     }
 
     /**
+     * Get request mode: test|live
+     *
+     * @return string
+     */
+    public function request_mode(): string
+    {
+        return $this->gateway->get_option('mode');
+    }
+
+    /**
+     * Get payment code required for sdk
+     *
+     * @return string
+     */
+    public function getServiceCode(): string
+    {
+        return $this->gateway->getServiceCode();
+    }
+
+    /**
      * Get request body
      *
      * @return array
@@ -61,7 +82,7 @@ class AbstractRefundProcessor extends AbstractProcessor
                 ],
 
                 'description' => $this->reason,
-                'clientIP' => $this->getIp(),
+                'clientIP' => $this->get_ip(),
             ]
         );
     }
@@ -107,5 +128,35 @@ class AbstractRefundProcessor extends AbstractProcessor
     private function get_push_url(): string
     {
         return add_query_arg('wc-api', 'wc_push_buckaroo', home_url('/'));
+    }
+
+    /**
+     * Get ip
+     *
+     * @return string
+     */
+    private function get_ip(): string
+    {
+        $ipaddress = '';
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED'])) {
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+        } elseif (!empty($_SERVER['HTTP_FORWARDED_FOR'])) {
+            $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+        } elseif (!empty($_SERVER['HTTP_FORWARDED'])) {
+            $ipaddress = $_SERVER['HTTP_FORWARDED'];
+        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+            $ipaddress = $_SERVER['REMOTE_ADDR'];
+        } else {
+            $ipaddress = 'UNKNOWN';
+        }
+        $ex = explode(",", sanitize_text_field($ipaddress));
+        if (filter_var($ex[0], FILTER_VALIDATE_IP)) {
+            return trim($ex[0]);
+        }
+        return "";
     }
 }

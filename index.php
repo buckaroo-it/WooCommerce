@@ -173,7 +173,7 @@ function get_woocommerce_payment_methods(): array {
 				$payment_method['b2b']  = $gateway->b2b;
 				$payment_method['type'] = get_type();
 			}
-			if ( $gateway_id === 'buckaroo_creditcard' ) {
+            if (str_starts_with($gateway_id, 'buckaroo_creditcard')) {
 				$payment_method['creditCardIssuers']  = $gateway->getCardsList();
 				$payment_method['creditCardMethod']   = $gateway->get_option( 'creditcardmethod' );
 				$payment_method['creditCardIsSecure'] = get_credtCard_is_secure();
@@ -374,7 +374,7 @@ function buckaroo_deactivation() {
 }
 
 function buckaroo_push_class_init() {
-	new WC_Push_Buckaroo();
+    new \Buckaroo\Woocommerce\PaymentProcessors\PushProcessor();
 	exit();
 }
 

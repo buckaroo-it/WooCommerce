@@ -20,11 +20,6 @@ class KlarnaKpProcessor extends AbstractPaymentProcessor
      */
     protected $request;
 
-    public function __construct()
-    {
-        $this->type = 'klarnakp';
-        $this->version = 0;
-    }
 
     /**
      * Reserve order

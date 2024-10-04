@@ -15,7 +15,6 @@ use Buckaroo\Woocommerce\Gateways\GiftCard\GiftCardGateway;
 use Buckaroo\Woocommerce\Gateways\Ideal\IdealGateway;
 use Buckaroo\Woocommerce\Gateways\In3\In3Gateway;
 use Buckaroo\Woocommerce\Gateways\Kbc\KbcGateway;
-use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPiiGateway;
@@ -47,7 +46,6 @@ class PaymentGatewayRegistry
         'giftcard' => ['gateway_class' => GiftCardGateway::class],
         'in3' => ['gateway_class' => In3Gateway::class],
         'kbc' => ['gateway_class' => KbcGateway::class],
-        'klarna' => ['gateway_class' => KlarnaGateway::class],
         'klarnakp' => ['gateway_class' => KlarnaKpGateway::class],
         'klarnapay' => ['gateway_class' => KlarnaPayGateway::class],
         'klarnapii' => ['gateway_class' => KlarnaPiiGateway::class],
@@ -194,9 +192,9 @@ class PaymentGatewayRegistry
         }
 
         foreach ($gatewayNames as $name) {
-            $class = 'WC_Gateway_Buckaroo_' . ucfirst($name);
+            $class = $this->get_creditcard_methods()[$name . '_creditcard']['gateway_class'] ?? null;
+
             if (class_exists($class)) {
-                var_dump(class_exists($class));
                 (new $class())->update_option('enabled', 'yes');
             }
         }

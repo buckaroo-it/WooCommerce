@@ -12,15 +12,6 @@ class IdealProcessor extends AbstractPaymentProcessor
 
     /**
      * @access public
-     */
-    public function __construct()
-    {
-        $this->type = 'ideal';
-        $this->version = 2;
-    }
-
-    /**
-     * @access public
      * @return array $issuerArray
      */
     public static function getIssuerList()
@@ -86,22 +77,20 @@ class IdealProcessor extends AbstractPaymentProcessor
         return $issuerArray;
     }
 
-    /**
-     * @access public
-     * @param array $customVars
-     * @return callable parent::Pay();
-     */
-    public function Pay($customVars = array())
+    protected function getMethodBody(): array
     {
-
-        if (is_string($this->issuer)) {
-            $this->setCustomVar(
-                'issuer',
-                $this->issuer
-            );
-        } else {
-            $this->setCustomVarWithoutType(array('continueOnIncomplete' => 'RedirectToHTML'));
+        if (!$this->showIssuers()) {
+            return [
+                'continueOnIncomplete' => true
+            ];
         }
-        return parent::Pay();
+        return [
+            'issuer' => $this->request_string('buckaroo-ideal-issuer')
+        ];
+    }
+
+    private function showIssuers(): bool
+    {
+        return $this->gateway->get_option('show_issuers') !== 'no';
     }
 }
