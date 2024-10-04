@@ -28,6 +28,7 @@ class SingleCreditCardGateway extends CreditCardGateway
     public function setCreditcardIcon()
     {
         $name = str_replace('buckaroo_creditcard_', '', $this->id);
+
         if ($name === 'cartebleuevisa') {
             $name = 'cartebleue';
         }
@@ -109,5 +110,11 @@ class SingleCreditCardGateway extends CreditCardGateway
         $this->updateList(
             $this->get_option('enabled', 'no') === 'yes'
         );
+    }
+
+
+    public function getServiceCode()
+    {
+        return str_replace("buckaroo_creditcard_", "", $this->id);
     }
 }
