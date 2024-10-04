@@ -3,7 +3,6 @@
 namespace Buckaroo\Woocommerce\Gateways\Billink;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo_Order_Details;
 use DateTime;
 
 class BillinkGateway extends AbstractPaymentGateway
@@ -70,114 +69,6 @@ class BillinkGateway extends AbstractPaymentGateway
         return $d && ($d->format($format) == $date);
     }
 
-    /**
-     * Process payment
-     *
-     * @param integer $order_id
-     * @return callable|void fn_buckaroo_process_response() or void
-     */
-    public function process_payment($order_id)
-    {
-        $this->setOrderCapture($order_id, 'Billink');
-
-        $order = getWCOrder($order_id);
-        /** @var BillinkProcessor */
-        $billink = $this->createDebitRequest($order);
-        $billink->invoiceId = (string)getUniqInvoiceId(
-            preg_replace('/\./', '-', $order->get_order_number())
-        );
-
-        $order_details = new Buckaroo_Order_Details($order);
-        $billink->B2B = $order_details->getBilling('company');
-
-        $billink->setCategory(!empty($billink->B2B) ? 'B2B' : 'B2C');
-        $billink->setCompany(!empty($billink->B2B) ? $billink->B2B : '');
-
-        if ($billink->B2B) {
-            $billink->CompanyCOCRegistration = $this->request('buckaroo-billink-company-coc-registration');
-            $var_number = $this->request('buckaroo-billink-VatNumber');
-            if ($var_number !== null) {
-                $billink->VatNumber = $var_number;
-            }
-        } else {
-            $billink->BillingBirthDate = $this->request('buckaroo-billink-birthdate');
-
-        }
-
-        $billink = $this->getBillingInfo($order_details, $billink);
-        $billink = $this->getShippingInfo($order_details, $billink);
-
-        $billink->CustomerIPAddress = getClientIpBuckaroo();
-        $billink->Accept = 'TRUE';
-        $billink->returnUrl = $this->notify_url;
-
-        $response = $billink->PayOrAuthorizeBillink(
-            $this->get_products_for_payment($order_details),
-            'Pay'
-        );
-        return fn_buckaroo_process_response($this, $response, $this->mode);
-    }
-
-    /**
-     * Get billing info for pay request
-     *
-     * @param Buckaroo_Order_Details $order_details
-     * @param BillinkProcessor $method
-     * @param string $birthdate
-     *
-     * @return BillinkProcessor  $method
-     */
-    protected function getBillingInfo($order_details, $method)
-    {
-        /** @var BillinkProcessor */
-        $method = $this->set_billing($method, $order_details);
-        $method->BillingGender = $this->request('buckaroo-billink-gender');
-        $method->setBillingFirstName(
-            $order_details->getBilling('first_name')
-        );
-        $method->BillingInitials = $order_details->getInitials(
-            $method->getBillingFirstName()
-        );
-
-        return $method;
-    }
-
-    /**
-     * Get shipping info for pay request
-     *
-     * @param Buckaroo_Order_Details $order_details
-     * @param BillinkProcessor $method
-     *
-     * @return BillinkProcessor $method
-     */
-    protected function getShippingInfo($order_details, $method)
-    {
-        $method->AddressesDiffer = 'FALSE';
-        if ($this->request('buckaroo-billink-shipping-differ') !== null) {
-            $method->AddressesDiffer = 'TRUE';
-
-            /** @var BillinkProcessor */
-            $method = $this->set_shipping($method, $order_details);
-            $method->ShippingFirstName = $order_details->getShipping('first_name');
-            $method->ShippingInitials = $order_details->getInitials(
-                $method->ShippingFirstName
-            );
-        }
-        return $method;
-    }
-
-    /**
-     * Can the order be refunded
-     *
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_refund($order_id, $amount = null, $reason = '')
-    {
-        return $this->processDefaultRefund($order_id, $amount, $reason);
-    }
 
     /** @inheritDoc */
     public function init_form_fields()
