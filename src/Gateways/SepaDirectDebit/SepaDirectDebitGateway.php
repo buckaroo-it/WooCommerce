@@ -3,7 +3,6 @@
 namespace Buckaroo\Woocommerce\Gateways\SepaDirectDebit;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use BuckarooConfig;
 
 class SepaDirectDebitGateway extends AbstractPaymentGateway
 {
@@ -19,27 +18,6 @@ class SepaDirectDebitGateway extends AbstractPaymentGateway
 
         parent::__construct();
         $this->addRefundSupport();
-    }
-
-    /**
-     * Can the order be refunded
-     *
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_refund($order_id, $amount = null, $reason = '')
-    {
-        return $this->processDefaultRefund(
-            $order_id,
-            $amount,
-            $reason,
-            false,
-            function ($request) {
-                $request->channel = BuckarooConfig::CHANNEL_BACKOFFICE;
-            }
-        );
     }
 
     /**
@@ -64,43 +42,5 @@ class SepaDirectDebitGateway extends AbstractPaymentGateway
         }
 
         parent::validate_fields();
-    }
-
-    /**
-     * Process payment
-     *
-     * @param integer $order_id
-     * @return callable fn_buckaroo_process_response()
-     */
-    public function process_payment($order_id)
-    {
-
-        $order = getWCOrder($order_id);
-        /** @var SepaDirectDebitProcessor */
-        $sepadirectdebit = $this->createDebitRequest($order);
-
-        if (!$sepadirectdebit->isIBAN($this->request('buckaroo-sepadirectdebit-iban'))) {
-            wc_add_notice(__('Wrong IBAN number', 'wc-buckaroo-bpe-gateway'), 'error');
-            return;
-        }
-
-        $sepadirectdebit->customeraccountname = $this->request('buckaroo-sepadirectdebit-accountname');
-        $sepadirectdebit->CustomerBIC = $this->request('buckaroo-sepadirectdebit-bic');
-        $sepadirectdebit->CustomerIBAN = $this->request('buckaroo-sepadirectdebit-iban');
-
-        $sepadirectdebit->returnUrl = $this->notify_url;
-        $response = $sepadirectdebit->PayDirectDebit();
-        return fn_buckaroo_process_response($this, $response, $this->mode);
-    }
-
-    /**
-     * Check response data
-     *
-     * @access public
-     */
-    public function response_handler()
-    {
-        fn_buckaroo_process_response($this);
-        exit;
     }
 }

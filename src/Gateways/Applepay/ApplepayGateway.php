@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
-use ApplePayController;
+
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo_Logger;
 use BuckarooAbstract;
@@ -39,24 +39,11 @@ class ApplepayGateway extends AbstractPaymentGateway
     {
         $namespace = 'woocommerce_api_wc_gateway_buckaroo_applepay';
 
-        add_action("{$namespace}-get-items-from-detail-page", array(ApplePayController::class, 'getItemsFromDetailPage'));
-        add_action("{$namespace}-get-items-from-cart", array(ApplePayController::class, 'getItemsFromCart'));
-        add_action("{$namespace}-get-shipping-methods", array(ApplePayController::class, 'getShippingMethods'));
-        add_action("{$namespace}-get-shop-information", array(ApplePayController::class, 'getShopInformation'));
+        add_action("{$namespace}-get-items-from-detail-page", array(ApplepayController::class, 'getItemsFromDetailPage'));
+        add_action("{$namespace}-get-items-from-cart", array(ApplepayController::class, 'getItemsFromCart'));
+        add_action("{$namespace}-get-shipping-methods", array(ApplepayController::class, 'getShippingMethods'));
+        add_action("{$namespace}-get-shop-information", array(ApplepayController::class, 'getShopInformation'));
         add_action("{$namespace}-create-transaction", array($this, 'createTransaction'));
-    }
-
-    /**
-     * Can the order be refunded
-     *
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_refund($order_id, $amount = null, $reason = '')
-    {
-        return $this->processDefaultRefund($order_id, $amount, $reason, true);
     }
 
     /**
@@ -262,7 +249,7 @@ class ApplepayGateway extends AbstractPaymentGateway
 
             update_post_meta($order->get_id(), '_payment_method', $this->id);
             update_post_meta($order->get_id(), '_payment_method_title', $this->title);
-            $this->set_order_contribution($order);
+            $this->setOrderContribution($order);
 
             $order->calculate_totals();
             $order->update_status('pending payment', 'Order created using Apple pay', true);
@@ -363,7 +350,7 @@ class ApplepayGateway extends AbstractPaymentGateway
         );
     }
 
-    private function set_order_contribution(WC_Order $order)
+    private function setOrderContribution(WC_Order $order)
     {
         $prefix = (string)apply_filters(
             'wc_order_attribution_tracking_field_prefix',
@@ -379,38 +366,6 @@ class ApplepayGateway extends AbstractPaymentGateway
         $order->add_meta_data($prefix . 'source_type', 'typein');
         $order->add_meta_data($prefix . 'utm_source', '(direct)');
         $order->save();
-    }
-
-    /**
-     * Process payment
-     *
-     * @param integer $order_id
-     * @return callable fn_buckaroo_process_response()
-     */
-    public function process_payment($order_id)
-    {
-        $order = getWCOrder($order_id);
-        /** @var BuckarooApplepay */
-        $applepay = $this->createDebitRequest($order);
-
-        $customVars = array();
-        $customVars['PaymentData'] = base64_encode(json_encode($this->paymentData['token']));
-        $customVars['CustomerCardName'] = $this->CustomerCardName;
-
-        $response = $applepay->Pay($customVars);
-        $buckaroo_response = fn_buckaroo_process_response($this, $response);
-
-        if ($response->status === BuckarooAbstract::STATUS_COMPLETED) {
-            $order->update_status('processing', 'Order paid with Apple pay');
-        } else {
-            $buckaroo_response = array(
-                'status' => 'fail',
-                'message' => $response->message,
-            );
-        }
-
-        echo json_encode($buckaroo_response);
-        exit;
     }
 
     /**

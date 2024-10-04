@@ -3,129 +3,47 @@
 namespace Buckaroo\Woocommerce\Gateways\CreditCard;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
-use BuckarooPaymentMethod;
 
 class CreditCardProcessor extends AbstractPaymentProcessor
 {
 
-    public function __construct()
+    /** @inheritDoc */
+    public function getAction(): string
     {
-        $this->version = 1;
+        if ($this->isEncripted()) {
+            return 'payEncrypted';
+        }
+        return parent::getAction();
     }
 
-    /**
-     * @access public
-     * @return callable parent::Refund()
-     */
-    public function Refund()
+    private function isEncripted(): bool
     {
-        $this->setType(
-            get_post_meta($this->getRealOrderId(), '_wc_order_payment_issuer', true)
-        );
-        return parent::Refund();
+        return
+            $this->request_string('creditcard-issuer') !== null &&
+            $this->request_string('encrypted-data') !== null;
     }
 
-    /**
-     * @access public
-     * @param array $customVars
-     * @return callable parent::PayGlobal()
-     */
-    public function Pay($customVars = array())
+    /** @inheritDoc */
+    protected function getMethodBody(): array
     {
+        $body = [
+            'name' => $this->request_string('creditcard-issuer', ''),
+        ];
 
-        $this->setServiceTypeActionAndVersion(
-            $customVars['CreditCardIssuer'],
-            'Pay',
-            BuckarooPaymentMethod::VERSION_ZERO
-        );
+        if ($this->isEncripted()) {
+            $body = array_merge(
+                $body,
+                [
+                    'encryptedCardData' => $this->request_string('encrypted-data')
+                ]
+            );
+        }
 
-        // add the flag
-        update_post_meta($this->getRealOrderId(), '_wc_order_authorized', 'yes');
-
-        return $this->PayGlobal();
+        return $body;
     }
 
-    /**
-     * @access public
-     * @param array $customVars
-     * @return callable parent::PayGlobal()
-     */
-    public function AuthorizeCC($customVars, $order)
+    protected function request(string $key, $default = '')
     {
-
-        $this->setServiceTypeActionAndVersion(
-            $customVars['CreditCardIssuer'],
-            'Authorize',
-            BuckarooPaymentMethod::VERSION_ZERO
-        );
-
-        // add the flag
-        update_post_meta($order->get_id(), '_wc_order_authorized', 'yes');
-
-        return $this->PayGlobal();
-    }
-
-    /**
-     * @access public
-     * @param array $customVars
-     * @return callable parent::PayGlobal()
-     */
-    public function Capture($customVars = array())
-    {
-
-        $this->setServiceTypeActionAndVersion(
-            $customVars['CreditCardIssuer'],
-            'Capture',
-            BuckarooPaymentMethod::VERSION_ZERO
-        );
-
-        return $this->CaptureGlobal();
-    }
-
-    /**
-     * @access public
-     * @param array $customVars
-     * @return callable parent::PayGlobal()
-     */
-    public function PayEncrypt($customVars = array())
-    {
-
-        $this->setServiceTypeActionAndVersion(
-            $customVars['CreditCardIssuer'],
-            'PayEncrypted',
-            BuckarooPaymentMethod::VERSION_ZERO
-        );
-
-        $this->setCustomVar(
-            'EncryptedCardData',
-            $customVars['CreditCardDataEncrypted']
-        );
-
-        return $this->PayGlobal();
-    }
-
-    /**
-     * @access public
-     * @param array $customVars
-     * @return callable parent::PayGlobal()
-     */
-    public function AuthorizeEncrypt($customVars, $order)
-    {
-
-        $this->setServiceTypeActionAndVersion(
-            $customVars['CreditCardIssuer'],
-            'AuthorizeEncrypted',
-            BuckarooPaymentMethod::VERSION_ZERO
-        );
-
-        $this->setCustomVar(
-            'EncryptedCardData',
-            $customVars['CreditCardDataEncrypted']
-        );
-
-        // add the flag
-        update_post_meta($order->get_id(), '_wc_order_authorized', 'yes');
-
-        return $this->PayGlobal();
+        return parent::request($this->gateway->id . "-" . $key);
     }
 }
