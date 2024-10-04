@@ -3,7 +3,6 @@
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo_Order_Details;
 use Buckaroo_Order_Item;
 use DOMDocument;
 use DOMXPath;
@@ -73,93 +72,6 @@ class KlarnaGateway extends AbstractPaymentGateway
     public function getKlarnaSelector()
     {
         return str_replace('_', '-', $this->id);
-    }
-
-    /**
-     * Process payment
-     *
-     * @param integer $order_id
-     * @return callable|void fn_buckaroo_process_response() or void
-     */
-    public function process_payment($order_id)
-    {
-        $this->setOrderCapture($order_id, 'Klarna');
-
-        $order = getWCOrder($order_id);
-        /** @var KlarnaProcessor */
-        $klarna = $this->createDebitRequest($order);
-        $klarna->setType($this->type);
-
-        $klarna->invoiceId = (string)getUniqInvoiceId(
-            preg_replace('/\./', '-', $order->get_order_number())
-        );
-
-        $order_details = new Buckaroo_Order_Details($order);
-
-        $klarna = $this->get_billing_info($order_details, $klarna);
-        $klarna = $this->get_shipping_info($order_details, $klarna);
-        $klarna = $this->handleThirdPartyShippings($klarna, $order, $this->country);
-
-        $klarna->CustomerIPAddress = getClientIpBuckaroo();
-        $klarna->Accept = 'TRUE';
-
-        $klarna->returnUrl = $this->notify_url;
-
-        $klarna->setPaymentFlow($this->getKlarnaPaymentFlow());
-        $response = $klarna->paymentAction(
-            $this->get_products_for_payment($order_details)
-        );
-        return fn_buckaroo_process_response($this, $response, $this->mode);
-    }
-
-    /**
-     * Get billing info for pay request
-     *
-     * @param Buckaroo_Order_Details $order_details
-     * @param KlarnaProcessor $method
-     * @param string $birthdate
-     *
-     * @return KlarnaProcessor  $method
-     */
-    protected function get_billing_info($order_details, $method)
-    {
-        /** @var KlarnaProcessor */
-        $method = $this->set_billing($method, $order_details);
-        $method->BillingGender = $this->request($this->getKlarnaSelector() . '-gender') ?? 'Unknown';
-        $method->BillingFirstName = $order_details->getBilling('first_name');
-        if (empty($method->BillingPhoneNumber)) {
-            $method->BillingPhoneNumber = $this->request($this->getKlarnaSelector() . '-phone');
-        }
-
-        $billingCompany = $order_details->getBilling('company');
-        $method->setBillingCategory($billingCompany);
-        $method->setShippingCategory($billingCompany);
-
-        return $method;
-    }
-
-    /**
-     * Get shipping info for pay request
-     *
-     * @param Buckaroo_Order_Details $order_details
-     * @param KlarnaProcessor $method
-     *
-     * @return KlarnaProcessor $method
-     */
-    protected function get_shipping_info($order_details, $method)
-    {
-        $method->AddressesDiffer = 'FALSE';
-        if ($this->request($this->getKlarnaSelector() . '-shipping-differ')) {
-            $method->AddressesDiffer = 'TRUE';
-
-            $shippingCompany = $order_details->getShipping('company');
-            $method->setShippingCategory($shippingCompany);
-
-            /** @var KlarnaProcessor */
-            $method = $this->set_shipping($method, $order_details);
-            $method->ShippingFirstName = $order_details->getShipping('first_name');
-        }
-        return $method;
     }
 
     public function getKlarnaPaymentFlow()
