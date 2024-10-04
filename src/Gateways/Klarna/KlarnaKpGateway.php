@@ -81,24 +81,24 @@ class KlarnaKpGateway extends AbstractPaymentGateway
      * @param integer $order_id
      * @return callable|void fn_buckaroo_process_response() or void
      */
-    public function process_payment($order_id)
-    {
-
-        update_post_meta($order_id, '_wc_order_authorized', 'yes');
-        $this->setOrderCapture($order_id, 'KlarnaKp');
-
-        $order = getWCOrder($order_id);
-        /** @var KlarnaKpProcessor */
-        $klarna = $this->createDebitRequest($order);
-        return fn_buckaroo_process_response(
-            $this,
-            $klarna->reserve(
-                new Buckaroo_Order_Details($order),
-                new Buckaroo_Http_Request()
-            ),
-            $this->mode
-        );
-    }
+//    public function process_payment($order_id)
+//    {
+//
+//        update_post_meta($order_id, '_wc_order_authorized', 'yes');
+//        $this->setOrderCapture($order_id, 'KlarnaKp');
+//
+//        $order = getWCOrder($order_id);
+//        /** @var KlarnaKpProcessor */
+//        $klarna = $this->createDebitRequest($order);
+//        return fn_buckaroo_process_response(
+//            $this,
+//            $klarna->reserve(
+//                new Buckaroo_Order_Details($order),
+//                new Buckaroo_Http_Request()
+//            ),
+//            $this->mode
+//        );
+//    }
 
     /**
      * Send capture request

@@ -3,8 +3,8 @@
 namespace Buckaroo\Woocommerce\Gateways\Paypal;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo_Order_Details;
 use Buckaroo_Paypal_Express;
+use WC_Order;
 
 class PaypalGateway extends AbstractPaymentGateway
 {
@@ -28,19 +28,6 @@ class PaypalGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Can the order be refunded
-     *
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_refund($order_id, $amount = null, $reason = '')
-    {
-        return $this->processDefaultRefund($order_id, $amount, $reason);
-    }
-
-    /**
      * Process payment
      *
      * @param integer $order_id
@@ -48,45 +35,11 @@ class PaypalGateway extends AbstractPaymentGateway
      */
     public function process_payment($order_id)
     {
-        $order = getWCOrder($order_id);
-        /** @var PaypalProcessor */
-        $paypal = $this->createDebitRequest($order);
-        $order_details = new Buckaroo_Order_Details($order);
-
-        $customVars = array();
-
-        // set paypal express
-        if ($this->express_order_id !== null) {
-            $this->set_order_contribution($order);
-            $customVars = array_merge(
-                $customVars,
-                array('PayPalOrderId' => $this->express_order_id)
-            );
-        }
-
-        if ($this->sellerprotection == 'TRUE') {
-            $paypal->sellerprotection = 1;
-            $address = $order_details->getShippingAddressComponents();
-
-            $customVars = array_merge(
-                $customVars,
-                array(
-                    'CustomerName' => $order_details->getShipping('first_name') . ' ' . $order_details->getShipping('last_name'),
-                    'ShippingPostalCode' => $order_details->getShipping('postcode'),
-                    'ShippingCity' => $order_details->getShipping('city'),
-                    'ShippingStreet' => $address['street'],
-                    'ShippingHouse' => $address['house_number'],
-                    'StateOrProvince' => $order_details->getShipping('state'),
-                    'Country' => $order_details->getShipping('country'),
-                )
-            );
-        }
-        $response = $paypal->Pay($customVars);
-
-        return fn_buckaroo_process_response($this, $response);
+        $this->setOrderContribution(new WC_Order($order_id));
+        return parent::process_payment($order_id);
     }
 
-    private function set_order_contribution(WC_Order $order)
+    private function setOrderContribution(WC_Order $order)
     {
         $prefix = (string)apply_filters(
             'wc_order_attribution_tracking_field_prefix',
@@ -140,6 +93,11 @@ class PaypalGateway extends AbstractPaymentGateway
             ),
             'default' => 'none',
         );
+    }
+
+    public function get_express_order_id()
+    {
+        return $this->express_order_id;
     }
 
     /**
