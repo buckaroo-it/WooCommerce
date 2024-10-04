@@ -6,55 +6,54 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 
 class PayPerEmailProcessor extends AbstractPaymentProcessor
 {
-    /**
-     * @access public
-     */
-    public function __construct()
+    /** @inheritDoc */
+    public function getAction(): string
     {
-        $this->type = 'payperemail';
-        $this->version = 1;
+        return 'paymentInvitation';
     }
 
-    /**
-     * @access public
-     * @param array $customVars
-     * @return callable parent::Pay()
-     */
-    public function Pay($customVars = array())
+    /** @inheritDoc */
+    protected function getMethodBody(): array
     {
-        return null;
+        return [
+            'email' => $this->request_string(
+                'buckaroo-payperemail-email',
+                $this->getAddress('billing', 'email'),
+            ),
+            'customer' => [
+                'firstName' => $this->request_string(
+                    'buckaroo-payperemail-firstname',
+                    $this->getAddress('billing', 'first_name'),
+                ),
+                'lastName' => $this->request_string(
+                    'buckaroo-payperemail-lastname',
+                    $this->getAddress('billing', 'last_name'),
+                ),
+                'gender' => $this->request_string('buckaroo-payperemail-gender'),
+
+            ],
+            'expirationDate' => $this->getExpirationDate(),
+            'paymentMethodsAllowed' => $this->getAllowedMethods()
+        ];
     }
 
-    public function PaymentInvitation($customVars = array())
+    private function getExpirationDate(): string
     {
+        $payperemailExpireDays = $this->gateway->get_option('expirationDate');
 
-        $this->setServiceActionAndVersion('PaymentInvitation');
-
-        if (!empty($customVars['PaymentMethodsAllowed'])) {
-            $this->setCustomVar('PaymentMethodsAllowed', $customVars['PaymentMethodsAllowed']);
-        }
-
-        if (isset($customVars['CustomerGender'])) {
-            $this->setCustomVar('customergender', $customVars['CustomerGender']);
-        }
-        if (isset($customVars['CustomerFirstName'])) {
-            $this->setCustomVar('customerFirstName', $customVars['CustomerFirstName']);
-        }
-        if (isset($customVars['CustomerLastName'])) {
-            $this->setCustomVar('customerLastName', $customVars['CustomerLastName']);
-        }
-        if (isset($customVars['Customeremail'])) {
-            $this->setCustomVar('customeremail', $customVars['Customeremail']);
+        if (!is_scalar($payperemailExpireDays)) {
+            return '';
         }
 
-        if (isset($customVars['merchantSendsEmail'])) {
-            $this->setCustomVar('merchantSendsEmail', $customVars['merchantSendsEmail']);
-        }
+        return date('Y-m-d', time() + (int)$payperemailExpireDays * 86400);
+    }
 
-        if (isset($customVars['ExpirationDate'])) {
-            $this->setCustomVar('ExpirationDate', $customVars['ExpirationDate']);
+    private function getAllowedMethods(): string
+    {
+        $methods = $this->gateway->get_option('paymentmethodppe');
+        if (is_array($methods)) {
+            return implode(",", $methods);
         }
-
-        return $this->PayGlobal();
+        return '';
     }
 }
