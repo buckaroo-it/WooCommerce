@@ -7,7 +7,7 @@ use Buckaroo\Woocommerce\Components\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
-use Buckaroo_Http_Request;
+use Buckaroo\Woocommerce\Services\HttpRequest;
 use WC_Order;
 
 class In3Gateway extends AbstractPaymentGateway
@@ -121,7 +121,7 @@ class In3Gateway extends AbstractPaymentGateway
     {
         return new In3V2Processor(
             $this,
-            new Buckaroo_Http_Request(),
+            new HttpRequest(),
             $order_details = new OrderDetails(new WC_Order($order_id)),
             new OrderArticles($order_details, $this)
         );
