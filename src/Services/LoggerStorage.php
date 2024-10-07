@@ -16,6 +16,7 @@ namespace Buckaroo\Woocommerce\Services;
  */
 class LoggerStorage
 {
+
     const STORAGE_FILE = 'file';
     const STORAGE_DB = 'database';
     const STORAGE_ALL = 'all';
@@ -28,11 +29,6 @@ class LoggerStorage
         self::STORAGE_FILE,
         self::STORAGE_DB,
     );
-
-    public static function getStorage()
-    {
-        return Helper::get('logstorage') ?? LoggerStorage::STORAGE_FILE;
-    }
 
     /**
      * \Buckaroo\Woocommerce\Services\LoggerStorage Singleton
@@ -95,12 +91,12 @@ class LoggerStorage
      */
     public function log(string $locationId, $message)
     {
-        if (Helper::get('debugmode') != 'on') {
+        if (Config::get('BUCKAROO_DEBUG') != 'on') {
             return;
         }
 
         $message = $this->format_message($message);
-        $storage = static::getStorage();
+        $storage = Config::get('logstorage') ?? self::STORAGE_ALL;
         $method = $this->get_method_name($storage);
 
         $date = date('Y-m-d h:i:s');

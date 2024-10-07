@@ -3,7 +3,7 @@
 namespace Buckaroo\Woocommerce\Admin;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo_Logger_Storage;
+use Buckaroo\Woocommerce\Services\LoggerStorage;
 use WC_Tax;
 
 class PaymentMethodSettings extends AbstractPaymentGateway
@@ -133,11 +133,11 @@ class PaymentMethodSettings extends AbstractPaymentGateway
             'type' => 'select',
             'description' => __('Select where to store debug data', 'wc-buckaroo-bpe-gateway'),
             'options' => array(
-                Buckaroo_Logger_Storage::STORAGE_ALL => __('Both'),
-                Buckaroo_Logger_Storage::STORAGE_FILE => __('File'),
-                Buckaroo_Logger_Storage::STORAGE_DB => __('Database'),
+                LoggerStorage::STORAGE_ALL => __('Both'),
+                LoggerStorage::STORAGE_FILE => __('File'),
+                LoggerStorage::STORAGE_DB => __('Database'),
             ),
-            'default' => Buckaroo_Logger_Storage::STORAGE_ALL,
+            'default' => LoggerStorage::STORAGE_ALL,
         );
 
         $this->form_fields['transactiondescription'] = array(

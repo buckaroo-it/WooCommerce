@@ -3,7 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Paypal;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo_Paypal_Express;
+use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use WC_Order;
 
 class PaypalGateway extends AbstractPaymentGateway
@@ -86,10 +86,10 @@ class PaypalGateway extends AbstractPaymentGateway
             'type' => 'multiselect',
             'description' => __('Enable PayPal express for the following pages.', 'wc-buckaroo-bpe-gateway'),
             'options' => array(
-                Buckaroo_Paypal_Express::LOCATION_NONE => __('None', 'wc-buckaroo-bpe-gateway'),
-                Buckaroo_Paypal_Express::LOCATION_PRODUCT => __('Product page', 'wc-buckaroo-bpe-gateway'),
-                Buckaroo_Paypal_Express::LOCATION_CART => __('Cart page', 'wc-buckaroo-bpe-gateway'),
-                Buckaroo_Paypal_Express::LOCATION_CHECKOUT => __('Checkout page', 'wc-buckaroo-bpe-gateway'),
+                PaypalExpressController::LOCATION_NONE => __('None', 'wc-buckaroo-bpe-gateway'),
+                PaypalExpressController::LOCATION_PRODUCT => __('Product page', 'wc-buckaroo-bpe-gateway'),
+                PaypalExpressController::LOCATION_CART => __('Cart page', 'wc-buckaroo-bpe-gateway'),
+                PaypalExpressController::LOCATION_CHECKOUT => __('Checkout page', 'wc-buckaroo-bpe-gateway'),
             ),
             'default' => 'none',
         );
