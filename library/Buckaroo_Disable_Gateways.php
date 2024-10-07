@@ -19,7 +19,7 @@ class Buckaroo_Disable_Gateways {
 		add_filter( 'woocommerce_available_payment_gateways', array( $this, 'disable' ) );
 	}
 	public function disable( $available_gateways ) {
-		if ( ! BuckarooIdin::checkCurrentUserIsVerified() ) {
+        if (!\Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor::checkCurrentUserIsVerified()) {
 			return array();
 		}
 

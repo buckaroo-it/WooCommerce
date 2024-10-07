@@ -1,8 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../library/api/idin.php';
-
-if ( BuckarooIdin::checkCurrentUserIsVerified() ) {
+if (\Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor::checkCurrentUserIsVerified()) {
 	?>
 	<div id="buckaroo_idin" class="buckaroo-idin buckaroo-idin-passed form-row">
 		<h3 id="buckaroo_idin_heading"><?php esc_html_e( 'Age verification', 'wc-buckaroo-bpe-gateway' ); ?></h3>
@@ -36,7 +34,7 @@ if ( BuckarooIdin::checkCurrentUserIsVerified() ) {
 						<option value='0' style='color: grey !important'>
 							<?php esc_html_e( 'Select your bank', 'wc-buckaroo-bpe-gateway' ); ?>
 						</option>
-						<?php foreach ( BuckarooIdin::getIssuerList() as $issuer ) : ?>
+                        <?php foreach (\Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor::getIssuerList() as $issuer) : ?>
 							<div>
 								<option value='<?php echo esc_attr( $issuer['servicename'] ); ?>'>
 									<?php esc_html_e( $issuer['displayname'], 'wc-buckaroo-bpe-gateway' ); ?>

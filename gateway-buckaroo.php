@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/library/api/idin.php';
+
 require_once __DIR__ . '/library/class-wc-session-handler-buckaroo.php';
 /**
  * @package Buckaroo
@@ -243,7 +243,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway {
 		// not implemented
 	}
 	public function replace_order_button_html( $button ) {
-		if ( ! BuckarooIdin::checkCurrentUserIsVerified() ) {
+        if (!\Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor::checkCurrentUserIsVerified()) {
 			return '';
 		}
 		return $button;

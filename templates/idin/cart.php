@@ -1,6 +1,3 @@
-<?php
-require_once __DIR__ . '/../../library/api/idin.php';
-?>
 <div id="buckaroo_idin_cart" class="buckaroo-idin-cart form-row">
 	<fieldset>
 		<div>
