@@ -4,11 +4,11 @@ namespace Buckaroo\Woocommerce\Gateways;
 
 use Buckaroo\Woocommerce\Components\OrderArticles;
 use Buckaroo\Woocommerce\Components\OrderDetails;
+use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
 use Buckaroo_Http_Request;
 use BuckarooConfig;
-use BuckarooIdin;
 use DateTime;
 use WC_Order;
 use WC_Payment_Gateway;
@@ -306,7 +306,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
     public function replace_order_button_html($button)
     {
-        if (!BuckarooIdin::checkCurrentUserIsVerified()) {
+        if (!IdinProcessor::checkCurrentUserIsVerified()) {
             return '';
         }
         return $button;
