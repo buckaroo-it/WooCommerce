@@ -2,8 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
+use Buckaroo\Woocommerce\Components\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo_Order_Details;
 
 class AfterpayNewGateway extends AbstractPaymentGateway
 {
@@ -94,7 +94,7 @@ class AfterpayNewGateway extends AbstractPaymentGateway
 
     private function is_house_number_invalid($type)
     {
-        $components = Buckaroo_Order_Details::getAddressComponents(
+        $components = OrderDetails::getAddressComponents(
             $this->request($type . '_address_1') . ' ' . $this->request($type . '_address_2')
         );
 

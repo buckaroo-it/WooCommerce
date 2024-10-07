@@ -5,10 +5,10 @@ namespace Buckaroo\Woocommerce\Gateways;
 use Buckaroo\Woocommerce\Components\OrderArticles;
 use Buckaroo\Woocommerce\Components\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
+use Buckaroo\Woocommerce\Handlers\SessionHandler;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
-use Buckaroo_Http_Request;
-use BuckarooConfig;
+use Buckaroo\Woocommerce\Services\HttpRequest;
 use DateTime;
 use WC_Order;
 use WC_Payment_Gateway;
@@ -286,7 +286,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
     public function woocommerce_session_handler()
     {
-        return 'WC_Session_Handler_Buckaroo';
+        return SessionHandler::class;
     }
 
     /**
@@ -592,7 +592,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         $processorClass = static::PAYMENT_CLASS ?: AbstractPaymentProcessor::class;
         $payment = new $processorClass(
             $this,
-            new Buckaroo_Http_Request(),
+            new HttpRequest(),
             $order_details = new OrderDetails(new WC_Order($order_id)),
             new OrderArticles($order_details, $this)
         );
@@ -670,8 +670,14 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     {
         $this->icon = apply_filters(
             'woocommerce_' . $this->id . '_icon',
-            BuckarooConfig::getIconPath($oldPath, $newPath)
+            $this->getIconPath($oldPath, $newPath)
         );
+    }
+
+    public function getIconPath($oldIcon, $newIcon)
+    {
+        $icon = $this->get_option('usenewicons') ? $newIcon : $oldIcon;
+        return plugins_url('library/buckaroo_images/' . $icon, dirname(__DIR__));
     }
 
     /**
