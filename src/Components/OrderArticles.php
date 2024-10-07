@@ -3,7 +3,6 @@
 namespace Buckaroo\Woocommerce\Components;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo_Order_Item;
 use DOMDocument;
 use DOMXPath;
 
@@ -50,7 +49,7 @@ class OrderArticles
     {
 
         $products = array_map(
-            function (Buckaroo_Order_Item $item) {
+            function (OrderItem $item) {
                 return $this->get_product_data($item);
             },
             array_merge(
@@ -71,11 +70,11 @@ class OrderArticles
     /**
      * Get formated product data
      *
-     * @param Buckaroo_Order_Item $item
+     * @param OrderItem $item
      *
      * @return array
      */
-    public function get_product_data(Buckaroo_Order_Item $item): array
+    public function get_product_data(OrderItem $item): array
     {
         $product = [
             'identifier' => $item->get_id(),
@@ -104,11 +103,11 @@ class OrderArticles
     /**
      * Get custom afterpay attributes
      *
-     * @param Buckaroo_Order_Item $item
+     * @param OrderItem $item
      *
      * @return array
      */
-    private function get_afterpay_data(Buckaroo_Order_Item $item): array
+    private function get_afterpay_data(OrderItem $item): array
     {
         $data = ['type' => $item->get_type()];
         if ($item->get_type() === 'line_item') {

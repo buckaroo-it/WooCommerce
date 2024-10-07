@@ -2,8 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
+use Buckaroo\Woocommerce\Components\OrderItem;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo_Order_Item;
 use DOMDocument;
 use DOMXPath;
 
@@ -79,7 +79,7 @@ class KlarnaGateway extends AbstractPaymentGateway
         return $this->klarnaPaymentFlowId;
     }
 
-    public function get_product_data(Buckaroo_Order_Item $order_item)
+    public function get_product_data(OrderItem $order_item)
     {
         $product = parent::get_product_data($order_item);
 
