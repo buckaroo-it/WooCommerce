@@ -2,10 +2,10 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
+use Buckaroo\Woocommerce\Components\OrderCapture;
+use Buckaroo\Woocommerce\Components\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo_Http_Request;
-use Buckaroo_Order_Capture;
-use Buckaroo_Order_Details;
+use Buckaroo\Woocommerce\Services\HttpRequest;
 use WC_Order;
 
 class KlarnaKpGateway extends AbstractPaymentGateway
@@ -93,7 +93,7 @@ class KlarnaKpGateway extends AbstractPaymentGateway
 //        return fn_buckaroo_process_response(
 //            $this,
 //            $klarna->reserve(
-//                new Buckaroo_Order_Details($order),
+//                new \Buckaroo\Woocommerce\Components\OrderDetails($order),
 //                new Buckaroo_Http_Request()
 //            ),
 //            $this->mode
@@ -134,9 +134,9 @@ class KlarnaKpGateway extends AbstractPaymentGateway
 
         return fn_buckaroo_process_capture(
             $klarna->capture(
-                new Buckaroo_Order_Capture(
-                    new Buckaroo_Order_Details($order),
-                    new Buckaroo_Http_Request()
+                new OrderCapture(
+                    new OrderDetails($order),
+                    new HttpRequest()
                 ),
                 $reservation_number
             ),

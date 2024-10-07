@@ -12,13 +12,13 @@
  * @link      https://www.buckaroo.eu/
  */
 
-use Buckaroo\Woocommerce\Services\Helper;
+use Buckaroo\Woocommerce\Services\Config;
 
 defined('ABSPATH') || exit;
 
 $section_id = str_replace('_', '-', $this->id);
 
-$allGenders = Helper::getAllGendersForPaymentMethods();
+$allGenders = Config::getAllGendersForPaymentMethods();
 $genderVal = $allGenders[$section_id] ?? array();
 ?>
 <p class="form-row">
@@ -29,7 +29,7 @@ $genderVal = $allGenders[$section_id] ?? array();
     <select name="<?php echo esc_attr($section_id); ?>-gender" id="<?php echo esc_attr($section_id); ?>-gender">
         <?php
         foreach ($genderVal as $key => $value) {
-            $translatedLabel = Helper::translateGender($key);
+            $translatedLabel = Config::translateGender($key);
             echo '<option value="' . esc_attr($value) . '">' . esc_html($translatedLabel) . '</option>';
         }
         ?>
