@@ -2,24 +2,38 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Idin;
 
-use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
-use Buckaroo\Woocommerce\Services\BuckarooClient;
-use Buckaroo\Woocommerce\Services\Logger;
+use Buckaroo\Handlers\Reply\ReplyHandler;
+use Buckaroo\Woocommerce\Components\OrderArticles;
+use Buckaroo\Woocommerce\Components\OrderDetails;
+use Buckaroo\Woocommerce\Handlers\ResponseHandlers\ResponseParser;
+use Buckaroo\Woocommerce\SDK\BuckarooClient;
+use Buckaroo_Http_Request;
+use Buckaroo_Logger;
+use BuckarooConfig;
 use Throwable;
+use WC_Order;
 
 class IdinController
 {
     public function returnHandler()
     {
-        Logger::log(__METHOD__ . '|1|', wc_clean($_POST));
+        $post_data = wc_clean($_POST);
+        $idinProcessor = new IdinProcessor(
+            new IdinGateway(),
+            new Buckaroo_Http_Request(),
+            $od = new OrderDetails(new WC_Order),
+            new OrderArticles($od, new IdinGateway())
+        );
+        $payment = new BuckarooClient($idinProcessor);
+        $replyHandler = new ReplyHandler($payment->client()->config(), $post_data);
+        $responseParser = ResponseParser::make($post_data);
 
-        $responseParser = ResponseRegistry::getResponse(wc_clean($_POST));
-        $buckarooClient = new BuckarooClient($responseParser->isTest() ? 'test' : 'live');
+        // set_current_user($responseParser->getAdditionalInformation('current_user_id'));
 
-        if ($buckarooClient->isReplyHandlerValid($responseParser->get(formatted: false)) && $responseParser->isSuccess()) {
+        if ($replyHandler->validate()->isValid() && ($responseParser->isSuccess() || $responseParser->isPendingProcessing())) {
             $bin = $responseParser->getService('consumerbin');
-            $isEighteen = $responseParser->getService('iseighteenorolder') === 'True' ? 1 : 0;
-            Logger::log(__METHOD__ . '|5|', $bin);
+            $isEighteen = $responseParser->getService('iseighteenorolder') === 'True';
+
             if ($isEighteen) {
                 IdinProcessor::setCurrentUserIsVerified($bin);
                 wc_add_notice(__('You have been verified successfully', 'wc-buckaroo-bpe-gateway'), 'success');
@@ -27,16 +41,14 @@ class IdinController
                 wc_add_notice(__('According to iDIN you are under 18 years old', 'wc-buckaroo-bpe-gateway'), 'error');
             }
         } else {
-            Logger::log(__METHOD__ . '|10|');
             wc_add_notice(
-                empty($responseParser->getStatusMessage()) ?
-                    __('Verification has been failed', 'wc-buckaroo-bpe-gateway') : stripslashes($responseParser->getStatusMessage()),
+                empty($responseParser->getSubCodeMessage()) ?
+                    __('Verification has been failed', 'wc-buckaroo-bpe-gateway') : stripslashes($responseParser->getSubCodeMessage()),
                 'error'
             );
         }
 
         if (!empty($_REQUEST['bk_redirect']) && is_string($_REQUEST['bk_redirect'])) {
-            Logger::log(__METHOD__ . '|15|');
             wp_safe_redirect($_REQUEST['bk_redirect']);
             exit;
         }
@@ -44,7 +56,7 @@ class IdinController
 
     public function identify()
     {
-        if (!IdinProcessor::isIdin(IdinProcessor::getCartProductIds())) {
+        if (!BuckarooConfig::isIdin(IdinProcessor::getCartProductIds())) {
             $this->sendError(esc_html__('iDIN is disabled'));
         }
 
@@ -61,7 +73,7 @@ class IdinController
                 $gateway->process_payment('')
             );
         } catch (Throwable $th) {
-            Logger::log(__METHOD__ . (string)$th);
+            Buckaroo_Logger::log(__METHOD__ . (string)$th);
             $this->sendError(esc_html__('Could not perform the operation'));
             throw $th;
         }

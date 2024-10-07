@@ -526,9 +526,7 @@ function buckaroo_init_gateway() {
 
 	add_action( 'woocommerce_order_action_buckaroo_create_paylink', 'buckaroo_create_paylink', 10, 1 );
 
-	require_once __DIR__ . '/controllers/IdinController.php';
-
-	$idinController = new IdinController();
+    $idinController = new \Buckaroo\Woocommerce\Gateways\Idin\IdinController();
 
 	add_action( 'woocommerce_before_single_product', 'buckaroo_idin_product' );
 	add_action( 'woocommerce_before_cart', 'buckaroo_idin_cart' );
@@ -552,7 +550,7 @@ function buckaroo_idin_product() {
 }
 
 function buckaroo_idin_cart() {
-	if ( BuckarooConfig::isIdin( BuckarooIdin::getCartProductIds() ) ) {
+    if (BuckarooConfig::isIdin(\Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor::getCartProductIds())) {
 		include 'templates/idin/cart.php';
 	}
 }
@@ -561,7 +559,7 @@ function buckaroo_idin_checkout() {
 	if ( ! empty( $_GET['bck_err'] ) && ( $error = base64_decode( $_GET['bck_err'] ) ) ) {
 		wc_add_notice( esc_html__( sanitize_text_field( $error ), 'wc-buckaroo-bpe-gateway' ), 'error' );
 	}
-	if ( BuckarooConfig::isIdin( BuckarooIdin::getCartProductIds() ) ) {
+    if (BuckarooConfig::isIdin(\Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor::getCartProductIds())) {
 		include 'templates/idin/checkout.php';
 	}
 }
