@@ -4,9 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo_Logger;
-use BuckarooAbstract;
-use BuckarooApplepay;
+use Buckaroo\Woocommerce\Services\Logger;
 use Exception;
 use Throwable;
 use WC_Order;
@@ -59,7 +57,7 @@ class ApplepayGateway extends AbstractPaymentGateway
 
     public function createTransaction()
     {
-        Buckaroo_Logger::log(__METHOD__ . '|1|', $_POST);
+        Logger::log(__METHOD__ . '|1|', $_POST);
 
         $this->paymentData = $this->request('paymentData');
 
@@ -150,7 +148,7 @@ class ApplepayGateway extends AbstractPaymentGateway
 
     public function createOrder($billing_addresses, $shipping_addresses, $items, $selected_method_id)
     {
-        Buckaroo_Logger::log(__METHOD__ . '|1|');
+        Logger::log(__METHOD__ . '|1|');
 
         $order = wc_create_order();
 

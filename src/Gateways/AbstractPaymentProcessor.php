@@ -4,7 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways;
 
 use Buckaroo\Woocommerce\Components\OrderArticles;
 use Buckaroo\Woocommerce\Components\OrderDetails;
-use Buckaroo_Http_Request;
+use Buckaroo\Woocommerce\Services\HttpRequest;
 use WC_Order;
 
 class AbstractPaymentProcessor extends AbstractPaymentHelper
@@ -37,11 +37,11 @@ class AbstractPaymentProcessor extends AbstractPaymentHelper
     protected $requestType = 'TransactionRequest';
     protected OrderDetails $order_details;
     protected OrderArticles $order_articles;
-    private Buckaroo_Http_Request $request;
+    private HttpRequest $request;
 
     public function __construct(
         AbstractPaymentGateway $gateway,
-        Buckaroo_Http_Request  $request,
+        HttpRequest            $request,
         OrderDetails           $order_details,
         OrderArticles          $order_articles
     )
