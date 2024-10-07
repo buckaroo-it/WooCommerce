@@ -3,11 +3,10 @@
 namespace Buckaroo\Woocommerce\Gateways\Idin;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use BuckarooConfig;
 
 class IdinProcessor extends AbstractPaymentProcessor
 {
-    private static $idinCategories;
-
     public static function checkIfValidIssuer($code)
     {
         $issuerList = self::getIssuerList();
@@ -60,7 +59,7 @@ class IdinProcessor extends AbstractPaymentProcessor
             ),
         );
 
-        if ((new IdinGateway())->getMode() == 'test') {
+        if (BuckarooConfig::getIdinMode() == 'test') {
             $issuers[] = array(
                 'servicename' => 'BANKNL2Y',
                 'displayname' => 'TEST BANK',
@@ -71,7 +70,7 @@ class IdinProcessor extends AbstractPaymentProcessor
 
     public static function checkCurrentUserIsVerified()
     {
-        if (!self::isIdin(self::getCartProductIds())) {
+        if (!BuckarooConfig::isIdin(self::getCartProductIds())) {
             return true;
         }
 
@@ -137,7 +136,7 @@ class IdinProcessor extends AbstractPaymentProcessor
             'returnURL' => $this->get_return_url(),
             'cancelURL' => $this->get_return_url(),
             'pushURL' => $this->get_push_url(),
-            'clientIP' => $this->getIp(),
+            'clientIP' => $this->get_ip(),
             'issuer' => $this->gateway->issuer,
 //            'additionalParameters' => [
 //                'current_user_id' => get_current_user_id(),
@@ -161,37 +160,5 @@ class IdinProcessor extends AbstractPaymentProcessor
     private function get_push_url(): string
     {
         return add_query_arg('wc-api', 'wc_push_buckaroo', home_url('/'));
-    }
-
-    public static function isIdin($ids = array())
-    {
-        $isIdin = false;
-        $options = get_option('woocommerce_buckaroo_mastersettings_settings');
-
-        if ($options['useidin'] ?? false) {
-            if (!isset(self::$idinCategories)) {
-                self::$idinCategories = $options['idincategories'] ?? [];
-            }
-            if (self::$idinCategories) {
-                if ($ids) {
-                    foreach ($ids as $id) {
-                        if ($productCategories = get_the_terms($id, 'product_cat')) {
-                            foreach ($productCategories as $productCategory) {
-                                if (in_array($productCategory->term_id, self::$idinCategories)) {
-                                    $isIdin = true;
-                                    return $isIdin;
-                                }
-                            }
-                        }
-                    }
-                }
-                return $isIdin;
-            } else {
-                $isIdin = true;
-                return $isIdin;
-            }
-        } else {
-            return $isIdin;
-        }
     }
 }
