@@ -14,6 +14,7 @@
  */
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Services\LoggerStorage;
 
 return new class() implements Buckaroo_Migration {
     public function execute()
@@ -53,7 +54,7 @@ return new class() implements Buckaroo_Migration {
         global $wpdb;
 
         $wpdb->hide_errors();
-        $table = $wpdb->prefix . Buckaroo_Logger_Storage::STORAGE_DB_TABLE;
+        $table = $wpdb->prefix . LoggerStorage::STORAGE_DB_TABLE;
         $collate = $this->getCollate();
 
         $wpdb->query(

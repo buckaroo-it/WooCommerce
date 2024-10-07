@@ -6,7 +6,7 @@ use BadMethodCallException;
 use Buckaroo\BuckarooClient as BaseBuckarooClient;
 use Buckaroo\Config\DefaultConfig;
 use Buckaroo\Transaction\Response\TransactionResponse;
-use BuckarooConfig;
+use Buckaroo\Woocommerce\Services\Config;
 
 /* @mixin BaseBuckarooClient */
 class BuckarooClient
@@ -39,7 +39,7 @@ class BuckarooClient
                 $wp_version,
                 'Buckaroo',
                 'Woocommerce Payments Plugin',
-                BuckarooConfig::VERSION
+                    Config::VERSION
             )
         );
     }

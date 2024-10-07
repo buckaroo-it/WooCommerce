@@ -7,9 +7,8 @@ use Buckaroo\Woocommerce\Components\OrderArticles;
 use Buckaroo\Woocommerce\Components\OrderDetails;
 use Buckaroo\Woocommerce\Handlers\ResponseHandlers\ResponseParser;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
-use Buckaroo_Http_Request;
-use Buckaroo_Logger;
-use BuckarooConfig;
+use Buckaroo\Woocommerce\Services\HttpRequest;
+use Buckaroo\Woocommerce\Services\Logger;
 use Throwable;
 use WC_Order;
 
@@ -20,7 +19,7 @@ class IdinController
         $post_data = wc_clean($_POST);
         $idinProcessor = new IdinProcessor(
             new IdinGateway(),
-            new Buckaroo_Http_Request(),
+            new HttpRequest(),
             $od = new OrderDetails(new WC_Order),
             new OrderArticles($od, new IdinGateway())
         );
@@ -56,7 +55,7 @@ class IdinController
 
     public function identify()
     {
-        if (!BuckarooConfig::isIdin(IdinProcessor::getCartProductIds())) {
+        if (!IdinProcessor::isIdin(IdinProcessor::getCartProductIds())) {
             $this->sendError(esc_html__('iDIN is disabled'));
         }
 
@@ -73,7 +72,7 @@ class IdinController
                 $gateway->process_payment('')
             );
         } catch (Throwable $th) {
-            Buckaroo_Logger::log(__METHOD__ . (string)$th);
+            Logger::log(__METHOD__ . (string)$th);
             $this->sendError(esc_html__('Could not perform the operation'));
             throw $th;
         }

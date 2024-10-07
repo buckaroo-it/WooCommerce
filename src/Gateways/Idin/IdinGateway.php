@@ -17,6 +17,6 @@ class IdinGateway extends AbstractPaymentGateway
 
     public function getMode()
     {
-        return \BuckarooConfig::getIdinMode();
+        return (get_option('woocommerce_buckaroo_mastersettings_settings')['useidin'] ?? false) == 'live' ? 'live' : 'test';
     }
 }
