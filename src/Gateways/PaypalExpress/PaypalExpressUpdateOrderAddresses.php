@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 
-use BuckarooPayPalResponse;
+use Buckaroo\Woocommerce\Gateways\Paypal\PaypalResponse;
 use WC_Order;
 
 /**
@@ -22,9 +22,9 @@ class PaypalExpressUpdateOrderAddresses
 
     private WC_Order $order;
 
-    private BuckarooPayPalResponse $response;
+    private PaypalResponse $response;
 
-    public function __construct(WC_Order $order, BuckarooPayPalResponse $response)
+    public function __construct(WC_Order $order, PaypalResponse $response)
     {
         $this->order = $order;
         $this->response = $response;

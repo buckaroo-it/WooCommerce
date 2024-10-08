@@ -51,9 +51,6 @@ if (isset($_GET['buckaroo_download_log_file']) && is_string($_GET['buckaroo_down
 
 
 require_once __DIR__ . "/vendor/autoload.php";
-require_once __DIR__ . '/library/klarnakp/Capture.php';
-require_once __DIR__ . '/library/klarnakp/Refund.php';
-require_once __DIR__ . '/library/klarnakp/Cancel_Reservation.php';
 require_once __DIR__ . '/install/class-wcb-install.php';
 require_once __DIR__ . '/install/migration/Buckaroo_Migration_Handler.php';
 
