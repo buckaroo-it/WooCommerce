@@ -1,20 +1,16 @@
 <?php
 
+namespace Buckaroo\Woocommerce\Response;
+
+use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardResponse;
+use Buckaroo\Woocommerce\Gateways\GiftCard\GiftCardResponse;
+use Buckaroo\Woocommerce\Gateways\Ideal\IdealResponse;
+use Buckaroo\Woocommerce\Gateways\Paypal\PaypalResponse;
+use Buckaroo\Woocommerce\Gateways\Transfer\TransferResponse;
 use Buckaroo\Woocommerce\Services\Config;
 
-require_once __DIR__ . '/buckaroopaypal/paypalresponse.php';
-require_once __DIR__ . '/ideal/idealresponse.php';
-require_once __DIR__ . '/transfer/transferresponse.php';
-require_once __DIR__ . '/creditcard/creditcardresponse.php';
-require_once __DIR__ . '/giftcard/giftcardresponse.php';
-require_once __DIR__ . '/responsedefault.php';
-
-/**
- * @package Buckaroo
- */
-class BuckarooResponseFactory
+class ResponseFactory
 {
-
     private static function getPaymentMethod($data = null)
     {
 
@@ -44,21 +40,21 @@ class BuckarooResponseFactory
 
         switch ($paymentmethod) {
             case 'ideal':
-                return new BuckarooIdealResponse($data);
+                return new IdealResponse($data);
                 break;
             case 'transfer':
-                return new BuckarooTransferResponse($data);
+                return new TransferResponse($data);
                 break;
             case 'paypal':
-                return new BuckarooPayPalResponse($data);
+                return new PaypalResponse($data);
                 break;
             default:
                 if (stripos(Config::get('BUCKAROO_CREDITCARD_CARDS'), $paymentmethod) !== false) {
-                    return new BuckarooCreditCardResponse($data);
+                    return new CreditCardResponse($data);
                 } elseif (stripos(Config::get('BUCKAROO_GIFTCARD_CARDS'), $paymentmethod) !== false) {
-                    return new BuckarooGiftCardResponse($data);
+                    return new GiftCardResponse($data);
                 } else {
-                    return new BuckarooResponseDefault($data);
+                    return new ResponseDefault($data);
                 }
                 break;
         }
