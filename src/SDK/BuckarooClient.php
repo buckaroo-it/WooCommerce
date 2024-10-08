@@ -5,6 +5,7 @@ namespace Buckaroo\Woocommerce\SDK;
 use BadMethodCallException;
 use Buckaroo\BuckarooClient as BaseBuckarooClient;
 use Buckaroo\Config\DefaultConfig;
+use Buckaroo\Handlers\Reply\ReplyHandler;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Buckaroo\Woocommerce\Services\Config;
 
@@ -42,6 +43,13 @@ class BuckarooClient
                     Config::VERSION
             )
         );
+    }
+
+    public function isReplyHandlerValid(mixed $data = null): bool
+    {
+        $replyHandler = new ReplyHandler($this->buckarooClient->client()->config(), $data);
+
+        return $replyHandler->validate()->isValid();
     }
 
     public function __call($name, $arguments)
