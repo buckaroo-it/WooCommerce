@@ -111,10 +111,10 @@ class In3Gateway extends AbstractPaymentGateway
 
     private function processPaymentV2($order_id)
     {
-        $payment = $this->getV2Payload((int)$order_id);
-        $payment = new BuckarooClient($payment);
+        $processor = $this->getV2Payload((int)$order_id);
+        $payment = new BuckarooClient($this->getMode());
         $return = new ReturnProcessor($this, (int)$order_id);
-        return $return->process($payment->process());
+        return $return->paymentProcess($payment->process($processor));
     }
 
     private function getV2Payload(int $order_id)
