@@ -27,6 +27,10 @@ class AfterpayOldGateway extends AbstractPaymentGateway
         $this->addRefundSupport();
     }
 
+    public function getServiceCode()
+    {
+        return 'afterpaydigiaccept';
+    }
 
     /**
      * Validate payment fields on the frontend.

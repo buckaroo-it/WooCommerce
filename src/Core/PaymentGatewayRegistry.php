@@ -29,6 +29,7 @@ use Buckaroo\Woocommerce\Gateways\Przelewy24\Przelewy24Gateway;
 use Buckaroo\Woocommerce\Gateways\SepaDirectDebit\SepaDirectDebitGateway;
 use Buckaroo\Woocommerce\Gateways\Sofort\SofortGateway;
 use Buckaroo\Woocommerce\Gateways\Transfer\TransferGateway;
+use Buckaroo\Woocommerce\PaymentProcessors\ExodusGateway;
 
 class PaymentGatewayRegistry
 {
@@ -85,11 +86,8 @@ class PaymentGatewayRegistry
      */
     private function add_exodus()
     {
-        if (file_exists(dirname(BK_PLUGIN_FILE) . '/buckaroo-exodus.php') && !get_option('woocommerce_buckaroo_exodus')) {
-            $this->methods['Exodus Script'] = array(
-                'filename' => 'buckaroo-exodus.php',
-                'gateway_class' => 'WC_Gateway_Buckaroo_Exodus',
-            );
+        if (!get_option('woocommerce_buckaroo_exodus')) {
+            $this->methods['Exodus Script'] = array('gateway_class' => ExodusGateway::class);
         }
     }
 

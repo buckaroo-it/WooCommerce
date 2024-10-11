@@ -43,7 +43,8 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
                     'category' => $this->getCategory('billing'),
                     'careOf' => $this->getCareOf('billing'),
                     'firstName' => $this->getAddress('billing', 'first_name'),
-                    'lastName' => $this->getAddress('billing', 'last_name')
+                    'lastName' => $this->getAddress('billing', 'last_name'),
+                    'customerNumber' => get_current_user_id(),
                 ],
                 'address' => [
                     'street' => $streetParts->get_street(),
@@ -201,7 +202,8 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
                     'category' => $this->getCategory('shipping'),
                     'careOf' => $this->getCareOf('shipping'),
                     'firstName' => $this->getAddress('shipping', 'first_name'),
-                    'lastName' => $this->getAddress('shipping', 'last_name')
+                    'lastName' => $this->getAddress('shipping', 'last_name'),
+                    'customerNumber' => get_current_user_id(),
                 ],
                 'address' => [
                     'street' => $streetParts->get_street(),
