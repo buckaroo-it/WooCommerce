@@ -2,10 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
-use Buckaroo\Woocommerce\Components\OrderItem;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use DOMDocument;
-use DOMXPath;
 
 class KlarnaGateway extends AbstractPaymentGateway
 {
@@ -23,19 +20,6 @@ class KlarnaGateway extends AbstractPaymentGateway
 
         parent::__construct();
         $this->addRefundSupport();
-    }
-
-    /**
-     * Can the order be refunded
-     *
-     * @param integer $order_id
-     * @param integer $amount defaults to null
-     * @param string $reason
-     * @return callable|string function or error
-     */
-    public function process_refund($order_id, $amount = null, $reason = '')
-    {
-        return $this->processDefaultRefund($order_id, $amount, $reason);
     }
 
     /**
@@ -74,38 +58,6 @@ class KlarnaGateway extends AbstractPaymentGateway
         return str_replace('_', '-', $this->id);
     }
 
-    public function getKlarnaPaymentFlow()
-    {
-        return $this->klarnaPaymentFlowId;
-    }
-
-    public function get_product_data(OrderItem $order_item)
-    {
-        $product = parent::get_product_data($order_item);
-
-        if ($order_item->get_type() === 'line_item') {
-
-            $img = $this->getProductImage($order_item->get_order_item()->get_product());
-
-            if (!empty($img)) {
-                $product['imgUrl'] = $img;
-            }
-
-            $product['url'] = get_permalink($order_item->get_id());
-        }
-        return $product;
-    }
-
-    public function getProductImage($product)
-    {
-        $imgTag = $product->get_image();
-        $doc = new DOMDocument();
-        $doc->loadHTML($imgTag);
-        $xpath = new DOMXPath($doc);
-        $imageUrl = $xpath->evaluate('string(//img/@src)');
-
-        return $imageUrl;
-    }
 
     /** @inheritDoc */
     public function init_form_fields()

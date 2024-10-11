@@ -23,14 +23,11 @@ class KlarnaCapture
 {
     public function __construct()
     {
-        add_action('add_meta_boxes_shop_order', array($this, 'add_meta_box_form'));
+        add_action('add_meta_boxes', array($this, 'add_meta_box_form'), 10, 2);
     }
 
-    public function output(WP_Post $post)
+    public function output($order)
     {
-
-        $order = wc_get_order($post->ID);
-
         $order_capture = new OrderCapture(
             new OrderDetails($order),
             new HttpRequest()
@@ -38,20 +35,23 @@ class KlarnaCapture
         include 'capture-form.php';
     }
 
-    public function add_meta_box_form($post)
+    public function add_meta_box_form($post_type, $order)
     {
-        $order = wc_get_order($post->ID);
+        if ($post_type != 'woocommerce_page_wc-orders') {
+            return;
+        }
+
         if (
             $order->get_payment_method() === 'buckaroo_klarnakp' &&
-            get_post_meta($order->get_id(), 'bukaroo_is_reserved', true) === 'yes'
+            get_post_meta($order->get_id(), 'buckaroo_is_reserved', true) === 'yes'
         ) {
             add_meta_box(
                 'buckaroo-order-klarnakp-capture',
                 __('Capture & refund order', 'woocommerce'),
                 array($this, 'output'),
-                'shop_order',
+                'woocommerce_page_wc-orders',
                 'normal',
-                'low'
+                'default'
             );
         }
     }

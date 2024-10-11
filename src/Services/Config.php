@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Services;
 
 class Config
 {
+    const CHANNEL = 'Web';
 
     const NAME = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo BPE 3.0 official plugin';
