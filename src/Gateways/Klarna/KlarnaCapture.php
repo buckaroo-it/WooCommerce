@@ -19,102 +19,39 @@ use WP_Post;
  * @version   GIT: 3.3.0
  * @link      https://www.buckaroo.eu/
  */
-<<<<<<<< HEAD:library/creditcard/Capture.php
-
-class Buckaroo_Creditcard_Capture_Form
-========
 class KlarnaCapture
->>>>>>>> 5abdf7f2 (refactor library classes):src/Gateways/Klarna/KlarnaCapture.php
 {
     public function __construct()
     {
-        add_action('add_meta_boxes_shop_order', array($this, 'add_meta_box_form'));
+        add_action('add_meta_boxes', array($this, 'add_meta_box_form'), 10, 2);
     }
 
-<<<<<<<< HEAD:library/creditcard/Capture.php
-    public function output( $order )
+    public function output($order)
     {
-        // Convert WP_Post to WC_Order if necessary.
-        if ( $order instanceof WP_Post ) {
-            $order = wc_get_order( $order->ID );
-        }
-
-        $order_capture = new Buckaroo_Order_Capture(
-            new Buckaroo_Order_Details( $order ),
-            new Buckaroo_Http_Request()
-========
-    public function output(WP_Post $post)
-    {
-
-        $order = wc_get_order($post->ID);
-
         $order_capture = new OrderCapture(
             new OrderDetails($order),
             new HttpRequest()
->>>>>>>> 5abdf7f2 (refactor library classes):src/Gateways/Klarna/KlarnaCapture.php
         );
-
         include 'capture-form.php';
     }
 
-<<<<<<<< HEAD:library/creditcard/Capture.php
-    /**
-     * Add meta box to order pages for credit card capture and refund functionality.
-     *
-     * @param string  $post_type     The current post type.
-     * @param object  $post_or_order Post or order object.
-     *
-     * @return void
-     */
-    public function add_meta_box_form( $post_type, $post_or_order )
+    public function add_meta_box_form($post_type, $order)
     {
-        // Handle both HPOS and traditional post-based orders.
-        $is_order_page = in_array( $post_type, array( 'woocommerce_page_wc-orders', 'shop_order' ), true );
-
-        if ( ! $is_order_page ) {
+        if ($post_type != 'woocommerce_page_wc-orders') {
             return;
         }
 
-        // Get order object by looking for a post or order.
-        $order = (
-            $post_or_order instanceof WC_Order ||
-            $post_or_order instanceof Automattic\WooCommerce\Admin\Overrides\Order
-        )
-        ? $post_or_order
-        : wc_get_order( $post_or_order->ID );
-
-        if (
-            ! $order instanceof WC_Order &&
-            ! $order instanceof Automattic\WooCommerce\Admin\Overrides\Order
-        ) {
-            return;
-        }
-
-        if (
-            str_contains( $order->get_payment_method(), 'buckaroo_creditcard' )
-            && $order->get_meta( '_wc_order_authorized' )
-        ) {
-            add_meta_box(
-                'buckaroo-order-creditcard-capture',
-                esc_html__( 'Capture & refund order', 'woocommerce' ),
-                array( $this, 'output' ),
-                $post_type,
-========
-    public function add_meta_box_form($post)
-    {
-        $order = wc_get_order($post->ID);
         if (
             $order->get_payment_method() === 'buckaroo_klarnakp' &&
-            get_post_meta($order->get_id(), 'bukaroo_is_reserved', true) === 'yes'
+            get_post_meta($order->get_id(), 'buckaroo_is_reserved', true) === 'yes'
         ) {
             add_meta_box(
                 'buckaroo-order-klarnakp-capture',
                 __('Capture & refund order', 'woocommerce'),
                 array($this, 'output'),
-                'shop_order',
->>>>>>>> 5abdf7f2 (refactor library classes):src/Gateways/Klarna/KlarnaCapture.php
+                'woocommerce_page_wc-orders',
                 'normal',
-                'low'
+                'default'
             );
         }
     }
