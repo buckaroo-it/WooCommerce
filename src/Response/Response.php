@@ -170,7 +170,6 @@ abstract class Response
         }
 
         $this->_isPost = $this->isHttpRequest();
-        ray($this->_isPost);
         $this->_received = false;
 
         if ($this->_isPost) {

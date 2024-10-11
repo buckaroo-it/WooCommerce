@@ -1,5 +1,6 @@
 <?php
 
+use Buckaroo\Transaction\Response\TransactionResponse;
 use Buckaroo\Woocommerce\Gateways\GiftCard\GiftCardGateway;
 use Buckaroo\Woocommerce\Gateways\Paypal\PaypalResponse;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressUpdateOrderAddresses;
@@ -8,9 +9,9 @@ use Buckaroo\Woocommerce\Response\ResponseFactory;
 use Buckaroo\Woocommerce\Services\Config;
 use Buckaroo\Woocommerce\Services\Logger;
 
-function fn_buckaroo_process_reservation_cancel($response, $order)
+function fn_buckaroo_process_reservation_cancel(TransactionResponse $response, $order)
 {
-    if ($response && $response->isValid() && $response->statuscode == Response::CODE_SUCCESS) {
+    if ($response->isSuccess()) {
         $order->update_status(
             'cancelled',
             __('Klarna reservation was successfully canceled', 'wc-buckaroo-bpe-gateway')
@@ -98,7 +99,7 @@ function fn_buckaroo_process_refund($response, $order, $amount, $currency)
  * @param String $currency
  * @return String|Boolean
  */
-function fn_buckaroo_process_capture($response, $order, $currency, $products = null)
+function fn_buckaroo_process_capture(TransactionResponse $response, $order, $currency, $products = null)
 {
 
     if (!isset($_POST['capture_amount']) || !is_scalar($_POST['capture_amount'])) {
@@ -106,7 +107,7 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
     }
 
     $capture_amount = sanitize_text_field($_POST['capture_amount']);
-    if ($response && $response->isValid() && $response->hasSucceeded()) {
+    if ($response && $response->isSuccess()) {
 
         // SET the flags
         // check if order has already been captured
@@ -142,41 +143,41 @@ function fn_buckaroo_process_capture($response, $order, $currency, $products = n
             'line_item_qtys' => isset($_POST['line_item_qtys']) ? sanitize_text_field(wp_unslash($_POST['line_item_qtys']), true) : '',
             'line_item_totals' => isset($_POST['line_item_totals']) ? sanitize_text_field(wp_unslash($_POST['line_item_totals']), true) : '',
             'line_item_tax_totals' => isset($_POST['line_item_tax_totals']) ? sanitize_text_field(wp_unslash($_POST['line_item_tax_totals']), true) : '',
-            'transaction_id' => $response->transactions
+            'transaction_id' => $response->getTransactionKey()
         ));
 
-        add_post_meta($order->get_id(), '_capturebuckaroo' . $response->transactions, 'ok', true);
+        add_post_meta($order->get_id(), '_capturebuckaroo' . $response->getTransactionKey(), 'ok', true);
         update_post_meta($order->get_id(), '_pushallowed', 'ok');
 
         $order->add_order_note(
             sprintf(
                 __('Captured %1$s - Capture transaction ID: %2$s', 'wc-buckaroo-bpe-gateway'),
                 $capture_amount . ' ' . $currency,
-                $response->transactions
+                $response->getTransactionKey()
             )
         );
 
         // Store the transaction_key together with captured products, we need this for refunding
         if ($products != null) {
-            $capture_data = json_encode(['OriginalTransactionKey' => $response->transactions, 'products' => $products]);
+            $capture_data = json_encode(['OriginalTransactionKey' => $response->getTransactionKey(), 'products' => $products]);
             add_post_meta($order->get_id(), 'buckaroo_capture', $capture_data, false);
         }
-        wp_send_json_success($response);
+        wp_send_json_success($response->toArray());
 
     }
-    if (!empty($response->ChannelError)) {
-        Logger::log(__METHOD__, $response->ChannelError);
+    if (!empty($response->hasSomeError())) {
+        Logger::log(__METHOD__, $response->getSomeError());
         $order->add_order_note(
             sprintf(
                 __(
-                    'Capture failed for transaction ID: %s ' . "\n" . $response->ChannelError,
+                    'Capture failed for transaction ID: %s ' . "\n" . $response->getSomeError(),
                     'wc-buckaroo-bpe-gateway'
                 ),
                 $order->get_transaction_id()
             )
         );
         update_post_meta($order->get_id(), '_pushallowed', 'ok');
-        return new WP_Error('error_capture', __("Capture failed: ") . $response->ChannelError);
+        return new WP_Error('error_capture', __("Capture failed: ") . $response->getSomeError());
     } else {
         $order->add_order_note(
             sprintf(
@@ -428,7 +429,6 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             );
 
             addSepaDirectOrderNote($response, $order);
-            Buckaroo_Logger::log('||| $response->status ' . $response->status);
 
             switch ($response->status) {
                 case 'completed':
@@ -437,8 +437,6 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 case 'on-hold':
                     if (!is_null($payment_method)) {
                         $woocommerce->cart->empty_cart();
-                        Buckaroo_Logger::log('||| $payment_method ' . $payment_method->get_return_url($order));
-
                         return array(
                             'result' => 'success',
                             'redirect' => $payment_method->get_return_url($order),
@@ -520,7 +518,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     Logger::log('wc session after: ' . var_export(WC()->session, true));
                     if (WooV3Plus()) {
                         if ($order->get_billing_country() == 'NL') {
-                            if (!empty($response->ChannelError) && is_string($response->ChannelError) && strrpos($response->ChannelError, ': ') !== false) {
+                            if (strrpos($response->ChannelError, ': ') !== false) {
                                 $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
                                 Logger::log('||| failed status message: ' . $error_description);
                                 wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
@@ -528,7 +526,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                         }
                     } else {
                         if ($order->billing_country == 'NL') {
-                            if (!empty($response->ChannelError) && is_string($response->ChannelError) && strrpos($response->ChannelError, ': ') !== false) {
+                            if (strrpos($response->ChannelError, ': ') !== false) {
                                 $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
                                 wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
                             }
@@ -905,7 +903,6 @@ function fn_process_push_meta_update($order_id, $order, $response)
 
 function processPushTransactionSucceeded($order_id, $order, $response, $payment_method)
 {
-
     $woocommerce = getWooCommerceObject();
     $wpdb = getWpdbObject();
 
@@ -914,7 +911,6 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
     }
 
     //Logger
-
     if (in_array($order->get_status(), array('completed', 'processing'))) {
         Logger::log(
             'Push message. Order already in final state or have the same status as response. Order status: ' . $order->get_status()
@@ -935,7 +931,6 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
     } else {
         switch ($response->status) {
             case 'completed':
-
                 /** handle klarnakp reservation push */
                 if (
                     $response->reservation_number !== null &&
@@ -945,7 +940,8 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                     $order->add_order_note(
                         "Payment succesfully reserved"
                     );
-                    add_post_meta($order->get_id(), 'buckaroo_is_reserved', 'yes');
+                    $order->add_meta_data('buckaroo_is_reserved', 'yes', true);
+                    $order->save_meta_data();
                     return;
                 }
 

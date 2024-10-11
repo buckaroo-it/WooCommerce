@@ -30,11 +30,7 @@ class ReturnProcessor
     {
         $message = __('Payment unsuccessful. Please try again or choose another payment method.', 'wc-buckaroo-bpe-gateway');
 
-        if (
-            $response->isSuccess() ||
-            $response->isAwaitingConsumer() ||
-            $response->isPendingProcessing()
-        ) {
+        if ($response->isSuccess() || $response->isAwaitingConsumer() || $response->isPendingProcessing()) {
             $this->update_order_meta($response);
         }
 

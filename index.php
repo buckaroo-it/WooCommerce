@@ -54,34 +54,6 @@ require_once __DIR__ . "/vendor/autoload.php";
 require_once __DIR__ . '/install/class-wcb-install.php';
 require_once __DIR__ . '/install/migration/Buckaroo_Migration_Handler.php';
 
-/**
- * Remove gateways based on min/max value or idin verification
- */
-new DisableGateways();
-/**
- * Register additional fee hook
- */
-new OrderFee();
-/**
- * Start running buckaroo events
- */
-new CronEvents();
-/**
- * Handle plugin updates
- */
-new Buckaroo_Migration_Handler();
-/**
- * Handles paypal express buttons when active
- */
-new PaypalExpressController(
-    new PaypalExpressShipping(),
-    new PaypalExpressOrder(),
-    new PaypalExpressCart()
-);
-
-new KlarnaCapture();
-new KlarnaCancelReservation();
-new KlarnaRefund();
 
 add_action('admin_enqueue_scripts', 'buckaroo_payment_setup_scripts');
 
@@ -470,6 +442,35 @@ function buckaroo_add_woocommerce_settings_page($settings)
 
 function buckaroo_init_gateway()
 {
+    /**
+     * Remove gateways based on min/max value or idin verification
+     */
+    new DisableGateways();
+    /**
+     * Register additional fee hook
+     */
+    new OrderFee();
+    /**
+     * Start running buckaroo events
+     */
+    new CronEvents();
+    /**
+     * Handle plugin updates
+     */
+    new Buckaroo_Migration_Handler();
+    /**
+     * Handles paypal express buttons when active
+     */
+    new PaypalExpressController(
+        new PaypalExpressShipping(),
+        new PaypalExpressOrder(),
+        new PaypalExpressCart()
+    );
+
+    new KlarnaCancelReservation();
+    new KlarnaRefund();
+    new KlarnaCapture();
+
     // no code should be implemented before testing for active woocommerce
     if (!class_exists('WC_Order')) {
         set_transient(get_current_user_id() . 'buckaroo_require_woocommerce', true);
