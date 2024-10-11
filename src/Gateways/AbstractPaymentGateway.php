@@ -8,7 +8,6 @@ use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Handlers\SessionHandler;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
-use Buckaroo\Woocommerce\Services\Config;
 use Buckaroo\Woocommerce\Services\HttpRequest;
 use DateTime;
 use WC_Order;
@@ -590,9 +589,9 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function process_payment($order_id)
     {
         $processor = $this->newPaymentProcessorInstance($order_id);
-        $payment = new BuckarooClient($processor);
+        $payment = new BuckarooClient($this->getMode());
         $return = new ReturnProcessor($this, (int)$order_id);
-        $res = $return->paymentProcess($payment->process());
+        $res = $return->paymentProcess($payment->process($processor));
         ray([
             $this,
             $res
@@ -610,10 +609,10 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function process_refund($order_id, $amount = null, $reason = '', $transactionId = null)
     {
         $processor = $this->newRefundProcessorInstance($order_id, $amount, $reason);
-        $refund = new BuckarooClient($processor);
+        $refund = new BuckarooClient($this->getMode());
         $return = new ReturnProcessor($this, (int)$order_id);
 
-        $res = $return->refundProcess($refund->process($transactionId ? ['originalTransactionKey' => $transactionId] : []));
+        $res = $return->refundProcess($refund->process($processor, $transactionId ? ['originalTransactionKey' => $transactionId] : []));
         ray([
             $this,
             $res
