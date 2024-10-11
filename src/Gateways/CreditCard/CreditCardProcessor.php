@@ -10,6 +10,10 @@ class CreditCardProcessor extends AbstractPaymentProcessor
     /** @inheritDoc */
     public function getAction(): string
     {
+        if ($this->gateway->get_option('creditcardpayauthorize') == 'authorize') {
+            return 'authorizeEncrypted';
+        }
+
         if ($this->isEncripted()) {
             return 'payEncrypted';
         }

@@ -15,6 +15,11 @@ class KlarnaPayGateway extends KlarnaGateway
         parent::__construct();
     }
 
+    public function getServiceCode()
+    {
+        return 'klarna';
+    }
+
     /**
      * Payment form on checkout page
      *

@@ -6,176 +6,108 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 
 class KlarnaProcessor extends AbstractPaymentProcessor
 {
-    public $BillingGender;
-    public $BillingInitials;
-    public $BillingLastName;
-    public $BillingBirthDate;
-    public $BillingStreet;
-    public $BillingHouseNumber;
-    public $BillingHouseNumberSuffix;
-    public $BillingPostalCode;
-    public $BillingCity;
-    public $BillingCountry;
-    public $BillingEmail;
-    public $BillingPhoneNumber;
-    public $BillingLanguage;
-    public $IdentificationNumber;
-    public $AddressesDiffer;
-    public $ShippingGender;
-    public $ShippingInitials;
-    public $ShippingLastName;
-    public $ShippingBirthDate;
-    public $ShippingStreet;
-    public $ShippingHouseNumber;
-    public $ShippingHouseNumberSuffix;
-    public $ShippingPostalCode;
-    public $ShippingCity;
-    public $ShippingCountryCode;
-    public $ShippingEmail;
-    public $ShippingPhoneNumber;
-    public $ShippingLanguage;
-    public $CustomerIPAddress;
-    public $Accept;
-    public $BillingFirstName;
-    public $ShippingFirstName;
-
-    private $paymentFlow;
-    private $billingCategory;
-    private $shippingCategory;
-
-    /**
-     * @access public
-     * @param string $type
-     */
-    public function __construct($type = 'klarna')
+    /** @inheritDoc */
+    protected function getMethodBody(): array
     {
-        $this->type = $type;
-        $this->version = '0';
+        return array_merge_recursive(
+            $this->getBilling(),
+            $this->getShipping(),
+            ['articles' => $this->getArticles()]
+        );
     }
 
     /**
-     * @access public
-     * @param array $products
-     * @return callable parent::Pay();
+     * @return array<mixed>
      */
-    public function paymentAction($products = array())
+    protected function getBilling(): array
     {
+        $streetParts = $this->order_details->get_billing_address_components();
+        return [
+            'billing' => [
+                'recipient' => [
+                    'category' => $this->getCategory('billing'),
+                    'firstName' => $this->getAddress('billing', 'first_name'),
+                    'lastName' => $this->getAddress('billing', 'last_name'),
+                    'gender' => $this->request_string($this->gateway->getKlarnaSelector() . '-gender', 'male')
+                ],
+                'address' => [
+                    'street' => $streetParts->get_street(),
+                    'houseNumber' => $streetParts->get_house_number(),
+                    'houseNumberAdditional' => $streetParts->get_number_additional(),
+                    'zipcode' => $this->getAddress('billing', 'postcode'),
+                    'city' => $this->getAddress('billing', 'city'),
+                    'country' => $this->getAddress('billing', 'country'),
+                ],
+                'phone' => [
+                    'mobile' => $this->getPhone($this->order_details->get_billing_phone()),
+                ],
+                'email' => $this->getAddress('billing', 'email')
+            ]
+        ];
+    }
 
-        $this->setServiceActionAndVersion($this->getPaymentFlow());
+    /**
+     * Get shipping address data
+     *
+     * @return array<mixed>
+     */
+    protected function getShipping(): array
+    {
+        $streetParts = $this->order_details->get_shipping_address_components();
+        return [
+            'shipping' => [
+                'recipient' => [
+                    'category' => $this->getCategory('shipping'),
+                    'firstName' => $this->getAddress('shipping', 'first_name'),
+                    'lastName' => $this->getAddress('shipping', 'last_name'),
+                    'gender' => $this->request_string($this->gateway->getKlarnaSelector() . '-gender', 'male')
+                ],
+                'address' => [
+                    'street' => $streetParts->get_street(),
+                    'houseNumber' => $streetParts->get_house_number(),
+                    'houseNumberAdditional' => $streetParts->get_number_additional(),
+                    'zipcode' => $this->getAddress('shipping', 'postcode'),
+                    'city' => $this->getAddress('shipping', 'city'),
+                    'country' => $this->getAddress('shipping', 'country'),
+                ],
+                'email' => $this->getAddress('shipping', 'email') ?: $this->getAddress('billing', 'email')
+            ]
+        ];
+    }
 
-        $billing = array(
-            'Category' => !empty($this->getBillingCategory()) ? 'B2B' : 'B2C',
-            'FirstName' => $this->BillingFirstName,
-            'LastName' => $this->BillingLastName,
-            'Street' => $this->BillingStreet,
-            'StreetNumber' => $this->BillingHouseNumber . ' ',
-            'PostalCode' => $this->BillingPostalCode,
-            'City' => $this->BillingCity,
-            'Country' => $this->BillingCountry,
-            'Email' => $this->BillingEmail,
-            'Gender' => $this->BillingGender,
-            'Phone' => $this->BillingPhoneNumber,
+    private function getPhone(string $phone): string
+    {
+        $input_phone = $this->order_details->cleanup_phone(
+            $this->request($this->gateway->getKlarnaSelector() . "-phone")
         );
-        $shipping = array(
-            'Category' => !empty($this->getShippingCategory()) ? 'B2B' : 'B2C',
-            'FirstName' => $this->diffAddress($this->ShippingFirstName, $this->BillingFirstName),
-            'LastName' => $this->diffAddress($this->ShippingLastName, $this->BillingLastName),
-            'Street' => $this->diffAddress($this->ShippingStreet, $this->BillingStreet),
-            'StreetNumber' => $this->diffAddress($this->ShippingHouseNumber, $this->BillingHouseNumber) . ' ',
-            'PostalCode' => $this->diffAddress($this->ShippingPostalCode, $this->BillingPostalCode),
-            'City' => $this->diffAddress($this->ShippingCity, $this->BillingCity),
-            'Country' => $this->diffAddress($this->ShippingCountryCode, $this->BillingCountry),
-            'Email' => $this->BillingEmail,
-            'Gender' => $this->diffAddress($this->ShippingGender, $this->BillingGender),
-            'Phone' => $this->BillingPhoneNumber,
-        );
-
-        if (!empty($this->BillingHouseNumberSuffix)) {
-            $billing['StreetNumberAdditional'] = $this->BillingHouseNumberSuffix;
-        } else {
-            unset($this->BillingHouseNumberSuffix);
+        if (strlen(trim($input_phone)) > 0) {
+            return $input_phone;
         }
+        return $phone;
+    }
 
-        if (($this->AddressesDiffer == 'TRUE') && !empty($this->ShippingHouseNumberSuffix)) {
-            $shipping['StreetNumberAdditional'] = $this->ShippingHouseNumberSuffix;
-        } elseif ($this->AddressesDiffer !== 'TRUE' && !empty($this->BillingHouseNumberSuffix)) {
-            $shipping['StreetNumberAdditional'] = $this->BillingHouseNumberSuffix;
-        } else {
-            unset($this->ShippingHouseNumberSuffix);
+    /**
+     * Get type of request b2b or b2c
+     *
+     * @return string
+     */
+    private function getCategory(string $address_type): string
+    {
+        if (!$this->isCompanyEmpty($this->getAddress($address_type, "company"))) {
+            return 'B2B';
         }
-
-        $this->setCustomVarsAtPosition($billing, 0, 'BillingCustomer');
-        $this->setCustomVarsAtPosition($shipping, 1, 'ShippingCustomer');
-
-        foreach ($products as $pos => $product) {
-            $this->setDefaultProductParams($product, $pos);
-        }
-
-        return parent::PayGlobal();
+        return 'B2C';
     }
 
-    public function getPaymentFlow()
+    /**
+     * Check if company is empty
+     *
+     * @param string $company
+     *
+     * @return boolean
+     */
+    public function isCompanyEmpty(string $company = null): bool
     {
-        return $this->paymentFlow;
-    }
-
-    public function setPaymentFlow($paymentFlow)
-    {
-        $this->paymentFlow = $paymentFlow;
-    }
-
-    public function getBillingCategory()
-    {
-        return $this->billingCategory;
-    }
-
-    public function setBillingCategory($category)
-    {
-        $this->billingCategory = $category;
-    }
-
-    public function getShippingCategory()
-    {
-        return $this->shippingCategory;
-    }
-
-    public function setShippingCategory($category)
-    {
-        $this->shippingCategory = $category;
-    }
-
-    private function diffAddress($shippingField, $billingField)
-    {
-        if ($this->AddressesDiffer == 'TRUE') {
-            return $shippingField;
-        }
-        return $billingField;
-    }
-
-    private function setDefaultProductParams($product, $position)
-    {
-
-        $productData = array(
-            'Description' => $product['description'],
-            'Identifier' => $product['identifier'],
-            'Quantity' => $product['quantity'],
-            'GrossUnitprice' => $product['price'],
-            'VatPercentage' => $product['vatPercentage'],
-
-        );
-
-        if (isset($product['url']) && !empty(trim($product['url']))) {
-            $productData['Url'] = $product['url'];
-        }
-
-        if (isset($product['imgUrl']) && !empty($product['imgUrl'])) {
-            $productData['ImageUrl'] = $product['imgUrl'];
-        }
-
-        $this->setCustomVarsAtPosition(
-            $productData,
-            $position,
-            'Article'
-        );
+        return null === $company || strlen(trim($company)) === 0;
     }
 }
