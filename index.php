@@ -34,6 +34,7 @@ use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressOrder;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressShipping;
 use Buckaroo\Woocommerce\Gateways\PayPerEmail\PayPerEmailGateway;
 use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
+use Buckaroo\Woocommerce\SDK\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Config;
 use Buckaroo\Woocommerce\Services\CronEvents;
 use Buckaroo\Woocommerce\Services\DisableGateways;
@@ -289,72 +290,19 @@ add_action('wp_ajax_buckaroo_test_credentials', 'buckaroo_test_credentials');
 function buckaroo_test_credentials()
 {
     if (!isset($_POST['website_key']) || !is_string($_POST['website_key'])) {
-        wp_die(
-            esc_html__('Credentials are incorrect', 'wc-buckaroo-bpe-gateway')
-        );
+        wp_die(esc_html__('Credentials are incorrect', 'wc-buckaroo-bpe-gateway'));
     }
 
     if (!isset($_POST['secret_key']) || !is_string($_POST['secret_key'])) {
-        wp_die(
-            esc_html__('Credentials are incorrect', 'wc-buckaroo-bpe-gateway')
-        );
+        wp_die(esc_html__('Credentials are incorrect', 'wc-buckaroo-bpe-gateway'));
     }
 
-    $url = 'https://testcheckout.buckaroo.nl/json/Transaction/Specification/ideal?serviceVersion=2';
+    $buckarooClient = new BuckarooClient('test', $_POST['website_key'], $_POST['secret_key']);
 
-    $timeStamp = time();
-    $nonce = bin2hex(random_bytes(8));
-
-    $website_key = sanitize_text_field($_POST['website_key']);
-    $secret_key = sanitize_text_field($_POST['secret_key']);
-
-    $body = implode(
-        '',
-        array(
-            $website_key,
-            'GET',
-            strtolower(
-                rawurlencode(
-                    str_replace('https://', '', $url)
-                )
-            ),
-            $timeStamp,
-            $nonce,
-            '',
-        )
-    );
-
-    $hmacAuthorization = 'Authorization: hmac ' . implode(
-            ':',
-            array(
-                $website_key,
-                base64_encode(
-                    hash_hmac(
-                        'sha256',
-                        $body,
-                        $secret_key,
-                        true
-                    )
-                ),
-                $nonce,
-                $timeStamp,
-            )
-        );
-
-    $response = wp_remote_get(
-        $url,
-        array(
-            'headers' => $hmacAuthorization,
-        )
-    );
-    if ($response['response']['code'] === 200) {
-        wp_die(
-            esc_html__('Credentials are OK', 'wc-buckaroo-bpe-gateway')
-        );
+    if ($buckarooClient->confirmCredential()) {
+        wp_die(esc_html__('Credentials are OK', 'wc-buckaroo-bpe-gateway'));
     } else {
-        wp_die(
-            esc_html__('Credentials are incorrect', 'wc-buckaroo-bpe-gateway')
-        );
+        wp_die(esc_html__('Credentials are incorrect', 'wc-buckaroo-bpe-gateway'));
     }
 }
 

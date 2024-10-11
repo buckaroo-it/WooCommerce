@@ -7,19 +7,24 @@ use Buckaroo\BuckarooClient as BaseBuckarooClient;
 use Buckaroo\Config\DefaultConfig;
 use Buckaroo\Handlers\Reply\ReplyHandler;
 use Buckaroo\Transaction\Response\TransactionResponse;
+use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Services\Config;
 
 /* @mixin BaseBuckarooClient */
 class BuckarooClient
 {
-    protected array $config;
+    protected string $websiteKey;
+    protected string $secretKey;
     protected BaseBuckarooClient $buckarooClient;
-    private $processor;
+    protected string $mode;
 
-    public function __construct($processor)
+    public function __construct(string $mode, ?string $websiteKey = null, ?string $secretKey = null)
     {
-        $this->processor = $processor;
-        $this->config = get_option('woocommerce_buckaroo_mastersettings_settings', []);
+        $config = get_option('woocommerce_buckaroo_mastersettings_settings', []);
+
+        $this->websiteKey = $websiteKey ?? $config['merchantkey'];
+        $this->secretKey = $secretKey ?? $config['secretkey'];
+        $this->mode = $mode;
         $this->buckarooClient = $this->initClient();
     }
 
@@ -29,9 +34,9 @@ class BuckarooClient
 
         return new BaseBuckarooClient(
             new DefaultConfig(
-                $this->config['merchantkey'] ?? '',
-                $this->config['secretkey'] ?? '',
-                $this->processor->gateway->getMode() == 'test' ? 'test' : 'live',
+                $this->websiteKey,
+                $this->secretKey,
+                $this->mode == 'test' ? 'test' : 'live',
                 null,
                 null,
                 null,
@@ -40,7 +45,7 @@ class BuckarooClient
                 $wp_version,
                 'Buckaroo',
                 'Woocommerce Payments Plugin',
-                    Config::VERSION
+                Config::VERSION
             )
         );
     }
@@ -62,20 +67,20 @@ class BuckarooClient
     }
 
 
-    public function process($additionalData = []): TransactionResponse
+    public function process(AbstractPaymentProcessor $processor, $additionalData = []): TransactionResponse
     {
         ray([
-            $this->processor->gateway->getServiceCode(),
-            $this->processor->getAction(),
-            array_merge($this->processor->getBody(), $additionalData)
+            $processor->gateway->getServiceCode(),
+            $processor->getAction(),
+            array_merge($processor->getBody(), $additionalData)
         ]);
-        $client = $this->method($this->processor->gateway->getServiceCode());
-        $res = $client->{$this->processor->getAction()}(array_merge($this->processor->getBody(), $additionalData));
+        $client = $this->method($processor->gateway->getServiceCode());
+        $res = $client->{$processor->getAction()}(array_merge($processor->getBody(), $additionalData));
         ray([
             'BuckarooClient -> process result',
-            $this->processor->gateway->getServiceCode(),
-            $this->processor->getAction(),
-            $this->processor->getBody(),
+            $processor->gateway->getServiceCode(),
+            $processor->getAction(),
+            $processor->getBody(),
             $res,
         ]);
         return $res;
