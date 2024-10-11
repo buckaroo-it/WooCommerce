@@ -5,7 +5,6 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
 use WC_Order;
-use WP_Error;
 
 class KlarnaKpGateway extends AbstractPaymentGateway
 {
@@ -28,7 +27,7 @@ class KlarnaKpGateway extends AbstractPaymentGateway
     public function cancel_reservation(WC_Order $order)
     {
         $processor = $this->newPaymentProcessorInstance($order);
-        $payment = new BuckarooClient($processor);
+        $payment = new BuckarooClient($this->getMode());
 
         $reservation_number = get_post_meta(
             $order->get_id(),
@@ -94,8 +93,8 @@ class KlarnaKpGateway extends AbstractPaymentGateway
 
         $order = getWCOrder($order_id);
         $processor = $this->newPaymentProcessorInstance($order);/** @var KlarnaKpProcessor $payment */;
-        $payment = new BuckarooClient($processor);
-        $res = $payment->process(additionalData: ['amountDebit' => $capture_amount]);
+        $payment = new BuckarooClient($this->getMode());
+        $res = $payment->process($processor, additionalData: ['amountDebit' => $capture_amount]);
 
         return fn_buckaroo_process_capture(
             $res,
