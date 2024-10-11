@@ -62,10 +62,15 @@ class BuckarooClient
     }
 
 
-    public function process(): TransactionResponse
+    public function process($additionalData = []): TransactionResponse
     {
+        ray([
+            $this->processor->gateway->getServiceCode(),
+            $this->processor->getAction(),
+            array_merge($this->processor->getBody(), $additionalData)
+        ]);
         $client = $this->method($this->processor->gateway->getServiceCode());
-        $res = $client->{$this->processor->getAction()}($this->processor->getBody());
+        $res = $client->{$this->processor->getAction()}(array_merge($this->processor->getBody(), $additionalData));
         ray([
             'BuckarooClient -> process result',
             $this->processor->gateway->getServiceCode(),
