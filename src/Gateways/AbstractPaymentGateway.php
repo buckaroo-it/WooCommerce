@@ -8,6 +8,7 @@ use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Handlers\SessionHandler;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
+use Buckaroo\Woocommerce\Services\Config;
 use Buckaroo\Woocommerce\Services\HttpRequest;
 use DateTime;
 use WC_Order;
@@ -547,7 +548,6 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         return;
     }
 
-
     /**
      * Return properly filter if exists or null
      *
@@ -589,14 +589,8 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     public function process_payment($order_id)
     {
-        $processorClass = static::PAYMENT_CLASS ?: AbstractPaymentProcessor::class;
-        $payment = new $processorClass(
-            $this,
-            new HttpRequest(),
-            $order_details = new OrderDetails(new WC_Order($order_id)),
-            new OrderArticles($order_details, $this)
-        );
-        $payment = new BuckarooClient($payment);
+        $processor = $this->newPaymentProcessorInstance($order_id);
+        $payment = new BuckarooClient($processor);
         $return = new ReturnProcessor($this, (int)$order_id);
         $res = $return->paymentProcess($payment->process());
         ray([
@@ -613,20 +607,13 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      * @param string $reason
      * @return callable|string function or error
      */
-    public function process_refund($order_id, $amount = null, $reason = '')
+    public function process_refund($order_id, $amount = null, $reason = '', $transactionId = null)
     {
-        $processorClass = static::REFUND_CLASS ?: AbstractRefundProcessor::class;
-        $refund = new $processorClass(
-            $this,
-            new OrderDetails(new WC_Order($order_id)),
-            $amount,
-            $reason
-        );
-
-        $refund = new BuckarooClient($refund);
+        $processor = $this->newRefundProcessorInstance($order_id, $amount, $reason);
+        $refund = new BuckarooClient($processor);
         $return = new ReturnProcessor($this, (int)$order_id);
 
-        $res = $return->refundProcess($refund->process());
+        $res = $return->refundProcess($refund->process($transactionId ? ['originalTransactionKey' => $transactionId] : []));
         ray([
             $this,
             $res
@@ -843,5 +830,48 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function getMode()
     {
         return $this->get_option('mode');
+    }
+
+    /**
+     * Get payment class
+     *
+     * @param WC_Order $order
+     * @param boolean $isRefund
+     *
+     * @return string
+     */
+    protected function get_payment_class($order, $isRefund = false)
+    {
+        return static::PAYMENT_CLASS ?: AbstractPaymentProcessor::class;
+    }
+
+    public function newPaymentProcessorInstance($order)
+    {
+        if (is_scalar($order)) {
+            $order = getWCOrder($order);
+        }
+
+        $processorClass = $this->get_payment_class($order);
+        return new $processorClass(
+            $this,
+            new HttpRequest(),
+            $order_details = new OrderDetails($order),
+            new OrderArticles($order_details, $this)
+        );
+    }
+
+    public function newRefundProcessorInstance($order, $amount, $reason)
+    {
+        if (is_scalar($order)) {
+            $order = getWCOrder($order);
+        }
+
+        $processorClass = static::REFUND_CLASS ?: AbstractRefundProcessor::class;
+        return new $processorClass(
+            $this,
+            new OrderDetails($order),
+            $amount,
+            $reason
+        );
     }
 }

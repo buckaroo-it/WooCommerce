@@ -84,7 +84,7 @@ class OrderArticles
             'vatPercentage' => $item->get_vat()
         ];
 
-        if ($this->gateway->id === 'buckaroo_afterpaynew') {
+        if ($this->gateway->id === 'buckaroo_afterpaynew' || $this->gateway->id === 'buckaroo_klarnapay') {
             $product = array_merge($product, $this->get_afterpay_data($item));
         }
 
@@ -109,7 +109,7 @@ class OrderArticles
      */
     private function get_afterpay_data(OrderItem $item): array
     {
-        $data = ['type' => $item->get_type()];
+        $data = [];
         if ($item->get_type() === 'line_item') {
             $img = $this->get_product_image($item->get_order_item()->get_product());
             if (!empty($img)) {
