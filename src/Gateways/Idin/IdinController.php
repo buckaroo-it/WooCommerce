@@ -2,8 +2,9 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Idin;
 
+use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
+use Buckaroo\Woocommerce\SDK\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Logger;
-use Buckaroo\Woocommerce\Response\ResponseDefault;
 use Throwable;
 
 class IdinController
@@ -12,11 +13,12 @@ class IdinController
     {
         Logger::log(__METHOD__ . '|1|', wc_clean($_POST));
 
-        $response = new ResponseDefault(wc_clean($_POST));
+        $responseParser = ResponseRegistry::getResponse(wc_clean($_POST));
+        $buckarooClient = new BuckarooClient($responseParser->isTest() ? 'test' : 'live');
 
-        if ($response && $response->isValid() && $response->hasSucceeded()) {
-            $bin = !empty($response->brq_service_idin_consumerbin) ? $response->brq_service_idin_consumerbin : 0;
-            $isEighteen = $response->brq_service_idin_iseighteenorolder === 'True' ? 1 : 0;
+        if ($buckarooClient->isReplyHandlerValid($responseParser->get(formatted: false)) && $responseParser->isSuccess()) {
+            $bin = $responseParser->getService('consumerbin');
+            $isEighteen = $responseParser->getService('iseighteenorolder') === 'True' ? 1 : 0;
             Logger::log(__METHOD__ . '|5|', $bin);
             if ($isEighteen) {
                 IdinProcessor::setCurrentUserIsVerified($bin);
@@ -27,8 +29,8 @@ class IdinController
         } else {
             Logger::log(__METHOD__ . '|10|');
             wc_add_notice(
-                empty($response->statusmessage) ?
-                    __('Verification has been failed', 'wc-buckaroo-bpe-gateway') : stripslashes($response->statusmessage),
+                empty($responseParser->getStatusMessage()) ?
+                    __('Verification has been failed', 'wc-buckaroo-bpe-gateway') : stripslashes($responseParser->getStatusMessage()),
                 'error'
             );
         }

@@ -2,95 +2,60 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Transfer;
 
-use Buckaroo\Woocommerce\Response\Response;
+use Buckaroo\Woocommerce\ResponseParser\IGatewayResponse;
+use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 
-class TransferResponse extends Response
+class TransferResponse implements IGatewayResponse
 {
-    public $BIC = '';
-    public $IBAN = '';
-    public $accountHolderName = '';
-    public $accountHolderCountry = '';
-    public $paymentReference = '';
-    public $consumerMessage = array(
-        'MustRead' => '',
-        'CultureName' => '',
-        'Title' => '',
-        'PlainText' => '',
-        'HtmlText' => '',
-    );
+    protected ResponseParser $responseParser;
 
-    /**
-     * @access protected
-     */
-    protected function _parseSoapResponseChild()
+    public function __construct(ResponseParser $responseParser)
     {
-        if (isset($this->_response->Services->Service->ResponseParameter) && isset($this->_response->Services->Service->Name)) {
-            if ($this->_response->Services->Service->Name == 'transfer' && $this->_response->Services->Service->ResponseParameter[5]->Name == 'PaymentReference') {
-
-                $this->BIC = $this->_response->Services->Service->ResponseParameter[0]->_;
-                $this->IBAN = $this->_response->Services->Service->ResponseParameter[1]->_;
-                $this->accountHolderName = $this->_response->Services->Service->ResponseParameter[2]->_;
-                $this->accountHolderCity = $this->_response->Services->Service->ResponseParameter[3]->_;
-                $this->accountHolderCountry = $this->_response->Services->Service->ResponseParameter[4]->_;
-                $this->paymentReference = $this->_response->Services->Service->ResponseParameter[5]->_;
-            }
-        }
-
-        if (isset($this->_response->ConsumerMessage)) {
-            if (isset($this->_response->ConsumerMessage->MustRead)) {
-                $this->consumerMessage['MustRead'] = $this->_response->ConsumerMessage->MustRead;
-            }
-            if (isset($this->_response->ConsumerMessage->CultureName)) {
-                $this->consumerMessage['CultureName'] = $this->_response->ConsumerMessage->CultureName;
-            }
-            if (isset($this->_response->ConsumerMessage->Title)) {
-                $this->consumerMessage['Title'] = $this->_response->ConsumerMessage->Title;
-            }
-            if (isset($this->_response->ConsumerMessage->PlainText)) {
-                $this->consumerMessage['PlainText'] = $this->_response->ConsumerMessage->PlainText;
-            }
-            if (isset($this->_response->ConsumerMessage->HtmlText)) {
-                $this->consumerMessage['HtmlText'] = $this->_response->ConsumerMessage->HtmlText;
-            }
-        }
+        $this->responseParser = $responseParser;
+        $this->updateMeta();
     }
 
     /**
      * @access protected
      */
-    protected function _parsePostResponseChild()
+    protected function updateMeta(): void
     {
 
         if (isset($_POST['brq_ordernumber'])) {
-            $order_id = $this->_setPostVariable('brq_ordernumber');
+            $order_id = $this->responseParser->getOrderNumber();
 
-            if (isset($_POST['brq_service_transfer_bic'])) {
-                update_post_meta($order_id, 'buckaroo_BIC', $this->_setPostVariable('brq_service_transfer_bic'));
+            if ($val = $this->responseParser->getService('bic')) {
+                update_post_meta($order_id, 'buckaroo_BIC', $val);
             }
 
-            if (isset($_POST['brq_service_transfer_iban'])) {
-                update_post_meta($order_id, 'buckaroo_IBAN', $this->_setPostVariable('brq_service_transfer_iban'));
+            if ($val = $this->responseParser->getService('iban')) {
+                update_post_meta($order_id, 'buckaroo_IBAN', $val);
             }
 
-            if (isset($_POST['brq_service_transfer_accountholdername'])) {
-                update_post_meta($order_id, 'buckaroo_accountHolderName', $this->_setPostVariable('brq_service_transfer_accountholdername'));
+            if ($val = $this->responseParser->getService('accountholdername')) {
+                update_post_meta($order_id, 'buckaroo_accountHolderName', $val);
             }
 
-            if (isset($_POST['brq_service_transfer_bankaccount'])) {
-                update_post_meta($order_id, 'buckaroo_bankAccount', $this->_setPostVariable('brq_service_transfer_bankaccount'));
+            if ($val = $this->responseParser->getService('bankaccount')) {
+                update_post_meta($order_id, 'buckaroo_bankAccount', $val);
             }
 
-            if (isset($_POST['brq_service_transfer_accountholdercity'])) {
-                update_post_meta($order_id, 'buckaroo_accountHolderCity', $this->_setPostVariable('brq_service_transfer_accountholdercity'));
+            if ($val = $this->responseParser->getService('accountholdercity')) {
+                update_post_meta($order_id, 'buckaroo_accountHolderCity', $val);
             }
 
-            if (isset($_POST['brq_service_transfer_accountholdercountry'])) {
-                update_post_meta($order_id, 'buckaroo_accountHolderCountry', $this->_setPostVariable('brq_service_transfer_accountholdercountry'));
+            if ($val = $this->responseParser->getService('accountholdercountry')) {
+                update_post_meta($order_id, 'buckaroo_accountHolderCountry', $val);
             }
 
-            if (isset($_POST['brq_service_transfer_paymentreference'])) {
-                update_post_meta($order_id, 'buckaroo_paymentReference', $this->_setPostVariable('brq_service_transfer_paymentreference'));
+            if ($val = $this->responseParser->getService('paymentreference')) {
+                update_post_meta($order_id, 'buckaroo_paymentReference', $val);
             }
         }
+    }
+
+    public function toResponse(): ResponseParser
+    {
+        return $this->responseParser;
     }
 }
