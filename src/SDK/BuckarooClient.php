@@ -7,7 +7,7 @@ use Buckaroo\BuckarooClient as BaseBuckarooClient;
 use Buckaroo\Config\DefaultConfig;
 use Buckaroo\Handlers\Reply\ReplyHandler;
 use Buckaroo\Transaction\Response\TransactionResponse;
-use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Services\Config;
 
 /* @mixin BaseBuckarooClient */
@@ -67,7 +67,7 @@ class BuckarooClient
     }
 
 
-    public function process(AbstractPaymentProcessor $processor, $additionalData = []): TransactionResponse
+    public function process(AbstractProcessor $processor, $additionalData = []): TransactionResponse
     {
         ray([
             $processor->gateway->getServiceCode(),

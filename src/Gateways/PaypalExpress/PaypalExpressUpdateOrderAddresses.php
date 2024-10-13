@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 
-use Buckaroo\Woocommerce\Gateways\Paypal\PaypalResponse;
+use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use WC_Order;
 
 /**
@@ -22,9 +22,9 @@ class PaypalExpressUpdateOrderAddresses
 
     private WC_Order $order;
 
-    private PaypalResponse $response;
+    private ResponseParser $response;
 
-    public function __construct(WC_Order $order, PaypalResponse $response)
+    public function __construct(WC_Order $order, ResponseParser $response)
     {
         $this->order = $order;
         $this->response = $response;
@@ -32,7 +32,7 @@ class PaypalExpressUpdateOrderAddresses
 
     public function update()
     {
-        if ($this->response->is_paypal_express()) {
+        if ($this->response->getAdditionalInformation('is_paypal_express')) {
             $this->update_billing_address();
             $this->update_shipping_address();
             $this->order->save();
@@ -66,10 +66,6 @@ class PaypalExpressUpdateOrderAddresses
 
     private function get(string $key): string
     {
-        $value = $this->response->string_service($key);
-        if ($value !== null) {
-            return $value;
-        }
-        return '';
+        return $this->response->getService($key) ?? '';
     }
 }
