@@ -10,13 +10,13 @@ class SepaDirectDebitProcessor extends AbstractPaymentProcessor
     protected function getMethodBody(): array
     {
         if (
-            $this->request_string('buckaroo-sepadirectdebit-accountname') !== null &&
-            $this->request_string('buckaroo-sepadirectdebit-iban') !== null
+            $this->request->input('buckaroo-sepadirectdebit-accountname') !== null &&
+            $this->request->input('buckaroo-sepadirectdebit-iban') !== null
         ) {
             return [
-                'iban' => $this->request_string('buckaroo-sepadirectdebit-iban'),
+                'iban' => $this->request->input('buckaroo-sepadirectdebit-iban'),
                 'customer' => [
-                    'name' => $this->request_string('buckaroo-sepadirectdebit-accountname')
+                    'name' => $this->request->input('buckaroo-sepadirectdebit-accountname')
                 ]
             ];
         }

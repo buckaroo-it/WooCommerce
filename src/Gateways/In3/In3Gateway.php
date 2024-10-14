@@ -7,7 +7,6 @@ use Buckaroo\Woocommerce\Components\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
-use Buckaroo\Woocommerce\Services\HttpRequest;
 use WC_Order;
 
 class In3Gateway extends AbstractPaymentGateway
@@ -73,9 +72,9 @@ class In3Gateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        $birthdate = $this->request('buckaroo-in3-birthdate');
+        $birthdate = $this->request->input('buckaroo-in3-birthdate');
 
-        $country = $this->request('billing_country');
+        $country = $this->request->input('billing_country');
         if ($country === null) {
             $country = $this->country;
         }
@@ -85,8 +84,8 @@ class In3Gateway extends AbstractPaymentGateway
         }
 
         if (
-            $this->request('billing_phone') === null &&
-            $this->request('buckaroo-in3-phone') === null
+            $this->request->input('billing_phone') === null &&
+            $this->request->input('buckaroo-in3-phone') === null
         ) {
             wc_add_notice(
                 sprintf(
@@ -121,7 +120,6 @@ class In3Gateway extends AbstractPaymentGateway
     {
         return new In3V2Processor(
             $this,
-            new HttpRequest(),
             $order_details = new OrderDetails(new WC_Order($order_id)),
             new OrderArticles($order_details, $this)
         );

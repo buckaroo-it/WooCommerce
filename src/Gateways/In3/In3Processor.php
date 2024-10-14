@@ -17,7 +17,7 @@ class In3Processor extends AbstractPaymentProcessor
 
     private function getBilling(): array
     {
-        $phone = $this->request('buckaroo-in3-phone', $this->getAddress('billing', 'phone'));
+        $phone = $this->request->input('buckaroo-in3-phone', $this->getAddress('billing', 'phone'));
         return [
             'billing' => [
                 'recipient' => [
@@ -27,7 +27,7 @@ class In3Processor extends AbstractPaymentProcessor
                     ),
                     'firstName' => $this->getAddress('billing', 'first_name'),
                     'lastName' => $this->getAddress('billing', 'last_name'),
-                    'birthDate' => date('Y-m-d', strtotime($this->request('buckaroo-in3-birthdate'))),
+                    'birthDate' => date('Y-m-d', strtotime($this->request->input('buckaroo-in3-birthdate'))),
                     'customerNumber' => get_current_user_id(),
                     'phone' => $phone,
                     'country' => $this->getAddress('billing', 'country')

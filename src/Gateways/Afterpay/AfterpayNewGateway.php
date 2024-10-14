@@ -45,34 +45,34 @@ class AfterpayNewGateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        $country = $this->request('billing_country');
+        $country = $this->request->input('billing_country');
         if ($country === null) {
             $country = $this->country;
         }
 
         $birthdate = $this->parseDate(
-            $this->request('buckaroo-afterpaynew-birthdate')
+            $this->request->input('buckaroo-afterpaynew-birthdate')
         );
 
         if (!($this->validateDate($birthdate, 'd-m-Y') && $this->validateBirthdate($birthdate)) && in_array($country, array('NL', 'BE'))) {
             wc_add_notice(__('You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.', 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
-        if ($this->request('buckaroo-afterpaynew-accept') === null) {
+        if ($this->request->input('buckaroo-afterpaynew-accept') === null) {
             wc_add_notice(__('Please accept licence agreements', 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
         if (
             self::CUSTOMER_TYPE_B2C !== $this->customer_type &&
             $country === 'NL' &&
-            $this->request('billing_company') !== null
+            $this->request->input('billing_company') !== null
         ) {
-            if ($this->request('buckaroo-afterpaynew-company-coc-registration') === null) {
+            if ($this->request->input('buckaroo-afterpaynew-company-coc-registration') === null) {
                 wc_add_notice(__('Company registration number is required', 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
 
-        if ($this->request('buckaroo-afterpaynew-phone') === null && $this->request('billing_phone') === null) {
+        if ($this->request->input('buckaroo-afterpaynew-phone') === null && $this->request->input('billing_phone') === null) {
             wc_add_notice(__('Please enter phone number', 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
@@ -84,7 +84,7 @@ class AfterpayNewGateway extends AbstractPaymentGateway
 
         if (
             $this->is_house_number_invalid('shipping') &&
-            $this->request('ship_to_different_address') == 1
+            $this->request->input('ship_to_different_address') == 1
         ) {
             wc_add_notice(__('Invalid shipping address, cannot find house number', 'wc-buckaroo-bpe-gateway'), 'error');
         }
@@ -95,7 +95,7 @@ class AfterpayNewGateway extends AbstractPaymentGateway
     private function is_house_number_invalid($type)
     {
         $components = OrderDetails::getAddressComponents(
-            $this->request($type . '_address_1') . ' ' . $this->request($type . '_address_2')
+            $this->request->input($type . '_address_1') . ' ' . $this->request->input($type . '_address_2')
         );
 
         return !is_string($components['house_number']) || empty(trim($components['house_number']));
