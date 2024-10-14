@@ -4,7 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Components\OrderItem;
 use Buckaroo\Woocommerce\Services\CaptureTransaction;
-use Buckaroo\Woocommerce\Services\HttpRequest;
+use Buckaroo\Woocommerce\Services\Request;
 use WP_Error;
 
 /**
@@ -33,15 +33,15 @@ class KlarnaRefund
      */
     public function refund_capture()
     {
-        $request = new HttpRequest();
-        if ($request->request('order_id') === null) {
+        $request = new Request();
+        if ($request->input('order_id') === null) {
             wp_send_json(
                 array(
                     'error' => __('A order id is required', 'wc-buckaroo-bpe-gateway'),
                 )
             );
         }
-        if ($request->request('capture_id') === null) {
+        if ($request->input('capture_id') === null) {
             wp_send_json(
                 array(
                     'error' => __('A capture id is required', 'wc-buckaroo-bpe-gateway'),
@@ -49,8 +49,8 @@ class KlarnaRefund
             );
         }
 
-        $order_id = absint($request->request('order_id'));
-        $capture_id = $request->request('capture_id');
+        $order_id = absint($request->input('order_id'));
+        $capture_id = $request->input('capture_id');
         $capture = $this->get_capture_transaction_by_id($order_id, $capture_id);
 
         $successful_refund = false;
@@ -105,24 +105,24 @@ class KlarnaRefund
     /**
      * Refund items in woocommerce
      *
-     * @param HttpRequest $request
+     * @param Request $request
      * @param integer $order_id
      * @param array $capture
      *
      * @return void
      */
-    protected function refund_in_woocommerce(HttpRequest $request, int $order_id, array $capture)
+    protected function refund_in_woocommerce(Request $request, int $order_id, array $capture)
     {
         $order = wc_get_order($order_id);
         $capture_transaction = new CaptureTransaction($capture, $order);
         wc_create_refund(
             array(
                 'amount' => $capture_transaction->get_total_amount(),
-                'reason' => $request->request('reason') ?? '',
+                'reason' => $request->input('reason') ?? '',
                 'order_id' => $order_id,
                 'line_items' => $this->get_refund_items($capture_transaction),
                 'refund_payment' => false,
-                'restock_items' => $request->request('restock') == 'true',
+                'restock_items' => $request->input('restock') == 'true',
             )
         );
     }

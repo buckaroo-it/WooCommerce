@@ -40,30 +40,30 @@ class AfterpayOldGateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        if ($this->request('buckaroo-afterpay-accept') === null) {
+        if ($this->request->input('buckaroo-afterpay-accept') === null) {
             wc_add_notice(__('Please accept licence agreements', 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
-        $birthdate = $this->parseDate($this->request('buckaroo-afterpay-birthdate'));
-        $b2b = $this->request('buckaroo-afterpay-b2b');
+        $birthdate = $this->parseDate($this->request->input('buckaroo-afterpay-birthdate'));
+        $b2b = $this->request->input('buckaroo-afterpay-b2b');
         if (!$this->validateDate($birthdate, 'd-m-Y') && $b2b != 'ON') {
             wc_add_notice(__('You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.', 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
         if ($b2b == 'ON') {
-            if ($this->request('buckaroo-afterpay-company-coc-registration') === null) {
+            if ($this->request->input('buckaroo-afterpay-company-coc-registration') === null) {
                 wc_add_notice(__('Company registration number is required (KvK)', 'wc-buckaroo-bpe-gateway'), 'error');
             }
-            if ($this->request('buckaroo-afterpay-company-name') === null) {
+            if ($this->request->input('buckaroo-afterpay-company-name') === null) {
                 wc_add_notice(__('Company name is required', 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
 
-        if ($this->request('buckaroo-afterpay-phone') === null && $this->request('billing_phone') === null) {
+        if ($this->request->input('buckaroo-afterpay-phone') === null && $this->request->input('billing_phone') === null) {
             wc_add_notice(__('Please enter phone number', 'wc-buckaroo-bpe-gateway'), 'error');
         }
         if ($this->type == 'afterpayacceptgiro') {
-            if ($this->request('buckaroo-afterpay-company-coc-registration') === null) {
+            if ($this->request->input('buckaroo-afterpay-company-coc-registration') === null) {
                 wc_add_notice(__('IBAN is required', 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }

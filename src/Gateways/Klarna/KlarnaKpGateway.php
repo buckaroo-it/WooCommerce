@@ -71,13 +71,13 @@ class KlarnaKpGateway extends AbstractPaymentGateway
      */
     public function process_capture()
     {
-        $order_id = $this->request('order_id');
+        $order_id = $this->request->input('order_id');
 
         if ($order_id === null || !is_numeric($order_id)) {
             return $this->create_capture_error(__('A valid order number is required'));
         }
 
-        $capture_amount = $this->request('capture_amount');
+        $capture_amount = $this->request->input('capture_amount');
         if ($capture_amount === null || !is_scalar($capture_amount)) {
             return $this->create_capture_error(__('A valid capture amount is required'));
         }

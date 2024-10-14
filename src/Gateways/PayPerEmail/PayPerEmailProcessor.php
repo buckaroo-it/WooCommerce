@@ -16,20 +16,20 @@ class PayPerEmailProcessor extends AbstractPaymentProcessor
     protected function getMethodBody(): array
     {
         return [
-            'email' => $this->request_string(
+            'email' => $this->request->input(
                 'buckaroo-payperemail-email',
                 $this->getAddress('billing', 'email'),
             ),
             'customer' => [
-                'firstName' => $this->request_string(
+                'firstName' => $this->request->input(
                     'buckaroo-payperemail-firstname',
                     $this->getAddress('billing', 'first_name'),
                 ),
-                'lastName' => $this->request_string(
+                'lastName' => $this->request->input(
                     'buckaroo-payperemail-lastname',
                     $this->getAddress('billing', 'last_name'),
                 ),
-                'gender' => $this->request_string('buckaroo-payperemail-gender'),
+                'gender' => $this->request->input('buckaroo-payperemail-gender'),
 
             ],
             'expirationDate' => $this->getExpirationDate(),

@@ -29,9 +29,9 @@ class SepaDirectDebitGateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        $iban = $this->request('buckaroo-sepadirectdebit-iban');
+        $iban = $this->request->input('buckaroo-sepadirectdebit-iban');
         if (
-            $this->request('buckaroo-sepadirectdebit-accountname') === null ||
+            $this->request->input('buckaroo-sepadirectdebit-accountname') === null ||
             $iban === null
         ) {
             wc_add_notice(__('Please fill in all required fields', 'wc-buckaroo-bpe-gateway'), 'error');

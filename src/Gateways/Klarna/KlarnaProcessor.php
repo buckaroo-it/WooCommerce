@@ -28,7 +28,7 @@ class KlarnaProcessor extends AbstractPaymentProcessor
                     'category' => $this->getCategory('billing'),
                     'firstName' => $this->getAddress('billing', 'first_name'),
                     'lastName' => $this->getAddress('billing', 'last_name'),
-                    'gender' => $this->request_string($this->gateway->getKlarnaSelector() . '-gender', 'male')
+                    'gender' => $this->request->input($this->gateway->getKlarnaSelector() . '-gender', 'male')
                 ],
                 'address' => [
                     'street' => $streetParts->get_street(),
@@ -60,7 +60,7 @@ class KlarnaProcessor extends AbstractPaymentProcessor
                     'category' => $this->getCategory('shipping'),
                     'firstName' => $this->getAddress('shipping', 'first_name'),
                     'lastName' => $this->getAddress('shipping', 'last_name'),
-                    'gender' => $this->request_string($this->gateway->getKlarnaSelector() . '-gender', 'male')
+                    'gender' => $this->request->input($this->gateway->getKlarnaSelector() . '-gender', 'male')
                 ],
                 'address' => [
                     'street' => $streetParts->get_street(),
@@ -78,7 +78,7 @@ class KlarnaProcessor extends AbstractPaymentProcessor
     private function getPhone(string $phone): string
     {
         $input_phone = $this->order_details->cleanup_phone(
-            $this->request($this->gateway->getKlarnaSelector() . "-phone")
+            $this->request->input($this->gateway->getKlarnaSelector() . "-phone")
         );
         if (strlen(trim($input_phone)) > 0) {
             return $input_phone;
