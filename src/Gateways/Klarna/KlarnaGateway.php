@@ -30,26 +30,26 @@ class KlarnaGateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        $gender = $this->request($this->getKlarnaSelector() . '-gender');
+        $gender = $this->request->input($this->getKlarnaSelector() . '-gender');
 
         if (!in_array($gender, array('male', 'female'))) {
             wc_add_notice(__('Unknown gender', 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
-        if ($this->request('ship_to_different_address') !== null) {
-            $countryCode = $this->request('shipping_country') == 'NL' ? $this->request('shipping_country') : '';
-            $countryCode = $this->request('billing_country') == 'NL' ? $this->request('billing_country') : $countryCode;
+        if ($this->request->input('ship_to_different_address') !== null) {
+            $countryCode = $this->request->input('shipping_country') == 'NL' ? $this->request->input('shipping_country') : '';
+            $countryCode = $this->request->input('billing_country') == 'NL' ? $this->request->input('billing_country') : $countryCode;
             if (!empty($countryCode)
                 && strtolower($this->klarnaPaymentFlowId) !== 'pay') {
 
                 return wc_add_notice(__('Payment method is not supported for country ' . '(' . esc_html($countryCode) . ')', 'wc-buckaroo-bpe-gateway'), 'error');
             }
         } elseif (
-            ($this->request('billing_country') == 'NL')
+            ($this->request->input('billing_country') == 'NL')
             && strtolower($this->klarnaPaymentFlowId) !== 'pay'
         ) {
 
-            return wc_add_notice(__('Payment method is not supported for country ' . '(' . esc_html($this->request('billing_country')) . ')', 'wc-buckaroo-bpe-gateway'), 'error');
+            return wc_add_notice(__('Payment method is not supported for country ' . '(' . esc_html($this->request->input('billing_country')) . ')', 'wc-buckaroo-bpe-gateway'), 'error');
         }
     }
 

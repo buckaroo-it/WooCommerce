@@ -8,7 +8,7 @@ use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Handlers\SessionHandler;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
-use Buckaroo\Woocommerce\Services\HttpRequest;
+use Buckaroo\Woocommerce\Services\Request;
 use DateTime;
 use WC_Order;
 use WC_Payment_Gateway;
@@ -29,6 +29,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public $mode;
     public $country;
     public $channel;
+    protected Request $request;
 
     public function __construct()
     {
@@ -55,6 +56,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         add_action('woocommerce_checkout_process', array($this, 'action_woocommerce_checkout_process'));
 
         $this->addGatewayHooks('WC_Gateway_' . ucfirst($this->id));
+        $this->request = new Request();
     }
 
     /**
@@ -626,25 +628,6 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     }
 
     /**
-     * Get clean $_POST data
-     *
-     * @param string $key
-     *
-     * @return mixed
-     */
-    public function request($key)
-    {
-        if (!isset($_POST[$key])) {
-            return;
-        }
-        $value = map_deep($_POST[$key], 'sanitize_text_field');
-        if (is_string($value) && strlen(trim($value)) === 0) {
-            return;
-        }
-        return $value;
-    }
-
-    /**
      * Set gateway icon
      *
      * @param string $oldPath Old image path
@@ -853,7 +836,6 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         $processorClass = $this->get_payment_class($order);
         return new $processorClass(
             $this,
-            new HttpRequest(),
             $order_details = new OrderDetails($order),
             new OrderArticles($order_details, $this)
         );

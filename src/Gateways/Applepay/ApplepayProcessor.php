@@ -11,7 +11,7 @@ class ApplepayProcessor extends AbstractPaymentProcessor
     /** @inheritDoc */
     protected function getMethodBody(): array
     {
-        $applePayInfo = $this->request('paymentData');
+        $applePayInfo = $this->request->input('paymentData');
 
         if (!is_string($applePayInfo)) {
             return [];

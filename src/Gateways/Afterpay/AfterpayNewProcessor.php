@@ -121,7 +121,7 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
 
     private function getPhone(string $phone): string
     {
-        return $this->request('buckaroo-afterpaynew-phone', $phone);
+        return $this->request->input('buckaroo-afterpaynew-phone', $phone);
     }
 
     /**
@@ -141,7 +141,7 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
                 $address_type => [
                     'recipient' => [
                         'companyName' => $company,
-                        'chamberOfCommerce' => $this->request('buckaroo-afterpaynew-company-coc-registration'),
+                        'chamberOfCommerce' => $this->request->input('buckaroo-afterpaynew-company-coc-registration'),
                     ]
                 ]
             ];
@@ -176,7 +176,7 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
      */
     private function getFormatedDate(): ?string
     {
-        $dateString = $this->request('buckaroo-afterpaynew-birthdate');
+        $dateString = $this->request->input('buckaroo-afterpaynew-birthdate');
         if (!is_scalar($dateString)) {
             return null;
         }

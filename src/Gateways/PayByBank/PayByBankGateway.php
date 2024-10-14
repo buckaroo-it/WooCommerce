@@ -30,7 +30,7 @@ class PayByBankGateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        $issuer = $this->request('buckaroo-paybybank-issuer');
+        $issuer = $this->request->input('buckaroo-paybybank-issuer');
 
         if ($issuer === null) {
             wc_add_notice(__('<strong>PayByBank </strong> is a required field.', 'wc-buckaroo-bpe-gateway'), 'error');

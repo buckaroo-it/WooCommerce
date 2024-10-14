@@ -34,7 +34,7 @@ class BillinkProcessor extends AbstractPaymentProcessor
      */
     protected function getVatnumber(): array
     {
-        $vatNumber = $this->request('buckaroo-billink-VatNumber');
+        $vatNumber = $this->request->input('buckaroo-billink-VatNumber');
         if (
             is_string($vatNumber) &&
             !empty(trim($vatNumber))
@@ -51,11 +51,11 @@ class BillinkProcessor extends AbstractPaymentProcessor
      */
     protected function getCoc(): array
     {
-        if (is_string($this->request('buckaroo-billink-company-coc-registration'))) {
+        if (is_string($this->request->input('buckaroo-billink-company-coc-registration'))) {
             return [
                 'billing' => [
                     'recipient' => [
-                        'chamberOfCommerce' => $this->request('buckaroo-billink-company-coc-registration')
+                        'chamberOfCommerce' => $this->request->input('buckaroo-billink-company-coc-registration')
                     ]
                 ]
             ];
@@ -80,7 +80,7 @@ class BillinkProcessor extends AbstractPaymentProcessor
                     'firstName' => $first_name,
                     'lastName' => $this->getAddress('billing', 'last_name'),
                     'birthDate' => $this->getBirthDate(),
-                    'salutation' => $this->request('buckaroo-billink-gender')
+                    'salutation' => $this->request->input('buckaroo-billink-gender')
                 ],
                 'address' => [
                     'street' => $streetParts->get_street(),
@@ -159,7 +159,7 @@ class BillinkProcessor extends AbstractPaymentProcessor
      */
     private function getBirthDate()
     {
-        $dateString = $this->request('buckaroo-billink-birthdate');
+        $dateString = $this->request->input('buckaroo-billink-birthdate');
         if (!is_scalar($dateString)) {
             return null;
         }
