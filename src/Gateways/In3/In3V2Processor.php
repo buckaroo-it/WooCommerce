@@ -37,7 +37,7 @@ class In3V2Processor extends AbstractPaymentProcessor
                 'email' => $this->getAddress('billing', 'email'),
                 'phone' => $this->getAddress('billing', 'phone'),
                 'culture' => 'nl-NL',
-                'birthDate' => date('Y-m-d', strtotime($this->request_string('buckaroo-in3-birthdate'))),
+                'birthDate' => date('Y-m-d', strtotime($this->request->input('buckaroo-in3-birthdate'))),
             ]
         ];
     }

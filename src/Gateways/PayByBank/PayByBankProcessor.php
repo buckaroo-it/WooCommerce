@@ -68,7 +68,7 @@ class PayByBankProcessor extends AbstractPaymentProcessor
     protected function getMethodBody(): array
     {
         return [
-            'issuer' => $this->request_string('buckaroo-paybybank-issuer')
+            'issuer' => $this->request->input('buckaroo-paybybank-issuer')
         ];
     }
 

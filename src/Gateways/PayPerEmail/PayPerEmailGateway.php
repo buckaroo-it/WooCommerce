@@ -29,26 +29,26 @@ class PayPerEmailGateway extends AbstractPaymentGateway
     public function validate_fields()
     {
         if ($this->isVisibleOnFrontend()) {
-            if ($this->request('buckaroo-payperemail-gender') === null) {
+            if ($this->request->input('buckaroo-payperemail-gender') === null) {
                 wc_add_notice(__('Please select gender', 'wc-buckaroo-bpe-gateway'), 'error');
             }
 
-            $gender = $this->request('buckaroo-payperemail-gender');
+            $gender = $this->request->input('buckaroo-payperemail-gender');
 
             if (!in_array($gender, array('0', '1', '2', '9'))) {
                 wc_add_notice(__('Unknown gender', 'wc-buckaroo-bpe-gateway'), 'error');
             }
 
-            if ($this->request('buckaroo-payperemail-firstname') === null) {
+            if ($this->request->input('buckaroo-payperemail-firstname') === null) {
                 wc_add_notice(__('Please enter firstname', 'wc-buckaroo-bpe-gateway'), 'error');
             }
 
-            if ($this->request('buckaroo-payperemail-lastname') === null) {
+            if ($this->request->input('buckaroo-payperemail-lastname') === null) {
                 wc_add_notice(__('Please enter lastname', 'wc-buckaroo-bpe-gateway'), 'error');
             }
-            if ($this->request('buckaroo-payperemail-email') === null) {
+            if ($this->request->input('buckaroo-payperemail-email') === null) {
                 wc_add_notice(__('Please enter email', 'wc-buckaroo-bpe-gateway'), 'error');
-            } elseif (!is_email($this->request('buckaroo-payperemail-email'))) {
+            } elseif (!is_email($this->request->input('buckaroo-payperemail-email'))) {
                 wc_add_notice(__('Please enter valid email', 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }

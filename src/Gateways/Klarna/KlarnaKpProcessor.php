@@ -5,7 +5,6 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 use Buckaroo\Woocommerce\Components\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway;
-use Buckaroo\Woocommerce\Services\HttpRequest;
 
 class KlarnaKpProcessor extends AbstractPaymentProcessor
 {
@@ -14,10 +13,6 @@ class KlarnaKpProcessor extends AbstractPaymentProcessor
      * @var OrderDetails
      */
     protected OrderDetails $order_details;
-    /**
-     * @var HttpRequest
-     */
-    protected $request;
 
     public function getAction(): string
     {
@@ -77,7 +72,7 @@ class KlarnaKpProcessor extends AbstractPaymentProcessor
 
     private function getPhone(string $phone): string
     {
-        return $this->request('buckaroo-afterpaynew-phone', $phone);
+        return $this->request->input('buckaroo-afterpaynew-phone', $phone);
     }
 
     /**
@@ -127,7 +122,7 @@ class KlarnaKpProcessor extends AbstractPaymentProcessor
                 $address_type => [
                     'recipient' => [
                         'companyName' => $company,
-                        'chamberOfCommerce' => $this->request('buckaroo-afterpaynew-company-coc-registration'),
+                        'chamberOfCommerce' => $this->request->input('buckaroo-afterpaynew-company-coc-registration'),
                     ]
                 ]
             ];

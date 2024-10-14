@@ -56,7 +56,7 @@ class CreditCardGateway extends AbstractPaymentGateway
     {
         parent::validate_fields();
 
-        $issuer = $this->request($this->id . '-creditcard-issuer');
+        $issuer = $this->request->input($this->id . '-creditcard-issuer');
         if ($issuer === null) {
             wc_add_notice(__('Select a credit or debit card.', 'wc-buckaroo-bpe-gateway'), 'error');
         }
@@ -80,7 +80,7 @@ class CreditCardGateway extends AbstractPaymentGateway
             wc_add_notice(__('A valid credit card is required.', 'wc-buckaroo-bpe-gateway'), 'error');
         }
         if ($this->get_option('creditcardmethod') == 'encrypt' && $this->isSecure()) {
-            $card_year = $this->request($this->id . '-cardyear');
+            $card_year = $this->request->input($this->id . '-cardyear');
 
             if ($card_year === null) {
                 wc_add_notice(__('Enter expiration year field', 'wc-buckaroo-bpe-gateway'), 'error');
@@ -121,7 +121,7 @@ class CreditCardGateway extends AbstractPaymentGateway
     {
         if ($this->creditcardpayauthorize == 'authorize') {
             update_post_meta($order_id, '_wc_order_authorized', 'yes');
-            $this->set_order_capture($order_id, "Creditcard", $this->request($this->id . "-creditcard-issuer"));
+            $this->set_order_capture($order_id, "Creditcard", $this->request->input($this->id . "-creditcard-issuer"));
         }
         return parent::process_payment($order_id);
     }
