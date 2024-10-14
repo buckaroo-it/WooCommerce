@@ -35,21 +35,21 @@ class BillinkGateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        if ($this->request('billing_company') !== null) {
-            if ($this->request('buckaroo-billink-company-coc-registration') === null) {
+        if ($this->request->input('billing_company') !== null) {
+            if ($this->request->input('buckaroo-billink-company-coc-registration') === null) {
                 wc_add_notice(__('Please enter correct COC (KvK) number', 'wc-buckaroo-bpe-gateway'), 'error');
             }
         } else {
-            if (!$this->validateDate($this->request('buckaroo-billink-birthdate'), 'd-m-Y')
+            if (!$this->validateDate($this->request->input('buckaroo-billink-birthdate'), 'd-m-Y')
             ) {
                 wc_add_notice(__('Please enter correct birth date', 'wc-buckaroo-bpe-gateway'), 'error');
             }
-            if (!in_array($this->request('buckaroo-billink-gender'), array('Male', 'Female', 'Unknown'))) {
+            if (!in_array($this->request->input('buckaroo-billink-gender'), array('Male', 'Female', 'Unknown'))) {
                 wc_add_notice(__('Unknown gender', 'wc-buckaroo-bpe-gateway'), 'error');
             }
         }
 
-        if ($this->request('buckaroo-billink-accept') === null) {
+        if ($this->request->input('buckaroo-billink-accept') === null) {
             wc_add_notice(__('Please accept license agreements', 'wc-buckaroo-bpe-gateway'), 'error');
         }
         parent::validate_fields();

@@ -67,7 +67,7 @@ class AfterpayOldProcessor extends AbstractPaymentProcessor
 
     private function getPhone(string $phone): string
     {
-        return $this->request('buckaroo-afterpaynew-phone', $phone);
+        return $this->request->input('buckaroo-afterpaynew-phone', $phone);
     }
 
     protected function getBirthDate(string $country_code, string $type = 'billing'): array
@@ -87,7 +87,7 @@ class AfterpayOldProcessor extends AbstractPaymentProcessor
     private function getFormatedDate()
     {
 
-        $dateString = $this->request('buckaroo-afterpaynew-birthdate');
+        $dateString = $this->request->input('buckaroo-afterpaynew-birthdate');
         if (!is_scalar($dateString)) {
             return null;
         }

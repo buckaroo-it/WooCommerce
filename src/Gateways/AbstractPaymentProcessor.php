@@ -4,24 +4,23 @@ namespace Buckaroo\Woocommerce\Gateways;
 
 use Buckaroo\Woocommerce\Components\OrderArticles;
 use Buckaroo\Woocommerce\Components\OrderDetails;
-use Buckaroo\Woocommerce\Services\HttpRequest;
+use Buckaroo\Woocommerce\Services\Request;
 use WC_Order;
 
 class AbstractPaymentProcessor extends AbstractProcessor
 {
     protected OrderDetails $order_details;
     protected OrderArticles $order_articles;
-    private HttpRequest $request;
+    protected Request $request;
 
     public function __construct(
         AbstractPaymentGateway $gateway,
-        HttpRequest            $request,
         OrderDetails           $order_details,
         OrderArticles          $order_articles
     )
     {
+        $this->request = new Request;
         $this->gateway = $gateway;
-        $this->request = $request;
         $this->order_details = $order_details;
         $this->order_articles = $order_articles;
     }
@@ -135,20 +134,5 @@ class AbstractPaymentProcessor extends AbstractProcessor
     protected function getArticles(): array
     {
         return $this->order_articles->get_products_for_payment();
-    }
-
-    protected function request_string(string $key, $default = null): ?string
-    {
-        $value = $this->request($key);
-        if (!is_string($value) || empty(trim($value))) {
-            return $default;
-        }
-        return $value;
-    }
-
-    protected function request(string $key, $default = null)
-    {
-        $value = $this->request->request($key);
-        return $value ?? $default;
     }
 }
