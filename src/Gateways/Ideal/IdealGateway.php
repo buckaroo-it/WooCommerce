@@ -31,7 +31,7 @@ class IdealGateway extends AbstractPaymentGateway
     public function validate_fields()
     {
         if ($this->canShowIssuers()) {
-            $issuer = $this->request('buckaroo-ideal-issuer');
+            $issuer = $this->request->input('buckaroo-ideal-issuer');
 
             if ($issuer === null) {
                 wc_add_notice(__('<strong>iDEAL bank </strong> is a required field.', 'wc-buckaroo-bpe-gateway'), 'error');

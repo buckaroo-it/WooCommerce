@@ -84,8 +84,9 @@ class IdealProcessor extends AbstractPaymentProcessor
                 'continueOnIncomplete' => true
             ];
         }
+
         return [
-            'issuer' => $this->request_string('buckaroo-ideal-issuer')
+            'issuer' => $this->request->input('buckaroo-ideal-issuer')
         ];
     }
 
