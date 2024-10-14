@@ -23,22 +23,22 @@ class CreditCardProcessor extends AbstractPaymentProcessor
     private function isEncripted(): bool
     {
         return
-            $this->request_string('creditcard-issuer') !== null &&
-            $this->request_string('encrypted-data') !== null;
+            $this->request->input('creditcard-issuer') !== null &&
+            $this->request->input('encrypted-data') !== null;
     }
 
     /** @inheritDoc */
     protected function getMethodBody(): array
     {
         $body = [
-            'name' => $this->request_string('creditcard-issuer', ''),
+            'name' => $this->request->input('creditcard-issuer', ''),
         ];
 
         if ($this->isEncripted()) {
             $body = array_merge(
                 $body,
                 [
-                    'encryptedCardData' => $this->request_string('encrypted-data')
+                    'encryptedCardData' => $this->request->input('encrypted-data')
                 ]
             );
         }

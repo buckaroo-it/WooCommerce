@@ -59,7 +59,7 @@ class ApplepayGateway extends AbstractPaymentGateway
     {
         Logger::log(__METHOD__ . '|1|', $_POST);
 
-        $this->paymentData = $this->request('paymentData');
+        $this->paymentData = $this->request->input('paymentData');
 
         if (!is_array($this->paymentData)) {
             $this->error_response('ApplePay data is invalid.');
@@ -74,16 +74,16 @@ class ApplepayGateway extends AbstractPaymentGateway
             $this->error_response('ApplePay data is invalid.');
         }
 
-        $items = $this->request('items');
+        $items = $this->request->input('items');
         if ($items === null || !is_array($items)) {
             $this->error_response('ApplePay data is invalid.');
         }
 
-        $shipping_method = $this->request('selected_shipping_method');
+        $shipping_method = $this->request->input('selected_shipping_method');
         if ($shipping_method === null || !is_scalar($shipping_method)) {
             $this->error_response('Invalid shipping method.');
         }
-        $amount = $this->request('amount');
+        $amount = $this->request->input('amount');
         if ($amount === null || !is_scalar($amount)) {
             $this->error_response('Invalid amount.');
         }
