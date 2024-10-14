@@ -4,7 +4,7 @@ namespace Buckaroo\Woocommerce\Components;
 
 
 use Buckaroo\Woocommerce\Services\CaptureTransaction;
-use Buckaroo\Woocommerce\Services\HttpRequest;
+use Buckaroo\Woocommerce\Services\Request;
 
 /**
  * Core class for order capture
@@ -27,7 +27,7 @@ class OrderCapture
     protected $order_details;
 
     /**
-     * @var HttpRequest
+     * @var Request
      */
     protected $request;
 
@@ -43,10 +43,10 @@ class OrderCapture
     private $item_totals;
     private $item_tax_totals;
 
-    public function __construct(OrderDetails $order_details, HttpRequest $request)
+    public function __construct(OrderDetails $order_details)
     {
         $this->order_details = $order_details;
-        $this->request = $request;
+        $this->request = new Request();
         $this->init_form_inputs();
         $this->init_form_items();
         $this->init_previous_captures();

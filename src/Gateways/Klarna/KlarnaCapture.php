@@ -4,7 +4,6 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Components\OrderCapture;
 use Buckaroo\Woocommerce\Components\OrderDetails;
-use Buckaroo\Woocommerce\Services\HttpRequest;
 use WP_Post;
 
 /**
@@ -30,7 +29,6 @@ class KlarnaCapture
     {
         $order_capture = new OrderCapture(
             new OrderDetails($order),
-            new HttpRequest()
         );
         include 'capture-form.php';
     }
