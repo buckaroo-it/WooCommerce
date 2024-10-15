@@ -13,7 +13,7 @@
  * @link      https://www.buckaroo.eu/
  */
 
-class Buckaroo_Capture_Form
+class Buckaroo_Afterpay_Capture_Form
 {
 
     public function __construct()
