@@ -2,8 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
-use Buckaroo\Woocommerce\Components\OrderItem;
-use Buckaroo\Woocommerce\Services\CaptureTransaction;
+use Buckaroo\Woocommerce\Order\OrderItem;
+use Buckaroo\Woocommerce\Order\CaptureTransaction;
 use Buckaroo\Woocommerce\Services\Request;
 use WP_Error;
 

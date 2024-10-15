@@ -1,9 +1,7 @@
 <?php
 
-namespace Buckaroo\Woocommerce\Components;
+namespace Buckaroo\Woocommerce\Order;
 
-
-use Buckaroo\Woocommerce\Services\CaptureTransaction;
 use Buckaroo\Woocommerce\Services\Request;
 
 /**

@@ -2,12 +2,10 @@
 
 namespace Buckaroo\Woocommerce\Gateways\In3;
 
-use Buckaroo\Woocommerce\Components\OrderArticles;
-use Buckaroo\Woocommerce\Components\OrderDetails;
+use Buckaroo\Woocommerce\Order\OrderArticles;
+use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
-use Buckaroo\Woocommerce\SDK\BuckarooClient;
-use WC_Order;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
 
 class In3Gateway extends AbstractPaymentGateway
 {
@@ -103,24 +101,18 @@ class In3Gateway extends AbstractPaymentGateway
     public function process_payment($order_id)
     {
         if ($this->get_option('api_version') === 'v2') {
-            return $this->processPaymentV2($order_id);
+            return (new PayAction($this->getV2Payload((int)$order_id), $order_id))->process();
         }
         return parent::process_payment($order_id);
     }
 
-    private function processPaymentV2($order_id)
-    {
-        $processor = $this->getV2Payload((int)$order_id);
-        $payment = new BuckarooClient($this->getMode());
-        $return = new ReturnProcessor($this, (int)$order_id);
-        return $return->paymentProcess($payment->process($processor));
-    }
-
     private function getV2Payload(int $order_id)
     {
+        $order = getWCOrder($order_id);
+
         return new In3V2Processor(
             $this,
-            $order_details = new OrderDetails(new WC_Order($order_id)),
+            $order_details = new OrderDetails($order),
             new OrderArticles($order_details, $this)
         );
     }

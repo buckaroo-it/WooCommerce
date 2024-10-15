@@ -2,12 +2,13 @@
 
 namespace Buckaroo\Woocommerce\Gateways;
 
-use Buckaroo\Woocommerce\Components\OrderArticles;
-use Buckaroo\Woocommerce\Components\OrderDetails;
+use Buckaroo\Woocommerce\Order\OrderArticles;
+use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Handlers\SessionHandler;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
-use Buckaroo\Woocommerce\SDK\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Request;
 use DateTime;
 use WC_Order;
@@ -33,7 +34,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
     public function __construct()
     {
-        if ((!is_admin() && !checkCurrencySupported($this->id)) || (defined('DOING_AJAX') && !checkCurrencySupported($this->id))) {
+        if ((!is_admin() && !$this->checkCurrencySupported()) || (defined('DOING_AJAX') && !$this->checkCurrencySupported())) {
             unset($this->id);
             unset($this->title);
         }
@@ -324,7 +325,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function generate_buckaroo_notice_html($key, $data)
     {
         // Add Warning, if currency set in Buckaroo is unsupported
-        if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && !checkCurrencySupported($this->id) && is_admin()) :
+        if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && !$this->checkCurrencySupported() && is_admin()) :
             ob_start();
             ?>
             <div class="error notice">
@@ -344,7 +345,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function response_handler()
     {
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $result = fn_buckaroo_process_response($this);
+        $result = (new ReturnProcessor())->handle($this);
 
         if (!is_null($result)) {
             wp_safe_redirect($result['redirect']);
@@ -590,15 +591,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     public function process_payment($order_id)
     {
-        $processor = $this->newPaymentProcessorInstance($order_id);
-        $payment = new BuckarooClient($this->getMode());
-        $return = new ReturnProcessor($this, (int)$order_id);
-        $res = $return->paymentProcess($payment->process($processor));
-        ray([
-            $this,
-            $res
-        ]);
-        return $res;
+        return (new PayAction($this->newPaymentProcessorInstance($order_id), $order_id))->process();
     }
 
     /**
@@ -610,16 +603,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     public function process_refund($order_id, $amount = null, $reason = '', $transactionId = null)
     {
-        $processor = $this->newRefundProcessorInstance($order_id, $amount, $reason);
-        $refund = new BuckarooClient($this->getMode());
-        $return = new ReturnProcessor($this, (int)$order_id);
-
-        $res = $return->refundProcess($refund->process($processor, $transactionId ? ['originalTransactionKey' => $transactionId] : []));
-        ray([
-            $this,
-            $res
-        ]);
-        return $res;
+        return (new RefundAction($this->newRefundProcessorInstance($order_id, $amount, $reason), $order_id, $transactionId))->process();
     }
 
     public function getServiceCode()
@@ -854,5 +838,49 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             $amount,
             $reason
         );
+    }
+
+    function checkCurrencySupported()
+    {
+        switch ($this->id) {
+            case 'buckaroo_payperemail':
+            case 'buckaroo_creditcard':
+                $supported_currencies = array(
+                    'ARS', 'AUD', 'BRL', 'CAD', 'CHF', 'CNY',
+                    'CZK', 'DKK', 'EUR', 'GBP', 'HRK', 'ISK',
+                    'JPY', 'LTL', 'LVL', 'MXN', 'NOK', 'NZD',
+                    'PLN', 'RUB', 'SEK', 'TRY', 'USD', 'ZAR',
+                );
+                break;
+            case 'buckaroo_paypal':
+                $supported_currencies = array(
+                    'AUD', 'BRL', 'CAD', 'CHF', 'DKK', 'EUR',
+                    'GBP', 'HKD', 'HUF', 'ILS', 'JPY', 'MYR',
+                    'NOK', 'NZD', 'PHP', 'PLN', 'SEK', 'SGD',
+                    'THB', 'TRL', 'TWD', 'USD',
+                );
+                break;
+            case 'buckaroo_transfer':
+                $supported_currencies = array(
+                    'EUR', 'GBP', 'PLN',
+                );
+                break;
+            case 'buckaroo_blik':
+            case 'buckaroo_przelewy24':
+                $supported_currencies = array(
+                    'PLN',
+                );
+                break;
+            case 'buckaroo_sofortueberweisung':
+                $supported_currencies = array(
+                    'EUR', 'GBP', 'CHF',
+                );
+                break;
+            default:
+                $supported_currencies = array('EUR');
+                break;
+        }
+        $is_selected_currency_supported = (!in_array(get_woocommerce_currency(), $supported_currencies)) ? false : true;
+        return $is_selected_currency_supported;
     }
 }

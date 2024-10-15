@@ -1,9 +1,6 @@
 <?php
 
-namespace Buckaroo\Woocommerce\Components;
-
-
-use Buckaroo\Woocommerce\Services\CaptureTransaction;
+namespace Buckaroo\Woocommerce\Order;
 
 /**
  * Core class for order items

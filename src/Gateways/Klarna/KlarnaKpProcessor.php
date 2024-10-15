@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
-use Buckaroo\Woocommerce\Components\OrderDetails;
+use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway;
 
