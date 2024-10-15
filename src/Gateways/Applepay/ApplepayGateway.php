@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use Exception;
 use Throwable;
@@ -51,7 +52,7 @@ class ApplepayGateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        resetOrder();
+        Helper::resetOrder();
         return;
     }
 

@@ -10,6 +10,7 @@ use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
+use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use WC_Order;
 
@@ -17,8 +18,7 @@ class PushProcessor
 {
     protected function onSuccess($order_id, $order, ResponseParser $responseParser)
     {
-        $woocommerce = getWooCommerceObject();
-        $wpdb = getWpdbObject();
+        global $woocommerce, $wpdb;
 
         if (!session_id()) {
             @session_start();
@@ -88,8 +88,8 @@ class PushProcessor
                     $prefix = "buckaroo_settlement_";
                     $settlement = $prefix . $responseParser->getPaymentKey();
 
-                    $orderAmount = roundAmount($order->get_total());
-                    $paidAmount = roundAmount($responseParser->getAmount());
+                    $orderAmount = Helper::roundAmount($order->get_total());
+                    $paidAmount = Helper::roundAmount($responseParser->getAmount());
                     $alreadyPaidSettlements = 0;
                     $isNewPayment = true;
                     if ($items = get_post_meta($order_id)) {
@@ -156,7 +156,7 @@ class PushProcessor
         if (strtolower($order->get_payment_method()) === 'buckaroo_payperemail') {
             $transactionsArray = $this->parsePPENewTransactionId($responseParser->getTransactionKey());
             if (!empty($transactionsArray) && $responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS) {
-                $creditcardProvider = checkCreditcardProvider($responseParser->getPaymentMethod());
+                $creditcardProvider = Helper::checkCreditCardProvider($responseParser->getPaymentMethod());
                 update_post_meta($order_id, '_transaction_id', $transactionsArray[count($transactionsArray) - 1]);
                 if ($creditcardProvider) {
                     update_post_meta($order_id, '_payment_method', 'buckaroo_creditcard');
@@ -178,8 +178,7 @@ class PushProcessor
 
     public function handle()
     {
-        $woocommerce = getWooCommerceObject();
-        $wpdb = getWpdbObject();
+        global $woocommerce, $wpdb;
 
         if (!session_id()) {
             @session_start();
@@ -207,7 +206,7 @@ class PushProcessor
 
         if ($buckarooClient->isReplyHandlerValid($responseParser->get(formatted: false))) {
             //Check if redirect required
-            $checkIfRedirectRequired = fn_process_check_redirect_required($responseParser);
+            $checkIfRedirectRequired = Helper::processCheckRedirectRequired($responseParser);
             if ($checkIfRedirectRequired) {
                 return $checkIfRedirectRequired;
             }
@@ -246,7 +245,7 @@ class PushProcessor
                 }
                 if (in_array($order->get_payment_method(), ['buckaroo_payperemail', 'buckaroo_transfer'])) {
                     Logger::log('Payperemail status check: ' . $responseParser->getStatusCode());
-                    if (buckaroo_handle_unsuccessful_payment($responseParser->getStatusCode())) return;
+                    if (Helper::handleUnsuccessfulPayment($responseParser->getStatusCode())) return;
                 }
 
                 Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
