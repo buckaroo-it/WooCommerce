@@ -8,6 +8,7 @@ use Buckaroo\Woocommerce\Gateways\GiftCard\GiftCardGateway;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
+use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use Exception;
 use WC_Order;
@@ -16,8 +17,7 @@ class ReturnProcessor
 {
     public function handle($payment_method = null)
     {
-        $woocommerce = getWooCommerceObject();
-        $wpdb = getWpdbObject();
+        global $woocommerce, $wpdb;
 
         $responseParser = ResponseRegistry::getResponse($_POST ?? $_GET);
 
@@ -61,7 +61,7 @@ class ReturnProcessor
             );
 
             //Check if redirect required
-            $checkIfRedirectRequired = fn_process_check_redirect_required($responseParser);
+            $checkIfRedirectRequired = Helper::processCheckRedirectRequired($responseParser);
             if ($checkIfRedirectRequired) {
                 return $checkIfRedirectRequired;
             }
@@ -127,7 +127,7 @@ class ReturnProcessor
                 }
                 if (in_array($order->get_payment_method(), ['buckaroo_payperemail', 'buckaroo_transfer'])) {
                     Logger::log('Payperemail status check: ' . $responseParser->getStatusCode());
-                    if (buckaroo_handle_unsuccessful_payment($responseParser->getStatusCode())) return;
+                    if (Helper::handleUnsuccessfulPayment($responseParser->getStatusCode())) return;
                 }
                 if (!in_array($order->get_status(), array('completed', 'processing', 'cancelled', 'failed', 'refund'))) {
                     //We receive a valid response that the payment is canceled/failed.
@@ -189,7 +189,7 @@ class ReturnProcessor
                         wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
 
                         Logger::log('wc session after: ' . var_export(WC()->session, true));
-                        if (WooV3Plus()) {
+                        if (Helper::isWooCommerceVersion3OrGreater()) {
                             if ($order->get_billing_country() == 'NL') {
                                 if (strrpos($responseParser->getSubCodeMessage(), ': ') !== false) {
                                     $error_description = str_replace(':', '', substr($responseParser->getSubCodeMessage(), strrpos($responseParser->getSubCodeMessage(), ': ')));
