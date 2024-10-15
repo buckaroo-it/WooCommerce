@@ -2,7 +2,6 @@
 
 namespace Buckaroo\Woocommerce\Order;
 
-use Buckaroo\Woocommerce\Services\Helper;
 use WC_Order;
 use WC_Order_Factory;
 
@@ -40,6 +39,16 @@ class OrderDetails
     public function get_order()
     {
         return $this->order;
+    }
+
+    /**
+     * Checks if WooCommerce Version 3 or greater is installed
+     *
+     * @return boolean
+     */
+    protected function wooV3Plus()
+    {
+        return substr(WC()->version, 0, 1) >= 3;
     }
 
     /**
@@ -132,7 +141,7 @@ class OrderDetails
     {
         $value = null;
 
-        if (Helper::isWooCommerceVersion3OrGreater()) {
+        if ($this->wooV3Plus()) {
             $method = 'get_' . $field;
             if (method_exists($this->order, $method)) {
                 $value = $this->order->{$method}();

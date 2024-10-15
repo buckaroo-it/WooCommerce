@@ -2,6 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
+use Buckaroo\Transaction\Response\TransactionResponse;
+use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 
 class AfterpayOldProcessor extends AbstractPaymentProcessor
@@ -134,4 +136,14 @@ class AfterpayOldProcessor extends AbstractPaymentProcessor
         return $this->order_articles->get_products_for_payment();
     }
 
+
+    public function afterProcessPayment(OrderDetails $orderDetails, TransactionResponse $transactionResponse)
+    {
+        return array(
+            'on-error-message' => __(
+                "We are sorry to inform you that the request to pay afterwards with Riverty | AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty | AfterPay. Or you can visit the website of Riverty | AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
+                'wc-buckaroo-bpe-gateway'
+            ),
+        );
+    }
 }
