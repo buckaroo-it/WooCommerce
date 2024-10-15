@@ -6,6 +6,7 @@ use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
+use Buckaroo\Woocommerce\Services\Helper;
 
 class In3Gateway extends AbstractPaymentGateway
 {
@@ -108,7 +109,7 @@ class In3Gateway extends AbstractPaymentGateway
 
     private function getV2Payload(int $order_id)
     {
-        $order = getWCOrder($order_id);
+        $order = Helper::findOrder($order_id);
 
         return new In3V2Processor(
             $this,
