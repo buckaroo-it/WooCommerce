@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Woocommerce\Components;
+namespace Buckaroo\Woocommerce\Order;
 
 use WC_Order;
 use WC_Order_Item;

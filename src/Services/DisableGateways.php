@@ -18,7 +18,6 @@ use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
  */
 class DisableGateways
 {
-
     public function __construct()
     {
         add_filter('woocommerce_available_payment_gateways', array($this, 'disable'));

@@ -14,7 +14,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 // Define BK_PLUGIN_FILE.
 use Buckaroo\Woocommerce\Admin\GeneralSettings;
 use Buckaroo\Woocommerce\Admin\PaymentMethodSettings;
-use Buckaroo\Woocommerce\Components\OrderFee;
+use Buckaroo\Woocommerce\Order\OrderFee;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
 use Buckaroo\Woocommerce\Gateways\Applepay\ApplepayButtons;
@@ -316,7 +316,7 @@ function buckaroo_deactivation()
 
 function buckaroo_push_class_init()
 {
-    new PushProcessor();
+    (new PushProcessor())->handle();
     exit();
 }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Woocommerce\Components;
+namespace Buckaroo\Woocommerce\Order;
 /**
  * Core class for logging
  * php version 7.2
