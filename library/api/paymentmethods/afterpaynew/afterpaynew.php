@@ -41,6 +41,8 @@ class BuckarooAfterPayNew extends BuckarooPaymentMethod {
 	public $CostCentre;
 	public $VatNumber;
 
+    public $channel;
+
 	/**
 	 * @access public
 	 * @param string $type

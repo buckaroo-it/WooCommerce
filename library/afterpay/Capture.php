@@ -13,7 +13,7 @@
  * @link      https://www.buckaroo.eu/
  */
 
-class Buckaroo_Capture_Form
+class Buckaroo_Afterpay_Capture_Form
 {
 
     public function __construct()
@@ -37,11 +37,11 @@ class Buckaroo_Capture_Form
         }
 
         if (
-            $order->get_payment_method() === 'buckaroo_klarnakp' &&
-            get_post_meta($order->get_id(), 'buckaroo_is_reserved', true) === 'yes'
+            $order->get_payment_method() === 'buckaroo_afterpay' &&
+            get_post_meta($order->get_id(), '_wc_order_authorized', true)
         ) {
             add_meta_box(
-                'buckaroo-order-klarnakp-capture',
+                'buckaroo-order-afterpay-capture',
                 __('Capture & refund order', 'woocommerce'),
                 array($this, 'output'),
                 'woocommerce_page_wc-orders',

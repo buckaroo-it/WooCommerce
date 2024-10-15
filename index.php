@@ -32,6 +32,8 @@ require_once __DIR__ . '/library/Buckaroo_Order_Capture.php';
 require_once __DIR__ . '/library/Buckaroo_Capture_Transaction.php';
 require_once __DIR__ . '/library/Buckaroo_Http_Request.php';
 require_once __DIR__ . '/library/Buckaroo_Item_For_Capture.php';
+require_once __DIR__ . '/library/afterpay/Capture.php';
+require_once __DIR__ . '/library/afterpay/Refund.php';
 require_once __DIR__ . '/library/klarnakp/Capture.php';
 require_once __DIR__ . '/library/klarnakp/Refund.php';
 require_once __DIR__ . '/library/klarnakp/Cancel_Reservation.php';
@@ -67,8 +69,10 @@ new Buckaroo_Paypal_Express(
 );
 
 new Buckaroo_Capture_Form();
+new Buckaroo_Afterpay_Capture_Form();
 new Buckaroo_Cancel_Reservation();
 new Buckaroo_KlarnaKP_Refund();
+new Buckaroo_Afterpay_Refund();
 
 add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
 

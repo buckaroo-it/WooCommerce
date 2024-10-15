@@ -422,6 +422,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             );
 
             addSepaDirectOrderNote($response, $order);
+            Buckaroo_Logger::log('||| $response->status ' . $response->status);
 
             switch ($response->status) {
                 case 'completed':
@@ -430,6 +431,8 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 case 'on-hold':
                     if (!is_null($payment_method)) {
                         $woocommerce->cart->empty_cart();
+                        Buckaroo_Logger::log('||| $payment_method ' . $payment_method->get_return_url($order));
+
                         return array(
                             'result'   => 'success',
                             'redirect' => $payment_method->get_return_url($order),
@@ -511,7 +514,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     Buckaroo_Logger::log('wc session after: ' . var_export(WC()->session, true));
                     if (WooV3Plus()) {
                         if ($order->get_billing_country() == 'NL') {
-                            if (strrpos($response->ChannelError, ': ') !== false) {
+                            if (!empty($response->ChannelError) && is_string($response->ChannelError) && strrpos($response->ChannelError, ': ') !== false) {
                                 $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
                                 Buckaroo_Logger::log('||| failed status message: ' . $error_description);
                                 wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
@@ -519,7 +522,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                         }
                     } else {
                         if ($order->billing_country == 'NL') {
-                            if (strrpos($response->ChannelError, ': ') !== false) {
+                            if (!empty($response->ChannelError) && is_string($response->ChannelError) && strrpos($response->ChannelError, ': ') !== false) {
                                 $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
                                 wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
                             }
@@ -930,7 +933,7 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                     $order->add_order_note(
                         "Payment succesfully reserved"
                     );
-                    add_post_meta($order->get_id(), 'bukaroo_is_reserved', 'yes');
+                    add_post_meta($order->get_id(), 'buckaroo_is_reserved', 'yes');
                     return;
                 }
 
