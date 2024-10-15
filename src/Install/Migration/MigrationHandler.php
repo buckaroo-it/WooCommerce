@@ -1,10 +1,11 @@
 <?php
 
+namespace Buckaroo\Woocommerce\Install\Migration;
+
+use Buckaroo\Woocommerce\Install\Install;
 use Buckaroo\Woocommerce\Services\Config;
 use Buckaroo\Woocommerce\Services\Logger;
-
-require_once __DIR__ . '/Buckaroo_Migration.php';
-require_once __DIR__ . '/Buckaroo_Migration_Exception.php';
+use Throwable;
 
 /**
  * Core class for handling migrations
@@ -18,7 +19,7 @@ require_once __DIR__ . '/Buckaroo_Migration_Exception.php';
  * @version   GIT: 2.25.0
  * @link      https://www.buckaroo.eu/
  */
-class Buckaroo_Migration_Handler
+class MigrationHandler
 {
 
 
@@ -34,7 +35,7 @@ class Buckaroo_Migration_Handler
      */
     public function __construct()
     {
-        $this->databaseVersion = WC_Buckaroo_Install::get_db_version();
+        $this->databaseVersion = Install::get_db_version();
         add_action(
             'plugins_loaded',
             array($this, 'run_any_migrations')
@@ -45,6 +46,40 @@ class Buckaroo_Migration_Handler
             10,
             2
         );
+    }
+
+    /**
+     * Check if plugin was updated transient and execute any migration,
+     * function runned by `plugins_loaded` hook
+     *
+     * @return void
+     */
+    public function run_any_migrations()
+    {
+        $this->databaseVersion = Install::get_db_version();
+
+        // don't update if plugin is not installed
+        if (!Install::isInstalled()) {
+            delete_transient('buckaroo_plugin_updated');
+        }
+
+        if (get_transient('buckaroo_plugin_updated')) {
+            try {
+                $this->handle();
+                delete_transient('buckaroo_plugin_updated');
+            } catch (MigrationException $e) {
+                set_transient(
+                    get_current_user_id() . 'buckarooAdminNotice',
+                    array(
+                        'type' => 'error',
+                        'message' => 'Buckaroo: ' . $e->getMessage(),
+                    )
+                );
+                Logger::log(__METHOD__, $e);
+            } catch (Throwable $th) {
+                Logger::log(__METHOD__, $th);
+            }
+        }
     }
 
     /**
@@ -92,6 +127,26 @@ class Buckaroo_Migration_Handler
     }
 
     /**
+     * Copy updated language files
+     *
+     * @return void
+     */
+    protected function copy_language_files()
+    {
+        foreach (glob(dirname(BK_PLUGIN_FILE) . '/languages/*.{po,mo}', GLOB_BRACE) as $file) {
+            if (!is_dir($file) && is_readable($file)) {
+
+                $dest = WP_CONTENT_DIR . '/languages/plugins/';
+
+                if (!file_exists($dest) && !is_dir($dest)) {
+                    mkdir($dest, 0755, true);
+                }
+                copy($file, $dest . basename($file));
+            }
+        }
+    }
+
+    /**
      * Update plugin
      *
      * @return void
@@ -116,57 +171,7 @@ class Buckaroo_Migration_Handler
         $this->execute_list(
             $migrations
         );
-        WC_Buckaroo_Install::set_db_version(Config::VERSION);
-    }
-
-    /**
-     * Load migrations
-     *
-     * @param array $migrations
-     *
-     * @return array
-     */
-    protected function execute_list($migrations)
-    {
-        $migrationObjects = array();
-        foreach ($migrations as $migration) {
-            if (file_exists($migration['path'])) {
-                $object = include_once $migration['path'];
-                $this->execute(
-                    $object,
-                    $migration['version']
-                );
-            }
-        }
-
-        return $migrationObjects;
-    }
-
-    /**
-     * Execute single migration method
-     *
-     * @param mixed $migration
-     * @param string $method
-     *
-     * @return void
-     */
-    protected function execute($migration, $version)
-    {
-        try {
-            if (
-                $migration instanceof Buckaroo_Migration &&
-                method_exists($migration, 'execute')
-            ) {
-                $migration->execute();
-            }
-        } catch (Throwable $th) {
-            throw new Buckaroo_Migration_Exception(
-                'Cannot run migration for version: ' . $version,
-                1,
-                $th
-            );
-
-        }
+        Install::set_db_version(Config::VERSION);
     }
 
     /**
@@ -217,56 +222,52 @@ class Buckaroo_Migration_Handler
     }
 
     /**
-     * Check if plugin was updated transient and execute any migration,
-     * function runned by `plugins_loaded` hook
+     * Load migrations
      *
-     * @return void
+     * @param array $migrations
+     *
+     * @return array
      */
-    public function run_any_migrations()
+    protected function execute_list($migrations)
     {
-        $this->databaseVersion = WC_Buckaroo_Install::get_db_version();
-
-        // don't update if plugin is not installed
-        if (!WC_Buckaroo_Install::isInstalled()) {
-            delete_transient('buckaroo_plugin_updated');
-        }
-
-        if (get_transient('buckaroo_plugin_updated')) {
-            try {
-                $this->handle();
-                delete_transient('buckaroo_plugin_updated');
-            } catch (Buckaroo_Migration_Exception $e) {
-                set_transient(
-                    get_current_user_id() . 'buckarooAdminNotice',
-                    array(
-                        'type' => 'error',
-                        'message' => 'Buckaroo: ' . $e->getMessage(),
-                    )
+        $migrationObjects = array();
+        foreach ($migrations as $migration) {
+            if (file_exists($migration['path'])) {
+                $object = include_once $migration['path'];
+                $this->execute(
+                    $object,
+                    $migration['version']
                 );
-                Logger::log(__METHOD__, $e);
-            } catch (Throwable $th) {
-                Logger::log(__METHOD__, $th);
             }
         }
+
+        return $migrationObjects;
     }
 
     /**
-     * Copy updated language files
+     * Execute single migration method
+     *
+     * @param mixed $migration
+     * @param string $method
      *
      * @return void
      */
-    protected function copy_language_files()
+    protected function execute($migration, $version)
     {
-        foreach (glob(dirname(BK_PLUGIN_FILE) . '/languages/*.{po,mo}', GLOB_BRACE) as $file) {
-            if (!is_dir($file) && is_readable($file)) {
-
-                $dest = WP_CONTENT_DIR . '/languages/plugins/';
-
-                if (!file_exists($dest) && !is_dir($dest)) {
-                    mkdir($dest, 0755, true);
-                }
-                copy($file, $dest . basename($file));
+        try {
+            if (
+                $migration instanceof Migration &&
+                method_exists($migration, 'execute')
+            ) {
+                $migration->execute();
             }
+        } catch (Throwable $th) {
+            throw new MigrationException(
+                'Cannot run migration for version: ' . $version,
+                1,
+                $th
+            );
+
         }
     }
 

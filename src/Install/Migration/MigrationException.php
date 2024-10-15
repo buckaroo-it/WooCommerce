@@ -1,4 +1,6 @@
 <?php
+
+namespace Buckaroo\Woocommerce\Install\Migration;
 /**
  * Migration exception
  * php version 7.2
@@ -11,7 +13,8 @@
  * @version   GIT: 2.25.0
  * @link      https://www.buckaroo.eu/
  */
-class Buckaroo_Migration_Exception extends \Exception {
+class MigrationException extends \Exception
+{
 
 
 }
