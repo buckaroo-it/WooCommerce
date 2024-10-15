@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways;
 
-use Buckaroo\Woocommerce\Components\OrderDetails;
+use Buckaroo\Woocommerce\Order\OrderDetails;
 use WC_Order;
 use WC_Payment_Gateway;
 

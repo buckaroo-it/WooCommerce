@@ -2,9 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
-use Buckaroo\Woocommerce\Components\OrderCapture;
-use Buckaroo\Woocommerce\Components\OrderDetails;
-use WP_Post;
+use Buckaroo\Woocommerce\Order\OrderCapture;
+use Buckaroo\Woocommerce\Order\OrderDetails;
 
 /**
  * Core class for order capture form

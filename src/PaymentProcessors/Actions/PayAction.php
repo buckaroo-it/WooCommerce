@@ -5,7 +5,7 @@ namespace Buckaroo\Woocommerce\PaymentProcessors\Actions;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
-use Buckaroo\Woocommerce\Services\BuckarooClient;
+use Buckaroo\Woocommerce\SDK\BuckarooClient;
 use WC_Order;
 
 class PayAction

@@ -10,7 +10,10 @@ class ResponseRegistry
     final public static function getResponse(array $data = []): ResponseParser
     {
         $responseParser = ResponseParser::make($data);
-        $responseParser->set('status', BuckarooTransactionStatus::fromTransactionStatus($responseParser->getStatusCode()));
+
+        if ($responseParser->getStatusCode()) {
+            $responseParser->set('status', BuckarooTransactionStatus::fromTransactionStatus($responseParser->getStatusCode()));
+        }
 
         switch ($responseParser->getPaymentMethod()) {
             case 'transfer':
