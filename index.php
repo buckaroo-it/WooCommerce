@@ -32,6 +32,8 @@ require_once __DIR__ . '/library/Buckaroo_Order_Capture.php';
 require_once __DIR__ . '/library/Buckaroo_Capture_Transaction.php';
 require_once __DIR__ . '/library/Buckaroo_Http_Request.php';
 require_once __DIR__ . '/library/Buckaroo_Item_For_Capture.php';
+require_once __DIR__ . '/library/afterpay/Capture.php';
+require_once __DIR__ . '/library/afterpay/Refund.php';
 require_once __DIR__ . '/library/klarnakp/Capture.php';
 require_once __DIR__ . '/library/klarnakp/Refund.php';
 require_once __DIR__ . '/library/klarnakp/Cancel_Reservation.php';
