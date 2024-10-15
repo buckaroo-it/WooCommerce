@@ -47,6 +47,7 @@ class OrderArticles
      */
     public function get_products_for_payment(): array
     {
+
         $products = array_map(
             function (OrderItem $item) {
                 return $this->get_product_data($item);

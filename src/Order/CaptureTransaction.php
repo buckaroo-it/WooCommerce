@@ -19,7 +19,6 @@ use WC_Order_Factory;
  */
 class CaptureTransaction
 {
-    protected $data = array();
     /**
      * @var OrderItem[]
      */
