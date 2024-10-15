@@ -9,6 +9,7 @@ use Buckaroo\Woocommerce\Handlers\SessionHandler;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
+use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Request;
 use DateTime;
 use WC_Order;
@@ -318,7 +319,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function action_woocommerce_checkout_process()
     {
         if (version_compare(WC()->version, '3.6', '>=')) {
-            resetOrder();
+            Helper::resetOrder();
         }
     }
 
@@ -545,7 +546,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function validate_fields()
     {
         if (version_compare(WC()->version, '3.6', '<')) {
-            resetOrder();
+            Helper::resetOrder();
         }
         return;
     }
@@ -640,7 +641,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     protected function setCountry()
     {
-        $woocommerce = getWooCommerceObject();
+        global $woocommerce;
 
         $country = null;
         if (!empty($woocommerce->customer)) {
@@ -814,7 +815,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function newPaymentProcessorInstance($order)
     {
         if (is_scalar($order)) {
-            $order = getWCOrder($order);
+            $order = Helper::findOrder($order);
         }
 
         $processorClass = $this->get_payment_class($order);
@@ -828,7 +829,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function newRefundProcessorInstance($order, $amount, $reason)
     {
         if (is_scalar($order)) {
-            $order = getWCOrder($order);
+            $order = Helper::findOrder($order);
         }
 
         $processorClass = static::REFUND_CLASS ?: AbstractRefundProcessor::class;
