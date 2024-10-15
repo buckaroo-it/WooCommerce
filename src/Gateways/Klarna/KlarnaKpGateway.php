@@ -6,6 +6,7 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CancelReservationAction;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
+use Buckaroo\Woocommerce\Services\Helper;
 use WC_Order;
 
 class KlarnaKpGateway extends AbstractPaymentGateway
@@ -93,7 +94,7 @@ class KlarnaKpGateway extends AbstractPaymentGateway
             return $this->create_capture_error(__('Cannot perform capture, reservation_number not found'));
         }
 
-        $order = getWCOrder($order_id);
+        $order = Helper::findOrder($order_id);
         $processor = $this->newPaymentProcessorInstance($order);/** @var KlarnaKpProcessor $payment */;
         $payment = new BuckarooClient($this->getMode());
         $res = $payment->process($processor, additionalData: ['amountDebit' => $capture_amount]);

@@ -3,6 +3,10 @@
 namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpProcessor;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
+use Buckaroo\Woocommerce\SDK\BuckarooClient;
+use Buckaroo\Woocommerce\Services\Helper;
 
 class AfterpayOldGateway extends AbstractPaymentGateway
 {
@@ -153,5 +157,30 @@ class AfterpayOldGateway extends AbstractPaymentGateway
         $this->type = $this->get_option('service');
         $this->b2b = $this->get_option('enable_bb');
         $this->vattype = $this->get_option('vattype');
+    }
+
+    public function process_capture()
+    {
+        $order_id = $this->request->input('order_id');
+
+        if ($order_id === null || !is_numeric($order_id)) {
+            return $this->create_capture_error(__('A valid order number is required'));
+        }
+
+        $capture_amount = $this->request->input('capture_amount');
+        if ($capture_amount === null || !is_scalar($capture_amount)) {
+            return $this->create_capture_error(__('A valid capture amount is required'));
+        }
+
+        $order = Helper::findOrder($order_id);
+        $processor = $this->newPaymentProcessorInstance($order);/** @var KlarnaKpProcessor $payment */;
+        $payment = new BuckarooClient($this->getMode());
+        $res = $payment->process($processor, additionalData: ['amountDebit' => $capture_amount]);
+
+        return (new CaptureAction())->handle(
+            $res,
+            $order,
+            $this->currency,
+        );
     }
 }
