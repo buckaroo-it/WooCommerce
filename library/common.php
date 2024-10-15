@@ -933,7 +933,7 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                     $order->add_order_note(
                         "Payment succesfully reserved"
                     );
-                    add_post_meta($order->get_id(), 'bukaroo_is_reserved', 'yes');
+                    add_post_meta($order->get_id(), 'buckaroo_is_reserved', 'yes');
                     return;
                 }
 
