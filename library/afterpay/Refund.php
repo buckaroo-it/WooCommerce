@@ -49,7 +49,7 @@ class Buckaroo_Afterpay_Refund {
 		$successful_refund = false;
 
 		if ( $capture !== null && isset( $capture['transaction_id'] ) ) {
-			$successful_refund = ( new WC_Gateway_Buckaroo_Afterpay() )->process_refund(
+			$successful_refund = ( new WC_Gateway_Buckaroo_Afterpay() )->process_capture_refund(
 				$order_id,
 				$capture['amount'],
 				'',
