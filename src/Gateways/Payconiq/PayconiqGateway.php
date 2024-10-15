@@ -6,6 +6,7 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class PayconiqGateway extends AbstractPaymentGateway
 {
+    const PAYMENT_CLASS = PayconiqProcessor::class;
 
     public function __construct()
     {

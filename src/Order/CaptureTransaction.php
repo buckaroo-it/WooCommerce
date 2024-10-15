@@ -1,8 +1,7 @@
 <?php
 
-namespace Buckaroo\Woocommerce\Services;
+namespace Buckaroo\Woocommerce\Order;
 
-use Buckaroo\Woocommerce\Components\OrderItem;
 use WC_Order;
 use WC_Order_Factory;
 

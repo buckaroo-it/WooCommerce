@@ -2,8 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Gateways;
 
-use Buckaroo\Woocommerce\Components\OrderArticles;
-use Buckaroo\Woocommerce\Components\OrderDetails;
+use Buckaroo\Woocommerce\Order\OrderArticles;
+use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Services\Request;
 use WC_Order;
 
