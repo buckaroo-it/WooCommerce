@@ -14,7 +14,6 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 // Define BK_PLUGIN_FILE.
 use Buckaroo\Woocommerce\Admin\GeneralSettings;
 use Buckaroo\Woocommerce\Admin\PaymentMethodSettings;
-use Buckaroo\Woocommerce\Order\OrderFee;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
 use Buckaroo\Woocommerce\Gateways\Applepay\ApplepayButtons;
@@ -33,6 +32,9 @@ use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressOrder;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressShipping;
 use Buckaroo\Woocommerce\Gateways\PayPerEmail\PayPerEmailGateway;
+use Buckaroo\Woocommerce\Install\Install;
+use Buckaroo\Woocommerce\Install\Migration\MigrationHandler;
+use Buckaroo\Woocommerce\Order\OrderFee;
 use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Config;
@@ -52,8 +54,6 @@ if (isset($_GET['buckaroo_download_log_file']) && is_string($_GET['buckaroo_down
 
 
 require_once __DIR__ . "/vendor/autoload.php";
-require_once __DIR__ . '/install/class-wcb-install.php';
-require_once __DIR__ . '/install/migration/Buckaroo_Migration_Handler.php';
 
 
 add_action('admin_enqueue_scripts', 'buckaroo_payment_setup_scripts');
@@ -306,7 +306,7 @@ function buckaroo_test_credentials()
     }
 }
 
-register_activation_hook(__FILE__, array('WC_Buckaroo_Install', 'install'));
+register_activation_hook(__FILE__, array(Buckaroo\Woocommerce\Install\Install::class, 'install'));
 register_deactivation_hook(__FILE__, 'buckaroo_deactivation');
 
 function buckaroo_deactivation()
@@ -405,7 +405,7 @@ function buckaroo_init_gateway()
     /**
      * Handle plugin updates
      */
-    new Buckaroo_Migration_Handler();
+    new MigrationHandler();
     /**
      * Handles paypal express buttons when active
      */
@@ -436,8 +436,6 @@ function buckaroo_init_gateway()
         'buckaroo_add_woocommerce_settings_page'
     );
     add_action('admin_menu', 'buckaroo_page_menu');
-
-    require_once 'library/include.php';
 
     load_plugin_textdomain('wc-buckaroo-bpe-gateway', false, dirname(plugin_basename(__FILE__)) . '/languages/');
 
@@ -515,7 +513,7 @@ function buckaroo_init_gateway()
 
     // do a install if the plugin was installed prior to 2.24.1
     // make sure we have all our plugin files loaded
-    WC_Buckaroo_Install::installUntrackedInstalation();
+    Install::installUntrackedInstalation();
 }
 
 function buckaroo_idin_product()
