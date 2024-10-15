@@ -3,6 +3,8 @@
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\CancelReservationAction;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
 use Buckaroo\Woocommerce\SDK\BuckarooClient;
 use WC_Order;
 
@@ -39,7 +41,7 @@ class KlarnaKpGateway extends AbstractPaymentGateway
             return $this->create_capture_error(__('Cannot perform capture, reservation_number not found'));
         }
 
-        fn_buckaroo_process_reservation_cancel(
+        (new CancelReservationAction())->handle(
             $payment->method($this->getServiceCode())->cancelReserve([
                 ...$processor->getBody(),
                 'reservationNumber' => $reservation_number,
@@ -96,7 +98,7 @@ class KlarnaKpGateway extends AbstractPaymentGateway
         $payment = new BuckarooClient($this->getMode());
         $res = $payment->process($processor, additionalData: ['amountDebit' => $capture_amount]);
 
-        return fn_buckaroo_process_capture(
+        return (new CaptureAction())->handle(
             $res,
             $order,
             $this->currency,

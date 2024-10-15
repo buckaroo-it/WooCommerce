@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
-use Buckaroo\Woocommerce\Components\OrderDetails;
+use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class AfterpayNewGateway extends AbstractPaymentGateway
