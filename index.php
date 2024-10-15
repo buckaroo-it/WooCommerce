@@ -69,6 +69,7 @@ new Buckaroo_Paypal_Express(
 new Buckaroo_Capture_Form();
 new Buckaroo_Cancel_Reservation();
 new Buckaroo_KlarnaKP_Refund();
+new Buckaroo_Afterpay_Refund();
 
 add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
 
