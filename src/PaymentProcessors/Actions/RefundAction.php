@@ -5,7 +5,7 @@ namespace Buckaroo\Woocommerce\PaymentProcessors\Actions;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Buckaroo\Woocommerce\Gateways\AbstractRefundProcessor;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
-use Buckaroo\Woocommerce\Services\BuckarooClient;
+use Buckaroo\Woocommerce\SDK\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Logger;
 use WC_Order;
 use WP_Error;
