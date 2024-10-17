@@ -3,11 +3,17 @@
 namespace Buckaroo\Woocommerce\Core;
 
 use Buckaroo\Woocommerce\Gateways\Applepay\ApplepayButtons;
+use Buckaroo\Woocommerce\Hooks\HookRegistry;
 use Buckaroo\Woocommerce\Install\Install;
 
 class Plugin
 {
     protected PaymentGatewayRegistry $gatewayRegistry;
+
+    public static function init(): void
+    {
+        new HookRegistry();
+    }
 
     public function register()
     {
