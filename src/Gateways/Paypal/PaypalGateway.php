@@ -18,6 +18,13 @@ class PaypalGateway extends AbstractPaymentGateway
 
     protected $express_order_id = null;
 
+    protected array $supportedCurrencies = [
+        'AUD', 'BRL', 'CAD', 'CHF', 'DKK', 'EUR',
+        'GBP', 'HKD', 'HUF', 'ILS', 'JPY', 'MYR',
+        'NOK', 'NZD', 'PHP', 'PLN', 'SEK', 'SGD',
+        'THB', 'TRL', 'TWD', 'USD',
+    ];
+
     public function __construct()
     {
         $this->id = 'buckaroo_paypal';
