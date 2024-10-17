@@ -2,14 +2,17 @@
 
 namespace Buckaroo\Woocommerce\Gateways\In3;
 
+use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
-use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
 use Buckaroo\Woocommerce\Services\Helper;
+use Buckaroo\Woocommerce\Traits\HasDateValidation;
 
 class In3Gateway extends AbstractPaymentGateway
 {
+    use HasDateValidation;
+
     const PAYMENT_CLASS = In3Processor::class;
     public const VERSION_FLAG = 'buckaroo_in3_version';
     public const VERSION3 = 'v3';

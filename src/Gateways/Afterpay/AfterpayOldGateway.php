@@ -5,17 +5,19 @@ namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpProcessor;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
-use Buckaroo\Woocommerce\SDK\BuckarooClient;
+use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
+use Buckaroo\Woocommerce\Traits\HasDateValidation;
 
 class AfterpayOldGateway extends AbstractPaymentGateway
 {
+    use HasDateValidation;
+
     const PAYMENT_CLASS = AfterpayOldProcessor::class;
     public $type;
     public $b2b;
     public $vattype;
     public $country;
-    public $productQtyLoop = true;
     public $afterpaypayauthorize;
 
     public function __construct()
