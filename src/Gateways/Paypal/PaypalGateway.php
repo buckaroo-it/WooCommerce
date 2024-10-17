@@ -3,7 +3,10 @@
 namespace Buckaroo\Woocommerce\Gateways\Paypal;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressCart;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
+use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressOrder;
+use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressShipping;
 use WC_Order;
 
 class PaypalGateway extends AbstractPaymentGateway
@@ -121,5 +124,14 @@ class PaypalGateway extends AbstractPaymentGateway
     {
         parent::setProperties();
         $this->sellerprotection = $this->get_option('sellerprotection', 'TRUE');
+    }
+
+    public function handleHooks()
+    {
+        new PaypalExpressController(
+            new PaypalExpressShipping(),
+            new PaypalExpressOrder(),
+            new PaypalExpressCart()
+        );
     }
 }

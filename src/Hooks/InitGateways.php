@@ -9,7 +9,7 @@ use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
-use Buckaroo\Woocommerce\Services\Helper;
+use Buckaroo\Woocommerce\Services\Config;
 
 class InitGateways
 {
@@ -58,7 +58,7 @@ class InitGateways
             wc_add_notice(esc_html__(sanitize_text_field($error), 'wc-buckaroo-bpe-gateway'), 'error');
         }
         if (IdinProcessor::isIdin(IdinProcessor::getCartProductIds())) {
-            include plugin_dir_path(BK_PLUGIN_FILE) . 'templates/idin/checkout.php';
+            include 'templates/idin/checkout.php';
         }
     }
 
@@ -73,13 +73,17 @@ class InitGateways
 
         foreach ($gateways as $gateway_id => $gateway) {
             if ($this->isBuckarooPayment($gateway_id) && $gateway->enabled == 'yes') {
+                if (method_exists($gateway, 'handleHooks')) {
+                    $gateway->handleHooks();
+                }
+
                 $payment_method = array(
                     'paymentMethodId' => $gateway_id,
                     'title' => $gateway->get_title(),
                     'description' => $gateway->description,
                     'image_path' => $gateway->getIcon(),
                     'buckarooImagesUrl' => plugin_dir_url(BK_PLUGIN_FILE) . 'library/buckaroo_images/',
-                    'genders' => Helper::getAllGendersForPaymentMethods(),
+                    'genders' => Config::getAllGendersForPaymentMethods(),
                     'displayMode' => $gateway->get_option('displaymode'),
                 );
                 if ($gateway_id === 'buckaroo_ideal') {
