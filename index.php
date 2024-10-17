@@ -11,8 +11,6 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
 
-use Buckaroo\Woocommerce\Hooks\HookRegistry;
-
 if (!defined('BK_PLUGIN_FILE')) {
     define('BK_PLUGIN_FILE', __FILE__);
 }
@@ -20,4 +18,4 @@ if (!defined('BK_PLUGIN_FILE')) {
 require_once __DIR__ . "/vendor/autoload.php";
 
 
-new HookRegistry();
+Buckaroo\Woocommerce\Core\Plugin::init();
