@@ -5,7 +5,7 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CancelReservationAction;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
-use Buckaroo\Woocommerce\SDK\BuckarooClient;
+use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use WC_Order;
 
@@ -67,6 +67,38 @@ class KlarnaKpGateway extends AbstractPaymentGateway
 
         return parent::process_payment($order_id);
     }
+
+    /**
+     * Set order capture
+     *
+     * @param int $order_id Order id
+     * @param string $paymentName Payment name
+     * @param string|null $paymentType Payment type
+     *
+     * @return void
+     */
+    protected function setOrderCapture($order_id, $paymentName, $paymentType = null)
+    {
+        update_post_meta($order_id, '_wc_order_selected_payment_method', $paymentName);
+        $this->setOrderIssuer($order_id, $paymentType);
+    }
+
+    /**
+     * Set order issuer
+     *
+     * @param int $order_id Order id
+     * @param string|null $paymentType Payment type
+     *
+     * @return void
+     */
+    protected function setOrderIssuer($order_id, $paymentType = null)
+    {
+        if (is_null($paymentType)) {
+            $paymentType = $this->type;
+        }
+        update_post_meta($order_id, '_wc_order_payment_issuer', $paymentType);
+    }
+
 
     /**
      * Send capture request

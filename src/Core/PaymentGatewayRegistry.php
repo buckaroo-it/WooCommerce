@@ -33,6 +33,11 @@ use Buckaroo\Woocommerce\PaymentProcessors\ExodusGateway;
 
 class PaymentGatewayRegistry
 {
+    /**
+     * List of registered payment gateways.
+     *
+     * @var array
+     */
     protected array $gateways = [
         'ideal' => ['gateway_class' => IdealGateway::class],
         'afterpay' => ['gateway_class' => AfterpayOldGateway::class],
@@ -64,51 +69,52 @@ class PaymentGatewayRegistry
     ];
 
     /**
-     * Load necesary
+     * Load necessary gateways and configurations.
      *
      * @return PaymentGatewayRegistry
      */
-    public function load()
+    public function load(): PaymentGatewayRegistry
     {
-        $this->add_exodus();
-        $this->load_before();
-        $this->load_gateways();
-        $this->load_after();
-        $this->enable_creditcards_in_checkout();
+        $this->addExodus();
+        $this->loadBefore();
+        $this->loadGateways();
+        $this->loadAfter();
+        $this->enableCreditCardsInCheckout();
 
         return $this;
     }
 
     /**
-     * Load exodus class
+     * Add the Exodus gateway if not already added.
      *
      * @return void
      */
-    private function add_exodus()
+    private function addExodus(): void
     {
         if (!get_option('woocommerce_buckaroo_exodus')) {
-            $this->methods['Exodus Script'] = array('gateway_class' => ExodusGateway::class);
+            $this->gateways['exodus_script'] = ['gateway_class' => ExodusGateway::class];
         }
     }
 
     /**
-     * Load before the gateways
+     * Hook for actions to perform before loading gateways.
      *
      * @return void
      */
-    protected function load_before()
+    protected function loadBefore(): void
     {
+        // Placeholder for pre-loading actions.
     }
 
     /**
-     * load all gateways
+     * Load all registered gateways.
      *
      * @return void
      */
-    protected function load_gateways()
+    protected function loadGateways(): void
     {
-        foreach ($this->get_all_gateways() as $method) {
-            if (class_exists($method['gateway_class'] ?? null)) {
+        foreach ($this->getAllGateways() as $method) {
+            if (isset($method['gateway_class']) && class_exists($method['gateway_class'])) {
                 $gateway = new $method['gateway_class']();
 
                 if (method_exists($gateway, 'handleHooks')) {
@@ -119,123 +125,125 @@ class PaymentGatewayRegistry
     }
 
     /**
-     * Get all gateways
-     *
-     * @return array
-     */
-    protected function get_all_gateways()
-    {
-        return array_merge($this->gateways, $this->get_creditcard_methods());
-    }
-
-    /**
-     * Get credicard payment methods
-     *
-     * @return array
-     */
-    protected function get_creditcard_methods()
-    {
-        $creditcardMethods = array();
-
-        foreach ($this->get_creditcards_to_show() as $creditcard) {
-            if (strlen(trim($creditcard)) !== 0 && class_exists($class = 'Buckaroo\Woocommerce\Gateways\CreditCard\Cards\\' . ucfirst($creditcard) . 'Gateway')) {
-                $creditcardMethods[$creditcard . '_creditcard'] = ['gateway_class' => $class];
-            }
-        }
-        return $creditcardMethods;
-    }
-
-    /**
-     * Get creditcards to show in checkout page
-     *
-     * @return array
-     */
-    public function get_creditcards_to_show()
-    {
-        $credit_settings = get_option('woocommerce_buckaroo_creditcard_settings', null);
-
-        if (
-            $credit_settings !== null &&
-            isset($credit_settings['creditcardmethod']) &&
-            $credit_settings['creditcardmethod'] === 'encrypt' &&
-            isset($credit_settings['show_in_checkout']) &&
-            is_array($credit_settings['show_in_checkout'])
-        ) {
-            return $credit_settings['show_in_checkout'];
-        }
-        return array();
-    }
-
-    /**
-     * Load after the gateways
+     * Hook for actions to perform after loading gateways.
      *
      * @return void
      */
-    protected function load_after(): void
+    protected function loadAfter(): void
     {
-        //
+        // Placeholder for post-loading actions.
     }
 
     /**
-     * Enable credicard method when set to be shown individually in checkout page
+     * Enable individual credit card methods in the checkout, if configured.
      *
      * @return void
      */
-    public function enable_creditcards_in_checkout(): void
+    private function enableCreditCardsInCheckout(): void
     {
-        if (!get_transient('buckaroo_credicard_updated')) {
+        if (!get_transient('buckaroo_creditcard_updated')) {
             return;
         }
 
-        $gatewayNames = $this->get_creditcards_to_show();
+        $gatewayNames = $this->getCreditCardsToShow();
 
-        if (!is_array($gatewayNames)) {
+        if (empty($gatewayNames)) {
             return;
         }
+
+        $creditCardMethods = $this->getCreditCardMethods();
 
         foreach ($gatewayNames as $name) {
-            $class = $this->get_creditcard_methods()[$name . '_creditcard']['gateway_class'] ?? null;
+            $methodKey = $name . '_creditcard';
+            $class = $creditCardMethods[$methodKey]['gateway_class'] ?? null;
 
-            if (class_exists($class)) {
-                (new $class())->update_option('enabled', 'yes');
+            if ($class && class_exists($class)) {
+                $gatewayInstance = new $class();
+                if (method_exists($gatewayInstance, 'update_option')) {
+                    $gatewayInstance->update_option('enabled', 'yes');
+                }
             }
         }
-        delete_transient('buckaroo_credicard_updated');
+        delete_transient('buckaroo_creditcard_updated');
     }
 
     /**
-     * Hook function for `woocommerce_payment_gateways` hook
+     * Get all registered gateways, including individual credit card methods.
+     *
+     * @return array
+     */
+    protected function getAllGateways(): array
+    {
+        return array_merge($this->gateways, $this->getCreditCardMethods());
+    }
+
+    /**
+     * Get individual credit card methods to be shown at checkout.
+     *
+     * @return array
+     */
+    protected function getCreditCardMethods(): array
+    {
+        $creditCardMethods = [];
+
+        foreach ($this->getCreditCardsToShow() as $creditCard) {
+            $creditCard = trim($creditCard);
+            if ($creditCard !== '') {
+                $className = 'Buckaroo\Woocommerce\Gateways\CreditCard\Cards\\' . ucfirst($creditCard) . 'Gateway';
+                if (class_exists($className)) {
+                    $key = $creditCard . '_creditcard';
+                    $creditCardMethods[$key] = ['gateway_class' => $className];
+                }
+            }
+        }
+        return $creditCardMethods;
+    }
+
+    /**
+     * Retrieve the list of credit cards to show in the checkout page.
+     *
+     * @return array
+     */
+    public function getCreditCardsToShow(): array
+    {
+        $creditSettings = get_option('woocommerce_buckaroo_creditcard_settings', null);
+
+        if (
+            $creditSettings !== null &&
+            isset($creditSettings['creditcardmethod'], $creditSettings['show_in_checkout']) &&
+            $creditSettings['creditcardmethod'] === 'encrypt' &&
+            is_array($creditSettings['show_in_checkout'])
+        ) {
+            return $creditSettings['show_in_checkout'];
+        }
+        return [];
+    }
+
+    /**
+     * Hook to add gateways to WooCommerce's list of payment methods.
      *
      * @param array $methods
      *
      * @return array
      */
-    public function hook_gateways_to_woocommerce($methods): array
+    public function hookGatewaysToWooCommerce(array $methods): array
     {
-        foreach ($this->sort_gateways_alfa($this->get_all_gateways()) as $method) {
+        foreach ($this->sortGatewaysAlphabetically($this->getAllGateways()) as $method) {
             $methods[] = $method['gateway_class'];
         }
         return $methods;
     }
 
     /**
-     * Sort payment gateway alphabetically by name
+     * Sort payment gateways alphabetically by their keys.
      *
-     * @param array $gateway
+     * @param array $gateways
      *
      * @return array
      */
-    protected function sort_gateways_alfa(array $gateways): array
+    protected function sortGatewaysAlphabetically(array $gateways): array
     {
-        uksort(
-            $gateways,
-            function ($a, $b) {
-                return strcmp(
-                    strtolower($a),
-                    strtoLower($b)
-                );
-            }
-        );
+        uksort($gateways, 'strcasecmp');
         return $gateways;
     }
 }
