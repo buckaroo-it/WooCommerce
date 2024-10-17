@@ -21,8 +21,6 @@ use Throwable;
  */
 class MigrationHandler
 {
-
-
     /**
      * Version in database
      *

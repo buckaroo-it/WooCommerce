@@ -109,7 +109,11 @@ class PaymentGatewayRegistry
     {
         foreach ($this->get_all_gateways() as $method) {
             if (class_exists($method['gateway_class'] ?? null)) {
-                new $method['gateway_class']();
+                $gateway = new $method['gateway_class']();
+
+                if (method_exists($gateway, 'handleHooks')) {
+                    $gateway->handleHooks();
+                }
             }
         }
     }

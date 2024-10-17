@@ -112,4 +112,11 @@ class KlarnaKpGateway extends AbstractPaymentGateway
         parent::init_form_fields();
         $this->add_financial_warning_field();
     }
+
+    public function handleHooks()
+    {
+        new KlarnaCancelReservation();
+        new KlarnaRefund();
+        new KlarnaCapture();
+    }
 }
