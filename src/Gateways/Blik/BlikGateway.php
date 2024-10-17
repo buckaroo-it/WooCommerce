@@ -6,6 +6,8 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class BlikGateway extends AbstractPaymentGateway
 {
+    protected array $supportedCurrencies = ['PLN'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_blik';
