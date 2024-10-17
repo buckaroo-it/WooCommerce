@@ -10,6 +10,13 @@ class PayPerEmailGateway extends AbstractPaymentGateway
     public $paymentmethodppe;
     public $frontendVisible;
 
+    protected array $supportedCurrencies = [
+        'ARS', 'AUD', 'BRL', 'CAD', 'CHF', 'CNY',
+        'CZK', 'DKK', 'EUR', 'GBP', 'HRK', 'ISK',
+        'JPY', 'LTL', 'LVL', 'MXN', 'NOK', 'NZD',
+        'PLN', 'RUB', 'SEK', 'TRY', 'USD', 'ZAR',
+    ];
+
     public function __construct()
     {
         $this->id = 'buckaroo_payperemail';
