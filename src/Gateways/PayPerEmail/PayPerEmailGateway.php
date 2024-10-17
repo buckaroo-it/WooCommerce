@@ -148,4 +148,41 @@ class PayPerEmailGateway extends AbstractPaymentGateway
         $this->paymentmethodppe = $this->get_option('paymentmethodppe', '');
         $this->frontendVisible = $this->get_option('show_PayPerEmail_frontend', '');
     }
+
+
+    public function handleHooks()
+    {
+        add_filter('woocommerce_order_actions', function ($actions) {
+            global $theorder;
+
+            if ($this->get_option('enabled') == 'yes') {
+                if (in_array($theorder->get_status(), array('auto-draft', 'pending', 'on-hold'))) {
+                    if ($this->get_option('show_PayPerEmail') == 'TRUE') {
+                        $actions['buckaroo_send_admin_payperemail'] = esc_html__('Send a PayPerEmail', 'woocommerce');
+                    }
+                }
+                if (in_array($theorder->get_status(), array('pending', 'pending', 'on-hold', 'failed'))) {
+                    if ($this->get_option('show_PayLink') == 'TRUE') {
+                        $actions['buckaroo_create_paylink'] = esc_html__('Create PayLink', 'woocommerce');
+                    }
+                }
+            }
+        }, 10, 1);
+
+        add_action('woocommerce_order_action_buckaroo_send_admin_payperemail', function ($order) {
+            $gateway = new PayPerEmailGateway();
+            if (isset($gateway)) {
+                $response = $gateway->process_payment($order->get_id());
+                wp_redirect($response);
+            }
+        }, 10, 1);
+
+        add_action('woocommerce_order_action_buckaroo_create_paylink', function ($order) {
+            $gateway = new PayPerEmailGateway();
+            if (isset($gateway)) {
+                $response = $gateway->process_payment($order->get_id(), 1);
+                wp_redirect($response);
+            }
+        }, 10, 1);
+    }
 }
