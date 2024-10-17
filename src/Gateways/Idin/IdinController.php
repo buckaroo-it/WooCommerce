@@ -3,7 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Idin;
 
 use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
-use Buckaroo\Woocommerce\SDK\BuckarooClient;
+use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Logger;
 use Throwable;
 
