@@ -6,6 +6,7 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class SofortGateway extends AbstractPaymentGateway
 {
+    protected array $supportedCurrencies = ['EUR', 'GBP', 'CHF'];
 
     public function __construct()
     {

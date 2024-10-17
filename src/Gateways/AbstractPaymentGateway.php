@@ -2,10 +2,10 @@
 
 namespace Buckaroo\Woocommerce\Gateways;
 
-use Buckaroo\Woocommerce\Order\OrderArticles;
-use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Handlers\SessionHandler;
+use Buckaroo\Woocommerce\Order\OrderArticles;
+use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
@@ -32,6 +32,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public $country;
     public $channel;
     protected Request $request;
+    protected array $supportedCurrencies = ['EUR'];
 
     public function __construct()
     {
@@ -841,47 +842,8 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         );
     }
 
-    function checkCurrencySupported()
+    function checkCurrencySupported(): bool
     {
-        switch ($this->id) {
-            case 'buckaroo_payperemail':
-            case 'buckaroo_creditcard':
-                $supported_currencies = array(
-                    'ARS', 'AUD', 'BRL', 'CAD', 'CHF', 'CNY',
-                    'CZK', 'DKK', 'EUR', 'GBP', 'HRK', 'ISK',
-                    'JPY', 'LTL', 'LVL', 'MXN', 'NOK', 'NZD',
-                    'PLN', 'RUB', 'SEK', 'TRY', 'USD', 'ZAR',
-                );
-                break;
-            case 'buckaroo_paypal':
-                $supported_currencies = array(
-                    'AUD', 'BRL', 'CAD', 'CHF', 'DKK', 'EUR',
-                    'GBP', 'HKD', 'HUF', 'ILS', 'JPY', 'MYR',
-                    'NOK', 'NZD', 'PHP', 'PLN', 'SEK', 'SGD',
-                    'THB', 'TRL', 'TWD', 'USD',
-                );
-                break;
-            case 'buckaroo_transfer':
-                $supported_currencies = array(
-                    'EUR', 'GBP', 'PLN',
-                );
-                break;
-            case 'buckaroo_blik':
-            case 'buckaroo_przelewy24':
-                $supported_currencies = array(
-                    'PLN',
-                );
-                break;
-            case 'buckaroo_sofortueberweisung':
-                $supported_currencies = array(
-                    'EUR', 'GBP', 'CHF',
-                );
-                break;
-            default:
-                $supported_currencies = array('EUR');
-                break;
-        }
-        $is_selected_currency_supported = (!in_array(get_woocommerce_currency(), $supported_currencies)) ? false : true;
-        return $is_selected_currency_supported;
+        return !!in_array(get_woocommerce_currency(), $this->supportedCurrencies);
     }
 }
