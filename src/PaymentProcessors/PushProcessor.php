@@ -9,7 +9,7 @@ use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressUpdateOrderAddresse
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
-use Buckaroo\Woocommerce\SDK\BuckarooClient;
+use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use WC_Order;

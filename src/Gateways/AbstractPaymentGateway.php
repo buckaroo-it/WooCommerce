@@ -11,7 +11,6 @@ use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Request;
-use DateTime;
 use WC_Order;
 use WC_Payment_Gateway;
 use WC_Tax;
@@ -20,13 +19,11 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 {
     const PAYMENT_CLASS = null;
     const REFUND_CLASS = null;
-    const BUCKAROO_TEMPLATE_LOCATION = '/templates/gateways/';
 
     public $notify_url;
     public $minvalue;
     public $maxvalue;
     public $showpayproc = false;
-    public $productQtyLoop = false;
     public $currency;
     public $mode;
     public $country;
@@ -327,16 +324,10 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function generate_buckaroo_notice_html($key, $data)
     {
         // Add Warning, if currency set in Buckaroo is unsupported
-        if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && !$this->checkCurrencySupported() && is_admin()) :
-            ob_start();
-            ?>
-            <div class="error notice">
-                <p><?php echo esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')'; ?>
-                </p>
-            </div>
-            <?php
-            return ob_get_clean();
-        endif;
+        if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && !$this->checkCurrencySupported() && is_admin()) {
+            $message = esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')';
+            return printf('<div class="error notice"><p>%s</p></div>', $message);
+        }
     }
 
     /**
@@ -412,7 +403,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     protected function getPaymentTemplate($name)
     {
-        $location = dirname(BK_PLUGIN_FILE) . self::BUCKAROO_TEMPLATE_LOCATION;
+        $location = dirname(BK_PLUGIN_FILE) . '/templates/gateways/';
         $file = $location . $name . '.php';
 
         if (file_exists($file)) {
@@ -442,101 +433,6 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             }
         }
         return parent::validate_text_field($key, $text);
-    }
-
-    /**
-     * Get clean $_GET data
-     *
-     * @param string $key
-     *
-     * @return mixed
-     */
-    public function requestGet($key)
-    {
-        if (!isset($_GET[$key])) {
-            return;
-        }
-        $value = map_deep($_GET[$key], 'sanitize_text_field');
-        if (is_string($value) && strlen($value) === 0) {
-            return;
-        }
-        return $value;
-    }
-
-    /**
-     * Check that a user is 18 years or older.
-     *
-     * @param String $birthdate Birthdate expressed as a string
-     *
-     * @return Boolean Is user 18 years or older return true, else false
-     */
-    public function validateBirthdate($birthdate)
-    {
-        $currentDate = new DateTime();
-        $userBirthdate = DateTime::createFromFormat('d-m-Y', $birthdate);
-
-        $ageInterval = $currentDate->diff($userBirthdate)->y;
-
-        return $ageInterval >= 18;
-    }
-
-    public function parseDate($date)
-    {
-        if ($this->validateDate($date, 'd-m-Y')) {
-            return $date;
-        }
-
-        if (preg_match('/^\d{6}$/', $date)) {
-            return DateTime::createFromFormat('dmy', $date)->format('d-m-Y');
-        }
-        if (preg_match('/^\d{8}$/', $date)) {
-            return DateTime::createFromFormat('dmY', $date)->format('d-m-Y');
-        }
-
-        if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $date)) {
-            return DateTime::createFromFormat('d/m/Y', $date)->format('d-m-Y');
-        }
-        if (preg_match('/^\d{1}\/\d{2}\/\d{4}$/', $date)) {
-            return DateTime::createFromFormat('j/m/Y', $date)->format('d-m-Y');
-        }
-        if (preg_match('/^\d{1}\/\d{1}\/\d{4}$/', $date)) {
-            return DateTime::createFromFormat('j/n/Y', $date)->format('d-m-Y');
-        }
-        if (preg_match('/^\d{2}\/\d{1}\/\d{4}$/', $date)) {
-            return DateTime::createFromFormat('j/n/Y', $date)->format('d-m-Y');
-        }
-
-        if (preg_match('/^\d{2}\/\d{2}\/\d{2}$/', $date)) {
-            return DateTime::createFromFormat('d/m/y', $date)->format('d-m-Y');
-        }
-        if (preg_match('/^\d{1}\/\d{2}\/\d{2}$/', $date)) {
-            return DateTime::createFromFormat('j/m/y', $date)->format('d-m-Y');
-        }
-        if (preg_match('/^\d{1}\/\d{1}\/\d{2}$/', $date)) {
-            return DateTime::createFromFormat('j/n/y', $date)->format('d-m-Y');
-        }
-        if (preg_match('/^\d{2}\/\d{1}\/\d{2}$/', $date)) {
-            return DateTime::createFromFormat('j/n/y', $date)->format('d-m-Y');
-        }
-        return $date;
-    }
-
-    /**
-     * Check that a date is valid.
-     *
-     * @param String $date A date expressed as a string
-     * @param String $format The format of the date
-     * @return Object Datetime
-     * @return Boolean Format correct returns True, else returns false
-     */
-    public function validateDate($date, $format = 'Y-m-d H:i:s')
-    {
-        if ($date === null) {
-            return false;
-        }
-
-        $d = DateTime::createFromFormat($format, $date);
-        return $d && $d->format($format) == $date;
     }
 
     /**
@@ -621,7 +517,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      *
      * @return void
      */
-    protected function setIcon($oldPath, $newPath)
+    protected function setIcon($oldPath, $newPath): void
     {
         $this->icon = apply_filters(
             'woocommerce_' . $this->id . '_icon',
@@ -629,7 +525,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         );
     }
 
-    public function getIconPath($oldIcon, $newIcon)
+    public function getIconPath($oldIcon, $newIcon): string
     {
         $icon = $this->get_option('usenewicons') ? $newIcon : $oldIcon;
         return plugins_url('library/buckaroo_images/' . $icon, dirname(__DIR__));
@@ -640,7 +536,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      *
      * @return void
      */
-    protected function setCountry()
+    protected function setCountry(): void
     {
         global $woocommerce;
 
@@ -683,37 +579,6 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     }
 
     /**
-     * Set order capture
-     *
-     * @param int $order_id Order id
-     * @param string $paymentName Payment name
-     * @param string|null $paymentType Payment type
-     *
-     * @return void
-     */
-    protected function setOrderCapture($order_id, $paymentName, $paymentType = null)
-    {
-        update_post_meta($order_id, '_wc_order_selected_payment_method', $paymentName);
-        $this->setOrderIssuer($order_id, $paymentType);
-    }
-
-    /**
-     * Set order issuer
-     *
-     * @param int $order_id Order id
-     * @param string|null $paymentType Payment type
-     *
-     * @return void
-     */
-    protected function setOrderIssuer($order_id, $paymentType = null)
-    {
-        if (is_null($paymentType)) {
-            $paymentType = $this->type;
-        }
-        update_post_meta($order_id, '_wc_order_payment_issuer', $paymentType);
-    }
-
-    /**
      * Return properly formated capture error
      *
      * @param string $message
@@ -750,7 +615,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         );
     }
 
-    protected function can_show_financial_warining()
+    protected function can_show_financial_warining(): bool
     {
         $country = $this->getScalarCheckoutField('billing_country');
         return $this->get_option('financial_warning') !== 'disable' && $country === 'NL';
@@ -761,7 +626,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      *
      * @param string $key Input name
      *
-     * @return mixt
+     * @return mixed
      */
     protected function getScalarCheckoutField($key)
     {
