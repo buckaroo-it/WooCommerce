@@ -3,10 +3,12 @@
 namespace Buckaroo\Woocommerce\Gateways\Billink;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Traits\HasDateValidation;
 use DateTime;
 
 class BillinkGateway extends AbstractPaymentGateway
 {
+    use HasDateValidation;
 
     const PAYMENT_CLASS = BillinkProcessor::class;
     public $type;
@@ -54,21 +56,6 @@ class BillinkGateway extends AbstractPaymentGateway
         }
         parent::validate_fields();
     }
-
-    /**
-     * Check that a date is valid.
-     *
-     * @param String $date A date expressed as a string
-     * @param String $format The format of the date
-     * @return Object Datetime
-     * @return Boolean Format correct returns True, else returns false
-     */
-    public function validateDate($date, $format = 'Y-m-d H:i:s')
-    {
-        $d = DateTime::createFromFormat($format, $date);
-        return $d && ($d->format($format) == $date);
-    }
-
 
     /** @inheritDoc */
     public function init_form_fields()
