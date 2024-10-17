@@ -11,6 +11,8 @@ class TransferGateway extends AbstractPaymentGateway
     public $sendemail;
     public $showpayproc;
 
+    protected array $supportedCurrencies = ['EUR', 'GBP', 'PLN'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_transfer';
