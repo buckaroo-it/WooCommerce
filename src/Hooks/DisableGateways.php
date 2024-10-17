@@ -1,29 +1,20 @@
 <?php
 
-namespace Buckaroo\Woocommerce\Services;
+namespace Buckaroo\Woocommerce\Hooks;
 
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 
 /**
- * Core class to disable gateways
- * php version 7.2
- *
- * @category  Payment_Gateways
- * @package   Buckaroo
- * @author    Buckaroo <support@buckaroo.nl>
- * @copyright 2021 Copyright (c) Buckaroo B.V.
- * @license   MIT https://tldrlegal.com/license/mit-license
- * @version   GIT: 2.25.0
- * @link      https://www.buckaroo.eu/
+ * Remove gateways based on min/max value or idin verification
  */
 class DisableGateways
 {
     public function __construct()
     {
-        add_filter('woocommerce_available_payment_gateways', array($this, 'disable'));
+        add_filter('woocommerce_available_payment_gateways', array($this, 'handle'));
     }
 
-    public function disable($available_gateways)
+    public function handle($available_gateways)
     {
         if (!IdinProcessor::checkCurrentUserIsVerified()) {
             return array();

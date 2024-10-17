@@ -1,22 +1,16 @@
 <?php
 
-namespace Buckaroo\Woocommerce\Services;
+namespace Buckaroo\Woocommerce\Hooks;
 
+use Buckaroo\Woocommerce\Services\Config;
+use Buckaroo\Woocommerce\Services\Logger;
+use Buckaroo\Woocommerce\Services\LoggerStorage;
 use DateInterval;
 use DateTime;
 use Throwable;
 
 /**
- * Core class for logging
- * php version 7.2
- *
- * @category  Payment_Gateways
- * @package   Buckaroo
- * @author    Buckaroo <support@buckaroo.nl>
- * @copyright 2021 Copyright (c) Buckaroo B.V.
- * @license   MIT https://tldrlegal.com/license/mit-license
- * @version   GIT: 2.25.0
- * @link      https://www.buckaroo.eu/
+ * Start running buckaroo events
  */
 class CronEvents
 {

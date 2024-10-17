@@ -1,21 +1,78 @@
 <?php
 
-namespace Buckaroo\Woocommerce\Order;
+namespace Buckaroo\Woocommerce\Hooks;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway;
+use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
+use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
 use WC_Cart;
 
-class OrderFee
+class OrderActions
 {
     public function __construct()
     {
-        add_action('woocommerce_cart_calculate_fees', array($this, 'calculate_order_fees'));
+        add_action('edit_form_top', [$this, 'handleOrderInTestMode']);
+        add_action('wp_ajax_order_capture', [$this, 'handleOrderCapture']);
+        add_action('woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
         add_action(
             'buckaroo_cart_calculate_fees',
-            array($this, 'add_fee_to_cart'),
+            [$this, 'add_fee_to_cart'],
             10,
             3
         );
+    }
+
+    public function handleOrderInTestMode($post): void
+    {
+        if ($post->post_type === 'shop_order') {
+            $order_in_test_mode = get_post_meta($post->ID, '_buckaroo_order_in_test_mode', true);
+            if ($order_in_test_mode === '1') {
+                echo '<div class="notice notice-error"><p>' . esc_html__('The payment for this order was made in test mode') . '</p></div>';
+            }
+        }
+
+    }
+
+    public function handleOrderCapture(): void
+    {
+        if (!isset($_POST['order_id'])) {
+            wp_send_json(
+                array(
+                    'errors' => array(
+                        'error_capture' => array(
+                            array(esc_html__('A valid order number is required')),
+                        ),
+                    ),
+                )
+            );
+        }
+
+        $paymentMethod = get_post_meta((int)sanitize_text_field($_POST['order_id']), '_wc_order_selected_payment_method', true);
+
+        switch ($paymentMethod) {
+            case 'Afterpay':
+                $gateway = new AfterpayOldGateway();
+                break;
+            case 'Afterpaynew':
+                $gateway = new AfterpayNewGateway();
+                break;
+            case 'Creditcard':
+                $gateway = new CreditCardGateway();
+                break;
+            case 'KlarnaKp':
+                $gateway = new KlarnaKpGateway();
+                break;
+        }
+
+        if (isset($gateway)) {
+
+            wp_send_json(
+                $gateway->process_capture()
+            );
+        }
+        exit;
     }
 
     /**
