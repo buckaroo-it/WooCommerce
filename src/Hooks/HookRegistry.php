@@ -9,6 +9,7 @@ class HookRegistry
     public array $hooks = [
         Installation::class,
         ReportDownload::class,
+        PluginsLoaded::class,
         TestCredentials::class,
         AdminHooks::class,
         PaymentSetupScripts::class,
