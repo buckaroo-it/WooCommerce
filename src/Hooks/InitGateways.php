@@ -9,7 +9,7 @@ use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
-use Buckaroo\Woocommerce\Services\Helper;
+use Buckaroo\Woocommerce\Services\Config;
 
 class InitGateways
 {
@@ -58,7 +58,7 @@ class InitGateways
             wc_add_notice(esc_html__(sanitize_text_field($error), 'wc-buckaroo-bpe-gateway'), 'error');
         }
         if (IdinProcessor::isIdin(IdinProcessor::getCartProductIds())) {
-            include plugin_dir_path(BK_PLUGIN_FILE) . 'templates/idin/checkout.php';
+            include 'templates/idin/checkout.php';
         }
     }
 
@@ -73,13 +73,17 @@ class InitGateways
 
         foreach ($gateways as $gateway_id => $gateway) {
             if ($this->isBuckarooPayment($gateway_id) && $gateway->enabled == 'yes') {
+                if (method_exists($gateway, 'handleHooks')) {
+                    $gateway->handleHooks();
+                }
+
                 $payment_method = array(
                     'paymentMethodId' => $gateway_id,
                     'title' => $gateway->get_title(),
                     'description' => $gateway->description,
                     'image_path' => $gateway->getIcon(),
                     'buckarooImagesUrl' => plugin_dir_url(BK_PLUGIN_FILE) . 'library/buckaroo_images/',
-                    'genders' => Helper::getAllGendersForPaymentMethods(),
+                    'genders' => Config::getAllGendersForPaymentMethods(),
                     'displayMode' => $gateway->get_option('displaymode'),
                 );
                 if ($gateway_id === 'buckaroo_ideal') {
@@ -93,12 +97,10 @@ class InitGateways
                 }
                 if ($gateway_id === 'buckaroo_afterpaynew') {
                     $payment_method['customer_type'] = $gateway->customer_type;
-                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
                 }
                 if ($gateway_id === 'buckaroo_afterpay') {
                     $payment_method['b2b'] = $gateway->b2b;
                     $payment_method['type'] = (new AfterpayOldGateway())->type;
-                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
                 }
                 if (str_starts_with($gateway_id, 'buckaroo_creditcard')) {
                     $payment_method['creditCardIssuers'] = $gateway->getCardsList();
@@ -124,15 +126,6 @@ class InitGateways
                             'showInCheckout' => is_array($expressPages) && in_array(PaypalExpressController::LOCATION_CHECKOUT, $expressPages),
                         )
                     );
-                }
-                if ($gateway_id === 'buckaroo_klarnakp' || $gateway_id === 'buckaroo_klarnapay' || $gateway_id === 'buckaroo_klarnapii') {
-                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');;
-                }
-                if ($gateway_id === 'buckaroo_in3') {
-                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
-                }
-                if ($gateway_id === 'buckaroo_billink') {
-                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
                 }
 
                 $payment_methods[] = $payment_method;
