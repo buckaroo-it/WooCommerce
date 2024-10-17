@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
-use Buckaroo\Woocommerce\SDK\BuckarooClient;
+use Buckaroo\Woocommerce\Services\BuckarooClient;
 
 class TestCredentials
 {
