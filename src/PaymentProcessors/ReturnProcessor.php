@@ -7,7 +7,7 @@ use Buckaroo\Woocommerce\Constraints\BuckarooTransactionStatus;
 use Buckaroo\Woocommerce\Gateways\GiftCard\GiftCardGateway;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
-use Buckaroo\Woocommerce\SDK\BuckarooClient;
+use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use Exception;

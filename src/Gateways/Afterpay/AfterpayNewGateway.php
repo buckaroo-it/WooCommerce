@@ -2,11 +2,14 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
-use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Order\OrderDetails;
+use Buckaroo\Woocommerce\Traits\HasDateValidation;
 
 class AfterpayNewGateway extends AbstractPaymentGateway
 {
+    use HasDateValidation;
+
     const PAYMENT_CLASS = AfterpayNewProcessor::class;
     public const CUSTOMER_TYPE_B2C = 'b2c';
     public const CUSTOMER_TYPE_B2B = 'b2b';
