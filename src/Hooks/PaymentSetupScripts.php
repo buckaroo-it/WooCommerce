@@ -2,17 +2,36 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
+use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\In3\In3Gateway;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
-use Buckaroo\Woocommerce\Services\Config;
 
 class PaymentSetupScripts
 {
     public function __construct()
     {
+        add_action('plugins_loaded', [$this, 'handlePluginsLoaded'], 0);
         add_action('admin_enqueue_scripts', [$this, 'handleAdminAssets']);
         add_action('enqueue_block_assets', [$this, 'handleBlockAssets']);
         add_action('wp_enqueue_scripts', [$this, 'initFrontendScripts']);
+    }
+
+    public function handlePluginsLoaded()
+    {
+        load_plugin_textdomain(
+            'wc-buckaroo-bpe-gateway',
+            false,
+            dirname(plugin_basename(BK_PLUGIN_FILE)) . '/languages/'
+        );
+
+        $transientKey = get_current_user_id() . '_buckaroo_require_woocommerce';
+        if (!class_exists('WC_Order')) {
+            set_transient($transientKey, true, HOUR_IN_SECONDS);
+
+            return;
+        }
+
+        delete_transient($transientKey);
     }
 
     public function handleAdminAssets(): void
@@ -23,20 +42,20 @@ class PaymentSetupScripts
             'buckaroo-custom-styles',
             $pluginDir . 'library/css/buckaroo-custom.css',
             array(),
-            Config::VERSION
+            Plugin::VERSION
         );
         wp_enqueue_script(
             'creditcard_capture',
             $pluginDir . 'library/js/9yards/creditcard-capture-form.js',
             array('jquery'),
-            Config::VERSION,
+            Plugin::VERSION,
             true
         );
         wp_enqueue_script(
             'buckaroo_certificate_management_js',
             $pluginDir . 'library/js/9yards/upload_certificate.js',
             array('jquery'),
-            Config::VERSION,
+            Plugin::VERSION,
             true
         );
         if (class_exists('WooCommerce')) {
@@ -63,7 +82,7 @@ class PaymentSetupScripts
             'buckaroo-blocks',
             plugins_url('/assets/js/dist/blocks.js', BK_PLUGIN_FILE),
             array('wc-blocks-registry'),
-            Config::VERSION,
+            Plugin::VERSION,
             true
         );
     }
@@ -75,7 +94,7 @@ class PaymentSetupScripts
                 'buckaroo-custom-styles',
                 plugin_dir_url(BK_PLUGIN_FILE) . 'library/css/buckaroo-custom.css',
                 array(),
-                Config::VERSION
+                Plugin::VERSION
             );
 
             wp_enqueue_script(
@@ -83,14 +102,14 @@ class PaymentSetupScripts
                 'https://checkout.buckaroo.nl/api/buckaroosdk/script',
                 // 'https://testcheckout.buckaroo.nl/api/buckaroosdk/script',
                 array('jquery'),
-                Config::VERSION
+                Plugin::VERSION
             );
 
             wp_enqueue_script(
                 'buckaroo_apple_pay',
                 plugin_dir_url(BK_PLUGIN_FILE) . 'assets/js/dist/applepay.js',
                 array('jquery', 'buckaroo_sdk'),
-                Config::VERSION,
+                Plugin::VERSION,
                 true
             );
 
@@ -114,7 +133,7 @@ class PaymentSetupScripts
                 'wc-pf-checkout',
                 plugin_dir_url(BK_PLUGIN_FILE) . 'assets/js/dist/checkout.js',
                 array('jquery'),
-                Config::VERSION,
+                Plugin::VERSION,
                 true
             );
         }

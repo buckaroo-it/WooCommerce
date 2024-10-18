@@ -2,7 +2,6 @@
 
 namespace Buckaroo\Woocommerce\Admin;
 
-use Buckaroo\Woocommerce\Services\Config;
 use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Services\LoggerStorage;
 use DateTime;
@@ -73,7 +72,7 @@ class ReportPage extends WP_List_Table
      */
     public function get_total_items_count_for_storage()
     {
-        $storage = Config::get('logstorage') ?? LoggerStorage::STORAGE_FILE;
+        $storage = LoggerStorage::getStorage();
         if (strlen($storage) === 0 || $storage === LoggerStorage::STORAGE_ALL) {
             $storage = LoggerStorage::STORAGE_FILE;
         }
@@ -159,7 +158,7 @@ class ReportPage extends WP_List_Table
      */
     public function get_items_from_storage($current_page)
     {
-        $storage = Config::get('logstorage') ?? LoggerStorage::STORAGE_FILE;
+        $storage = LoggerStorage::getStorage();
         $method = $this->get_storage_method($storage);
 
         if (method_exists($this, $method)) {

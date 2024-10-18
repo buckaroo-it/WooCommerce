@@ -8,6 +8,7 @@ use Buckaroo\Config\DefaultConfig;
 use Buckaroo\Exceptions\BuckarooException;
 use Buckaroo\Handlers\Reply\ReplyHandler;
 use Buckaroo\Transaction\Response\TransactionResponse;
+use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Exception;
 use InvalidArgumentException;
@@ -103,7 +104,7 @@ class BuckarooClient
                 $wp_version,
                 'Buckaroo',
                 'Woocommerce Payments Plugin',
-                Config::VERSION
+                Plugin::VERSION
             )
         );
     }
