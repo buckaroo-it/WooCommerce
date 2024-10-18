@@ -18,4 +18,4 @@ if (!defined('BK_PLUGIN_FILE')) {
 require_once __DIR__ . "/vendor/autoload.php";
 
 
-Buckaroo\Woocommerce\Core\Plugin::init();
+(new Buckaroo\Woocommerce\Core\Plugin)->init();

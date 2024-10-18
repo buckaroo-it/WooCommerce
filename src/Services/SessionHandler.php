@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Woocommerce\Handlers;
+namespace Buckaroo\Woocommerce\Services;
 
 use Automattic\Jetpack\Constants;
 use WC_Session_Handler;

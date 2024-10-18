@@ -3,7 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways;
 
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
-use Buckaroo\Woocommerce\Handlers\SessionHandler;
+use Buckaroo\Woocommerce\Services\SessionHandler;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;

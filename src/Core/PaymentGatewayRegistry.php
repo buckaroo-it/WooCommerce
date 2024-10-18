@@ -151,7 +151,7 @@ class PaymentGatewayRegistry
             return;
         }
 
-        $creditCardMethods = $this->getCreditCardMethods();
+        $creditCardMethods = CreditCardGateway::$cards;
 
         foreach ($gatewayNames as $name) {
             $methodKey = $name . '_creditcard';
@@ -174,29 +174,7 @@ class PaymentGatewayRegistry
      */
     protected function getAllGateways(): array
     {
-        return array_merge($this->gateways, $this->getCreditCardMethods());
-    }
-
-    /**
-     * Get individual credit card methods to be shown at checkout.
-     *
-     * @return array
-     */
-    protected function getCreditCardMethods(): array
-    {
-        $creditCardMethods = [];
-
-        foreach ($this->getCreditCardsToShow() as $creditCard) {
-            $creditCard = trim($creditCard);
-            if ($creditCard !== '') {
-                $className = 'Buckaroo\Woocommerce\Gateways\CreditCard\Cards\\' . ucfirst($creditCard) . 'Gateway';
-                if (class_exists($className)) {
-                    $key = $creditCard . '_creditcard';
-                    $creditCardMethods[$key] = ['gateway_class' => $className];
-                }
-            }
-        }
-        return $creditCardMethods;
+        return array_merge($this->gateways, CreditCardGateway::$cards);
     }
 
     /**
