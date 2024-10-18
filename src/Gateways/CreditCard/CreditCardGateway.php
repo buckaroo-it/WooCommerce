@@ -20,6 +20,19 @@ class CreditCardGateway extends AbstractPaymentGateway
         'JPY', 'LTL', 'LVL', 'MXN', 'NOK', 'NZD',
         'PLN', 'RUB', 'SEK', 'TRY', 'USD', 'ZAR',
     ];
+    public static array $cards = [
+        'amex_creditcard' => ['gateway_class' => Cards\AmexGateway::class],
+        'cartebancaire_creditcard' => ['gateway_class' => Cards\CarteBancaireGateway::class],
+        'cartebleuevisa_creditcard' => ['gateway_class' => Cards\CarteBleueVisaGateway::class],
+        'dankort_creditcard' => ['gateway_class' => Cards\DankortGateway::class],
+        'maestro_creditcard' => ['gateway_class' => Cards\MaestroGateway::class],
+        'mastercard_creditcard' => ['gateway_class' => Cards\MastercardGateway::class],
+        'nexi_creditcard' => ['gateway_class' => Cards\NexiGateway::class],
+        'postepay_creditcard' => ['gateway_class' => Cards\PostePayGateway::class],
+        'visa_creditcard' => ['gateway_class' => Cards\VisaGateway::class],
+        'visaelectron_creditcard' => ['gateway_class' => Cards\VisaElectronGateway::class],
+        'vpay_creditcard' => ['gateway_class' => Cards\VpayGateway::class],
+    ];
 
     public function __construct()
     {

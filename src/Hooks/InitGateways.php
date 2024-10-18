@@ -9,7 +9,7 @@ use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
-use Buckaroo\Woocommerce\Services\Config;
+use Buckaroo\Woocommerce\Services\Helper;
 
 class InitGateways
 {
@@ -73,17 +73,13 @@ class InitGateways
 
         foreach ($gateways as $gateway_id => $gateway) {
             if ($this->isBuckarooPayment($gateway_id) && $gateway->enabled == 'yes') {
-                if (method_exists($gateway, 'handleHooks')) {
-                    $gateway->handleHooks();
-                }
-
                 $payment_method = array(
                     'paymentMethodId' => $gateway_id,
                     'title' => $gateway->get_title(),
                     'description' => $gateway->description,
                     'image_path' => $gateway->getIcon(),
                     'buckarooImagesUrl' => plugin_dir_url(BK_PLUGIN_FILE) . 'library/buckaroo_images/',
-                    'genders' => Config::getAllGendersForPaymentMethods(),
+                    'genders' => Helper::getAllGendersForPaymentMethods(),
                     'displayMode' => $gateway->get_option('displaymode'),
                 );
                 if ($gateway_id === 'buckaroo_ideal') {
