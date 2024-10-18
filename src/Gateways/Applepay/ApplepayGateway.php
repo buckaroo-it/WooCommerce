@@ -435,4 +435,33 @@ class ApplepayGateway extends AbstractPaymentGateway
         }
         $this->form_fields = $new_form_fields;
     }
+
+    public function handleHooks()
+    {
+        $afterpayButtons = new ApplepayButtons();
+        $afterpayButtons->loadActions();
+
+        $destinationDir = ABSPATH . '.well-known';
+        $destinationFile = $destinationDir . '/apple-developer-merchantid-domain-association';
+        $sourceFile = plugin_dir_path(BK_PLUGIN_FILE) . 'assets/apple-developer-merchantid-domain-association';
+
+        /**
+         * Ensure the Apple Developer Domain Association file exists.
+         * Creates the necessary directories and copies the association file if it doesn't exist.
+         */
+        if (!file_exists($destinationFile)) {
+            if (!is_dir($destinationDir)) {
+                if (!mkdir($destinationDir, 0775, true) && !is_dir($destinationDir)) {
+                    // Handle the error appropriately, e.g., log it or throw an exception
+                    error_log("Failed to create directory: {$destinationDir}");
+                    return;
+                }
+            }
+
+            if (!copy($sourceFile, $destinationFile)) {
+                // Handle the error appropriately, e.g., log it or throw an exception
+                error_log("Failed to copy {$sourceFile} to {$destinationFile}");
+            }
+        }
+    }
 }

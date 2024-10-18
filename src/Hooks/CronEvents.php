@@ -2,7 +2,6 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
-use Buckaroo\Woocommerce\Services\Config;
 use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Services\LoggerStorage;
 use DateInterval;
@@ -54,7 +53,7 @@ class CronEvents
      */
     public function clean_logger_storage()
     {
-        $storage = Config::get('logstorage') ?? LoggerStorage::STORAGE_ALL;
+        $storage = LoggerStorage::getStorage();
         $method = $this->get_logger_clean_method_name($storage);
         if (method_exists($this, $method)) {
             $this->{$method}();

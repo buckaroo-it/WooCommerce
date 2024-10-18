@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 
-use Buckaroo\Woocommerce\Services\Config;
+use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Services\Logger;
 use Throwable;
 
@@ -87,7 +87,7 @@ class PaypalExpressController
                 'buckaroo_paypal_express',
                 plugin_dir_url(BK_PLUGIN_FILE) . '/library/js/paypal_express.js',
                 array('buckaroo_sdk'),
-                Config::VERSION,
+                Plugin::VERSION,
                 true
             );
             wp_localize_script(
