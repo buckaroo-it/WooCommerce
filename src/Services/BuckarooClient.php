@@ -159,12 +159,6 @@ class BuckarooClient
         $action = $processor->getAction();
         $requestData = array_merge($processor->getBody(), $additionalData);
 
-        $clientMethod = $this->method($serviceCode);
-
-        if (!method_exists($clientMethod, $action)) {
-            throw new BadMethodCallException("Action {$action} does not exist on service {$serviceCode}.");
-        }
-
-        return $clientMethod->{$action}($requestData);
+        return $this->method($serviceCode)->{$action}($requestData);
     }
 }
