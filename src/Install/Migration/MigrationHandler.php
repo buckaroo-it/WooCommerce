@@ -2,8 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Install\Migration;
 
+use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Install\Install;
-use Buckaroo\Woocommerce\Services\Config;
 use Buckaroo\Woocommerce\Services\Logger;
 use Throwable;
 
@@ -120,7 +120,7 @@ class MigrationHandler
     {
         return version_compare(
             $this->databaseVersion,
-            Config::VERSION
+            Plugin::VERSION
         );
     }
 
@@ -156,7 +156,7 @@ class MigrationHandler
             function ($migration) {
                 return $this->compare_versions(
                         $migration['version'],
-                        Config::VERSION,
+                        Plugin::VERSION,
                         '<='
                     ) &&
                     $this->compare_versions(
@@ -169,7 +169,7 @@ class MigrationHandler
         $this->execute_list(
             $migrations
         );
-        Install::set_db_version(Config::VERSION);
+        Install::set_db_version(Plugin::VERSION);
     }
 
     /**
