@@ -76,9 +76,7 @@ class PaymentGatewayRegistry
     public function load(): PaymentGatewayRegistry
     {
         $this->addExodus();
-        $this->loadBefore();
         $this->loadGateways();
-        $this->loadAfter();
         $this->enableCreditCardsInCheckout();
 
         return $this;
@@ -96,15 +94,6 @@ class PaymentGatewayRegistry
         }
     }
 
-    /**
-     * Hook for actions to perform before loading gateways.
-     *
-     * @return void
-     */
-    protected function loadBefore(): void
-    {
-        // Placeholder for pre-loading actions.
-    }
 
     /**
      * Load all registered gateways.
@@ -122,16 +111,6 @@ class PaymentGatewayRegistry
                 }
             }
         }
-    }
-
-    /**
-     * Hook for actions to perform after loading gateways.
-     *
-     * @return void
-     */
-    protected function loadAfter(): void
-    {
-        // Placeholder for post-loading actions.
     }
 
     /**
