@@ -18,7 +18,6 @@ use Buckaroo\Woocommerce\Services\Request;
  */
 class OrderCapture
 {
-
     /**
      * @var OrderDetails
      */
