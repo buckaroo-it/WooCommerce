@@ -4,6 +4,19 @@ import { convertUnderScoreToDash, decodeHtmlEntities } from './utils/utils';
 import BuckarooLabel from './components/BuckarooLabel';
 import BuckarooApplepay from './components/BuckarooApplepay';
 import BuckarooPaypalExpress from './components/BuckarooPaypalExpress';
+import BuckarooAfterpay from './gateways/buckaroo_afterpay';
+import BuckarooAfterpayNew from './gateways/buckaroo_afterpaynew';
+import BuckarooBillink from './gateways/buckaroo_billink';
+import BuckarooCreditCard from './gateways/buckaroo_creditcard';
+import BuckarooIdeal from './gateways/buckaroo_ideal';
+import BuckarooIn3 from './gateways/buckaroo_in3';
+import BuckarooKlarnaKP from './gateways/buckaroo_klarnakp';
+import BuckarooKlarnaPay from './gateways/buckaroo_klarnapay';
+import BuckarooKlarnaPii from './gateways/buckaroo_klarnapii';
+import BuckarooPayByBank from './gateways/buckaroo_paybybank';
+import BuckarooPayPerEmail from './gateways/buckaroo_payperemail';
+import BuckarooSepaDirectDebit from './gateways/buckaroo_sepadirectdebit';
+import BuckarooSeparateCreditCard from './gateways/buckaroo_separate_credit_card';
 
 const customTemplatePaymentMethodIds = [
   'buckaroo_afterpay', 'buckaroo_afterpaynew', 'buckaroo_billink', 'buckaroo_creditcard',
@@ -26,8 +39,8 @@ const separateCreditCards = [
 ];
 
 function BuckarooComponent({
-  billing, gateway, eventRegistration, emitResponse,
-}) {
+                             billing, gateway, eventRegistration, emitResponse,
+                           }) {
   const [errorMessage, setErrorMessage] = useState('');
   const [PaymentComponent, setPaymentComponent] = useState(null);
   const [activePaymentMethodState, setActivePaymentMethodState] = useState({});
@@ -73,19 +86,58 @@ function BuckarooComponent({
     const loadPaymentComponent = async (methodId) => {
       try {
         let LoadedComponent = DefaultPayment;
-        if (customTemplatePaymentMethodIds.includes(methodId)) {
-          ({ default: LoadedComponent } = await import(`./gateways/${methodId}`));
-        } else if (separateCreditCards.includes(methodId)) {
-          ({ default: LoadedComponent } = await import('./gateways/buckaroo_separate_credit_card'));
+        switch (methodId) {
+          case 'buckaroo_afterpay':
+            LoadedComponent = BuckarooAfterpay;
+            break;
+          case 'buckaroo_afterpaynew':
+            LoadedComponent = BuckarooAfterpayNew;
+            break;
+          case 'buckaroo_billink':
+            LoadedComponent = BuckarooBillink;
+            break;
+          case 'buckaroo_creditcard':
+            LoadedComponent = BuckarooCreditCard;
+            break;
+          case 'buckaroo_ideal':
+            LoadedComponent = BuckarooIdeal;
+            break;
+          case 'buckaroo_in3':
+            LoadedComponent = BuckarooIn3;
+            break;
+          case 'buckaroo_klarnakp':
+            LoadedComponent = BuckarooKlarnaKP;
+            break;
+          case 'buckaroo_klarnapay':
+            LoadedComponent = BuckarooKlarnaPay;
+            break;
+          case 'buckaroo_klarnapii':
+            LoadedComponent = BuckarooKlarnaPii;
+            break;
+          case 'buckaroo_paybybank':
+            LoadedComponent = BuckarooPayByBank;
+            break;
+          case 'buckaroo_payperemail':
+            LoadedComponent = BuckarooPayPerEmail;
+            break;
+          case 'buckaroo_sepadirectdebit':
+            LoadedComponent = BuckarooSepaDirectDebit;
+            break;
+          default:
+            if (separateCreditCards.includes(methodId)) {
+              LoadedComponent = BuckarooSeparateCreditCard; // or your credit card handling component
+            }
+            break;
         }
+
         setPaymentComponent(() => function () {
           return (
-            <LoadedComponent
-              onStateChange={onPaymentStateChange}
-              methodName={methodName}
-              gateway={gateway}
-              billing={billing.billingData}
-            />
+              <LoadedComponent
+                  onStateChange={onPaymentStateChange}
+                  methodName={methodName}
+                  gateway={gateway}
+                  billing={billing.billingData}
+              />
           );
         });
       } catch (error) {
@@ -102,11 +154,11 @@ function BuckarooComponent({
   }
 
   return (
-    <div className="container">
-      <span className="description">{gateway.description}</span>
-      <span className="descriptionError">{errorMessage}</span>
-      <PaymentComponent />
-    </div>
+      <div className="container">
+        <span className="description">{gateway.description}</span>
+        <span className="descriptionError">{errorMessage}</span>
+        <PaymentComponent />
+      </div>
   );
 }
 
