@@ -8,7 +8,6 @@ function IdealDropdown({ onStateChange, methodName, gateway: { idealIssuers, can
   };
 
   const { handleChange } = useFormData(initialState, onStateChange);
-
   return (
     canShowIssuers && (
     <div className="payment_box payment_method_buckaroo_ideal">

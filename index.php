@@ -211,18 +211,23 @@ function get_woocommerce_payment_methods(): array {
 }
 
 function enqueue_buckaroo_ideal_block_script() {
-	wp_enqueue_script(
-		'buckaroo-blocks',
-		plugins_url( '/assets/js/dist/blocks.js', __FILE__ ),
-		array( 'wc-blocks-registry' ),
-		BuckarooConfig::VERSION,
-		true
-	);
+    wp_enqueue_script(
+        'buckaroo-blocks',
+        plugins_url( '/assets/js/dist/blocks.js', __FILE__ ),
+        array( 'wc-blocks-registry', 'wp-blocks', 'wp-element', 'wp-i18n' ),
+        BuckarooConfig::VERSION,
+        true
+    );
 
-	get_woocommerce_payment_methods();
+    wp_set_script_translations( 'buckaroo-blocks', 'wc-buckaroo-bpe-gateway', plugin_dir_path( __FILE__ ) . 'languages' );
+
+    get_woocommerce_payment_methods();
+
+    return [ 'buckaroo-blocks' ];
 }
 
 add_action( 'enqueue_block_assets', 'enqueue_buckaroo_ideal_block_script' );
+
 
 
 /**
@@ -469,7 +474,7 @@ function buckaroo_init_gateway() {
 
 	load_plugin_textdomain( 'wc-buckaroo-bpe-gateway', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
-	$gateway_loader = new Buckaroo_Load_Gateways();
+    $gateway_loader = new Buckaroo_Load_Gateways();
 	$gateway_loader->load();
 
 	add_filter( 'woocommerce_payment_gateways', array( $gateway_loader, 'hook_gateways_to_woocommerce' ) );

@@ -939,7 +939,7 @@ msgstr ""
 #: assets/js/dist/154.js:1
 #: assets/js/dist/426.js:1
 msgid "Select your bank"
-msgstr ""
+msgstr "Kies je bank"
 
 #: gateway-buckaroo.php:435
 msgid "Select your certificate by name."

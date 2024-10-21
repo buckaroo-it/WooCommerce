@@ -1,29 +1,6 @@
 const path = require('path');
 const WooCommerceDependencyExtractionWebpackPlugin = require('@woocommerce/dependency-extraction-webpack-plugin');
 
-// WooCommerce dependency maps
-const wcDepMap = {
-  '@woocommerce/blocks-registry': ['wc', 'wcBlocksRegistry'],
-  '@woocommerce/settings': ['wc', 'wcSettings'],
-};
-
-const wcHandleMap = {
-  '@woocommerce/blocks-registry': 'wc-blocks-registry',
-  '@woocommerce/settings': 'wc-settings',
-};
-
-const requestToExternal = (request) => {
-  if (wcDepMap[request]) {
-    return wcDepMap[request];
-  }
-};
-
-const requestToHandle = (request) => {
-  if (wcHandleMap[request]) {
-    return wcHandleMap[request];
-  }
-};
-
 module.exports = {
   entry: {
     applepay: './applepay/index.js',
@@ -56,9 +33,6 @@ module.exports = {
     extensions: ['.js', '.jsx'], // Resolve both .js and .jsx
   },
   plugins: [
-    new WooCommerceDependencyExtractionWebpackPlugin({
-      requestToExternal,
-      requestToHandle,
-    }),
+    new WooCommerceDependencyExtractionWebpackPlugin(),
   ],
 };
