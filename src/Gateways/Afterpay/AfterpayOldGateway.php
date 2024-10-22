@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpProcessor;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
@@ -33,7 +34,7 @@ class AfterpayOldGateway extends AbstractPaymentGateway
         $this->addRefundSupport();
     }
 
-    public function getServiceCode()
+    public function getServiceCode(?AbstractProcessor $processor = null)
     {
         return 'afterpaydigiaccept';
     }
@@ -46,7 +47,7 @@ class AfterpayOldGateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        if ($this->request->input('buckaroo-afterpay-accept') === null) {
+        if ($this->request->input('buckaroo-afterpay-accept') === null || empty($this->request->input('buckaroo-afterpay-accept'))) {
             wc_add_notice(__('Please accept licence agreements', 'wc-buckaroo-bpe-gateway'), 'error');
         }
 

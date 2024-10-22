@@ -16,7 +16,7 @@ function GenderDropdown({paymentMethod, genders, handleChange}) {
     const capitalizeFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
     const genderOptions = Object.entries(genders[paymentMethod]).map(([key, value]) => (
-        <option key={key} value={value}>
+        <option key={value} value={value}>
             {translateGender(key)}
         </option>
     ));

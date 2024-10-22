@@ -58,7 +58,7 @@ class InitGateways
             wc_add_notice(esc_html__(sanitize_text_field($error), 'wc-buckaroo-bpe-gateway'), 'error');
         }
         if (IdinProcessor::isIdin(IdinProcessor::getCartProductIds())) {
-            include 'templates/idin/checkout.php';
+            include plugin_dir_path(BK_PLUGIN_FILE) . 'templates/idin/checkout.php';
         }
     }
 

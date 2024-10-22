@@ -92,7 +92,7 @@ class ReturnProcessor
                 update_post_meta(
                     $order->get_id(),
                     '_buckaroo_klarnakp_reservation_number',
-                    $responseParser->get('reservationNumber')
+                    $responseParser->getService('reservationNumber')
                 );
             }
 
