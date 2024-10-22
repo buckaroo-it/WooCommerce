@@ -43,7 +43,7 @@ class KlarnaKpGateway extends AbstractPaymentGateway
         }
 
         (new CancelReservationAction())->handle(
-            $payment->method($this->getServiceCode())->cancelReserve([
+            $payment->method($this->getServiceCode($processor))->cancelReserve([
                 ...$processor->getBody(),
                 'reservationNumber' => $reservation_number,
             ]),

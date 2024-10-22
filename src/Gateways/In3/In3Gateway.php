@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\In3;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
@@ -61,7 +62,7 @@ class In3Gateway extends AbstractPaymentGateway
         $this->setIcon('svg/in3-ideal.svg', 'svg/in3-ideal.svg');
     }
 
-    public function getServiceCode()
+    public function getServiceCode(?AbstractProcessor $processor = null)
     {
         return $this->get_option('api_version') === self::VERSION2 ? 'in3Old' : 'in3';
     }

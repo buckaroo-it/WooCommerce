@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways\CreditCard\Cards;
 
+use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
 
 /**
@@ -113,8 +114,12 @@ class SingleCreditCardGateway extends CreditCardGateway
     }
 
 
-    public function getServiceCode()
+    public function getServiceCode(?AbstractProcessor $processor = null)
     {
+        if ($processor?->getAction() == 'refund') {
+            return 'creditcard';
+        }
+
         return str_replace("buckaroo_creditcard_", "", $this->id);
     }
 }

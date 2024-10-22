@@ -504,7 +504,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         return (new RefundAction($this->newRefundProcessorInstance($order_id, $amount, $reason), $order_id, $transactionId))->process();
     }
 
-    public function getServiceCode()
+    public function getServiceCode(?AbstractProcessor $processor = null)
     {
         return str_replace("buckaroo_", "", $this->id);
     }

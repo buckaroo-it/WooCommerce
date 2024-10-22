@@ -81,8 +81,7 @@ class PushProcessor
                             );
                         }
                     }
-                    $clean_order_no = (int)str_replace('#', '', $order_id);
-                    add_post_meta($clean_order_no, '_payment_method_transaction', $payment_methodname, true);
+
 
                     // Calc total received amount
                     $prefix = "buckaroo_settlement_";
@@ -107,8 +106,6 @@ class PushProcessor
 
                     $totalPaid = $paidAmount + $alreadyPaidSettlements;
 
-                    add_post_meta($order_id, $settlement, $paidAmount, true);
-
                     // order is completely paid
                     if ($totalPaid >= $orderAmount) {
                         $order->payment_complete($transaction);
@@ -124,6 +121,8 @@ class PushProcessor
                         $order->add_order_note($message);
                     }
 
+                    add_post_meta($order_id, '_payment_method_transaction', $payment_methodname, true);
+                    add_post_meta($order_id, $settlement, $paidAmount, true);
                     add_post_meta($order_id, '_pushallowed', 'ok', true);
 
                     break;
