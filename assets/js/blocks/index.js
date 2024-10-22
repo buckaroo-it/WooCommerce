@@ -5,29 +5,12 @@ import BuckarooLabel from './components/BuckarooLabel';
 import BuckarooApplepay from './components/BuckarooApplepay';
 import BuckarooPaypalExpress from './components/BuckarooPaypalExpress';
 import {paymentGatewaysTemplates, separateCreditCards} from "./gateways";
-import {__} from "@wordpress/i18n";
-import {useDispatch} from '@wordpress/data';
 
 function BuckarooComponent({billing, gateway, eventRegistration, emitResponse}) {
     const [errorMessage, setErrorMessage] = useState('');
     const [PaymentComponent, setPaymentComponent] = useState(null);
     const [activePaymentMethodState, setActivePaymentMethodState] = useState({});
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
-    const storeCartDispatch = useDispatch('wc/store/cart');
-
-    useEffect(() => {
-        jQuery.ajax({
-            url: '/wp-admin/admin-ajax.php',
-            type: 'POST',
-            data: {
-                action: 'woocommerce_cart_calculate_fees',
-                method: gateway.paymentMethodId
-            },
-            success: function () {
-                storeCartDispatch.updateCustomerData();
-            }
-        });
-    }, [gateway.paymentMethodId]);
 
     const onPaymentStateChange = (newState) => {
         setActivePaymentMethodState(newState);
@@ -65,7 +48,7 @@ function BuckarooComponent({billing, gateway, eventRegistration, emitResponse}) 
         });
         return () => unsubscribe();
     }, [gateway.paymentMethodId, activePaymentMethodState, billing.billingAddress]);
-
+    var once = false
     useEffect(() => {
         const loadPaymentComponent = async (methodId) => {
             try {
@@ -84,7 +67,6 @@ function BuckarooComponent({billing, gateway, eventRegistration, emitResponse}) 
                             methodName={methodName}
                             gateway={gateway}
                             billing={billing.billingData}
-                            title={decodeHtmlEntities(gateway.title)}
                         />
                     );
                 });
@@ -103,10 +85,7 @@ function BuckarooComponent({billing, gateway, eventRegistration, emitResponse}) 
 
     return (
         <div className="container">
-           <span className="description">{sprintf(
-               __('Pay with %s', 'wc-buckaroo-bpe-gateway'),
-               decodeHtmlEntities(gateway.title)
-           )}</span>
+            <span className="description">{gateway.description}</span>
             <span className="descriptionError">{errorMessage}</span>
             <PaymentComponent/>
         </div>
