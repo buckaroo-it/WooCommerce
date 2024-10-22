@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-10-21 12:10+0000\n"
-"PO-Revision-Date: 2024-10-22 09:20+0000\n"
+"PO-Revision-Date: 2024-10-22 10:51+0000\n"
 "Last-Translator: \n"
 "Language-Team: French (France)\n"
 "Language: fr_FR\n"
@@ -713,7 +713,8 @@ msgid "Offer customer to pay afterwards by SEPA Direct Debit."
 msgstr ""
 "Proposez au client de payer plus tard par prélèvement automatique SEPA."
 
-#: gateway-buckaroo.php:74
+#: gateway-buckaroo.php:74 assets/js/blocks/index.js:162
+#: assets/js/dist/blocks.js:2
 msgid "Pay with %s"
 msgstr "Payer avec %s"
 

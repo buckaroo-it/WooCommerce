@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-10-21T12:41:26+02:00\n"
-"PO-Revision-Date: 2024-10-22 09:20+0000\n"
+"PO-Revision-Date: 2024-10-22 10:51+0000\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
 "Language: nl_NL\n"
@@ -711,7 +711,8 @@ msgstr "Bied de klant aan om achteraf te betalen via digitale factuur."
 msgid "Offer customer to pay afterwards by SEPA Direct Debit."
 msgstr "Bied de klant aan om achteraf te betalen via SEPA Incasso."
 
-#: gateway-buckaroo.php:74
+#: gateway-buckaroo.php:74 assets/js/blocks/index.js:162
+#: assets/js/dist/blocks.js:2
 msgid "Pay with %s"
 msgstr "Betalen met %s"
 
