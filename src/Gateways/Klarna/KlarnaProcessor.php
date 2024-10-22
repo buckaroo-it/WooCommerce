@@ -16,6 +16,15 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         );
     }
 
+    public function getAction(): string
+    {
+        if ($this->gateway instanceof KlarnaPiiGateway) {
+            return 'payInInstallments';
+        }
+
+        return parent::getAction();
+    }
+
     /**
      * @return array<mixed>
      */

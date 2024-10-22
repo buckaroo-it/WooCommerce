@@ -7,6 +7,7 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 class CreditCardGateway extends AbstractPaymentGateway
 {
     const PAYMENT_CLASS = CreditCardProcessor::class;
+    const REFUND_CLASS = CreditCardRefundProcessor::class;
     public const SHOW_IN_CHECKOUT_FIELD = 'show_in_checkout';
     public $creditCardProvider = array();
 
