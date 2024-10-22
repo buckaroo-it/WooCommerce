@@ -85,6 +85,8 @@ class PaymentSetupScripts
             Plugin::VERSION,
             true
         );
+
+        wp_set_script_translations('buckaroo-blocks', 'wc-buckaroo-bpe-gateway', plugin_dir_path(BK_PLUGIN_FILE) . 'languages');
     }
 
     public function initFrontendScripts()
