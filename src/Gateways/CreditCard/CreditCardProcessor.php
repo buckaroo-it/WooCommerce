@@ -31,23 +31,18 @@ class CreditCardProcessor extends AbstractPaymentProcessor
     protected function getMethodBody(): array
     {
         $body = [
-            'name' => $this->request->input('creditcard-issuer', ''),
+            'name' => $this->request->input($this->gateway->id . '-creditcard-issuer', ''),
         ];
 
         if ($this->isEncripted()) {
             $body = array_merge(
                 $body,
                 [
-                    'encryptedCardData' => $this->request->input('encrypted-data')
+                    'encryptedCardData' => $this->request->input($this->gateway->id . '-encrypted-data')
                 ]
             );
         }
-
+        ray($body);
         return $body;
-    }
-
-    protected function request(string $key, $default = '')
-    {
-        return parent::request($this->gateway->id . "-" . $key);
     }
 }

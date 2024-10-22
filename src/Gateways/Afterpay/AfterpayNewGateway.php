@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Traits\HasDateValidation;
 
@@ -35,7 +36,7 @@ class AfterpayNewGateway extends AbstractPaymentGateway
         $this->addRefundSupport();
     }
 
-    public function getServiceCode()
+    public function getServiceCode(?AbstractProcessor $processor = null)
     {
         return 'afterpay';
     }
@@ -61,7 +62,7 @@ class AfterpayNewGateway extends AbstractPaymentGateway
             wc_add_notice(__('You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.', 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
-        if ($this->request->input('buckaroo-afterpaynew-accept') === null) {
+        if ($this->request->input('buckaroo-afterpaynew-accept') === null || empty($this->request->input('buckaroo-afterpaynew-accept'))) {
             wc_add_notice(__('Please accept licence agreements', 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
