@@ -2,6 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
+use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
+
 class KlarnaPiiGateway extends KlarnaGateway
 {
     function __construct()
@@ -12,6 +14,11 @@ class KlarnaPiiGateway extends KlarnaGateway
         $this->klarnaPaymentFlowId = 'PayInInstallments';
 
         parent::__construct();
+    }
+
+    public function getServiceCode(?AbstractProcessor $processor = null)
+    {
+        return 'klarna';
     }
 
     /**

@@ -5,29 +5,12 @@ import BuckarooLabel from './components/BuckarooLabel';
 import BuckarooApplepay from './components/BuckarooApplepay';
 import BuckarooPaypalExpress from './components/BuckarooPaypalExpress';
 import {paymentGatewaysTemplates, separateCreditCards} from "./gateways";
-import {__} from "@wordpress/i18n";
-import {useDispatch} from '@wordpress/data';
 
-function BuckarooComponent({wc, billing, gateway, eventRegistration, emitResponse}) {
+function BuckarooComponent({billing, gateway, eventRegistration, emitResponse}) {
     const [errorMessage, setErrorMessage] = useState('');
     const [PaymentComponent, setPaymentComponent] = useState(null);
     const [activePaymentMethodState, setActivePaymentMethodState] = useState({});
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
-    const storeCartDispatch = useDispatch('wc/store/cart');
-
-    useEffect(() => {
-        jQuery.ajax({
-            url: '/wp-admin/admin-ajax.php',
-            type: 'POST',
-            data: {
-                action: 'woocommerce_cart_calculate_fees',
-                method: gateway.paymentMethodId
-            },
-            success: function () {
-                storeCartDispatch.updateCustomerData();
-            }
-        });
-    }, [gateway.paymentMethodId]);
 
     const onPaymentStateChange = (newState) => {
         setActivePaymentMethodState(newState);
@@ -65,7 +48,7 @@ function BuckarooComponent({wc, billing, gateway, eventRegistration, emitRespons
         });
         return () => unsubscribe();
     }, [gateway.paymentMethodId, activePaymentMethodState, billing.billingAddress]);
-
+    var once = false
     useEffect(() => {
         const loadPaymentComponent = async (methodId) => {
             try {
@@ -83,9 +66,7 @@ function BuckarooComponent({wc, billing, gateway, eventRegistration, emitRespons
                             onStateChange={onPaymentStateChange}
                             methodName={methodName}
                             gateway={gateway}
-                            locale={wc.wcSettings.LOCALE}
                             billing={billing.billingData}
-                            title={decodeHtmlEntities(gateway.title)}
                         />
                     );
                 });
@@ -104,10 +85,7 @@ function BuckarooComponent({wc, billing, gateway, eventRegistration, emitRespons
 
     return (
         <div className="container">
-           <span className="description">{sprintf(
-               __('Pay with %s', 'wc-buckaroo-bpe-gateway'),
-               decodeHtmlEntities(gateway.title)
-           )}</span>
+            <span className="description">{gateway.description}</span>
             <span className="descriptionError">{errorMessage}</span>
             <PaymentComponent/>
         </div>
@@ -117,7 +95,7 @@ function BuckarooComponent({wc, billing, gateway, eventRegistration, emitRespons
 const registerBuckarooPaymentMethods = ({wc, buckarooGateways}) => {
     const {registerPaymentMethod} = wc.wcBlocksRegistry;
     buckarooGateways.forEach((gateway) => {
-        registerPaymentMethod(createOptions(wc, gateway));
+        registerPaymentMethod(createOptions(gateway));
     });
 };
 
@@ -181,14 +159,14 @@ const registerApplePay = async (applepay) => {
     }
 };
 
-const createOptions = (wc, gateway) => ({
+const createOptions = (gateway) => ({
     name: gateway.paymentMethodId,
     label: <BuckarooLabel imagePath={gateway.image_path} title={decodeHtmlEntities(gateway.title)}/>,
     paymentMethodId: gateway.paymentMethodId,
     edit: <div/>,
     canMakePayment: () => true,
     ariaLabel: gateway.title,
-    content: <BuckarooComponent gateway={gateway} wc={wc}/>,
+    content: <BuckarooComponent gateway={gateway}/>,
 });
 
 registerBuckarooPaymentMethods(window);
