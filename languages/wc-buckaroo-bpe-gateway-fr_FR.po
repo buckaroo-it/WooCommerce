@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-10-21 12:10+0000\n"
-"PO-Revision-Date: 2024-10-21 12:11+0000\n"
+"PO-Revision-Date: 2024-10-22 10:51+0000\n"
 "Last-Translator: \n"
 "Language-Team: French (France)\n"
 "Language: fr_FR\n"
@@ -568,6 +568,7 @@ msgstr ""
 "paramètre ImageUrl"
 
 #: WC_Buckaroo_Settings_Page.php:160
+#, fuzzy
 #| msgid ""
 #| "Integrate more then 30+ international payment methods in your WooCommerce "
 #| "webshop. Simply enable them into your WooCommerce webshop with the "
@@ -605,21 +606,6 @@ msgstr ""
 msgid "Invalid shipping address, cannot find house number"
 msgstr ""
 "Adresse de livraison invalide, impossible de trouver le numéro de maison"
-
-#: assets/js/blocks/partials/buckaroo_financial_warning.js:7
-#: assets/js/dist/blocks.js:2
-msgid ""
-"Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd "
-"betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals "
-"gebruik kunt maken van de diensten van {title}. Door verder te gaan, "
-"accepteer je de Algemene Voorwaarden en bevestig je dat je de "
-"Privacyverklaring en Cookieverklaring hebt gelezen."
-msgstr ""
-"Vous devez avoir au moins 18 ans pour utiliser ce service. Si vous payez à "
-"temps, vous évitez des frais supplémentaires et vous vous assurez de pouvoir "
-"à nouveau utiliser les services de {title} à l'avenir. En continuant, vous "
-"acceptez les Conditions générales et confirmez que vous avez lu la "
-"Déclaration de confidentialité et la Politique relative aux cookies."
 
 #: library/common.php:19
 msgid "Klarna reservation for order #%s was successfully canceled"
@@ -727,7 +713,8 @@ msgid "Offer customer to pay afterwards by SEPA Direct Debit."
 msgstr ""
 "Proposez au client de payer plus tard par prélèvement automatique SEPA."
 
-#: gateway-buckaroo.php:74
+#: gateway-buckaroo.php:74 assets/js/blocks/index.js:162
+#: assets/js/dist/blocks.js:2
 msgid "Pay with %s"
 msgstr "Payer avec %s"
 
@@ -1147,6 +1134,7 @@ msgstr ""
 "Général."
 
 #: gateway-buckaroo-mastersettings.php:112
+#, fuzzy
 #| msgid ""
 #| "The chosen language (culture) for the Buckaroo payment engine <br>page.\n"
 #| "\t\t\tWhen this is set to “Dynamic language” the plugin will <br>"
@@ -1393,3 +1381,17 @@ msgstr ""
 "Vous devez avoir au moins 18 ans pour utiliser ce mode de paiement. Veuillez "
 "entrer votre date de naissance correcte. Ou choisissez un autre mode de "
 "paiement pour compléter votre commande."
+
+#: assets/js/blocks/partials/buckaroo_financial_warning.js:6
+#: assets/js/dist/blocks.js:2
+msgid ""
+"You must be at least 18+ to use this service. By paying on time, you avoid "
+"extra costs and ensure that you can use %s services again in the future. By "
+"continuing, you accept the Terms and Conditions and confirm that you have "
+"read the Privacy Statement and Cookie Statement."
+msgstr ""
+"Vous devez avoir au moins 18 ans et plus pour utiliser ce service. Si vous "
+"payez à temps, vous éviterez des frais supplémentaires et vous assurerez de "
+"pouvoir à nouveau utiliser les services de %s à l'avenir. En continuant, "
+"vous acceptez les conditions générales et confirmez que vous avez lu la "
+"déclaration de confidentialité et la déclaration relative aux cookies."

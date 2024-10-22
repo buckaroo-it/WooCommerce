@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-10-21T12:41:26+02:00\n"
+"POT-Creation-Date: 2024-10-22T12:46:02+02:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.9.0\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
@@ -638,6 +638,8 @@ msgid "Show payment procedures on the thank you page after payment confirmation.
 msgstr ""
 
 #: gateway-buckaroo.php:74
+#: assets/js/blocks/index.js:162
+#: assets/js/dist/blocks.js:2
 msgid "Pay with %s"
 msgstr ""
 
@@ -1219,9 +1221,9 @@ msgstr ""
 msgid "Select your credit card"
 msgstr ""
 
-#: assets/js/blocks/partials/buckaroo_financial_warning.js:7
+#: assets/js/blocks/partials/buckaroo_financial_warning.js:6
 #: assets/js/dist/blocks.js:2
-msgid "Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van {title}. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen."
+msgid "You must be at least 18+ to use this service. By paying on time, you avoid extra costs and ensure that you can use %s services again in the future. By continuing, you accept the Terms and Conditions and confirm that you have read the Privacy Statement and Cookie Statement."
 msgstr ""
 
 #: assets/js/blocks/partials/buckaroo_gender.js:39

@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-10-21T12:41:26+02:00\n"
-"PO-Revision-Date: 2024-10-21 12:33+0000\n"
+"PO-Revision-Date: 2024-10-22 10:51+0000\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
 "Language: de_DE\n"
@@ -575,6 +575,7 @@ msgstr ""
 "Bildinformationen werden an das BPE-Gateway im ImageUrl-Parameter gesendet"
 
 #: WC_Buckaroo_Settings_Page.php:160
+#, fuzzy
 #| msgid ""
 #| "Integrate more then 30+ international payment methods in your WooCommerce "
 #| "webshop. Simply enable them into your WooCommerce webshop with the "
@@ -612,21 +613,6 @@ msgstr "Ungültige Rechnungsadresse, Hausnummer nicht gefunden"
 #: gateway-buckaroo-afterpaynew.php:340
 msgid "Invalid shipping address, cannot find house number"
 msgstr "Ungültige Versandadresse, Hausnummer nicht gefunden"
-
-#: assets/js/blocks/partials/buckaroo_financial_warning.js:7
-#: assets/js/dist/blocks.js:2
-msgid ""
-"Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd "
-"betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals "
-"gebruik kunt maken van de diensten van {title}. Door verder te gaan, "
-"accepteer je de Algemene Voorwaarden en bevestig je dat je de "
-"Privacyverklaring en Cookieverklaring hebt gelezen."
-msgstr ""
-"Sie müssen mindestens 18+ Jahre alt sein, um diesen Dienst zu nutzen. Wenn "
-"Sie rechtzeitig zahlen, vermeiden Sie zusätzliche Kosten und stellen sicher, "
-"dass Sie den Service von {title} auch in Zukunft nutzen können. Indem Sie "
-"fortfahren, akzeptieren Sie die Allgemeinen Geschäftsbedingungen und "
-"bestätigen, dass Sie die Datenschutz- und Cookie-Richtlinien gelesen haben."
 
 #: library/common.php:19
 msgid "Klarna reservation for order #%s was successfully canceled"
@@ -733,7 +719,8 @@ msgstr "Bieten Sie dem Kunden die Zahlung per digitaler Rechnung an."
 msgid "Offer customer to pay afterwards by SEPA Direct Debit."
 msgstr "Bieten Sie dem Kunden die Zahlung per SEPA-Lastschrift an."
 
-#: gateway-buckaroo.php:74
+#: gateway-buckaroo.php:74 assets/js/blocks/index.js:162
+#: assets/js/dist/blocks.js:2
 msgid "Pay with %s"
 msgstr "Zahlen mit %s"
 
@@ -1156,6 +1143,7 @@ msgstr ""
 "finden."
 
 #: gateway-buckaroo-mastersettings.php:112
+#, fuzzy
 #| msgid ""
 #| "The chosen language (culture) for the Buckaroo payment engine <br>page.\n"
 #| "\t\t\tWhen this is set to “Dynamic language” the plugin will <br>"
@@ -1402,3 +1390,18 @@ msgstr ""
 "Sie müssen mindestens 18 Jahre alt sein, um diese Zahlungsmethode zu nutzen. "
 "Bitte geben Sie Ihr korrektes Geburtsdatum ein oder wählen Sie eine andere "
 "Zahlungsmethode, um Ihre Bestellung abzuschließen."
+
+#: assets/js/blocks/partials/buckaroo_financial_warning.js:6
+#: assets/js/dist/blocks.js:2
+msgid ""
+"You must be at least 18+ to use this service. By paying on time, you avoid "
+"extra costs and ensure that you can use %s services again in the future. By "
+"continuing, you accept the Terms and Conditions and confirm that you have "
+"read the Privacy Statement and Cookie Statement."
+msgstr ""
+"Um diesen Service nutzen zu können, müssen Sie mindestens 18 Jahre alt sein. "
+"Wenn Sie pünktlich bezahlen, vermeiden Sie zusätzliche Kosten und stellen "
+"sicher, dass Sie die Dienste von %s auch in Zukunft wieder nutzen können. "
+"Indem Sie fortfahren, akzeptieren Sie die Allgemeinen Geschäftsbedingungen "
+"und bestätigen, dass Sie die Datenschutzerklärung und die Cookie-Erklärung "
+"gelesen haben."
