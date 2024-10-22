@@ -38,17 +38,6 @@ class AbstractRefundProcessor extends AbstractProcessor
         return 'refund';
     }
 
-
-    /**
-     * Get payment code required for sdk
-     *
-     * @return string
-     */
-    public function getServiceCode(): string
-    {
-        return $this->gateway->getServiceCode();
-    }
-
     /**
      * Get request body
      *
