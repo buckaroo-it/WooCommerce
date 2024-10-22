@@ -8,7 +8,7 @@ import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
 
 function Billink({
-  onStateChange, methodName, gateway: { genders, b2b }, billing,
+  onStateChange, methodName, title, gateway: { genders, b2b }, billing,
 }) {
   const initialState = {
     [`${methodName}-company-coc-registration`]: '',
@@ -65,7 +65,7 @@ function Billink({
         billingData={billing}
         b2b={b2b}
       />
-      <FinancialWarning paymentMethod={methodName} />
+      <FinancialWarning title={title} />
     </div>
   );
 }

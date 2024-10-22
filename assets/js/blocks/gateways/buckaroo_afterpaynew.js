@@ -8,7 +8,7 @@ import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
 
 function AfterPayNew({
-  onStateChange, methodName, gateway: { customer_type, b2b }, billing,
+  onStateChange, methodName, title, gateway: { customer_type, b2b }, billing,
 }) {
   const initialState = {
     [`${methodName}-phone`]: billing?.phone || '',
@@ -76,7 +76,7 @@ function AfterPayNew({
         b2b={b2b}
       />
 
-      <FinancialWarning paymentMethod={methodName} />
+      <FinancialWarning title={title} />
     </div>
   );
 }

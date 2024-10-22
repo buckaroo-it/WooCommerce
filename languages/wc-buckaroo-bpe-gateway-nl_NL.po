@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-10-21T12:41:26+02:00\n"
-"PO-Revision-Date: 2024-10-21 11:43+0000\n"
+"PO-Revision-Date: 2024-10-22 09:20+0000\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
 "Language: nl_NL\n"
@@ -566,6 +566,7 @@ msgstr ""
 "Beeldinformatie wordt naar de BPE-gateway gestuurd in de ImageUrl-parameter"
 
 #: WC_Buckaroo_Settings_Page.php:160
+#, fuzzy
 #| msgid ""
 #| "Integrate more then 30+ international payment methods in your WooCommerce "
 #| "webshop. Simply enable them into your WooCommerce webshop with the "
@@ -603,21 +604,6 @@ msgstr "Ongeldig factuuradres, huisnummer niet gevonden"
 #: gateway-buckaroo-afterpaynew.php:340
 msgid "Invalid shipping address, cannot find house number"
 msgstr "Ongeldig verzendadres, huisnummer niet gevonden"
-
-#: assets/js/blocks/partials/buckaroo_financial_warning.js:7
-#: assets/js/dist/blocks.js:2
-msgid ""
-"Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd "
-"betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals "
-"gebruik kunt maken van de diensten van {title}. Door verder te gaan, "
-"accepteer je de Algemene Voorwaarden en bevestig je dat je de "
-"Privacyverklaring en Cookieverklaring hebt gelezen."
-msgstr ""
-"Je moet minimaal 18 jaar zijn om deze dienst te gebruiken. Als je op tijd "
-"betaalt, voorkom je extra kosten en zorg je dat je in de toekomst opnieuw "
-"gebruik kunt maken van de diensten van {title}. Door verder te gaan, "
-"accepteer je de Algemene Voorwaarden en bevestig je dat je de "
-"Privacyverklaring en Cookieverklaring hebt gelezen."
 
 #: library/common.php:19
 msgid "Klarna reservation for order #%s was successfully canceled"
@@ -1142,6 +1128,7 @@ msgstr ""
 "Algemeen."
 
 #: gateway-buckaroo-mastersettings.php:112
+#, fuzzy
 #| msgid ""
 #| "The chosen language (culture) for the Buckaroo payment engine <br>page.\n"
 #| "\t\t\tWhen this is set to “Dynamic language” the plugin will <br>"
@@ -1385,3 +1372,17 @@ msgstr ""
 "U moet minstens 18 jaar oud zijn om deze betaalmethode te gebruiken. Vul "
 "alstublieft uw juiste geboortedatum in. Of kies een andere betaalmethode om "
 "uw bestelling te voltooien."
+
+#: assets/js/blocks/partials/buckaroo_financial_warning.js:6
+#: assets/js/dist/blocks.js:2
+msgid ""
+"You must be at least 18+ to use this service. By paying on time, you avoid "
+"extra costs and ensure that you can use %s services again in the future. By "
+"continuing, you accept the Terms and Conditions and confirm that you have "
+"read the Privacy Statement and Cookie Statement."
+msgstr ""
+"Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd "
+"betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals "
+"gebruik kunt maken van de diensten van %s. Door verder te gaan, accepteer je "
+"de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en "
+"Cookieverklaring hebt gelezen.\n"

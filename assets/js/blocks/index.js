@@ -17,6 +17,7 @@ import BuckarooPayByBank from './gateways/buckaroo_paybybank';
 import BuckarooPayPerEmail from './gateways/buckaroo_payperemail';
 import BuckarooSepaDirectDebit from './gateways/buckaroo_sepadirectdebit';
 import BuckarooSeparateCreditCard from './gateways/buckaroo_separate_credit_card';
+import { __ } from '@wordpress/i18n';
 
 const customTemplatePaymentMethodIds = [
   'buckaroo_afterpay', 'buckaroo_afterpaynew', 'buckaroo_billink', 'buckaroo_creditcard',
@@ -135,6 +136,7 @@ function BuckarooComponent({
               <LoadedComponent
                   onStateChange={onPaymentStateChange}
                   methodName={methodName}
+                  title={decodeHtmlEntities(gateway.title)}
                   gateway={gateway}
                   billing={billing.billingData}
               />
@@ -155,7 +157,11 @@ function BuckarooComponent({
 
   return (
       <div className="container">
-        <span className="description">{gateway.description}</span>
+
+        <span className="description">{sprintf(
+            __('Pay with %s', 'wc-buckaroo-bpe-gateway'),
+            decodeHtmlEntities(gateway.title)
+        )}</span>
         <span className="descriptionError">{errorMessage}</span>
         <PaymentComponent />
       </div>
