@@ -16,6 +16,7 @@
 class Buckaroo_Order_Fee {
 
 	public function __construct() {
+        add_action('wp_ajax_nopriv_woocommerce_cart_calculate_fees', array($this, 'calculate_order_fees'));
         add_action('wp_ajax_woocommerce_cart_calculate_fees', array($this, 'calculate_order_fees'));
 		add_action( 'woocommerce_cart_calculate_fees', array( $this, 'calculate_order_fees' ) );
 		add_action(
