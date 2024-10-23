@@ -29,6 +29,8 @@ use Buckaroo\Woocommerce\Gateways\Przelewy24\Przelewy24Gateway;
 use Buckaroo\Woocommerce\Gateways\SepaDirectDebit\SepaDirectDebitGateway;
 use Buckaroo\Woocommerce\Gateways\Sofort\SofortGateway;
 use Buckaroo\Woocommerce\Gateways\Transfer\TransferGateway;
+use Buckaroo\Woocommerce\Order\OrderCapture;
+use Buckaroo\Woocommerce\Order\OrderCaptureRefund;
 use Buckaroo\Woocommerce\PaymentProcessors\ExodusGateway;
 
 class PaymentGatewayRegistry
@@ -41,7 +43,7 @@ class PaymentGatewayRegistry
     protected array $gateways = [
         'ideal' => ['gateway_class' => IdealGateway::class],
         'afterpay' => ['gateway_class' => AfterpayOldGateway::class],
-        'afterpay_new' => ['gateway_class' => AfterpayNewGateway::class],
+        'afterpaynew' => ['gateway_class' => AfterpayNewGateway::class],
         'applepay' => ['gateway_class' => ApplepayGateway::class],
         'bancontact' => ['gateway_class' => BancontactGateway::class],
         'belfius' => ['gateway_class' => BelfiusGateway::class],
@@ -95,6 +97,29 @@ class PaymentGatewayRegistry
     }
 
 
+    public function newGatewayInstance(array|string $method)
+    {
+        if (is_string($method)) {
+            $method = $this->getAllGateways()[strtolower($method)] ?? null;
+        }
+
+        if (isset($method['gateway_class']) && class_exists($method['gateway_class'])) {
+            $gateway = new $method['gateway_class']();
+
+            if (method_exists($gateway, 'handleHooks')) {
+                $gateway->handleHooks();
+            }
+
+            if ($gateway->capturable) {
+                new OrderCapture($gateway);
+            }
+
+            return $gateway;
+        }
+
+        return null;
+    }
+
     /**
      * Load all registered gateways.
      *
@@ -103,13 +128,7 @@ class PaymentGatewayRegistry
     protected function loadGateways(): void
     {
         foreach ($this->getAllGateways() as $method) {
-            if (isset($method['gateway_class']) && class_exists($method['gateway_class'])) {
-                $gateway = new $method['gateway_class']();
-
-                if (method_exists($gateway, 'handleHooks')) {
-                    $gateway->handleHooks();
-                }
-            }
+            $this->newGatewayInstance($method);
         }
     }
 
