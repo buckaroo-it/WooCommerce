@@ -2,11 +2,9 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
+use Buckaroo\Woocommerce\Core\PaymentGatewayRegistry;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway;
-use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
-use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
-use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
+use Buckaroo\Woocommerce\Order\OrderCaptureRefund;
 use WC_Cart;
 
 class OrderActions
@@ -14,7 +12,6 @@ class OrderActions
     public function __construct()
     {
         add_action('edit_form_top', [$this, 'handleOrderInTestMode']);
-        add_action('wp_ajax_order_capture', [$this, 'handleOrderCapture']);
         add_action('woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
         add_action(
             'buckaroo_cart_calculate_fees',
@@ -22,6 +19,9 @@ class OrderActions
             10,
             3
         );
+
+        add_action('wp_ajax_order_capture', [$this, 'handleOrderCapture']);
+        new OrderCaptureRefund();
     }
 
     public function handleOrderInTestMode($post): void
@@ -51,25 +51,11 @@ class OrderActions
 
         $paymentMethod = get_post_meta((int)sanitize_text_field($_POST['order_id']), '_wc_order_selected_payment_method', true);
 
-        switch ($paymentMethod) {
-            case 'Afterpay':
-                $gateway = new AfterpayOldGateway();
-                break;
-            case 'Afterpaynew':
-                $gateway = new AfterpayNewGateway();
-                break;
-            case 'Creditcard':
-                $gateway = new CreditCardGateway();
-                break;
-            case 'KlarnaKp':
-                $gateway = new KlarnaKpGateway();
-                break;
-        }
+        $gateway = (new PaymentGatewayRegistry)->newGatewayInstance($paymentMethod);
 
-        if (isset($gateway)) {
-
+        if ($gateway->capturable && $gateway->canShowCaptureForm($_POST['order_id'])) {
             wp_send_json(
-                $gateway->process_capture()
+                $gateway->process_capture($_POST['order_id'])
             );
         }
         exit;
