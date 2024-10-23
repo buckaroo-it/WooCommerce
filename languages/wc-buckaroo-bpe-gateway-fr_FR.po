@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: WC Buckaroo BPE Gateway 3.14.2\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-buckaroo-bpe-"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-10-21 12:10+0000\n"
-"PO-Revision-Date: 2024-10-24 07:32+0000\n"
+"PO-Revision-Date: 2024-10-22 10:51+0000\n"
 "Last-Translator: \n"
 "Language-Team: French (France)\n"
 "Language: fr_FR\n"
@@ -713,7 +713,7 @@ msgid "Offer customer to pay afterwards by SEPA Direct Debit."
 msgstr ""
 "Proposez au client de payer plus tard par prélèvement automatique SEPA."
 
-#: gateway-buckaroo.php:74 assets/js/blocks/index.js:172
+#: gateway-buckaroo.php:74 assets/js/blocks/index.js:162
 #: assets/js/dist/blocks.js:2
 msgid "Pay with %s"
 msgstr "Payer avec %s"
@@ -727,7 +727,7 @@ msgid "Payment cancelled. Please try again or choose another payment method."
 msgstr ""
 "Paiement annulé. Veuillez réessayer ou choisir un autre mode de paiement."
 
-#: gateway-buckaroo.php:340 library/Buckaroo_Order_Fee.php:104
+#: gateway-buckaroo.php:340 library/Buckaroo_Order_Fee.php:96
 msgid "Payment fee"
 msgstr "Frais de paiement"
 
