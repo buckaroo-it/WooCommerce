@@ -5,7 +5,9 @@ namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Order\OrderDetails;
+use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Traits\HasDateValidation;
+use WC_Order;
 
 class AfterpayNewGateway extends AbstractPaymentGateway
 {
@@ -22,6 +24,7 @@ class AfterpayNewGateway extends AbstractPaymentGateway
     public $sendimageinfo;
     public $afterpaynewpayauthorize;
     public $customer_type;
+    public bool $capturable = true;
 
     public function __construct()
     {
@@ -113,11 +116,14 @@ class AfterpayNewGateway extends AbstractPaymentGateway
      */
     public function process_payment($order_id)
     {
-        if ($this->afterpaynewpayauthorize == 'authorize') {
+        $processedPayment = parent::process_payment($order_id);
+
+        if ($processedPayment['result'] == 'success' && $this->afterpaynewpayauthorize == 'authorize') {
             update_post_meta($order_id, '_wc_order_authorized', 'yes');
             $this->set_order_capture($order_id, "AfterpayNew");
         }
-        return parent::process_payment($order_id);
+
+        return $processedPayment;
     }
 
     /**
@@ -223,5 +229,14 @@ class AfterpayNewGateway extends AbstractPaymentGateway
         $this->vattype = $this->get_option('vattype');
         $this->type = 'afterpay';
         $this->customer_type = $this->get_option('customer_type', self::CUSTOMER_TYPE_BOTH);
+    }
+
+    public function canShowCaptureForm(WC_Order|string|int $order): bool
+    {
+        if (is_scalar($order)) {
+            $order = Helper::findOrder($order);
+        }
+
+        return $this->afterpaynewpayauthorize == 'authorize' && get_post_meta($order->get_id(), '_wc_order_authorized', true) == 'yes';
     }
 }
