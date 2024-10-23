@@ -10,8 +10,13 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
     public function getAction(): string
     {
         if ($this->isAuthorization()) {
-            return 'Authorize';
+            if (get_post_meta($this->get_order()->get_id(), '_wc_order_authorized', true) == 'yes') {
+                return 'capture';
+            }
+
+            return 'authorize';
         }
+
         return parent::getAction();
     }
 
@@ -157,11 +162,13 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
      */
     protected function getBirthDate(string $country_code, string $type = 'billing'): array
     {
-        if (in_array($country_code, ['NL', 'BE'])) {
+        if (in_array($country_code, ['NL', 'BE']) && ($birthDate = $this->getFormatedDate())) {
+            add_post_meta($this->get_order()->get_id(), '_payload_birthday', $birthDate, true);
+
             return [
                 $type => [
                     'recipient' => [
-                        'birthDate' => $this->getFormatedDate(),
+                        'birthDate' => $birthDate,
                     ]
                 ]
             ];
@@ -176,7 +183,7 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
      */
     private function getFormatedDate(): ?string
     {
-        $dateString = $this->request->input('buckaroo-afterpaynew-birthdate');
+        $dateString = $this->request->input('buckaroo-afterpaynew-birthdate') ?: get_post_meta($this->get_order()->get_id(), '_payload_birthday', true);
         if (!is_scalar($dateString)) {
             return null;
         }
@@ -185,7 +192,7 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
             return null;
         }
 
-        return @date("d-m-Y", $date);
+        return @date("Y-m-d", $date);
     }
 
     /**

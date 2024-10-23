@@ -4,15 +4,17 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CancelReservationAction;
-use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
+use Exception;
 use WC_Order;
+use WP_Error;
 
 class KlarnaKpGateway extends AbstractPaymentGateway
 {
     const PAYMENT_CLASS = KlarnaKpProcessor::class;
     public $type;
+    public bool $capturable = true;
 
     public function __construct()
     {
@@ -62,10 +64,14 @@ class KlarnaKpGateway extends AbstractPaymentGateway
      */
     public function process_payment($order_id)
     {
-        update_post_meta($order_id, '_wc_order_authorized', 'yes');
-        $this->setOrderCapture($order_id, 'KlarnaKp');
+        $processedPayment = parent::process_payment($order_id);
 
-        return parent::process_payment($order_id);
+        if ($processedPayment['result'] == 'success') {
+            update_post_meta($order_id, '_wc_order_authorized', 'yes');
+            $this->setOrderCapture($order_id, 'KlarnaKp');
+        }
+
+        return $processedPayment;
     }
 
     /**
@@ -101,21 +107,14 @@ class KlarnaKpGateway extends AbstractPaymentGateway
 
 
     /**
-     * Send capture request
+     * Process capture
      *
+     * @param integer $order_id
+     * @return array|array[]|false|WP_Error
+     * @throws Exception
      */
-    public function process_capture()
+    public function process_capture($order_id)
     {
-        $order_id = $this->request->input('order_id');
-
-        if ($order_id === null || !is_numeric($order_id)) {
-            return $this->create_capture_error(__('A valid order number is required'));
-        }
-
-        $capture_amount = $this->request->input('capture_amount');
-        if ($capture_amount === null || !is_scalar($capture_amount)) {
-            return $this->create_capture_error(__('A valid capture amount is required'));
-        }
         $reservation_number = get_post_meta(
             $order_id,
             '_buckaroo_klarnakp_reservation_number',
@@ -126,16 +125,7 @@ class KlarnaKpGateway extends AbstractPaymentGateway
             return $this->create_capture_error(__('Cannot perform capture, reservation_number not found'));
         }
 
-        $order = Helper::findOrder($order_id);
-        $processor = $this->newPaymentProcessorInstance($order);/** @var KlarnaKpProcessor $payment */;
-        $payment = new BuckarooClient($this->getMode());
-        $res = $payment->process($processor, additionalData: ['amountDebit' => $capture_amount]);
-
-        return (new CaptureAction())->handle(
-            $res,
-            $order,
-            $this->currency,
-        );
+        return parent::process_capture($order_id);
     }
 
     /** @inheritDoc */
@@ -148,7 +138,14 @@ class KlarnaKpGateway extends AbstractPaymentGateway
     public function handleHooks()
     {
         new KlarnaCancelReservation();
-        new KlarnaRefund();
-        new KlarnaCapture();
+    }
+
+    public function canShowCaptureForm(WC_Order|string|int $order): bool
+    {
+        if (is_scalar($order)) {
+            $order = Helper::findOrder($order);
+        }
+
+        return get_post_meta($order->get_id(), 'buckaroo_is_reserved', true) === 'yes';
     }
 }
