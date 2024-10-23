@@ -3,6 +3,8 @@
 namespace Buckaroo\Woocommerce\Gateways\CreditCard;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Services\Helper;
+use WC_Order;
 
 class CreditCardGateway extends AbstractPaymentGateway
 {
@@ -14,6 +16,7 @@ class CreditCardGateway extends AbstractPaymentGateway
     protected $creditcardmethod;
 
     protected $creditcardpayauthorize;
+    public bool $capturable = true;
 
     protected array $supportedCurrencies = [
         'ARS', 'AUD', 'BRL', 'CAD', 'CHF', 'CNY',
@@ -140,11 +143,13 @@ class CreditCardGateway extends AbstractPaymentGateway
      */
     public function process_payment($order_id)
     {
-        if ($this->creditcardpayauthorize == 'authorize') {
+        $processedPayment = parent::process_payment($order_id);
+
+        if ($processedPayment['result'] == 'success' && $this->creditcardpayauthorize == 'authorize') {
             update_post_meta($order_id, '_wc_order_authorized', 'yes');
             $this->set_order_capture($order_id, "Creditcard", $this->request->input($this->id . "-creditcard-issuer"));
         }
-        return parent::process_payment($order_id);
+        return $processedPayment;
     }
 
     public function getCardsList()
@@ -307,4 +312,12 @@ class CreditCardGateway extends AbstractPaymentGateway
         $this->creditcardpayauthorize = $this->get_option('creditcardpayauthorize', 'Pay');
     }
 
+    public function canShowCaptureForm(WC_Order|string|int $order): bool
+    {
+        if (is_scalar($order)) {
+            $order = Helper::findOrder($order);
+        }
+
+        return $this->creditcardpayauthorize == 'authorize' && get_post_meta($order->get_id(), '_wc_order_authorized', true) == 'yes';
+    }
 }

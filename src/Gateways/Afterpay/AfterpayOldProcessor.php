@@ -3,16 +3,21 @@
 namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
 use Buckaroo\Transaction\Response\TransactionResponse;
-use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use Buckaroo\Woocommerce\Order\OrderDetails;
 
 class AfterpayOldProcessor extends AbstractPaymentProcessor
 {
     public function getAction(): string
     {
         if ($this->isAuthorization()) {
-            return 'Authorize';
+            if (get_post_meta($this->get_order()->get_id(), '_wc_order_authorized', true) == 'yes') {
+                return 'capture';
+            }
+
+            return 'authorize';
         }
+
         return parent::getAction();
     }
 
@@ -88,7 +93,6 @@ class AfterpayOldProcessor extends AbstractPaymentProcessor
 
     private function getFormatedDate()
     {
-
         $dateString = $this->request->input('buckaroo-afterpaynew-birthdate');
         if (!is_scalar($dateString)) {
             return null;

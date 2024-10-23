@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Order;
 
+use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Services\Request;
 
 /**
@@ -18,6 +19,7 @@ use Buckaroo\Woocommerce\Services\Request;
  */
 class OrderCapture
 {
+    protected AbstractPaymentGateway $gateway;
     /**
      * @var OrderDetails
      */
@@ -40,13 +42,87 @@ class OrderCapture
     private $item_totals;
     private $item_tax_totals;
 
-    public function __construct(OrderDetails $order_details)
+    public function __construct(AbstractPaymentGateway $gateway)
+    {
+        $this->gateway = $gateway;
+        $this->request = new Request();
+        add_action('add_meta_boxes', array($this, 'add_meta_box_form'), 10, 2);
+    }
+
+    public function setOrderDetails(OrderDetails $order_details): void
     {
         $this->order_details = $order_details;
-        $this->request = new Request();
+
         $this->init_form_inputs();
         $this->init_form_items();
         $this->init_previous_captures();
+    }
+
+
+    public function add_meta_box_form($post_type, $order)
+    {
+        if ($post_type != 'woocommerce_page_wc-orders') {
+            return;
+        }
+
+        if (!method_exists($this->gateway, 'canShowCaptureForm') || $this->gateway->canShowCaptureForm($order)) {
+            add_meta_box(
+                'buckaroo-order-klarnakp-capture',
+                __('Capture & refund order', 'woocommerce'),
+                array($this, 'output'),
+                'woocommerce_page_wc-orders',
+                'normal',
+                'default'
+            );
+        }
+    }
+
+    public function output($order)
+    {
+        $this->setOrderDetails(new OrderDetails($order));
+
+        include plugin_dir_path(BK_PLUGIN_FILE) . 'templates/capture-form.php';
+    }
+
+    /**
+     * Get items available to capture by type
+     *
+     * @param OrderCapture $order_capture
+     *
+     * @return array
+     */
+    protected function get_available_to_capture_by_type(OrderCapture $order_capture)
+    {
+        $available_to_capture = $order_capture->get_available_to_capture();
+
+        $available_to_capture_by_type = array();
+        foreach ($available_to_capture as $item) {
+            $item_type = $item->get_type();
+            if (!isset($available_to_capture_by_type[$item_type])) {
+                $available_to_capture_by_type[$item_type] = array();
+            }
+            $available_to_capture_by_type[$item_type][] = $item;
+        }
+        return $available_to_capture_by_type;
+    }
+
+    /**
+     * Get refunded captures for $order_id
+     *
+     * @param integer $order_id
+     *
+     * @return array
+     */
+    protected function get_refunded_captures(int $order_id)
+    {
+        $refunded_captures = get_post_meta($order_id, 'buckaroo_captures_refunded', true);
+        if (is_string($refunded_captures)) {
+            $refunded_captures_decoded = json_decode($refunded_captures);
+            if (is_array($refunded_captures_decoded)) {
+                return $refunded_captures_decoded;
+            }
+        }
+        return array();
     }
 
     /**
