@@ -4,11 +4,9 @@ namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
-use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpProcessor;
-use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
-use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Traits\HasDateValidation;
+use WC_Order;
 
 class AfterpayOldGateway extends AbstractPaymentGateway
 {
@@ -20,6 +18,7 @@ class AfterpayOldGateway extends AbstractPaymentGateway
     public $vattype;
     public $country;
     public $afterpaypayauthorize;
+    public bool $capturable = true;
 
     public function __construct()
     {
@@ -86,12 +85,14 @@ class AfterpayOldGateway extends AbstractPaymentGateway
      */
     public function process_payment($order_id)
     {
-        if ($this->afterpaypayauthorize == 'authorize') {
+        $processedPayment = parent::process_payment($order_id);
+
+        if ($processedPayment['result'] == 'success' && $this->afterpaypayauthorize == 'authorize') {
             update_post_meta($order_id, '_wc_order_authorized', 'yes');
             $this->set_order_capture($order_id, "Afterpay");
         }
 
-        return parent::process_payment($order_id);
+        return $processedPayment;
     }
 
     /**
@@ -162,28 +163,12 @@ class AfterpayOldGateway extends AbstractPaymentGateway
         $this->vattype = $this->get_option('vattype');
     }
 
-    public function process_capture()
+    public function canShowCaptureForm(WC_Order|string|int $order): bool
     {
-        $order_id = $this->request->input('order_id');
-
-        if ($order_id === null || !is_numeric($order_id)) {
-            return $this->create_capture_error(__('A valid order number is required'));
+        if (is_scalar($order)) {
+            $order = Helper::findOrder($order);
         }
 
-        $capture_amount = $this->request->input('capture_amount');
-        if ($capture_amount === null || !is_scalar($capture_amount)) {
-            return $this->create_capture_error(__('A valid capture amount is required'));
-        }
-
-        $order = Helper::findOrder($order_id);
-        $processor = $this->newPaymentProcessorInstance($order);/** @var KlarnaKpProcessor $payment */;
-        $payment = new BuckarooClient($this->getMode());
-        $res = $payment->process($processor, additionalData: ['amountDebit' => $capture_amount]);
-
-        return (new CaptureAction())->handle(
-            $res,
-            $order,
-            $this->currency,
-        );
+        return $this->afterpaypayauthorize == 'authorize' && get_post_meta($order->get_id(), '_wc_order_authorized', true) == 'yes';
     }
 }

@@ -1,9 +1,9 @@
 <?php
 
-namespace Buckaroo\Woocommerce\Gateways\Klarna;
+namespace Buckaroo\Woocommerce\Order;
 
-use Buckaroo\Woocommerce\Order\OrderItem;
-use Buckaroo\Woocommerce\Order\CaptureTransaction;
+use Buckaroo\Woocommerce\Core\PaymentGatewayRegistry;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\Services\Request;
 use WP_Error;
 
@@ -19,11 +19,11 @@ use WP_Error;
  * @version   GIT: 3.3.0
  * @link      https://www.buckaroo.eu/
  */
-class KlarnaRefund
+class OrderCaptureRefund
 {
     public function __construct()
     {
-        add_action('wp_ajax_bl_refund_klarnakp_capture', array($this, 'refund_capture'));
+        add_action('wp_ajax_bl_refund_capture', array($this, 'refund_capture'));
     }
 
     /**
@@ -56,12 +56,15 @@ class KlarnaRefund
         $successful_refund = false;
 
         if ($capture !== null && isset($capture['transaction_id'])) {
-            $successful_refund = (new KlarnaKpGateway())->process_refund(
-                $order_id,
-                $capture['amount'],
-                '',
-                $capture['transaction_id']
-            );
+            $paymentMethod = get_post_meta($order_id, '_wc_order_selected_payment_method', true);
+            $gateway = (new PaymentGatewayRegistry)->newGatewayInstance($paymentMethod);
+            $successful_refund =
+                (new RefundAction(
+                    $gateway->newRefundProcessorInstance($order_id, $capture['amount'], ''),
+                    $order_id,
+                    $capture['transaction_id']
+                ))
+                    ->process();
         }
 
         if (is_object($successful_refund) && $successful_refund instanceof WP_Error) {

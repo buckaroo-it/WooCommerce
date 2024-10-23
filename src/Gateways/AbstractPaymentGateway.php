@@ -3,17 +3,21 @@
 namespace Buckaroo\Woocommerce\Gateways;
 
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
-use Buckaroo\Woocommerce\Services\SessionHandler;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
+use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Request;
+use Buckaroo\Woocommerce\Services\SessionHandler;
+use Exception;
 use WC_Order;
 use WC_Payment_Gateway;
 use WC_Tax;
+use WP_Error;
 
 class AbstractPaymentGateway extends WC_Payment_Gateway
 {
@@ -30,6 +34,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public $channel;
     protected Request $request;
     protected array $supportedCurrencies = ['EUR'];
+    public bool $capturable = false;
 
     public function __construct()
     {
@@ -493,6 +498,40 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     }
 
     /**
+     * Process capture
+     *
+     * @param integer $order_id
+     * @return array|array[]|false|WP_Error
+     * @throws Exception
+     */
+    public function process_capture($order_id)
+    {
+        if (!$this->capturable || !$this->canShowCaptureForm($order_id)) {
+            return $this->create_capture_error(__('This order cannot be captured'));
+        }
+
+        if ($order_id === null || !is_numeric($order_id)) {
+            return $this->create_capture_error(__('A valid order number is required'));
+        }
+
+        $capture_amount = $this->request->input('capture_amount');
+        if ($capture_amount === null || !is_scalar($capture_amount)) {
+            return $this->create_capture_error(__('A valid capture amount is required'));
+        }
+
+        $order = Helper::findOrder($order_id);
+        $processor = $this->newPaymentProcessorInstance($order);
+        $payment = new BuckarooClient($this->getMode());
+        $res = $payment->process($processor, additionalData: ['amountDebit' => $capture_amount, 'originalTransactionKey' => $order->get_transaction_id()]);
+
+        return (new CaptureAction())->handle(
+            $res,
+            $order,
+            $this->currency,
+        );
+    }
+
+    /**
      * Can the order be refunded
      * @param integer $order_id
      * @param integer $amount defaults to null
@@ -710,5 +749,10 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     function checkCurrencySupported(): bool
     {
         return !!in_array(get_woocommerce_currency(), $this->supportedCurrencies);
+    }
+
+    public function canShowCaptureForm(WC_Order|string|int $order): bool
+    {
+        return false;
     }
 }
