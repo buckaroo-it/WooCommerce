@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import DefaultPayment from './gateways/default_payment';
-import { convertUnderScoreToDash, decodeHtmlEntities } from './utils/utils';
+import {convertUnderScoreToDash, decodeHtmlEntities} from './utils/utils';
 import BuckarooLabel from './components/BuckarooLabel';
 import BuckarooApplepay from './components/BuckarooApplepay';
 import BuckarooPaypalExpress from './components/BuckarooPaypalExpress';
@@ -17,7 +17,8 @@ import BuckarooPayByBank from './gateways/buckaroo_paybybank';
 import BuckarooPayPerEmail from './gateways/buckaroo_payperemail';
 import BuckarooSepaDirectDebit from './gateways/buckaroo_sepadirectdebit';
 import BuckarooSeparateCreditCard from './gateways/buckaroo_separate_credit_card';
-import { __ } from '@wordpress/i18n';
+import {__} from '@wordpress/i18n';
+import {useDispatch} from '@wordpress/data';
 
 const customTemplatePaymentMethodIds = [
   'buckaroo_afterpay', 'buckaroo_afterpaynew', 'buckaroo_billink', 'buckaroo_creditcard',
@@ -46,6 +47,21 @@ function BuckarooComponent({
   const [PaymentComponent, setPaymentComponent] = useState(null);
   const [activePaymentMethodState, setActivePaymentMethodState] = useState({});
   const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
+  const storeCartDispatch = useDispatch('wc/store/cart');
+
+  useEffect(() => {
+    jQuery.ajax({
+      url: '/wp-admin/admin-ajax.php',
+      type: 'POST',
+      data: {
+        action: 'woocommerce_cart_calculate_fees',
+        method: gateway.paymentMethodId
+      },
+      success: function () {
+        storeCartDispatch.updateCustomerData();
+      }
+    });
+  }, [gateway.paymentMethodId]);
 
   const onPaymentStateChange = (newState) => {
     setActivePaymentMethodState(newState);
