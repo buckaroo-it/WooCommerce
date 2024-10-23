@@ -5,7 +5,7 @@ function DefaultDropdown({ paymentMethodId, creditCardIssuers, handleChange }) {
   let ccOptions = '';
   ccOptions = Object.entries(creditCardIssuers).map(([key, value]) => (
 
-    <option key={value.servicename} value={value.servicename}>
+      <option key={key} value={value.servicename}>
       {value.displayname}
     </option>
   ));
