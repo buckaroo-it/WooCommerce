@@ -2,7 +2,7 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WC Buckaroo BPE Gateway 3.14.3\n"
+"Project-Id-Version: WC Buckaroo BPE Gateway 3.13.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-buckaroo-bpe-"
 "gateway\n"
 "Last-Translator: \n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-10-21T12:41:26+02:00\n"
-"PO-Revision-Date: 2024-10-24 07:32+0000\n"
+"PO-Revision-Date: 2024-10-22 10:51+0000\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
 "Language: de_DE\n"
@@ -719,7 +719,7 @@ msgstr "Bieten Sie dem Kunden die Zahlung per digitaler Rechnung an."
 msgid "Offer customer to pay afterwards by SEPA Direct Debit."
 msgstr "Bieten Sie dem Kunden die Zahlung per SEPA-Lastschrift an."
 
-#: gateway-buckaroo.php:74 assets/js/blocks/index.js:172
+#: gateway-buckaroo.php:74 assets/js/blocks/index.js:162
 #: assets/js/dist/blocks.js:2
 msgid "Pay with %s"
 msgstr "Zahlen mit %s"
@@ -734,7 +734,7 @@ msgstr ""
 "Zahlung storniert. Bitte versuchen Sie es erneut oder wählen Sie eine andere "
 "Zahlungsmethode."
 
-#: gateway-buckaroo.php:340 library/Buckaroo_Order_Fee.php:104
+#: gateway-buckaroo.php:340 library/Buckaroo_Order_Fee.php:96
 msgid "Payment fee"
 msgstr "Zahlungsgebühr"
 

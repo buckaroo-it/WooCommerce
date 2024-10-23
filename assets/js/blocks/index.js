@@ -5,6 +5,7 @@ import BuckarooLabel from './components/BuckarooLabel';
 import BuckarooApplepay from './components/BuckarooApplepay';
 import BuckarooPaypalExpress from './components/BuckarooPaypalExpress';
 import {paymentGatewaysTemplates, separateCreditCards} from "./gateways";
+import {__} from "@wordpress/i18n";
 
 function BuckarooComponent({billing, gateway, eventRegistration, emitResponse}) {
     const [errorMessage, setErrorMessage] = useState('');
@@ -67,6 +68,7 @@ function BuckarooComponent({billing, gateway, eventRegistration, emitResponse}) 
                             methodName={methodName}
                             gateway={gateway}
                             billing={billing.billingData}
+                            title={decodeHtmlEntities(gateway.title)}
                         />
                     );
                 });
@@ -85,7 +87,10 @@ function BuckarooComponent({billing, gateway, eventRegistration, emitResponse}) 
 
     return (
         <div className="container">
-            <span className="description">{gateway.description}</span>
+           <span className="description">{sprintf(
+               __('Pay with %s', 'wc-buckaroo-bpe-gateway'),
+               decodeHtmlEntities(gateway.title)
+           )}</span>
             <span className="descriptionError">{errorMessage}</span>
             <PaymentComponent/>
         </div>
