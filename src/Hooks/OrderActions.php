@@ -12,13 +12,10 @@ class OrderActions
     public function __construct()
     {
         add_action('edit_form_top', [$this, 'handleOrderInTestMode']);
+        add_action('wp_ajax_woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
+        add_action('wp_ajax_nopriv_woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
         add_action('woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
-        add_action(
-            'buckaroo_cart_calculate_fees',
-            [$this, 'add_fee_to_cart'],
-            10,
-            3
-        );
+        add_action('buckaroo_cart_calculate_fees', [$this, 'add_fee_to_cart'], 10, 3);
 
         add_action('wp_ajax_order_capture', [$this, 'handleOrderCapture']);
         new OrderCaptureRefund();
@@ -67,8 +64,13 @@ class OrderActions
      * @access public
      * @return void
      */
-    public function calculate_order_fees($cart)
+    public function calculate_order_fees()
     {
+        if (isset($_POST['method'])) {
+            WC()->session->set('chosen_payment_method', $_POST['method']);
+        }
+
+        $cart = WC()->cart;
         $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
         $chosen_payment_method = WC()->session->chosen_payment_method;
 
