@@ -76,6 +76,10 @@ class PaymentGatewayRegistry
      */
     public function load(): PaymentGatewayRegistry
     {
+        if (!class_exists('WC_Payment_Gateways')) {
+            return $this;
+        }
+
         $this->addExodus();
         $this->loadGateways();
         $this->enableCreditCardsInCheckout();
