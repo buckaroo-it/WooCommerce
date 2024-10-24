@@ -65,7 +65,7 @@ function BuckarooComponent({billing, gateway, eventRegistration, emitResponse}) 
         });
         return () => unsubscribe();
     }, [gateway.paymentMethodId, activePaymentMethodState, billing.billingAddress]);
-    var once = false
+
     useEffect(() => {
         const loadPaymentComponent = async (methodId) => {
             try {
