@@ -81,7 +81,7 @@ class PaymentSetupScripts
         wp_enqueue_script(
             'buckaroo-blocks',
             plugins_url('/assets/js/dist/blocks.js', BK_PLUGIN_FILE),
-            array('wc-blocks-registry'),
+            array('wc-blocks-registry', 'wp-element', 'wp-i18n', 'wp-data'),
             Plugin::VERSION,
             true
         );
