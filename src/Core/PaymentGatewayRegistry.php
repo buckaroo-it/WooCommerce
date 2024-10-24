@@ -30,7 +30,6 @@ use Buckaroo\Woocommerce\Gateways\SepaDirectDebit\SepaDirectDebitGateway;
 use Buckaroo\Woocommerce\Gateways\Sofort\SofortGateway;
 use Buckaroo\Woocommerce\Gateways\Transfer\TransferGateway;
 use Buckaroo\Woocommerce\Order\OrderCapture;
-use Buckaroo\Woocommerce\Order\OrderCaptureRefund;
 use Buckaroo\Woocommerce\PaymentProcessors\ExodusGateway;
 
 class PaymentGatewayRegistry
@@ -172,7 +171,15 @@ class PaymentGatewayRegistry
      */
     protected function getAllGateways(): array
     {
-        return array_merge($this->gateways, CreditCardGateway::$cards);
+        $creditCardsToShow = $this->getCreditCardsToShow();
+        return array_merge(
+            $this->gateways,
+            array_filter(
+                CreditCardGateway::$cards,
+                fn($key) => in_array(str_replace('_creditcard', '', $key), $creditCardsToShow),
+                ARRAY_FILTER_USE_KEY
+            )
+        );
     }
 
     /**
