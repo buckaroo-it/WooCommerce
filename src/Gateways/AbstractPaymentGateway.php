@@ -566,7 +566,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
     public function getIconPath($oldIcon, $newIcon): string
     {
-        $icon = $this->get_option('usenewicons') ? $newIcon : $oldIcon;
+        $icon = $this->get_option('usenewicons', 1) ? $newIcon : $oldIcon;
         return plugins_url('library/buckaroo_images/' . $icon, dirname(__DIR__));
     }
 
