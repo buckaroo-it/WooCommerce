@@ -155,7 +155,7 @@ class BuckarooClient
      */
     public function process(AbstractProcessor $processor, array $additionalData = []): TransactionResponse
     {
-        $serviceCode = $processor->gateway->getServiceCode();
+        $serviceCode = $processor->gateway->getServiceCode($processor);
         $action = $processor->getAction();
         $requestData = array_merge($processor->getBody(), $additionalData);
 
