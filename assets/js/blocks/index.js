@@ -6,12 +6,28 @@ import BuckarooApplepay from './components/BuckarooApplepay';
 import BuckarooPaypalExpress from './components/BuckarooPaypalExpress';
 import {paymentGatewaysTemplates, separateCreditCards} from "./gateways";
 import {__} from "@wordpress/i18n";
+import {useDispatch} from '@wordpress/data';
 
 function BuckarooComponent({billing, gateway, eventRegistration, emitResponse}) {
     const [errorMessage, setErrorMessage] = useState('');
     const [PaymentComponent, setPaymentComponent] = useState(null);
     const [activePaymentMethodState, setActivePaymentMethodState] = useState({});
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
+    const storeCartDispatch = useDispatch('wc/store/cart');
+
+    useEffect(() => {
+        jQuery.ajax({
+            url: '/wp-admin/admin-ajax.php',
+            type: 'POST',
+            data: {
+                action: 'woocommerce_cart_calculate_fees',
+                method: gateway.paymentMethodId
+            },
+            success: function () {
+                storeCartDispatch.updateCustomerData();
+            }
+        });
+    }, [gateway.paymentMethodId]);
 
     const onPaymentStateChange = (newState) => {
         setActivePaymentMethodState(newState);
