@@ -20,12 +20,6 @@ import BuckarooSeparateCreditCard from './gateways/buckaroo_separate_credit_card
 import {__} from '@wordpress/i18n';
 import {useDispatch} from '@wordpress/data';
 
-const customTemplatePaymentMethodIds = [
-  'buckaroo_afterpay', 'buckaroo_afterpaynew', 'buckaroo_billink', 'buckaroo_creditcard',
-  'buckaroo_ideal', 'buckaroo_in3', 'buckaroo_klarnakp', 'buckaroo_klarnapay',
-  'buckaroo_klarnapii', 'buckaroo_paybybank', 'buckaroo_payperemail', 'buckaroo_sepadirectdebit',
-];
-
 const separateCreditCards = [
   'buckaroo_creditcard_amex',
   'buckaroo_creditcard_cartebancaire',
