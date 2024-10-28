@@ -54,7 +54,7 @@ class CreditCardProcessor extends AbstractPaymentProcessor
                 ]
             );
         }
-        ray($body);
+
         return $body;
     }
 }
