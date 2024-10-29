@@ -8,7 +8,7 @@ import PhoneDropdown from '../partials/buckaroo_phone';
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
 
-function AfterPayView({onStateChange, methodName, title, gateway: {type, b2b}, billing}) {
+function AfterPayView({onStateChange, methodName, title, gateway: {type, b2b, financialWarning}, billing}) {
     const initialState = {
         [`${methodName}-phone`]: billing?.phone || '',
         [`${methodName}-birthdate`]: '',
@@ -72,7 +72,7 @@ function AfterPayView({onStateChange, methodName, title, gateway: {type, b2b}, b
                 billingData={billing}
                 b2b={b2b}
             />
-            <FinancialWarning title={title}/>
+            {financialWarning === 'enable' && <FinancialWarning title={title}/>}
         </div>
     );
 }
