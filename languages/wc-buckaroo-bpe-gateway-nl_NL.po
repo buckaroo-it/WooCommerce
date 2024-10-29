@@ -3,11 +3,11 @@ msgstr ""
 "Project-Id-Version: WC Buckaroo BPE Gateway 3.13.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-buckaroo-bpe-gateway\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Nederlands <LL@li.org>\n"
+"Language-Team: Dutch <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-10-29T12:53:56+00:00\n"
+"POT-Creation-Date: 2024-10-29T14:35:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Language: \n"
 "X-Generator: WP-CLI 2.11.0\n"
@@ -43,7 +43,7 @@ msgid "General"
 msgstr "Algemeen"
 
 #: src/Admin/GeneralSettings.php:59
-#: src/Admin/GeneralSettings.php:191
+#: src/Admin/GeneralSettings.php:189
 #: src/Hooks/AdminHooks.php:72
 #: src/Hooks/AdminHooks.php:73
 msgid "Payment methods"
@@ -65,92 +65,86 @@ msgstr "Documentatie"
 
 #: src/Admin/GeneralSettings.php:116
 msgid "FAQ"
-msgstr "Veelgestelde vragen"
+msgstr "Veelgestelde Vragen"
 
 #: src/Admin/GeneralSettings.php:124
-msgid ""
-"Integrate more then 30+ international payment methods in your WooCommerce webshop. Simply enable them into your WooCommerce webshop with the Buckaroo Payments plugin.\r\n"
-"                        Please go to the <a href=\"https://plaza.buckaroo.nl/Configuration/Website/Index/\">signup page</a> to create a Buckaroo account and start receiving payments.</br>\r\n"
-"                        Contact <a href=\"mailto:support@buckaroo.nl\">support@buckaroo.nl</a> if you have any questions about this plugin."
-msgstr ""
-"Integreer meer dan 30 internationale betaalmethoden in je WooCommerce-webshop. Schakel ze eenvoudig in via je WooCommerce-webshop met de Buckaroo Payments plugin.\r\n"
-"                        Ga naar de <a href=\"https://plaza.buckaroo.nl/Configuration/Website/Index/\">aanmeldpagina</a> om een Buckaroo-account aan te maken en betalingen te ontvangen.</br>\r\n"
-"                        Neem contact op met <a href=\"mailto:support@buckaroo.nl\">support@buckaroo.nl</a> als je vragen hebt over deze plugin."
+msgid "Integrate more then 30+ international payment methods in your WooCommerce webshop. Simply enable them into your WooCommerce webshop with the Buckaroo Payments plugin.</br>Please go to the <a href=\"https://plaza.buckaroo.nl/Configuration/Website/Index/\">signup page</a> to create a Buckaroo account and start receiving payments.</br>Contact <a href=\"mailto:support@buckaroo.nl\">support@buckaroo.nl</a> if you have any questions about this plugin."
+msgstr "Integreer meer dan 30 internationale betaalmethoden in je WooCommerce webshop. Schakel ze eenvoudig in via je WooCommerce webshop met de Buckaroo Payments plugin.</br>Ga naar de <a href=\"https://plaza.buckaroo.nl/Configuration/Website/Index/\">aanmeldpagina</a> om een Buckaroo-account aan te maken en betalingen te beginnen ontvangen.</br>Neem contact op met <a href=\"mailto:support@buckaroo.nl\">support@buckaroo.nl</a> als je vragen hebt over deze plugin."
 
-#: src/Admin/GeneralSettings.php:135
+#: src/Admin/GeneralSettings.php:133
 msgid "General settings"
 msgstr "Algemene instellingen"
 
-#: src/Admin/GeneralSettings.php:194
+#: src/Admin/GeneralSettings.php:192
 msgid "Buckaroo payment methods are listed below and can be accessed, enabled or disabled."
-msgstr "Buckaroo betaalmethoden worden hieronder weergegeven en kunnen worden geopend, ingeschakeld of uitgeschakeld."
+msgstr "Buckaroo betaalmethoden staan hieronder vermeld en kunnen worden geopend, ingeschakeld of uitgeschakeld."
 
-#: src/Admin/GeneralSettings.php:205
+#: src/Admin/GeneralSettings.php:203
 msgid "Method"
 msgstr "Methode"
 
-#: src/Admin/GeneralSettings.php:206
+#: src/Admin/GeneralSettings.php:204
 #: src/Gateways/Paypal/PaypalGateway.php:84
 msgid "Enabled"
 msgstr "Ingeschakeld"
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:244
+#: src/Admin/GeneralSettings.php:242
 msgid "Manage the \"%s\" payment method"
 msgstr "Beheer de \"%s\" betaalmethode"
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:244
+#: src/Admin/GeneralSettings.php:242
 msgid "Manage"
 msgstr "Beheren"
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:247
+#: src/Admin/GeneralSettings.php:245
 msgid "Set up the \"%s\" payment method"
 msgstr "Stel de \"%s\" betaalmethode in"
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:247
+#: src/Admin/GeneralSettings.php:245
 msgid "Set up"
 msgstr "Instellen"
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:254
+#: src/Admin/GeneralSettings.php:252
 msgid "The \"%s\" payment method is currently enabled"
 msgstr "De \"%s\" betaalmethode is momenteel ingeschakeld"
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:254
+#: src/Admin/GeneralSettings.php:252
 #: src/Gateways/Transfer/TransferGateway.php:75
 #: src/Gateways/Transfer/TransferGateway.php:85
 msgid "Yes"
 msgstr "Ja"
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:257
+#: src/Admin/GeneralSettings.php:255
 msgid "The \"%s\" payment method is currently disabled"
 msgstr "De \"%s\" betaalmethode is momenteel uitgeschakeld"
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:257
+#: src/Admin/GeneralSettings.php:255
 #: src/Gateways/Transfer/TransferGateway.php:76
 #: src/Gateways/Transfer/TransferGateway.php:86
 msgid "No"
 msgstr "Nee"
 
-#: src/Admin/GeneralSettings.php:368
+#: src/Admin/GeneralSettings.php:366
 msgid "enabled (live)"
 msgstr "ingeschakeld (live)"
 
-#: src/Admin/GeneralSettings.php:370
+#: src/Admin/GeneralSettings.php:368
 msgid "enabled (test)"
 msgstr "ingeschakeld (test)"
 
-#: src/Admin/GeneralSettings.php:373
+#: src/Admin/GeneralSettings.php:371
 msgid "disabled"
 msgstr "uitgeschakeld"
 
-#: src/Admin/GeneralSettings.php:378
+#: src/Admin/GeneralSettings.php:376
 msgid "edit"
 msgstr "bewerken"
 
@@ -168,15 +162,15 @@ msgstr "Klik om instellingen te migreren van bestaande betaalmethoden naar hoofd
 
 #: src/Admin/PaymentMethodSettings.php:54
 msgid "Website key"
-msgstr "Website sleutel"
+msgstr "Website Sleutel"
 
 #: src/Admin/PaymentMethodSettings.php:56
 msgid "This is your Buckaroo Payment Plaza website key (My Buckaroo -> Websites -> Choose website through Filter -> Key)."
-msgstr "Dit is je Buckaroo Payment Plaza websitesleutel (Mijn Buckaroo -> Websites -> Kies website via Filter -> Sleutel)."
+msgstr "Dit is je Buckaroo Payment Plaza website sleutel (Mijn Buckaroo -> Websites -> Kies website via Filter -> Sleutel)."
 
 #: src/Admin/PaymentMethodSettings.php:63
 msgid "Secret key"
-msgstr "Geheime sleutel"
+msgstr "Geheime Sleutel"
 
 #: src/Admin/PaymentMethodSettings.php:65
 msgid "The secret password to verify transactions (Configuration -> Security -> Secret key)."
@@ -184,7 +178,7 @@ msgstr "Het geheime wachtwoord om transacties te verifiëren (Configuratie -> Be
 
 #: src/Admin/PaymentMethodSettings.php:72
 msgid "Test credentials"
-msgstr "Testgegevens"
+msgstr "Testreferenties"
 
 #: src/Admin/PaymentMethodSettings.php:74
 msgid "Click here to verify website key & secret key."
@@ -200,7 +194,7 @@ msgstr "Selecteer belastingklasse voor vergoeding"
 
 #: src/Admin/PaymentMethodSettings.php:86
 msgid "Fee tax class"
-msgstr "Vergoeding belastingklasse"
+msgstr "Vergoedingsbelastingklasse"
 
 #: src/Admin/PaymentMethodSettings.php:90
 msgid "Payment fee display"
@@ -222,9 +216,9 @@ msgid ""
 "\t\t\tEnglish will be used as a fallback language for unknown language types."
 msgstr ""
 "De gekozen taal (cultuur) voor de Buckaroo betaalengine <br>pagina.\r\n"
-"\t\t\tWanneer dit is ingesteld op “Dynamische taal” zal de plugin <br>automatisch de taal bepalen op basis van de\r\n"
-"\t\t\ttaalse <br>instellingen van de webbrowser van de klant. Let op dat we alleen <br>de volgende talen ondersteunen: Engels, Nederlands, Duits en Frans.<br>\r\n"
-"\t\t\tEngels wordt gebruikt als fallback-taal voor onbekende taalsoorten."
+"\t\t\tWanneer dit is ingesteld op \"Dynamische taal\" zal de plugin <br>automatisch de taal bepalen op basis van de\r\n"
+"\t\t\ttaalinstellingen <br>van de webbrowser van de klant. Let op dat we alleen de <br>volgende talen ondersteunen: Engels, Nederlands, Duits en Frans.<br>\r\n"
+"\t\t\tEngels wordt gebruikt als fallback-taal voor onbekende taaltypen."
 
 #: src/Admin/PaymentMethodSettings.php:121
 msgid "Debug mode"
@@ -232,7 +226,7 @@ msgstr "Debugmodus"
 
 #: src/Admin/PaymentMethodSettings.php:123
 msgid "Toggle debug mode on/off"
-msgstr "Schakel debugmodus in/uit"
+msgstr "Schakel debugmodus aan/uit"
 
 #: src/Admin/PaymentMethodSettings.php:132
 msgid "Debug data storage"
@@ -240,16 +234,16 @@ msgstr "Opslag van debuggegevens"
 
 #: src/Admin/PaymentMethodSettings.php:134
 msgid "Select where to store debug data"
-msgstr "Selecteer waar de debuggegevens moeten worden opgeslagen"
+msgstr "Selecteer waar debuggegevens opgeslagen moeten worden"
 
 #: src/Admin/PaymentMethodSettings.php:144
 #: src/Admin/PaymentMethodSettings.php:146
 msgid "Transaction description"
-msgstr "Transactiebeschrijving"
+msgstr "Transactieomschrijving"
 
 #: src/Admin/PaymentMethodSettings.php:154
 msgid "Use new icons"
-msgstr "Nieuwe iconen gebruiken"
+msgstr "Gebruik nieuwe iconen"
 
 #: src/Admin/PaymentMethodSettings.php:156
 msgid "By turning on this setting in checkout new payment method icons will be in use"
@@ -257,7 +251,7 @@ msgstr "Door deze instelling in de kassa in te schakelen, worden nieuwe betaalme
 
 #: src/Admin/PaymentMethodSettings.php:165
 msgid "iDIN mode"
-msgstr "iDIN-modus"
+msgstr "iDIN modus"
 
 #: src/Admin/PaymentMethodSettings.php:167
 msgid "By turning on this setting age verification with iDIN will be in use"
@@ -269,7 +263,7 @@ msgstr "iDIN specifieke productcategorieën"
 
 #: src/Admin/PaymentMethodSettings.php:191
 msgid "Select for what product categories iDIN verification should be applied. Don't select anything if want to apply iDIN to any product"
-msgstr "Selecteer voor welke productcategorieën iDIN-verificatie moet worden toegepast. Selecteer niets als je iDIN op elk product wilt toepassen."
+msgstr "Selecteer voor welke productcategorieën iDIN-verificatie moet worden toegepast. Selecteer niets als je iDIN op alle producten wilt toepassen"
 
 #: src/Admin/ReportPage.php:91
 msgid "No log data found."
@@ -277,7 +271,7 @@ msgstr "Geen loggegevens gevonden."
 
 #: src/Admin/ReportPage.php:134
 msgid "Error no"
-msgstr "Fout nr"
+msgstr "Fout nr."
 
 #: src/Admin/ReportPage.php:135
 msgid "Date"
@@ -306,11 +300,11 @@ msgstr "Schakel %s betaalmethode in"
 
 #: src/Gateways/AbstractPaymentGateway.php:94
 msgid "Transaction mode"
-msgstr "Transactie modus"
+msgstr "Transactiemodus"
 
 #: src/Gateways/AbstractPaymentGateway.php:96
 msgid "Transaction mode used for processing orders"
-msgstr "Transactie modus gebruikt voor het verwerken van bestellingen"
+msgstr "Transactiemodus gebruikt voor het verwerken van bestellingen"
 
 #: src/Gateways/AbstractPaymentGateway.php:104
 msgid "Front-end label"
@@ -322,32 +316,32 @@ msgstr "Bepaalt hoe de betaalmethode wordt genoemd bij het afrekenen."
 
 #: src/Gateways/AbstractPaymentGateway.php:115
 msgid "This controls the description which the user sees during checkout."
-msgstr "Dit regelt de beschrijving die de gebruiker ziet tijdens het afrekenen."
+msgstr "Dit controleert de beschrijving die de gebruiker ziet tijdens het afrekenen."
 
 #: src/Gateways/AbstractPaymentGateway.php:122
 #: src/Hooks/OrderActions.php:137
 msgid "Payment fee"
-msgstr "Betaalsvergoeding"
+msgstr "Betalingsvergoeding"
 
 #: src/Gateways/AbstractPaymentGateway.php:124
 msgid "Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.)"
-msgstr "Specificeer een vast bedrag (bijv. 1,50) of een percentage bedrag (bijv. 1%). Decimalen moeten gescheiden zijn door een punt (.)"
+msgstr "Specificeer een vast bedrag (bijv. 1,50) of een percentage (bijv. 1%). Decimalen moeten gescheiden worden door een punt (.)"
 
 #: src/Gateways/AbstractPaymentGateway.php:128
 msgid "Minimum order amount allowed"
-msgstr "Minimum bestelwaarde toegestaan"
+msgstr "Minimaal toegestane bestelbedrag"
 
 #: src/Gateways/AbstractPaymentGateway.php:131
 msgid "Specify minimum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
-msgstr "Specificeer het minimum bestelwaarde toegestaan om de huidige methode weer te geven. Een waarde van nul of leeg betekent dat er geen regel wordt toegepast."
+msgstr "Specificeer het minimaal toegestane bestelbedrag om de huidige methode weer te geven. Een waarde van nul of leeg betekent dat er geen regel wordt toegepast."
 
 #: src/Gateways/AbstractPaymentGateway.php:135
 msgid "Maximum order amount allowed"
-msgstr "Maximum bestelwaarde toegestaan"
+msgstr "Maximaal toegestane bestelbedrag"
 
 #: src/Gateways/AbstractPaymentGateway.php:138
 msgid "Specify maximum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
-msgstr "Specificeer het maximum bestelwaarde toegestaan om de huidige methode weer te geven. Een waarde van nul of leeg betekent dat er geen regel wordt toegepast."
+msgstr "Specificeer het maximaal toegestane bestelbedrag om de huidige methode weer te geven. Een waarde van nul of leeg betekent dat er geen regel wordt toegepast."
 
 #: src/Gateways/AbstractPaymentGateway.php:153
 #: assets/js/blocks/index.js:107
@@ -357,11 +351,11 @@ msgstr "Betaal met %s"
 
 #: src/Gateways/AbstractPaymentGateway.php:333
 msgid "This payment method is not supported for the selected currency "
-msgstr "Deze betaalmethode wordt niet ondersteund voor de geselecteerde valuta "
+msgstr "Deze betaalmethode wordt niet ondersteund voor de geselecteerde valuta"
 
 #: src/Gateways/AbstractPaymentGateway.php:648
-msgid "Due to the regulations for BNPL methods in The Netherlands you’ll have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands."
-msgstr "Vanwege de regelgeving voor BNPL-methoden in Nederland moet je klanten waarschuwen voor het gebruik van een BNPL-plan omdat het gemakkelijk kan leiden tot schulden. Wanneer ingeschakeld, wordt er een waarschuwing weergegeven bij het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland."
+msgid "Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands."
+msgstr "Vanwege de regelgeving voor BNPL-methoden in Nederland moet je klanten waarschuwen voor het gebruik van een BNPL-plan omdat het gemakkelijk kan leiden tot schulden. Wanneer ingeschakeld wordt er een waarschuwing weergegeven bij het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland."
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:65
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:56
@@ -372,7 +366,7 @@ msgstr "Je moet minstens 18 jaar oud zijn om deze betaalmethode te gebruiken. Vo
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:69
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:50
 msgid "Please accept licence agreements"
-msgstr "Accepteer de licentieovereenkomsten"
+msgstr "Accepteer alstublieft de licentieovereenkomsten"
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:78
 msgid "Company registration number is required"
@@ -381,15 +375,15 @@ msgstr "Bedrijfsregistratienummer is vereist"
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:83
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:69
 msgid "Please enter phone number"
-msgstr "Voer telefoonnummer in"
+msgstr "Voer alstublieft je telefoonnummer in"
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:89
 msgid "Invalid billing address, cannot find house number"
-msgstr "Ongeldig factuuradres, kan huisnummer niet vinden"
+msgstr "Ongeldig factuuradres, kan het huisnummer niet vinden"
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:96
 msgid "Invalid shipping address, cannot find house number"
-msgstr "Ongeldig verzendadres, kan huisnummer niet vinden"
+msgstr "Ongeldig verzendadres, kan het huisnummer niet vinden"
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:139
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:145
@@ -404,11 +398,11 @@ msgstr "Kies om Betalen of Capturen uit te voeren"
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:150
 msgid "Send image info"
-msgstr "Afbeeldingsinformatie verzenden"
+msgstr "Stuur afbeeldingsinformatie"
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:152
 msgid "Image info will be sent to BPE gateway inside ImageUrl parameter"
-msgstr "Afbeeldingsinformatie wordt verzonden naar de BPE-gateway binnen de ImageUrl-parameter"
+msgstr "Afbeeldingsinformatie wordt naar de BPE-gateway gestuurd binnen de ImageUrl-parameter"
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:161
 msgid "Riverty customer type"
@@ -416,7 +410,7 @@ msgstr "Riverty klanttype"
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:163
 msgid "This setting determines whether you accept Riverty payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process."
-msgstr "Deze instelling bepaalt of je Riverty-betalingen accepteert voor B2C, B2B of beide klanttypen. Wanneer B2B is geselecteerd, wordt deze methode alleen weergegeven wanneer een bedrijfsnaam is ingevoerd tijdens het afrekenproces."
+msgstr "Deze instelling bepaalt of je Riverty-betalingen accepteert voor B2C, B2B of beide klanttypen. Wanneer B2B is geselecteerd, wordt deze methode alleen weergegeven wanneer een bedrijfsnaam wordt ingevoerd tijdens het afrekenen."
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:172
 msgid "Min order amount  for B2B"
@@ -424,7 +418,7 @@ msgstr "Minimaal bestelbedrag voor B2B"
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:175
 msgid "The payment method shows only for orders with an order amount greater than the minimum amount."
-msgstr "De betaalmethode wordt alleen weergegeven voor bestellingen met een bestelbedrag hoger dan het minimum bedrag."
+msgstr "De betaalmethode wordt alleen weergegeven voor bestellingen met een bestelbedrag hoger dan het minimale bedrag."
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:179
 msgid "Max order amount  for B2B"
@@ -432,7 +426,7 @@ msgstr "Maximaal bestelbedrag voor B2B"
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:182
 msgid "The payment method shows only for orders with an order amount smaller than the maximum amount."
-msgstr "De betaalmethode wordt alleen weergegeven voor bestellingen met een bestelbedrag lager dan het maximum bedrag."
+msgstr "De betaalmethode wordt alleen weergegeven voor bestellingen met een bestelbedrag lager dan het maximale bedrag."
 
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:61
 msgid "Company registration number is required (KvK)"
@@ -452,15 +446,15 @@ msgstr "Selecteer Riverty-service"
 
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:111
 msgid "Please select the service"
-msgstr "Selecteer de service"
+msgstr "Selecteer alstublieft de service"
 
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:113
 msgid "Offer customer to pay afterwards by SEPA Direct Debit."
-msgstr "Bied de klant aan om later te betalen via SEPA Direct Debit."
+msgstr "Bied de klant de mogelijkheid om later te betalen via SEPA Direct Debit."
 
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:114
 msgid "Offer customer to pay afterwards by digital invoice."
-msgstr "Bied de klant aan om later te betalen via digitale factuur."
+msgstr "Bied de klant de mogelijkheid om later te betalen via een digitale factuur."
 
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:120
 msgid "Enable B2B option for Riverty"
@@ -468,7 +462,7 @@ msgstr "Schakel B2B-optie voor Riverty in"
 
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:122
 msgid "Enables or disables possibility to pay using company credentials"
-msgstr "Schakelt de mogelijkheid in of uit om te betalen met bedrijfsreferenties"
+msgstr "Schakelt de mogelijkheid uit of in om te betalen met bedrijfsreferenties"
 
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:131
 msgid "Default product VAT type"
@@ -476,11 +470,11 @@ msgstr "Standaard product BTW-type"
 
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:133
 msgid "Please select the default VAT type for your products"
-msgstr "Selecteer het standaard BTW-type voor je producten"
+msgstr "Selecteer alstublieft het standaard BTW-type voor je producten"
 
 #: src/Gateways/Afterpay/AfterpayOldProcessor.php:147
 msgid "We are sorry to inform you that the request to pay afterwards with Riverty | AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty | AfterPay. Or you can visit the website of Riverty | AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order."
-msgstr "Het spijt ons je te moeten informeren dat het verzoek om later te betalen met Riverty | AfterPay op dit moment niet mogelijk is. Dit kan te wijten zijn aan verschillende (tijdelijke) redenen. Voor vragen over je afwijzing kun je contact opnemen met de klantenservice van Riverty | AfterPay. Of je kunt de website van Riverty | AfterPay bezoeken en de 'Veelgestelde vragen' bekijken via deze <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We raden je aan een andere betaalmethode te kiezen om je bestelling te voltooien."
+msgstr "Het spijt ons je te moeten informeren dat het verzoek om later te betalen met Riverty | AfterPay momenteel niet mogelijk is. Dit kan verschillende (tijdelijke) redenen hebben. Voor vragen over je afwijzing kun je contact opnemen met de klantenservice van Riverty | AfterPay. Of je kunt de website van Riverty | AfterPay bezoeken en de 'Veelgestelde Vragen' bekijken via deze <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We raden je aan een andere betaalmethode te kiezen om je bestelling te voltooien."
 
 #: src/Gateways/Applepay/ApplepayGateway.php:383
 msgid "Button on product page"
@@ -528,7 +522,7 @@ msgstr "GUID"
 
 #: src/Gateways/Applepay/ApplepayGateway.php:431
 msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
-msgstr "De Buckaroo GUID die te vinden is in Buckaroo Plaza > Mijn Buckaroo > Algemeen."
+msgstr "De Buckaroo GUID die te vinden is in de Buckaroo Plaza > Mijn Buckaroo > Algemeen."
 
 #: src/Gateways/Billink/BillinkGateway.php:42
 msgid "Please enter correct COC (KvK) number"
@@ -546,11 +540,11 @@ msgstr "Onbekend geslacht"
 
 #: src/Gateways/Billink/BillinkGateway.php:55
 msgid "Please accept license agreements"
-msgstr "Accepteer de licentieovereenkomsten"
+msgstr "Accepteer alstublieft de licentieovereenkomsten"
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:85
 msgid "Select a credit or debit card."
-msgstr "Selecteer een creditcard of debetkaart."
+msgstr "Selecteer een creditcard of pinpas."
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:104
 msgid "A valid credit card is required."
@@ -558,7 +552,7 @@ msgstr "Een geldige creditcard is vereist."
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:110
 msgid "Enter expiration year field"
-msgstr "Voer het veld voor het vervaljaar in"
+msgstr "Voer het veld vervaljaar in"
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:117
 #: src/Gateways/CreditCard/CreditCardGateway.php:121
@@ -567,11 +561,11 @@ msgstr "Voer een geldig vervaljaar in"
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:193
 msgid "Credit and debit card method"
-msgstr "Credit- en debetkaartmethode"
+msgstr "Credit- en pinpasmethode"
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:195
 msgid "Redirect user to Buckaroo or enter credit or debit card information (directly) inline in the checkout. SSL is required to enable inline credit or debit card information."
-msgstr "Leid de gebruiker om naar Buckaroo of voer credit- of debetkaartinformatie (direct) inline in bij het afrekenen. SSL is vereist om inline credit- of debetkaartinformatie mogelijk te maken."
+msgstr "Stuur de gebruiker door naar Buckaroo of voer credit- of debitcardinformatie (direct) inline in bij het afrekenen. SSL is vereist om inline credit- of debitcardinformatie in te schakelen."
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:201
 msgid "Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us."
@@ -579,19 +573,19 @@ msgstr "Controleer bij Buckaroo of Client Side Encryption is ingeschakeld, ander
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:205
 msgid "Credit and debit card flow"
-msgstr "Credit- en debetkaartstroom"
+msgstr "Credit- en pinpasstroom"
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:215
 msgid "Allowed provider"
-msgstr "Toegestane provider"
+msgstr "Toegestane aanbieder"
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:230
 msgid "Select which credit or debit card providers will be visible to customer"
-msgstr "Selecteer welke credit- of debetkaartproviders zichtbaar zullen zijn voor de klant"
+msgstr "Selecteer welke credit- of debitcardaanbieders zichtbaar zullen zijn voor de klant"
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:246
 msgid "Show separate in checkout"
-msgstr "Toon afzonderlijk bij het afrekenen"
+msgstr "Toon apart bij afrekenen"
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:249
 #: src/Gateways/Paypal/PaypalGateway.php:99
@@ -600,7 +594,7 @@ msgstr "Geen"
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:262
 msgid "Select which credit or debit card providers will be shown separately in the checkout"
-msgstr "Selecteer welke credit- of debetkaartproviders afzonderlijk zullen worden weergegeven bij het afrekenen"
+msgstr "Selecteer welke credit- of debitcardaanbieders afzonderlijk worden weergegeven bij het afrekenen"
 
 #: src/Gateways/GiftCard/GiftCardGateway.php:35
 msgid "List of authorized giftcards"
@@ -620,11 +614,11 @@ msgstr "Een geldige iDEAL bank is vereist."
 
 #: src/Gateways/Ideal/IdealGateway.php:60
 msgid "Show Issuer Selection in the Checkout"
-msgstr "Toon Uitgever Selectie bij het Afrekenen"
+msgstr "Toon Uitgeverselectie bij het Afrekenen"
 
 #: src/Gateways/Ideal/IdealGateway.php:62
 msgid "When the \"NO\" option is selected, the issuer selection for iDEAL will not be displayed in the checkout. Instead, customers will be redirected to a separate page where they can choose their iDEAL issuer (i.e., their bank). On the other hand, selecting the \"Yes\" option will display the issuer selection directly in the checkout. It's important to note that enabling this option will incur additional costs from Buckaroo, estimated at around €0.002 for each transaction. For precise cost details, please reach out to <a href=\"mailto:wecare@buckaroo.nl\">Buckaroo</a> directly."
-msgstr "Wanneer de optie \"NEE\" is geselecteerd, wordt de uitgeverselectie voor iDEAL niet weergegeven bij het afrekenen. In plaats daarvan worden klanten doorgestuurd naar een aparte pagina waar ze hun iDEAL-uitgever (d.w.z. hun bank) kunnen kiezen. Aan de andere kant, door de optie \"Ja\" te selecteren, wordt de uitgeverselectie direct weergegeven bij het afrekenen. Het is belangrijk op te merken dat het inschakelen van deze optie extra kosten met zich meebrengt van Buckaroo, geschat op ongeveer €0.002 per transactie. Voor precieze kostendetails kun je rechtstreeks contact opnemen met <a href=\"mailto:wecare@buckaroo.nl\">Buckaroo</a>."
+msgstr "Wanneer de optie \"NEE\" is geselecteerd, wordt de uitgeverselectie voor iDEAL niet weergegeven bij het afrekenen. In plaats daarvan worden klanten doorgestuurd naar een aparte pagina waar ze hun iDEAL-uitgever (d.w.z. hun bank) kunnen kiezen. Aan de andere kant zal het selecteren van de optie \"Ja\" de uitgeverselectie direct bij het afrekenen weergeven. Het is belangrijk op te merken dat het inschakelen van deze optie extra kosten met zich meebrengt van Buckaroo, geschat op ongeveer €0,002 per transactie. Voor precieze kostendetails kun je direct contact opnemen met <a href=\"mailto:wecare@buckaroo.nl\">Buckaroo</a>."
 
 #: src/Gateways/Idin/IdinController.php:25
 msgid "You have been verified successfully"
@@ -640,7 +634,7 @@ msgstr "Verificatie is mislukt"
 
 #: src/Gateways/In3/In3Gateway.php:95
 msgid "Please fill in a phone number for %s. This is required in order to use this payment method."
-msgstr "Vul een telefoonnummer in voor %s. Dit is vereist om deze betaalmethode te gebruiken."
+msgstr "Vul alstublieft een telefoonnummer in voor %s. Dit is vereist om deze betaalmethode te gebruiken."
 
 #: src/Gateways/In3/In3Gateway.php:136
 msgid "Api version"
@@ -669,11 +663,11 @@ msgstr "Weergave van bankselectie"
 
 #: src/Gateways/Paypal/PaypalGateway.php:80
 msgid "Seller Protection"
-msgstr "Verkopersbescherming"
+msgstr "Verkoper Bescherming"
 
 #: src/Gateways/Paypal/PaypalGateway.php:82
 msgid "Sends customer address information to PayPal to enable PayPal seller protection."
-msgstr "Verzendt klantadresinformatie naar PayPal om PayPal verkopersbescherming mogelijk te maken."
+msgstr "Stuur klantadresinformatie naar PayPal om PayPal verkoper bescherming mogelijk te maken."
 
 #: src/Gateways/Paypal/PaypalGateway.php:85
 msgid "Disabled"
@@ -685,15 +679,15 @@ msgstr "PayPal express verkopers-ID"
 
 #: src/Gateways/Paypal/PaypalGateway.php:92
 msgid "PayPal merchant id required for paypal express"
-msgstr "PayPal verkopers-ID is vereist voor PayPal Express"
+msgstr "PayPal verkopers-ID vereist voor PayPal express"
 
 #: src/Gateways/Paypal/PaypalGateway.php:95
 msgid "PayPal express"
-msgstr "PayPal Express"
+msgstr "PayPal express"
 
 #: src/Gateways/Paypal/PaypalGateway.php:97
 msgid "Enable PayPal express for the following pages."
-msgstr "Schakel PayPal Express in voor de volgende pagina's."
+msgstr "Schakel PayPal express in voor de volgende pagina's."
 
 #: src/Gateways/Paypal/PaypalGateway.php:100
 msgid "Product page"
@@ -721,31 +715,31 @@ msgstr "PayPal verkopers-ID is vereist"
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:40
 msgid "Please select gender"
-msgstr "Selecteer geslacht"
+msgstr "Selecteer alstublieft geslacht"
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:50
 msgid "Please enter firstname"
-msgstr "Voer voornaam in"
+msgstr "Voer alstublieft voornaam in"
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:54
 msgid "Please enter lastname"
-msgstr "Voer achternaam in"
+msgstr "Voer alstublieft achternaam in"
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:57
 msgid "Please enter email"
-msgstr "Voer e-mailadres in"
+msgstr "Voer alstublieft e-mail in"
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:59
 msgid "Please enter valid email"
-msgstr "Voer een geldig e-mailadres in"
+msgstr "Voer alstublieft een geldig e-mailadres in"
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:87
 msgid "Show on Checkout page"
-msgstr "Toon op afrekenpagina"
+msgstr "Toon op de afrekenpagina"
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:89
 msgid "Show PayPerEmail on Checkout page"
-msgstr "Toon PayPerEmail op afrekenpagina"
+msgstr "Toon PayPerEmail op de afrekenpagina"
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:94
 msgid "Show PayLink"
@@ -753,7 +747,7 @@ msgstr "Toon PayLink"
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:96
 msgid "Show PayLink in admin order actions"
-msgstr "Toon PayLink in admin bestelacties"
+msgstr "Toon PayLink in beheerdersorderacties"
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:105
 msgid "Show PayPerEmail"
@@ -761,7 +755,7 @@ msgstr "Toon PayPerEmail"
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:107
 msgid "Show PayPerEmail in admin order actions"
-msgstr "Toon PayPerEmail in admin bestelacties"
+msgstr "Toon PayPerEmail in beheerdersorderacties"
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:116
 msgid "Due date (in days)"
@@ -781,7 +775,7 @@ msgstr "Selecteer welke methoden aan de klant worden getoond"
 
 #: src/Gateways/SepaDirectDebit/SepaDirectDebitGateway.php:37
 msgid "Please fill in all required fields"
-msgstr "Vul alle verplichte velden in"
+msgstr "Vul alstublieft alle verplichte velden in"
 
 #: src/Gateways/SepaDirectDebit/SepaDirectDebitGateway.php:41
 msgid "Wrong IBAN number"
@@ -797,7 +791,7 @@ msgstr "Aantal dagen tot de datum waarop de bestelling betaald moet zijn."
 
 #: src/Gateways/Transfer/TransferGateway.php:71
 msgid "Send email"
-msgstr "E-mail verzenden"
+msgstr "Stuur e-mail"
 
 #: src/Gateways/Transfer/TransferGateway.php:73
 msgid "Buckaroo sends an email to the customer with the payment procedures."
@@ -819,7 +813,7 @@ msgstr "Instellingen"
 
 #: src/Hooks/AdminHooks.php:101
 msgid "Buckaroo BPE requires WooCommerce to be installed and active"
-msgstr "Buckaroo BPE vereist dat WooCommerce is geïnstalleerd en actief"
+msgstr "Buckaroo BPE vereist dat WooCommerce geïnstalleerd en actief is"
 
 #: src/Hooks/TestCredentials.php:17
 #: src/Hooks/TestCredentials.php:21
@@ -837,7 +831,7 @@ msgstr "Je hebt een eerdere versie van Buckaroo BPE geïnstalleerd, sommige func
 
 #: src/Order/OrderCaptureRefund.php:40
 msgid "A order id is required"
-msgstr "Een bestel-ID is vereist"
+msgstr "Een order-ID is vereist"
 
 #: src/Order/OrderCaptureRefund.php:47
 msgid "A capture id is required"
@@ -861,7 +855,7 @@ msgstr "Kan Klarna-reservering voor bestelling #%s niet annuleren"
 
 #: src/PaymentProcessors/Actions/CaptureAction.php:62
 msgid "Captured %1$s - Capture transaction ID: %2$s"
-msgstr "Gecapteerd %1$s - Capture transactie-ID: %2$s"
+msgstr "Gepubliceerd %1$s - Capture transactie-ID: %2$s"
 
 #: src/PaymentProcessors/Actions/CaptureAction.php:80
 msgid ""
@@ -879,13 +873,13 @@ msgstr "Capture mislukt voor transactie-ID: %s"
 #: src/PaymentProcessors/PushProcessor.php:277
 #: src/PaymentProcessors/PushProcessor.php:300
 msgid "Payment unsuccessful. Please try again or choose another payment method."
-msgstr "Betaling mislukt. Probeer het opnieuw of kies een andere betaalmethode."
+msgstr "Betaling niet succesvol. Probeer het alstublieft opnieuw of kies een andere betaalmethode."
 
 #: src/PaymentProcessors/Actions/PayAction.php:75
 #: src/PaymentProcessors/PushProcessor.php:265
 #: src/PaymentProcessors/ReturnProcessor.php:146
 msgid "Payment cancelled by customer."
-msgstr "Betaling door klant geannuleerd."
+msgstr "Betaling geannuleerd door klant."
 
 #: src/PaymentProcessors/Actions/RefundAction.php:40
 msgid "Refunded"
@@ -907,7 +901,7 @@ msgstr ""
 #: src/PaymentProcessors/PushProcessor.php:292
 #: src/PaymentProcessors/ReturnProcessor.php:156
 msgid "We are sorry to inform you that the request to pay afterwards with Riverty is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty. Or you can visit the website of Riverty and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order."
-msgstr "Het spijt ons je te moeten informeren dat het verzoek om later te betalen met Riverty op dit moment niet mogelijk is. Dit kan te wijten zijn aan verschillende (tijdelijke) redenen. Voor vragen over je afwijzing kun je contact opnemen met de klantenservice van Riverty. Of je kunt de website van Riverty bezoeken en de 'Veelgestelde vragen' bekijken via deze <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We raden je aan een andere betaalmethode te kiezen om je bestelling te voltooien."
+msgstr "Het spijt ons je te moeten informeren dat het verzoek om later te betalen met Riverty momenteel niet mogelijk is. Dit kan verschillende (tijdelijke) redenen hebben. Voor vragen over je afwijzing kun je contact opnemen met de klantenservice van Riverty. Of je kunt de website van Riverty bezoeken en de 'Veelgestelde Vragen' bekijken via deze <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We raden je aan een andere betaalmethode te kiezen om je bestelling te voltooien."
 
 #: src/PaymentProcessors/ReturnProcessor.php:166
 msgid "Card number or pin is incorrect for %s"
@@ -935,7 +929,7 @@ msgstr "Zij/hun"
 #: assets/js/blocks/partials/buckaroo_gender.js:10
 #: assets/js/dist/blocks.js:2
 msgid "I prefer not to say"
-msgstr "Ik geef er de voorkeur aan om niets te zeggen"
+msgstr "Ik geef er de voorkeur aan dit niet te zeggen"
 
 #: templates/gateways/afterpay.php:34
 #: templates/gateways/afterpaynew.php:51
@@ -1000,7 +994,7 @@ msgstr "Accepteer gebruiksvoorwaarden"
 #: assets/js/blocks/partials/buckaroo_afterpay_tos.js:17
 #: assets/js/dist/blocks.js:2
 msgid "Required"
-msgstr "Verplicht"
+msgstr "Vereist"
 
 #: templates/gateways/creditcard.php:43
 msgid "Select your credit card:"
@@ -1034,7 +1028,7 @@ msgstr "Kaartnummer:"
 #: assets/js/blocks/gateways/buckaroo_separate_credit_card.js:107
 #: assets/js/dist/blocks.js:2
 msgid "Expiration Month:"
-msgstr "Vervalmaand:"
+msgstr "Vervaldag Maand:"
 
 #: templates/gateways/creditcard.php:113
 #: templates/gateways/creditcard.php:121
@@ -1142,7 +1136,7 @@ msgstr "E-mail:"
 #: assets/js/blocks/gateways/buckaroo_sepadirectdebit.js:19
 #: assets/js/dist/blocks.js:2
 msgid "Bank account holder:"
-msgstr "Bankrekeninghouder:"
+msgstr "Rekeninghouder:"
 
 #: templates/gateways/sepadirectdebit.php:54
 #: assets/js/blocks/gateways/buckaroo_sepadirectdebit.js:50
