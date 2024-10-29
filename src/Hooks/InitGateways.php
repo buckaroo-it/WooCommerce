@@ -93,10 +93,12 @@ class InitGateways
                 }
                 if ($gateway_id === 'buckaroo_afterpaynew') {
                     $payment_method['customer_type'] = $gateway->customer_type;
+                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
                 }
                 if ($gateway_id === 'buckaroo_afterpay') {
                     $payment_method['b2b'] = $gateway->b2b;
                     $payment_method['type'] = (new AfterpayOldGateway())->type;
+                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
                 }
                 if (str_starts_with($gateway_id, 'buckaroo_creditcard')) {
                     $payment_method['creditCardIssuers'] = $gateway->getCardsList();
@@ -122,6 +124,15 @@ class InitGateways
                             'showInCheckout' => is_array($expressPages) && in_array(PaypalExpressController::LOCATION_CHECKOUT, $expressPages),
                         )
                     );
+                }
+                if ($gateway_id === 'buckaroo_klarnakp' || $gateway_id === 'buckaroo_klarnapay' || $gateway_id === 'buckaroo_klarnapii') {
+                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');;
+                }
+                if ($gateway_id === 'buckaroo_in3') {
+                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
+                }
+                if ($gateway_id === 'buckaroo_billink') {
+                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
                 }
 
                 $payment_methods[] = $payment_method;
