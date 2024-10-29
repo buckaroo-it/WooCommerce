@@ -12,13 +12,13 @@ class BuckarooPaymentRequestFactory {
 	const REQUEST_TYPE_EMPAYMENT       = 'empayment';
 	const REQUEST_TYPE_IDEAL           = 'ideal';
 	const REQUEST_TYPE_PAYCONIQ        = 'payconiq';
-	const REQUEST_TYPE_GIROPAY         = 'giropay';
 	const REQUEST_TYPE_DIRECTDEBIT     = 'directdebit';
 	const REQUEST_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
 	const REQUEST_TYPE_MISTERCASH      = 'bancontactmrcash';
 	const REQUEST_TYPE_EMAESTRO        = 'maestro';
 	const REQUEST_TYPE_SOFORTBANKING   = 'sofortueberweisung';
 	const REQUEST_TYPE_BELFIUS         = 'belfius';
+	const REQUEST_TYPE_BLIK            = 'blik';
 	const REQUEST_TYPE_GIFTCARD        = 'giftcard';
 	const REQUEST_TYPE_CREDITCARD      = 'creditcard';
 	const REQUEST_TYPE_TRANSFER        = 'transfer';
@@ -30,11 +30,11 @@ class BuckarooPaymentRequestFactory {
 		self::REQUEST_TYPE_DIRECTDEBIT     => 'DirectDebit',
 		self::REQUEST_TYPE_SEPADIRECTDEBIT => 'SepaDirectDebit',
 		self::REQUEST_TYPE_PAYCONIQ        => 'Payconiq',
-		self::REQUEST_TYPE_GIROPAY         => 'Giropay',
 		self::REQUEST_TYPE_MISTERCASH      => 'MisterCash',
 		self::REQUEST_TYPE_EMAESTRO        => 'EMaestro',
 		self::REQUEST_TYPE_SOFORTBANKING   => 'Sofortbanking',
 		self::REQUEST_TYPE_BELFIUS         => 'Belfius',
+		self::REQUEST_TYPE_BLIK            => 'Blik',
 		self::REQUEST_TYPE_GIFTCARD        => 'GiftCard',
 		self::REQUEST_TYPE_CREDITCARD      => 'CreditCard',
 		self::REQUEST_TYPE_TRANSFER        => 'Transfer',

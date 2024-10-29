@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { __ } from '@wordpress/i18n';
 
 function PayByBankDropdown({
   onStateChange,
@@ -26,7 +27,7 @@ function PayByBankDropdown({
       // Dropdown for Mobile View
         <div className="form-row form-row-wide buckaroo-paybybank-mobile">
           <select className="buckaroo-custom-select" value={selectedIssuer} onChange={handleChange}>
-            <option value="0">Select your bank</option>
+            <option value="">{__('Select your bank', 'wc-buckaroo-bpe-gateway')}</option>
             {Object.keys(payByBankIssuers).map((issuerCode) => (
               <option key={issuerCode} value={issuerCode}>
                 {payByBankIssuers[issuerCode].name}
@@ -45,7 +46,7 @@ function PayByBankDropdown({
               value={selectedIssuer}
               onChange={handleChange}
             >
-              <option value="0">Select your bank</option>
+              <option value="">{__('Select your bank', 'wc-buckaroo-bpe-gateway')}</option>
               {Object.keys(payByBankIssuers).map((issuerCode) => (
                 <option key={issuerCode} value={issuerCode}>
                       {payByBankIssuers[issuerCode].name}
@@ -87,8 +88,8 @@ function PayByBankDropdown({
             <div className="bk-paybybank-toggle-list" onClick={toggleBankView}>
               <div className="bk-toggle-wrap">
                 <div className="bk-toggle-text">
-                      {showAllBanks ? 'More banks' : 'Less banks'}
-                    </div>
+                  {showAllBanks ? __('More banks', 'wc-buckaroo-bpe-gateway') : __('Less banks', 'wc-buckaroo-bpe-gateway')}
+                </div>
                 <div className={`bk-toggle ${showAllBanks ? 'bk-toggle-up' : 'bk-toggle-down'}`} />
               </div>
             </div>

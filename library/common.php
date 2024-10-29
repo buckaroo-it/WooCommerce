@@ -284,7 +284,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
                 if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == BuckarooAbstract::CODE_REJECTED) {
                     wc_add_notice(
                         __(
-                            "We are sorry to inform you that the request to pay afterwards with Riverty | AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty | AfterPay. Or you can visit the website of Riverty | AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
+                            "We are sorry to inform you that the request to pay afterwards with Riverty is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty. Or you can visit the website of Riverty and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
                             'wc-buckaroo-bpe-gateway'
                         ),
                         'error'
@@ -307,7 +307,7 @@ function fn_buckaroo_process_response_push($payment_method = null, $response = '
         if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == BuckarooAbstract::CODE_REJECTED) {
             wc_add_notice(
                 __(
-                    "We are sorry to inform you that the request to pay afterwards with Riverty | AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty | AfterPay. Or you can visit the website of Riverty | AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
+                    "We are sorry to inform you that the request to pay afterwards with Riverty is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty. Or you can visit the website of Riverty and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
                     'wc-buckaroo-bpe-gateway'
                 ),
                 'error'
@@ -422,6 +422,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
             );
 
             addSepaDirectOrderNote($response, $order);
+            Buckaroo_Logger::log('||| $response->status ' . $response->status);
 
             switch ($response->status) {
                 case 'completed':
@@ -430,6 +431,8 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 case 'on-hold':
                     if (!is_null($payment_method)) {
                         $woocommerce->cart->empty_cart();
+                        Buckaroo_Logger::log('||| $payment_method ' . $payment_method->get_return_url($order));
+
                         return array(
                             'result'   => 'success',
                             'redirect' => $payment_method->get_return_url($order),
@@ -474,7 +477,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                 if ($response->payment_method == 'afterpaydigiaccept' && $response->statuscode == BuckarooAbstract::CODE_REJECTED) {
                     wc_add_notice(
                         __(
-                            "We are sorry to inform you that the request to pay afterwards with Riverty | AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty | AfterPay. Or you can visit the website of Riverty | AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
+                            "We are sorry to inform you that the request to pay afterwards with Riverty is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty. Or you can visit the website of Riverty and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
                             'wc-buckaroo-bpe-gateway'
                         ),
                         'error'
@@ -511,7 +514,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                     Buckaroo_Logger::log('wc session after: ' . var_export(WC()->session, true));
                     if (WooV3Plus()) {
                         if ($order->get_billing_country() == 'NL') {
-                            if (strrpos($response->ChannelError, ': ') !== false) {
+                            if (!empty($response->ChannelError) && is_string($response->ChannelError) && strrpos($response->ChannelError, ': ') !== false) {
                                 $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
                                 Buckaroo_Logger::log('||| failed status message: ' . $error_description);
                                 wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
@@ -519,7 +522,7 @@ function fn_buckaroo_process_response($payment_method = null, $response = '', $m
                         }
                     } else {
                         if ($order->billing_country == 'NL') {
-                            if (strrpos($response->ChannelError, ': ') !== false) {
+                            if (!empty($response->ChannelError) && is_string($response->ChannelError) && strrpos($response->ChannelError, ': ') !== false) {
                                 $error_description = str_replace(':', '', substr($response->ChannelError, strrpos($response->ChannelError, ': ')));
                                 wc_add_notice(__($error_description, 'wc-buckaroo-bpe-gateway'), 'error');
                             }
@@ -579,6 +582,10 @@ function fn_buckaroo_get_address_components($address)
     $result                    = array();
     $result['house_number']    = '';
     $result['number_addition'] = '';
+
+	if (is_null($address)) {
+		$address = '';
+	}
 
     $address = str_replace(array('?', '*', '[', ']', ',', '!'), ' ', $address);
     $address = preg_replace('/\s\s+/', ' ', $address);
@@ -656,12 +663,13 @@ function getUniqInvoiceId($order_id, $mode = 'live')
  */
 function getOrderIdFromInvoiceId($invoice_id, $mode = 'live')
 {
-    if ($mode == 'test') {
-        $invoice_id = str_replace("WP_", "", $invoice_id);
-    }
+	if ($mode == 'test' && is_string($invoice_id)) {
+		$invoice_id = str_replace("WP_", "", $invoice_id);
+	}
 
-    return $invoice_id;
+	return $invoice_id;
 }
+
 
 /**
  * Checks if WooCommerce Version 3 or greater is installed
@@ -767,6 +775,7 @@ function checkCurrencySupported($payment_method = '')
                 'EUR', 'GBP', 'PLN',
             );
             break;
+        case 'buckaroo_blik':
         case 'buckaroo_przelewy24':
             $supported_currencies = array(
                 'PLN',
@@ -829,7 +838,7 @@ function getClientIpBuckaroo()
 }
 
 function roundAmount($amount) {
-    if(is_scalar($amount)) {
+    if(is_scalar($amount) && is_numeric($amount)) {
 	    return (float) number_format($amount, 2, '.', '');
     }
     return 0;
@@ -924,7 +933,7 @@ function processPushTransactionSucceeded($order_id, $order, $response, $payment_
                     $order->add_order_note(
                         "Payment succesfully reserved"
                     );
-                    add_post_meta($order->get_id(), 'bukaroo_is_reserved', 'yes');
+                    add_post_meta($order->get_id(), 'buckaroo_is_reserved', 'yes');
                     return;
                 }
 

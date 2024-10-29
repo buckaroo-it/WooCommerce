@@ -27,7 +27,7 @@ function TermsAndConditionsCheckbox({
 
   const fieldName = paymentMethod === 'buckaroo_afterpaynew' ? 'buckaroo-afterpaynew-accept' : paymentMethod === 'buckaroo_afterpay' ? 'buckaroo-afterpay-accept' : paymentMethod;
   const { country } = billingData;
-  let labelText = __('Accept Riverty | AfterPay conditions:', 'wc-buckaroo-bpe-gateway');
+  let labelText = __('Accept Riverty conditions:', 'wc-buckaroo-bpe-gateway');
   let termsUrl = getTermsUrl(country, b2b);
 
   if (paymentMethod === 'buckaroo-billink') {

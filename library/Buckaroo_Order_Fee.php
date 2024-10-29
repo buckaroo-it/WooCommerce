@@ -16,6 +16,8 @@
 class Buckaroo_Order_Fee {
 
 	public function __construct() {
+        add_action('wp_ajax_nopriv_woocommerce_cart_calculate_fees', array($this, 'calculate_order_fees'));
+        add_action('wp_ajax_woocommerce_cart_calculate_fees', array($this, 'calculate_order_fees'));
 		add_action( 'woocommerce_cart_calculate_fees', array( $this, 'calculate_order_fees' ) );
 		add_action(
 			'buckaroo_cart_calculate_fees',
@@ -31,7 +33,13 @@ class Buckaroo_Order_Fee {
 	 * @access public
 	 * @return void
 	 */
-	public function calculate_order_fees( $cart ) {
+    public function calculate_order_fees()
+    {
+        if (isset($_POST['method'])) {
+            WC()->session->set('chosen_payment_method', $_POST['method']);
+        }
+
+        $cart = WC()->cart;
 		$available_gateways    = WC()->payment_gateways->get_available_payment_gateways();
 		$chosen_payment_method = WC()->session->chosen_payment_method;
 

@@ -1,23 +1,22 @@
 <?php
 
-require_once __DIR__ . '/library/api/paymentmethods/giropay/giropay.php';
+require_once __DIR__ . '/library/api/paymentmethods/blik/blik.php';
 
 /**
  * @package Buckaroo
  */
-class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo {
+class WC_Gateway_Buckaroo_Blik extends WC_Gateway_Buckaroo {
 
-	const PAYMENT_CLASS = BuckarooGiropay::class;
+	const PAYMENT_CLASS = BuckarooBlik::class;
 	public function __construct() {
-		$this->id           = 'buckaroo_giropay';
-		$this->title        = 'Giropay';
-		$this->has_fields   = true;
-		$this->method_title = 'Buckaroo Giropay';
-		$this->setIcon( '24x24/giropay.gif', 'svg/giropay.svg' );
+		$this->id           = 'buckaroo_blik';
+		$this->title        = 'Blik';
+		$this->has_fields   = false;
+		$this->method_title = 'Buckaroo Blik';
+		$this->setIcon( '24x24/blik.png', 'svg/blik.svg' );
 
 		parent::__construct();
 		$this->addRefundSupport();
-		apply_filters( 'buckaroo_init_payment_class', $this );
 	}
 
 	/**
@@ -32,7 +31,6 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo {
 		return $this->processDefaultRefund( $order_id, $amount, $reason );
 	}
 
-
 	/**
 	 * Process payment
 	 *
@@ -41,14 +39,11 @@ class WC_Gateway_Buckaroo_Giropay extends WC_Gateway_Buckaroo {
 	 */
 	public function process_payment( $order_id ) {
 		$order = getWCOrder( $order_id );
-		/** @var BuckarooGiropay */
-		$giropay  = $this->createDebitRequest( $order );
-		$response = $this->apply_filters_or_error( 'buckaroo_before_payment_request', $order, $giropay );
-		if ( $response ) {
-			return $response;
-		}
+		/** @var BuckarooBelfius */
+		$blik = $this->createDebitRequest( $order );
 
-		$response = $giropay->Pay();
+		$response = $blik->Pay();
+
 		return fn_buckaroo_process_response( $this, $response );
 	}
 }

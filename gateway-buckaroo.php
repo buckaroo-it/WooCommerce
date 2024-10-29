@@ -17,6 +17,7 @@ class WC_Gateway_Buckaroo extends WC_Payment_Gateway {
 	public $currency;
 	public $mode;
 	public $country;
+    public $channel;
 
 	public function __construct() {
 		if ( ( ! is_admin() && ! checkCurrencySupported( $this->id ) ) || ( defined( 'DOING_AJAX' ) && ! checkCurrencySupported( $this->id ) ) ) {

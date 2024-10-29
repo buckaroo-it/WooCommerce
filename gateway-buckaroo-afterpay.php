@@ -18,9 +18,9 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
 
 	public function __construct() {
 		$this->id           = 'buckaroo_afterpay';
-		$this->title        = 'Riverty | AfterPay';
+		$this->title        = 'Riverty';
 		$this->has_fields   = false;
-		$this->method_title = 'Buckaroo Riverty | AfterPay';
+		$this->method_title = 'Buckaroo Riverty (Old)';
 		$this->setIcon( 'afterpay.png', 'svg/afterpay.svg' );
 		$this->setCountry();
 
@@ -35,6 +35,28 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
 		$this->b2b                  = $this->get_option( 'enable_bb' );
 		$this->vattype              = $this->get_option( 'vattype' );
 	}
+
+    /**
+     * Process order
+     *
+     * @param integer $order_id
+     * @param integer $amount defaults to null
+     * @param string  $reason
+     * @return callable|string function or error
+     */
+    public function process_capture_refund( $order_id, $amount = null, $reason = '', $transaction_id = null ) {
+        return $this->processDefaultRefund(
+            $order_id,
+            $amount,
+            $reason,
+            false,
+            function ( $request ) use ( $transaction_id ) {
+                if ( $transaction_id != null ) {
+                    $request->OriginalTransactionKey = $transaction_id;
+                }
+            }
+        );
+    }
 	/**
 	 * Can the order be refunded
 	 *
@@ -409,7 +431,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
 
 		$this->add_financial_warning_field();
 		$this->form_fields['service'] = array(
-			'title'       => __( 'Select afterpay service', 'wc-buckaroo-bpe-gateway' ),
+			'title'       => __( 'Select Riverty service', 'wc-buckaroo-bpe-gateway' ),
 			'type'        => 'select',
 			'description' => __( 'Please select the service', 'wc-buckaroo-bpe-gateway' ),
 			'options'     => array(
@@ -420,7 +442,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
 		);
 
 		$this->form_fields['enable_bb'] = array(
-			'title'       => __( 'Enable B2B option for Riverty | AfterPay', 'wc-buckaroo-bpe-gateway' ),
+			'title'       => __( 'Enable B2B option for Riverty', 'wc-buckaroo-bpe-gateway' ),
 			'type'        => 'select',
 			'description' => __( 'Enables or disables possibility to pay using company credentials', 'wc-buckaroo-bpe-gateway' ),
 			'options'     => array(
@@ -445,7 +467,7 @@ class WC_Gateway_Buckaroo_Afterpay extends WC_Gateway_Buckaroo {
 		);
 
 		$this->form_fields['afterpaypayauthorize'] = array(
-			'title'       => __( 'AfterPay Pay or Capture', 'wc-buckaroo-bpe-gateway' ),
+			'title'       => __( 'Riverty Pay or Capture', 'wc-buckaroo-bpe-gateway' ),
 			'type'        => 'select',
 			'description' => __( 'Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway' ),
 			'options'     => array(

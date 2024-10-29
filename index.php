@@ -5,7 +5,7 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
-Version: 3.13.2
+Version: 3.14.0
 Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -32,6 +32,8 @@ require_once __DIR__ . '/library/Buckaroo_Order_Capture.php';
 require_once __DIR__ . '/library/Buckaroo_Capture_Transaction.php';
 require_once __DIR__ . '/library/Buckaroo_Http_Request.php';
 require_once __DIR__ . '/library/Buckaroo_Item_For_Capture.php';
+require_once __DIR__ . '/library/afterpay/Capture.php';
+require_once __DIR__ . '/library/afterpay/Refund.php';
 require_once __DIR__ . '/library/klarnakp/Capture.php';
 require_once __DIR__ . '/library/klarnakp/Refund.php';
 require_once __DIR__ . '/library/klarnakp/Cancel_Reservation.php';
@@ -67,8 +69,10 @@ new Buckaroo_Paypal_Express(
 );
 
 new Buckaroo_Capture_Form();
+new Buckaroo_Afterpay_Capture_Form();
 new Buckaroo_Cancel_Reservation();
 new Buckaroo_KlarnaKP_Refund();
+new Buckaroo_Afterpay_Refund();
 
 add_action( 'admin_enqueue_scripts', 'buckaroo_payment_setup_scripts' );
 
@@ -109,7 +113,11 @@ function buckaroo_payment_setup_scripts() {
 			)
 		);
 	}
-	wp_enqueue_script( 'buckaroo-block-script', 'assets/js/dist/blocks.js', array( 'wp-blocks', 'wp-element' ) );
+	wp_enqueue_script(
+        'buckaroo-block-script',
+        plugin_dir_url( __FILE__ ) . 'assets/js/dist/blocks.js',
+        array( 'wp-blocks', 'wp-element' )
+    );
 }
 
 function get_type() {
@@ -203,18 +211,23 @@ function get_woocommerce_payment_methods(): array {
 }
 
 function enqueue_buckaroo_ideal_block_script() {
-	wp_enqueue_script(
-		'buckaroo-blocks',
-		plugins_url( '/assets/js/dist/blocks.js', __FILE__ ),
-		array( 'wc-blocks-registry' ),
-		BuckarooConfig::VERSION,
-		true
-	);
+    wp_enqueue_script(
+        'buckaroo-blocks',
+        plugins_url( '/assets/js/dist/blocks.js', __FILE__ ),
+        array( 'wc-blocks-registry', 'wp-blocks', 'wp-element', 'wp-i18n' ),
+        BuckarooConfig::VERSION,
+        true
+    );
 
-	get_woocommerce_payment_methods();
+    wp_set_script_translations( 'buckaroo-blocks', 'wc-buckaroo-bpe-gateway', plugin_dir_path( __FILE__ ) . 'languages' );
+
+    get_woocommerce_payment_methods();
+
+    return [ 'buckaroo-blocks' ];
 }
 
 add_action( 'enqueue_block_assets', 'enqueue_buckaroo_ideal_block_script' );
+
 
 
 /**
@@ -361,26 +374,6 @@ function buckaroo_test_credentials() {
 	}
 }
 
-require plugin_dir_path( __FILE__ ) . 'includes/admin/meta-boxes/class-wc-meta-box-order-capture.php';
-
-
-// Include the main Buckaroo class.
-if ( ! class_exists( 'Buckaroo' ) ) {
-	include_once __DIR__ . '/includes/class-buckaroo.php';
-}
-
-/**
- * Returns the main instance of WC.
- *
- * @return Buckaroo
- */
-function BK() {
-	return Buckaroo::instance();
-}
-
-// Global for backwards compatibility.
-$GLOBALS['buckaroo'] = BK();
-
 register_activation_hook( __FILE__, array( 'WC_Buckaroo_Install', 'install' ) );
 register_deactivation_hook( __FILE__, 'buckaroo_deactivation' );
 
@@ -481,7 +474,7 @@ function buckaroo_init_gateway() {
 
 	load_plugin_textdomain( 'wc-buckaroo-bpe-gateway', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
-	$gateway_loader = new Buckaroo_Load_Gateways();
+    $gateway_loader = new Buckaroo_Load_Gateways();
 	$gateway_loader->load();
 
 	add_filter( 'woocommerce_payment_gateways', array( $gateway_loader, 'hook_gateways_to_woocommerce' ) );

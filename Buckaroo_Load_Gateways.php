@@ -39,6 +39,10 @@ class Buckaroo_Load_Gateways {
 			'filename'  => 'gateway-buckaroo-transfer.php',
 			'classname' => 'WC_Gateway_Buckaroo_Transfer',
 		),
+        'Blik'                    => array(
+            'filename'  => 'gateway-buckaroo-blik.php',
+            'classname' => 'WC_Gateway_Buckaroo_Blik',
+        ),
 		'Belfius'                 => array(
 			'filename'  => 'gateway-buckaroo-belfius.php',
 			'classname' => 'WC_Gateway_Buckaroo_Belfius',
@@ -59,11 +63,6 @@ class Buckaroo_Load_Gateways {
 			'filename'  =>
 			'gateway-buckaroo-giftcard.php',
 			'classname' => 'WC_Gateway_Buckaroo_Giftcard',
-		),
-		'Giropay'                 => array(
-			'filename'  =>
-			'gateway-buckaroo-giropay.php',
-			'classname' => 'WC_Gateway_Buckaroo_Giropay',
 		),
 		'iDeal'                   => array(
 			'filename'  =>

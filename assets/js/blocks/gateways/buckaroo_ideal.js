@@ -1,5 +1,6 @@
 import React from 'react';
 import useFormData from '../hooks/useFormData';
+import { __ } from '@wordpress/i18n';
 
 function IdealDropdown({ onStateChange, methodName, gateway: { idealIssuers, canShowIssuers } }) {
   const initialState = {
@@ -7,7 +8,6 @@ function IdealDropdown({ onStateChange, methodName, gateway: { idealIssuers, can
   };
 
   const { handleChange } = useFormData(initialState, onStateChange);
-
   return (
     canShowIssuers && (
     <div className="payment_box payment_method_buckaroo_ideal">
@@ -18,7 +18,7 @@ function IdealDropdown({ onStateChange, methodName, gateway: { idealIssuers, can
           id="buckaroo-ideal-issuer"
           onChange={handleChange}
         >
-          <option value="">Select your bank</option>
+          <option value="">{__('Select your bank', 'wc-buckaroo-bpe-gateway')}</option>
 
           {Object.keys(idealIssuers).map((issuerCode) => (
             <option key={issuerCode} value={issuerCode}>

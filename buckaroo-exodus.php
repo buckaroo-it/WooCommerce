@@ -45,8 +45,8 @@ class WC_Gateway_Buckaroo_Exodus extends WC_Gateway_Buckaroo {
 			'woocommerce_buckaroo_postepay_settings',
 			'woocommerce_buckaroo_giftcard_settings',
 			'woocommerce_buckaroo_sofortbanking_settings',
+			'woocommerce_buckaroo_blik_settings',
 			'woocommerce_buckaroo_belfius_settings',
-			'woocommerce_buckaroo_giropay_settings',
 			'woocommerce_buckaroo_sepadirectdebit_settings',
 			'woocommerce_buckaroo_payperemail_settings',
 		);

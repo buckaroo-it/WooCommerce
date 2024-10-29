@@ -2,7 +2,7 @@ import React from 'react';
 import GenderDropdown from '../partials/buckaroo_gender';
 import FinancialWarning from '../partials/buckaroo_financial_warning';
 
-function KlarnaKp({ onStateChange, methodName, gateway: { genders } }) {
+function KlarnaKp({ onStateChange, methodName, title, gateway: { genders } }) {
   const handleChange = (e) => {
     const { value } = e.target;
     onStateChange({ [`${methodName}-gender`]: value });
@@ -11,7 +11,7 @@ function KlarnaKp({ onStateChange, methodName, gateway: { genders } }) {
   return (
     <div id="buckaroo_klarnapay">
       <GenderDropdown paymentMethod={methodName} genders={genders} handleChange={handleChange} />
-      <FinancialWarning />
+      <FinancialWarning title={title} />
     </div>
   );
 }

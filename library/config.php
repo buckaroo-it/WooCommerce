@@ -7,7 +7,7 @@ require_once __DIR__ . '/api/config/configcore.php';
 class BuckarooConfig extends BuckarooConfigCore {
 	const NAME         = 'buckaroo3';
 	const PLUGIN_NAME  = 'Buckaroo BPE 3.0 official plugin';
-	const VERSION      = '3.13.2';
+	const VERSION      = '3.14.0';
 	const SHIPPING_SKU = 'WC8888';
 
 	const GENDER_MALE          = 1;
@@ -158,11 +158,6 @@ class BuckarooConfig extends BuckarooConfigCore {
 					'process_capture' => '',
 					'process_refund'  => '',
 				),
-				'giropay'         => array(
-					'process_payment' => '',
-					'process_capture' => '',
-					'process_refund'  => '',
-				),
 				'ideal'           => array(
 					'process_payment' => '',
 					'process_capture' => '',
@@ -189,6 +184,11 @@ class BuckarooConfig extends BuckarooConfigCore {
 					'process_refund'  => '',
 				),
 				'belfius'         => array(
+					'process_payment' => '',
+					'process_capture' => '',
+					'process_refund'  => '',
+				),
+                'blik'         => array(
 					'process_payment' => '',
 					'process_capture' => '',
 					'process_refund'  => '',

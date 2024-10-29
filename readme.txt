@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 6.5.4
-Stable tag: 3.13.2
+Stable tag: 3.14.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,7 @@ Payment method support list:
 22.Multibanco
 23.MB Way
 24.Knaken Settle
+24.Blik
 
 == Installation ==
  
@@ -106,6 +107,19 @@ for more detailed release notes visit https://docs.buckaroo.io/docs/woocommerce-
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 3.14.0 =
+BP-3662 Add support for WordPress 6.6.2 & WooCommerce 9.2.3 & 9.3.1
+BP-3632 Enhanced the handling of HTTP headers in requests to ensure better performance and stability.
+BP-3603 Add new payment method: Blik
+BP-3671 The default payment method name has changed from AfterPay/Riverty to just Riverty.
+BP-3712 The logo was updated for Riverty.
+BP-3782 Giropay has been removed (discontinued)
+BP-3571 We’ve fixed a PHP error that was showed when moving an order to the WordPress trash bin.
+BP-3661 We’ve fixed an error 404 on blocks.js #277
+BP-3640 A fix was implemented for a Uncaught TypeError: number_format(): Argument #1 ($num) must be of type float, string given in.
+BP-3852 Payment fee is not always working correctly for Blocks checkout.
+BP-3786 We’ve fixed a few issues when using the Blocks checkout.
 
 = 3.13.2 =
 BP-3632 Improvement Enhanced the handling of HTTP headers in requests to ensure better performance and stability
