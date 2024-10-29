@@ -13,10 +13,10 @@
  * @link      https://www.buckaroo.eu/
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
-$issuers        = BuckarooPayByBank::getIssuerList();
-$selectedIssuer = BuckarooPayByBank::getActiveIssuerCode();
+$issuers = \Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor::getIssuerList();
+$selectedIssuer = \Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor::getActiveIssuerCode();
 ?>
 <fieldset style="background: none">
 	<?php if ( $this->get_option( 'displaymode' ) === 'dropdown' ) { ?>

@@ -7,7 +7,7 @@ function BirthDayField({ paymentMethod, handleBirthDayChange }) {
   const [birthdate, setBirthdate] = useState(null);
 
   const handleDateChange = (date) => {
-    const formattedDate = date.toLocaleDateString('en-GB', {
+      const formattedDate = date?.toLocaleDateString('en-GB', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
