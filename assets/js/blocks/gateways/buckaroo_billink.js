@@ -7,7 +7,7 @@ import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
 
-function Billink({onStateChange, methodName, title, gateway: {genders, b2b}, billing}) {
+function Billink({onStateChange, methodName, title, gateway: {genders, b2b, financialWarning}, billing}) {
     const initialState = {
         [`${methodName}-company-coc-registration`]: '',
         [`${methodName}-VatNumber`]: '',
@@ -63,7 +63,7 @@ function Billink({onStateChange, methodName, title, gateway: {genders, b2b}, bil
                 billingData={billing}
                 b2b={b2b}
             />
-            <FinancialWarning title={title}/>
+            {financialWarning === 'enable' && <FinancialWarning title={title}/>}
         </div>
     );
 }
