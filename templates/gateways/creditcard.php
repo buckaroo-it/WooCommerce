@@ -22,7 +22,7 @@ $customer_name .= ' ' . $this->getScalarCheckoutField( 'billing_last_name' );
 ?>
 
 
-<fieldset>
+<div>
 	<div class="method--bankdata">
 		<?php
 		if ( $this instanceof Buckaroo_Creditcard_Single ) {
@@ -43,11 +43,9 @@ $customer_name .= ' ' . $this->getScalarCheckoutField( 'billing_last_name' );
 						<?php echo esc_html_e( 'Select your credit card:', 'wc-buckaroo-bpe-gateway' ); ?>
 					</option>
 					<?php foreach ( $this->getCardsList() as $issuer ) : ?>
-					<div>
 						<option value='<?php echo esc_attr( $issuer['servicename'] ); ?>'>
 							<?php echo esc_html_e( $issuer['displayname'], 'wc-buckaroo-bpe-gateway' ); ?>
 						</option>
-					</div>
 					<?php endforeach ?>
 				</select>
 			</p>
@@ -155,4 +153,4 @@ $customer_name .= ' ' . $this->getScalarCheckoutField( 'billing_last_name' );
 		<?php endif; ?>
 
 	</div>
-</fieldset>
+</div>

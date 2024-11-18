@@ -13,25 +13,23 @@
  * @link      https://www.buckaroo.eu/
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
-if ( $this->canShowIssuers() ) {
-	?>
-	<fieldset style="background: none">
-		<p class="form-row form-row-wide">
-			<select name="buckaroo-ideal-issuer" id="buckaroo-ideal-issuer">
-				<option value="0" style="color: grey !important">
-					<?php echo esc_html_e( 'Select your bank', 'wc-buckaroo-bpe-gateway' ); ?>
-				</option>
-				<?php foreach ( BuckarooIDeal::getIssuerList() as $key => $issuer ) : ?>
-					<div>
-						<option value="<?php echo esc_attr( $key ); ?>">
-							<?php echo esc_html_e( $issuer['name'], 'wc-buckaroo-bpe-gateway' ); ?>
-						</option>
-					</div>
-				<?php endforeach ?>
-			</select>
-		</p>
-	</fieldset>
-	<?php
+if ($this->canShowIssuers()) {
+    ?>
+    <div style="background: none">
+        <p class="form-row form-row-wide">
+            <select name="buckaroo-ideal-issuer" id="buckaroo-ideal-issuer">
+                <option value="0" style="color: grey !important">
+                    <?php echo esc_html_e('Select your bank', 'wc-buckaroo-bpe-gateway'); ?>
+                </option>
+                <?php foreach (BuckarooIDeal::getIssuerList() as $key => $issuer) : ?>
+                    <option value="<?php echo esc_attr($key); ?>">
+                        <?php echo esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?>
+                    </option>
+                <?php endforeach ?>
+            </select>
+        </p>
+    </div>
+    <?php
 }
