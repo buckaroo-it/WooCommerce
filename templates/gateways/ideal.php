@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( $this->canShowIssuers() ) {
 	?>
-	<fieldset style="background: none">
+	<select style="background: none">
 		<p class="form-row form-row-wide">
 			<select name="buckaroo-ideal-issuer" id="buckaroo-ideal-issuer">
 				<option value="0" style="color: grey !important">
@@ -32,6 +32,6 @@ if ( $this->canShowIssuers() ) {
 				<?php endforeach ?>
 			</select>
 		</p>
-	</fieldset>
+	</select>
 	<?php
 }
