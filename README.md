@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://www.buckaroo.nl/media/3477/woocommerce_icon.png" width="200px" position="center">
+  <img src="https://www.buckaroo.nl/media/drxmr5f1/woocommerce_icon.png" width="200px" position="center">
 </p>
 
 # Buckaroo WooCommerce Payments Plugin
