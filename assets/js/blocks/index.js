@@ -8,7 +8,7 @@ import {paymentGatewaysTemplates, separateCreditCards} from "./gateways";
 import {__} from "@wordpress/i18n";
 import {useDispatch} from '@wordpress/data';
 
-function BuckarooComponent({billing, gateway, eventRegistration, emitResponse}) {
+function BuckarooComponent({wc, billing, gateway, eventRegistration, emitResponse}) {
     const [errorMessage, setErrorMessage] = useState('');
     const [PaymentComponent, setPaymentComponent] = useState(null);
     const [activePaymentMethodState, setActivePaymentMethodState] = useState({});
@@ -83,6 +83,7 @@ function BuckarooComponent({billing, gateway, eventRegistration, emitResponse}) 
                             onStateChange={onPaymentStateChange}
                             methodName={methodName}
                             gateway={gateway}
+                            locale={wc.wcSettings.LOCALE}
                             billing={billing.billingData}
                             title={decodeHtmlEntities(gateway.title)}
                         />
@@ -116,7 +117,7 @@ function BuckarooComponent({billing, gateway, eventRegistration, emitResponse}) 
 const registerBuckarooPaymentMethods = ({wc, buckarooGateways}) => {
     const {registerPaymentMethod} = wc.wcBlocksRegistry;
     buckarooGateways.forEach((gateway) => {
-        registerPaymentMethod(createOptions(gateway));
+        registerPaymentMethod(createOptions(wc, gateway));
     });
 };
 
@@ -180,14 +181,14 @@ const registerApplePay = async (applepay) => {
     }
 };
 
-const createOptions = (gateway) => ({
+const createOptions = (wc, gateway) => ({
     name: gateway.paymentMethodId,
     label: <BuckarooLabel imagePath={gateway.image_path} title={decodeHtmlEntities(gateway.title)}/>,
     paymentMethodId: gateway.paymentMethodId,
     edit: <div/>,
     canMakePayment: () => true,
     ariaLabel: gateway.title,
-    content: <BuckarooComponent gateway={gateway}/>,
+    content: <BuckarooComponent gateway={gateway} wc={wc}/>,
 });
 
 registerBuckarooPaymentMethods(window);

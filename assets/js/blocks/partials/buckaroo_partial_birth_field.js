@@ -3,8 +3,13 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { __ } from '@wordpress/i18n';
 
-function BirthDayField({ paymentMethod, handleBirthDayChange }) {
+function BirthDayField({ paymentMethod, handleBirthDayChange, locale = { siteLocale: 'en-GB' } }) {
   const [birthdate, setBirthdate] = useState(null);
+
+    const localeFormatMap = {
+        'nl_NL': 'DD-MM-JJJJ',
+        default: 'DD-MM-YYYY',
+    };
 
   const handleDateChange = (date) => {
       const formattedDate = date?.toLocaleDateString('en-GB', {
@@ -32,7 +37,7 @@ function BirthDayField({ paymentMethod, handleBirthDayChange }) {
         dateFormat="dd-MM-yyyy"
         className="input-text"
         autoComplete="off"
-        placeholderText="DD-MM-YYYY"
+        placeholderText={localeFormatMap[locale.siteLocale] || localeFormatMap.default}
         showYearDropdown
         scrollableYearDropdown
         yearDropdownItemNumber={100}
