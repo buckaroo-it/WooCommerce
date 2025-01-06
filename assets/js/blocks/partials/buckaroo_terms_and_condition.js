@@ -52,7 +52,7 @@ function TermsAndConditionsCheckbox({
       />
       <p className="required" style={{ float: 'right' }}>
         *
-        Required
+        {__('Required', 'wc-buckaroo-bpe-gateway')}
       </p>
     </div>
   );
