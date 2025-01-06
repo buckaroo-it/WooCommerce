@@ -4,7 +4,7 @@ import FinancialWarning from '../partials/buckaroo_financial_warning';
 import useFormData from '../hooks/useFormData';
 import PhoneDropdown from '../partials/buckaroo_phone';
 
-function In3({onStateChange, methodName, title, billing, gateway: {financialWarning}}) {
+function In3({onStateChange, methodName, title, billing, gateway: {financialWarning}, locale}) {
     const initialState = {
         [`${methodName}-phone`]: billing?.phone || '',
         [`${methodName}-birthdate`]: '',
@@ -23,7 +23,7 @@ function In3({onStateChange, methodName, title, billing, gateway: {financialWarn
     return (
         <div>
             {billing.country === 'NL'
-                && <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange}/>}
+                && <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange} locale={locale}/>}
             {billing.phone === ''
                 &&
                 <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange}/>}

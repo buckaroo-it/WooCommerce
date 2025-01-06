@@ -7,7 +7,8 @@ import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
 
-function Billink({onStateChange, methodName, title, gateway: {genders, b2b, financialWarning}, billing}) {
+function Billink({onStateChange, methodName, title, gateway: {genders, b2b, financialWarning}, billing, locale}) {
+
     const initialState = {
         [`${methodName}-company-coc-registration`]: '',
         [`${methodName}-VatNumber`]: '',
@@ -54,7 +55,7 @@ function Billink({onStateChange, methodName, title, gateway: {genders, b2b, fina
             ) : (
                 <div id="buckaroo_billink_b2c">
                     <GenderDropdown paymentMethod={methodName} genders={genders} handleChange={handleChange}/>
-                    <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange}/>
+                    <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange} locale={locale}/>
                 </div>
             )}
             <TermsAndConditionsCheckbox

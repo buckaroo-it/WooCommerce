@@ -7,7 +7,7 @@ import PhoneDropdown from '../partials/buckaroo_phone';
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
 
-function AfterPayNew({onStateChange, methodName, title, gateway: {customer_type, b2b, financialWarning}, billing}) {
+function AfterPayNew({onStateChange, methodName, title, gateway: {customer_type, b2b, financialWarning}, billing, locale}) {
     const initialState = {
         [`${methodName}-phone`]: billing?.phone || '',
         [`${methodName}-birthdate`]: '',
@@ -41,7 +41,7 @@ function AfterPayNew({onStateChange, methodName, title, gateway: {customer_type,
 
             {(['BE', 'NL', 'DE'].includes(billing.country)) && (
                 <div>
-                    <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange}/>
+                    <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange} locale={locale}/>
                 </div>
             )}
 
