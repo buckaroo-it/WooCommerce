@@ -100,8 +100,8 @@ table.woocommerce_order_items tbody tr:first-child td {
 }
 
 .applepay-button-container {
-	margin-top: 20px;
-	margin-bottom: 20px;
+	max-width: 200px;
+	margin: 10px 0;
 }
 
 #woocommerce_buckaroo_creditcard_AllowedProvider,
