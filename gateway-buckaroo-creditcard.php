@@ -516,4 +516,26 @@ class WC_Gateway_Buckaroo_Creditcard extends WC_Gateway_Buckaroo {
 		}
 		return $value;
 	}
+
+    /**
+     * Process order
+     *
+     * @param integer $order_id
+     * @param integer $amount defaults to null
+     * @param string  $reason
+     * @return callable|string function or error
+     */
+    public function process_capture_refund( $order_id, $amount = null, $reason = '', $transaction_id = null ) {
+        return $this->processDefaultRefund(
+            $order_id,
+            $amount,
+            $reason,
+            false,
+            function ( $request ) use ( $transaction_id ) {
+                if ( $transaction_id != null ) {
+                    $request->OriginalTransactionKey = $transaction_id;
+                }
+            }
+        );
+    }
 }
