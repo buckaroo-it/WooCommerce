@@ -14,8 +14,6 @@
  */
 
 class Buckaroo_Creditcard_Refund {
-
-
 	public function __construct() {
 		add_action( 'wp_ajax_bl_refund_creditcard_capture', array( $this, 'refund_capture' ) );
 	}
