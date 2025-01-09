@@ -34,9 +34,6 @@ class BuckarooCreditCard extends BuckarooPaymentMethod {
 			BuckarooPaymentMethod::VERSION_ZERO
 		);
 
-		// add the flag
-		update_post_meta( $this->getRealOrderId(), '_wc_order_authorized', 'yes' );
-
 		return $this->PayGlobal();
 	}
 
