@@ -5,7 +5,7 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
-Version: 3.14.1
+Version: 3.14.2
 Text Domain: wc-buckaroo-bpe-gateway
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -32,6 +32,8 @@ require_once __DIR__ . '/library/Buckaroo_Order_Capture.php';
 require_once __DIR__ . '/library/Buckaroo_Capture_Transaction.php';
 require_once __DIR__ . '/library/Buckaroo_Http_Request.php';
 require_once __DIR__ . '/library/Buckaroo_Item_For_Capture.php';
+require_once __DIR__ . '/library/creditcard/Capture.php';
+require_once __DIR__ . '/library/creditcard/Refund.php';
 require_once __DIR__ . '/library/afterpay/Capture.php';
 require_once __DIR__ . '/library/afterpay/Refund.php';
 require_once __DIR__ . '/library/klarnakp/Capture.php';
@@ -70,6 +72,8 @@ new Buckaroo_Paypal_Express(
 
 new Buckaroo_Capture_Form();
 new Buckaroo_Afterpay_Capture_Form();
+new Buckaroo_Creditcard_Refund();
+new Buckaroo_Creditcard_Capture_Form();
 new Buckaroo_Cancel_Reservation();
 new Buckaroo_KlarnaKP_Refund();
 new Buckaroo_Afterpay_Refund();
