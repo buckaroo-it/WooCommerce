@@ -2,7 +2,7 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WC Buckaroo BPE Gateway 3.14.1\n"
+"Project-Id-Version: WC Buckaroo BPE Gateway 3.14.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-buckaroo-bpe-"
 "gateway\n"
 "Last-Translator: \n"
