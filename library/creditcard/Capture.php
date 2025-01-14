@@ -20,12 +20,17 @@ class Buckaroo_Creditcard_Capture_Form
         add_action('add_meta_boxes', array($this, 'add_meta_box_form'), 10, 2);
     }
 
-    public function output($order)
-    {
+    public function output( $order ) {
+        // Convert WP_Post to WC_Order if necessary.
+        if ( $order instanceof WP_Post ) {
+            $order = wc_get_order( $order->ID );
+        }
+
         $order_capture = new Buckaroo_Order_Capture(
             new Buckaroo_Order_Details( $order ),
             new Buckaroo_Http_Request()
         );
+
         include 'capture-form.php';
     }
 
