@@ -29,21 +29,40 @@ class Buckaroo_Creditcard_Capture_Form
         include 'capture-form.php';
     }
 
-    public function add_meta_box_form($post_type, $order)
-    {
-        if ($post_type != 'woocommerce_page_wc-orders') {
+    /**
+     * Add meta box to order pages for credit card capture and refund functionality.
+     *
+     * @param string  $post_type     The current post type.
+     * @param object  $post_or_order Post or order object.
+     *
+     * @return void
+     */
+    public function add_meta_box_form( $post_type, $post_or_order ) {
+        // Handle both HPOS and traditional post-based orders.
+        $is_order_page = in_array( $post_type, array( 'woocommerce_page_wc-orders', 'shop_order' ), true );
+
+        if ( ! $is_order_page ) {
+            return;
+        }
+
+        // Get order object by looking for a post or order.
+        $order = ( $post_or_order instanceof WC_Order )
+            ? $post_or_order
+            : wc_get_order( $post_or_order->ID );
+
+        if ( ! $order instanceof WC_Order ) {
             return;
         }
 
         if (
-            str_contains($order->get_payment_method(), 'buckaroo_creditcard') &&
-            get_post_meta($order->get_id(), '_wc_order_authorized', true)
+            str_contains( $order->get_payment_method(), 'buckaroo_creditcard' )
+            && $order->get_meta( '_wc_order_authorized' )
         ) {
             add_meta_box(
                 'buckaroo-order-creditcard-capture',
-                __('Capture & refund order', 'woocommerce'),
-                array($this, 'output'),
-                'woocommerce_page_wc-orders',
+                esc_html__( 'Capture & refund order', 'woocommerce' ),
+                array( $this, 'output' ),
+                $post_type,
                 'normal',
                 'default'
             );
