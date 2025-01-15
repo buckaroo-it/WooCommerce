@@ -20,7 +20,8 @@ class Buckaroo_Creditcard_Capture_Form
         add_action('add_meta_boxes', array($this, 'add_meta_box_form'), 10, 2);
     }
 
-    public function output( $order ) {
+    public function output( $order )
+    {
         // Convert WP_Post to WC_Order if necessary.
         if ( $order instanceof WP_Post ) {
             $order = wc_get_order( $order->ID );
@@ -42,7 +43,8 @@ class Buckaroo_Creditcard_Capture_Form
      *
      * @return void
      */
-    public function add_meta_box_form( $post_type, $post_or_order ) {
+    public function add_meta_box_form( $post_type, $post_or_order )
+    {
         // Handle both HPOS and traditional post-based orders.
         $is_order_page = in_array( $post_type, array( 'woocommerce_page_wc-orders', 'shop_order' ), true );
 
