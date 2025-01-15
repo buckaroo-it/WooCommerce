@@ -51,11 +51,17 @@ class Buckaroo_Creditcard_Capture_Form
         }
 
         // Get order object by looking for a post or order.
-        $order = ( $post_or_order instanceof WC_Order )
-            ? $post_or_order
-            : wc_get_order( $post_or_order->ID );
+        $order = (
+            $post_or_order instanceof WC_Order ||
+            $post_or_order instanceof Automattic\WooCommerce\Admin\Overrides\Order
+        )
+        ? $post_or_order
+        : wc_get_order( $post_or_order->ID );
 
-        if ( ! $order instanceof WC_Order ) {
+        if (
+            ! $order instanceof WC_Order &&
+            ! $order instanceof Automattic\WooCommerce\Admin\Overrides\Order
+        ) {
             return;
         }
 
