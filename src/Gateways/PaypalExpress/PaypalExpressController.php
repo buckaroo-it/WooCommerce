@@ -18,12 +18,12 @@ use Throwable;
  * @version   GIT: 3.0.0
  * @link      https://www.buckaroo.eu/
  */
-class PaypalExpressController
-{
+class PaypalExpressController {
 
-    const LOCATION_NONE = 'none';
-    const LOCATION_PRODUCT = 'product';
-    const LOCATION_CART = 'cart';
+
+    const LOCATION_NONE     = 'none';
+    const LOCATION_PRODUCT  = 'product';
+    const LOCATION_CART     = 'cart';
     const LOCATION_CHECKOUT = 'checkout';
     /**
      * Paypal setting
@@ -53,19 +53,18 @@ class PaypalExpressController
      */
     protected $cart;
 
-    public function __construct($shipping, $order, $cart)
-    {
-        $this->shipping = $shipping;
-        $this->order = $order;
-        $this->cart = $cart;
+    public function __construct( $shipping, $order, $cart ) {
+         $this->shipping = $shipping;
+        $this->order     = $order;
+        $this->cart      = $cart;
 
         $this->get_settings();
 
-        if (!$this->is_active()) {
+        if ( ! $this->is_active() ) {
             return;
         }
         $this->hook_ajax_calls();
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
         $this->hook_active_buttons();
     }
 
@@ -74,10 +73,9 @@ class PaypalExpressController
      *
      * @return void
      */
-    public function enqueue_scripts()
-    {
-        if (
-            class_exists('WC_Order') && (
+    public function enqueue_scripts() {
+		if (
+            class_exists( 'WC_Order' ) && (
                 is_product() ||
                 is_checkout() ||
                 is_cart()
@@ -85,31 +83,31 @@ class PaypalExpressController
         ) {
             wp_enqueue_script(
                 'buckaroo_paypal_express',
-                plugin_dir_url(BK_PLUGIN_FILE) . '/library/js/paypal_express.js',
-                array('buckaroo_sdk'),
+                plugin_dir_url( BK_PLUGIN_FILE ) . '/library/js/paypal_express.js',
+                array( 'buckaroo_sdk' ),
                 Plugin::VERSION,
                 true
-            );
-            wp_localize_script(
+			);
+			wp_localize_script(
                 'buckaroo_paypal_express',
                 'buckaroo_paypal_express',
                 array(
-                    'set_shipping_nonce' => wp_create_nonce('express-set-shipping'),
-                    'cart_total_nonce' => wp_create_nonce('express-cart-totals'),
-                    'send_order_nonce' => wp_create_nonce('express-send_order'),
-                    'ajaxurl' => admin_url('admin-ajax.php'),
-                    'currency' => get_woocommerce_currency(),
-                    'websiteKey' => $this->get_website_key(),
-                    'merchant_id' => $this->get_merchant_id(),
-                    'page' => $this->determine_page(),
-                    'i18n' => array(
-                        'cancel_error_message' => __('You have canceled the payment request', 'wc-buckaroo-bpe-gateway'),
-                        'cannot_create_payment' => __('Cannot create payment', 'wc-buckaroo-bpe-gateway'),
-                        'merchant_id_required' => __('PayPal merchant id is required', 'wc-buckaroo-bpe-gateway'),
-                    ),
+					'set_shipping_nonce' => wp_create_nonce( 'express-set-shipping' ),
+					'cart_total_nonce'   => wp_create_nonce( 'express-cart-totals' ),
+					'send_order_nonce'   => wp_create_nonce( 'express-send_order' ),
+					'ajaxurl'            => admin_url( 'admin-ajax.php' ),
+					'currency'           => get_woocommerce_currency(),
+					'websiteKey'         => $this->get_website_key(),
+					'merchant_id'        => $this->get_merchant_id(),
+					'page'               => $this->determine_page(),
+					'i18n'               => array(
+						'cancel_error_message'  => __( 'You have canceled the payment request', 'wc-buckaroo-bpe-gateway' ),
+						'cannot_create_payment' => __( 'Cannot create payment', 'wc-buckaroo-bpe-gateway' ),
+						'merchant_id_required'  => __( 'PayPal merchant id is required', 'wc-buckaroo-bpe-gateway' ),
+					),
                 )
-            );
-        }
+			);
+		}
     }
 
     /**
@@ -117,10 +115,9 @@ class PaypalExpressController
      *
      * @return boolean
      */
-    protected function is_active()
-    {
-        return $this->settings['enabled'] == 'yes' &&
-            !(count($this->settings['express']) === 1 && in_array(self::LOCATION_NONE, $this->settings['express']));
+    protected function is_active() {
+         return $this->settings['enabled'] == 'yes' &&
+            ! ( count( $this->settings['express'] ) === 1 && in_array( self::LOCATION_NONE, $this->settings['express'] ) );
     }
 
     /**
@@ -128,19 +125,18 @@ class PaypalExpressController
      *
      * @return void
      */
-    protected function get_settings()
-    {
-        $default = array(
-            'enabled' => 'no',
-            'express' => array('none'),
-        );
-        $settings = get_option('woocommerce_buckaroo_paypal_settings', array());
+    protected function get_settings() {
+         $default  = array(
+			 'enabled' => 'no',
+			 'express' => array( 'none' ),
+		 );
+		 $settings = get_option( 'woocommerce_buckaroo_paypal_settings', array() );
 
-        if (!isset($settings['express']) || !is_array($settings['express'])) {
-            $settings['express'] = array('none');
-        }
+		 if ( ! isset( $settings['express'] ) || ! is_array( $settings['express'] ) ) {
+			 $settings['express'] = array( 'none' );
+		 }
 
-        $this->settings = array_merge($default, $settings);
+		 $this->settings = array_merge( $default, $settings );
     }
 
     /**
@@ -148,17 +144,16 @@ class PaypalExpressController
      *
      * @return void
      */
-    protected function hook_active_buttons()
-    {
-        if ($this->active_on_page(self::LOCATION_PRODUCT)) {
-            add_action('woocommerce_after_add_to_cart_button', array($this, 'render_button'));
-        }
-        if ($this->active_on_page(self::LOCATION_CART)) {
-            add_action('woocommerce_after_cart_totals', array($this, 'render_button'));
-        }
-        if ($this->active_on_page(self::LOCATION_CHECKOUT)) {
-            add_action('woocommerce_before_checkout_form', array($this, 'render_button'));
-        }
+    protected function hook_active_buttons() {
+		if ( $this->active_on_page( self::LOCATION_PRODUCT ) ) {
+            add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'render_button' ) );
+		}
+		if ( $this->active_on_page( self::LOCATION_CART ) ) {
+			add_action( 'woocommerce_after_cart_totals', array( $this, 'render_button' ) );
+		}
+		if ( $this->active_on_page( self::LOCATION_CHECKOUT ) ) {
+			add_action( 'woocommerce_before_checkout_form', array( $this, 'render_button' ) );
+		}
     }
 
     /**
@@ -166,45 +161,43 @@ class PaypalExpressController
      *
      * @return void
      */
-    public function hook_ajax_calls()
-    {
-        add_action('wp_ajax_buckaroo_paypal_express_order', array($this, 'send_order'));
-        add_action('wp_ajax_nopriv_buckaroo_paypal_express_order', array($this, 'send_order'));
+    public function hook_ajax_calls() {
+         add_action( 'wp_ajax_buckaroo_paypal_express_order', array( $this, 'send_order' ) );
+        add_action( 'wp_ajax_nopriv_buckaroo_paypal_express_order', array( $this, 'send_order' ) );
 
-        add_action('wp_ajax_buckaroo_paypal_express_set_shipping', array($this, 'add_shipping'));
-        add_action('wp_ajax_nopriv_buckaroo_paypal_express_set_shipping', array($this, 'add_shipping'));
+        add_action( 'wp_ajax_buckaroo_paypal_express_set_shipping', array( $this, 'add_shipping' ) );
+        add_action( 'wp_ajax_nopriv_buckaroo_paypal_express_set_shipping', array( $this, 'add_shipping' ) );
 
-        add_action('wp_ajax_buckaroo_paypal_express_get_cart_total', array($this, 'get_cart_total'));
-        add_action('wp_ajax_nopriv_buckaroo_paypal_express_get_cart_total', array($this, 'get_cart_total'));
+        add_action( 'wp_ajax_buckaroo_paypal_express_get_cart_total', array( $this, 'get_cart_total' ) );
+        add_action( 'wp_ajax_nopriv_buckaroo_paypal_express_get_cart_total', array( $this, 'get_cart_total' ) );
     }
 
-    public function add_shipping()
-    {
-        check_ajax_referer('express-set-shipping', 'set_shipping_nonce');
+    public function add_shipping() {
+         check_ajax_referer( 'express-set-shipping', 'set_shipping_nonce' );
         try {
-            if ($this->on_product_page()) {
+            if ( $this->on_product_page() ) {
                 $this->shipping->create_cart_for_product_page();
             }
             wp_send_json(
                 array(
                     'error' => false,
-                    'data' => array(
+                    'data'  => array(
                         'value' => $this->shipping->get_cart_total_breakdown(),
                     ),
                 )
             );
-        } catch (PaypalExpressException $th) {
+        } catch ( PaypalExpressException $th ) {
             wp_send_json(
                 array(
-                    'error' => true,
+                    'error'   => true,
                     'message' => $th->getMessage(),
                 )
             );
-        } catch (Throwable $th) {
-            Logger::log(__METHOD__, $th->getMessage());
+        } catch ( Throwable $th ) {
+            Logger::log( __METHOD__, $th->getMessage() );
             wp_send_json(
                 array(
-                    'error' => true,
+                    'error'   => true,
                     'message' => 'Internal buckaroo error',
                 )
             );
@@ -216,34 +209,33 @@ class PaypalExpressController
      *
      * @return void
      */
-    public function get_cart_total()
-    {
-        check_ajax_referer('express-cart-totals', 'cart_total_nonce');
+    public function get_cart_total() {
+         check_ajax_referer( 'express-cart-totals', 'cart_total_nonce' );
         try {
-            if ($this->on_product_page()) {
+            if ( $this->on_product_page() ) {
                 $this->cart->store_current();
                 $this->shipping->create_cart_for_product_page();
             }
 
-            $total = WC()->cart->get_total(false);
+            $total = WC()->cart->get_total( false );
 
-            if ($this->on_product_page()) {
+            if ( $this->on_product_page() ) {
                 $this->cart->restore();
             }
 
             wp_send_json(
                 array(
                     'error' => false,
-                    'data' => array(
-                        'total' => number_format($total, 2),
+                    'data'  => array(
+                        'total' => number_format( $total, 2 ),
                     ),
                 )
             );
-        } catch (Throwable $th) {
-            Logger::log(__METHOD__, $th->getMessage());
+        } catch ( Throwable $th ) {
+            Logger::log( __METHOD__, $th->getMessage() );
             wp_send_json(
                 array(
-                    'error' => true,
+                    'error'   => true,
                     'message' => 'Cannot calculate cart total',
                 )
             );
@@ -255,32 +247,31 @@ class PaypalExpressController
      *
      * @return void
      */
-    public function send_order()
-    {
-        check_ajax_referer('express-send_order', 'send_order_nonce');
-        if (!isset($_POST['orderId'])) {
+    public function send_order() {
+         check_ajax_referer( 'express-send_order', 'send_order_nonce' );
+        if ( ! isset( $_POST['orderId'] ) ) {
             wp_send_json(
                 array(
-                    'error' => true,
+                    'error'   => true,
                     'message' => 'No paypal express order id provided',
                 )
             );
         }
         try {
-            $response = $this->order->create_and_send(sanitize_text_field($_POST['orderId']));
+            $response = $this->order->create_and_send( sanitize_text_field( $_POST['orderId'] ) );
             $this->display_any_notices();
 
             wp_send_json(
                 array(
                     'error' => false,
-                    'data' => $response,
+                    'data'  => $response,
                 )
             );
-        } catch (Throwable $th) {
-            Logger::log(__METHOD__, $th->getMessage());
+        } catch ( Throwable $th ) {
+            Logger::log( __METHOD__, $th->getMessage() );
             wp_send_json(
                 array(
-                    'error' => true,
+                    'error'   => true,
                     'message' => 'Cannot process buckaroo payment',
                 )
             );
@@ -292,33 +283,32 @@ class PaypalExpressController
      *
      * @return void
      */
-    protected function display_any_notices()
-    {
-        $notices = wc_get_notices('error');
+    protected function display_any_notices() {
+         $notices = wc_get_notices( 'error' );
         wc_clear_notices();
 
         $messages = array();
-        if (is_array($notices)) {
-            foreach ($notices as $notice) {
-                if (is_string($notice)) {
+        if ( is_array( $notices ) ) {
+            foreach ( $notices as $notice ) {
+                if ( is_string( $notice ) ) {
                     $messages[] = $notice;
                 }
 
                 if (
-                    is_array($notice) &&
-                    array_key_exists('notice', $notice) &&
-                    is_string($notice['notice'])
+                    is_array( $notice ) &&
+                    array_key_exists( 'notice', $notice ) &&
+                    is_string( $notice['notice'] )
                 ) {
                     $messages[] = $notice['notice'];
                 }
             }
         }
 
-        if (count($messages)) {
+        if ( count( $messages ) ) {
             wp_send_json(
                 array(
-                    'error' => true,
-                    'message' => implode('</br>', $messages),
+                    'error'   => true,
+                    'message' => implode( '</br>', $messages ),
                 )
             );
         }
@@ -329,9 +319,8 @@ class PaypalExpressController
      *
      * @return boolean
      */
-    protected function on_product_page()
-    {
-        return isset($_POST['page']) && sanitize_text_field($_POST['page']) === self::LOCATION_PRODUCT;
+    protected function on_product_page() {
+         return isset( $_POST['page'] ) && sanitize_text_field( $_POST['page'] ) === self::LOCATION_PRODUCT;
     }
 
     /**
@@ -341,9 +330,8 @@ class PaypalExpressController
      *
      * @return boolean
      */
-    protected function active_on_page($page)
-    {
-        return in_array($page, $this->settings['express']);
+    protected function active_on_page( $page ) {
+         return in_array( $page, $this->settings['express'] );
     }
 
     /**
@@ -351,9 +339,8 @@ class PaypalExpressController
      *
      * @return void
      */
-    public function render_button()
-    {
-        echo '<div class="buckaroo-paypal-express"></div>';
+    public function render_button() {
+         echo '<div class="buckaroo-paypal-express"></div>';
     }
 
     /**
@@ -361,10 +348,9 @@ class PaypalExpressController
      *
      * @return void
      */
-    protected function get_website_key()
-    {
-        $masterSettings = get_option('woocommerce_buckaroo_mastersettings_settings', null);
-        if ($masterSettings !== null) {
+    protected function get_website_key() {
+         $masterSettings = get_option( 'woocommerce_buckaroo_mastersettings_settings', null );
+        if ( $masterSettings !== null ) {
             return $masterSettings['merchantkey'];
         }
     }
@@ -374,23 +360,21 @@ class PaypalExpressController
      *
      * @return string|null
      */
-    protected function get_merchant_id()
-    {
-        if (isset($this->settings['express_merchant_id']) && strlen(trim($this->settings['express_merchant_id']))) {
+    protected function get_merchant_id() {
+		if ( isset( $this->settings['express_merchant_id'] ) && strlen( trim( $this->settings['express_merchant_id'] ) ) ) {
             return $this->settings['express_merchant_id'];
-        }
+		}
     }
 
-    protected function determine_page()
-    {
-        if (is_product()) {
+    protected function determine_page() {
+		if ( is_product() ) {
             return self::LOCATION_PRODUCT;
-        }
-        if (is_cart()) {
-            return self::LOCATION_CART;
-        }
-        if (is_checkout()) {
-            return self::LOCATION_CHECKOUT;
-        }
+		}
+		if ( is_cart() ) {
+			return self::LOCATION_CART;
+		}
+		if ( is_checkout() ) {
+			return self::LOCATION_CHECKOUT;
+		}
     }
 }

@@ -15,8 +15,8 @@ use Exception;
  * @version   GIT: 3.0.0
  * @link      https://www.buckaroo.eu/
  */
-class PaypalExpressException extends Exception
-{
+class PaypalExpressException extends Exception {
+
 
 
 }

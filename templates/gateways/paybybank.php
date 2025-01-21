@@ -13,9 +13,9 @@
  * @link      https://www.buckaroo.eu/
  */
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
-$issuers = \Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor::getIssuerList();
+$issuers        = \Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor::getIssuerList();
 $selectedIssuer = \Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor::getActiveIssuerCode();
 ?>
 <fieldset style="background: none">

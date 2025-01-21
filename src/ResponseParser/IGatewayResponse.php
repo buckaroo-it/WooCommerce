@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\ResponseParser;
 
-interface IGatewayResponse
-{
+interface IGatewayResponse {
+
     public function toResponse(): ResponseParser;
 }

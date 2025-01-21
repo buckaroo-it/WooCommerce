@@ -2,71 +2,63 @@
 
 namespace Buckaroo\Woocommerce\Services;
 
-class Request
-{
-    public static function make(): static
-    {
-        return new static;
+class Request {
+
+    public static function make(): static {
+        return new static();
     }
 
-    public function all(): array
-    {
-        return array_merge($_GET, $_POST);
+    public function all(): array {
+        return array_merge( $_GET, $_POST );
     }
 
-    public function input($key = null, $default = null)
-    {
-        $input = $this->all();
+    public function input( $key = null, $default = null ) {
+         $input = $this->all();
 
-        if ($key === null) {
+        if ( $key === null ) {
             return $input;
         }
 
-        return map_deep($input[$key] ?? $default, 'sanitize_text_field');
+        return map_deep( $input[ $key ] ?? $default, 'sanitize_text_field' );
     }
 
-    public function query($key = null, $default = null)
-    {
-        if ($key === null) {
+    public function query( $key = null, $default = null ) {
+		if ( $key === null ) {
             return $_GET;
-        }
+		}
 
-        return $_GET[$key] ?? $default;
+        return $_GET[ $key ] ?? $default;
     }
 
-    public function post($key = null, $default = null)
-    {
-        if ($key === null) {
+    public function post( $key = null, $default = null ) {
+		if ( $key === null ) {
             return $_POST;
-        }
+		}
 
-        return $_POST[$key] ?? $default;
+        return $_POST[ $key ] ?? $default;
     }
 
-    public function only($keys)
-    {
-        $input = $this->input();
+    public function only( $keys ) {
+         $input = $this->input();
 
-        $keys = is_array($keys) ? $keys : func_get_args();
+        $keys = is_array( $keys ) ? $keys : func_get_args();
 
-        return array_intersect_key($input, array_flip($keys));
+        return array_intersect_key( $input, array_flip( $keys ) );
     }
 
-    public function except($keys)
-    {
-        $input = $this->input();
+    public function except( $keys ) {
+         $input = $this->input();
 
-        $keys = is_array($keys) ? $keys : func_get_args();
+        $keys = is_array( $keys ) ? $keys : func_get_args();
 
-        return array_diff_key($input, array_flip($keys));
+        return array_diff_key( $input, array_flip( $keys ) );
     }
 
-    public function has($key): bool
-    {
-        $keys = is_array($key) ? $key : func_get_args();
+    public function has( $key ): bool {
+        $keys = is_array( $key ) ? $key : func_get_args();
 
-        foreach ($keys as $value) {
-            if ($this->isEmptyString($this->input($value))) {
+        foreach ( $keys as $value ) {
+            if ( $this->isEmptyString( $this->input( $value ) ) ) {
                 return false;
             }
         }
@@ -74,14 +66,13 @@ class Request
         return true;
     }
 
-    public function exists($key): bool
-    {
+    public function exists( $key ): bool {
         $input = $this->input();
 
-        $keys = is_array($key) ? $key : func_get_args();
+        $keys = is_array( $key ) ? $key : func_get_args();
 
-        foreach ($keys as $value) {
-            if (!array_key_exists($value, $input)) {
+        foreach ( $keys as $value ) {
+            if ( ! array_key_exists( $value, $input ) ) {
                 return false;
             }
         }
@@ -89,24 +80,20 @@ class Request
         return true;
     }
 
-    public function method()
-    {
-        return $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    public function method() {
+         return $_SERVER['REQUEST_METHOD'] ?? 'GET';
     }
 
-    public function getContent()
-    {
-        return file_get_contents('php://input');
+    public function getContent() {
+         return file_get_contents( 'php://input' );
     }
 
 
-    protected function sanitizeData($data)
-    {
-        return map_deep($data, 'sanitize_text_field');
+    protected function sanitizeData( $data ) {
+         return map_deep( $data, 'sanitize_text_field' );
     }
 
-    protected function isEmptyString($value)
-    {
-        return !isset($value) || $value === '' || $value === null;
+    protected function isEmptyString( $value ) {
+         return ! isset( $value ) || $value === '' || $value === null;
     }
 }

@@ -9,8 +9,8 @@ use Buckaroo\Woocommerce\Install\Migration\MigrationHandler;
  *
  * @package Buckaroo
  */
-class Install
-{
+class Install {
+
 
     const DATABASE_VERSION_KEY = 'BUCKAROO_BPE_VERSION';
 
@@ -19,16 +19,14 @@ class Install
      *
      * @return void
      */
-    public static function installUntrackedInstalation()
-    {
-        if (self::isUntrackedInstall()) {
+    public static function installUntrackedInstalation() {
+		if ( self::isUntrackedInstall() ) {
             self::install();
-        }
+		}
     }
 
-    public static function isUntrackedInstall()
-    {
-        return self::get_db_version() === false && get_option('woocommerce_buckaroo_exodus') !== false;
+    public static function isUntrackedInstall() {
+         return self::get_db_version() === false && get_option( 'woocommerce_buckaroo_exodus' ) !== false;
     }
 
     /**
@@ -36,29 +34,26 @@ class Install
      *
      * @return void
      */
-    public static function get_db_version()
-    {
-        return get_option(self::DATABASE_VERSION_KEY);
+    public static function get_db_version() {
+         return get_option( self::DATABASE_VERSION_KEY );
     }
 
     /**
      * @access public
      * @return boolean (true)
      */
-    public static function install()
-    {
-        if (self::isInstalled()) {
+    public static function install() {
+		if ( self::isInstalled() ) {
             return;
-        }
+		}
         // fresh install
-        self::set_db_version('0.0.0.0');
-        (new MigrationHandler())->handle();
+        self::set_db_version( '0.0.0.0' );
+        ( new MigrationHandler() )->handle();
         return true;
     }
 
-    public static function isInstalled()
-    {
-        return self::get_db_version() !== false;
+    public static function isInstalled() {
+         return self::get_db_version() !== false;
     }
 
     /**
@@ -68,8 +63,7 @@ class Install
      *
      * @return void
      */
-    public static function set_db_version($version)
-    {
-        update_option(self::DATABASE_VERSION_KEY, $version);
+    public static function set_db_version( $version ) {
+         update_option( self::DATABASE_VERSION_KEY, $version );
     }
 }

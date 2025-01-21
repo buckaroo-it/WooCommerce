@@ -2,8 +2,8 @@
 
 namespace Buckaroo\Woocommerce\ResponseParser;
 
-interface IResponseParser
-{
+interface IResponseParser {
+
     public function getAmountDebit(): ?float;
 
     public function getAmountCredit(): ?float;
@@ -40,7 +40,7 @@ interface IResponseParser
 
     public function getRelatedTransactionPartialPayment(): ?string;
 
-    public function getAdditionalInformation($propertyName);
+    public function getAdditionalInformation( $propertyName);
 
     public function getRefundParentKey(): ?string;
 
@@ -68,7 +68,7 @@ interface IResponseParser
 
     public function isAwaitingConsumer(): bool;
 
-    public function getService($name);
+    public function getService( $name);
 
     public function getRealOrderId();
 }

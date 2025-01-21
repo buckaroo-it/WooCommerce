@@ -4,9 +4,9 @@ namespace Buckaroo\Woocommerce\Hooks;
 
 use Buckaroo\Woocommerce\Install\Migration\MigrationHandler;
 
-class HookRegistry
-{
-    public array $hooks = [
+class HookRegistry {
+
+    public array $hooks = array(
         Installation::class,
         ReportDownload::class,
         TestCredentials::class,
@@ -17,16 +17,14 @@ class HookRegistry
         OrderActions::class,
         CronEvents::class,
         MigrationHandler::class,
-    ];
+    );
 
-    public function __construct()
-    {
-        $this->loadHooks();
+    public function __construct() {
+         $this->loadHooks();
     }
 
-    public function loadHooks(): void
-    {
-        foreach ($this->hooks as $hook) {
+    public function loadHooks(): void {
+        foreach ( $this->hooks as $hook ) {
             new $hook();
         }
     }

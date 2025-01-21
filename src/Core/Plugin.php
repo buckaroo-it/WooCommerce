@@ -9,8 +9,8 @@ use Buckaroo\Woocommerce\Hooks\HookRegistry;
  *
  * Main class responsible for initializing and registering plugin components.
  */
-class Plugin
-{
+class Plugin {
+
     /**
      * Plugin version.
      *
@@ -30,14 +30,12 @@ class Plugin
      *
      * Initializes the PaymentGatewayRegistry.
      */
-    public function __construct()
-    {
-        $this->gatewayRegistry = new PaymentGatewayRegistry();
+    public function __construct() {
+         $this->gatewayRegistry = new PaymentGatewayRegistry();
     }
 
-    public function init(): void
-    {
-        add_action('plugins_loaded', [$this, 'registerGateways'], 0);
+    public function init(): void {
+        add_action( 'plugins_loaded', array( $this, 'registerGateways' ), 0 );
         new HookRegistry();
     }
 
@@ -46,13 +44,12 @@ class Plugin
      *
      * @return void
      */
-    public function registerGateways(): void
-    {
+    public function registerGateways(): void {
         $this->gatewayRegistry->load();
 
         add_filter(
             'woocommerce_payment_gateways',
-            [$this->gatewayRegistry, 'hookGatewaysToWooCommerce']
+            array( $this->gatewayRegistry, 'hookGatewaysToWooCommerce' )
         );
     }
 
@@ -62,8 +59,7 @@ class Plugin
      *
      * @return PaymentGatewayRegistry
      */
-    public function getGatewayRegistry(): PaymentGatewayRegistry
-    {
+    public function getGatewayRegistry(): PaymentGatewayRegistry {
         return $this->gatewayRegistry;
     }
 }

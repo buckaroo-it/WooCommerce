@@ -1,6 +1,7 @@
 <?php
 
 namespace Buckaroo\Woocommerce\Install\Migration;
+
 /**
  * Interface to extenda version migration
  * php version 7.2
@@ -13,8 +14,8 @@ namespace Buckaroo\Woocommerce\Install\Migration;
  * @version   GIT: 2.25.0
  * @link      https://www.buckaroo.eu/
  */
-interface Migration
-{
+interface Migration {
+
 
     /**
      * Execute migration,

@@ -19,8 +19,8 @@ use Throwable;
  * @version   GIT: 2.25.0
  * @link      https://www.buckaroo.eu/
  */
-class MigrationHandler
-{
+class MigrationHandler {
+
     /**
      * Version in database
      *
@@ -31,16 +31,15 @@ class MigrationHandler
     /**
      * Register hooks
      */
-    public function __construct()
-    {
-        $this->databaseVersion = Install::get_db_version();
+    public function __construct() {
+         $this->databaseVersion = Install::get_db_version();
         add_action(
             'plugins_loaded',
-            array($this, 'run_any_migrations')
+            array( $this, 'run_any_migrations' )
         );
         add_action(
             'upgrader_process_complete',
-            array($this, 'plugin_update_complete'),
+            array( $this, 'plugin_update_complete' ),
             10,
             2
         );
@@ -52,30 +51,29 @@ class MigrationHandler
      *
      * @return void
      */
-    public function run_any_migrations()
-    {
-        $this->databaseVersion = Install::get_db_version();
+    public function run_any_migrations() {
+         $this->databaseVersion = Install::get_db_version();
 
         // don't update if plugin is not installed
-        if (!Install::isInstalled()) {
-            delete_transient('buckaroo_plugin_updated');
+        if ( ! Install::isInstalled() ) {
+            delete_transient( 'buckaroo_plugin_updated' );
         }
 
-        if (get_transient('buckaroo_plugin_updated')) {
+        if ( get_transient( 'buckaroo_plugin_updated' ) ) {
             try {
                 $this->handle();
-                delete_transient('buckaroo_plugin_updated');
-            } catch (MigrationException $e) {
+                delete_transient( 'buckaroo_plugin_updated' );
+            } catch ( MigrationException $e ) {
                 set_transient(
                     get_current_user_id() . 'buckarooAdminNotice',
                     array(
-                        'type' => 'error',
+                        'type'    => 'error',
                         'message' => 'Buckaroo: ' . $e->getMessage(),
                     )
                 );
-                Logger::log(__METHOD__, $e);
-            } catch (Throwable $th) {
-                Logger::log(__METHOD__, $th);
+                Logger::log( __METHOD__, $e );
+            } catch ( Throwable $th ) {
+                Logger::log( __METHOD__, $th );
             }
         }
     }
@@ -85,23 +83,22 @@ class MigrationHandler
      *
      * @return void
      */
-    public function handle()
-    {
-        $migrationStatus = $this->get_migration_status();
+    public function handle() {
+         $migrationStatus = $this->get_migration_status();
         // no need to migrate
-        if ($migrationStatus === 0) {
+        if ( $migrationStatus === 0 ) {
             return;
         }
         $this->copy_language_files();
 
-        if ($migrationStatus === -1) {
+        if ( $migrationStatus === -1 ) {
             return $this->update();
         }
-        if ($migrationStatus === 1) {
+        if ( $migrationStatus === 1 ) {
             set_transient(
                 get_current_user_id() . 'buckarooAdminNotice',
                 array(
-                    'type' => 'warning',
+                    'type'    => 'warning',
                     'message' => __(
                         'You installed a previous version of Buckaroo BPE, some functionality may not work properly',
                         'wc-buckaroo-bpe-gateway'
@@ -116,12 +113,11 @@ class MigrationHandler
      *
      * @return void
      */
-    protected function get_migration_status()
-    {
+    protected function get_migration_status() {
         return version_compare(
             $this->databaseVersion,
             Plugin::VERSION
-        );
+		);
     }
 
     /**
@@ -129,19 +125,18 @@ class MigrationHandler
      *
      * @return void
      */
-    protected function copy_language_files()
-    {
-        foreach (glob(dirname(BK_PLUGIN_FILE) . '/languages/*.{po,mo}', GLOB_BRACE) as $file) {
-            if (!is_dir($file) && is_readable($file)) {
+    protected function copy_language_files() {
+		foreach ( glob( dirname( BK_PLUGIN_FILE ) . '/languages/*.{po,mo}', GLOB_BRACE ) as $file ) {
+            if ( ! is_dir( $file ) && is_readable( $file ) ) {
 
                 $dest = WP_CONTENT_DIR . '/languages/plugins/';
 
-                if (!file_exists($dest) && !is_dir($dest)) {
-                    mkdir($dest, 0755, true);
+                if ( ! file_exists( $dest ) && ! is_dir( $dest ) ) {
+                    mkdir( $dest, 0755, true );
                 }
-                copy($file, $dest . basename($file));
+                copy( $file, $dest . basename( $file ) );
             }
-        }
+		}
     }
 
     /**
@@ -149,27 +144,26 @@ class MigrationHandler
      *
      * @return void
      */
-    protected function update()
-    {
+    protected function update() {
         $migrations = array_filter(
             $this->get_migration_items(),
-            function ($migration) {
+            function ( $migration ) {
                 return $this->compare_versions(
-                        $migration['version'],
-                        Plugin::VERSION,
-                        '<='
-                    ) &&
+                    $migration['version'],
+                    Plugin::VERSION,
+                    '<='
+                ) &&
                     $this->compare_versions(
                         $migration['version'],
                         $this->databaseVersion,
                         '>'
                     );
             }
-        );
+		);
         $this->execute_list(
             $migrations
         );
-        Install::set_db_version(Plugin::VERSION);
+        Install::set_db_version( Plugin::VERSION );
     }
 
     /**
@@ -177,17 +171,16 @@ class MigrationHandler
      *
      * @return array
      */
-    protected function get_migration_items()
-    {
-        $directory = realpath(__DIR__ . '/list');
+    protected function get_migration_items() {
+         $directory = realpath( __DIR__ . '/list' );
 
-        $migrations = glob($directory . '/migration-*.php');
+        $migrations = glob( $directory . '/migration-*.php' );
         return array_map(
-            function ($migration) {
+            function ( $migration ) {
                 $version = str_replace(
                     'migration-',
                     '',
-                    basename($migration)
+                    basename( $migration )
                 );
 
                 $version = str_replace(
@@ -198,7 +191,7 @@ class MigrationHandler
 
                 return array(
                     'version' => $version,
-                    'path' => $migration,
+                    'path'    => $migration,
                 );
             },
             $migrations
@@ -214,9 +207,8 @@ class MigrationHandler
      *
      * @return boolean
      */
-    protected function compare_versions($version1, $version2, $operator)
-    {
-        return version_compare($version1, $version2, $operator);
+    protected function compare_versions( $version1, $version2, $operator ) {
+         return version_compare( $version1, $version2, $operator );
     }
 
     /**
@@ -226,11 +218,10 @@ class MigrationHandler
      *
      * @return array
      */
-    protected function execute_list($migrations)
-    {
-        $migrationObjects = array();
-        foreach ($migrations as $migration) {
-            if (file_exists($migration['path'])) {
+    protected function execute_list( $migrations ) {
+         $migrationObjects = array();
+        foreach ( $migrations as $migration ) {
+            if ( file_exists( $migration['path'] ) ) {
                 $object = include_once $migration['path'];
                 $this->execute(
                     $object,
@@ -245,28 +236,27 @@ class MigrationHandler
     /**
      * Execute single migration method
      *
-     * @param mixed $migration
+     * @param mixed  $migration
      * @param string $method
      *
      * @return void
      */
-    protected function execute($migration, $version)
-    {
-        try {
+    protected function execute( $migration, $version ) {
+		try {
             if (
-                $migration instanceof Migration &&
-                method_exists($migration, 'execute')
+			   $migration instanceof Migration &&
+			   method_exists( $migration, 'execute' )
             ) {
                 $migration->execute();
             }
-        } catch (Throwable $th) {
-            throw new MigrationException(
+		} catch ( Throwable $th ) {
+			throw new MigrationException(
                 'Cannot run migration for version: ' . $version,
                 1,
                 $th
-            );
+			);
 
-        }
+		}
     }
 
     /**
@@ -277,17 +267,16 @@ class MigrationHandler
      *
      * @return void
      */
-    public function plugin_update_complete($upgrader_object, $options)
-    {
-        // The path to our plugin's main file
-        $our_plugin = plugin_basename(BK_PLUGIN_FILE);
+    public function plugin_update_complete( $upgrader_object, $options ) {
+         // The path to our plugin's main file
+        $our_plugin = plugin_basename( BK_PLUGIN_FILE );
         // If an update has taken place and the updated type is plugins and the plugins element exists
-        if ($options['action'] == 'update' && $options['type'] == 'plugin' && isset($options['plugins'])) {
+        if ( $options['action'] == 'update' && $options['type'] == 'plugin' && isset( $options['plugins'] ) ) {
             // Iterate through the plugins being updated and check if ours is there
-            foreach ($options['plugins'] as $plugin) {
-                if ($plugin == $our_plugin) {
+            foreach ( $options['plugins'] as $plugin ) {
+                if ( $plugin == $our_plugin ) {
                     // Set a transient to record that our plugin has just been updated
-                    set_transient('buckaroo_plugin_updated', 1);
+                    set_transient( 'buckaroo_plugin_updated', 1 );
                 }
             }
         }

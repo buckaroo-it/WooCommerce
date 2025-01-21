@@ -4,14 +4,13 @@ namespace Buckaroo\Woocommerce\Gateways\PayByBank;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 
-class PayByBankProcessor extends AbstractPaymentProcessor
-{
+class PayByBankProcessor extends AbstractPaymentProcessor {
+
     private const SESSION_LAST_ISSUER_LABEL = 'buckaroo_last_payByBank_issuer';
 
-    public static function getIssuerList()
-    {
-        $savedBankIssuer = self::getActiveIssuerCode();
-        $issuerArray = array(
+    public static function getIssuerList() {
+         $savedBankIssuer = self::getActiveIssuerCode();
+        $issuerArray      = array(
             'ABNANL2A' => array(
                 'name' => 'ABN AMRO',
                 'logo' => 'abnamro.svg',
@@ -43,42 +42,39 @@ class PayByBankProcessor extends AbstractPaymentProcessor
             'NTSBDEB1' => array(
                 'name' => 'N26',
                 'logo' => 'n26.svg',
-            )
+            ),
         );
 
-        $issuers = [];
+        $issuers = array();
 
-        foreach ($issuerArray as $key => $issuer) {
+        foreach ( $issuerArray as $key => $issuer ) {
             $issuer['selected'] = $key === $savedBankIssuer;
 
-            $issuers[$key] = $issuer;
+            $issuers[ $key ] = $issuer;
         }
 
         return $issuers;
     }
 
-    public static function getActiveIssuerCode()
-    {
-        if (is_null(WC()->session)) {
+    public static function getActiveIssuerCode() {
+		if ( is_null( WC()->session ) ) {
             return null;
-        }
-        return WC()->session->get(self::SESSION_LAST_ISSUER_LABEL);
+		}
+        return WC()->session->get( self::SESSION_LAST_ISSUER_LABEL );
     }
 
-    protected function getMethodBody(): array
-    {
-        return [
-            'issuer' => $this->request->input('buckaroo-paybybank-issuer')
-        ];
+    protected function getMethodBody(): array {
+        return array(
+            'issuer' => $this->request->input( 'buckaroo-paybybank-issuer' ),
+        );
     }
 
-    public static function getIssuerLogoUrls()
-    {
-        $issuers = self::getIssuerList();
-        $logos = array();
+    public static function getIssuerLogoUrls() {
+         $issuers = self::getIssuerList();
+        $logos    = array();
 
-        foreach ($issuers as $code => $issuer) {
-            $logos[$code] = esc_url(plugin_dir_url(BK_PLUGIN_FILE) . "/library/buckaroo_images/ideal/" . $issuer['logo']);
+        foreach ( $issuers as $code => $issuer ) {
+            $logos[ $code ] = esc_url( plugin_dir_url( BK_PLUGIN_FILE ) . '/library/buckaroo_images/ideal/' . $issuer['logo'] );
         }
 
         return $logos;

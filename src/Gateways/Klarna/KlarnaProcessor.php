@@ -4,21 +4,19 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 
-class KlarnaProcessor extends AbstractPaymentProcessor
-{
+class KlarnaProcessor extends AbstractPaymentProcessor {
+
     /** @inheritDoc */
-    protected function getMethodBody(): array
-    {
+    protected function getMethodBody(): array {
         return array_merge_recursive(
             $this->getBilling(),
             $this->getShipping(),
-            ['articles' => $this->getArticles()]
+            array( 'articles' => $this->getArticles() )
         );
     }
 
-    public function getAction(): string
-    {
-        if ($this->gateway instanceof KlarnaPiiGateway) {
+    public function getAction(): string {
+        if ( $this->gateway instanceof KlarnaPiiGateway ) {
             return 'payInInstallments';
         }
 
@@ -28,31 +26,30 @@ class KlarnaProcessor extends AbstractPaymentProcessor
     /**
      * @return array<mixed>
      */
-    protected function getBilling(): array
-    {
+    protected function getBilling(): array {
         $streetParts = $this->order_details->get_billing_address_components();
-        return [
-            'billing' => [
-                'recipient' => [
-                    'category' => $this->getCategory('billing'),
-                    'firstName' => $this->getAddress('billing', 'first_name'),
-                    'lastName' => $this->getAddress('billing', 'last_name'),
-                    'gender' => $this->request->input($this->gateway->getKlarnaSelector() . '-gender', 'male')
-                ],
-                'address' => [
-                    'street' => $streetParts->get_street(),
-                    'houseNumber' => $streetParts->get_house_number(),
+        return array(
+            'billing' => array(
+                'recipient' => array(
+                    'category'  => $this->getCategory( 'billing' ),
+                    'firstName' => $this->getAddress( 'billing', 'first_name' ),
+                    'lastName'  => $this->getAddress( 'billing', 'last_name' ),
+                    'gender'    => $this->request->input( $this->gateway->getKlarnaSelector() . '-gender', 'male' ),
+                ),
+                'address'   => array(
+                    'street'                => $streetParts->get_street(),
+                    'houseNumber'           => $streetParts->get_house_number(),
                     'houseNumberAdditional' => $streetParts->get_number_additional(),
-                    'zipcode' => $this->getAddress('billing', 'postcode'),
-                    'city' => $this->getAddress('billing', 'city'),
-                    'country' => $this->getAddress('billing', 'country'),
-                ],
-                'phone' => [
-                    'mobile' => $this->getPhone($this->order_details->get_billing_phone()),
-                ],
-                'email' => $this->getAddress('billing', 'email')
-            ]
-        ];
+                    'zipcode'               => $this->getAddress( 'billing', 'postcode' ),
+                    'city'                  => $this->getAddress( 'billing', 'city' ),
+                    'country'               => $this->getAddress( 'billing', 'country' ),
+                ),
+                'phone'     => array(
+                    'mobile' => $this->getPhone( $this->order_details->get_billing_phone() ),
+                ),
+                'email'     => $this->getAddress( 'billing', 'email' ),
+            ),
+        );
     }
 
     /**
@@ -60,36 +57,34 @@ class KlarnaProcessor extends AbstractPaymentProcessor
      *
      * @return array<mixed>
      */
-    protected function getShipping(): array
-    {
+    protected function getShipping(): array {
         $streetParts = $this->order_details->get_shipping_address_components();
-        return [
-            'shipping' => [
-                'recipient' => [
-                    'category' => $this->getCategory('shipping'),
-                    'firstName' => $this->getAddress('shipping', 'first_name'),
-                    'lastName' => $this->getAddress('shipping', 'last_name'),
-                    'gender' => $this->request->input($this->gateway->getKlarnaSelector() . '-gender', 'male')
-                ],
-                'address' => [
-                    'street' => $streetParts->get_street(),
-                    'houseNumber' => $streetParts->get_house_number(),
+        return array(
+            'shipping' => array(
+                'recipient' => array(
+                    'category'  => $this->getCategory( 'shipping' ),
+                    'firstName' => $this->getAddress( 'shipping', 'first_name' ),
+                    'lastName'  => $this->getAddress( 'shipping', 'last_name' ),
+                    'gender'    => $this->request->input( $this->gateway->getKlarnaSelector() . '-gender', 'male' ),
+                ),
+                'address'   => array(
+                    'street'                => $streetParts->get_street(),
+                    'houseNumber'           => $streetParts->get_house_number(),
                     'houseNumberAdditional' => $streetParts->get_number_additional(),
-                    'zipcode' => $this->getAddress('shipping', 'postcode'),
-                    'city' => $this->getAddress('shipping', 'city'),
-                    'country' => $this->getAddress('shipping', 'country'),
-                ],
-                'email' => $this->getAddress('shipping', 'email') ?: $this->getAddress('billing', 'email')
-            ]
-        ];
+                    'zipcode'               => $this->getAddress( 'shipping', 'postcode' ),
+                    'city'                  => $this->getAddress( 'shipping', 'city' ),
+                    'country'               => $this->getAddress( 'shipping', 'country' ),
+                ),
+                'email'     => $this->getAddress( 'shipping', 'email' ) ?: $this->getAddress( 'billing', 'email' ),
+            ),
+        );
     }
 
-    private function getPhone(string $phone): string
-    {
+    private function getPhone( string $phone ): string {
         $input_phone = $this->order_details->cleanup_phone(
-            $this->request->input($this->gateway->getKlarnaSelector() . "-phone")
+            $this->request->input( $this->gateway->getKlarnaSelector() . '-phone' )
         );
-        if (strlen(trim($input_phone)) > 0) {
+        if ( strlen( trim( $input_phone ) ) > 0 ) {
             return $input_phone;
         }
         return $phone;
@@ -100,9 +95,8 @@ class KlarnaProcessor extends AbstractPaymentProcessor
      *
      * @return string
      */
-    private function getCategory(string $address_type): string
-    {
-        if (!$this->isCompanyEmpty($this->getAddress($address_type, "company"))) {
+    private function getCategory( string $address_type ): string {
+        if ( ! $this->isCompanyEmpty( $this->getAddress( $address_type, 'company' ) ) ) {
             return 'B2B';
         }
         return 'B2C';
@@ -115,8 +109,7 @@ class KlarnaProcessor extends AbstractPaymentProcessor
      *
      * @return boolean
      */
-    public function isCompanyEmpty(string $company = null): bool
-    {
-        return null === $company || strlen(trim($company)) === 0;
+    public function isCompanyEmpty( string $company = null ): bool {
+        return null === $company || strlen( trim( $company ) ) === 0;
     }
 }

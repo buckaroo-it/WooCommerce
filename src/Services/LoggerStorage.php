@@ -14,14 +14,14 @@ namespace Buckaroo\Woocommerce\Services;
  * @version   GIT: 2.25.0
  * @link      https://www.buckaroo.eu/
  */
-class LoggerStorage
-{
+class LoggerStorage {
+
     const STORAGE_FILE = 'file';
-    const STORAGE_DB = 'database';
-    const STORAGE_ALL = 'all';
+    const STORAGE_DB   = 'database';
+    const STORAGE_ALL  = 'all';
 
     const STORAGE_FILE_LOCATION = '/api/log/';
-    const STORAGE_DB_TABLE = 'buckaroo_log';
+    const STORAGE_DB_TABLE      = 'buckaroo_log';
 
     public static $storageList = array(
         self::STORAGE_ALL,
@@ -29,9 +29,8 @@ class LoggerStorage
         self::STORAGE_DB,
     );
 
-    public static function getStorage()
-    {
-        return Helper::get('logstorage') ?? LoggerStorage::STORAGE_FILE;
+    public static function getStorage() {
+         return Helper::get( 'logstorage' ) ?? self::STORAGE_FILE;
     }
 
     /**
@@ -51,32 +50,28 @@ class LoggerStorage
     /**
      * Private construct
      */
-    private function __construct()
-    {
-    }
+    private function __construct() {     }
 
-    public static function get_instance()
-    {
-        if (null === self::$instance) {
+    public static function get_instance() {
+		if ( null === self::$instance ) {
             self::$instance = new self();
-        }
+		}
 
         return self::$instance;
     }
 
-    public static function downloadFile($name)
-    {
-        $file = self::get_file_storage_location() . $name;
+    public static function downloadFile( $name ) {
+         $file = self::get_file_storage_location() . $name;
 
-        if (file_exists($file)) {
-            header('Expires: 0');
-            header('Cache-Control: no-cache, no-store, must-revalidate');
-            header('Cache-Control: pre-check=0, post-check=0, max-age=0', false);
-            header('Pragma: no-cache');
-            header('Content-type: text/plain');
-            header("Content-Disposition:attachment; filename={$name}");
+        if ( file_exists( $file ) ) {
+            header( 'Expires: 0' );
+            header( 'Cache-Control: no-cache, no-store, must-revalidate' );
+            header( 'Cache-Control: pre-check=0, post-check=0, max-age=0', false );
+            header( 'Pragma: no-cache' );
+            header( 'Content-type: text/plain' );
+            header( "Content-Disposition:attachment; filename={$name}" );
 
-            readfile($file);
+            readfile( $file );
             exit();
         } else {
             echo '<p>No log file found</p>';
@@ -87,29 +82,28 @@ class LoggerStorage
     /**
      * Log into into storage
      *
-     * @param mixed $message
-     * @param string $locationId
+     * @param mixed       $message
+     * @param string      $locationId
      * @param string|null $method
      *
      * @return void
      */
-    public function log(string $locationId, $message)
-    {
-        if (Helper::get('debugmode') != 'on') {
+    public function log( string $locationId, $message ) {
+		if ( Helper::get( 'debugmode' ) != 'on' ) {
             return;
-        }
+		}
 
-        $message = $this->format_message($message);
+        $message = $this->format_message( $message );
         $storage = static::getStorage();
-        $method = $this->get_method_name($storage);
+        $method  = $this->get_method_name( $storage );
 
-        $date = date('Y-m-d h:i:s');
+        $date = date( 'Y-m-d h:i:s' );
 
-        if (method_exists($this, $method)) {
-            $this->{$method}(
-                array($date, $this->getProcessId(), $locationId, $message)
-            );
-        }
+		if ( method_exists( $this, $method ) ) {
+			$this->{$method}(
+                array( $date, $this->getProcessId(), $locationId, $message )
+			);
+		}
     }
 
     /**
@@ -119,11 +113,9 @@ class LoggerStorage
      *
      * @return string
      */
-    protected function format_message($message)
-    {
-
-        if (is_object($message) || is_array($message)) {
-            return var_export($message, true);
+    protected function format_message( $message ) {
+        if ( is_object( $message ) || is_array( $message ) ) {
+            return var_export( $message, true );
         }
         return $message;
     }
@@ -135,19 +127,17 @@ class LoggerStorage
      *
      * @return string
      */
-    protected function get_method_name($storage)
-    {
-        if (!in_array($storage, static::$storageList)) {
+    protected function get_method_name( $storage ) {
+		if ( ! in_array( $storage, static::$storageList ) ) {
             $storage = self::STORAGE_FILE;
-        }
+		}
         return 'store_in_' . $storage;
     }
 
-    protected static function getProcessId()
-    {
-        if (empty(self::$processId)) {
-            self::$processId = uniqid('', true);
-        }
+    protected static function getProcessId() {
+		if ( empty( self::$processId ) ) {
+            self::$processId = uniqid( '', true );
+		}
         return self::$processId;
     }
 
@@ -158,21 +148,20 @@ class LoggerStorage
      *
      * @return void
      */
-    public function store_in_database(array $info)
-    {
-        global $wpdb;
+    public function store_in_database( array $info ) {
+         global $wpdb;
         $table = $wpdb->prefix . self::STORAGE_DB_TABLE;
 
         list($date, $processId, $locationId, $message) = $info;
 
         $data = array(
-            'date' => $date,
-            'process_id' => $processId,
-            'message' => $message,
+            'date'        => $date,
+            'process_id'  => $processId,
+            'message'     => $message,
             'location_id' => $locationId,
         );
 
-        $format = array('%s', '%s', '%s');
+        $format = array( '%s', '%s', '%s' );
         $wpdb->insert(
             $table,
             $data,
@@ -187,14 +176,13 @@ class LoggerStorage
      *
      * @return void
      */
-    protected function store_in_all(array $info)
-    {
-        $storageList = array_diff(static::$storageList, array('all'));
-        foreach ($storageList as $storage) {
+    protected function store_in_all( array $info ) {
+         $storageList = array_diff( static::$storageList, array( 'all' ) );
+        foreach ( $storageList as $storage ) {
 
-            $method = $this->get_method_name($storage);
-            if (method_exists($this, $method)) {
-                $this->{$method}($info);
+            $method = $this->get_method_name( $storage );
+            if ( method_exists( $this, $method ) ) {
+                $this->{$method}( $info );
             }
         }
     }
@@ -206,20 +194,18 @@ class LoggerStorage
      *
      * @return void
      */
-    protected function store_in_file(array $info)
-    {
+    protected function store_in_file( array $info ) {
         @file_put_contents(
-            self::get_file_storage_location() . date('d-m-Y') . '.log',
+            self::get_file_storage_location() . date( 'd-m-Y' ) . '.log',
             implode(
                 '|||',
                 $info
             ) . PHP_EOL,
             FILE_APPEND
-        );
+		);
     }
 
-    public static function get_file_storage_location()
-    {
-        return __DIR__ . self::STORAGE_FILE_LOCATION;
+    public static function get_file_storage_location() {
+         return __DIR__ . self::STORAGE_FILE_LOCATION;
     }
 }
