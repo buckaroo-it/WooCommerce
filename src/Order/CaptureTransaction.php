@@ -17,8 +17,8 @@ use WC_Order_Factory;
  * @version   GIT: 2.25.0
  * @link      https://www.buckaroo.eu/
  */
-class CaptureTransaction
-{
+class CaptureTransaction {
+
     protected $data = array();
     /**
      * @var OrderItem[]
@@ -32,9 +32,8 @@ class CaptureTransaction
 
     protected $item_ids = array();
 
-    public function __construct(array $data, WC_Order $order)
-    {
-        $this->data = $data;
+    public function __construct( array $data, WC_Order $order ) {
+         $this->data = $data;
         $this->order = $order;
         $this->init_items();
     }
@@ -44,22 +43,21 @@ class CaptureTransaction
      *
      * @return void
      */
-    private function init_items()
-    {
-        if (!isset($this->data['line_item_totals'])) {
+    private function init_items() {
+		if ( ! isset( $this->data['line_item_totals'] ) ) {
             return;
-        }
-        $this->item_ids = array_keys(json_decode($this->data['line_item_totals'], true));
-        $items = array_map(
-            function ($itemId) {
-                return $this->get_item($itemId);
+		}
+        $this->item_ids = array_keys( json_decode( $this->data['line_item_totals'], true ) );
+        $items          = array_map(
+            function ( $itemId ) {
+                return $this->get_item( $itemId );
             },
             $this->item_ids
         );
 
         $this->items = array_filter(
             $items,
-            function ($item) {
+            function ( $item ) {
                 return $item !== null;
             }
         );
@@ -72,11 +70,10 @@ class CaptureTransaction
      *
      * @return OrderItem|null
      */
-    protected function get_item(int $item_id)
-    {
-        $item = WC_Order_Factory::get_order_item($item_id);
+    protected function get_item( int $item_id ) {
+         $item = WC_Order_Factory::get_order_item( $item_id );
 
-        if ($item === false) {
+        if ( $item === false ) {
             return;
         }
         return new OrderItem(
@@ -85,29 +82,24 @@ class CaptureTransaction
         );
     }
 
-    public function get_id()
-    {
-        return $this->data['id'];
+    public function get_id() {
+         return $this->data['id'];
     }
 
-    public function get_total_amount()
-    {
-        return $this->data['amount'];
+    public function get_total_amount() {
+         return $this->data['amount'];
     }
 
-    public function has_item(int $item_id)
-    {
-        return in_array($item_id, $this->item_ids);
+    public function has_item( int $item_id ) {
+         return in_array( $item_id, $this->item_ids );
     }
 
-    public function get_currency()
-    {
-        return $this->data['currency'];
+    public function get_currency() {
+         return $this->data['currency'];
     }
 
-    public function get_transaction_id()
-    {
-        return $this->data['transaction_id'] ?? null;
+    public function get_transaction_id() {
+         return $this->data['transaction_id'] ?? null;
     }
 
     /**
@@ -117,29 +109,27 @@ class CaptureTransaction
      *
      * @return int
      */
-    public function get_qty(int $item_id)
-    {
-        $qty = $this->get_item_value('line_item_qtys', $item_id);
-        if ($qty === null) {
+    public function get_qty( int $item_id ) {
+         $qty = $this->get_item_value( 'line_item_qtys', $item_id );
+        if ( $qty === null ) {
             $qty = 1;
         }
-        return (int)$qty;
+        return (int) $qty;
     }
 
     /**
      * Get qty/totals/tax value for item with item id,
      *
-     * @param array $item_list
+     * @param array   $item_list
      * @param integer $item_id
      *
      * @return float|null
      */
-    private function get_item_value(string $item_list, int $item_id)
-    {
-        if (isset($this->data[$item_list])) {
-            $data = json_decode($this->data[$item_list], true);
-            return $data[$item_id] ?? null;
-        }
+    private function get_item_value( string $item_list, int $item_id ) {
+		if ( isset( $this->data[ $item_list ] ) ) {
+            $data = json_decode( $this->data[ $item_list ], true );
+            return $data[ $item_id ] ?? null;
+		}
     }
 
     /**
@@ -149,9 +139,8 @@ class CaptureTransaction
      *
      * @return float
      */
-    public function get_total(int $item_id)
-    {
-        return (float)$this->get_item_value('line_item_totals', $item_id);
+    public function get_total( int $item_id ) {
+         return (float) $this->get_item_value( 'line_item_totals', $item_id );
     }
 
     /**
@@ -161,9 +150,8 @@ class CaptureTransaction
      *
      * @return array|null
      */
-    public function get_tax_totals(int $item_id)
-    {
-        return $this->get_item_value('line_item_tax_totals', $item_id);
+    public function get_tax_totals( int $item_id ) {
+         return $this->get_item_value( 'line_item_tax_totals', $item_id );
     }
 
     /**
@@ -171,9 +159,8 @@ class CaptureTransaction
      *
      * @return OrderItem[]
      */
-    public function get_items()
-    {
-        return $this->items;
+    public function get_items() {
+         return $this->items;
     }
 
     /**
@@ -181,8 +168,7 @@ class CaptureTransaction
      *
      * @return WC_Order
      */
-    public function get_order()
-    {
-        return $this->order;
+    public function get_order() {
+         return $this->order;
     }
 }

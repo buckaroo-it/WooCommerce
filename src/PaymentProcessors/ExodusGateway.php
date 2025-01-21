@@ -4,16 +4,15 @@ namespace Buckaroo\Woocommerce\PaymentProcessors;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
-class ExodusGateway extends AbstractPaymentGateway
-{
-    function __construct()
-    {
-        parent::__construct();
-        if (!current_user_can('administrator')) {
+class ExodusGateway extends AbstractPaymentGateway {
+
+    function __construct() {
+         parent::__construct();
+        if ( ! current_user_can( 'administrator' ) ) {
             return;
         }
 
-        $this->title = 'Exodus';
+        $this->title      = 'Exodus';
         $this->has_fields = false;
 
         $this->supports = array(
@@ -27,10 +26,8 @@ class ExodusGateway extends AbstractPaymentGateway
      *
      * @access public
      */
-    public function exodus_actions()
-    {
-
-        if (!current_user_can('administrator')) {
+    public function exodus_actions() {
+        if ( ! current_user_can( 'administrator' ) ) {
             return;
         }
 
@@ -56,75 +53,75 @@ class ExodusGateway extends AbstractPaymentGateway
             'woocommerce_buckaroo_payperemail_settings',
         );
 
-        $n = 0;
+        $n           = 0;
         $key_options = $certificate_contents = $certificate_name = '';
-        while (!empty($options_tocheck[$n]) && $key_options == '') {
-            $options = get_option($options_tocheck[$n], null);
+        while ( ! empty( $options_tocheck[ $n ] ) && $key_options == '' ) {
+            $options = get_option( $options_tocheck[ $n ], null );
 
             // Check Certificate contents
-            $certificate_name = !empty($options['certificate']) ? $options['certificate'] : 'BuckarooPrivateKey.pem';
-            $upload_dir = wp_upload_dir();
+            $certificate_name     = ! empty( $options['certificate'] ) ? $options['certificate'] : 'BuckarooPrivateKey.pem';
+            $upload_dir           = wp_upload_dir();
             $certificate_contents = '';
-            if (file_exists($upload_dir['basedir'] . '/woocommerce_uploads/' . $certificate_name)) {
-                $certificate_contents = file_get_contents($upload_dir['basedir'] . '/woocommerce_uploads/' . $certificate_name);
+            if ( file_exists( $upload_dir['basedir'] . '/woocommerce_uploads/' . $certificate_name ) ) {
+                $certificate_contents = file_get_contents( $upload_dir['basedir'] . '/woocommerce_uploads/' . $certificate_name );
             }
-            if ($certificate_contents == '') {
+            if ( $certificate_contents == '' ) {
                 ++$n;
                 continue;
             }
 
             // Check all other gubbins
-            if (empty($options['culture']) || $options['culture'] == '' || $options['culture'] == null) {
+            if ( empty( $options['culture'] ) || $options['culture'] == '' || $options['culture'] == null ) {
                 ++$n;
                 continue;
             }
-            if (empty($options['merchantkey']) || $options['merchantkey'] == '' || $options['merchantkey'] == null) {
+            if ( empty( $options['merchantkey'] ) || $options['merchantkey'] == '' || $options['merchantkey'] == null ) {
                 ++$n;
                 continue;
             }
-            if (empty($options['secretkey']) || $options['secretkey'] == '' || $options['secretkey'] == null) {
+            if ( empty( $options['secretkey'] ) || $options['secretkey'] == '' || $options['secretkey'] == null ) {
                 ++$n;
                 continue;
             }
-            if (empty($options['thumbprint']) || $options['thumbprint'] == '' || $options['thumbprint'] == null) {
+            if ( empty( $options['thumbprint'] ) || $options['thumbprint'] == '' || $options['thumbprint'] == null ) {
                 ++$n;
                 continue;
             }
-            if (empty($options['currency']) || $options['currency'] == '' || $options['currency'] == null) {
+            if ( empty( $options['currency'] ) || $options['currency'] == '' || $options['currency'] == null ) {
                 ++$n;
                 continue;
             }
-            $key_options = $options_tocheck[$n];
+            $key_options = $options_tocheck[ $n ];
         }
 
-        if ($key_options != '') {
-            $keys = get_option($key_options, null);
-            $timestamp = date('Y-m-d @ H:i:s', time());
+        if ( $key_options != '' ) {
+            $keys      = get_option( $key_options, null );
+            $timestamp = date( 'Y-m-d @ H:i:s', time() );
 
-            $onetime_settings2 = array();
-            $onetime_settings2['merchantkey'] = $keys['merchantkey'];
-            $onetime_settings2['secretkey'] = $keys['secretkey'];
-            $onetime_settings2['thumbprint'] = $keys['thumbprint'];
-            $onetime_settings2['upload'] = '';
-            $onetime_settings2['certificatecontents1'] = $certificate_contents;
+            $onetime_settings2                           = array();
+            $onetime_settings2['merchantkey']            = $keys['merchantkey'];
+            $onetime_settings2['secretkey']              = $keys['secretkey'];
+            $onetime_settings2['thumbprint']             = $keys['thumbprint'];
+            $onetime_settings2['upload']                 = '';
+            $onetime_settings2['certificatecontents1']   = $certificate_contents;
             $onetime_settings2['certificateuploadtime1'] = $timestamp;
-            $onetime_settings2['certificatename1'] = $timestamp . ': ' . $certificate_name;
-            $onetime_settings2['selectcertificate'] = '1';
-            $onetime_settings2['choosecertificate'] = '';
-            $onetime_settings2['currency'] = $keys['currency'];
-            $onetime_settings2['culture'] = $keys['culture'];
-            $onetime_settings2['debugmode'] = 'off';
+            $onetime_settings2['certificatename1']       = $timestamp . ': ' . $certificate_name;
+            $onetime_settings2['selectcertificate']      = '1';
+            $onetime_settings2['choosecertificate']      = '';
+            $onetime_settings2['currency']               = $keys['currency'];
+            $onetime_settings2['culture']                = $keys['culture'];
+            $onetime_settings2['debugmode']              = 'off';
             $onetime_settings2['transactiondescription'] = $keys['transactiondescription'];
 
-            if (!get_option('woocommerce_buckaroo_mastersettings_settings')) {
-                add_option('woocommerce_buckaroo_mastersettings_settings', $onetime_settings2);
+            if ( ! get_option( 'woocommerce_buckaroo_mastersettings_settings' ) ) {
+                add_option( 'woocommerce_buckaroo_mastersettings_settings', $onetime_settings2 );
             } else {
-                update_option('woocommerce_buckaroo_mastersettings_settings', $onetime_settings2);
+                update_option( 'woocommerce_buckaroo_mastersettings_settings', $onetime_settings2 );
             }
 
-            add_option('woocommerce_buckaroo_exodus', array('covenant' => true));
+            add_option( 'woocommerce_buckaroo_exodus', array( 'covenant' => true ) );
 
-            echo json_encode('Migration complete, please refresh the page. For improved security, you can also delete your Buckaroo certificate from your certificate folder.');
+            echo json_encode( 'Migration complete, please refresh the page. For improved security, you can also delete your Buckaroo certificate from your certificate folder.' );
         } else {
             echo 'Settings could not be migrated.';
         }

@@ -5,15 +5,14 @@ namespace Buckaroo\Woocommerce\Hooks;
 use Buckaroo\Woocommerce\Admin\GeneralSettings;
 use Buckaroo\Woocommerce\Admin\PaymentMethodSettings;
 
-class AdminHooks
-{
-    public function __construct()
-    {
-        add_action('admin_notices', [$this, 'handleNotices']);
-        add_action('admin_menu', [$this, 'addPagesMenu']);
-        add_action('woocommerce_get_settings_pages', [$this, 'handlePages']);
+class AdminHooks {
 
-        add_filter('plugin_action_links_' . plugin_basename(BK_PLUGIN_FILE), [$this, 'handleActionLinks']);
+    public function __construct() {
+         add_action( 'admin_notices', array( $this, 'handleNotices' ) );
+        add_action( 'admin_menu', array( $this, 'addPagesMenu' ) );
+        add_action( 'woocommerce_get_settings_pages', array( $this, 'handlePages' ) );
+
+        add_filter( 'plugin_action_links_' . plugin_basename( BK_PLUGIN_FILE ), array( $this, 'handleActionLinks' ) );
     }
 
     /**
@@ -24,14 +23,13 @@ class AdminHooks
      *
      * @return array $actions
      */
-    public function handleActionLinks($actions)
-    {
-        $settingsLink = array(
-            '<a href="' . admin_url('admin.php?page=wc-settings&tab=buckaroo_settings') . '">' . esc_html__('Settings', 'wc-buckaroo-bpe-gateway') . '</a>',
-        );
-        $actions = array_merge($actions, $settingsLink);
+    public function handleActionLinks( $actions ) {
+         $settingsLink = array(
+			 '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=buckaroo_settings' ) . '">' . esc_html__( 'Settings', 'wc-buckaroo-bpe-gateway' ) . '</a>',
+		 );
+		 $actions      = array_merge( $actions, $settingsLink );
 
-        return $actions;
+		 return $actions;
     }
 
 
@@ -42,15 +40,13 @@ class AdminHooks
      *
      * @return array $settings Array of woocommerce tabs
      */
-    public function handlePages($settings)
-    {
-        $settings[] = new GeneralSettings(new PaymentMethodSettings());
+    public function handlePages( $settings ) {
+         $settings[] = new GeneralSettings( new PaymentMethodSettings() );
 
         return $settings;
     }
 
-    public function addPagesMenu(): void
-    {
+    public function addPagesMenu(): void {
         add_menu_page(
             'Buckaroo',
             'Buckaroo',
@@ -62,46 +58,45 @@ class AdminHooks
         );
         add_submenu_page(
             'admin.php?page=wc-settings&tab=buckaroo_settings',
-            esc_html__('Settings', 'wc-buckaroo-bpe-gateway'),
-            esc_html__('Settings', 'wc-buckaroo-bpe-gateway'),
+            esc_html__( 'Settings', 'wc-buckaroo-bpe-gateway' ),
+            esc_html__( 'Settings', 'wc-buckaroo-bpe-gateway' ),
             'manage_options',
             'admin.php?page=wc-settings&tab=buckaroo_settings'
         );
         add_submenu_page(
             'admin.php?page=wc-settings&tab=buckaroo_settings',
-            esc_html__('Payment methods', 'wc-buckaroo-bpe-gateway'),
-            esc_html__('Payment methods', 'wc-buckaroo-bpe-gateway'),
+            esc_html__( 'Payment methods', 'wc-buckaroo-bpe-gateway' ),
+            esc_html__( 'Payment methods', 'wc-buckaroo-bpe-gateway' ),
             'manage_options',
             'admin.php?page=wc-settings&tab=buckaroo_settings&section=methods'
         );
         add_submenu_page(
             'admin.php?page=wc-settings&tab=buckaroo_settings',
-            esc_html__('Report', 'wc-buckaroo-bpe-gateway'),
-            esc_html__('Report', 'wc-buckaroo-bpe-gateway'),
+            esc_html__( 'Report', 'wc-buckaroo-bpe-gateway' ),
+            esc_html__( 'Report', 'wc-buckaroo-bpe-gateway' ),
             'manage_options',
             'admin.php?page=wc-settings&tab=buckaroo_settings&section=report'
         );
     }
 
 
-    public function handleNotices(): void
-    {
-        if ($message = get_transient(get_current_user_id() . 'buckarooAdminNotice')) {
-            delete_transient(get_current_user_id() . 'buckarooAdminNotice');
-            echo '<div class="notice notice-' . esc_attr($message['type']) . ' is-dismissible"><p>' . wp_kses(
-                    $message['message'],
-                    array(
-                        'b' => array(),
-                        'p' => array(),
-                    )
-                ) . '</p></div>';
+    public function handleNotices(): void {
+        if ( $message = get_transient( get_current_user_id() . 'buckarooAdminNotice' ) ) {
+            delete_transient( get_current_user_id() . 'buckarooAdminNotice' );
+            echo '<div class="notice notice-' . esc_attr( $message['type'] ) . ' is-dismissible"><p>' . wp_kses(
+                $message['message'],
+                array(
+					'b' => array(),
+					'p' => array(),
+				)
+            ) . '</p></div>';
         }
-        if (get_transient(get_current_user_id() . 'buckaroo_require_woocommerce')) {
-            delete_transient(get_current_user_id() . 'buckaroo_require_woocommerce');
+        if ( get_transient( get_current_user_id() . 'buckaroo_require_woocommerce' ) ) {
+            delete_transient( get_current_user_id() . 'buckaroo_require_woocommerce' );
             echo '<div class="notice notice-error"><p>' . esc_html__(
-                    'Buckaroo BPE requires WooCommerce to be installed and active',
-                    'wc-buckaroo-bpe-gateway'
-                ) . '</p></div>';
+                'Buckaroo BPE requires WooCommerce to be installed and active',
+                'wc-buckaroo-bpe-gateway'
+            ) . '</p></div>';
         }
     }
 }

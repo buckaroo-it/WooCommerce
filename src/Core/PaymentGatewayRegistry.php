@@ -32,51 +32,50 @@ use Buckaroo\Woocommerce\Gateways\Transfer\TransferGateway;
 use Buckaroo\Woocommerce\Order\OrderCapture;
 use Buckaroo\Woocommerce\PaymentProcessors\ExodusGateway;
 
-class PaymentGatewayRegistry
-{
+class PaymentGatewayRegistry {
+
     /**
      * List of registered payment gateways.
      *
      * @var array
      */
-    protected array $gateways = [
-        'ideal' => ['gateway_class' => IdealGateway::class],
-        'afterpay' => ['gateway_class' => AfterpayOldGateway::class],
-        'afterpaynew' => ['gateway_class' => AfterpayNewGateway::class],
-        'applepay' => ['gateway_class' => ApplepayGateway::class],
-        'bancontact' => ['gateway_class' => BancontactGateway::class],
-        'belfius' => ['gateway_class' => BelfiusGateway::class],
-        'billink' => ['gateway_class' => BillinkGateway::class],
-        'blik' => ['gateway_class' => BlikGateway::class],
-        'creditcard' => ['gateway_class' => CreditCardGateway::class],
-        'eps' => ['gateway_class' => EpsGateway::class],
-        'giftcard' => ['gateway_class' => GiftCardGateway::class],
-        'in3' => ['gateway_class' => In3Gateway::class],
-        'kbc' => ['gateway_class' => KbcGateway::class],
-        'klarnakp' => ['gateway_class' => KlarnaKpGateway::class],
-        'klarnapay' => ['gateway_class' => KlarnaPayGateway::class],
-        'klarnapii' => ['gateway_class' => KlarnaPiiGateway::class],
-        'knaken' => ['gateway_class' => KnakenSettleGateway::class],
-        'mbway' => ['gateway_class' => MbWayGateway::class],
-        'multibanco' => ['gateway_class' => MultibancoGateway::class],
-        'przelewy24' => ['gateway_class' => Przelewy24Gateway::class],
-        'paybybank' => ['gateway_class' => PayByBankGateway::class],
-        'payconiq' => ['gateway_class' => PayconiqGateway::class],
-        'paypal' => ['gateway_class' => PaypalGateway::class],
-        'payperemail' => ['gateway_class' => PayPerEmailGateway::class],
-        'sepadirectdebit' => ['gateway_class' => SepaDirectDebitGateway::class],
-        'sofort' => ['gateway_class' => SofortGateway::class],
-        'transfer' => ['gateway_class' => TransferGateway::class],
-    ];
+    protected array $gateways = array(
+        'ideal'           => array( 'gateway_class' => IdealGateway::class ),
+        'afterpay'        => array( 'gateway_class' => AfterpayOldGateway::class ),
+        'afterpaynew'     => array( 'gateway_class' => AfterpayNewGateway::class ),
+        'applepay'        => array( 'gateway_class' => ApplepayGateway::class ),
+        'bancontact'      => array( 'gateway_class' => BancontactGateway::class ),
+        'belfius'         => array( 'gateway_class' => BelfiusGateway::class ),
+        'billink'         => array( 'gateway_class' => BillinkGateway::class ),
+        'blik'            => array( 'gateway_class' => BlikGateway::class ),
+        'creditcard'      => array( 'gateway_class' => CreditCardGateway::class ),
+        'eps'             => array( 'gateway_class' => EpsGateway::class ),
+        'giftcard'        => array( 'gateway_class' => GiftCardGateway::class ),
+        'in3'             => array( 'gateway_class' => In3Gateway::class ),
+        'kbc'             => array( 'gateway_class' => KbcGateway::class ),
+        'klarnakp'        => array( 'gateway_class' => KlarnaKpGateway::class ),
+        'klarnapay'       => array( 'gateway_class' => KlarnaPayGateway::class ),
+        'klarnapii'       => array( 'gateway_class' => KlarnaPiiGateway::class ),
+        'knaken'          => array( 'gateway_class' => KnakenSettleGateway::class ),
+        'mbway'           => array( 'gateway_class' => MbWayGateway::class ),
+        'multibanco'      => array( 'gateway_class' => MultibancoGateway::class ),
+        'przelewy24'      => array( 'gateway_class' => Przelewy24Gateway::class ),
+        'paybybank'       => array( 'gateway_class' => PayByBankGateway::class ),
+        'payconiq'        => array( 'gateway_class' => PayconiqGateway::class ),
+        'paypal'          => array( 'gateway_class' => PaypalGateway::class ),
+        'payperemail'     => array( 'gateway_class' => PayPerEmailGateway::class ),
+        'sepadirectdebit' => array( 'gateway_class' => SepaDirectDebitGateway::class ),
+        'sofort'          => array( 'gateway_class' => SofortGateway::class ),
+        'transfer'        => array( 'gateway_class' => TransferGateway::class ),
+    );
 
     /**
      * Load necessary gateways and configurations.
      *
      * @return PaymentGatewayRegistry
      */
-    public function load(): PaymentGatewayRegistry
-    {
-        if (!class_exists('WC_Payment_Gateways')) {
+    public function load(): PaymentGatewayRegistry {
+        if ( ! class_exists( 'WC_Payment_Gateways' ) ) {
             return $this;
         }
 
@@ -92,33 +91,31 @@ class PaymentGatewayRegistry
      *
      * @return void
      */
-    private function addExodus(): void
-    {
-        if (!get_option('woocommerce_buckaroo_exodus')) {
-            $this->gateways['exodus_script'] = ['gateway_class' => ExodusGateway::class];
+    private function addExodus(): void {
+        if ( ! get_option( 'woocommerce_buckaroo_exodus' ) ) {
+            $this->gateways['exodus_script'] = array( 'gateway_class' => ExodusGateway::class );
         }
     }
 
 
-    public function newGatewayInstance(array|string $method)
-    {
-        if (is_string($method)) {
-            $method = $this->getAllGateways()[strtolower($method)] ?? null;
-        }
+    public function newGatewayInstance( array|string $method ) {
+		if ( is_string( $method ) ) {
+            $method = $this->getAllGateways()[ strtolower( $method ) ] ?? null;
+		}
 
-        if (isset($method['gateway_class']) && class_exists($method['gateway_class'])) {
-            $gateway = new $method['gateway_class']();
+		if ( isset( $method['gateway_class'] ) && class_exists( $method['gateway_class'] ) ) {
+			$gateway = new $method['gateway_class']();
 
-            if (method_exists($gateway, 'handleHooks')) {
-                $gateway->handleHooks();
-            }
+			if ( method_exists( $gateway, 'handleHooks' ) ) {
+				$gateway->handleHooks();
+			}
 
-            if ($gateway->capturable) {
-                new OrderCapture($gateway);
-            }
+			if ( $gateway->capturable ) {
+				new OrderCapture( $gateway );
+			}
 
-            return $gateway;
-        }
+			return $gateway;
+		}
 
         return null;
     }
@@ -128,10 +125,9 @@ class PaymentGatewayRegistry
      *
      * @return void
      */
-    protected function loadGateways(): void
-    {
-        foreach ($this->getAllGateways() as $method) {
-            $this->newGatewayInstance($method);
+    protected function loadGateways(): void {
+        foreach ( $this->getAllGateways() as $method ) {
+            $this->newGatewayInstance( $method );
         }
     }
 
@@ -140,32 +136,31 @@ class PaymentGatewayRegistry
      *
      * @return void
      */
-    private function enableCreditCardsInCheckout(): void
-    {
-        if (!get_transient('buckaroo_creditcard_updated')) {
+    private function enableCreditCardsInCheckout(): void {
+        if ( ! get_transient( 'buckaroo_creditcard_updated' ) ) {
             return;
         }
 
         $gatewayNames = $this->getCreditCardsToShow();
 
-        if (empty($gatewayNames)) {
+        if ( empty( $gatewayNames ) ) {
             return;
         }
 
         $creditCardMethods = CreditCardGateway::$cards;
 
-        foreach ($gatewayNames as $name) {
+        foreach ( $gatewayNames as $name ) {
             $methodKey = $name . '_creditcard';
-            $class = $creditCardMethods[$methodKey]['gateway_class'] ?? null;
+            $class     = $creditCardMethods[ $methodKey ]['gateway_class'] ?? null;
 
-            if ($class && class_exists($class)) {
+            if ( $class && class_exists( $class ) ) {
                 $gatewayInstance = new $class();
-                if (method_exists($gatewayInstance, 'update_option')) {
-                    $gatewayInstance->update_option('enabled', 'yes');
+                if ( method_exists( $gatewayInstance, 'update_option' ) ) {
+                    $gatewayInstance->update_option( 'enabled', 'yes' );
                 }
             }
         }
-        delete_transient('buckaroo_creditcard_updated');
+        delete_transient( 'buckaroo_creditcard_updated' );
     }
 
     /**
@@ -173,14 +168,13 @@ class PaymentGatewayRegistry
      *
      * @return array
      */
-    protected function getAllGateways(): array
-    {
+    protected function getAllGateways(): array {
         $creditCardsToShow = $this->getCreditCardsToShow();
         return array_merge(
             $this->gateways,
             array_filter(
                 CreditCardGateway::$cards,
-                fn($key) => in_array(str_replace('_creditcard', '', $key), $creditCardsToShow),
+                fn( $key) => in_array( str_replace( '_creditcard', '', $key ), $creditCardsToShow ),
                 ARRAY_FILTER_USE_KEY
             )
         );
@@ -191,19 +185,18 @@ class PaymentGatewayRegistry
      *
      * @return array
      */
-    public function getCreditCardsToShow(): array
-    {
-        $creditSettings = get_option('woocommerce_buckaroo_creditcard_settings', null);
+    public function getCreditCardsToShow(): array {
+        $creditSettings = get_option( 'woocommerce_buckaroo_creditcard_settings', null );
 
         if (
             $creditSettings !== null &&
-            isset($creditSettings['creditcardmethod'], $creditSettings['show_in_checkout']) &&
+            isset( $creditSettings['creditcardmethod'], $creditSettings['show_in_checkout'] ) &&
             $creditSettings['creditcardmethod'] === 'encrypt' &&
-            is_array($creditSettings['show_in_checkout'])
+            is_array( $creditSettings['show_in_checkout'] )
         ) {
             return $creditSettings['show_in_checkout'];
         }
-        return [];
+        return array();
     }
 
     /**
@@ -213,9 +206,8 @@ class PaymentGatewayRegistry
      *
      * @return array
      */
-    public function hookGatewaysToWooCommerce(array $methods): array
-    {
-        foreach ($this->sortGatewaysAlphabetically($this->getAllGateways()) as $method) {
+    public function hookGatewaysToWooCommerce( array $methods ): array {
+        foreach ( $this->sortGatewaysAlphabetically( $this->getAllGateways() ) as $method ) {
             $methods[] = $method['gateway_class'];
         }
         return $methods;
@@ -228,9 +220,8 @@ class PaymentGatewayRegistry
      *
      * @return array
      */
-    protected function sortGatewaysAlphabetically(array $gateways): array
-    {
-        uksort($gateways, 'strcasecmp');
+    protected function sortGatewaysAlphabetically( array $gateways ): array {
+        uksort( $gateways, 'strcasecmp' );
         return $gateways;
     }
 }

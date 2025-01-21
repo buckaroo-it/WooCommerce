@@ -17,8 +17,8 @@ use Buckaroo\Woocommerce\Services\Request;
  * @version   GIT: 2.25.0
  * @link      https://www.buckaroo.eu/
  */
-class OrderCapture
-{
+class OrderCapture {
+
     protected AbstractPaymentGateway $gateway;
     /**
      * @var OrderDetails
@@ -42,15 +42,13 @@ class OrderCapture
     private $item_totals;
     private $item_tax_totals;
 
-    public function __construct(AbstractPaymentGateway $gateway)
-    {
-        $this->gateway = $gateway;
-        $this->request = new Request();
-        add_action('add_meta_boxes', array($this, 'add_meta_box_form'), 10, 2);
+    public function __construct( AbstractPaymentGateway $gateway ) {
+         $this->gateway = $gateway;
+        $this->request  = new Request();
+        add_action( 'add_meta_boxes', array( $this, 'add_meta_box_form' ), 10, 2 );
     }
 
-    public function setOrderDetails(OrderDetails $order_details): void
-    {
+    public function setOrderDetails( OrderDetails $order_details ): void {
         $this->order_details = $order_details;
 
         $this->init_form_inputs();
@@ -59,29 +57,27 @@ class OrderCapture
     }
 
 
-    public function add_meta_box_form($post_type, $order)
-    {
-        if ($post_type != 'woocommerce_page_wc-orders') {
+    public function add_meta_box_form( $post_type, $order ) {
+		if ( $post_type != 'woocommerce_page_wc-orders' ) {
             return;
-        }
+		}
 
-        if (!method_exists($this->gateway, 'canShowCaptureForm') || $this->gateway->canShowCaptureForm($order)) {
-            add_meta_box(
+		if ( ! method_exists( $this->gateway, 'canShowCaptureForm' ) || $this->gateway->canShowCaptureForm( $order ) ) {
+			add_meta_box(
                 'buckaroo-order-klarnakp-capture',
-                __('Capture & refund order', 'woocommerce'),
-                array($this, 'output'),
+                __( 'Capture & refund order', 'woocommerce' ),
+                array( $this, 'output' ),
                 'woocommerce_page_wc-orders',
                 'normal',
                 'default'
-            );
-        }
+			);
+		}
     }
 
-    public function output($order)
-    {
-        $this->setOrderDetails(new OrderDetails($order));
+    public function output( $order ) {
+         $this->setOrderDetails( new OrderDetails( $order ) );
 
-        include plugin_dir_path(BK_PLUGIN_FILE) . 'templates/capture-form.php';
+        include plugin_dir_path( BK_PLUGIN_FILE ) . 'templates/capture-form.php';
     }
 
     /**
@@ -91,17 +87,16 @@ class OrderCapture
      *
      * @return array
      */
-    protected function get_available_to_capture_by_type(OrderCapture $order_capture)
-    {
-        $available_to_capture = $order_capture->get_available_to_capture();
+    protected function get_available_to_capture_by_type( OrderCapture $order_capture ) {
+         $available_to_capture = $order_capture->get_available_to_capture();
 
         $available_to_capture_by_type = array();
-        foreach ($available_to_capture as $item) {
+        foreach ( $available_to_capture as $item ) {
             $item_type = $item->get_type();
-            if (!isset($available_to_capture_by_type[$item_type])) {
-                $available_to_capture_by_type[$item_type] = array();
+            if ( ! isset( $available_to_capture_by_type[ $item_type ] ) ) {
+                $available_to_capture_by_type[ $item_type ] = array();
             }
-            $available_to_capture_by_type[$item_type][] = $item;
+            $available_to_capture_by_type[ $item_type ][] = $item;
         }
         return $available_to_capture_by_type;
     }
@@ -113,12 +108,11 @@ class OrderCapture
      *
      * @return array
      */
-    protected function get_refunded_captures(int $order_id)
-    {
-        $refunded_captures = get_post_meta($order_id, 'buckaroo_captures_refunded', true);
-        if (is_string($refunded_captures)) {
-            $refunded_captures_decoded = json_decode($refunded_captures);
-            if (is_array($refunded_captures_decoded)) {
+    protected function get_refunded_captures( int $order_id ) {
+         $refunded_captures = get_post_meta( $order_id, 'buckaroo_captures_refunded', true );
+        if ( is_string( $refunded_captures ) ) {
+            $refunded_captures_decoded = json_decode( $refunded_captures );
+            if ( is_array( $refunded_captures_decoded ) ) {
                 return $refunded_captures_decoded;
             }
         }
@@ -130,11 +124,10 @@ class OrderCapture
      *
      * @return void
      */
-    private function init_form_inputs()
-    {
-        $this->item_qtys = $this->sanitize_json('line_item_qtys');
-        $this->item_totals = $this->sanitize_json('line_item_totals');
-        $this->item_tax_totals = $this->sanitize_json('line_item_tax_totals');
+    private function init_form_inputs() {
+         $this->item_qtys      = $this->sanitize_json( 'line_item_qtys' );
+        $this->item_totals     = $this->sanitize_json( 'line_item_totals' );
+        $this->item_tax_totals = $this->sanitize_json( 'line_item_tax_totals' );
     }
 
     /**
@@ -144,16 +137,15 @@ class OrderCapture
      *
      * @return array
      */
-    private function sanitize_json($key)
-    {
-        if (!isset($_POST[$key]) || !is_string($_POST[$key])) {
+    private function sanitize_json( $key ) {
+		if ( ! isset( $_POST[ $key ] ) || ! is_string( $_POST[ $key ] ) ) {
             return array();
-        }
+		}
 
-        $result = json_decode(wp_unslash($_POST[$key]), true);
-        if (!is_array($result)) {
-            return array();
-        }
+        $result = json_decode( wp_unslash( $_POST[ $key ] ), true );
+		if ( ! is_array( $result ) ) {
+			return array();
+		}
 
         return map_deep(
             $result,
@@ -166,19 +158,18 @@ class OrderCapture
      *
      * @return void
      */
-    private function init_form_items()
-    {
-        $input_item_ids = array_keys($this->item_totals);
-        $form_items = array_map(
-            function ($itemId) {
-                return $this->order_details->get_item($itemId);
+    private function init_form_items() {
+         $input_item_ids = array_keys( $this->item_totals );
+        $form_items      = array_map(
+            function ( $itemId ) {
+                return $this->order_details->get_item( $itemId );
             },
             $input_item_ids
         );
 
         $this->form_items = array_filter(
             $form_items,
-            function ($item) {
+            function ( $item ) {
                 return $item !== null;
             }
         );
@@ -189,16 +180,15 @@ class OrderCapture
      *
      * @return void
      */
-    public function init_previous_captures()
-    {
-        $previous_captures = $this->order_details->get_meta('_wc_order_captures');
+    public function init_previous_captures() {
+         $previous_captures = $this->order_details->get_meta( '_wc_order_captures' );
 
-        if (!is_array($previous_captures)) {
+        if ( ! is_array( $previous_captures ) ) {
             return array();
         }
         $this->previous_captures = array_map(
-            function ($capture_transaction) {
-                return new CaptureTransaction($capture_transaction, $this->order_details->get_order());
+            function ( $capture_transaction ) {
+                return new CaptureTransaction( $capture_transaction, $this->order_details->get_order() );
             },
             $previous_captures
         );
@@ -209,9 +199,8 @@ class OrderCapture
      *
      * @return OrderDetails
      */
-    public function get_order_details()
-    {
-        return $this->order_details;
+    public function get_order_details() {
+         return $this->order_details;
     }
 
     /**
@@ -219,9 +208,8 @@ class OrderCapture
      *
      * @return array
      */
-    public function get_previous_captures()
-    {
-        return $this->previous_captures;
+    public function get_previous_captures() {
+         return $this->previous_captures;
     }
 
     /**
@@ -229,20 +217,19 @@ class OrderCapture
      *
      * @return OrderCaptureItem[]
      */
-    public function get_available_to_capture()
-    {
-        $available_items = array();
-        $order_items = $this->order_details->get_items_for_capture();
-        foreach ($order_items as $order_item) {
+    public function get_available_to_capture() {
+         $available_items = array();
+        $order_items      = $this->order_details->get_items_for_capture();
+        foreach ( $order_items as $order_item ) {
             $available_items[] = new OrderCaptureItem(
                 $order_item,
-                $this->get_previous_capture_with_item($order_item)
+                $this->get_previous_capture_with_item( $order_item )
             );
         }
 
         return array_filter(
             $available_items,
-            function ($item) {
+            function ( $item ) {
                 return $item->is_available_for_capture();
             }
         );
@@ -255,14 +242,13 @@ class OrderCapture
      *
      * @return CaptureTransaction[]
      */
-    protected function get_previous_capture_with_item(OrderItem $item)
-    {
+    protected function get_previous_capture_with_item( OrderItem $item ) {
         return array_filter(
             $this->previous_captures,
-            function ($capture_transaction) use ($item) {
-                return $capture_transaction->has_item($item->get_line_item_id());
+            function ( $capture_transaction ) use ( $item ) {
+                return $capture_transaction->has_item( $item->get_line_item_id() );
             }
-        );
+		);
     }
 
     /**
@@ -272,29 +258,27 @@ class OrderCapture
      *
      * @return int
      */
-    public function get_item_qty(int $item_id)
-    {
-        $qty = $this->get_input_item_value($this->item_qtys, $item_id);
-        if ($qty === null) {
+    public function get_item_qty( int $item_id ) {
+         $qty = $this->get_input_item_value( $this->item_qtys, $item_id );
+        if ( $qty === null ) {
             $qty = 1;
         }
-        return (int)$qty;
+        return (int) $qty;
     }
 
     /**
      * Get qty/totals/tax value for item with item id,
      * returns 0 if not found
      *
-     * @param array $item_list
+     * @param array   $item_list
      * @param integer $item_id
      *
      * @return float|null
      */
-    private function get_input_item_value(array $item_list, int $item_id)
-    {
-        if (isset($item_list[$item_id])) {
-            return $item_list[$item_id];
-        }
+    private function get_input_item_value( array $item_list, int $item_id ) {
+		if ( isset( $item_list[ $item_id ] ) ) {
+            return $item_list[ $item_id ];
+		}
     }
 
     /**
@@ -304,9 +288,8 @@ class OrderCapture
      *
      * @return float
      */
-    public function get_item_total(int $item_id)
-    {
-        return (float)$this->get_input_item_value($this->item_totals, $item_id);
+    public function get_item_total( int $item_id ) {
+         return (float) $this->get_input_item_value( $this->item_totals, $item_id );
     }
 
     /**
@@ -316,9 +299,8 @@ class OrderCapture
      *
      * @return array|null
      */
-    public function get_item_tax_totals(int $item_id)
-    {
-        return $this->get_input_item_value($this->item_tax_totals, $item_id);
+    public function get_item_tax_totals( int $item_id ) {
+         return $this->get_input_item_value( $this->item_tax_totals, $item_id );
     }
 
     /**
@@ -326,8 +308,7 @@ class OrderCapture
      *
      * @return OrderItem[]
      */
-    public function get_form_items()
-    {
-        return $this->form_items;
+    public function get_form_items() {
+         return $this->form_items;
     }
 }

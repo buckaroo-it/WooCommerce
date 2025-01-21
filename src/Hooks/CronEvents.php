@@ -11,22 +11,20 @@ use Throwable;
 /**
  * Start running buckaroo events
  */
-class CronEvents
-{
+class CronEvents {
+
     /**
      * Number of days to keep the logs
      */
     const LOG_STALE_DAYS = 14;
 
-    public function __construct()
-    {
-
+    public function __construct() {
         add_action(
             'buckaroo_clean_logger_storage',
-            array($this, 'clean_logger_storage')
+            array( $this, 'clean_logger_storage' )
         );
 
-        if (!wp_next_scheduled('buckaroo_clean_logger_storage')) {
+        if ( ! wp_next_scheduled( 'buckaroo_clean_logger_storage' ) ) {
             wp_schedule_event(
                 time(),
                 'daily',
@@ -40,10 +38,9 @@ class CronEvents
      *
      * @return void
      */
-    public static function unschedule()
-    {
-        $timestamp = wp_next_scheduled('buckaroo_clean_logger_storage');
-        wp_unschedule_event($timestamp, 'buckaroo_clean_logger_storage');
+    public static function unschedule() {
+         $timestamp = wp_next_scheduled( 'buckaroo_clean_logger_storage' );
+        wp_unschedule_event( $timestamp, 'buckaroo_clean_logger_storage' );
     }
 
     /**
@@ -51,20 +48,18 @@ class CronEvents
      *
      * @return void
      */
-    public function clean_logger_storage()
-    {
-        $storage = LoggerStorage::getStorage();
-        $method = $this->get_logger_clean_method_name($storage);
-        if (method_exists($this, $method)) {
+    public function clean_logger_storage() {
+         $storage = LoggerStorage::getStorage();
+        $method   = $this->get_logger_clean_method_name( $storage );
+        if ( method_exists( $this, $method ) ) {
             $this->{$method}();
         }
     }
 
-    protected function get_logger_clean_method_name($storage)
-    {
-        if (strlen($storage) === 0) {
+    protected function get_logger_clean_method_name( $storage ) {
+		if ( strlen( $storage ) === 0 ) {
             $storage = LoggerStorage::STORAGE_ALL;
-        }
+		}
 
         return 'clean_logger_storage_' . $storage;
     }
@@ -74,12 +69,11 @@ class CronEvents
      *
      * @return void
      */
-    protected function clean_logger_storage_all()
-    {
-        $storageList = array_diff(LoggerStorage::$storageList, array('all'));
-        foreach ($storageList as $storage) {
-            $method = $this->get_logger_clean_method_name($storage);
-            if (method_exists($this, $method)) {
+    protected function clean_logger_storage_all() {
+         $storageList = array_diff( LoggerStorage::$storageList, array( 'all' ) );
+        foreach ( $storageList as $storage ) {
+            $method = $this->get_logger_clean_method_name( $storage );
+            if ( method_exists( $this, $method ) ) {
                 $this->{$method}();
             }
         }
@@ -90,26 +84,25 @@ class CronEvents
      *
      * @return void
      */
-    protected function clean_logger_storage_file()
-    {
-        $directory = LoggerStorage::get_file_storage_location();
-        $staleDate = $this->get_stale_date();
-        $logs = glob($directory . '*.log');
-        foreach ($logs as $fileName) {
+    protected function clean_logger_storage_file() {
+         $directory = LoggerStorage::get_file_storage_location();
+        $staleDate  = $this->get_stale_date();
+        $logs       = glob( $directory . '*.log' );
+        foreach ( $logs as $fileName ) {
             try {
                 $date = DateTime::createFromFormat(
                     'd-m-Y',
-                    str_replace('.log', '', basename($fileName))
+                    str_replace( '.log', '', basename( $fileName ) )
                 );
 
                 if (
                     $date < $staleDate &&
-                    file_exists($fileName)
+                    file_exists( $fileName )
                 ) {
-                    unlink($fileName);
+                    unlink( $fileName );
                 }
-            } catch (Throwable $th) {
-                Logger::log(__METHOD__, 'Invalid file name for log: ' . $fileName);
+            } catch ( Throwable $th ) {
+                Logger::log( __METHOD__, 'Invalid file name for log: ' . $fileName );
             }
         }
     }
@@ -119,10 +112,9 @@ class CronEvents
      *
      * @return DateTime
      */
-    protected function get_stale_date()
-    {
-        return (new DateTime())
-            ->sub(new DateInterval('P' . self::LOG_STALE_DAYS . 'D'));
+    protected function get_stale_date() {
+         return ( new DateTime() )
+            ->sub( new DateInterval( 'P' . self::LOG_STALE_DAYS . 'D' ) );
     }
 
     /**
@@ -132,11 +124,10 @@ class CronEvents
      *
      * @return boolean
      */
-    protected function is_file_line_not_stale($date)
-    {
-        if ($date === null) {
+    protected function is_file_line_not_stale( $date ) {
+		if ( $date === null ) {
             return true;
-        }
+		}
 
         $staleDate = $this->get_stale_date();
         return $date > $staleDate;
@@ -147,15 +138,14 @@ class CronEvents
      *
      * @return void
      */
-    protected function clean_logger_storage_database()
-    {
-        global $wpdb;
+    protected function clean_logger_storage_database() {
+         global $wpdb;
         $wpdb->hide_errors();
 
-        $table = $wpdb->prefix . LoggerStorage::STORAGE_DB_TABLE;
-        $staleDate = $this->get_stale_date()->format('Y-m-d H:i:s');
+        $table     = $wpdb->prefix . LoggerStorage::STORAGE_DB_TABLE;
+        $staleDate = $this->get_stale_date()->format( 'Y-m-d H:i:s' );
         $wpdb->query(
-            $wpdb->prepare("DELETE FROM {$table} WHERE `date` < %s", $staleDate)
+            $wpdb->prepare( "DELETE FROM {$table} WHERE `date` < %s", $staleDate )
         );
     }
 }

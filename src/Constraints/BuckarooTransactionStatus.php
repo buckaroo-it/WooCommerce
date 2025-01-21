@@ -4,15 +4,15 @@ namespace Buckaroo\Woocommerce\Constraints;
 
 use Buckaroo\Resources\Constants\ResponseStatus;
 
-class BuckarooTransactionStatus
-{
-    const STATUS_PENDING = 'pending';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_ON_HOLD = 'on-hold';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_CANCELLED = 'cancelled';
-    const STATUS_REFUNDED = 'refunded';
-    const STATUS_FAILED = 'failed';
+class BuckarooTransactionStatus {
+
+    const STATUS_PENDING       = 'pending';
+    const STATUS_PROCESSING    = 'processing';
+    const STATUS_ON_HOLD       = 'on-hold';
+    const STATUS_COMPLETED     = 'completed';
+    const STATUS_CANCELLED     = 'cancelled';
+    const STATUS_REFUNDED      = 'refunded';
+    const STATUS_FAILED        = 'failed';
     const STATUS_REQUEST_ERROR = 'request-error';
 
     /**
@@ -21,9 +21,8 @@ class BuckarooTransactionStatus
      * @param string|int $status Buckaroo transaction status code.
      * @return string WooCommerce order status.
      */
-    public static function fromTransactionStatus(string|int $status): string
-    {
-        switch ($status) {
+    public static function fromTransactionStatus( string|int $status ): string {
+        switch ( $status ) {
             case ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS:
                 return self::STATUS_COMPLETED;
             case ResponseStatus::BUCKAROO_STATUSCODE_WAITING_ON_USER_INPUT:
@@ -39,9 +38,8 @@ class BuckarooTransactionStatus
         }
     }
 
-    public static function getMessageFromCode($code): string
-    {
-        switch ($code) {
+    public static function getMessageFromCode( $code ): string {
+        switch ( $code ) {
             case ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS:
                 return 'Success';
             case ResponseStatus::BUCKAROO_STATUSCODE_FAILED:

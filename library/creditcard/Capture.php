@@ -13,16 +13,14 @@
  * @link      https://www.buckaroo.eu/
  */
 
-class Buckaroo_Creditcard_Capture_Form
-{
-    public function __construct()
-    {
-        add_action('add_meta_boxes', array($this, 'add_meta_box_form'), 10, 2);
+class Buckaroo_Creditcard_Capture_Form {
+
+    public function __construct() {
+         add_action( 'add_meta_boxes', array( $this, 'add_meta_box_form' ), 10, 2 );
     }
 
-    public function output( $order )
-    {
-        // Convert WP_Post to WC_Order if necessary.
+    public function output( $order ) {
+         // Convert WP_Post to WC_Order if necessary.
         if ( $order instanceof WP_Post ) {
             $order = wc_get_order( $order->ID );
         }
@@ -38,14 +36,13 @@ class Buckaroo_Creditcard_Capture_Form
     /**
      * Add meta box to order pages for credit card capture and refund functionality.
      *
-     * @param string  $post_type     The current post type.
-     * @param object  $post_or_order Post or order object.
+     * @param string $post_type     The current post type.
+     * @param object $post_or_order Post or order object.
      *
      * @return void
      */
-    public function add_meta_box_form( $post_type, $post_or_order )
-    {
-        // Handle both HPOS and traditional post-based orders.
+    public function add_meta_box_form( $post_type, $post_or_order ) {
+         // Handle both HPOS and traditional post-based orders.
         $is_order_page = in_array( $post_type, array( 'woocommerce_page_wc-orders', 'shop_order' ), true );
 
         if ( ! $is_order_page ) {
@@ -89,17 +86,16 @@ class Buckaroo_Creditcard_Capture_Form
      *
      * @return array
      */
-    protected function get_available_to_capture_by_type(Buckaroo_Order_Capture $order_capture)
-    {
-        $available_to_capture = $order_capture->get_available_to_capture();
+    protected function get_available_to_capture_by_type( Buckaroo_Order_Capture $order_capture ) {
+         $available_to_capture = $order_capture->get_available_to_capture();
 
         $available_to_capture_by_type = array();
-        foreach ($available_to_capture as $item) {
+        foreach ( $available_to_capture as $item ) {
             $item_type = $item->get_type();
-            if (!isset($available_to_capture_by_type[$item_type])) {
-                $available_to_capture_by_type[$item_type] = array();
+            if ( ! isset( $available_to_capture_by_type[ $item_type ] ) ) {
+                $available_to_capture_by_type[ $item_type ] = array();
             }
-            $available_to_capture_by_type[$item_type][] = $item;
+            $available_to_capture_by_type[ $item_type ][] = $item;
         }
         return $available_to_capture_by_type;
     }
@@ -111,12 +107,11 @@ class Buckaroo_Creditcard_Capture_Form
      *
      * @return array
      */
-    protected function get_refunded_captures(int $order_id)
-    {
-        $refunded_captures = get_post_meta($order_id, 'buckaroo_captures_refunded', true);
-        if (is_string($refunded_captures)) {
-            $refunded_captures_decoded = json_decode($refunded_captures);
-            if (is_array($refunded_captures_decoded)) {
+    protected function get_refunded_captures( int $order_id ) {
+         $refunded_captures = get_post_meta( $order_id, 'buckaroo_captures_refunded', true );
+        if ( is_string( $refunded_captures ) ) {
+            $refunded_captures_decoded = json_decode( $refunded_captures );
+            if ( is_array( $refunded_captures_decoded ) ) {
                 return $refunded_captures_decoded;
             }
         }
