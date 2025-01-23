@@ -16,20 +16,20 @@ namespace Buckaroo\Woocommerce\Services;
  */
 class Logger {
 
-    /**
-     * Log into into storage
-     *
-     * @param string $locationId
-     * @param mixed  $message
-     *
-     * @return void
-     */
-    public static function log( $locationId, $message = null ) {
+	/**
+	 * Log into into storage
+	 *
+	 * @param string $locationId
+	 * @param mixed  $message
+	 *
+	 * @return void
+	 */
+	public static function log( $locationId, $message = null ) {
 		if ( $message === null ) {
-            $message    = $locationId;
-            $locationId = '';
+			$message    = $locationId;
+			$locationId = '';
 		}
-        $loggerStorage = LoggerStorage::get_instance();
-        $loggerStorage->log( $locationId, $message );
-    }
+		$loggerStorage = LoggerStorage::get_instance();
+		$loggerStorage->log( $locationId, $message );
+	}
 }

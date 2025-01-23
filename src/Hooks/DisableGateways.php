@@ -9,13 +9,13 @@ use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
  */
 class DisableGateways {
 
-    public function __construct() {
-         add_filter( 'woocommerce_available_payment_gateways', array( $this, 'handle' ) );
-    }
+	public function __construct() {
+		add_filter( 'woocommerce_available_payment_gateways', array( $this, 'handle' ) );
+	}
 
-    public function handle( $available_gateways ) {
+	public function handle( $available_gateways ) {
 		if ( ! IdinProcessor::checkCurrentUserIsVerified() ) {
-            return array();
+			return array();
 		}
 
 		if ( $available_gateways ) {
@@ -23,8 +23,8 @@ class DisableGateways {
 				$totalCartAmount = WC()->cart->get_total( null );
 
 				/**
-				 * skip check when card total is 0
-				 */
+				skip check when card total is 0
+*/
 				if ( $totalCartAmount == 0 ) {
 					return $available_gateways;
 				}
@@ -40,9 +40,9 @@ class DisableGateways {
 					if (
 					$this->isBuckarooPayment( $key )
 					&& (
-						! empty( $gateway->minvalue )
-						||
-						! empty( $gateway->maxvalue )
+					! empty( $gateway->minvalue )
+					||
+					! empty( $gateway->maxvalue )
 					)
 					) {
 						if ( ! empty( $gateway->maxvalue ) && $totalCartAmount > $gateway->maxvalue ) {
@@ -63,17 +63,17 @@ class DisableGateways {
 		if ( isset( $available_gateways['buckaroo_payperemail'] ) && $available_gateways['buckaroo_payperemail']->frontendVisible === 'no' ) {
 			unset( $available_gateways['buckaroo_payperemail'] );
 		}
-        return $available_gateways;
-    }
+		return $available_gateways;
+	}
 
-    /**
-     * Check if payment gateway is ours
-     *
-     * @param string $name
-     *
-     * @return boolean
-     */
-    protected function isBuckarooPayment( string $name ) {
-         return substr( $name, 0, 8 ) === 'buckaroo';
-    }
+	/**
+	Check if payment gateway is ours
+
+	@param string $name
+
+	@return boolean
+	 */
+	protected function isBuckarooPayment( string $name ) {
+		return substr( $name, 0, 8 ) === 'buckaroo';
+	}
 }

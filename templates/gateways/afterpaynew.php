@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The Template for displaying afterpaynew gateway template
  * php version 7.2

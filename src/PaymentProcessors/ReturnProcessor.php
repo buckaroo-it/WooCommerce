@@ -16,7 +16,7 @@ use WC_Order;
 class ReturnProcessor {
 
     public function handle( $payment_method = null ) {
-         global $woocommerce, $wpdb;
+        global $woocommerce, $wpdb;
 
         $responseParser = ResponseRegistry::getResponse( $_POST ?? $_GET );
 
@@ -52,7 +52,6 @@ class ReturnProcessor {
 
         $buckarooClient = new BuckarooClient( $payment_method->getMode() );
         if ( $buckarooClient->isReplyHandlerValid( $responseParser->get( formatted: false ) ) ) {
-
             update_post_meta(
                 $order_id,
                 '_buckaroo_order_in_test_mode',
@@ -127,7 +126,7 @@ class ReturnProcessor {
                 if ( in_array( $order->get_payment_method(), array( 'buckaroo_payperemail', 'buckaroo_transfer' ) ) ) {
                     Logger::log( 'Payperemail status check: ' . $responseParser->getStatusCode() );
                     if ( Helper::handleUnsuccessfulPayment( $responseParser->getStatusCode() ) ) {
-						return;
+                        return;
                     }
                 }
                 if ( ! in_array( $order->get_status(), array( 'completed', 'processing', 'cancelled', 'failed', 'refund' ) ) ) {
@@ -183,7 +182,6 @@ class ReturnProcessor {
                             ),
                             'error'
                         );
-
                     } else {
                         Logger::log( __METHOD__ . '|50|' );
                         $error_description = 'Payment unsuccessful. Please try again or choose another payment method.';
@@ -198,12 +196,10 @@ class ReturnProcessor {
                                     wc_add_notice( __( $error_description, 'wc-buckaroo-bpe-gateway' ), 'error' );
                                 }
                             }
-                        } else {
-                            if ( $order->billing_country == 'NL' ) {
-                                if ( strrpos( $responseParser->getSubCodeMessage(), ': ' ) !== false ) {
-                                    $error_description = str_replace( ':', '', substr( $responseParser->getSubCodeMessage(), strrpos( $responseParser->getSubCodeMessage(), ': ' ) ) );
-                                    wc_add_notice( __( $error_description, 'wc-buckaroo-bpe-gateway' ), 'error' );
-                                }
+                        } elseif ( $order->billing_country == 'NL' ) {
+                            if ( strrpos( $responseParser->getSubCodeMessage(), ': ' ) !== false ) {
+                                $error_description = str_replace( ':', '', substr( $responseParser->getSubCodeMessage(), strrpos( $responseParser->getSubCodeMessage(), ': ' ) ) );
+                                wc_add_notice( __( $error_description, 'wc-buckaroo-bpe-gateway' ), 'error' );
                             }
                         }
                         if ( $payment_method && $payment_method->get_failed_url() ) {
@@ -230,7 +226,7 @@ class ReturnProcessor {
     }
 
     protected function fn_process_response_payperemail( $payment_method, ResponseParser $responseParser, $order ) {
-		if ( $payment_method->id == 'buckaroo_payperemail' ) {
+        if ( $payment_method->id == 'buckaroo_payperemail' ) {
             Logger::log( __METHOD__, 'Process paypermail' );
             if ( is_admin() ) {
                 if ( $responseParser->isSuccess() ) {
@@ -265,11 +261,11 @@ class ReturnProcessor {
                 set_transient( get_current_user_id() . 'buckarooAdminNotice', $buckaroo_admin_notice );
                 return true;
             }
-		}
+        }
     }
 
     protected function addSepaDirectOrderNote( ResponseParser $responseParser, $order ) {
-		if ( $responseParser->getPaymentMethod() == 'SepaDirectDebit' ) {
+        if ( $responseParser->getPaymentMethod() == 'SepaDirectDebit' ) {
             foreach ( $responseParser->get( 'Services.Service.ResponseParameter' ) as $param ) {
                 if ( $param->Name == 'MandateReference' ) {
                     $order->add_order_note( 'MandateReference: ' . $param->_, 1 );
@@ -278,11 +274,11 @@ class ReturnProcessor {
                     $order->add_order_note( 'MandateDate: ' . $param->_, 1 );
                 }
             }
-		}
+        }
     }
 
     protected function fn_process_response_idin( ResponseParser $responseParser, $order_id = null ) {
-		if ( ! $order_id && ( $responseParser->getPaymentMethod() == 'idin' ) && ! $responseParser->isSuccess() ) {
+        if ( ! $order_id && ( $responseParser->getPaymentMethod() == 'idin' ) && ! $responseParser->isSuccess() ) {
             Logger::log( __METHOD__ . '|25|' );
             $message = '';
             if ( $responseParser->getSubCodeMessage() ) {
@@ -291,12 +287,11 @@ class ReturnProcessor {
             Logger::log( __METHOD__ . '|30|', $message );
 
             return array(
-				'result'  => 'error',
-				'message' => $message,
+                'result'  => 'error',
+                'message' => $message,
             );
-		} else {
-			return false;
-		}
+        } else {
+            return false;
+        }
     }
-
 }

@@ -34,7 +34,7 @@ if ( \Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor::checkCurrentUserIsVerifi
 						<option value='0' style='color: grey !important'>
 							<?php esc_html_e( 'Select your bank', 'wc-buckaroo-bpe-gateway' ); ?>
 						</option>
-                        <?php foreach ( \Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor::getIssuerList() as $issuer ) : ?>
+						<?php foreach ( \Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor::getIssuerList() as $issuer ) : ?>
 							<div>
 								<option value='<?php echo esc_attr( $issuer['servicename'] ); ?>'>
 									<?php esc_html_e( $issuer['displayname'], 'wc-buckaroo-bpe-gateway' ); ?>

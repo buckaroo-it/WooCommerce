@@ -17,46 +17,46 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Services\LoggerStorage;
 
 return new class() implements Buckaroo_Migration {
-    public function execute() {
-         global $wpdb;
+	public function execute() {
+		global $wpdb;
 
-        $wpdb->hide_errors();
+		$wpdb->hide_errors();
 
-        $collate = $this->getCollate();
+		$collate = $this->getCollate();
 
-        $wpdb->query(
-            "
+		$wpdb->query(
+			"
             CREATE TABLE IF NOT EXISTS {$wpdb->prefix}woocommerce_buckaroo_transactions (
                 wc_orderid bigint(20) NOT NULL,
                 transaction varchar(200) NOT NULL,
                 PRIMARY KEY  (wc_orderid)
             ) 
             $collate;"
-        );
+		);
 
-        if ( ! get_option( 'woocommerce_buckaroo_exodus' ) ) {
-            add_option( 'woocommerce_buckaroo_exodus', 'a:1:{s:8:"covenant";b:1;}', '', 'yes' );
-        } else {
-            update_option( 'woocommerce_buckaroo_exodus', 'a:1:{s:8:"covenant";b:1;}', true );
-        }
-        $this->create_log_table();
-        $this->update_extrachargeamount_with_percentage();
-    }
+		if ( ! get_option( 'woocommerce_buckaroo_exodus' ) ) {
+			add_option( 'woocommerce_buckaroo_exodus', 'a:1:{s:8:"covenant";b:1;}', '', 'yes' );
+		} else {
+			update_option( 'woocommerce_buckaroo_exodus', 'a:1:{s:8:"covenant";b:1;}', true );
+		}
+		$this->create_log_table();
+		$this->update_extrachargeamount_with_percentage();
+	}
 
-    /**
-     * Create table for logs if not exists
-     *
-     * @return void
-     */
-    protected function create_log_table() {
-         global $wpdb;
+	/**
+	 * Create table for logs if not exists
+	 *
+	 * @return void
+	 */
+	protected function create_log_table() {
+		global $wpdb;
 
-        $wpdb->hide_errors();
-        $table   = $wpdb->prefix . LoggerStorage::STORAGE_DB_TABLE;
-        $collate = $this->getCollate();
+		$wpdb->hide_errors();
+		$table   = $wpdb->prefix . LoggerStorage::STORAGE_DB_TABLE;
+		$collate = $this->getCollate();
 
-        $wpdb->query(
-            "CREATE TABLE IF NOT EXISTS $table (
+		$wpdb->query(
+			"CREATE TABLE IF NOT EXISTS $table (
                 `id` BIGINT NOT NULL AUTO_INCREMENT , 
                 `date` DATETIME NOT NULL , 
                 `process_id` VARCHAR(23) NOT NULL ,
@@ -64,61 +64,61 @@ return new class() implements Buckaroo_Migration {
                 `location_id` VARCHAR(255) NOT NULL , 
                 PRIMARY KEY (`id`)
             )  $collate;"
-        );
-    }
+		);
+	}
 
-    protected function update_extrachargeamount_with_percentage() {
-        $gateways = $this->get_our_gateways();
-        /** @var AbstractPaymentGateway */
-        foreach ( $gateways as $gateway ) {
-            $extrachargeamount = str_replace( '%', '', $gateway->get_option( 'extrachargeamount', 0 ) );
+	protected function update_extrachargeamount_with_percentage() {
+		$gateways = $this->get_our_gateways();
+		/** @var AbstractPaymentGateway */
+		foreach ( $gateways as $gateway ) {
+			$extrachargeamount = str_replace( '%', '', $gateway->get_option( 'extrachargeamount', 0 ) );
 
-            if ( $extrachargeamount !== 0 && 'percentage' === $gateway->get_option( 'extrachargetype' ) ) {
-                $gateway->update_option(
-                    'extrachargeamount',
-                    $extrachargeamount . '%'
-                );
-            }
-        }
-    }
+			if ( $extrachargeamount !== 0 && 'percentage' === $gateway->get_option( 'extrachargetype' ) ) {
+				$gateway->update_option(
+					'extrachargeamount',
+					$extrachargeamount . '%'
+				);
+			}
+		}
+	}
 
-    /**
-     * Filter gateways to display only our gateways
-     *
-     * @return array
-     */
-    private function get_our_gateways() {
-        if ( ! function_exists( 'WC' ) ) {
-            return;
-        }
-        $gateways = WC()->payment_gateways->payment_gateways();
+	/**
+	 * Filter gateways to display only our gateways
+	 *
+	 * @return array
+	 */
+	private function get_our_gateways() {
+		if ( ! function_exists( 'WC' ) ) {
+			return;
+		}
+		$gateways = WC()->payment_gateways->payment_gateways();
 
-        return array_filter(
-            $gateways,
-            function ( $gateway ) {
-                return $gateway instanceof AbstractPaymentGateway;
-            }
-        );
-    }
+		return array_filter(
+			$gateways,
+			function ( $gateway ) {
+				return $gateway instanceof AbstractPaymentGateway;
+			}
+		);
+	}
 
-    /**
-     * Create table for logs if not exists
-     *
-     * @return void
-     */
-    protected function getCollate() {
-         global $wpdb;
+	/**
+	 * Create table for logs if not exists
+	 *
+	 * @return void
+	 */
+	protected function getCollate() {
+		global $wpdb;
 
-        $collate = '';
+		$collate = '';
 
-        if ( $wpdb->has_cap( 'collation' ) ) {
-            if ( ! empty( $wpdb->charset ) ) {
-                $collate .= "DEFAULT CHARACTER SET $wpdb->charset";
-            }
-            if ( ! empty( $wpdb->collate ) ) {
-                $collate .= " COLLATE $wpdb->collate";
-            }
-        }
-        return $collate;
-    }
+		if ( $wpdb->has_cap( 'collation' ) ) {
+			if ( ! empty( $wpdb->charset ) ) {
+				$collate .= "DEFAULT CHARACTER SET $wpdb->charset";
+			}
+			if ( ! empty( $wpdb->collate ) ) {
+				$collate .= " COLLATE $wpdb->collate";
+			}
+		}
+		return $collate;
+	}
 };

@@ -6,14 +6,14 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class PayconiqGateway extends AbstractPaymentGateway {
 
-    public function __construct() {
-         $this->id          = 'buckaroo_payconiq';
-        $this->title        = 'Payconiq';
-        $this->has_fields   = false;
-        $this->method_title = 'Buckaroo Payconiq';
-        $this->setIcon( '24x24/payconiq.png', 'svg/payconiq.svg' );
+	public function __construct() {
+		$this->id           = 'buckaroo_payconiq';
+		$this->title        = 'Payconiq';
+		$this->has_fields   = false;
+		$this->method_title = 'Buckaroo Payconiq';
+		$this->setIcon( '24x24/payconiq.png', 'svg/payconiq.svg' );
 
-        parent::__construct();
-        $this->addRefundSupport();
-    }
+		parent::__construct();
+		$this->addRefundSupport();
+	}
 }

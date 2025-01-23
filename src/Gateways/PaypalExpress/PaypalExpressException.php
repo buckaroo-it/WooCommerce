@@ -17,6 +17,4 @@ use Exception;
  */
 class PaypalExpressException extends Exception {
 
-
-
 }

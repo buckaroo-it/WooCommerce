@@ -6,16 +6,16 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 
 class GiftCardProcessor extends AbstractPaymentProcessor {
 
-    /** @inheritDoc */
-    public function getAction(): string {
-        return 'payRedirect';
-    }
+	/** @inheritDoc */
+	public function getAction(): string {
+		return 'payRedirect';
+	}
 
-    /** @inheritDoc */
-    protected function getMethodBody(): array {
-        return array(
-            'continueOnIncomplete'       => '1',
-            'servicesSelectableByClient' => $this->gateway->get_option( 'giftcards', '' ),
-        );
-    }
+	/** @inheritDoc */
+	protected function getMethodBody(): array {
+		return array(
+			'continueOnIncomplete'       => '1',
+			'servicesSelectableByClient' => $this->gateway->get_option( 'giftcards', '' ),
+		);
+	}
 }

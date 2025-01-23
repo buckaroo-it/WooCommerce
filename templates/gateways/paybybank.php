@@ -31,7 +31,8 @@ $selectedIssuer = \Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor::g
 												<?php
 												if ( isset( $issuer['selected'] ) && $issuer['selected'] === true ) {
 													?>
-selected <?php } ?> id="bankMethod<?php echo esc_attr( $key ); ?>">
+selected 
+												<?php } ?> id="bankMethod<?php echo esc_attr( $key ); ?>">
 						<?php echo esc_html_e( $issuer['name'], 'wc-buckaroo-bpe-gateway' ); ?>
 					</option>
 				</div>
@@ -39,7 +40,6 @@ selected <?php } ?> id="bankMethod<?php echo esc_attr( $key ); ?>">
 			</select>
 		</div>
 	<?php } else { ?>
-
 	<input type="hidden" name="buckaroo-paybybank-issuer" class="bk-paybybank-real-value" value="<?php echo esc_attr( $selectedIssuer ); ?>">
 	<div class="form-row form-row-wide bk-paybybank-input bk-paybybank-mobile" style="display: none;">
 		<select class="buckaroo-paybybank-select">
@@ -52,7 +52,8 @@ selected <?php } ?> id="bankMethod<?php echo esc_attr( $key ); ?>">
 											<?php
 											if ( isset( $issuer['selected'] ) && $issuer['selected'] === true ) {
 												?>
-selected <?php } ?> id="bankMethod<?php echo esc_attr( $key ); ?>">
+selected 
+											<?php } ?> id="bankMethod<?php echo esc_attr( $key ); ?>">
 					<?php echo esc_html_e( $issuer['name'], 'wc-buckaroo-bpe-gateway' ); ?>
 				</option>
 			</div>
@@ -68,7 +69,8 @@ selected <?php } ?> id="bankMethod<?php echo esc_attr( $key ); ?>">
 					<?php
 					if ( isset( $issuer['selected'] ) && $issuer['selected'] === true ) {
 						?>
-checked <?php } ?> id="radio-bankMethod<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $key ); ?>" class="custom-control-input bank-method-input bk-paybybank-radio">
+checked 
+					<?php } ?> id="radio-bankMethod<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $key ); ?>" class="custom-control-input bank-method-input bk-paybybank-radio">
 					<label class="custom-control-label bank-method-label" for="radio-bankMethod<?php echo esc_attr( $key ); ?>">
 						<img src="<?php echo esc_url( plugin_dir_url( __DIR__ ) . '../library/buckaroo_images/ideal/' . $issuer['logo'] ); ?>" wdith="45" class="bank-method-image" alt="<?php echo esc_html_e( $issuer['name'], 'wc-buckaroo-bpe-gateway' ); ?>" title="<?php echo esc_html_e( $issuer['name'], 'wc-buckaroo-bpe-gateway' ); ?>">
 						<strong><?php echo esc_html_e( $issuer['name'], 'wc-buckaroo-bpe-gateway' ); ?></strong>
@@ -87,4 +89,4 @@ checked <?php } ?> id="radio-bankMethod<?php echo esc_attr( $key ); ?>" value="<
 	</div>
 </fieldset>
 
-<?php } ?>
+	<?php } ?>

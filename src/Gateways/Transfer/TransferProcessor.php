@@ -7,32 +7,32 @@ use DateTime;
 
 class TransferProcessor extends AbstractPaymentProcessor {
 
-    /** @inheritDoc */
-    protected function getMethodBody(): array {
-        return array(
-            'email'    => $this->getAddress( 'billing', 'email' ),
-            'country'  => $this->getAddress( 'billing', 'country' ),
-            'customer' => array(
-                'firstName' => $this->getAddress( 'billing', 'first_name' ),
-                'lastName'  => $this->getAddress( 'billing', 'last_name' ),
-            ),
-            'dateDue'  => $this->getDueDate(),
-            'sendMail' => $this->canSendEmail(),
-        );
-    }
+	/** @inheritDoc */
+	protected function getMethodBody(): array {
+		return array(
+			'email'    => $this->getAddress( 'billing', 'email' ),
+			'country'  => $this->getAddress( 'billing', 'country' ),
+			'customer' => array(
+				'firstName' => $this->getAddress( 'billing', 'first_name' ),
+				'lastName'  => $this->getAddress( 'billing', 'last_name' ),
+			),
+			'dateDue'  => $this->getDueDate(),
+			'sendMail' => $this->canSendEmail(),
+		);
+	}
 
-    protected function getDueDate(): string {
-        $now  = new DateTime();
-        $days = $this->gateway->get_option( 'datedue' );
+	protected function getDueDate(): string {
+		$now  = new DateTime();
+		$days = $this->gateway->get_option( 'datedue' );
 
-        if ( is_scalar( $days ) && (int) $days <= 0 ) {
-            $days = 14;
-        }
-        $now->modify( '+' . $days . ' day' );
-        return $now->format( 'Y-m-d' );
-    }
+		if ( is_scalar( $days ) && (int) $days <= 0 ) {
+			$days = 14;
+		}
+		$now->modify( '+' . $days . ' day' );
+		return $now->format( 'Y-m-d' );
+	}
 
-    protected function canSendEmail(): bool {
-        return $this->gateway->get_option( 'sendmail' ) == 'TRUE';
-    }
+	protected function canSendEmail(): bool {
+		return $this->gateway->get_option( 'sendmail' ) == 'TRUE';
+	}
 }

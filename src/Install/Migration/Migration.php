@@ -16,13 +16,12 @@ namespace Buckaroo\Woocommerce\Install\Migration;
  */
 interface Migration {
 
-
-    /**
-     * Execute migration,
-     * each version should attempt to be backward compatible with previous versions
-     * if the users decides to downgrade
-     *
-     * @return void
-     */
-    public function execute();
+	/**
+	 * Execute migration,
+	 * each version should attempt to be backward compatible with previous versions
+	 * if the users decides to downgrade
+	 *
+	 * @return void
+	 */
+	public function execute();
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The Template for displaying afterpay tos gateway template
  * php version 7.2

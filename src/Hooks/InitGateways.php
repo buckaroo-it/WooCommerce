@@ -13,57 +13,57 @@ use Buckaroo\Woocommerce\Services\Helper;
 
 class InitGateways {
 
-    public function __construct() {
-         add_action( 'enqueue_block_assets', array( $this, 'initGatewaysOnCheckout' ) );
-        add_action( 'woocommerce_api_wc_push_buckaroo', array( $this, 'pushClassInit' ) );
+	public function __construct() {
+		add_action( 'enqueue_block_assets', array( $this, 'initGatewaysOnCheckout' ) );
+		add_action( 'woocommerce_api_wc_push_buckaroo', array( $this, 'pushClassInit' ) );
 
-        $idinController = new IdinController();
+		$idinController = new IdinController();
 
-        add_action( 'woocommerce_before_single_product', array( $this, 'idinProduct' ) );
-        add_action( 'woocommerce_before_cart', array( $this, 'idinCart' ) );
-        add_action( 'woocommerce_review_order_before_payment', array( $this, 'idinCheckout' ) );
+		add_action( 'woocommerce_before_single_product', array( $this, 'idinProduct' ) );
+		add_action( 'woocommerce_before_cart', array( $this, 'idinCart' ) );
+		add_action( 'woocommerce_review_order_before_payment', array( $this, 'idinCheckout' ) );
 
-        add_action( 'woocommerce_api_wc_gateway_buckaroo_idin-identify', array( $idinController, 'identify' ) );
-        add_action( 'woocommerce_api_wc_gateway_buckaroo_idin-reset', array( $idinController, 'reset' ) );
-        add_action( 'woocommerce_api_wc_gateway_buckaroo_idin-return', array( $idinController, 'returnHandler' ) );
-    }
+		add_action( 'woocommerce_api_wc_gateway_buckaroo_idin-identify', array( $idinController, 'identify' ) );
+		add_action( 'woocommerce_api_wc_gateway_buckaroo_idin-reset', array( $idinController, 'reset' ) );
+		add_action( 'woocommerce_api_wc_gateway_buckaroo_idin-return', array( $idinController, 'returnHandler' ) );
+	}
 
-    public function pushClassInit() {
-         ( new PushProcessor() )->handle();
-        exit;
-    }
+	public function pushClassInit() {
+		( new PushProcessor() )->handle();
+		exit;
+	}
 
 
-    public function idinProduct(): void {
-        global $post;
+	public function idinProduct(): void {
+		global $post;
 
-        if ( IdinProcessor::isIdin( array( $post->ID ) ) ) {
-            include 'templates/idin/cart.php';
-        }
-    }
+		if ( IdinProcessor::isIdin( array( $post->ID ) ) ) {
+			include 'templates/idin/cart.php';
+		}
+	}
 
-    public function idinCart(): void {
-        if ( IdinProcessor::isIdin( IdinProcessor::getCartProductIds() ) ) {
-            include 'templates/idin/cart.php';
-        }
-    }
+	public function idinCart(): void {
+		if ( IdinProcessor::isIdin( IdinProcessor::getCartProductIds() ) ) {
+			include 'templates/idin/cart.php';
+		}
+	}
 
-    public function idinCheckout(): void {
-        if ( ! empty( $_GET['bck_err'] ) && ( $error = base64_decode( $_GET['bck_err'] ) ) ) {
-            wc_add_notice( esc_html__( sanitize_text_field( $error ), 'wc-buckaroo-bpe-gateway' ), 'error' );
-        }
-        if ( IdinProcessor::isIdin( IdinProcessor::getCartProductIds() ) ) {
-            include plugin_dir_path( BK_PLUGIN_FILE ) . 'templates/idin/checkout.php';
-        }
-    }
+	public function idinCheckout(): void {
+		if ( ! empty( $_GET['bck_err'] ) && ( $error = base64_decode( $_GET['bck_err'] ) ) ) {
+			wc_add_notice( esc_html__( sanitize_text_field( $error ), 'wc-buckaroo-bpe-gateway' ), 'error' );
+		}
+		if ( IdinProcessor::isIdin( IdinProcessor::getCartProductIds() ) ) {
+			include plugin_dir_path( BK_PLUGIN_FILE ) . 'templates/idin/checkout.php';
+		}
+	}
 
-    public function initGatewaysOnCheckout() {
+	public function initGatewaysOnCheckout() {
 		if ( ! class_exists( 'WC_Payment_Gateways' ) ) {
-            return array();
+			return array();
 		}
 
-        $gateways        = WC()->payment_gateways()->payment_gateways();
-        $payment_methods = array();
+		$gateways        = WC()->payment_gateways()->payment_gateways();
+		$payment_methods = array();
 
 		foreach ( $gateways as $gateway_id => $gateway ) {
 			if ( $this->isBuckarooPayment( $gateway_id ) && $gateway->enabled == 'yes' ) {
@@ -102,26 +102,25 @@ class InitGateways {
 
 				if ( $gateway_id === 'buckaroo_applepay' ) {
 					$payment_method = array_merge(
-                        $payment_method,
-                        array(
+						$payment_method,
+						array(
 							'showInCheckout'     => $gateway->get_option( 'button_checkout' ) === 'TRUE',
 							'merchantIdentifier' => $gateway->get_option( 'merchant_guid' ),
-                        )
+						)
 					);
 				}
 
 				if ( $gateway_id === 'buckaroo_paypal' ) {
 					$expressPages   = $gateway->get_option( 'express', array() );
 					$payment_method = array_merge(
-                        $payment_method,
-                        array(
+						$payment_method,
+						array(
 							'showInCheckout' => is_array( $expressPages ) && in_array( PaypalExpressController::LOCATION_CHECKOUT, $expressPages ),
-                        )
+						)
 					);
 				}
 				if ( $gateway_id === 'buckaroo_klarnakp' || $gateway_id === 'buckaroo_klarnapay' || $gateway_id === 'buckaroo_klarnapii' ) {
 					$payment_method['financialWarning'] = $gateway->get_option( 'financial_warning' );
-
 				}
 				if ( $gateway_id === 'buckaroo_in3' ) {
 					$payment_method['financialWarning'] = $gateway->get_option( 'financial_warning' );
@@ -133,25 +132,24 @@ class InitGateways {
 				$payment_methods[] = $payment_method;
 			}
 		}
-        wp_localize_script( 'buckaroo-blocks', 'buckarooGateways', $payment_methods );
+		wp_localize_script( 'buckaroo-blocks', 'buckarooGateways', $payment_methods );
 
-        return $payment_methods;
-    }
+		return $payment_methods;
+	}
 
-    /**
-     * Check if payment gateway is ours
-     *
-     * @param string $name
-     *
-     * @return boolean
-     */
-    private function isBuckarooPayment( string $name ): bool {
-        return strncmp( $name, 'buckaroo', strlen( 'buckaroo' ) ) === 0;
-    }
+	/**
+	 * Check if payment gateway is ours
+	 *
+	 * @param string $name
+	 *
+	 * @return boolean
+	 */
+	private function isBuckarooPayment( string $name ): bool {
+		return strncmp( $name, 'buckaroo', strlen( 'buckaroo' ) ) === 0;
+	}
 
-    private function getCredtCardIsSecure() {
-         return ( ! empty( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' )
-            || ! empty( $_SERVER['SERVER_PORT'] ) && $_SERVER['SERVER_PORT'] == 443;
-    }
-
+	private function getCredtCardIsSecure() {
+		return ( ! empty( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' )
+			|| ! empty( $_SERVER['SERVER_PORT'] ) && $_SERVER['SERVER_PORT'] == 443;
+	}
 }

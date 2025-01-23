@@ -16,6 +16,4 @@ namespace Buckaroo\Woocommerce\Install\Migration;
  */
 class MigrationException extends \Exception {
 
-
-
 }
