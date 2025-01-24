@@ -74,15 +74,17 @@ class PaymentSetupScripts {
 	}
 
 	public function handleBlockAssets() {
-		wp_enqueue_script(
-			'buckaroo-blocks',
-			plugins_url( '/assets/js/dist/blocks.js', BK_PLUGIN_FILE ),
-			array( 'wc-blocks-registry', 'wp-element', 'wp-i18n', 'wp-data' ),
-			Plugin::VERSION,
-			true
-		);
+        if ( has_block( 'woocommerce/checkout', get_post() ) ) {
+            wp_enqueue_script(
+                'buckaroo-blocks',
+                plugins_url( '/assets/js/dist/blocks.js', BK_PLUGIN_FILE ),
+                array( 'wc-blocks-registry', 'wp-element', 'wp-i18n', 'wp-data' ),
+                Plugin::VERSION,
+                true
+            );
 
-		wp_set_script_translations( 'buckaroo-blocks', 'wc-buckaroo-bpe-gateway', plugin_dir_path( BK_PLUGIN_FILE ) . 'languages' );
+            wp_set_script_translations( 'buckaroo-blocks', 'wc-buckaroo-bpe-gateway', plugin_dir_path( BK_PLUGIN_FILE ) . 'languages' );
+        }
 	}
 
 	public function initFrontendScripts() {
