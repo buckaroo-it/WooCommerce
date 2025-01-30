@@ -3,12 +3,15 @@
 namespace Buckaroo\Woocommerce\Gateways\PayPerEmail;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use WC_Order;
 
 class PayPerEmailGateway extends AbstractPaymentGateway {
 
 	const PAYMENT_CLASS = PayPerEmailProcessor::class;
 	public $paymentmethodppe;
 	public $frontendVisible;
+
+    public bool $usePayPerLink = false;
 
 	protected array $supportedCurrencies = array(
 		'ARS',
@@ -170,54 +173,143 @@ class PayPerEmailGateway extends AbstractPaymentGateway {
 		$this->frontendVisible  = $this->get_option( 'show_PayPerEmail_frontend', '' );
 	}
 
+    protected function isEnabled() {
+        return $this->get_option( 'enabled' ) === 'yes';
+    }
 
-	public function handleHooks() {
-		add_filter(
-			'woocommerce_order_actions',
-			function ( $actions ) {
+    protected function canShowPayPerEmail( $status ) {
+        return $this->isEnabled()
+            && in_array( $status, array( 'auto-draft', 'pending', 'on-hold' ) )
+            && $this->get_option( 'show_PayPerEmail' ) === 'TRUE';
+    }
+
+    protected function canShowPaylink( $status ) {
+        return $this->isEnabled()
+            && in_array( $status, array( 'pending', 'on-hold', 'failed' ) )
+            && $this->get_option( 'show_PayLink' ) === 'TRUE';
+    }
+
+    public function handleHooks() {
+        add_action(
+            'woocommerce_admin_order_actions_end',
+            function ( $order ) {
+				if ( ! $order instanceof WC_Order ) {
+					return;
+				}
+
+				$orderId = $order->get_id();
+				$status  = $order->get_status();
+				$buttons = array(
+					array(
+						'url'     => wp_nonce_url(
+							admin_url( 'admin-ajax.php?action=buckaroo_send_admin_payperemail&order_id=' . $orderId ),
+							'buckaroo_send_payperemail_' . $orderId
+						),
+						'icon'    => 'email',
+						'tooltip' => __( 'Send a PayPerEmail', 'textdomain' ),
+						'label'   => __( 'P1', 'textdomain' ),
+						'enabled' => $this->canShowPayPerEmail( $status ),
+					),
+					array(
+						'url'     => wp_nonce_url(
+							admin_url( 'admin-ajax.php?action=buckaroo_create_paylink&order_id=' . $orderId ),
+							'buckaroo_send_payperemail_' . $orderId
+						),
+						'icon'    => 'link',
+						'tooltip' => __( 'Create PayLink', 'textdomain' ),
+						'label'   => __( 'P1', 'textdomain' ),
+						'enabled' => $this->canShowPaylink( $status ),
+					),
+				);
+
+				foreach ( array_filter( $buttons, fn( $b ) => $b['enabled'] ) as $button ) {
+					printf(
+                        '<a class="wc-buckaroo-action-button button tips wc-action-button wc-action-button-%1$s %1$s" href="%2$s" data-tip="%3$s">%4$s</a>',
+                        esc_attr( $button['icon'] ),
+                        esc_url( $button['url'] ),
+                        esc_attr( $button['tooltip'] ),
+                        esc_html( $button['label'] )
+					);
+				}
+			}
+        );
+
+        add_filter(
+            'woocommerce_order_actions',
+            function ( $actions ) {
 				global $theorder;
-
-				if ( $this->get_option( 'enabled' ) == 'yes' ) {
-					if ( in_array( $theorder->get_status(), array( 'auto-draft', 'pending', 'on-hold' ) ) ) {
-						if ( $this->get_option( 'show_PayPerEmail' ) == 'TRUE' ) {
-							$actions['buckaroo_send_admin_payperemail'] = esc_html__( 'Send a PayPerEmail', 'woocommerce' );
-						}
+				if ( $this->isEnabled() ) {
+					$status = $theorder->get_status();
+					if ( $this->canShowPayPerEmail( $status ) ) {
+						$actions['buckaroo_send_admin_payperemail'] = __( 'Send a PayPerEmail', 'woocommerce' );
 					}
-					if ( in_array( $theorder->get_status(), array( 'pending', 'pending', 'on-hold', 'failed' ) ) ) {
-						if ( $this->get_option( 'show_PayLink' ) == 'TRUE' ) {
-							$actions['buckaroo_create_paylink'] = esc_html__( 'Create PayLink', 'woocommerce' );
-						}
+					if ( $this->canShowPaylink( $status ) ) {
+						$actions['buckaroo_create_paylink'] = __( 'Create PayLink', 'woocommerce' );
 					}
 				}
-			},
-			10,
-			1
-		);
+				return $actions;
+			}
+        );
 
-		add_action(
-			'woocommerce_order_action_buckaroo_send_admin_payperemail',
-			function ( $order ) {
-				$gateway = new PayPerEmailGateway();
-				if ( isset( $gateway ) ) {
-					$response = $gateway->process_payment( $order->get_id() );
-					wp_redirect( $response );
-				}
-			},
-			10,
-			1
-		);
+        add_action(
+            'woocommerce_order_action_buckaroo_send_admin_payperemail',
+            function ( $order ) {
+                $response = $this->process_payment( $order->get_id() );
+                wp_redirect( $response );
+                exit;
+			}
+        );
 
-		add_action(
-			'woocommerce_order_action_buckaroo_create_paylink',
-			function ( $order ) {
-				$gateway = new PayPerEmailGateway();
-				if ( isset( $gateway ) ) {
-					$response = $gateway->process_payment( $order->get_id(), 1 );
-					wp_redirect( $response );
+        add_action(
+            'wp_ajax_buckaroo_send_admin_payperemail',
+            function () {
+				$orderId  = absint( $_GET['order_id'] ?? 0 );
+				$response = $this->process_payment( $orderId );
+
+				if ( isset( $response['result'] ) && $response['result'] === 'success' ) {
+					set_transient(
+                        get_current_user_id() . 'buckarooAdminNotice',
+                        array(
+							'type'    => 'success',
+							'message' => __( 'PayPerEmail has been sent', 'wc-buckaroo-bpe-gateway' ),
+                        )
+					);
 				}
-			},
-			10,
-			1
-		);
+
+				wp_safe_redirect( wp_get_referer() ?: admin_url( 'edit.php?post_type=shop_order' ) );
+				exit;
+			}
+        );
+
+        add_action(
+            'woocommerce_order_action_buckaroo_create_paylink',
+            function ( $order ) {
+                $response = $this->process_payment( $order->get_id() );
+                wp_redirect( $response );
+                exit;
+			}
+        );
+
+        add_action(
+            'wp_ajax_buckaroo_create_paylink',
+            function () {
+				$orderId             = absint( $_GET['order_id'] ?? 0 );
+				$this->usePayPerLink = true;
+				$response            = $this->process_payment( $orderId );
+
+				if ( isset( $response['result'] ) && $response['result'] === 'success' ) {
+					set_transient(
+                        get_current_user_id() . 'buckarooAdminNotice',
+                        array(
+							'type'    => 'success',
+							'message' => __( 'PayPerLink has been sent', 'wc-buckaroo-bpe-gateway' ),
+                        )
+					);
+				}
+
+				wp_safe_redirect( wp_get_referer() ?: admin_url( 'edit.php?post_type=shop_order' ) );
+				exit;
+			}
+        );
 	}
 }

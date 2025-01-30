@@ -25,7 +25,7 @@ class RefundAction {
 	}
 
 	public static function initiateExternalServiceRefund( $order_id, ResponseParser $responseParser ) {
-		Logger::log( 'PUSH', 'Refund payment PUSH received ' . $responseParser->get( 'status' ) );
+		Logger::log( 'PUSH', 'Refund payment PUSH received ' . $responseParser->get( 'coreStatus' ) );
 		$allowedPush = get_post_meta( $order_id, '_pushallowed', true );
 		Logger::log( __METHOD__ . '|10|', $allowedPush );
 		if ( $responseParser->isSuccess() && $allowedPush == 'ok' ) {

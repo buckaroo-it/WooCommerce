@@ -348,3 +348,10 @@ label.bk-in3-logo img {
 	margin: 18px 0;
 	max-width: none;
 }
+
+.wc-buckaroo-action-button.email::after {
+	content: "\f465";
+}
+.wc-buckaroo-action-button.links::after {
+	content: "\f103";
+}

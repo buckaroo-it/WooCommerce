@@ -28,7 +28,7 @@ class PushProcessor {
                 'Push message. Order already in final state or have the same status as response. Order status: ' . $order->get_status()
             );
 
-            switch ( $responseParser->get( 'status' ) ) {
+            switch ( $responseParser->get( 'coreStatus' ) ) {
                 case 'completed':
                     return array(
                         'result'   => 'success',
@@ -38,7 +38,7 @@ class PushProcessor {
                     return;
             }
         } else {
-            switch ( $responseParser->get( 'status' ) ) {
+            switch ( $responseParser->get( 'coreStatus' ) ) {
                 case 'completed':
                     /** Handle KlarnaKP reservation push */
                     if (
@@ -220,10 +220,10 @@ class PushProcessor {
             Logger::log( 'Order status: ' . $order->get_status() );
 
             if ( $responseParser->isOnHold() && ( $order->get_payment_method() == 'buckaroo_paypal' ) ) {
-                $responseParser->set( 'status', BuckarooTransactionStatus::STATUS_CANCELLED );
+                $responseParser->set( 'coreStatus', BuckarooTransactionStatus::STATUS_CANCELLED );
             }
 
-            Logger::log( 'Response order status: ' . $responseParser->get( 'status' ) );
+            Logger::log( 'Response order status: ' . $responseParser->get( 'coreStatus' ) );
             Logger::log( 'Status message: ' . $responseParser->getSubCodeMessage() );
 
             if ( ! $this->metaUpdate( $order_id, $order, $responseParser ) ) {
@@ -233,7 +233,7 @@ class PushProcessor {
             if ( $responseParser->isSuccess() ) {
                 $this->onSuccess( $order_id, $order, $responseParser );
             } else {
-                if ( $responseParser->get( 'status' ) == BuckarooTransactionStatus::STATUS_ON_HOLD && $order->get_payment_method() == 'buckaroo_in3' ) {
+                if ( $responseParser->get( 'coreStatus' ) == BuckarooTransactionStatus::STATUS_ON_HOLD && $order->get_payment_method() == 'buckaroo_in3' ) {
                     return;
                 }
 
@@ -254,7 +254,7 @@ class PushProcessor {
                     Logger::log( 'Push message. Order status cannot be changed.' );
                 }
 
-                if ( $responseParser->get( 'status' ) == BuckarooTransactionStatus::STATUS_CANCELLED ) {
+                if ( $responseParser->get( 'coreStatus' ) == BuckarooTransactionStatus::STATUS_CANCELLED ) {
                     Logger::log( 'Update status 3. Order status: cancelled' );
                     if ( ! in_array( $order->get_status(), array( 'completed', 'processing', 'cancelled' ) ) ) {
                         $order->update_status( 'cancelled', __( $responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway' ) );

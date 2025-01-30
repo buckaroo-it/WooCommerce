@@ -11,7 +11,7 @@ class ResponseRegistry {
 		$responseParser = ResponseParser::make( $data );
 
 		if ( $responseParser->getStatusCode() ) {
-			$responseParser->set( 'status', BuckarooTransactionStatus::fromTransactionStatus( $responseParser->getStatusCode() ) );
+			$responseParser->set( 'coreStatus', BuckarooTransactionStatus::fromTransactionStatus( $responseParser->getStatusCode() ) );
 		}
 
 		switch ( $responseParser->getPaymentMethod() ) {

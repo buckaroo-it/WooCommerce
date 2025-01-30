@@ -13,26 +13,32 @@ class PayPerEmailProcessor extends AbstractPaymentProcessor {
 
 	/** @inheritDoc */
 	protected function getMethodBody(): array {
-		return array(
-			'email'                 => $this->request->input(
-				'buckaroo-payperemail-email',
-				$this->getAddress( 'billing', 'email' ),
-			),
-			'customer'              => array(
-				'firstName' => $this->request->input(
-					'buckaroo-payperemail-firstname',
-					$this->getAddress( 'billing', 'first_name' ),
-				),
-				'lastName'  => $this->request->input(
-					'buckaroo-payperemail-lastname',
-					$this->getAddress( 'billing', 'last_name' ),
-				),
-				'gender'    => $this->request->input( 'buckaroo-payperemail-gender' ),
+        $payload = array(
+            'email'                 => $this->request->input(
+                'buckaroo-payperemail-email',
+                $this->getAddress( 'billing', 'email' ),
+            ),
+            'customer'              => array(
+                'firstName' => $this->request->input(
+                    'buckaroo-payperemail-firstname',
+                    $this->getAddress( 'billing', 'first_name' ),
+                ),
+                'lastName'  => $this->request->input(
+                    'buckaroo-payperemail-lastname',
+                    $this->getAddress( 'billing', 'last_name' ),
+                ),
+                'gender'    => $this->request->input( 'buckaroo-payperemail-gender', 0 ),
 
-			),
-			'expirationDate'        => $this->getExpirationDate(),
-			'paymentMethodsAllowed' => $this->getAllowedMethods(),
-		);
+            ),
+            'expirationDate'        => $this->getExpirationDate(),
+            'paymentMethodsAllowed' => $this->getAllowedMethods(),
+        );
+
+        if ( isset( $this->gateway->usePayPerLink ) && $this->gateway->usePayPerLink === true ) {
+            $payload['merchantSendsEmail'] = true;
+        }
+
+        return $payload;
 	}
 
 	private function getExpirationDate(): string {

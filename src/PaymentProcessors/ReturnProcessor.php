@@ -15,10 +15,30 @@ use WC_Order;
 
 class ReturnProcessor {
 
+    protected $data                 = array();
+    protected $validateReplyHandler = true;
+
+    /**
+     * @param array $data
+     */
+    public function __construct( array $data = array(), $validateReplyHandler = true ) {
+        $this->data                 = empty( $data ) ? ( $this->data ) : $data;
+        $this->validateReplyHandler = $validateReplyHandler;
+    }
+
+    public function getRedirectUrl($payment_method, $order, $type = 'success')
+    {
+        if(is_admin()) {
+             return wp_get_referer() ?: $order->get_edit_order_url();
+        }
+
+        return $type == 'success' ? $payment_method->get_return_url( $order ) : $payment_method->get_failed_url();
+    }
+
     public function handle( $payment_method = null ) {
         global $woocommerce, $wpdb;
 
-        $responseParser = ResponseRegistry::getResponse( $_POST ?? $_GET );
+        $responseParser = ResponseRegistry::getResponse( $this->data );
 
         if ( ! session_id() ) {
             @session_start();
@@ -51,7 +71,8 @@ class ReturnProcessor {
         }
 
         $buckarooClient = new BuckarooClient( $payment_method->getMode() );
-        if ( $buckarooClient->isReplyHandlerValid( $responseParser->get( formatted: false ) ) ) {
+
+        if ( ! $this->validateReplyHandler || $buckarooClient->isReplyHandlerValid( $responseParser->get( formatted: false ) ) ) {
             update_post_meta(
                 $order_id,
                 '_buckaroo_order_in_test_mode',
@@ -64,7 +85,7 @@ class ReturnProcessor {
                 return $checkIfRedirectRequired;
             }
 
-            Logger::log( __METHOD__ . '|20|', array( $order_id, $responseParser->getPaymentMethod(), $responseParser->isSuccess() ) );
+			 Logger::log( __METHOD__ . '|20|', array( $order_id, $responseParser->getPaymentMethod(), $responseParser->isSuccess() ) );
 
             $process_response_idin = $this->fn_process_response_idin( $responseParser, $order_id );
             if ( is_array( $process_response_idin ) ) {
@@ -72,17 +93,17 @@ class ReturnProcessor {
             }
 
             Logger::log( 'Order status: ' . $order->get_status() );
-            if ( ( $responseParser->get( 'status' ) == BuckarooTransactionStatus::STATUS_ON_HOLD ) && ( $payment_method->id == 'buckaroo_paypal' ) ) {
-                $responseParser->set( 'status', BuckarooTransactionStatus::STATUS_CANCELLED );
+            if ( ( $responseParser->get( 'coreStatus' ) == BuckarooTransactionStatus::STATUS_ON_HOLD ) && ( $payment_method->id == 'buckaroo_paypal' ) ) {
+                $responseParser->set( 'coreStatus', BuckarooTransactionStatus::STATUS_CANCELLED );
             }
-            Logger::log( 'Response order status: ' . $responseParser->get( 'status' ) );
+            Logger::log( 'Response order status: ' . $responseParser->get( 'coreStatus' ) );
             Logger::log( 'Status message: ' . $responseParser->getSubCodeMessage() );
 
             // Payperemail response
             if ( $this->fn_process_response_payperemail( $payment_method, $responseParser, $order ) ) {
                 return array(
                     'result'   => 'success',
-                    'redirect' => $payment_method->get_return_url( $order ),
+                    'redirect' => $this->getRedirectUrl($payment_method, $order),
                 );
             }
 
@@ -101,7 +122,7 @@ class ReturnProcessor {
 
                 $this->addSepaDirectOrderNote( $responseParser, $order );
 
-                switch ( $responseParser->get( 'status' ) ) {
+                switch ( $responseParser->get( 'coreStatus' ) ) {
                     case 'completed':
                     case 'processing':
                     case 'pending':
@@ -110,7 +131,7 @@ class ReturnProcessor {
                             $woocommerce->cart->empty_cart();
                             return array(
                                 'result'   => 'success',
-                                'redirect' => $payment_method->get_return_url( $order ),
+                                'redirect' => $this->getRedirectUrl($payment_method, $order),
                             );
                         }
                         break;
@@ -118,7 +139,7 @@ class ReturnProcessor {
                         return;
                 }
             } else {
-                Logger::log( '||| infoLog ' . $responseParser->get( 'status' ) );
+                Logger::log( '||| infoLog ' . $responseParser->get( 'coreStatus' ) );
 
                 if ( $responseParser->isPendingProcessing() && $order->get_payment_method() == 'buckaroo_in3' ) {
                     return;
@@ -205,13 +226,13 @@ class ReturnProcessor {
                         if ( $payment_method && $payment_method->get_failed_url() ) {
                             Logger::log( __METHOD__ . '|70|' );
                             return array(
-                                'redirect' => $payment_method->get_failed_url() . '?bck_err=' . base64_encode( $error_description ),
+                                'redirect' => $this->getRedirectUrl($payment_method, $order, 'error') . '?bck_err=' . base64_encode( $error_description ),
                             );
                         }
                     }
                 }
                 return array(
-                    'redirect' => $payment_method->get_failed_url(),
+                    'redirect' => $this->getRedirectUrl($payment_method, $order, 'error'),
                 );
             }
         } else {
@@ -230,8 +251,23 @@ class ReturnProcessor {
             Logger::log( __METHOD__, 'Process paypermail' );
             if ( is_admin() ) {
                 if ( $responseParser->isSuccess() ) {
-                    if ( ! $responseParser->get( 'customermessage' ) ) {
-                        $message = 'Your paylink: <a target="_blank" href="' . $responseParser->get( 'Services.Service.ResponseParameter' ) . '">' . $responseParser->get( 'Services.Service.ResponseParameter' ) . '</a>';
+                    if ( ! $responseParser->get( 'consumermessage' ) ) {
+
+                        $getPayLink = function () use ( $responseParser ) {
+							foreach ( $responseParser->get( 'Services' ) as $param ) {
+
+								if ( $param['name'] == 'payperemail' ) {
+									foreach ( $param['parameters'] as $p ) {
+										if ( isset( $p['name'] ) && $p['name'] == 'PayLink' ) {
+											return $p['value'];
+										}
+									}
+								}
+							}
+                            return false;
+                        };
+
+                        $message = 'Your paylink: <a target="_blank" href="' . $getPayLink() . '">' . $getPayLink() . '</a>';
                         $order->add_order_note( $message );
                         $buckaroo_admin_notice = array(
                             'type'    => 'success',
@@ -240,6 +276,10 @@ class ReturnProcessor {
                     } else {
                         $message = 'Email sent successfully.<br>';
                         $order->add_order_note( $message );
+                        $buckaroo_admin_notice = array(
+                            'type'    => 'success',
+                            'message' => $message,
+                        );
                     }
                 } else {
                     $parameterError = '';
