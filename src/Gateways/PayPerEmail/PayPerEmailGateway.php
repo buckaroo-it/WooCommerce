@@ -256,7 +256,6 @@ class PayPerEmailGateway extends AbstractPaymentGateway {
             function ( $order ) {
                 $response = $this->process_payment( $order->get_id() );
                 wp_redirect( $response );
-                exit;
 			}
         );
 
@@ -284,9 +283,9 @@ class PayPerEmailGateway extends AbstractPaymentGateway {
         add_action(
             'woocommerce_order_action_buckaroo_create_paylink',
             function ( $order ) {
-                $response = $this->process_payment( $order->get_id() );
+                $this->usePayPerLink = true;
+                $response            = $this->process_payment( $order->get_id() );
                 wp_redirect( $response );
-                exit;
 			}
         );
 

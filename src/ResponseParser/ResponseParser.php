@@ -48,7 +48,7 @@ abstract class ResponseParser implements IResponseParser {
 	}
 
 	public function get( $key = null, $default = null, $formatted = true ) {
-		return $this->getDeep( $formatted ? $this->items : $this->unformattedItems, strtolower( $key ), $default );
+		return $this->getDeep( $formatted ? $this->items : $this->unformattedItems, $key ? strtolower( $key ) : null, $default );
 	}
 
 	protected function getDeep( $array, $key, $default = null ) {
@@ -78,7 +78,7 @@ abstract class ResponseParser implements IResponseParser {
 	}
 
 	public function set( $key, $value ) {
-		$this->setDeep( $this->items, $key, $value );
+		$this->setDeep( $this->items, strtolower( $key ), $value );
 	}
 
 	protected function setDeep( &$array, $key, $value ): void {

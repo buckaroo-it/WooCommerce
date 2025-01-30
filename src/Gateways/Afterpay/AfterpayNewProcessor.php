@@ -2,7 +2,9 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
+use Buckaroo\Resources\Constants\ResponseStatus;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 
 class AfterpayNewProcessor extends AbstractPaymentProcessor {
 
@@ -215,4 +217,15 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor {
 			$this->getBirthDate( $country_code, 'shipping' )
 		);
 	}
+
+    public function unsuccessfulReturnHandler( ResponseParser $responseParser, string $redirectUrl ) {
+        if ( $responseParser->getStatusCode() === ResponseStatus::BUCKAROO_STATUSCODE_REJECTED ) {
+            wc_add_notice( __( $responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway' ), 'error' );
+
+            return array(
+				'redirect' => $redirectUrl,
+				'result'   => $redirectUrl,
+			);
+        }
+    }
 }

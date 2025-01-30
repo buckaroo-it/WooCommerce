@@ -3,6 +3,9 @@
 namespace Buckaroo\Woocommerce\Gateways\Transfer;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
+use Buckaroo\Woocommerce\Services\Helper;
+use Buckaroo\Woocommerce\Services\Logger;
 use DateTime;
 
 class TransferProcessor extends AbstractPaymentProcessor {
@@ -35,4 +38,14 @@ class TransferProcessor extends AbstractPaymentProcessor {
 	protected function canSendEmail(): bool {
 		return $this->gateway->get_option( 'sendmail' ) == 'TRUE';
 	}
+
+    public function unsuccessfulReturnHandler( ResponseParser $responseParser, string $redirectUrl ) {
+        Logger::log( 'Transfer status check: ' . $responseParser->getStatusCode() );
+        if ( Helper::handleUnsuccessfulPayment( $responseParser->getStatusCode() ) ) {
+            return array(
+				'result'   => 'error',
+				'redirect' => $redirectUrl,
+			);
+        }
+    }
 }
