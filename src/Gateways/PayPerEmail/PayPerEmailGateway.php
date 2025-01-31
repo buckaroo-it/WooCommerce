@@ -263,18 +263,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway {
             'wp_ajax_buckaroo_send_admin_payperemail',
             function () {
 				$orderId  = absint( $_GET['order_id'] ?? 0 );
-				$response = $this->process_payment( $orderId );
-
-				if ( isset( $response['result'] ) && $response['result'] === 'success' ) {
-					set_transient(
-                        get_current_user_id() . 'buckarooAdminNotice',
-                        array(
-							'type'    => 'success',
-							'message' => __( 'PayPerEmail has been sent', 'wc-buckaroo-bpe-gateway' ),
-                        )
-					);
-				}
-
+				$this->process_payment( $orderId );
 				wp_safe_redirect( wp_get_referer() ?: admin_url( 'edit.php?post_type=shop_order' ) );
 				exit;
 			}
@@ -294,17 +283,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway {
             function () {
 				$orderId             = absint( $_GET['order_id'] ?? 0 );
 				$this->usePayPerLink = true;
-				$response            = $this->process_payment( $orderId );
-
-				if ( isset( $response['result'] ) && $response['result'] === 'success' ) {
-					set_transient(
-                        get_current_user_id() . 'buckarooAdminNotice',
-                        array(
-							'type'    => 'success',
-							'message' => __( 'PayPerLink has been sent', 'wc-buckaroo-bpe-gateway' ),
-                        )
-					);
-				}
+				$this->process_payment( $orderId );
 
 				wp_safe_redirect( wp_get_referer() ?: admin_url( 'edit.php?post_type=shop_order' ) );
 				exit;
