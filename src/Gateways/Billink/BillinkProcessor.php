@@ -8,13 +8,23 @@ class BillinkProcessor extends AbstractPaymentProcessor {
 
 	/** @inheritDoc */
 	public function getAction(): string {
-		if ( ! empty( trim( $this->order_details->get_billing( 'company' ) ) ) ) {
-			return 'authorize';
-		}
-		return 'pay';
+        if ( $this->isAuthorization() ) {
+            if ( get_post_meta( $this->get_order()->get_id(), '_wc_order_authorized', true ) == 'yes' ) {
+                return 'capture';
+            }
+
+            return 'authorize';
+        }
+
+        return parent::getAction();
 	}
 
-	/** @inheritDoc */
+    private function isAuthorization(): bool {
+        return $this->gateway->get_option( 'billinkpayauthorize', 'pay' ) === 'authorize';
+    }
+
+
+    /** @inheritDoc */
 	protected function getMethodBody(): array {
 		return array_merge_recursive(
 			$this->getVatnumber(),
