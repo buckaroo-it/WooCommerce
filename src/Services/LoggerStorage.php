@@ -20,7 +20,7 @@ class LoggerStorage {
 	const STORAGE_DB   = 'database';
 	const STORAGE_ALL  = 'all';
 
-	const STORAGE_FILE_LOCATION = '/api/log/';
+	const STORAGE_FILE_LOCATION = 'api/log/';
 	const STORAGE_DB_TABLE      = 'buckaroo_log';
 
 	public static $storageList = array(
@@ -206,6 +206,6 @@ class LoggerStorage {
 	}
 
 	public static function get_file_storage_location() {
-		return __DIR__ . self::STORAGE_FILE_LOCATION;
+		return plugin_dir_path( BK_PLUGIN_FILE ) . self::STORAGE_FILE_LOCATION;
 	}
 }

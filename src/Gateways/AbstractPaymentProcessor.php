@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways;
 
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
+use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Services\Request;
 use WC_Order;
 
@@ -29,24 +30,28 @@ class AbstractPaymentProcessor extends AbstractProcessor {
 	}
 
 	public function getBody(): array {
-		return array_merge(
-			$this->getMethodBody(),
-			array(
-				'order'                => (string) $this->get_order()->get_id(),
-				'invoice'              => $this->get_invoice_number(),
-				'amountDebit'          => number_format( (float) $this->get_order()->get_total( 'edit' ), 2, '.', '' ),
-				'currency'             => get_woocommerce_currency(),
-				'returnURL'            => $this->get_return_url(),
-				'cancelURL'            => $this->get_return_url(),
-				'pushURL'              => $this->get_push_url(),
-				'additionalParameters' => array(
-					'real_order_id' => $this->get_order()->get_id(),
-				),
+        $body = array_merge(
+            $this->getMethodBody(),
+            array(
+                'order'                => (string) $this->get_order()->get_id(),
+                'invoice'              => $this->get_invoice_number(),
+                'amountDebit'          => number_format( (float) $this->get_order()->get_total( 'edit' ), 2, '.', '' ),
+                'currency'             => get_woocommerce_currency(),
+                'returnURL'            => $this->get_return_url(),
+                'cancelURL'            => $this->get_return_url(),
+                'pushURL'              => $this->get_push_url(),
+                'additionalParameters' => array(
+                    'real_order_id' => $this->get_order()->get_id(),
+                ),
 
-				'description'          => $this->get_description(),
-				'clientIP'             => $this->getIp(),
-			)
-		);
+                'description'          => $this->get_description(),
+                'clientIP'             => $this->getIp(),
+            )
+        );
+
+        Logger::log( __METHOD__ . '|1|', $body );
+
+		return $body;
 	}
 
 	protected function getMethodBody(): array {

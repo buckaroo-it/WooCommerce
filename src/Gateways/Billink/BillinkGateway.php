@@ -90,14 +90,13 @@ class BillinkGateway extends AbstractPaymentGateway {
             ),
             'default'     => 'pay',
         );
-
     }
 
 	/**  @inheritDoc */
 	protected function setProperties() {
 		parent::setProperties();
-		$this->type    = 'billink';
-		$this->vattype = $this->get_option( 'vattype' );
+		$this->type                = 'billink';
+		$this->vattype             = $this->get_option( 'vattype' );
         $this->billinkpayauthorize = $this->get_option( 'billinkpayauthorize' );
 	}
 

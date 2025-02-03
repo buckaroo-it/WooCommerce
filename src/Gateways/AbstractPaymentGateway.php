@@ -11,6 +11,7 @@ use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
+use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Services\Request;
 use Buckaroo\Woocommerce\Services\SessionHandler;
 use Exception;
@@ -690,7 +691,9 @@ class AbstractPaymentGateway extends WC_Payment_Gateway {
 			$order = Helper::findOrder( $order );
 		}
 
-		$processorClass    = $this->get_payment_class( $order );
+		$processorClass = $this->get_payment_class( $order );
+        Logger::log( __METHOD__ . '|1|', $processorClass );
+
 		return new $processorClass(
 			$this,
 			$order_details = new OrderDetails( $order ),

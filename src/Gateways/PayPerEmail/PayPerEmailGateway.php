@@ -262,7 +262,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway {
         add_action(
             'wp_ajax_buckaroo_send_admin_payperemail',
             function () {
-				$orderId  = absint( $_GET['order_id'] ?? 0 );
+				$orderId = absint( $_GET['order_id'] ?? 0 );
 				$this->process_payment( $orderId );
 				wp_safe_redirect( wp_get_referer() ?: admin_url( 'edit.php?post_type=shop_order' ) );
 				exit;

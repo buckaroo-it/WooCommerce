@@ -153,6 +153,7 @@ class BuckarooClient {
 		$serviceCode = $processor->gateway->getServiceCode( $processor );
 		$action      = $processor->getAction();
 		$requestData = array_merge( $processor->getBody(), $additionalData );
+        Logger::log( __METHOD__ . '|1|', array( get_class( $processor ), $serviceCode, $action, $requestData ) );
 
 		return $this->method( $serviceCode )->{$action}( $requestData );
 	}

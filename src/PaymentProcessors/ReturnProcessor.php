@@ -31,9 +31,8 @@ class ReturnProcessor {
 
         $_SESSION['buckaroo_response'] = '';
 
-        Logger::log( 'Return start / fn_buckaroo_process_response' );
-        Logger::log( 'Server: ' . var_export( $_SERVER, true ) );
-        Logger::log( 'Parse response:', $responseParser );
+        Logger::log( __METHOD__, var_export( $_SERVER, true ) );
+        Logger::log( __METHOD__, $responseParser );
 
         $orderId = $this->getOrderId( $responseParser );
         $order   = $this->getOrder( $orderId, $paymentGateway );

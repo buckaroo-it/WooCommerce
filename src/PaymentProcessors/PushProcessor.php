@@ -181,7 +181,8 @@ class PushProcessor {
 
         $responseParser = ResponseRegistry::getResponse( $_POST ?? $_GET );
 
-        Logger::log( 'Parse response:\n', $responseParser );
+        Logger::log( __METHOD__, var_export( $_SERVER, true ) );
+        Logger::log( __METHOD__, $responseParser );
 
         $order_id = $responseParser->getRealOrderId() ?: $responseParser->getOrderNumber() ?: $responseParser->getInvoice();
 
