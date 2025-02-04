@@ -27,7 +27,7 @@ class ApplepayProcessor extends AbstractPaymentProcessor
         if (
             isset($data['billingContact']) &&
             isset($data['billingContact']['givenName']) &&
-            $data['billingContact']['familyName']
+            isset($data['billingContact']['familyName'])
         ) {
             return $data['billingContact']['givenName'] . ' ' . $data['billingContact']['familyName'];
         }
@@ -44,6 +44,6 @@ class ApplepayProcessor extends AbstractPaymentProcessor
             return '';
         }
 
-        return base64_encode($data);
+        return base64_encode(json_encode($data['token']));
     }
 }
