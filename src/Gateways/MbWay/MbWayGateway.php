@@ -11,7 +11,7 @@ class MbWayGateway extends AbstractPaymentGateway {
 		$this->title        = 'MBWay';
 		$this->has_fields   = false;
 		$this->method_title = 'Buckaroo MBWay';
-		$this->setIcon( 'svg/mbway.svg', 'svg/mbway.svg' );
+		$this->setIcon( 'svg/mbway.svg' );
 
 		parent::__construct();
 		$this->addRefundSupport();

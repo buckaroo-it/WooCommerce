@@ -45,7 +45,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway {
 		$this->title        = 'PayPerEmail';
 		$this->has_fields   = true;
 		$this->method_title = 'Buckaroo PayPerEmail';
-		$this->setIcon( 'payperemail.png', 'svg/payperemail.svg' );
+		$this->setIcon( 'svg/payperemail.svg' );
 
 		parent::__construct();
 	}

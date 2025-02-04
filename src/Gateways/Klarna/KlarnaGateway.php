@@ -14,7 +14,7 @@ class KlarnaGateway extends AbstractPaymentGateway {
 	public function __construct() {
 		$this->has_fields = true;
 		$this->type       = 'klarna';
-		$this->setIcon( '24x24/klarna.svg', 'svg/klarna.svg' );
+		$this->setIcon( 'svg/klarna.svg' );
 		$this->setCountry();
 
 		parent::__construct();

@@ -47,7 +47,7 @@ class PaypalGateway extends AbstractPaymentGateway {
 		$this->title        = 'PayPal';
 		$this->has_fields   = false;
 		$this->method_title = 'Buckaroo PayPal';
-		$this->setIcon( '24x24/paypal.gif', 'svg/paypal.svg' );
+		$this->setIcon( 'svg/paypal.svg' );
 
 		parent::__construct();
 		$this->addRefundSupport();

@@ -11,7 +11,7 @@ class PayconiqGateway extends AbstractPaymentGateway {
 		$this->title        = 'Payconiq';
 		$this->has_fields   = false;
 		$this->method_title = 'Buckaroo Payconiq';
-		$this->setIcon( '24x24/payconiq.png', 'svg/payconiq.svg' );
+		$this->setIcon( 'svg/payconiq.svg' );
 
 		parent::__construct();
 		$this->addRefundSupport();

@@ -33,7 +33,7 @@ class SingleCreditCardGateway extends CreditCardGateway {
 		}
 
 		$icon = "creditcards/{$name}.svg";
-		$this->setIcon( $icon, $icon );
+		$this->setIcon( $icon );
 	}
 
 	/**

@@ -53,10 +53,10 @@ class In3Gateway extends AbstractPaymentGateway {
 		if (
 			$this->get_option( 'api_version' ) === 'v2'
 		) {
-			$this->setIcon( 'svg/in3.svg', 'svg/in3.svg' );
+			$this->setIcon( 'svg/in3.svg' );
 			return;
 		}
-		$this->setIcon( 'svg/in3-ideal.svg', 'svg/in3-ideal.svg' );
+		$this->setIcon( 'svg/in3-ideal.svg' );
 	}
 
 	public function getServiceCode( ?AbstractProcessor $processor = null ) {

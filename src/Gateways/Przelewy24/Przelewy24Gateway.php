@@ -15,7 +15,7 @@ class Przelewy24Gateway extends AbstractPaymentGateway {
 		$this->title        = 'Przelewy24';
 		$this->has_fields   = false;
 		$this->method_title = 'Buckaroo Przelewy24';
-		$this->setIcon( '24x24/p24.png', 'svg/przelewy24.svg' );
+		$this->setIcon( 'svg/przelewy24.svg' );
 		$this->migrateOldSettings( 'woocommerce_buckaroo_p24_settings' );
 
 		parent::__construct();

@@ -25,7 +25,7 @@ class BillinkGateway extends AbstractPaymentGateway {
 		$this->title        = 'Billink';
 		$this->has_fields   = true;
 		$this->method_title = 'Buckaroo Billink';
-		$this->setIcon( '24x24/billink.png', 'svg/billink.svg' );
+		$this->setIcon( 'svg/billink.svg' );
 		$this->setCountry();
 
 		parent::__construct();

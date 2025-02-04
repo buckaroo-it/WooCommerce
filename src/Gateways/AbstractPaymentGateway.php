@@ -532,21 +532,19 @@ class AbstractPaymentGateway extends WC_Payment_Gateway {
 	/**
 	 * Set gateway icon
 	 *
-	 * @param string $oldPath Old image path
-	 * @param string $newPath New image path
+	 * @param string $path New image path
 	 *
 	 * @return void
 	 */
-	protected function setIcon( $oldPath, $newPath ): void {
+	protected function setIcon( $path ): void {
 		$this->icon = apply_filters(
 			'woocommerce_' . $this->id . '_icon',
-			$this->getIconPath( $oldPath, $newPath )
+			$this->getIconPath( $path )
 		);
 	}
 
-	public function getIconPath( $oldIcon, $newIcon ): string {
-		$icon = $this->get_option( 'usenewicons', 1 ) ? $newIcon : $oldIcon;
-		return plugins_url( 'library/buckaroo_images/' . $icon, dirname( __DIR__ ) );
+	public function getIconPath( $path ): string {
+		return plugins_url( 'library/buckaroo_images/' . $path, dirname( __DIR__ ) );
 	}
 
 	/**

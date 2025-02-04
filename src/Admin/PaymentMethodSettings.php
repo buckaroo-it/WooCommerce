@@ -145,17 +145,6 @@ English will be used as a fallback language for unknown language types.",
 
 		$this->apply_filter_or_error( 'append_subscription_configurationCode_in_setting_field', $this );
 
-		$this->form_fields['usenewicons'] = array(
-			'title'       => __( 'Use new icons', 'wc-buckaroo-bpe-gateway' ),
-			'type'        => 'select',
-			'description' => __( 'By turning on this setting in checkout new payment method icons will be in use', 'wc-buckaroo-bpe-gateway' ),
-			'options'     => array(
-				0 => 'No',
-				1 => 'Yes',
-			),
-			'default'     => 1,
-		);
-
 		$this->form_fields['useidin'] = array(
 			'title'       => __( 'iDIN mode', 'wc-buckaroo-bpe-gateway' ),
 			'type'        => 'select',

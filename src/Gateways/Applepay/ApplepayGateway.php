@@ -23,7 +23,7 @@ class ApplepayGateway extends AbstractPaymentGateway {
 		$this->has_fields       = true;
 		$this->method_title     = 'Buckaroo Apple Pay';
 		$this->CustomerCardName = '';
-		$this->setIcon( 'svg/applepay.svg', 'svg/applepay.svg' );
+		$this->setIcon( 'svg/applepay.svg' );
 
 		parent::__construct();
 		$this->addRefundSupport();

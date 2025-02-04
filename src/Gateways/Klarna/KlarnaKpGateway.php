@@ -22,7 +22,7 @@ class KlarnaKpGateway extends AbstractPaymentGateway {
 		$this->method_title = 'Buckaroo Klarna Pay later (authorize/capture)';
 		$this->has_fields   = true;
 		$this->type         = 'klarnakp';
-		$this->setIcon( '24x24/klarna.svg', 'svg/klarna.svg' );
+		$this->setIcon( 'svg/klarna.svg' );
 		$this->setCountry();
 		parent::__construct();
 		$this->addRefundSupport();

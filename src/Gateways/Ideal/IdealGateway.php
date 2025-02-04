@@ -13,7 +13,7 @@ class IdealGateway extends AbstractPaymentGateway {
 		$this->title        = 'iDEAL';
 		$this->has_fields   = true;
 		$this->method_title = 'Buckaroo iDEAL';
-		$this->setIcon( '24x24/ideal.png', 'svg/ideal.svg' );
+		$this->setIcon( 'svg/ideal.svg' );
 
 		parent::__construct();
 		$this->addRefundSupport();

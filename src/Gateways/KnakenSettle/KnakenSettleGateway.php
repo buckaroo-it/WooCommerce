@@ -11,7 +11,7 @@ class KnakenSettleGateway extends AbstractPaymentGateway {
 		$this->title        = 'Knaken Settle';
 		$this->has_fields   = false;
 		$this->method_title = 'Buckaroo Knaken Settle';
-		$this->setIcon( '24x24/knaken.png', 'svg/knaken.svg' );
+		$this->setIcon( 'svg/knaken.svg' );
 
 		parent::__construct();
 		$this->addRefundSupport();

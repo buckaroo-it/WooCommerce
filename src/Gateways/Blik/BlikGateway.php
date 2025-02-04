@@ -13,7 +13,7 @@ class BlikGateway extends AbstractPaymentGateway {
 		$this->title        = 'Blik';
 		$this->has_fields   = false;
 		$this->method_title = 'Buckaroo Blik';
-		$this->setIcon( '24x24/blik.png', 'svg/blik.svg' );
+		$this->setIcon( 'svg/blik.svg' );
 
 		parent::__construct();
 		$this->addRefundSupport();

@@ -13,7 +13,7 @@ class PayByBankGateway extends AbstractPaymentGateway {
 		$this->title        = 'PayByBank';
 		$this->has_fields   = true;
 		$this->method_title = 'Buckaroo PayByBank';
-		$this->setIcon( '24x24/paybybank.gif', 'svg/paybybank.gif' );
+		$this->setIcon( 'svg/paybybank.gif' );
 
 		parent::__construct();
 		$this->addRefundSupport();

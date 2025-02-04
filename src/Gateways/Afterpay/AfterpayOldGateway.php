@@ -25,7 +25,7 @@ class AfterpayOldGateway extends AbstractPaymentGateway {
 		$this->title        = 'Riverty';
 		$this->has_fields   = false;
 		$this->method_title = 'Buckaroo Riverty (Old)';
-		$this->setIcon( 'afterpay.png', 'svg/afterpay.svg' );
+		$this->setIcon( 'svg/afterpay.svg' );
 		$this->setCountry();
 
 		parent::__construct();

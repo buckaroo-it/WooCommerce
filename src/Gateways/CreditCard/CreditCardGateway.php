@@ -85,7 +85,7 @@ class CreditCardGateway extends AbstractPaymentGateway {
 	 * @return void
 	 */
 	public function setCreditcardIcon() {
-		$this->setIcon( '24x24/cc.gif', 'svg/creditcards.svg' );
+		$this->setIcon( 'svg/creditcards.svg' );
 	}
 
 	/**

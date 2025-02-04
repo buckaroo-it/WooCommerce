@@ -11,7 +11,7 @@ class KbcGateway extends AbstractPaymentGateway {
 		$this->title        = 'KBC';
 		$this->has_fields   = false;
 		$this->method_title = 'Buckaroo KBC';
-		$this->setIcon( '24x24/kbc.png', 'svg/kbc.svg' );
+		$this->setIcon( 'svg/kbc.svg' );
 
 		parent::__construct();
 		$this->addRefundSupport();

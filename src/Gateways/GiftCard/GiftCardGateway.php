@@ -14,7 +14,7 @@ class GiftCardGateway extends AbstractPaymentGateway {
 		$this->title        = 'Giftcards';
 		$this->has_fields   = false;
 		$this->method_title = 'Buckaroo Giftcards';
-		$this->setIcon( '24x24/giftcard.gif', 'svg/giftcards.svg' );
+		$this->setIcon( 'svg/giftcards.svg' );
 
 		parent::__construct();
 		// disabled refunds by request see BP-1337

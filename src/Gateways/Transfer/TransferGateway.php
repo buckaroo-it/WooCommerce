@@ -18,7 +18,7 @@ class TransferGateway extends AbstractPaymentGateway {
 		$this->title        = 'Bank Transfer';
 		$this->has_fields   = false;
 		$this->method_title = 'Buckaroo Bank Transfer';
-		$this->setIcon( '24x24/transfer.jpg', 'svg/sepa-credittransfer.svg' );
+		$this->setIcon( 'svg/sepa-credittransfer.svg' );
 
 		parent::__construct();
 		$this->addRefundSupport();
