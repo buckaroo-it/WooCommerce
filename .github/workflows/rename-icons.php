@@ -1,4 +1,5 @@
 <?php
+
 $path = realpath( './' );
 
 $di = new RecursiveIteratorIterator(

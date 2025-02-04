@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The Template for displaying afterpay b2b gateway template
  * php version 7.2
