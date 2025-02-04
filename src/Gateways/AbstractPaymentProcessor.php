@@ -49,7 +49,7 @@ class AbstractPaymentProcessor extends AbstractProcessor {
             )
         );
 
-        Logger::log( __METHOD__ . '|1|', $body );
+        Logger::log( __METHOD__ . '|1|', [$_POST, $body] );
 
 		return $body;
 	}
