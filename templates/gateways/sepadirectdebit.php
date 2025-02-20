@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The Template for displaying sepadirect gateway template
  * php version 7.2

@@ -12,6 +12,8 @@
     <exclude-pattern>./coverage-report/*</exclude-pattern>
     <exclude-pattern>./languages/*</exclude-pattern>
     <exclude-pattern>./vendor/*</exclude-pattern>
+    <exclude-pattern>./assets/js/*</exclude-pattern>
+    <exclude-pattern>./library/*</exclude-pattern>
     <exclude-pattern>*.min.js</exclude-pattern>
     <exclude-pattern>*.js</exclude-pattern>
 
@@ -56,9 +58,6 @@
 
     <!-- Minimum Wordpress version supported -->
     <config name="minimum_supported_wp_version" value="5.0"/>
-
-    <!-- Enforce short array syntax -->
-    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
 
     <!-- Exclude problematic sniffs -->
     <exclude name="PSR12.Functions.ReturnTypeDeclaration"/>
