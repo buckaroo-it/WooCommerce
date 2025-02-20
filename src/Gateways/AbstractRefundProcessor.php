@@ -56,7 +56,7 @@ class AbstractRefundProcessor extends AbstractProcessor {
 					'real_order_id' => $this->getOrder()->get_id(),
 				),
 
-				'description'            => $this->reason,
+				'description'            => $this->get_description(),
 				'clientIP'               => $this->getIp(),
 			)
 		);
@@ -99,4 +99,26 @@ class AbstractRefundProcessor extends AbstractProcessor {
 	private function get_push_url(): string {
 		return add_query_arg( 'wc-api', 'wc_push_buckaroo', home_url( '/' ) );
 	}
+
+    /**
+     * Get the parsed label, we replace the template variables with the values
+     *
+     * @return string
+     */
+    public function get_description(): string {
+        $order        = $this->getOrder();
+        $order_number = $order->get_order_number();
+        $label        = $this->gateway->get_option( 'refund_description', 'Order #' . $order->get_order_number() );
+
+        $label = str_replace( '{order_number}', $order_number, $label );
+        $label = str_replace( '{shop_name}', get_bloginfo( 'name' ), $label );
+
+        $products = $order->get_items( 'line_item' );
+        if ( count( $products ) ) {
+            $label = str_replace( '{product_name}', reset( $products )->get_name(), $label );
+        }
+
+        $label = preg_replace( "/\r?\n|\r/", '', $label );
+        return mb_substr( $label, 0, 244 );
+    }
 }
