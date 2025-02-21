@@ -65,13 +65,13 @@ function CreditCard( {
 
 	return (
 		<div>
-			<p className="form-row form-row-wide">
+			<div className="form-row form-row-wide">
 				<DefaultDropdown
 					paymentMethodId={ paymentMethodId }
 					creditCardIssuers={ creditCardIssuers }
 					handleChange={ handleChange }
 				/>
-			</p>
+			</div>
 
 			{ creditCardMethod === 'encrypt' && creditCardIsSecure === true && (
 				<div className="method--bankdata">
