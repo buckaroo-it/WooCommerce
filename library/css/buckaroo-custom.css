@@ -355,3 +355,32 @@ label.bk-in3-logo img {
 .wc-buckaroo-action-button.links::after {
 	content: "\f103";
 }
+
+
+
+/* Credit Card Form Styling */
+
+/* Input Fields */
+.cardHolderName,
+.cardNumber,
+.expirationDate,
+.cvc {
+    width: 100%;
+    height: 3rem;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    color: #4a5568;
+    background-color: #fff;
+    outline: none;
+    transition: border-color 0.2s ease-in-out;
+}
+
+/* Error Styling */
+.cardHolderName + .input-error,
+.cardNumber + .input-error,
+.expirationDate + .input-error,
+.cvc + .input-error {
+    color: #f56565;
+}
