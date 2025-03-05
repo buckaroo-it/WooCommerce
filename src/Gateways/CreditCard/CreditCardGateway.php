@@ -71,26 +71,58 @@ class CreditCardGateway extends AbstractPaymentGateway {
         add_action( "{$namespace}-hosted-fields-token", array( HostedFieldsController::class, 'getToken' ) );
     }
 
+    /**
+     * Validate fields
+     *
+     * @return void;
+     */
+    public function validate_fields() {
+        parent::validate_fields();
 
-	/**
-	 * Set gateway parameters
-	 *
-	 * @return void
-	 */
-	public function setParameters() {
-		$this->id           = 'buckaroo_creditcard';
-		$this->title        = 'Credit and debit card';
-		$this->method_title = 'Buckaroo Credit and debit card';
-	}
+        if ( $this->get_option( 'creditcardmethod' ) == 'encrypt' && $this->isSecure() ) {
+            $encryptedData = $this->request->input( $this->id . '-encrypted-data' );
 
-	/**
-	 * Set credicard icon
-	 *
-	 * @return void
-	 */
-	public function setCreditcardIcon() {
-		$this->setIcon( 'svg/creditcards.svg' );
-	}
+            if ( empty( $encryptedData ) || $encryptedData === null ) {
+                wc_add_notice( __( 'Please complete the card form before proceeding.', 'wc-buckaroo-bpe-gateway' ), 'error' );
+                return;
+            }
+        } else {
+            $issuer = $this->request->input( $this->id . '-creditcard-issuer' );
+            if ( $issuer === null ) {
+                wc_add_notice( __( 'Select a credit or debit card.', 'wc-buckaroo-bpe-gateway' ), 'error' );
+            }
+
+            if ( ! in_array(
+                $issuer,
+                array( 'amex', 'maestro', 'mastercard', 'visa' )
+            ) ) {
+                wc_add_notice( __( 'A valid credit card is required.', 'wc-buckaroo-bpe-gateway' ), 'error' );
+            }
+        }
+
+        return;
+    }
+
+
+    /**
+     * Set gateway parameters
+     *
+     * @return void
+     */
+    public function setParameters() {
+        $this->id           = 'buckaroo_creditcard';
+        $this->title        = 'Credit and debit card';
+        $this->method_title = 'Buckaroo Credit and debit card';
+    }
+
+    /**
+     * Set credicard icon
+     *
+     * @return void
+     */
+    public function setCreditcardIcon() {
+        $this->setIcon( 'svg/creditcards.svg' );
+    }
 
     /**
      * Returns true if secure (https), false if not (http)
@@ -100,47 +132,40 @@ class CreditCardGateway extends AbstractPaymentGateway {
             || ! empty( $_SERVER['SERVER_PORT'] ) && $_SERVER['SERVER_PORT'] == 443;
     }
 
-	/**
-	 * Process payment
-	 *
-	 * @param integer $order_id
-	 * @return callable fn_buckaroo_process_response()
-	 */
-	public function process_payment( $order_id ) {
-		$processedPayment = parent::process_payment( $order_id );
+    /**
+     * Process payment
+     *
+     * @param integer $order_id
+     * @return callable fn_buckaroo_process_response()
+     */
+    public function process_payment( $order_id ) {
+        $processedPayment = parent::process_payment( $order_id );
 
-		if ( $processedPayment['result'] == 'success' && $this->creditcardpayauthorize == 'authorize' ) {
-			update_post_meta( $order_id, '_wc_order_authorized', 'yes' );
-			$this->set_order_capture( $order_id, 'Creditcard', $this->request->input( $this->id . '-creditcard-issuer' ) );
-		}
-		return $processedPayment;
-	}
+        if ( $processedPayment['result'] == 'success' && $this->creditcardpayauthorize == 'authorize' ) {
+            update_post_meta( $order_id, '_wc_order_authorized', 'yes' );
+            $this->set_order_capture( $order_id, 'Creditcard', $this->request->input( $this->id . '-creditcard-issuer' ) );
+        }
+        return $processedPayment;
+    }
 
-	public function getCardsList() {
-		$cards     = array();
-		$cardsDesc = array(
-			'amex'           => 'American Express',
-			'cartebancaire'  => 'Carte Bancaire',
-			'cartebleuevisa' => 'Carte Bleue',
-			'dankort'        => 'Dankort',
-			'maestro'        => 'Maestro',
-			'mastercard'     => 'Mastercard',
-			'nexi'           => 'Nexi',
-			'postepay'       => 'PostePay',
-			'visa'           => 'Visa',
-			'visaelectron'   => 'Visa Electron',
-			'vpay'           => 'Vpay',
-		);
-		if ( is_array( $this->creditCardProvider ) ) {
-			foreach ( $this->creditCardProvider as $value ) {
-				$cards[] = array(
-					'servicename' => $value,
-					'displayname' => $cardsDesc[ $value ],
-				);
-			}
-		}
-		return $cards;
-	}
+    public function getCardsList() {
+        $cards     = array();
+        $cardsDesc = array(
+            'amex'       => 'American Express',
+            'maestro'    => 'Maestro',
+            'mastercard' => 'Mastercard',
+            'visa'       => 'Visa',
+        );
+        if ( is_array( $this->creditCardProvider ) ) {
+            foreach ( $this->creditCardProvider as $value ) {
+                $cards[] = array(
+                    'servicename' => $value,
+                    'displayname' => $cardsDesc[ $value ],
+                );
+            }
+        }
+        return $cards;
+    }
 
     /**
      * Add fields to the form_fields() array, specific to this page.

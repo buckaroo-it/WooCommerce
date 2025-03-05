@@ -384,3 +384,7 @@ label.bk-in3-logo img {
 .cvc + .input-error {
     color: #f56565;
 }
+
+.woocommerce-error:empty{
+	display: none;
+}
