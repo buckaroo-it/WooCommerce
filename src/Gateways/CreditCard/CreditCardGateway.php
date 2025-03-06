@@ -59,6 +59,7 @@ class CreditCardGateway extends AbstractPaymentGateway {
         parent::__construct();
 
         $this->addRefundSupport();
+        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
         if ( version_compare( WOOCOMMERCE_VERSION, '2.0.0', '>=' ) ) {
             $this->registerControllers();
@@ -175,27 +176,6 @@ class CreditCardGateway extends AbstractPaymentGateway {
     public function init_form_fields() {
         parent::init_form_fields();
 
-        add_action(
-            'wp_enqueue_scripts',
-            function () {
-                wp_enqueue_script(
-                    'tailwindcss',
-                    'https://cdn.tailwindcss.com',
-                    array(),
-                    Plugin::VERSION,
-                    true
-                );
-
-                wp_enqueue_script(
-                    'buckaroo_hosted_fields',
-                    'https://hostedfields-externalapi.prod-pci.buckaroo.io/v1/sdk',
-                    array(),
-                    Plugin::VERSION,
-                    true
-                );
-            }
-        );
-
         $this->form_fields['creditcardmethod'] = array(
             'title'       => __( 'Credit and debit card method', 'wc-buckaroo-bpe-gateway' ),
             'type'        => 'select',
@@ -258,6 +238,18 @@ class CreditCardGateway extends AbstractPaymentGateway {
             'description' => __( 'Select which credit or debit card providers will be shown separately in the checkout', 'wc-buckaroo-bpe-gateway' ),
             'default'     => array(),
         );
+    }
+
+    public function enqueue_scripts() {
+        if (class_exists( 'WC_Order' ) && is_checkout()) {
+            wp_enqueue_script(
+                'buckaroo_hosted_fields',
+                'https://hostedfields-externalapi.prod-pci.buckaroo.io/v1/sdk',
+                array(),
+                Plugin::VERSION,
+                true
+            );
+        }
     }
 
     /** @inheritDoc */
