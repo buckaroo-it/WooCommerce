@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The Template for displaying creditcard gateway template
  * php version 7.2
@@ -19,8 +18,7 @@ $creditCardMethod = isset( $this->creditcardmethod ) ? $this->creditcardmethod :
 $customer_name    = implode( ' ', array( $this->getScalarCheckoutField( 'billing_first_name' ), $this->getScalarCheckoutField( 'billing_last_name' ) ) );
 ?>
 
-
-<fieldset>
+<fieldset class="buckaroo-creditcard-fieldset">
     <input
             type="hidden"
             name="<?php echo esc_attr( $this->id ); ?>-creditcard-issuer"
@@ -30,7 +28,7 @@ $customer_name    = implode( ' ', array( $this->getScalarCheckoutField( 'billing
     <?php if ( $creditCardMethod == 'encrypt' && $this->isSecure() ) : ?>
         <div class="<?php echo esc_attr( $this->id ); ?>-hf-error woocommerce-error"></div>
 
-        <div class="form-row">
+        <div class="form-row form-row-wide validate-required">
             <label id="<?php echo esc_attr( $this->id ); ?>-name-label" class="buckaroo-label">
                 <?php esc_html_e( 'Cardholder Name:', 'wc-buckaroo-bpe-gateway' ); ?>
                 <span class="required">*</span>
@@ -39,7 +37,7 @@ $customer_name    = implode( ' ', array( $this->getScalarCheckoutField( 'billing
             <div id="<?php echo esc_attr( $this->id ); ?>-name-error" class="input-error"></div>
         </div>
 
-        <div class="form-row">
+        <div class="form-row form-row-wide validate-required">
             <label id="<?php echo esc_attr( $this->id ); ?>-number-label" class="buckaroo-label">
                 <?php esc_html_e( 'Card Number:', 'wc-buckaroo-bpe-gateway' ); ?>
                 <span class="required">*</span>
@@ -67,11 +65,10 @@ $customer_name    = implode( ' ', array( $this->getScalarCheckoutField( 'billing
         </div>
 
         <input
-            type="hidden"
-            id="<?php echo esc_attr( $this->id ); ?>-encrypted-data"
-            name="<?php echo esc_attr( $this->id ); ?>-encrypted-data"
-            class="encryptedCardData input-text">
-
+                type="hidden"
+                id="<?php echo esc_attr( $this->id ); ?>-encrypted-data"
+                name="<?php echo esc_attr( $this->id ); ?>-encrypted-data"
+                class="encryptedCardData input-text">
     <?php endif; ?>
 
 

@@ -202,7 +202,7 @@ class CreditCardGateway extends AbstractPaymentGateway {
             'description' => __( 'Redirect user to Buckaroo or enter credit or debit card information (directly) inline in the checkout. SSL is required to enable inline credit or debit card information.', 'wc-buckaroo-bpe-gateway' ),
             'options'     => array(
                 'redirect' => 'Redirect',
-                'encrypt'  => 'Inline',
+                'encrypt'  => 'Inline (Hosted Fields)',
             ),
             'default'     => 'redirect',
             'desc_tip'    => __( 'Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.', 'wc-buckaroo-bpe-gateway' ),
