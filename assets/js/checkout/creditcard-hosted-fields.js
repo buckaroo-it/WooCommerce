@@ -7,21 +7,17 @@ class BuckarooCreditCardsHostedFields {
 		this.isSubmitting = false;
 		this.submitEvents = [];
 		this.fieldSelectors = [];
-		this.isInitialized = false;
 		this.refreshTimeout = null;
 	}
 
-	async initialize( force = false ) {
-		if ( this.isInitialized && ! force ) return;
+	async initialize() {
 		try {
 			const token = await this.fetchToken();
 			await this.setupSDK( token );
 			await this.mountHostedFields();
-			this.isInitialized = true;
 		} catch ( error ) {
 			console.error( 'Hosted fields initialization failed:', error );
 			this.showError( 'Failed to initialize payment form' );
-			this.isInitialized = false;
 		}
 	}
 
@@ -148,7 +144,7 @@ class BuckarooCreditCardsHostedFields {
 			this.fieldSelectors.forEach( ( selector ) =>
 				jQuery( selector ).find( 'iframe' ).remove()
 			);
-			await this.initialize( true );
+			await this.initialize();
 		} catch ( error ) {
 			console.error( 'Token refresh failed:', error );
 			this.showError( 'Payment form refresh failed' );
