@@ -7,16 +7,21 @@ class BuckarooCreditCardsHostedFields {
 		this.isSubmitting = false;
 		this.submitEvents = [];
 		this.fieldSelectors = [];
+		this.isInitialized = false;
+		this.refreshTimeout = null;
 	}
 
-	async initialize() {
+	async initialize( force = false ) {
+		if ( this.isInitialized && ! force ) return;
 		try {
 			const token = await this.fetchToken();
 			await this.setupSDK( token );
 			await this.mountHostedFields();
+			this.isInitialized = true;
 		} catch ( error ) {
 			console.error( 'Hosted fields initialization failed:', error );
 			this.showError( 'Failed to initialize payment form' );
+			this.isInitialized = false;
 		}
 	}
 
@@ -32,21 +37,17 @@ class BuckarooCreditCardsHostedFields {
 
 	async setupSDK( token ) {
 		this.sdkClient = new BuckarooHostedFieldsSdk.HFClient( token );
-
 		this.sdkClient.setLanguage( buckaroo_global.locale );
-
-		const services = this.getSupportedServices();
-		this.sdkClient.setSupportedServices( services );
-
-		await this.sdkClient.startSession( ( event ) => {
+		this.sdkClient.setSupportedServices( this.getSupportedServices() );
+		await this.sdkClient.startSession( ( event ) =>
 			this.sdkClient.handleValidation(
 				event,
-				this.paymentMethodId + '-name-error',
-				this.paymentMethodId + '-number-error',
-				this.paymentMethodId + '-expiry-error',
-				this.paymentMethodId + '-cvc-error'
-			);
-		} );
+				`${ this.paymentMethodId }-name-error`,
+				`${ this.paymentMethodId }-number-error`,
+				`${ this.paymentMethodId }-expiry-error`,
+				`${ this.paymentMethodId }-cvc-error`
+			)
+		);
 	}
 
 	getSupportedServices() {
@@ -126,22 +127,28 @@ class BuckarooCreditCardsHostedFields {
 			},
 		];
 
-		for ( const field of fields ) {
-			await field.mount( field.selector, field.config );
-		}
+		await Promise.all(
+			fields.map( ( field ) =>
+				field.mount( field.selector, field.config )
+			)
+		);
 	}
 
 	scheduleTokenRefresh( expiresIn ) {
+		if ( this.refreshTimeout ) clearTimeout( this.refreshTimeout );
 		const refreshTime = Math.max( expiresIn * 1000 - 1000, 0 );
-		setTimeout( () => this.refreshToken(), refreshTime );
+		this.refreshTimeout = setTimeout(
+			() => this.refreshToken(),
+			refreshTime
+		);
 	}
 
 	async refreshToken() {
 		try {
-			this.fieldSelectors.forEach( ( selector ) => {
-				jQuery( selector ).find( 'iframe' ).remove();
-			} );
-			await this.initialize();
+			this.fieldSelectors.forEach( ( selector ) =>
+				jQuery( selector ).find( 'iframe' ).remove()
+			);
+			await this.initialize( true );
 		} catch ( error ) {
 			console.error( 'Token refresh failed:', error );
 			this.showError( 'Payment form refresh failed' );
@@ -173,8 +180,7 @@ class BuckarooCreditCardsHostedFields {
 			return true;
 		} catch ( error ) {
 			console.error( 'Payment submission failed:', error );
-			const errorMessage = error.message || 'Invalid payment details';
-			this.showError( errorMessage );
+			this.showError( error.message || 'Invalid payment details' );
 			return false;
 		}
 	}
@@ -192,8 +198,7 @@ class BuckarooCreditCardsHostedFields {
 	}
 
 	showError( message ) {
-		const $error = jQuery( `.${ this.paymentMethodId }-hf-error` );
-
+		const $error = this.form.find( `.${ this.paymentMethodId }-hf-error` );
 		$error.text( message );
 		jQuery( 'html, body' ).animate(
 			{ scrollTop: $error.offset().top - 100 },
@@ -205,8 +210,7 @@ class BuckarooCreditCardsHostedFields {
 	overrideFormSubmit() {
 		const formEl = this.form.get( 0 );
 		const events = jQuery._data( formEl, 'events' );
-
-		if ( events && events.submit ) {
+		if ( events?.submit ) {
 			this.submitEvents = events.submit.map( ( e ) => e.handler );
 		}
 
@@ -214,18 +218,16 @@ class BuckarooCreditCardsHostedFields {
 
 		this.form.on( 'submit', async ( e ) => {
 			e.preventDefault();
-
-			if ( this.isSubmitting ) {
-				return;
-			}
+			if ( this.isSubmitting ) return;
 
 			this.isSubmitting = true;
 			try {
-				const isValid = await this.handleFormSubmit();
-				if ( isValid ) {
-					this.submitEvents.forEach( ( handler ) =>
-						handler.call( this.form, e )
-					);
+				const paymentMethod = this.selectedPaymentMethod() || '';
+				if ( paymentMethod.includes( 'buckaroo_creditcard' ) ) {
+					const isValid = await this.handleFormSubmit();
+					if ( isValid ) this.triggerSubmitHandlers( e );
+				} else {
+					this.triggerSubmitHandlers( e );
 				}
 			} catch ( error ) {
 				console.error( 'Form submission error:', error );
@@ -236,16 +238,31 @@ class BuckarooCreditCardsHostedFields {
 		} );
 	}
 
-	listen() {
-		jQuery( 'body' ).on( 'updated_checkout', ( event ) => {
-			const selectedPaymentMethod = jQuery( '[name="payment_method"]:checked' ).val() ?? '';
+	triggerSubmitHandlers( e ) {
+		this.submitEvents.forEach( ( handler ) =>
+			handler.call( this.form, e )
+		);
+	}
 
-			if ( selectedPaymentMethod.includes( 'buckaroo_creditcard' ) ) {
-				this.paymentMethodId = selectedPaymentMethod;
+	selectedPaymentMethod() {
+		return jQuery( '[name="payment_method"]:checked' ).val() || '';
+	}
+
+	listen() {
+		jQuery( 'body' ).on( 'updated_checkout', () => {
+			const paymentMethod = this.selectedPaymentMethod();
+			if ( paymentMethod.includes( 'buckaroo_creditcard' ) ) {
+				this.paymentMethodId = paymentMethod;
 				this.initialize();
 				this.overrideFormSubmit();
 			}
 		} );
+	}
+
+	cleanup() {
+		if ( this.refreshTimeout ) clearTimeout( this.refreshTimeout );
+		this.form.off( 'submit' );
+		jQuery( 'body' ).off( 'updated_checkout' );
 	}
 }
 
