@@ -143,6 +143,14 @@ English will be used as a fallback language for unknown language types.",
 			'default'     => '',
 		);
 
+		$this->form_fields['refund_description'] = array(
+			'title'       => __( 'Refund description', 'wc-buckaroo-bpe-gateway' ),
+			'type'        => 'textarea',
+			'description' => __( 'Refund description', 'wc-buckaroo-bpe-gateway' ),
+			'desc_tip'    => __( 'Refund description can be filled with static text and tags like: {order_number}, {shop_name} and {product_name} for first product found.' ),
+			'default'     => '',
+		);
+
 		$this->apply_filter_or_error( 'append_subscription_configurationCode_in_setting_field', $this );
 
 		$this->form_fields['useidin'] = array(

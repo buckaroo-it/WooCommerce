@@ -92,21 +92,22 @@ class AbstractPaymentProcessor extends AbstractProcessor {
 	 *
 	 * @return string
 	 */
-	public function get_description(): string {
-		$label = $this->gateway->get_option( 'transactiondescription', 'Order #' . $this->get_order()->get_order_number() );
+    public function get_description(): string {
+        $order        = $this->get_order();
+        $order_number = $order->get_order_number();
+        $label        = $this->gateway->get_option( 'transactiondescription', 'Order #' . $order->get_order_number() );
 
-		$label = preg_replace( '/\{order_number\}/', $this->get_order()->get_order_number(), $label );
-		$label = preg_replace( '/\{shop_name\}/', get_bloginfo( 'name' ), $label );
+        $label = str_replace( '{order_number}', $order_number, $label );
+        $label = str_replace( '{shop_name}', get_bloginfo( 'name' ), $label );
 
-		$products = $this->get_order()->get_items( 'line_item' );
-		if ( count( $products ) ) {
-			$label = preg_replace( '/\{product_name\}/', array_values( $products )[0]->get_name(), $label );
-		}
+        $products = $order->get_items( 'line_item' );
+        if ( count( $products ) ) {
+            $label = str_replace( '{product_name}', reset( $products )->get_name(), $label );
+        }
 
-		$label = preg_replace( "/\r?\n|\r/", '', $label );
-
-		return mb_substr( $label, 0, 244 );
-	}
+        $label = preg_replace( "/\r?\n|\r/", '', $label );
+        return mb_substr( $label, 0, 244 );
+    }
 
 	/**
 	 * Get address component

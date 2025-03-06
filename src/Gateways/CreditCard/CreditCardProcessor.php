@@ -6,7 +6,6 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 
 class CreditCardProcessor extends AbstractPaymentProcessor {
 
-
     /** @inheritDoc */
     public function getAction(): string {
         if ( $this->isAuthorization() ) {

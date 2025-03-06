@@ -112,6 +112,7 @@ class ExodusGateway extends AbstractPaymentGateway {
 			$onetime_settings2['culture']                = $keys['culture'];
 			$onetime_settings2['debugmode']              = 'off';
 			$onetime_settings2['transactiondescription'] = $keys['transactiondescription'];
+			$onetime_settings2['refund_description']     = $keys['refund_description'];
 
 			if ( ! get_option( 'woocommerce_buckaroo_mastersettings_settings' ) ) {
 				add_option( 'woocommerce_buckaroo_mastersettings_settings', $onetime_settings2 );
