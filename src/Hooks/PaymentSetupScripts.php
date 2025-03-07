@@ -3,7 +3,6 @@
 namespace Buckaroo\Woocommerce\Hooks;
 
 use Buckaroo\Woocommerce\Core\Plugin;
-use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
 use Buckaroo\Woocommerce\Gateways\In3\In3Gateway;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
 
@@ -117,14 +116,12 @@ class PaymentSetupScripts {
 				'buckaroo_sdk',
 				'buckaroo_global',
 				array(
-					'ajax_url'          => home_url( '/' ),
-					'idin_i18n'         => array(
+					'ajax_url'       => home_url( '/' ),
+					'idin_i18n'      => array(
 						'general_error' => esc_html__( 'Something went wrong while processing your identification.' ),
 						'bank_required' => esc_html__( 'You need to select your bank!' ),
 					),
-					'payByBankLogos'    => PayByBankProcessor::getIssuerLogoUrls(),
-					'creditCardIssuers' => ( new CreditCardGateway() )->getCardsList(),
-					'locale'            => get_locale(),
+					'payByBankLogos' => PayByBankProcessor::getIssuerLogoUrls(),
 				)
 			);
 		}

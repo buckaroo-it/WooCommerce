@@ -10,6 +10,7 @@ import buckaroo_klarnapii from './buckaroo_klarnapii';
 import buckaroo_paybybank from './buckaroo_paybybank';
 import buckaroo_payperemail from './buckaroo_payperemail';
 import buckaroo_sepadirectdebit from './buckaroo_sepadirectdebit';
+import buckaroo_separate_credit_card from './buckaroo_separate_credit_card';
 
 export const paymentGatewaysTemplates = {
 	buckaroo_afterpay,
@@ -24,11 +25,19 @@ export const paymentGatewaysTemplates = {
 	buckaroo_paybybank,
 	buckaroo_payperemail,
 	buckaroo_sepadirectdebit,
+	buckaroo_separate_credit_card,
 };
 
 export const separateCreditCards = [
 	'buckaroo_creditcard_amex',
+	'buckaroo_creditcard_cartebancaire',
+	'buckaroo_creditcard_cartebleuevisa',
+	'buckaroo_creditcard_dankort',
 	'buckaroo_creditcard_maestro',
 	'buckaroo_creditcard_mastercard',
+	'buckaroo_creditcard_nexi',
+	'buckaroo_creditcard_postepay',
 	'buckaroo_creditcard_visa',
+	'buckaroo_creditcard_visaelectron',
+	'buckaroo_creditcard_vpay',
 ];

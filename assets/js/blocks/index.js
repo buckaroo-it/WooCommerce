@@ -80,12 +80,6 @@ function BuckarooComponent( {
 		billing.billingAddress,
 	] );
 
-	// do not refresh component for every change for credit card (causing error with third-party)
-	const deps =
-		gateway.paymentMethodId === 'buckaroo_creditcard'
-			? []
-			: [ gateway.paymentMethodId, billing.billingData, methodName ];
-
 	useEffect( () => {
 		const loadPaymentComponent = async ( methodId ) => {
 			try {
@@ -97,7 +91,9 @@ function BuckarooComponent( {
 					LoadedComponent = paymentGatewaysTemplates[ methodId ];
 				} else if ( separateCreditCards.includes( methodId ) ) {
 					LoadedComponent =
-						paymentGatewaysTemplates[ 'buckaroo_creditcard' ];
+						paymentGatewaysTemplates[
+							'buckaroo_separate_credit_card'
+						];
 				}
 
 				setPaymentComponent(
@@ -108,9 +104,6 @@ function BuckarooComponent( {
 									onStateChange={ onPaymentStateChange }
 									methodName={ methodName }
 									gateway={ gateway }
-									eventRegistration={ eventRegistration }
-									emitResponse={ emitResponse }
-									setErrorMessage={ setErrorMessage }
 									locale={ wc.wcSettings.LOCALE }
 									billing={ billing.billingData }
 									title={ decodeHtmlEntities(
@@ -132,7 +125,7 @@ function BuckarooComponent( {
 		};
 
 		loadPaymentComponent( gateway.paymentMethodId );
-	}, deps );
+	}, [ gateway.paymentMethodId, billing.billingData, methodName ] );
 
 	if ( ! PaymentComponent ) {
 		return <div>Loading...</div>;
@@ -146,9 +139,7 @@ function BuckarooComponent( {
 					decodeHtmlEntities( gateway.title )
 				) }
 			</span>
-			{ errorMessage && errorMessage?.length && (
-				<div className="woocommerce-error">{ errorMessage }</div>
-			) }
+			<span className="descriptionError">{ errorMessage }</span>
 			<PaymentComponent />
 		</div>
 	);
