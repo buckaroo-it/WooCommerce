@@ -1,9 +1,9 @@
 import BuckarooCheckout from './checkout';
-import BuckarooCreditCardsHostedFields from './creditcard-hosted-fields';
+import BuckarooValidateCreditCards from './creditcard-call-encryption';
 import BuckarooIdin from './idin';
 
 jQuery( () => {
 	new BuckarooCheckout().listen();
+	new BuckarooValidateCreditCards().listen();
 	new BuckarooIdin().listen();
-	new BuckarooCreditCardsHostedFields().listen();
 } );
