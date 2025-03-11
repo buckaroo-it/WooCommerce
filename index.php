@@ -15,6 +15,10 @@ if ( ! defined( 'BK_PLUGIN_FILE' ) ) {
 	define( 'BK_PLUGIN_FILE', __FILE__ );
 }
 
-require_once __DIR__ . '/vendor/autoload.php';
+$autoload = __DIR__ . '/vendor/autoload.php';
+
+if (file_exists($autoload)) {
+    require_once $autoload;
+}
 
 ( new Buckaroo\Woocommerce\Core\Plugin() )->init();
