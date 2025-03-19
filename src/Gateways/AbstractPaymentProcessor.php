@@ -46,7 +46,7 @@ class AbstractPaymentProcessor extends AbstractProcessor {
 
                 'description'          => $this->get_description(),
                 'clientIP'             => $this->getIp(),
-                'culture'              => get_locale(),
+                'culture'              => $this->determineCulture(),
             )
         );
 
@@ -55,7 +55,7 @@ class AbstractPaymentProcessor extends AbstractProcessor {
 		return $body;
 	}
 
-	protected function getMethodBody(): array {
+    protected function getMethodBody(): array {
 		return array();
 	}
 
