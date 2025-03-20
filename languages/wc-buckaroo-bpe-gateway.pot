@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WC Buckaroo BPE Gateway 3.13.2\n"
+"Project-Id-Version: WC Buckaroo BPE Gateway 4.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-buckaroo-bpe-gateway\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-02-20T13:25:29+00:00\n"
+"POT-Creation-Date: 2025-03-20T10:57:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
@@ -162,11 +162,11 @@ msgid "Click to migrate settings, from existing payment methods to master settin
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:49
-msgid "Website key"
+msgid "Store key"
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:51
-msgid "This is your Buckaroo Payment Plaza website key (My Buckaroo -> Websites -> Choose website through Filter -> Key)."
+msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> (Settings -> API Key -> Store keys)."
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:58
@@ -174,7 +174,7 @@ msgid "Secret key"
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:60
-msgid "The secret password to verify transactions (Configuration -> Security -> Secret key)."
+msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> (Settings -> API Key -> Secret key)."
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:67
@@ -182,7 +182,7 @@ msgid "Test credentials"
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:69
-msgid "Click here to verify website key & secret key."
+msgid "Click here to verify store key & secret key."
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:71

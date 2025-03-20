@@ -26,7 +26,7 @@ use InvalidArgumentException;
 class BuckarooClient {
 
 	/**
-	 * Merchant website key.
+	 * Merchant store key.
 	 *
 	 * @var string
 	 */
@@ -59,7 +59,7 @@ class BuckarooClient {
 	 * Initializes the BuckarooClient with the provided or stored credentials.
 	 *
 	 * @param string      $mode Operating mode ('test' or 'live').
-	 * @param string|null $websiteKey Optional website key. If null, retrieved from settings.
+	 * @param string|null $websiteKey Optional store key. If null, retrieved from settings.
 	 * @param string|null $secretKey Optional secret key. If null, retrieved from settings.
 	 *
 	 * @throws InvalidArgumentException If required configuration keys are missing.
@@ -68,7 +68,7 @@ class BuckarooClient {
 		$config = get_option( 'woocommerce_buckaroo_mastersettings_settings', array() );
 
 		if ( $websiteKey === null && empty( $config['merchantkey'] ) ) {
-			throw new InvalidArgumentException( 'Website key is required.' );
+			throw new InvalidArgumentException( 'Store Key is required.' );
 		}
 
 		if ( $secretKey === null && empty( $config['secretkey'] ) ) {
