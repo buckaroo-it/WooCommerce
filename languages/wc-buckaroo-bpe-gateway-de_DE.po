@@ -9,7 +9,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-10-29T14:35:35+00:00\n"
-"PO-Revision-Date: 2025-02-20 13:43+0000\n"
+"PO-Revision-Date: 2025-03-20 11:03+0000\n"
 "Language: de_DE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
@@ -242,9 +242,9 @@ msgid "Chose the api version for this payment method."
 msgstr "Wählen Sie die API-Version für diese Zahlungsmethode aus."
 
 #: src/Admin/PaymentMethodSettings.php:69
-msgid "Click here to verify website key & secret key."
+msgid "Click here to verify store key & secret key."
 msgstr ""
-"Klicken Sie hier, um den Website-Schlüssel und den geheimen Schlüssel zu "
+"Klicken Sie hier, um den store key und den geheimen Schlüssel zu "
 "verifizieren."
 
 #: src/Admin/PaymentMethodSettings.php:42
@@ -1078,6 +1078,10 @@ msgstr ""
 "Geben Sie einen festen Betrag (z.B. 1,50) oder einen Prozentsatz (z.B. 1%) "
 "an. Dezimalstellen müssen durch einen Punkt (.) getrennt sein."
 
+#: src/Admin/PaymentMethodSettings.php:49
+msgid "Store key"
+msgstr "Store key"
+
 #: src/Admin/PaymentMethodSettings.php:71
 msgid "Test"
 msgstr "Test"
@@ -1156,14 +1160,6 @@ msgstr ""
 "Die Zahlungsmethode wird nur für Bestellungen mit einem Bestellbetrag "
 "kleiner als der Höchstbetrag angezeigt."
 
-#: src/Admin/PaymentMethodSettings.php:60
-msgid ""
-"The secret password to verify transactions (Configuration -> Security -> "
-"Secret key)."
-msgstr ""
-"Das geheime Passwort zur Überprüfung von Transaktionen (Konfiguration -> "
-"Sicherheit -> Geheimer Schlüssel)."
-
 #: src/Services/Helper.php:128 assets/js/blocks/partials/buckaroo_gender.js:9
 #: assets/js/dist/blocks.js:2
 msgid "They/them"
@@ -1174,13 +1170,25 @@ msgid "This controls the description which the user sees during checkout."
 msgstr ""
 "Dies steuert die Beschreibung, die der Benutzer während des Checkouts sieht."
 
+#: src/Admin/PaymentMethodSettings.php:60
+msgid ""
+"This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo."
+"nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> "
+"(Settings -> API Key -> Secret key)."
+msgstr ""
+"Dies ist Ihr Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo."
+"nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> "
+"(Einstellungen -> API-Schlüssel -> Secret key)."
+
 #: src/Admin/PaymentMethodSettings.php:51
 msgid ""
-"This is your Buckaroo Payment Plaza website key (My Buckaroo -> Websites -> "
-"Choose website through Filter -> Key)."
+"This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo."
+"nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> "
+"(Settings -> API Key -> Store keys)."
 msgstr ""
-"Dies ist Ihr Buckaroo Payment Plaza Website-Schlüssel (Mein Buckaroo -> "
-"Websites -> Website über Filter auswählen -> Schlüssel)."
+"Dies ist Ihr Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo."
+"nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> "
+"(Einstellungen -> API-Schlüssel -> Store keys)."
 
 #: src/Gateways/AbstractPaymentGateway.php:320
 msgid "This payment method is not supported for the selected currency "
@@ -1290,10 +1298,6 @@ msgstr ""
 "nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">Link</a> an. Wir "
 "empfehlen Ihnen, eine andere Zahlungsmethode zu wählen, um Ihre Bestellung "
 "abzuschließen."
-
-#: src/Admin/PaymentMethodSettings.php:49
-msgid "Website key"
-msgstr "Website-Schlüssel"
 
 #: src/Gateways/Ideal/IdealGateway.php:58
 msgid ""

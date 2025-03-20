@@ -46,9 +46,9 @@ class PaymentMethodSettings extends AbstractPaymentGateway {
 
 		// Start Certificate fields
 		$this->form_fields['merchantkey']      = array(
-			'title'             => __( 'Website key', 'wc-buckaroo-bpe-gateway' ),
+			'title'             => __( 'Store key', 'wc-buckaroo-bpe-gateway' ),
 			'type'              => 'password',
-			'description'       => __( 'This is your Buckaroo Payment Plaza website key (My Buckaroo -> Websites -> Choose website through Filter -> Key).', 'wc-buckaroo-bpe-gateway' ),
+			'description'       => __( 'This is your Buckaroo Payment Plaza <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank">store key</a> (Settings -> API Key -> Store keys).', 'wc-buckaroo-bpe-gateway' ),
 			'default'           => '',
 			'custom_attributes' => array(
 				'required' => 'required',
@@ -57,7 +57,7 @@ class PaymentMethodSettings extends AbstractPaymentGateway {
 		$this->form_fields['secretkey']        = array(
 			'title'             => __( 'Secret key', 'wc-buckaroo-bpe-gateway' ),
 			'type'              => 'password',
-			'description'       => __( 'The secret password to verify transactions (Configuration -> Security -> Secret key).', 'wc-buckaroo-bpe-gateway' ),
+			'description'       => __( 'This is your Buckaroo Payment Plaza <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank">secret key</a> (Settings -> API Key -> Secret key).', 'wc-buckaroo-bpe-gateway' ),
 			'default'           => '',
 			'custom_attributes' => array(
 				'required' => 'required',
@@ -66,7 +66,7 @@ class PaymentMethodSettings extends AbstractPaymentGateway {
 		$this->form_fields['test_credentials'] = array(
 			'title'             => __( 'Test credentials', 'wc-buckaroo-bpe-gateway' ),
 			'type'              => 'button',
-			'description'       => __( 'Click here to verify website key & secret key.', 'wc-buckaroo-bpe-gateway' ),
+			'description'       => __( 'Click here to verify store key & secret key.', 'wc-buckaroo-bpe-gateway' ),
 			'custom_attributes' => array(
 				'title' => __( 'Test', 'wc-buckaroo-bpe-gateway' ),
 			),
