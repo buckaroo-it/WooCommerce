@@ -31,7 +31,6 @@ class AbstractPaymentProcessor extends AbstractProcessor {
 
 	public function getBody(): array {
         $body = array_merge(
-            $this->getMethodBody(),
             array(
                 'order'                => (string) $this->get_order()->get_id(),
                 'invoice'              => $this->get_invoice_number(),
@@ -47,7 +46,8 @@ class AbstractPaymentProcessor extends AbstractProcessor {
                 'description'          => $this->get_description(),
                 'clientIP'             => $this->getIp(),
                 'culture'              => $this->determineCulture(),
-            )
+            ),
+            $this->getMethodBody(),
         );
 
         Logger::log( __METHOD__ . '|1|', array( $_POST, $body ) );
