@@ -39,7 +39,7 @@ Payment method support list:
 20.EPS
 21.Multibanco
 22.MB Way
-23.Knaken Settle
+23.goSettle
 24.Blik
 
 == Installation ==
