@@ -247,7 +247,7 @@ class PushProcessor {
 
                 Logger::log( 'Payment request failed/canceled. Order status: ' . $order->get_status() );
 
-                if ( ! in_array( $order->get_status(), array( 'completed', 'processing', 'cancelled' ) ) ) {
+                if ( ! in_array( $order->get_status(), array( 'completed', 'processing', 'cancelled', 'refunded' ) ) ) {
                     // We receive a valid response that the payment is canceled/failed.
                     Logger::log( 'Update status 2. Order status: failed' );
                     $order->update_status( 'failed', __( $responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway' ) );
