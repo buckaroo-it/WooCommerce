@@ -23,7 +23,6 @@ Payment method support list:
 4.Riverty/Afterpay
 5.Giftcards
 6.Bancontact
-7.Sofort
 8.SEPA Credit Transfer (Bank transfer)
 9.SEPA Direct Debit (With or without Credit management)
 10.Payconiq

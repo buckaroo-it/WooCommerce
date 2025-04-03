@@ -157,12 +157,11 @@ class PayPerEmailGateway extends AbstractPaymentGateway {
 				'ideal'              => 'iDEAL',
 				'paypal'             => 'PayPal',
 				'sepadirectdebit'    => 'SEPA Direct Debit',
-				'sofortueberweisung' => 'Sofort Banking',
 				'belfius'            => 'Belfius',
 				'Przelewy24'         => 'P24',
 			),
 			'description' => __( 'Select which methods appear to the customer', 'wc-buckaroo-bpe-gateway' ),
-			'default'     => array( 'amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard', 'postepay', 'visa', 'visaelectron', 'vpay', 'maestro', 'bancontactmrcash', 'transfer', 'giftcard', 'ideal', 'paypal', 'sepadirectdebit', 'sofortueberweisung', 'belfius', 'Przelewy24' ),
+			'default'     => array( 'amex', 'cartebancaire', 'cartebleuevisa', 'dankort', 'mastercard', 'postepay', 'visa', 'visaelectron', 'vpay', 'maestro', 'bancontactmrcash', 'transfer', 'giftcard', 'ideal', 'paypal', 'sepadirectdebit', 'belfius', 'Przelewy24' ),
 		);
 	}
 
