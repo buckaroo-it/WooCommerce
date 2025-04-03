@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Order;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Services\Helper;
 use DOMDocument;
 use DOMXPath;
 
@@ -151,7 +152,7 @@ class OrderArticles {
 	protected function get_product_with_differences( array $products, float $total_order_amount ) {
 		$product_amount = $this->sum_products_amount( $products );
 
-		$diffAmount = round( (float) number_format( $total_order_amount, 2 ) - $product_amount, 2 );
+		$diffAmount = $total_order_amount - $product_amount;
 
 		if ( abs( $diffAmount ) >= 0.01 ) {
 			$product = array(
@@ -179,15 +180,17 @@ class OrderArticles {
 	 * @return float
 	 */
 	protected function sum_products_amount( array $products ) {
-		return array_reduce(
-			$products,
-			function ( $carier, $product ) {
-				if ( isset( $product['price'] ) && isset( $product['quantity'] ) ) {
-					return $carier + ( $product['price'] * $product['quantity'] );
-				}
-				return $carier;
-			},
-			0
-		);
+        return Helper::roundAmount(
+            array_reduce(
+                $products,
+                function ( $carier, $product ) {
+                    if ( isset( $product['price'] ) && isset( $product['quantity'] ) ) {
+                        return $carier + ( $product['price'] * $product['quantity'] );
+                    }
+                    return $carier;
+                },
+				0
+            )
+        );
 	}
 }
