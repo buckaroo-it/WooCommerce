@@ -2,7 +2,6 @@ import buckaroo_afterpay from './buckaroo_afterpay';
 import buckaroo_afterpaynew from './buckaroo_afterpaynew';
 import buckaroo_billink from './buckaroo_billink';
 import buckaroo_creditcard from './buckaroo_creditcard';
-import buckaroo_ideal from './buckaroo_ideal';
 import buckaroo_in3 from './buckaroo_in3';
 import buckaroo_klarnakp from './buckaroo_klarnakp';
 import buckaroo_klarnapay from './buckaroo_klarnapay';
@@ -16,7 +15,6 @@ export const paymentGatewaysTemplates = {
 	buckaroo_afterpaynew,
 	buckaroo_billink,
 	buckaroo_creditcard,
-	buckaroo_ideal,
 	buckaroo_in3,
 	buckaroo_klarnakp,
 	buckaroo_klarnapay,

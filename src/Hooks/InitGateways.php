@@ -76,10 +76,7 @@ class InitGateways {
 					'genders'           => Helper::getAllGendersForPaymentMethods(),
 					'displayMode'       => $gateway->get_option( 'displaymode' ),
 				);
-				if ( $gateway_id === 'buckaroo_ideal' ) {
-					$payment_method['idealIssuers']   = IdealProcessor::getIssuerList();
-					$payment_method['canShowIssuers'] = $gateway->canShowIssuers();
-				}
+
 				if ( $gateway_id === 'buckaroo_paybybank' ) {
 					$payment_method['payByBankIssuers']        = PayByBankProcessor::getIssuerList();
 					$payment_method['payByBankSelectedIssuer'] = PayByBankProcessor::getActiveIssuerCode();
