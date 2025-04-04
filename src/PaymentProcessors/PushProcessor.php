@@ -180,6 +180,12 @@ class PushProcessor {
         Logger::log( 'Return start / fn_buckaroo_process_response_push' );
         $headers = getallheaders();
 
+        $original_precision = ini_get('serialize_precision');
+
+        if ($original_precision != -1) {
+            ini_set('serialize_precision', -1);
+        }
+
         $responseParser = ResponseRegistry::getResponseFromRequest();
 
         Logger::log( __METHOD__, var_export( $_SERVER, true ) );
@@ -201,6 +207,10 @@ class PushProcessor {
             $headers['Authorization'] ?? '',
             add_query_arg( $wp->query_vars, home_url( $wp->request ?: '/' ) )
         ) ) {
+            if ($original_precision != -1) {
+                ini_set('serialize_precision', $original_precision);
+            }
+
             // Check if redirect required
             $checkIfRedirectRequired = Helper::processCheckRedirectRequired( $responseParser );
             if ( $checkIfRedirectRequired ) {
