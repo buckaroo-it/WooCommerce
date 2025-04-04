@@ -171,15 +171,16 @@ class PushProcessor {
     }
 
     public function handle() {
-        global $woocommerce, $wpdb;
+        global $wp;
 
         if ( ! session_id() ) {
             @session_start();
         }
         $_SESSION['buckaroo_response'] = '';
         Logger::log( 'Return start / fn_buckaroo_process_response_push' );
+        $headers = getallheaders();
 
-        $responseParser = ResponseRegistry::getResponse( $_POST ?? $_GET );
+        $responseParser = ResponseRegistry::getResponseFromRequest();
 
         Logger::log( __METHOD__, var_export( $_SERVER, true ) );
         Logger::log( __METHOD__, $responseParser );
@@ -195,8 +196,11 @@ class PushProcessor {
         }
 
         $buckarooClient = new BuckarooClient( $responseParser->isTest() ? 'test' : 'live' );
-
-        if ( $buckarooClient->isReplyHandlerValid( $responseParser->get( null, null, false ) ) ) {
+        if ( $buckarooClient->isReplyHandlerValid(
+            $responseParser->get( null, null, false ),
+            $headers['Authorization'] ?? '',
+            add_query_arg( $wp->query_vars, home_url( $wp->request ) )
+        ) ) {
             // Check if redirect required
             $checkIfRedirectRequired = Helper::processCheckRedirectRequired( $responseParser );
             if ( $checkIfRedirectRequired ) {

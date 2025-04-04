@@ -12,7 +12,7 @@ class IdinController {
 	public function returnHandler() {
 		Logger::log( __METHOD__ . '|1|', wc_clean( $_POST ) );
 
-		$responseParser = ResponseRegistry::getResponse( wc_clean( $_POST ) );
+		$responseParser = ResponseRegistry::getResponseFromRequest();
 		$buckarooClient = new BuckarooClient( $responseParser->isTest() ? 'test' : 'live' );
 
 		if ( $buckarooClient->isReplyHandlerValid( $responseParser->get( formatted: false ) ) && $responseParser->isSuccess() ) {

@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\ResponseParser;
 
 use Buckaroo\Resources\Constants\ResponseStatus;
 use Buckaroo\Woocommerce\Constraints\BuckarooTransactionStatus;
+use Buckaroo\Woocommerce\Services\Helper;
 
 abstract class ResponseParser implements IResponseParser {
 
@@ -12,17 +13,17 @@ abstract class ResponseParser implements IResponseParser {
 
 	public function __construct( array $items = array() ) {
 		$this->unformattedItems = $items;
-		$this->items            = $this->arrayKeysToLowerRecursive( $items );
+		$this->items            = $this->normalizeItems( $items );
 	}
 
-	protected function arrayKeysToLowerRecursive( array $array ): array {
+	protected function normalizeItems( array $array ): array {
 		$result = array();
 
 		foreach ( $array as $key => $value ) {
 			$lowerKey = is_string( $key ) ? strtolower( $key ) : $key;
 
 			if ( is_array( $value ) ) {
-				$result[ $lowerKey ] = $this->arrayKeysToLowerRecursive( $value );
+				$result[ $lowerKey ] = $this->normalizeItems( $value );
 			} else {
 				$result[ $lowerKey ] = $value;
 			}
