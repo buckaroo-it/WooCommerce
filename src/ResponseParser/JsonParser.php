@@ -4,6 +4,14 @@ namespace Buckaroo\Woocommerce\ResponseParser;
 
 class JsonParser extends ResponseParser
 {
+    protected function normalizeItems( array $array ): array {
+       if( count($array) === 1 && array_key_exists('Transaction', $array) ){
+            $array = $array['Transaction'];
+        }
+
+        return parent::normalizeItems($array);
+    }
+
     public function getAmountCredit(): ?float
     {
         return $this->formatAmount($this->get('AmountCredit'));
