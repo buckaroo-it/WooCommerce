@@ -9,7 +9,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-10-29T14:35:35+00:00\n"
-"PO-Revision-Date: 2025-03-20 11:03+0000\n"
+"PO-Revision-Date: 2025-04-04 10:35+0000\n"
 "Language: de_DE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
@@ -996,10 +996,6 @@ msgstr "Sie/ihr"
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:127
 msgid "Show"
 msgstr "Anzeigen"
-
-#: src/Gateways/Ideal/IdealGateway.php:56
-msgid "Show Issuer Selection in the Checkout"
-msgstr "Aussteller-Auswahl im Checkout anzeigen"
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:105
 msgid "Show on Checkout page"

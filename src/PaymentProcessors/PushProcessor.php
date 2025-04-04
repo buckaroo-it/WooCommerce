@@ -199,7 +199,7 @@ class PushProcessor {
         if ( $buckarooClient->isReplyHandlerValid(
             $responseParser->get( null, null, false ),
             $headers['Authorization'] ?? '',
-            add_query_arg( $wp->query_vars, home_url( $wp->request ) )
+            add_query_arg( $wp->query_vars, home_url( $wp->request ?: '/' ) )
         ) ) {
             // Check if redirect required
             $checkIfRedirectRequired = Helper::processCheckRedirectRequired( $responseParser );

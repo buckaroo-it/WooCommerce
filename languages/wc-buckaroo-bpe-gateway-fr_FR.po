@@ -9,7 +9,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-10-29T14:35:35+00:00\n"
-"PO-Revision-Date: 2025-03-20 11:05+0000\n"
+"PO-Revision-Date: 2025-04-04 10:35+0000\n"
 "Language: fr_FR\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
@@ -999,10 +999,6 @@ msgstr "Elle/lui"
 msgid "Show"
 msgstr "Afficher"
 
-#: src/Gateways/Ideal/IdealGateway.php:56
-msgid "Show Issuer Selection in the Checkout"
-msgstr "Afficher la sélection de l'émetteur lors du paiement"
-
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:105
 msgid "Show on Checkout page"
 msgstr "Afficher sur la page de paiement"
@@ -1240,8 +1236,7 @@ msgstr "Genre inconnu"
 msgid "VAT number:"
 msgstr "Numéro de TVA :"
 
-#: assets/js/blocks/gateways/buckaroo_billink.js:53
-#: assets/js/dist/blocks.js:690
+#: assets/js/blocks/gateways/buckaroo_billink.js:53 assets/js/dist/blocks.js:2
 msgid "VAT-number:"
 msgstr "Numéro de TVA :"
 
@@ -1377,7 +1372,7 @@ msgstr ""
 "méthode de paiement pour compléter votre commande."
 
 #: assets/js/blocks/partials/buckaroo_financial_warning.js:6
-#: assets/js/dist/blocks.js:888
+#: assets/js/dist/blocks.js:2
 msgid ""
 "You must be at least 18+ to use this service. By paying on time, you avoid "
 "extra costs and ensure that you can use %s services again in the future. By "
