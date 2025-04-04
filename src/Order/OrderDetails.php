@@ -307,7 +307,7 @@ class OrderDetails {
 	 * @return float
 	 */
 	public function get_total(): float {
-		return number_format( floatval( $this->order->get_total( 'edit' ) ), 2 );
+		return Helper::roundAmount( $this->order->get_total( 'edit' ) );
 	}
 
 	/**

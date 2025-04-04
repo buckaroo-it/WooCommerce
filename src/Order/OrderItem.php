@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Order;
 
+use Buckaroo\Woocommerce\Services\Helper;
 use WC_Order;
 use WC_Order_Item;
 use WC_Order_Item_Fee;
@@ -122,7 +123,7 @@ class OrderItem {
 			return 0;
 		}
 
-		return number_format( $taxRate['rate'], 2 );
+		return Helper::roundAmount( $taxRate['rate'] );
 	}
 
 	/**

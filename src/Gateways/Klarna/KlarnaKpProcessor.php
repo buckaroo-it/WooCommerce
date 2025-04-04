@@ -8,9 +8,6 @@ use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 
 class KlarnaKpProcessor extends AbstractPaymentProcessor {
-
-
-
     /**
      * @var OrderDetails
      */
