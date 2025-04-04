@@ -27,7 +27,6 @@ use Buckaroo\Woocommerce\Gateways\Paypal\PaypalGateway;
 use Buckaroo\Woocommerce\Gateways\PayPerEmail\PayPerEmailGateway;
 use Buckaroo\Woocommerce\Gateways\Przelewy24\Przelewy24Gateway;
 use Buckaroo\Woocommerce\Gateways\SepaDirectDebit\SepaDirectDebitGateway;
-use Buckaroo\Woocommerce\Gateways\Sofort\SofortGateway;
 use Buckaroo\Woocommerce\Gateways\Transfer\TransferGateway;
 use Buckaroo\Woocommerce\Order\OrderCapture;
 use Buckaroo\Woocommerce\PaymentProcessors\ExodusGateway;
@@ -65,7 +64,6 @@ class PaymentGatewayRegistry {
 		'paypal'          => array( 'gateway_class' => PaypalGateway::class ),
 		'payperemail'     => array( 'gateway_class' => PayPerEmailGateway::class ),
 		'sepadirectdebit' => array( 'gateway_class' => SepaDirectDebitGateway::class ),
-		'sofort'          => array( 'gateway_class' => SofortGateway::class ),
 		'transfer'        => array( 'gateway_class' => TransferGateway::class ),
 	);
 

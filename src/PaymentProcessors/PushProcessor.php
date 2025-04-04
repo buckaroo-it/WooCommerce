@@ -149,19 +149,23 @@ class PushProcessor {
             $transactionsArray = $this->parsePPENewTransactionId( $responseParser->getTransactionKey() );
             if ( ! empty( $transactionsArray ) && $responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS ) {
                 $creditcardProvider = Helper::checkCreditCardProvider( $responseParser->getPaymentMethod() );
-                update_post_meta( $order_id, '_transaction_id', $transactionsArray[ count( $transactionsArray ) - 1 ] );
+                $order->update_meta_data('_transaction_id', $transactionsArray[ count( $transactionsArray ) - 1 ]);
 
                 if ( $creditcardProvider ) {
-                    update_post_meta( $order_id, '_payment_method', 'buckaroo_creditcard' );
-                    update_post_meta( $order_id, '_payment_method_title', 'Creditcards' );
-                    update_post_meta( $order_id, '_payment_method_transaction', $responseParser->getPaymentMethod() );
-                    update_post_meta( $order_id, '_wc_order_payment_issuer', $responseParser->getPaymentMethod() );
+                    $order->set_payment_method('buckaroo_creditcard');
+                    $order->set_payment_method_title('Creditcards');
+                    $order->update_meta_data('_payment_method_transaction', $responseParser->getPaymentMethod());
+                    $order->update_meta_data('_wc_order_payment_issuer', $responseParser->getPaymentMethod());
+
                 } else {
-                    update_post_meta( $order_id, '_payment_method', 'buckaroo_' . strtolower( $responseParser->getPaymentMethod() ) );
-                    $responsePaymentMethod = $responseParser->getPaymentMethod() !== 'payperemail' ? ' + ' . $responseParser->getPaymentMethod() : '';
-                    update_post_meta( $order_id, '_payment_method_title', 'PayperEmail' . $responsePaymentMethod );
-                    update_post_meta( $order_id, '_payment_method_transaction', $responseParser->getPaymentMethod() );
+                    $order->set_payment_method('buckaroo_' . strtolower( $responseParser->getPaymentMethod() ));
+                    $order->set_payment_method_title(
+                        'PayperEmail' . ( $responseParser->getPaymentMethod() !== 'payperemail' ? ' + ' . $responseParser->getPaymentMethod() : '' )
+                    );
+                    $order->update_meta_data('_payment_method_transaction', $responseParser->getPaymentMethod());
                 }
+
+                $order->save();
             }
         } elseif ( strtolower( $order->get_payment_method() ) === 'buckaroo_sepadirectdebit' && $responseParser->getPaymentMethod() === 'payperemail' ) {
             return false;

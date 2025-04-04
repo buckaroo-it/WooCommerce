@@ -139,6 +139,6 @@ class KlarnaKpGateway extends AbstractPaymentGateway {
 			$order = Helper::findOrder( $order );
 		}
 
-		return get_post_meta( $order->get_id(), 'buckaroo_is_reserved', true ) === 'yes';
+		return $order->get_meta('buckaroo_is_reserved') === 'yes';
 	}
 }
