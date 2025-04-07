@@ -35,9 +35,7 @@ jobs:
       - name: Package Plugin
         run: |
           RELEASE_VERSION=${{ steps.get_version.outputs.version }}
-          mkdir "WooCommerce-$RELEASE_VERSION"
-          rsync -av --exclude='.git' --exclude='.github' . "WooCommerce-$RELEASE_VERSION/"
-          zip -r "WooCommerce-$RELEASE_VERSION.zip" "WooCommerce-$RELEASE_VERSION"
+          zip -r "WooCommerce-$RELEASE_VERSION.zip" . -x '.git/*' -x '.github/*'
 
       - name: Upload Asset to Release
         uses: actions/upload-release-asset@v1
