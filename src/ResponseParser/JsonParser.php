@@ -5,8 +5,8 @@ namespace Buckaroo\Woocommerce\ResponseParser;
 class JsonParser extends ResponseParser
 {
     protected function normalizeItems( array $array ): array {
-       if( count($array) === 1 && array_key_exists('Transaction', $array) ){
-            $array = $array['Transaction'];
+        if ( count($array) === 1 && ( isset($array['Transaction']) || isset($array['DataRequest']) ) ) {
+            $array = $array['Transaction'] ?? $array['DataRequest'];
         }
 
         return parent::normalizeItems($array);
@@ -100,7 +100,7 @@ class JsonParser extends ResponseParser
 
     public function getService($name)
     {
-        return $this->firstWhere($this->get('Services'), 'Name', $name);
+        return $this->firstWhere($this->get('services'), 'name', $name);
     }
 
     public function getRelatedTransactionPartialPayment(): ?string
@@ -143,15 +143,17 @@ class JsonParser extends ResponseParser
         return $this->getRelatedTransactions();
     }
 
-    public function getServiceParameter($name, $parameter)
+    public function getServiceParameter($name, $service = null)
     {
-        return $this->firstWhere($this->getServiceParameters($name), 'Name', $parameter)['Value'] ?? null;
+        $service = $service ?? $this->getPaymentMethod();
+
+        return $this->firstWhere($this->getServiceParameters($service), 'name', ucfirst($name))['value'] ?? null;
     }
 
     public function getServiceParameters($name)
     {
         $service = $this->getService($name);
-        return isset($service['Parameters']) ? $service['Parameters'] : null;
+        return $service['parameters'] ?? null;
     }
 
     public function isTest(): bool

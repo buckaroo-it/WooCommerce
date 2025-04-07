@@ -70,5 +70,7 @@ interface IResponseParser {
 
 	public function getService( $name );
 
+    public function getServiceParameter($name, $service = null);
+
 	public function getRealOrderId();
 }

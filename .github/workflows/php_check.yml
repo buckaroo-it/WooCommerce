@@ -1,0 +1,26 @@
+name: PHP Compatibility Check
+
+on:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['8.0', '8.1', '8.2', '8.3', '8.4']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: composer:v2
+          coverage: none
+
+      - name: Install Dependencies
+        run: composer install --no-progress --prefer-dist
+
+      - name: Check PHP Compatibility
+        run: composer require --dev php-parallel-lint/php-parallel-lint && vendor/bin/parallel-lint . --exclude vendor
