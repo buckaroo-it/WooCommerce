@@ -25,9 +25,17 @@ jobs:
       - name: Install Composer Dependencies
         run: composer install --no-dev --optimize-autoloader
 
+      - name: Get Release Version
+        id: get_version
+        run: |
+          RELEASE_VERSION=$(grep "^Stable tag:" readme.txt | awk -F' ' '{print $NF}')
+          echo "Release Version: $RELEASE_VERSION"
+          echo "::set-output name=version::$RELEASE_VERSION"
+
       - name: Package Plugin
         run: |
-          zip -r plugin.zip . -x '.git/*' -x '.github/*'
+          RELEASE_VERSION=${{ steps.get_version.outputs.version }}
+          zip -r "WooCommerce-$RELEASE_VERSION.zip" . -x '.git/*' -x '.github/*'
 
       - name: Upload Asset to Release
         uses: actions/upload-release-asset@v1
@@ -35,21 +43,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./plugin.zip
-          asset_name: plugin.zip
+          asset_path: ./WooCommerce-${{ steps.get_version.outputs.version }}.zip
+          asset_name: WooCommerce-${{ steps.get_version.outputs.version }}.zip
           asset_content_type: application/zip
 
       # Step 6: Install Subversion (SVN)
       - name: Install Subversion
         run: sudo apt-get update && sudo apt-get install -y subversion
-
-      - name: Get Release Version
-        id: get_version
-        run: |
-          # Ensure that 'Stable tag' is correctly spelled in readme.txt
-          RELEASE_VERSION=$(grep "^Stable tag:" readme.txt | awk -F' ' '{print $NF}')
-          echo "Release Version: $RELEASE_VERSION"
-          echo "::set-output name=version::$RELEASE_VERSION"
 
       - name: Sync with SVN on Release
         env:
