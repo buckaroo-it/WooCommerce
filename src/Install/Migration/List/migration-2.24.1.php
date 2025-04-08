@@ -1,5 +1,7 @@
 <?php
 
+namespace Buckaroo\Woocommerce\Install\Migration\List;
+
 /**
  * Migration for version 2.24.1
  * php version 7.2
@@ -14,9 +16,10 @@
  */
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Install\Migration\Migration;
 use Buckaroo\Woocommerce\Services\LoggerStorage;
 
-return new class() implements Buckaroo_Migration {
+return new class() implements Migration {
 	public function execute() {
 		global $wpdb;
 

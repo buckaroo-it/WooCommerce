@@ -172,7 +172,7 @@ class MigrationHandler {
 	 * @return array
 	 */
 	protected function get_migration_items() {
-		$directory = realpath( __DIR__ . '/list' );
+		$directory = realpath(__DIR__ . '/List');
 
 		$migrations = glob( $directory . '/migration-*.php' );
 		return array_map(
