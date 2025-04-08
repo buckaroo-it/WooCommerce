@@ -27,7 +27,7 @@ To use the Buckaroo plugin, please be aware of the following minimum requirement
 - A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
 - WordPress 4.4.10 up to 6.6.2
 - WooCommerce 5.0 up to 9.3.3
-- PHP 7.4 , 8.0 , 8.1 , 8.2, 8.3
+- PHP 8.0 , 8.1 , 8.2, 8.3
 
 ### Quick installation
 
