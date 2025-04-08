@@ -1,22 +1,27 @@
 import { useState } from 'react';
 
-const useFormData = (initialState, onStateChange) => {
-  const [formState, setFormState] = useState(initialState);
+const useFormData = ( initialState, onStateChange ) => {
+	const [ formState, setFormState ] = useState( initialState );
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    const updatedState = { ...formState, [name]: value };
-    setFormState(updatedState);
-    onStateChange(updatedState);
-  };
+	const handleChange = ( e ) => {
+		const { name, value } = e.target;
+		const updatedState = { ...formState, [ name ]: value };
+		setFormState( updatedState );
+		onStateChange( updatedState );
+	};
 
-  const updateFormState = (fieldName, value) => {
-    const updatedState = { ...formState, [fieldName]: value };
-    setFormState(updatedState);
-    onStateChange(updatedState);
-  };
+	const updateFormState = (fieldNameOrObject, value) => {
+		const updatedState =
+			typeof fieldNameOrObject === 'object' && fieldNameOrObject !== null
+				? { ...formState, ...fieldNameOrObject }
+				: { ...formState, [fieldNameOrObject]: value };
 
-  return { formState, handleChange, updateFormState };
+		setFormState(updatedState);
+		onStateChange(updatedState);
+	};
+
+
+	return { formState, handleChange, updateFormState };
 };
 
 export default useFormData;

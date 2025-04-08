@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 4.4.10
 Tested up to: 6.6.2
-Stable tag: 3.14.3
+Stable tag: 4.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,6 @@ Payment method support list:
 4.Riverty/Afterpay
 5.Giftcards
 6.Bancontact
-7.Sofort
 8.SEPA Credit Transfer (Bank transfer)
 9.SEPA Direct Debit (With or without Credit management)
 10.Payconiq
@@ -39,7 +38,7 @@ Payment method support list:
 20.EPS
 21.Multibanco
 22.MB Way
-23.Knaken Settle
+23.goSettle
 24.Blik
 
 == Installation ==

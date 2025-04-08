@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The Template for displaying afterpay tos gateway template
  * php version 7.2
@@ -12,11 +13,13 @@
  * @link      https://www.buckaroo.eu/
  */
 
+use Buckaroo\Woocommerce\Services\Helper;
+
 defined( 'ABSPATH' ) || exit;
 
 $section_id = str_replace( '_', '-', $this->id );
 
-$allGenders = BuckarooConfig::getAllGendersForPaymentMethods();
+$allGenders = Helper::getAllGendersForPaymentMethods();
 $genderVal  = $allGenders[ $section_id ] ?? array();
 ?>
 <p class="form-row">
@@ -27,7 +30,7 @@ $genderVal  = $allGenders[ $section_id ] ?? array();
 	<select name="<?php echo esc_attr( $section_id ); ?>-gender" id="<?php echo esc_attr( $section_id ); ?>-gender">
 		<?php
 		foreach ( $genderVal as $key => $value ) {
-			$translatedLabel = BuckarooConfig::translateGender( $key );
+			$translatedLabel = Helper::translateGender( $key );
 			echo '<option value="' . esc_attr( $value ) . '">' . esc_html( $translatedLabel ) . '</option>';
 		}
 		?>
