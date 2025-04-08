@@ -44,14 +44,14 @@ class PaymentSetupScripts {
 		);
 		wp_enqueue_script(
 			'creditcard_capture',
-			$pluginDir . 'library/js/9yards/creditcard-capture-form.js',
+			$pluginDir . 'library/js/creditcard-capture-form.js',
 			array( 'jquery' ),
 			Plugin::VERSION,
 			true
 		);
 		wp_enqueue_script(
 			'buckaroo_admin_utils_js',
-			$pluginDir . 'library/js/9yards/util.js',
+			$pluginDir . 'library/js/util.js',
 			array( 'jquery' ),
 			Plugin::VERSION,
 			true
