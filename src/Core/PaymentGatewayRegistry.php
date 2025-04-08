@@ -29,7 +29,6 @@ use Buckaroo\Woocommerce\Gateways\Przelewy24\Przelewy24Gateway;
 use Buckaroo\Woocommerce\Gateways\SepaDirectDebit\SepaDirectDebitGateway;
 use Buckaroo\Woocommerce\Gateways\Transfer\TransferGateway;
 use Buckaroo\Woocommerce\Order\OrderCapture;
-use Buckaroo\Woocommerce\PaymentProcessors\ExodusGateway;
 
 class PaymentGatewayRegistry {
 
@@ -77,26 +76,13 @@ class PaymentGatewayRegistry {
 			return $this;
 		}
 
-		$this->addExodus();
 		$this->loadGateways();
 		$this->enableCreditCardsInCheckout();
 
 		return $this;
 	}
 
-	/**
-	 * Add the Exodus gateway if not already added.
-	 *
-	 * @return void
-	 */
-	private function addExodus(): void {
-		if ( ! get_option( 'woocommerce_buckaroo_exodus' ) ) {
-			$this->gateways['exodus_script'] = array( 'gateway_class' => ExodusGateway::class );
-		}
-	}
-
-
-	public function newGatewayInstance( array|string $method ) {
+	public function newGatewayInstance( $method ) {
 		if ( is_string( $method ) ) {
 			$method = $this->getAllGateways()[ strtolower( $method ) ] ?? null;
 		}
