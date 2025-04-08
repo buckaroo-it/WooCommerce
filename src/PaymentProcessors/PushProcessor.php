@@ -42,7 +42,7 @@ class PushProcessor {
                 case 'completed':
                     /** Handle KlarnaKP reservation push */
                     if (
-                        $responseParser->getService( 'reservationNumber' ) !== null &&
+                        $responseParser->getServiceParameter( 'reservationNumber' ) !== null &&
                         $order->get_status() !== 'cancelled'
                     ) {
                         $order->payment_complete( $responseParser->getTransactionKey() );
