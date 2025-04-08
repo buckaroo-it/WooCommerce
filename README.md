@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/a38b5a8b-9551-4655-aa87-91af8345eedc" width="200px" position="center">
+  <img src="https://www.buckaroo.nl/media/4zdjmse1/woocommerce_icon.png" width="200px" position="center">
 </p>
 
 # Buckaroo WooCommerce Payments Plugin
@@ -56,7 +56,7 @@ If you want to contribute as well, then please follow our [Contribution Guidelin
 
 ### Versioning 
 <p align="left">
-  <img src="https://www.buckaroo.nl/media/3481/woocommerce_versioning.png" width="500px" position="center">
+  <img src="https://www.buckaroo.nl/media/na4pgbcg/woocommerce_versioning.png" width="500px" position="center">
 </p>
 
 - **MAJOR:** Breaking changes that require additional testing/caution.
