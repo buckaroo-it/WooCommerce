@@ -27,7 +27,7 @@ class Helper {
 		return substr( WC()->version, 0, 1 ) >= 3;
 	}
 
-	public static function roundAmount( $amount ): float|int {
+	public static function roundAmount( $amount ) {
 		if ( is_scalar( $amount ) && is_numeric( $amount ) ) {
 			return (float) number_format( $amount, 2, '.', '' );
 		}
@@ -78,7 +78,7 @@ class Helper {
 		}
 	}
 
-	public static function processCheckRedirectRequired( ResponseParser $responseParser ): bool|array {
+	public static function processCheckRedirectRequired( ResponseParser $responseParser ) {
 		if ( $responseParser->hasRedirect() ) {
 			return array(
 				'result'   => 'success',
@@ -138,7 +138,7 @@ class Helper {
 	 * @param string $key
 	 * @return string $val
 	 */
-	public static function get( $key, $paymentId = null ): bool|array|string|null {
+	public static function get( $key, $paymentId = null ) {
 		$paymentId = $paymentId ? 'woocommerce_buckaroo_' . $paymentId . '_settings' : ( $GLOBALS['plugin_id'] ?? '' );
 		$options   = $paymentId ? get_option( $paymentId, array() ) : array();
 

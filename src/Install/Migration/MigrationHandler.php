@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Install\Migration;
 
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Install\Install;
+use Buckaroo\Woocommerce\Install\Migration\Versions\SetupTransactionsAndLogs;
 use Buckaroo\Woocommerce\Services\Logger;
 use Throwable;
 
@@ -149,12 +150,12 @@ class MigrationHandler {
 			$this->get_migration_items(),
 			function ( $migration ) {
 				return $this->compare_versions(
-					$migration['version'],
+                    $migration->version,
 					Plugin::VERSION,
 					'<='
 				) &&
 					$this->compare_versions(
-						$migration['version'],
+                        $migration->version,
 						$this->databaseVersion,
 						'>'
 					);
@@ -172,30 +173,9 @@ class MigrationHandler {
 	 * @return array
 	 */
 	protected function get_migration_items() {
-		$directory = realpath( __DIR__ . '/list' );
-
-		$migrations = glob( $directory . '/migration-*.php' );
-		return array_map(
-			function ( $migration ) {
-				$version = str_replace(
-					'migration-',
-					'',
-					basename( $migration )
-				);
-
-				$version = str_replace(
-					'.php',
-					'',
-					$version
-				);
-
-				return array(
-					'version' => $version,
-					'path'    => $migration,
-				);
-			},
-			$migrations
-		);
+		return array(
+            new SetupTransactionsAndLogs(),
+        );
 	}
 
 	/**
@@ -221,27 +201,22 @@ class MigrationHandler {
 	protected function execute_list( $migrations ) {
 		$migrationObjects = array();
 		foreach ( $migrations as $migration ) {
-			if ( file_exists( $migration['path'] ) ) {
-				$object = include_once $migration['path'];
-				$this->execute(
-					$object,
-					$migration['version']
-				);
-			}
+            $this->execute( $migration );
 		}
 
 		return $migrationObjects;
 	}
 
-	/**
-	 * Execute single migration method
-	 *
-	 * @param mixed  $migration
-	 * @param string $method
-	 *
-	 * @return void
-	 */
-	protected function execute( $migration, $version ) {
+    /**
+     * Execute single migration method
+     *
+     * @param Migration $migration
+     * @param string    $method
+     *
+     * @return void
+     * @throws MigrationException
+     */
+	protected function execute( $migration ) {
 		try {
 			if (
 				$migration instanceof Migration &&
@@ -251,7 +226,7 @@ class MigrationHandler {
 			}
 		} catch ( Throwable $th ) {
 			throw new MigrationException(
-				'Cannot run migration for version: ' . $version,
+				'Cannot run migration for version: ' . $migration->version,
 				1,
 				$th
 			);

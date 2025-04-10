@@ -44,21 +44,21 @@ class PaymentSetupScripts {
 		);
 		wp_enqueue_script(
 			'creditcard_capture',
-			$pluginDir . 'library/js/9yards/creditcard-capture-form.js',
+			$pluginDir . 'library/js/creditcard-capture-form.js',
 			array( 'jquery' ),
 			Plugin::VERSION,
 			true
 		);
 		wp_enqueue_script(
-			'buckaroo_certificate_management_js',
-			$pluginDir . 'library/js/9yards/upload_certificate.js',
+			'buckaroo_admin_utils_js',
+			$pluginDir . 'library/js/util.js',
 			array( 'jquery' ),
 			Plugin::VERSION,
 			true
 		);
 		if ( class_exists( 'WooCommerce' ) ) {
 			wp_localize_script(
-				'buckaroo_certificate_management_js',
+				'buckaroo_admin_utils_js',
 				'buckaroo_php_vars',
 				array(
 					'version2' => In3Gateway::VERSION2,

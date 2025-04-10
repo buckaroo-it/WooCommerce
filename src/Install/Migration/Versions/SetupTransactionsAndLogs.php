@@ -1,5 +1,7 @@
 <?php
 
+namespace Buckaroo\Woocommerce\Install\Migration\Versions;
+
 /**
  * Migration for version 2.24.1
  * php version 7.2
@@ -14,9 +16,12 @@
  */
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Install\Migration\Migration;
 use Buckaroo\Woocommerce\Services\LoggerStorage;
 
-return new class() implements Buckaroo_Migration {
+class SetupTransactionsAndLogs implements Migration {
+    public $version = '2.24.1';
+
 	public function execute() {
 		global $wpdb;
 
@@ -34,11 +39,6 @@ return new class() implements Buckaroo_Migration {
             $collate;"
 		);
 
-		if ( ! get_option( 'woocommerce_buckaroo_exodus' ) ) {
-			add_option( 'woocommerce_buckaroo_exodus', 'a:1:{s:8:"covenant";b:1;}', '', 'yes' );
-		} else {
-			update_option( 'woocommerce_buckaroo_exodus', 'a:1:{s:8:"covenant";b:1;}', true );
-		}
 		$this->create_log_table();
 		$this->update_extrachargeamount_with_percentage();
 	}

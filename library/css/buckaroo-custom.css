@@ -2,12 +2,6 @@
     background-color: white;
 }
 
-/* Hide Exodus Method */
-
-.wc_payment_method.payment_method_ {
-    display: none;
-}
-
 input[type="password"].error,
 input[type="text"].error {
     border-color: red;

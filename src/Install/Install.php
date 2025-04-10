@@ -25,7 +25,7 @@ class Install {
 	}
 
 	public static function isUntrackedInstall() {
-		return self::get_db_version() === false && get_option( 'woocommerce_buckaroo_exodus' ) !== false;
+		return self::get_db_version() === false;
 	}
 
 	/**

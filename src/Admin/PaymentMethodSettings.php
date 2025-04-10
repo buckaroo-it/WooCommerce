@@ -19,30 +19,12 @@ class PaymentMethodSettings extends AbstractPaymentGateway {
 		parent::__construct();
 	}
 
-	public function enqueue_script_exodus( $settings ) {
-		if ( is_admin() ) {
-			wp_enqueue_script( 'buckaroo_exodus', plugin_dir_url( __FILE__ ) . 'library/js/9yards/exodus.js', array( 'jquery' ), '1.0.0', true );
-		}
-		return $settings;
-	}
-
 	/**
 
 		public
      */
 	public function init_form_fields() {
 		$this->id = ( ! isset( $this->id ) ? '' : $this->id );
-
-		// Hide migrate button, if migration flag is set
-		if ( ! get_option( 'woocommerce_buckaroo_exodus' ) ) {
-			add_filter( 'woocommerce_settings_api_form_fields_' . $this->id, array( $this, 'enqueue_script_exodus' ) );
-			$this->form_fields['exodus'] = array(
-				'title'       => __( 'Migrate Settings', 'wc-buckaroo-bpe-gateway' ),
-				'type'        => 'button',
-				'description' => __( 'Click to migrate settings, from existing payment methods to master settings.', 'wc-buckaroo-bpe-gateway' ),
-				'default'     => '',
-			);
-		}
 
 		// Start Certificate fields
 		$this->form_fields['merchantkey']      = array(
