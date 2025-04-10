@@ -500,7 +500,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway {
 		$payment   = new BuckarooClient( $this->getMode() );
 		$res       = $payment->process(
 			$processor,
-			additionalData: array(
+			array(
 				'amountDebit'            => $capture_amount,
 				'originalTransactionKey' => $order->get_transaction_id(),
 			)
@@ -717,7 +717,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway {
 		return (bool) in_array( get_woocommerce_currency(), $this->supportedCurrencies );
 	}
 
-	public function canShowCaptureForm( WC_Order|string|int $order ): bool {
+	public function canShowCaptureForm( $order ): bool {
 		return false;
 	}
 }

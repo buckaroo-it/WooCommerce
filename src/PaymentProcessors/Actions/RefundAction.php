@@ -17,7 +17,7 @@ class RefundAction {
 	protected BuckarooClient $buckarooClient;
 	private WC_Order $order;
 
-	public function __construct( AbstractRefundProcessor $paymentProcessor, int|string $orderId, ?string $originalTransactionKey ) {
+	public function __construct( AbstractRefundProcessor $paymentProcessor, $orderId, ?string $originalTransactionKey ) {
 		$this->paymentProcessor       = $paymentProcessor;
 		$this->order                  = new WC_Order( $orderId );
 		$this->buckarooClient         = new BuckarooClient( $this->paymentProcessor->gateway->getMode() );

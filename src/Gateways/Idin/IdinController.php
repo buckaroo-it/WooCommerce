@@ -15,7 +15,7 @@ class IdinController {
 		$responseParser = ResponseRegistry::getResponseFromRequest();
 		$buckarooClient = new BuckarooClient( $responseParser->isTest() ? 'test' : 'live' );
 
-		if ( $buckarooClient->isReplyHandlerValid( $responseParser->get( formatted: false ) ) && $responseParser->isSuccess() ) {
+		if ( $buckarooClient->isReplyHandlerValid( $responseParser->get( null, null, false ) ) && $responseParser->isSuccess() ) {
 			$bin        = $responseParser->getService( 'consumerbin' );
 			$isEighteen = $responseParser->getService( 'iseighteenorolder' ) === 'True' ? 1 : 0;
 			Logger::log( __METHOD__ . '|5|', $bin );

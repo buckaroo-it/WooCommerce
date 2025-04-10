@@ -4,7 +4,7 @@ namespace Buckaroo\Woocommerce\Services;
 
 class Request {
 
-	public static function make(): static {
+	public static function make() {
 		return new static();
 	}
 

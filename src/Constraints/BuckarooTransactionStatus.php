@@ -21,7 +21,7 @@ class BuckarooTransactionStatus {
 	 * @param string|int $status Buckaroo transaction status code.
 	 * @return string WooCommerce order status.
 	 */
-	public static function fromTransactionStatus( string|int $status ): string {
+	public static function fromTransactionStatus( $status ): string {
 		switch ( $status ) {
 			case ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS:
 				return self::STATUS_COMPLETED;

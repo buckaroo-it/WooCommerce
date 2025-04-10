@@ -134,7 +134,7 @@ class KlarnaKpGateway extends AbstractPaymentGateway {
 		new KlarnaCancelReservation();
 	}
 
-	public function canShowCaptureForm( WC_Order|string|int $order ): bool {
+	public function canShowCaptureForm( $order ): bool {
 		if ( is_scalar( $order ) ) {
 			$order = Helper::findOrder( $order );
 		}

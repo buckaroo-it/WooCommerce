@@ -17,7 +17,7 @@ class PayAction {
     private WC_Order $order;
     private OrderDetails $orderDetails;
 
-    public function __construct( AbstractPaymentProcessor $gateway, int|string $orderId ) {
+    public function __construct( AbstractPaymentProcessor $gateway, $orderId ) {
         $this->paymentProcessor = $gateway;
         $this->order            = new WC_Order( $orderId );
         $this->orderDetails     = new OrderDetails( $this->order );

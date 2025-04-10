@@ -107,7 +107,7 @@ class SingleCreditCardGateway extends CreditCardGateway {
 
 
 	public function getServiceCode( ?AbstractProcessor $processor = null ) {
-		if ( $processor?->getAction() == 'refund' ) {
+		if ( $processor && $processor->getAction() == 'refund' ) {
 			return 'creditcard';
 		}
 

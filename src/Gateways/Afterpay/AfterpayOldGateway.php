@@ -157,7 +157,7 @@ class AfterpayOldGateway extends AbstractPaymentGateway {
 		$this->vattype              = $this->get_option( 'vattype' );
 	}
 
-	public function canShowCaptureForm( WC_Order|string|int $order ): bool {
+	public function canShowCaptureForm( $order ): bool {
 		if ( is_scalar( $order ) ) {
 			$order = Helper::findOrder( $order );
 		}

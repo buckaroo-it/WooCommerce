@@ -100,7 +100,7 @@ class BillinkGateway extends AbstractPaymentGateway {
         $this->billinkpayauthorize = $this->get_option( 'billinkpayauthorize' );
 	}
 
-    public function canShowCaptureForm( WC_Order|string|int $order ): bool {
+    public function canShowCaptureForm( $order ): bool {
         if ( is_scalar( $order ) ) {
             $order = Helper::findOrder( $order );
         }

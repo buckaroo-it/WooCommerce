@@ -222,7 +222,7 @@ class AfterpayNewGateway extends AbstractPaymentGateway {
 		$this->customer_type           = $this->get_option( 'customer_type', self::CUSTOMER_TYPE_BOTH );
 	}
 
-	public function canShowCaptureForm( WC_Order|string|int $order ): bool {
+	public function canShowCaptureForm( $order ): bool {
 		if ( is_scalar( $order ) ) {
 			$order = Helper::findOrder( $order );
 		}
