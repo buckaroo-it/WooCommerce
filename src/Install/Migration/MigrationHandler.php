@@ -150,7 +150,7 @@ class MigrationHandler {
 			$this->get_migration_items(),
 			function ( $migration ) {
 				return $this->compare_versions(
-                        $migration->version,
+                    $migration->version,
 					Plugin::VERSION,
 					'<='
 				) &&
@@ -173,9 +173,9 @@ class MigrationHandler {
 	 * @return array
 	 */
 	protected function get_migration_items() {
-		return [
-            new SetupTransactionsAndLogs
-        ];
+		return array(
+            new SetupTransactionsAndLogs(),
+        );
 	}
 
 	/**
@@ -201,7 +201,7 @@ class MigrationHandler {
 	protected function execute_list( $migrations ) {
 		$migrationObjects = array();
 		foreach ( $migrations as $migration ) {
-            $this->execute($migration);
+            $this->execute( $migration );
 		}
 
 		return $migrationObjects;
@@ -211,7 +211,7 @@ class MigrationHandler {
      * Execute single migration method
      *
      * @param Migration $migration
-     * @param string $method
+     * @param string    $method
      *
      * @return void
      * @throws MigrationException
