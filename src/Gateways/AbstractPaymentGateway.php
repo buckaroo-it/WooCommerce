@@ -505,11 +505,11 @@ class AbstractPaymentGateway extends WC_Payment_Gateway {
             'originalTransactionKey' => $order->get_transaction_id(),
         );
 
-        if($this instanceof KlarnaKpGateway) {
-            unset($capturePayload['originalTransactionKey']);
+        if ( $this instanceof KlarnaKpGateway ) {
+            unset( $capturePayload['originalTransactionKey'] );
         }
 
-		$res = $payment->process($processor, $capturePayload);
+		$res = $payment->process( $processor, $capturePayload );
 
 		return ( new CaptureAction() )->handle(
 			$res,

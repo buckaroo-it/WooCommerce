@@ -149,20 +149,20 @@ class PushProcessor {
             $transactionsArray = $this->parsePPENewTransactionId( $responseParser->getTransactionKey() );
             if ( ! empty( $transactionsArray ) && $responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS ) {
                 $creditcardProvider = Helper::checkCreditCardProvider( $responseParser->getPaymentMethod() );
-                $order->update_meta_data('_transaction_id', $transactionsArray[ count( $transactionsArray ) - 1 ]);
+                $order->update_meta_data( '_transaction_id', $transactionsArray[ count( $transactionsArray ) - 1 ] );
 
                 if ( $creditcardProvider ) {
-                    $order->set_payment_method('buckaroo_creditcard');
-                    $order->set_payment_method_title('Creditcards');
-                    $order->update_meta_data('_payment_method_transaction', $responseParser->getPaymentMethod());
-                    $order->update_meta_data('_wc_order_payment_issuer', $responseParser->getPaymentMethod());
+                    $order->set_payment_method( 'buckaroo_creditcard' );
+                    $order->set_payment_method_title( 'Creditcards' );
+                    $order->update_meta_data( '_payment_method_transaction', $responseParser->getPaymentMethod() );
+                    $order->update_meta_data( '_wc_order_payment_issuer', $responseParser->getPaymentMethod() );
 
                 } else {
-                    $order->set_payment_method('buckaroo_' . strtolower( $responseParser->getPaymentMethod() ));
+                    $order->set_payment_method( 'buckaroo_' . strtolower( $responseParser->getPaymentMethod() ) );
                     $order->set_payment_method_title(
                         'PayperEmail' . ( $responseParser->getPaymentMethod() !== 'payperemail' ? ' + ' . $responseParser->getPaymentMethod() : '' )
                     );
-                    $order->update_meta_data('_payment_method_transaction', $responseParser->getPaymentMethod());
+                    $order->update_meta_data( '_payment_method_transaction', $responseParser->getPaymentMethod() );
                 }
 
                 $order->save();
@@ -184,10 +184,10 @@ class PushProcessor {
         Logger::log( 'Return start / fn_buckaroo_process_response_push' );
         $headers = getallheaders();
 
-        $original_precision = ini_get('serialize_precision');
+        $original_precision = ini_get( 'serialize_precision' );
 
-        if ($original_precision != -1) {
-            ini_set('serialize_precision', -1);
+        if ( $original_precision != -1 ) {
+            ini_set( 'serialize_precision', -1 );
         }
 
         $responseParser = ResponseRegistry::getResponseFromRequest();
@@ -211,8 +211,8 @@ class PushProcessor {
             $headers['Authorization'] ?? '',
             add_query_arg( $wp->query_vars, home_url( $wp->request ?: '/' ) )
         ) ) {
-            if ($original_precision != -1) {
-                ini_set('serialize_precision', $original_precision);
+            if ( $original_precision != -1 ) {
+                ini_set( 'serialize_precision', $original_precision );
             }
 
             // Check if redirect required

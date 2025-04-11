@@ -241,7 +241,7 @@ class CreditCardGateway extends AbstractPaymentGateway {
     }
 
     public function enqueue_scripts() {
-        if (class_exists( 'WC_Order' ) && is_checkout()) {
+        if ( class_exists( 'WC_Order' ) && is_checkout() ) {
             wp_enqueue_script(
                 'buckaroo_hosted_fields',
                 'https://hostedfields-externalapi.prod-pci.buckaroo.io/v1/sdk',
