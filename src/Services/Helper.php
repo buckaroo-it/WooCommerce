@@ -26,7 +26,7 @@ class Helper {
         }
 
         if ( $input instanceof WP_Post || is_scalar( $input ) ) {
-            return Helper::findOrder($input);
+            return self::findOrder( $input );
         }
 
         return null;

@@ -68,7 +68,7 @@ class OrderCapture {
         // Get order object by looking for a post or order.
         $order = Helper::resolveOrder( $post_or_order );
 
-        if (! $order instanceof WC_Order) {
+        if ( ! $order instanceof WC_Order ) {
             return;
         }
 
