@@ -47,7 +47,7 @@ class AfterpayOldProcessor extends AbstractPaymentProcessor {
                     'firstName' => $this->getAddress( 'billing', 'first_name' ),
                     'lastName'  => $this->getAddress( 'billing', 'last_name' ),
                     'initials'  => $this->order_details->get_initials(
-                        $this->order_details->get_full_name( 'shipping' )
+                        $this->order_details->get_full_name( 'billing' )
                     ),
                     'culture'   => $country_code,
                 ),

@@ -5,7 +5,9 @@ namespace Buckaroo\Woocommerce\Services;
 use Buckaroo\Resources\Constants\ResponseStatus;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use WC_Order;
+use WP_Post;
 use WC_Payment_Gateways;
+use Automattic\WooCommerce\Admin\Overrides\Order;
 
 class Helper {
 
@@ -17,6 +19,18 @@ class Helper {
 		return self::isWooCommerceVersion3OrGreater() ?
 			wc_get_order( $order_id ) : new WC_Order( $order_id );
 	}
+
+	public static function resolveOrder( $input ) {
+        if ( $input instanceof Order || $input instanceof WC_Order ) {
+            return $input;
+        }
+
+        if ( $input instanceof WP_Post || is_scalar( $input ) ) {
+            return Helper::findOrder($input);
+        }
+
+        return null;
+    }
 
 	/**
 	 * Checks if WooCommerce Version 3 or greater is installed

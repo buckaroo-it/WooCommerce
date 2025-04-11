@@ -135,9 +135,11 @@ class KlarnaKpGateway extends AbstractPaymentGateway {
 	}
 
 	public function canShowCaptureForm( $order ): bool {
-		if ( is_scalar( $order ) ) {
-			$order = Helper::findOrder( $order );
-		}
+        $order = Helper::resolveOrder( $order );
+
+        if ( ! $order instanceof WC_Order ) {
+            return false;
+        }
 
 		return $order->get_meta( 'buckaroo_is_reserved' ) === 'yes';
 	}
