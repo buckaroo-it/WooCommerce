@@ -12,7 +12,7 @@ class ApplepayProcessor extends AbstractPaymentProcessor {
     /** @inheritDoc */
     protected function getMethodBody(): array {
         return array(
-            'amountDebit' => number_format( $this->request->input('amount'), 2, '.', '' ),
+            'amountDebit'      => number_format( $this->request->input( 'amount' ), 2, '.', '' ),
             'customerCardName' => $this->get_customer_name( $this->request->input( 'paymentData' ) ),
             'paymentData'      => $this->get_payment_data( $this->request->input( 'paymentData' ) ),
         );

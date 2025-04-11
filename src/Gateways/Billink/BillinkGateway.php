@@ -101,8 +101,10 @@ class BillinkGateway extends AbstractPaymentGateway {
 	}
 
     public function canShowCaptureForm( $order ): bool {
-        if ( is_scalar( $order ) ) {
-            $order = Helper::findOrder( $order );
+        $order = Helper::resolveOrder( $order );
+
+        if ( ! $order instanceof WC_Order ) {
+            return false;
         }
 
         return $this->billinkpayauthorize == 'authorize' && get_post_meta( $order->get_id(), '_wc_order_authorized', true ) == 'yes';

@@ -34,7 +34,7 @@ class In3Processor extends AbstractPaymentProcessor {
                 'phone'     => array(
                     'phone' => $phone,
                 ),
-                'address'   => $this->getAddressPayload( 'shipping' ),
+                'address'   => $this->getAddressPayload( 'billing' ),
             ),
         );
     }

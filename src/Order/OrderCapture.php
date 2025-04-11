@@ -3,7 +3,9 @@
 namespace Buckaroo\Woocommerce\Order;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Request;
+use WC_Order;
 
 /**
  * Core class for order capture
@@ -57,17 +59,25 @@ class OrderCapture {
 	}
 
 
-	public function add_meta_box_form( $post_type, $order ) {
-		if ( $post_type != 'woocommerce_page_wc-orders' ) {
-			return;
-		}
+	public function add_meta_box_form( $post_type, $post_or_order ) {
+        // Handle both HPOS and traditional post-based orders.
+        if ( ! in_array( $post_type, array( 'woocommerce_page_wc-orders', 'shop_order' ), true ) ) {
+            return;
+        }
 
-		if ( ! method_exists( $this->gateway, 'canShowCaptureForm' ) || $this->gateway->canShowCaptureForm( $order ) ) {
+        // Get order object by looking for a post or order.
+        $order = Helper::resolveOrder( $post_or_order );
+
+        if ( ! $order instanceof WC_Order ) {
+            return;
+        }
+
+        if ( method_exists( $this->gateway, 'canShowCaptureForm' ) && $this->gateway->canShowCaptureForm( $order ) ) {
 			add_meta_box(
 				'buckaroo-order-klarnakp-capture',
 				__( 'Capture & refund order', 'woocommerce' ),
 				array( $this, 'output' ),
-				'woocommerce_page_wc-orders',
+                $post_type,
 				'normal',
 				'default'
 			);
@@ -75,7 +85,9 @@ class OrderCapture {
 	}
 
 	public function output( $order ) {
-		$this->setOrderDetails( new OrderDetails( $order ) );
+        $order = Helper::resolveOrder( $order );
+
+        $this->setOrderDetails( new OrderDetails( $order ) );
 
 		include plugin_dir_path( BK_PLUGIN_FILE ) . 'templates/capture-form.php';
 	}

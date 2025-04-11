@@ -241,7 +241,7 @@ class CreditCardGateway extends AbstractPaymentGateway {
     }
 
     public function enqueue_scripts() {
-        if (class_exists( 'WC_Order' ) && is_checkout()) {
+        if ( class_exists( 'WC_Order' ) && is_checkout() ) {
             wp_enqueue_script(
                 'buckaroo_hosted_fields',
                 'https://hostedfields-externalapi.prod-pci.buckaroo.io/v1/sdk',
@@ -297,8 +297,10 @@ class CreditCardGateway extends AbstractPaymentGateway {
     }
 
     public function canShowCaptureForm( $order ): bool {
-        if ( is_scalar( $order ) ) {
-            $order = Helper::findOrder( $order );
+        $order = Helper::resolveOrder( $order );
+
+        if ( ! $order instanceof WC_Order ) {
+            return false;
         }
 
         return $this->creditcardpayauthorize == 'authorize' && get_post_meta( $order->get_id(), '_wc_order_authorized', true ) == 'yes';

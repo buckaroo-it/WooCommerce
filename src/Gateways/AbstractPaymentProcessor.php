@@ -120,7 +120,13 @@ class AbstractPaymentProcessor extends AbstractProcessor {
 	 * @return mixed
 	 */
 	protected function getAddress( string $type, string $key, $default = '' ) {
-		return $this->order_details->get( $type . '_' . $key, $default );
+		$value = $this->order_details->get( $type . '_' . $key, $default );
+
+        if ( ! $value && $type == 'shipping' ) {
+            $value = $this->order_details->get( 'billing_' . $key, $default );
+        }
+
+        return $value;
 	}
 
 	/**
