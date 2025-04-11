@@ -43,7 +43,7 @@ class AfterpayOldGateway extends AbstractPaymentGateway {
 	 * @return void
 	 */
 	public function validate_fields() {
-		if ( $this->request->input( 'buckaroo-afterpay-accept' ) === null || empty( $this->request->input( 'buckaroo-afterpay-accept' ) ) ) {
+		if ( ! $this->request->input( 'buckaroo-afterpay-accept' ) ) {
 			wc_add_notice( __( 'Please accept licence agreements', 'wc-buckaroo-bpe-gateway' ), 'error' );
 		}
 
@@ -54,15 +54,15 @@ class AfterpayOldGateway extends AbstractPaymentGateway {
 		}
 
 		if ( $b2b == 'ON' ) {
-			if ( $this->request->input( 'buckaroo-afterpay-company-coc-registration' ) === null ) {
+			if ( ! $this->request->input( 'buckaroo-afterpay-company-coc-registration' ) ) {
 				wc_add_notice( __( 'Company registration number is required (KvK)', 'wc-buckaroo-bpe-gateway' ), 'error' );
 			}
-			if ( $this->request->input( 'buckaroo-afterpay-company-name' ) === null ) {
+			if ( ! $this->request->input( 'buckaroo-afterpay-company-name' ) ) {
 				wc_add_notice( __( 'Company name is required', 'wc-buckaroo-bpe-gateway' ), 'error' );
 			}
 		}
 
-		if ( $this->request->input( 'buckaroo-afterpay-phone' ) === null && $this->request->input( 'billing_phone' ) === null ) {
+		if ( ! $this->request->input( 'buckaroo-afterpay-phone' ) && ! $this->request->input( 'billing_phone' ) ) {
 			wc_add_notice( __( 'Please enter phone number', 'wc-buckaroo-bpe-gateway' ), 'error' );
 		}
 		if ( $this->type == 'afterpayacceptgiro' ) {
