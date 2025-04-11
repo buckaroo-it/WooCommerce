@@ -2,7 +2,6 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
-use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CancelReservationAction;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
@@ -10,7 +9,7 @@ use Exception;
 use WC_Order;
 use WP_Error;
 
-class KlarnaKpGateway extends AbstractPaymentGateway {
+class KlarnaKpGateway extends KlarnaGateway {
 
 	const PAYMENT_CLASS = KlarnaKpProcessor::class;
 	public $type;
@@ -22,6 +21,8 @@ class KlarnaKpGateway extends AbstractPaymentGateway {
 		$this->method_title = 'Buckaroo Klarna Pay later (authorize/capture)';
 		$this->has_fields   = true;
 		$this->type         = 'klarnakp';
+        $this->klarnaPaymentFlowId = 'pay';
+
 		$this->setIcon( 'svg/klarna.svg' );
 		$this->setCountry();
 		parent::__construct();
@@ -56,7 +57,7 @@ class KlarnaKpGateway extends AbstractPaymentGateway {
 	}
 
 
-	/**
+    /**
 	 * Process payment
 	 *
 	 * @param integer $order_id
