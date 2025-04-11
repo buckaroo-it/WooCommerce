@@ -34,7 +34,7 @@ class KlarnaGateway extends AbstractPaymentGateway {
 			wc_add_notice( __( 'Unknown gender', 'wc-buckaroo-bpe-gateway' ), 'error' );
 		}
 
-		if ( $this->request->input( 'ship_to_different_address' ) !== null ) {
+		if ( $this->request->input( 'ship_to_different_address' ) ) {
 			$countryCode = $this->request->input( 'shipping_country' ) == 'NL' ? $this->request->input( 'shipping_country' ) : '';
 			$countryCode = $this->request->input( 'billing_country' ) == 'NL' ? $this->request->input( 'billing_country' ) : $countryCode;
 			if ( ! empty( $countryCode )

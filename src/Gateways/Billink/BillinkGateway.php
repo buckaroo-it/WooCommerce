@@ -38,7 +38,7 @@ class BillinkGateway extends AbstractPaymentGateway {
 	 * @return void;
 	 */
 	public function validate_fields() {
-		if ( $this->request->input( 'billing_company' ) !== null ) {
+		if ( $this->request->input( 'billing_company' ) ) {
 			if ( $this->request->input( 'buckaroo-billink-company-coc-registration' ) === null ) {
 				wc_add_notice( __( 'Please enter correct COC (KvK) number', 'wc-buckaroo-bpe-gateway' ), 'error' );
 			}
@@ -52,7 +52,7 @@ class BillinkGateway extends AbstractPaymentGateway {
 			}
 		}
 
-		if ( $this->request->input( 'buckaroo-billink-accept' ) === null ) {
+		if ( ! $this->request->input( 'buckaroo-billink-accept' ) ) {
 			wc_add_notice( __( 'Please accept license agreements', 'wc-buckaroo-bpe-gateway' ), 'error' );
 		}
 		parent::validate_fields();

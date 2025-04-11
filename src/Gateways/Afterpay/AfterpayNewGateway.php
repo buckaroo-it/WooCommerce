@@ -62,21 +62,21 @@ class AfterpayNewGateway extends AbstractPaymentGateway {
 			wc_add_notice( __( 'You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.', 'wc-buckaroo-bpe-gateway' ), 'error' );
 		}
 
-		if ( $this->request->input( 'buckaroo-afterpaynew-accept' ) === null || empty( $this->request->input( 'buckaroo-afterpaynew-accept' ) ) ) {
+		if ( ! $this->request->input( 'buckaroo-afterpaynew-accept' ) ) {
 			wc_add_notice( __( 'Please accept licence agreements', 'wc-buckaroo-bpe-gateway' ), 'error' );
 		}
 
 		if (
 			self::CUSTOMER_TYPE_B2C !== $this->customer_type &&
 			$country === 'NL' &&
-			$this->request->input( 'billing_company' ) !== null
+            $this->request->input( 'billing_company' )
 		) {
 			if ( $this->request->input( 'buckaroo-afterpaynew-company-coc-registration' ) === null ) {
 				wc_add_notice( __( 'Company registration number is required', 'wc-buckaroo-bpe-gateway' ), 'error' );
 			}
 		}
 
-		if ( $this->request->input( 'buckaroo-afterpaynew-phone' ) === null && $this->request->input( 'billing_phone' ) === null ) {
+		if ( ! $this->request->input( 'buckaroo-afterpaynew-phone' ) && ! $this->request->input( 'billing_phone' ) ) {
 			wc_add_notice( __( 'Please enter phone number', 'wc-buckaroo-bpe-gateway' ), 'error' );
 		}
 
