@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways;
 
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
@@ -498,13 +499,17 @@ class AbstractPaymentGateway extends WC_Payment_Gateway {
 		$order     = Helper::findOrder( $order_id );
 		$processor = $this->newPaymentProcessorInstance( $order );
 		$payment   = new BuckarooClient( $this->getMode() );
-		$res       = $payment->process(
-			$processor,
-			array(
-				'amountDebit'            => $capture_amount,
-				'originalTransactionKey' => $order->get_transaction_id(),
-			)
-		);
+
+        $capturePayload = array(
+            'amountDebit'            => $capture_amount,
+            'originalTransactionKey' => $order->get_transaction_id(),
+        );
+
+        if($this instanceof KlarnaKpGateway) {
+            unset($capturePayload['originalTransactionKey']);
+        }
+
+		$res = $payment->process($processor, $capturePayload);
 
 		return ( new CaptureAction() )->handle(
 			$res,
