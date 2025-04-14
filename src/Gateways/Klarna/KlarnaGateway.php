@@ -30,7 +30,7 @@ class KlarnaGateway extends AbstractPaymentGateway {
 	public function validate_fields() {
 		$gender = $this->request->input( $this->getKlarnaSelector() . '-gender' );
 
-		if ( ! in_array( $gender, array( 'male', 'female' ) ) ) {
+		if ( $this->id !== 'buckaroo_klarnakp' && ! in_array( $gender, array( 'male', 'female' ) ) ) {
 			wc_add_notice( __( 'Unknown gender', 'wc-buckaroo-bpe-gateway' ), 'error' );
 		}
 
