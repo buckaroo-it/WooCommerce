@@ -68,7 +68,7 @@ We're committed to ensuring a smooth installation process and providing ongoing 
 == Frequently Asked Questions ==
 
 = Minimum Requirements =
-- WordPress 4.4.10
+- WordPress 5.3.18
 - WooCommerce 5.0
 
 = How do I automatically install the plugin? =
