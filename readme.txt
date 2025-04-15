@@ -2,9 +2,9 @@
 Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
-Requires at least: 4.4.10
-Tested up to: 6.6.2
-Stable tag: 3.14.3
+Requires at least: 5.3.18
+Tested up to: 6.7.2
+Stable tag: 4.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,6 @@ Payment method support list:
 4.Riverty/Afterpay
 5.Giftcards
 6.Bancontact
-7.Sofort
 8.SEPA Credit Transfer (Bank transfer)
 9.SEPA Direct Debit (With or without Credit management)
 10.Payconiq
@@ -39,7 +38,7 @@ Payment method support list:
 20.EPS
 21.Multibanco
 22.MB Way
-23.Knaken Settle
+23.goSettle
 24.Blik
 
 == Installation ==
@@ -69,7 +68,7 @@ We're committed to ensuring a smooth installation process and providing ongoing 
 == Frequently Asked Questions ==
 
 = Minimum Requirements =
-- WordPress 4.4.10
+- WordPress 5.3.18
 - WooCommerce 5.0
 
 = How do I automatically install the plugin? =
@@ -106,6 +105,41 @@ for more detailed release notes visit https://docs.buckaroo.io/docs/woocommerce-
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+= 4.0.0 =
+BP-3820 Refactor WooCommerce Plugin Structure and Setup Composer Autoloading
+BP-3821 Install PHP SDK and Integrate It into WooCommerce Plugin
+BP-3822 Refactor Class Structure for Better Design and Maintainability
+BP-3853 Change plugin menu icon to the new Buckaroo branding design
+BP-4019 Add support for EUR currency for Przelewy24
+BP-4040 Always send an identifier if none is sent
+BP-4112 Apple Pay orders receive duplicate processing status updates
+BP-4147 Apple Pay "Something went wrong while processing your payment"
+BP-4163 Add separate authorize/capture setting for Billink
+BP-4164 Remove "Use new icons" selection setting
+BP-4171 Add refund description functionality
+BP-4190 Replace "Cards (CSE)" with "Cards Hosted Fields"
+BP-4228 Update "Website Key" to "Store Key" in the WooCommerce plugin
+BP-4233 Use more generic "Pay by Bank" logo
+BP-4258 Remove the payment method Sofort (discontinued)
+BP-4261 Remove iDEAL issuer configuration option (due to iDEAL 2.0)
+BP-4262 Implement handling for serialize_precision to prevent JSON precision issues
+BP-4021 Rebranding "Knaken Settle" into "goSettle" (WooCommerce Refactor)
+BP-3864 Payconiq doesn't place an order
+BP-3865 Credit cards don't place an order
+BP-3870 PayByBank doesn't update status when refunding
+BP-3871 Translation is not working
+BP-3876 Translation issue when using Blocks checkout with Billink
+BP-4003 Improve Apple Pay button alignment on the product page
+BP-4041 Buckaroo enqueues Gutenberg block JS files even when no block theme is used (#302)
+BP-4179 Credit cards shown in both Inline and Redirect checkout when Inline option is selected
+BP-4182 Issue with Payment Fee Handling Between Apple Pay and PayPal at Checkout
+BP-4218 Always en-GB culture code in the API requests
+BP-4240 Apple Pay button is not shown on the cart page
+BP-4241 Status doesn't change after refund from Plaza with 'Authorize' flow
+BP-4243 First invalid refund affects final order status
+BP-4246 Partial refunds fail with Riverty from WooCommerce admin
+BP-4247 Error with Klarna payments for orders above €1000
+BP-4249 Issues with PayPal Express button
 
 = 3.14.3 =
 BP-4075 Fix missing credit card capture button on the order edit page #303.
