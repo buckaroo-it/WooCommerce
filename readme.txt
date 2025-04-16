@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 5.3.18
 Tested up to: 6.7.2
-Stable tag: 4.0.0
+Stable tag: 4.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -105,6 +105,11 @@ for more detailed release notes visit https://docs.buckaroo.io/docs/woocommerce-
 Please contact support@buckaroo.nl if you need help installing the WooCommerce plugin.
 
 == Changelog ==
+
+= 4.0.1 =
+Reorder main GitHub Action to submit to WordPress before zipping the plugin
+Update Babel dependencies to fix security vulnerabilities
+Update rebranding logo and header image
 = 4.0.0 =
 BP-3820 Refactor WooCommerce Plugin Structure and Setup Composer Autoloading
 BP-3821 Install PHP SDK and Integrate It into WooCommerce Plugin
