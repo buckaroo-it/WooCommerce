@@ -48,7 +48,13 @@ jobs:
           svn co --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive --trust-server-cert https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway/
           cd wc-buckaroo-bpe-gateway
           svn delete trunk/*
-          rsync -r --exclude='.git' --exclude='.github' ${{ github.workspace }}/ trunk/
+          rsync -r --exclude='.git' --exclude='.github' --exclude='.wordpress-org' ${{ github.workspace }}/ trunk/
+
+          mkdir -p assets
+          svn rm --force assets/banner-* assets/icon-* assets/screenshot-* 2>/dev/null || true
+          rsync -av ${{ github.workspace }}/.wordpress-org/ ./assets/
+
+          svn add --force assets/*
           svn add --force trunk/*
           svn commit --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive --trust-server-cert -m "release $RELEASE_VERSION"
           svn copy --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive --trust-server-cert https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway/trunk https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway/tags/$RELEASE_VERSION -m "release $RELEASE_VERSION"
@@ -56,7 +62,7 @@ jobs:
 
       - name: Package Plugin
         run: |
-          rsync -av --exclude='.git' --exclude='.github' ./* "wc-buckaroo-bpe-gateway/"
+          rsync -av --exclude='.git' --exclude='.github' --exclude='.wordpress-org' ./* "wc-buckaroo-bpe-gateway/"
           zip -r "wc-buckaroo-bpe-gateway.zip" "wc-buckaroo-bpe-gateway"
 
       - name: Upload Asset to Release
