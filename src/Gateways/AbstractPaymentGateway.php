@@ -39,10 +39,6 @@ class AbstractPaymentGateway extends WC_Payment_Gateway {
 	public bool $capturable              = false;
 
 	public function __construct() {
-		if ( ( ! is_admin() && ! $this->checkCurrencySupported() ) || ( defined( 'DOING_AJAX' ) && ! $this->checkCurrencySupported() ) ) {
-			unset( $this->id );
-			unset( $this->title );
-		}
 		// Load the form fields
 		$this->init_form_fields();
 		// Load the settings.
@@ -718,11 +714,15 @@ class AbstractPaymentGateway extends WC_Payment_Gateway {
 		);
 	}
 
-	function checkCurrencySupported(): bool {
+	public function checkCurrencySupported(): bool {
 		return (bool) in_array( get_woocommerce_currency(), $this->supportedCurrencies );
 	}
 
 	public function canShowCaptureForm( $order ): bool {
 		return false;
 	}
+
+    public function isVisibleInCheckout(): bool {
+        return $this->enabled == 'yes' && $this->checkCurrencySupported();
+    }
 }
