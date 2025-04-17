@@ -66,7 +66,7 @@ class InitGateways {
 		$payment_methods = array();
 
 		foreach ( $gateways as $gateway_id => $gateway ) {
-			if ( $this->isBuckarooPayment( $gateway_id ) && $gateway->enabled == 'yes' ) {
+			if ( $this->isBuckarooPayment( $gateway_id ) && $gateway->isVisibleInCheckout() ) {
 				$payment_method = array(
 					'paymentMethodId'   => $gateway_id,
 					'title'             => $gateway->get_title(),

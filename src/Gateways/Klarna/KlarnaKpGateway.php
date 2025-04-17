@@ -16,11 +16,11 @@ class KlarnaKpGateway extends KlarnaGateway {
 	public bool $capturable = true;
 
 	public function __construct() {
-		$this->id           = 'buckaroo_klarnakp';
-		$this->title        = 'Klarna: Pay later';
-		$this->method_title = 'Buckaroo Klarna Pay later (authorize/capture)';
-		$this->has_fields   = true;
-		$this->type         = 'klarnakp';
+		$this->id                  = 'buckaroo_klarnakp';
+		$this->title               = 'Klarna: Pay later';
+		$this->method_title        = 'Buckaroo Klarna Pay later (authorize/capture)';
+		$this->has_fields          = true;
+		$this->type                = 'klarnakp';
         $this->klarnaPaymentFlowId = 'pay';
 
 		$this->setIcon( 'svg/klarna.svg' );

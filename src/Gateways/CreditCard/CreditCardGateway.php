@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\CreditCard;
 
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Services\Helper;
 use WC_Order;
 
@@ -85,23 +86,8 @@ class CreditCardGateway extends AbstractPaymentGateway {
 
             if ( empty( $encryptedData ) || $encryptedData === null ) {
                 wc_add_notice( __( 'Please complete the card form before proceeding.', 'wc-buckaroo-bpe-gateway' ), 'error' );
-                return;
-            }
-        } else {
-            $issuer = $this->request->input( $this->id . '-creditcard-issuer' );
-            if ( $issuer === null ) {
-                wc_add_notice( __( 'Select a credit or debit card.', 'wc-buckaroo-bpe-gateway' ), 'error' );
-            }
-
-            if ( ! in_array(
-                $issuer,
-                array( 'amex', 'maestro', 'mastercard', 'visa' )
-            ) ) {
-                wc_add_notice( __( 'A valid credit card is required.', 'wc-buckaroo-bpe-gateway' ), 'error' );
             }
         }
-
-        return;
     }
 
 
@@ -304,5 +290,13 @@ class CreditCardGateway extends AbstractPaymentGateway {
         }
 
         return $this->creditcardpayauthorize == 'authorize' && get_post_meta( $order->get_id(), '_wc_order_authorized', true ) == 'yes';
+    }
+
+    public function getServiceCode( ?AbstractProcessor $processor = null ) {
+        if ( $this->creditcardmethod == 'redirect' ) {
+            return 'noservice';
+        }
+
+        return 'creditcard';
     }
 }
