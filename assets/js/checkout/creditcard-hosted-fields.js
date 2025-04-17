@@ -24,7 +24,7 @@ class BuckarooCreditCardsHostedFields {
 		} catch ( error ) {
 			console.error( 'Hosted fields initialization failed:', error );
 			this.showError( 'Failed to initialize payment form' );
-			this.cleanup();
+            return false;
 		}
 	}
 
@@ -272,17 +272,11 @@ class BuckarooCreditCardsHostedFields {
 				this.paymentMethodId = paymentMethod;
 				const result = await this.initialize();
 
-				if ( ! result ) return this.cleanup();
+				if ( ! result ) return;
 
 				this.overrideFormSubmit();
 			}
 		} );
-	}
-
-	cleanup() {
-		if ( this.refreshTimeout ) clearTimeout( this.refreshTimeout );
-		this.form.off( 'submit' );
-		jQuery( 'body' ).off( 'updated_checkout' );
 	}
 }
 
