@@ -76,7 +76,8 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 = 4.0.1 =
 Reorder main GitHub Action to submit to WordPress before zipping the plugin
 Update Babel dependencies to fix security vulnerabilities
-Update rebranding logo and header image
+BP-4294 fix credit card issue on redirect and hiding non-supported currency methods
+BP-4292 Update rebranding logo and header image
 = 4.0.0 =
 BP-3820 Refactor WooCommerce Plugin Structure and Setup Composer Autoloading
 BP-3821 Install PHP SDK and Integrate It into WooCommerce Plugin
