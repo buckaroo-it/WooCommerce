@@ -13,8 +13,12 @@ class HostedFieldsController {
     public static function getToken() {
         // Replace with your actual Buckaroo API endpoint and credentials.
         $settings = get_option( 'woocommerce_buckaroo_creditcard_settings' );
+        if ( ( $settings['creditcardmethod'] ?? 'redirect' ) == 'redirect' ) {
+            wp_send_json( array( 'error' => 'uses_redirect' ) );
+            return false;
+        }
 
-        if ( ! isset( $settings['hosted_fields_client_id'] ) || ! isset( $settings['hosted_fields_client_secret'] ) ) {
+        if ( ! ( $settings['hosted_fields_client_id'] ?? null ) || ! ( $settings['hosted_fields_client_secret'] ?? null ) ) {
             wp_send_json( array( 'error' => __( 'Hosted fields client keys are not provided.', 'wc-buckaroo-bpe-gateway' ) ), 500 );
 
         }

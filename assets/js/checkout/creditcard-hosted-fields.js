@@ -8,13 +8,19 @@ class BuckarooCreditCardsHostedFields {
 		this.submitEvents = [];
 		this.fieldSelectors = [];
 		this.refreshTimeout = null;
+		this.skipHostedFields = false;
 	}
 
 	async initialize() {
 		try {
 			const token = await this.fetchToken();
+
+			if ( this.skipHostedFields ) return false;
+
 			await this.setupSDK( token );
 			await this.mountHostedFields();
+
+			return true;
 		} catch ( error ) {
 			console.error( 'Hosted fields initialization failed:', error );
 			this.showError( 'Failed to initialize payment form' );
@@ -28,6 +34,12 @@ class BuckarooCreditCardsHostedFields {
 		);
 
 		const tokenData = await tokenResponse.json();
+
+		if ( tokenData?.error === 'uses_redirect' ) {
+			this.skipHostedFields = true;
+			return null;
+		}
+
 		if (
 			! tokenResponse.ok ||
 			! tokenData?.access_token ||
@@ -254,11 +266,14 @@ class BuckarooCreditCardsHostedFields {
 	}
 
 	listen() {
-		jQuery( 'body' ).on( 'updated_checkout', () => {
+		jQuery( 'body' ).on( 'updated_checkout', async () => {
 			const paymentMethod = this.selectedPaymentMethod();
 			if ( paymentMethod.includes( 'buckaroo_creditcard' ) ) {
 				this.paymentMethodId = paymentMethod;
-				this.initialize();
+				const result = await this.initialize();
+
+				if ( ! result ) return this.cleanup();
+
 				this.overrideFormSubmit();
 			}
 		} );
