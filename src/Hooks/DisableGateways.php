@@ -22,9 +22,7 @@ class DisableGateways {
 			if ( ! empty( WC()->cart ) ) {
 				$totalCartAmount = WC()->cart->get_total( null );
 
-				/**
-				skip check when card total is 0
-*/
+				/* skip check when card total is 0 */
 				if ( $totalCartAmount == 0 ) {
 					return $available_gateways;
 				}

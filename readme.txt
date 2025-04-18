@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 5.3.18
 Tested up to: 6.7.2
-Stable tag: 4.0.2
+Stable tag: 4.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,7 +72,10 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
-
+= 4.0.3 =
+add new svg logo as plugin icon
+in the DisabledGateways class, skip methods that are not Buckaroo payment methods
+fix an issue with deprecated cards (these will need to be reverted for the "redirect" type)
 = 4.0.2 =
 Add .wordpress-org directory to store all plugin images for display
 BP-4294 Update SVN job to upload images and exclude them from plugin compilation
