@@ -30,25 +30,19 @@ class DisableGateways {
 				}
 
 				foreach ( $available_gateways as $key => $gateway ) {
-					if ( ! $gateway->isVisibleInCheckout() ) {
+                    if ( ! $this->isBuckarooPayment( $key ) ) {
+                        continue;
+                    }
+
+					if ( method_exists( $gateway, 'isVisibleInCheckout' ) && ! $gateway->isVisibleInCheckout() ) {
 						unset( $available_gateways[ $key ] );
 					}
 
-					if (
-                        $this->isBuckarooPayment( $key ) &&
-                        method_exists( $gateway, 'isAvailable' ) &&
-                        ! $gateway->isAvailable( $totalCartAmount )
-					) {
+					if ( method_exists( $gateway, 'isAvailable' ) && ! $gateway->isAvailable( $totalCartAmount ) ) {
 						unset( $available_gateways[ $key ] );
 					}
-					if (
-                        $this->isBuckarooPayment( $key )
-                        && (
-                        ! empty( $gateway->minvalue )
-                        ||
-                        ! empty( $gateway->maxvalue )
-					)
-					) {
+
+					if ( ! empty( $gateway->minvalue ) || ! empty( $gateway->maxvalue ) ) {
 						if ( ! empty( $gateway->maxvalue ) && $totalCartAmount > $gateway->maxvalue ) {
 							unset( $available_gateways[ $key ] );
 						}

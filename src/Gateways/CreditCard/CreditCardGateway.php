@@ -145,10 +145,12 @@ class CreditCardGateway extends AbstractPaymentGateway {
         );
         if ( is_array( $this->creditCardProvider ) ) {
             foreach ( $this->creditCardProvider as $value ) {
-                $cards[] = array(
-                    'servicename' => $value,
-                    'displayname' => $cardsDesc[ $value ],
-                );
+                if ( isset( $cardsDesc[ $value ] ) ) {
+                    $cards[] = array(
+                        'servicename' => $value,
+                        'displayname' => $cardsDesc[ $value ],
+                    );
+                }
             }
         }
         return $cards;
