@@ -22,33 +22,25 @@ class DisableGateways {
 			if ( ! empty( WC()->cart ) ) {
 				$totalCartAmount = WC()->cart->get_total( null );
 
-				/**
-				skip check when card total is 0
-*/
+				/* skip check when card total is 0 */
 				if ( $totalCartAmount == 0 ) {
 					return $available_gateways;
 				}
 
 				foreach ( $available_gateways as $key => $gateway ) {
-					if ( ! $gateway->isVisibleInCheckout() ) {
+                    if ( ! $this->isBuckarooPayment( $key ) ) {
+                        continue;
+                    }
+
+					if ( method_exists( $gateway, 'isVisibleInCheckout' ) && ! $gateway->isVisibleInCheckout() ) {
 						unset( $available_gateways[ $key ] );
 					}
 
-					if (
-                        $this->isBuckarooPayment( $key ) &&
-                        method_exists( $gateway, 'isAvailable' ) &&
-                        ! $gateway->isAvailable( $totalCartAmount )
-					) {
+					if ( method_exists( $gateway, 'isAvailable' ) && ! $gateway->isAvailable( $totalCartAmount ) ) {
 						unset( $available_gateways[ $key ] );
 					}
-					if (
-                        $this->isBuckarooPayment( $key )
-                        && (
-                        ! empty( $gateway->minvalue )
-                        ||
-                        ! empty( $gateway->maxvalue )
-					)
-					) {
+
+					if ( ! empty( $gateway->minvalue ) || ! empty( $gateway->maxvalue ) ) {
 						if ( ! empty( $gateway->maxvalue ) && $totalCartAmount > $gateway->maxvalue ) {
 							unset( $available_gateways[ $key ] );
 						}
