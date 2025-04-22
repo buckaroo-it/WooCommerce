@@ -158,7 +158,7 @@ class JsonParser extends ResponseParser
 
     public function isTest(): bool
     {
-        return $this->get('IsTest');
+        return filter_var( $this->get('IsTest'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
     }
 
     public function getRealOrderId()
