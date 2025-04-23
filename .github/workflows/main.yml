@@ -14,69 +14,69 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v3
+            -   name: Checkout Repository
+                uses: actions/checkout@v3
 
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: '7.4'
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '7.4'
 
-            - name: Install Mozart globally
-              run: composer global require --no-progress --no-interaction coenjacobs/mozart
+            -   name: Install Mozart globally
+                run: composer global require --no-progress --no-interaction coenjacobs/mozart
 
-            - name: Install prod deps & compile
-              run: |
-                  composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
-                  "$(composer global config home --quiet)/vendor/bin/mozart" compose
-                  composer dump-autoload -o
+            -   name: Install prod deps & compile
+                run: |
+                    composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+                    "$(composer global config home --quiet)/vendor/bin/mozart" compose
+                    composer dump-autoload -o
 
-            - name: Get Release Version
-              id: get_version
-              run: |
-                  RELEASE_VERSION=$(grep "^Stable tag:" readme.txt | awk -F' ' '{print $NF}')
-                  echo "Release Version: $RELEASE_VERSION"
-                  echo "::set-output name=version::$RELEASE_VERSION"
+            -   name: Get Release Version
+                id: get_version
+                run: |
+                    RELEASE_VERSION=$(grep "^Stable tag:" readme.txt | awk -F' ' '{print $NF}')
+                    echo "Release Version: $RELEASE_VERSION"
+                    echo "::set-output name=version::$RELEASE_VERSION"
 
-              # Step 6: Install Subversion (SVN)
-            - name: Install Subversion
-              run: sudo apt-get update && sudo apt-get install -y subversion
+                # Step 6: Install Subversion (SVN)
+            -   name: Install Subversion
+                run: sudo apt-get update && sudo apt-get install -y subversion
 
-            - name: Sync with SVN on Release
-              env:
-                SVN_USERNAME: ${{ secrets.SVN_REP_USER }}
-                SVN_PASSWORD: ${{ secrets.SVN_REP_PW }}
-              run: |
-                RELEASE_VERSION=${{ steps.get_version.outputs.version }}
-                echo "version: $RELEASE_VERSION"
-                mkdir ~/tmp
-                cd ~/tmp
-                svn co --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive --trust-server-cert https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway/
-                cd wc-buckaroo-bpe-gateway
-                svn delete trunk/*
-                rsync -r --exclude='.git' --exclude='.github' --exclude='.wordpress-org' ${{ github.workspace }}/ trunk/
+            -   name: Sync with SVN on Release
+                env:
+                    SVN_USERNAME: ${{ secrets.SVN_REP_USER }}
+                    SVN_PASSWORD: ${{ secrets.SVN_REP_PW }}
+                run: |
+                    RELEASE_VERSION=${{ steps.get_version.outputs.version }}
+                    echo "version: $RELEASE_VERSION"
+                    mkdir ~/tmp
+                    cd ~/tmp
+                    svn co --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive --trust-server-cert https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway/
+                    cd wc-buckaroo-bpe-gateway
+                    svn delete trunk/*
+                    rsync -r --exclude='.git' --exclude='.github' --exclude='.wordpress-org' ${{ github.workspace }}/ trunk/
 
-                mkdir -p assets
-                svn rm --force assets/banner-* assets/icon-* assets/screenshot-* 2>/dev/null || true
-                rsync -av ${{ github.workspace }}/.wordpress-org/ ./assets/
+                    mkdir -p assets
+                    svn rm --force assets/banner-* assets/icon-* assets/screenshot-* 2>/dev/null || true
+                    rsync -av ${{ github.workspace }}/.wordpress-org/ ./assets/
 
-                svn add --force assets/*
-                svn add --force trunk/*
-                svn commit --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive --trust-server-cert -m "release $RELEASE_VERSION"
-                svn copy --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive --trust-server-cert https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway/trunk https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway/tags/$RELEASE_VERSION -m "release $RELEASE_VERSION"
-                echo "SVN sync completed successfully for version: $RELEASE_VERSION"
+                    svn add --force assets/*
+                    svn add --force trunk/*
+                    svn commit --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive --trust-server-cert -m "release $RELEASE_VERSION"
+                    svn copy --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive --trust-server-cert https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway/trunk https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway/tags/$RELEASE_VERSION -m "release $RELEASE_VERSION"
+                    echo "SVN sync completed successfully for version: $RELEASE_VERSION"
 
-            - name: Package Plugin
-              run: |
-                  rsync -av --exclude='.git' --exclude='.github' --exclude='.wordpress-org' ./* "wc-buckaroo-bpe-gateway/"
-                  zip -r "wc-buckaroo-bpe-gateway.zip" "wc-buckaroo-bpe-gateway"
+            -   name: Package Plugin
+                run: |
+                    rsync -av --exclude='.git' --exclude='.github' --exclude='.wordpress-org' ./* "wc-buckaroo-bpe-gateway/"
+                    zip -r "wc-buckaroo-bpe-gateway.zip" "wc-buckaroo-bpe-gateway"
 
-            - name: Upload Asset to Release
-              uses: actions/upload-release-asset@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  upload_url: ${{ github.event.release.upload_url }}
-                  asset_path: ./wc-buckaroo-bpe-gateway.zip
-                  asset_name: wc-buckaroo-bpe-gateway.zip
-                  asset_content_type: application/zip
+            -   name: Upload Asset to Release
+                uses: actions/upload-release-asset@v1
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                with:
+                    upload_url: ${{ github.event.release.upload_url }}
+                    asset_path: ./wc-buckaroo-bpe-gateway.zip
+                    asset_name: wc-buckaroo-bpe-gateway.zip
+                    asset_content_type: application/zip
