@@ -115,7 +115,7 @@ class FormDataParser extends ResponseParser {
 	}
 
 	public function isTest(): bool {
-		return $this->get( 'brq_test' );
+		return filter_var( $this->get( 'brq_test' ), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
 	}
 
 	public function getRealOrderId() {
