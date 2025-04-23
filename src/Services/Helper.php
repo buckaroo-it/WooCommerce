@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Services;
 
-use Buckaroo\Resources\Constants\ResponseStatus;
+use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use WC_Order;
 use WP_Post;

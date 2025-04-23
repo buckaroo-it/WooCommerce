@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\PaymentProcessors\Actions;
 
-use Buckaroo\Transaction\Response\TransactionResponse;
+use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;

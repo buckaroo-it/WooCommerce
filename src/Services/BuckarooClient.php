@@ -3,11 +3,11 @@
 namespace Buckaroo\Woocommerce\Services;
 
 use BadMethodCallException;
-use Buckaroo\BuckarooClient as BaseBuckarooClient;
-use Buckaroo\Config\DefaultConfig;
-use Buckaroo\Exceptions\BuckarooException;
-use Buckaroo\Handlers\Reply\ReplyHandler;
-use Buckaroo\Transaction\Response\TransactionResponse;
+use BuckarooDeps\Buckaroo\BuckarooClient as BaseBuckarooClient;
+use BuckarooDeps\Buckaroo\Config\DefaultConfig;
+use BuckarooDeps\Buckaroo\Exceptions\BuckarooException;
+use BuckarooDeps\Buckaroo\Handlers\Reply\ReplyHandler;
+use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Exception;
