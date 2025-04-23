@@ -32,15 +32,7 @@
             "classmap_directory": "/vendor_buckaroo/Classmap/",
             "classmap_prefix": "BuckarooDeps_",
             "packages": [
-                "buckaroo/sdk",
-                "guzzlehttp/guzzle"
-            ],
-            "excluded_packages": [
-                "symfony/polyfill-php80",
-                "symfony/polyfill-intl-idn",
-                "psr/http-message",
-                "psr/http-client",
-                "psr/log"
+                "buckaroo/sdk"
             ],
             "delete_vendor_directories": true
         }
