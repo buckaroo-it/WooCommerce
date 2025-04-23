@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Constraints;
 
-use Buckaroo\Resources\Constants\ResponseStatus;
+use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 
 class BuckarooTransactionStatus {
 

@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\ResponseParser;
 
-use Buckaroo\Resources\Constants\ResponseStatus;
+use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use Buckaroo\Woocommerce\Constraints\BuckarooTransactionStatus;
 use Buckaroo\Woocommerce\Services\Helper;
 

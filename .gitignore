@@ -3,7 +3,7 @@
 api/log/
 /.scannerwork
 vendor/
+vendor_buckaroo
 .idea/
 composer.lock
 .eslintrc.json
-

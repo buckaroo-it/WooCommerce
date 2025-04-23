@@ -1,36 +1,58 @@
 {
-  "name": "buckaroo/woocommerce",
-  "authors": [
-    {
-      "name": "Buckaroo",
-      "email": "support@buckaroo.nl",
-      "homepage": "https://www.buckaroo.nl",
-      "role": "Developer"
-    }
-  ],
-  "require": {
-    "php": ">=7.4",
-    "buckaroo/sdk": "^1.14"
-  },
-  "require-dev": {
-    "squizlabs/php_codesniffer": "^3.7",
-    "wp-coding-standards/wpcs": "^2.3",
-    "phpcompatibility/phpcompatibility-wp": "^2.1",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.7"
-  },
-  "autoload": {
-    "psr-4": {
-      "Buckaroo\\Woocommerce\\": "src/"
-    }
-  },
-  "scripts": {
-    "phpcs": "phpcs --standard=phpcs.xml src template",
-    "phpcbf": "phpcbf --standard=phpcs.xml src templates"
-  },
-  "config": {
-    "allow-plugins": {
-      "dealerdirect/phpcodesniffer-composer-installer": true
-    }
-  },
-  "minimum-stability": "stable"
+    "name": "buckaroo/woocommerce",
+    "authors": [
+        {
+            "name": "Buckaroo",
+            "email": "support@buckaroo.nl",
+            "homepage": "https://www.buckaroo.nl",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "buckaroo/sdk": "^1.14"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.7",
+        "wp-coding-standards/wpcs": "^2.3",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
+        "coenjacobs/mozart": "^0.7.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Buckaroo\\Woocommerce\\": "src/",
+            "BuckarooDeps\\": "vendor_buckaroo/"
+        }
+    },
+    "extra": {
+        "mozart": {
+            "dep_namespace": "BuckarooDeps\\",
+            "dep_directory": "/vendor_buckaroo/",
+            "classmap_directory": "/vendor_buckaroo/Classmap/",
+            "classmap_prefix": "BuckarooDeps_",
+            "packages": [
+                "buckaroo/sdk"
+            ],
+            "delete_vendor_directories": true
+        }
+    },
+    "scripts": {
+        "phpcs": "phpcs --standard=phpcs.xml src template",
+        "phpcbf": "phpcbf --standard=phpcs.xml src templates",
+        "post-install-cmd": [
+            "vendor/bin/mozart compose",
+            "composer dump-autoload -o"
+        ],
+        "post-update-cmd": [
+            "vendor/bin/mozart compose",
+            "composer dump-autoload -o"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "minimum-stability": "stable"
 }

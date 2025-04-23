@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways\SepaDirectDebit;
 
-use Buckaroo\Transaction\Response\TransactionResponse;
+use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
