@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 import useFormData from '../hooks/useFormData';
+import DefaultDropdown from '../partials/buckaroo_creditcard_dropdown';
 
 function CreditCard( {
 	eventRegistration,
@@ -231,6 +232,16 @@ function CreditCard( {
 
 	return (
 		<div>
+			{ creditCardMethod === 'redirect' &&
+				paymentMethodId === 'buckaroo_creditcard' && (
+					<div className="form-row form-row-wide">
+						<DefaultDropdown
+							paymentMethodId={ paymentMethodId }
+							creditCardIssuers={ creditCardIssuers }
+							handleChange={ handleChange }
+						/>
+					</div>
+				) }
 			{ isEncryptAndSecure && (
 				<div className="method--bankdata">
 					<div className="form-row">

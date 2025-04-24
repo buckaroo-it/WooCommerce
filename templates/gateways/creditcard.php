@@ -19,12 +19,28 @@ $customer_name    = implode( ' ', array( $this->getScalarCheckoutField( 'billing
 ?>
 
 <fieldset class="buckaroo-creditcard-fieldset">
-    <input
+    <?php if ( $creditCardMethod == 'redirect' ) : ?>
+        <p class="form-row form-row-wide">
+            <select
+                name='<?php echo esc_attr( $this->id ); ?>-creditcard-issuer'
+                id='buckaroo-creditcard-issuer'>
+                <option value='0' style='color: grey !important'>
+                    <?php echo esc_html_e( 'Select your credit card:', 'wc-buckaroo-bpe-gateway' ); ?>
+                </option>
+                <?php foreach ( $this->getCardsList() as $issuer ) : ?>
+                    <option value='<?php echo esc_attr( $issuer['servicename'] ); ?>'>
+                        <?php echo esc_html_e( $issuer['displayname'], 'wc-buckaroo-bpe-gateway' ); ?>
+                    </option>
+                <?php endforeach ?>
+            </select>
+        </p>
+    <?php else : ?>
+        <input
             type="hidden"
             name="<?php echo esc_attr( $this->id ); ?>-creditcard-issuer"
             value="<?php echo esc_attr( str_replace( 'buckaroo_creditcard_', '', $this->id ) ); ?>"
-    />
-
+        />
+    <?php endif; ?>
     <?php if ( $creditCardMethod == 'encrypt' && $this->isSecure() ) : ?>
         <div class="<?php echo esc_attr( $this->id ); ?>-hf-error woocommerce-error"></div>
 
