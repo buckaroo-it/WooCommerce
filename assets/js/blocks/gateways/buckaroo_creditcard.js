@@ -174,6 +174,11 @@ function CreditCard( {
 	useEffect( () => {
 		if ( isEncryptAndSecure ) {
 			initializeHostedFields();
+		} else if ( paymentMethodId.includes( 'buckaroo_creditcard_' ) ) {
+			updateFormState(
+				`${ paymentMethodId }-creditcard-issuer`,
+				paymentMethodId.replace( 'buckaroo_creditcard_', '' )
+			);
 		}
 	}, [ methodName ] );
 
