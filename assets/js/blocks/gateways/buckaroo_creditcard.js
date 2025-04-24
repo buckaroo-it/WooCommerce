@@ -318,7 +318,7 @@ function CreditCard( {
 					</div>
 
 					<div className="form-row form-row-wide validate-required"></div>
-					<div className="required" style={ { float: 'right' } }>
+					<div className="required" style={ { textAlign: 'right' } }>
 						*{ __( 'Required', 'wc-buckaroo-bpe-gateway' ) }
 					</div>
 				</div>
