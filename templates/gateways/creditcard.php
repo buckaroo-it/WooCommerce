@@ -16,10 +16,11 @@ defined( 'ABSPATH' ) || exit;
 
 $creditCardMethod = isset( $this->creditcardmethod ) ? $this->creditcardmethod : 'redirect';
 $customer_name    = implode( ' ', array( $this->getScalarCheckoutField( 'billing_first_name' ), $this->getScalarCheckoutField( 'billing_last_name' ) ) );
+$show_required    = ( $creditCardMethod == 'encrypt' && $this->isSecure() ) || ( $creditCardMethod == 'redirect' && $this->id === 'buckaroo_creditcard' );
 ?>
 
 <fieldset class="buckaroo-creditcard-fieldset">
-    <?php if ( $creditCardMethod == 'redirect' ) : ?>
+    <?php if ( $creditCardMethod == 'redirect' && $this->id === 'buckaroo_creditcard' ) : ?>
         <p class="form-row form-row-wide">
             <select
                 name='<?php echo esc_attr( $this->id ); ?>-creditcard-issuer'
@@ -88,8 +89,10 @@ $customer_name    = implode( ' ', array( $this->getScalarCheckoutField( 'billing
     <?php endif; ?>
 
 
+    <?php if ( $show_required ) : ?>
     <p class="form-row form-row-wide validate-required"></p>
     <p class="required" style="float:right;">*
         <?php echo esc_html_e( 'Required', 'wc-buckaroo-bpe-gateway' ); ?>
     </p>
+    <?php endif; ?>
 </fieldset>
