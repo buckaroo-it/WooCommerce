@@ -4,7 +4,6 @@ namespace Buckaroo\Woocommerce\Gateways\CreditCard;
 
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Services\Helper;
 use WC_Order;
 
@@ -46,10 +45,17 @@ class CreditCardGateway extends AbstractPaymentGateway {
         'ZAR',
     );
     public static array $cards           = array(
-        'amex_creditcard'       => array( 'gateway_class' => Cards\AmexGateway::class ),
-        'maestro_creditcard'    => array( 'gateway_class' => Cards\MaestroGateway::class ),
-        'mastercard_creditcard' => array( 'gateway_class' => Cards\MastercardGateway::class ),
-        'visa_creditcard'       => array( 'gateway_class' => Cards\VisaGateway::class ),
+        'amex_creditcard'           => array( 'gateway_class' => Cards\AmexGateway::class ),
+        'cartebancaire_creditcard'  => array( 'gateway_class' => Cards\CarteBancaireGateway::class ),
+        'cartebleuevisa_creditcard' => array( 'gateway_class' => Cards\CarteBleueVisaGateway::class ),
+        'dankort_creditcard'        => array( 'gateway_class' => Cards\DankortGateway::class ),
+        'maestro_creditcard'        => array( 'gateway_class' => Cards\MaestroGateway::class ),
+        'mastercard_creditcard'     => array( 'gateway_class' => Cards\MastercardGateway::class ),
+        'nexi_creditcard'           => array( 'gateway_class' => Cards\NexiGateway::class ),
+        'postepay_creditcard'       => array( 'gateway_class' => Cards\PostePayGateway::class ),
+        'visa_creditcard'           => array( 'gateway_class' => Cards\VisaGateway::class ),
+        'visaelectron_creditcard'   => array( 'gateway_class' => Cards\VisaElectronGateway::class ),
+        'vpay_creditcard'           => array( 'gateway_class' => Cards\VpayGateway::class ),
     );
 
     public function __construct() {
@@ -81,13 +87,33 @@ class CreditCardGateway extends AbstractPaymentGateway {
     public function validate_fields() {
         parent::validate_fields();
 
-        if ( $this->get_option( 'creditcardmethod' ) == 'encrypt' && $this->isSecure() ) {
+        $creditCardMethod = $this->get_option( 'creditcardmethod' );
+
+        if ( $creditCardMethod == 'encrypt' && $this->isSecure() ) {
             $encryptedData = $this->request->input( $this->id . '-encrypted-data' );
+            $issuer        = $this->request->input( $this->id . '-creditcard-issuer' );
+
+            if ( empty( $issuer ) || $issuer === null ) {
+                wc_add_notice( __( 'Select a credit or debit card.', 'wc-buckaroo-bpe-gateway' ), 'error' );
+            }
 
             if ( empty( $encryptedData ) || $encryptedData === null ) {
                 wc_add_notice( __( 'Please complete the card form before proceeding.', 'wc-buckaroo-bpe-gateway' ), 'error' );
+                return;
+            }
+        } else {
+            $issuer = $this->request->input( $this->id . '-creditcard-issuer' );
+
+            if ( $issuer === null ) {
+                wc_add_notice( __( 'Select a credit or debit card.', 'wc-buckaroo-bpe-gateway' ), 'error' );
+            }
+
+            if ( ! in_array( $issuer, array_keys( $this->getAllCards() ) ) ) {
+                wc_add_notice( __( 'A valid credit card is required.', 'wc-buckaroo-bpe-gateway' ), 'error' );
             }
         }
+
+        return;
     }
 
 
@@ -135,21 +161,33 @@ class CreditCardGateway extends AbstractPaymentGateway {
         return $processedPayment;
     }
 
+    public function getAllCards() {
+         return array(
+			 'amex'           => 'American Express',
+			 'cartebancaire'  => 'Carte Bancaire',
+			 'cartebleuevisa' => 'Carte Bleue',
+			 'dankort'        => 'Dankort',
+			 'maestro'        => 'Maestro',
+			 'mastercard'     => 'Mastercard',
+			 'nexi'           => 'Nexi',
+			 'postepay'       => 'PostePay',
+			 'visa'           => 'Visa',
+			 'visaelectron'   => 'Visa Electron',
+			 'vpay'           => 'Vpay',
+		 );
+    }
+
     public function getCardsList() {
         $cards     = array();
-        $cardsDesc = array(
-            'amex'       => 'American Express',
-            'maestro'    => 'Maestro',
-            'mastercard' => 'Mastercard',
-            'visa'       => 'Visa',
-        );
+        $cardsDesc = $this->getAllCards();
+
         if ( is_array( $this->creditCardProvider ) ) {
             foreach ( $this->creditCardProvider as $value ) {
                 if ( isset( $cardsDesc[ $value ] ) ) {
-                    $cards[] = array(
-                        'servicename' => $value,
-                        'displayname' => $cardsDesc[ $value ],
-                    );
+					$cards[] = array(
+						'servicename' => $value,
+						'displayname' => $cardsDesc[ $value ],
+					);
                 }
             }
         }
@@ -199,30 +237,14 @@ class CreditCardGateway extends AbstractPaymentGateway {
         $this->form_fields['AllowedProvider']              = array(
             'title'       => __( 'Allowed provider', 'wc-buckaroo-bpe-gateway' ),
             'type'        => 'multiselect',
-            'options'     => array(
-                'amex'       => 'American Express',
-                'maestro'    => 'Maestro',
-                'mastercard' => 'Mastercard',
-                'visa'       => 'Visa',
-            ),
+            'options'     => $this->getAllCards(),
             'description' => __( 'Select which credit or debit card providers will be visible to customer', 'wc-buckaroo-bpe-gateway' ),
-            'default'     => array(
-                'amex',
-                'mastercard',
-                'maestro',
-                'visa',
-            ),
+            'default'     => array_keys( $this->getCardsList() ),
         );
         $this->form_fields[ self::SHOW_IN_CHECKOUT_FIELD ] = array(
             'title'       => __( 'Show separate in checkout', 'wc-buckaroo-bpe-gateway' ),
             'type'        => 'multiselect',
-            'options'     => array(
-                ''           => __( 'None', 'wc-buckaroo-bpe-gateway' ),
-                'amex'       => 'American Express',
-                'mastercard' => 'Mastercard',
-                'maestro'    => 'Maestro',
-                'visa'       => 'Visa',
-            ),
+            'options'     => array_merge( array( '' => __( 'None', 'wc-buckaroo-bpe-gateway' ) ), $this->getAllCards() ),
             'description' => __( 'Select which credit or debit card providers will be shown separately in the checkout', 'wc-buckaroo-bpe-gateway' ),
             'default'     => array(),
         );
@@ -292,13 +314,5 @@ class CreditCardGateway extends AbstractPaymentGateway {
         }
 
         return $this->creditcardpayauthorize == 'authorize' && get_post_meta( $order->get_id(), '_wc_order_authorized', true ) == 'yes';
-    }
-
-    public function getServiceCode( ?AbstractProcessor $processor = null ) {
-        if ( $this->creditcardmethod == 'redirect' ) {
-            return 'noservice';
-        }
-
-        return 'creditcard';
     }
 }

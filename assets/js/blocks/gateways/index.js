@@ -25,8 +25,15 @@ export const paymentGatewaysTemplates = {
 };
 
 export const separateCreditCards = [
-	'buckaroo_creditcard_amex',
-	'buckaroo_creditcard_maestro',
-	'buckaroo_creditcard_mastercard',
-	'buckaroo_creditcard_visa',
+    'buckaroo_creditcard_amex',
+    'buckaroo_creditcard_cartebancaire',
+    'buckaroo_creditcard_cartebleuevisa',
+    'buckaroo_creditcard_dankort',
+    'buckaroo_creditcard_maestro',
+    'buckaroo_creditcard_mastercard',
+    'buckaroo_creditcard_nexi',
+    'buckaroo_creditcard_postepay',
+    'buckaroo_creditcard_visa',
+    'buckaroo_creditcard_visaelectron',
+    'buckaroo_creditcard_vpay',
 ];

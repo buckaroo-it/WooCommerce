@@ -34,15 +34,6 @@ class CreditCardProcessor extends AbstractPaymentProcessor {
 
     /** @inherictDoc */
     protected function getMethodBody(): array {
-        $method = $this->gateway->get_option( 'creditcardmethod', 'redirect' );
-
-        if ( $method == 'redirect' ) {
-            return array(
-                'continueOnIncomplete'       => '1',
-                'servicesSelectableByClient' => implode( ',', $this->gateway->get_option( 'AllowedProvider', array() ) ),
-            );
-        }
-
         $body = array(
             'name' => strtolower( $this->request->input( $this->gateway->id . '-creditcard-issuer' ) ) ?: get_post_meta( $this->get_order()->get_id(), '_payment_method_transaction', true ),
         );
