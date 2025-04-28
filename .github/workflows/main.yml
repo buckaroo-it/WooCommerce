@@ -11,7 +11,7 @@ permissions:
 
 jobs:
     build_upload_sync:
-        runs-on: ubuntu-22.03
+        runs-on: ubuntu-latest
 
         steps:
             -   name: Checkout Repository
@@ -40,7 +40,7 @@ jobs:
 
                 # Step 6: Install Subversion (SVN)
             -   name: Install Subversion
-                run: sudo apt-get update && sudo apt-get install -y subversion
+                run: sudo apt-get update --allow-releaseinfo-change && sudo apt-get install -y subversion
 
             -   name: Sync with SVN on Release
                 env:
