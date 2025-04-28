@@ -40,7 +40,7 @@ jobs:
 
                 # Step 6: Install Subversion (SVN)
             -   name: Install Subversion
-                run: sudo apt-get update && sudo apt-get install -y subversion
+                run: sudo apt-get update && sudo apt-get install -y subversion --allow-releaseinfo-change
 
             -   name: Sync with SVN on Release
                 env:
