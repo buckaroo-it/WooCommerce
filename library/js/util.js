@@ -62,6 +62,26 @@ buckarooAdmin = {
     jQuery("#woocommerce_buckaroo_creditcard_show_in_checkout")
       .closest("tr")
       .toggle(value === "encrypt");
+
+      const hiddenProviders = [
+          'cartebancaire',
+          'cartebleuevisa',
+          'dankort',
+          'nexi',
+          'postepay',
+          'visaelectron',
+          'vpay'
+      ];
+
+      const selector = hiddenProviders.map(v => `option[value=${v}]`).join(', ');
+
+      if(value === 'encrypt') {
+          jQuery(selector, '#woocommerce_buckaroo_creditcard_AllowedProvider').hide().prop('selected', false);
+          jQuery(selector, '#woocommerce_buckaroo_creditcard_show_in_checkout').hide().prop('selected', false);
+      }else{
+          jQuery(selector, '#woocommerce_buckaroo_creditcard_AllowedProvider').show();
+          jQuery(selector, '#woocommerce_buckaroo_creditcard_show_in_checkout').show();
+      }
   },
 
   in3ToggleLogoSelector() {

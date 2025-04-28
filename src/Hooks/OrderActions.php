@@ -5,11 +5,13 @@ namespace Buckaroo\Woocommerce\Hooks;
 use Buckaroo\Woocommerce\Core\PaymentGatewayRegistry;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Order\OrderCaptureRefund;
+use Buckaroo\Woocommerce\Services\Helper;
 use WC_Cart;
 
 class OrderActions {
 
 	public function __construct() {
+		add_action( 'order_edit_form_top', array( $this, 'handleOrderInTestMode' ) );
 		add_action( 'edit_form_top', array( $this, 'handleOrderInTestMode' ) );
 		add_action( 'wp_ajax_woocommerce_cart_calculate_fees', array( $this, 'calculate_order_fees' ) );
 		add_action( 'wp_ajax_nopriv_woocommerce_cart_calculate_fees', array( $this, 'calculate_order_fees' ) );
@@ -20,14 +22,24 @@ class OrderActions {
 		new OrderCaptureRefund();
 	}
 
-	public function handleOrderInTestMode( $post ): void {
-		if ( $post->post_type === 'shop_order' ) {
-			$order_in_test_mode = get_post_meta( $post->ID, '_buckaroo_order_in_test_mode', true );
-			if ( $order_in_test_mode === '1' ) {
-				echo '<div class="notice notice-error"><p>' . esc_html__( 'The payment for this order was made in test mode' ) . '</p></div>';
-			}
-		}
-	}
+    public function handleOrderInTestMode( $post ): void {
+        $isOrderInstance = Helper::isOrderInstance( $post );
+
+        if ( ! $isOrderInstance && ( $post->post_type ?? '' ) !== 'shop_order' ) {
+            return;
+        }
+
+        $orderId = $isOrderInstance ? $post->get_id() : $post->ID;
+
+        if ( get_post_meta( $orderId, '_buckaroo_order_in_test_mode', true ) !== '1' ) {
+            return;
+        }
+
+        printf(
+            '<div class="notice notice-error"><p>%s</p></div>',
+            esc_html__( 'The payment for this order was made in test mode' )
+        );
+    }
 
 	public function handleOrderCapture(): void {
 		if ( ! isset( $_POST['order_id'] ) ) {

@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Services;
 
-use Buckaroo\Resources\Constants\ResponseStatus;
+use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use WC_Order;
 use WP_Post;
@@ -15,13 +15,17 @@ class Helper {
 		return in_array( $status_code, array( ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER, ResponseStatus::BUCKAROO_STATUSCODE_REJECTED ) );
 	}
 
+    public static function isOrderInstance( $instance ): bool {
+        return $instance instanceof Order || $instance instanceof WC_Order;
+    }
+
 	public static function findOrder( $order_id ) {
 		return self::isWooCommerceVersion3OrGreater() ?
 			wc_get_order( $order_id ) : new WC_Order( $order_id );
 	}
 
 	public static function resolveOrder( $input ) {
-        if ( $input instanceof Order || $input instanceof WC_Order ) {
+        if ( static::isOrderInstance( $input ) ) {
             return $input;
         }
 

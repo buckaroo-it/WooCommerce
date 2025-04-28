@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\PaymentProcessors;
 
-use Buckaroo\Resources\Constants\ResponseStatus;
+use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use Buckaroo\Woocommerce\Constraints\BuckarooTransactionStatus;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressUpdateOrderAddresses;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;

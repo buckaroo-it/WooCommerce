@@ -16,15 +16,32 @@ defined( 'ABSPATH' ) || exit;
 
 $creditCardMethod = isset( $this->creditcardmethod ) ? $this->creditcardmethod : 'redirect';
 $customer_name    = implode( ' ', array( $this->getScalarCheckoutField( 'billing_first_name' ), $this->getScalarCheckoutField( 'billing_last_name' ) ) );
+$show_required    = ( $creditCardMethod == 'encrypt' && $this->isSecure() ) || ( $creditCardMethod == 'redirect' && $this->id === 'buckaroo_creditcard' );
 ?>
 
 <fieldset class="buckaroo-creditcard-fieldset">
-    <input
+    <?php if ( $creditCardMethod == 'redirect' && $this->id === 'buckaroo_creditcard' ) : ?>
+        <p class="form-row form-row-wide">
+            <select
+                name='<?php echo esc_attr( $this->id ); ?>-creditcard-issuer'
+                id='buckaroo-creditcard-issuer'>
+                <option value='0' style='color: grey !important'>
+                    <?php echo esc_html_e( 'Select your credit card:', 'wc-buckaroo-bpe-gateway' ); ?>
+                </option>
+                <?php foreach ( $this->getCardsList() as $issuer ) : ?>
+                    <option value='<?php echo esc_attr( $issuer['servicename'] ); ?>'>
+                        <?php echo esc_html_e( $issuer['displayname'], 'wc-buckaroo-bpe-gateway' ); ?>
+                    </option>
+                <?php endforeach ?>
+            </select>
+        </p>
+    <?php else : ?>
+        <input
             type="hidden"
             name="<?php echo esc_attr( $this->id ); ?>-creditcard-issuer"
             value="<?php echo esc_attr( str_replace( 'buckaroo_creditcard_', '', $this->id ) ); ?>"
-    />
-
+        />
+    <?php endif; ?>
     <?php if ( $creditCardMethod == 'encrypt' && $this->isSecure() ) : ?>
         <div class="<?php echo esc_attr( $this->id ); ?>-hf-error woocommerce-error"></div>
 
@@ -72,8 +89,10 @@ $customer_name    = implode( ' ', array( $this->getScalarCheckoutField( 'billing
     <?php endif; ?>
 
 
+    <?php if ( $show_required ) : ?>
     <p class="form-row form-row-wide validate-required"></p>
     <p class="required" style="float:right;">*
         <?php echo esc_html_e( 'Required', 'wc-buckaroo-bpe-gateway' ); ?>
     </p>
+    <?php endif; ?>
 </fieldset>

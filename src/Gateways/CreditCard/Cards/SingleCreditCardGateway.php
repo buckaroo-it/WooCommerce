@@ -18,8 +18,6 @@ use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
  * @link      https://www.buckaroo.eu/
  */
 class SingleCreditCardGateway extends CreditCardGateway {
-
-
 	public function __construct() {
 		parent::__construct();
 	}

@@ -2,8 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
-use Buckaroo\Resources\Constants\ResponseStatus;
-use Buckaroo\Transaction\Response\TransactionResponse;
+use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
+use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
