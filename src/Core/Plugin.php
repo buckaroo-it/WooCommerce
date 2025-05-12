@@ -35,7 +35,7 @@ class Plugin {
 	}
 
 	public function init(): void {
-		add_action( 'plugins_loaded', array( $this, 'registerGateways' ), 0 );
+        add_action( 'woocommerce_init', [ $this, 'registerGateways' ] );
 		new HookRegistry();
 	}
 
