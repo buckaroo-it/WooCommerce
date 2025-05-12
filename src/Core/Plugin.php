@@ -11,55 +11,55 @@ use Buckaroo\Woocommerce\Hooks\HookRegistry;
  */
 class Plugin {
 
-	/**
-	 * Plugin version.
-	 *
-	 * @var string
-	 */
-	const  VERSION = '4.0.3';
+    /**
+     * Plugin version.
+     *
+     * @var string
+     */
+    const  VERSION = '4.0.3';
 
-	/**
-	 * Instance of PaymentGatewayRegistry.
-	 *
-	 * @var PaymentGatewayRegistry
-	 */
-	protected PaymentGatewayRegistry $gatewayRegistry;
+    /**
+     * Instance of PaymentGatewayRegistry.
+     *
+     * @var PaymentGatewayRegistry
+     */
+    protected PaymentGatewayRegistry $gatewayRegistry;
 
-	/**
-	 * Plugin constructor.
-	 *
-	 * Initializes the PaymentGatewayRegistry.
-	 */
-	public function __construct() {
-		$this->gatewayRegistry = new PaymentGatewayRegistry();
-	}
+    /**
+     * Plugin constructor.
+     *
+     * Initializes the PaymentGatewayRegistry.
+     */
+    public function __construct() {
+        $this->gatewayRegistry = new PaymentGatewayRegistry();
+    }
 
-	public function init(): void {
-        add_action( 'woocommerce_init', array( $this, 'registerGateways' ) );
-		new HookRegistry();
-	}
+    public function init(): void {
+		add_action( 'woocommerce_init', array( $this, 'registerGateways' ) );
+        new HookRegistry();
+    }
 
-	/**
-	 * Register payment gateways with WooCommerce.
-	 *
-	 * @return void
-	 */
-	public function registerGateways(): void {
-		$this->gatewayRegistry->load();
+    /**
+     * Register payment gateways with WooCommerce.
+     *
+     * @return void
+     */
+    public function registerGateways(): void {
+        $this->gatewayRegistry->load();
 
-		add_filter(
-			'woocommerce_payment_gateways',
-			array( $this->gatewayRegistry, 'hookGatewaysToWooCommerce' )
-		);
-	}
+        add_filter(
+            'woocommerce_payment_gateways',
+            array( $this->gatewayRegistry, 'hookGatewaysToWooCommerce' )
+        );
+    }
 
 
-	/**
-	 * Get the PaymentGatewayRegistry instance.
-	 *
-	 * @return PaymentGatewayRegistry
-	 */
-	public function getGatewayRegistry(): PaymentGatewayRegistry {
-		return $this->gatewayRegistry;
-	}
+    /**
+     * Get the PaymentGatewayRegistry instance.
+     *
+     * @return PaymentGatewayRegistry
+     */
+    public function getGatewayRegistry(): PaymentGatewayRegistry {
+        return $this->gatewayRegistry;
+    }
 }
