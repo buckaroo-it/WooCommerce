@@ -17,7 +17,7 @@ function CreditCard( {
 		creditCardIsSecure,
 	},
 } ) {
-	const { onCheckoutBeforeProcessing } = eventRegistration;
+	const { onPaymentSetup } = eventRegistration;
 	const sdkClientRef = useRef( null );
 	const tokenExpiresAtRef = useRef( null );
 
@@ -172,20 +172,19 @@ function CreditCard( {
 	}
 
 	useEffect( () => {
-		if ( paymentMethodId.includes( 'buckaroo_creditcard_' ) )
+		if ( isEncryptAndSecure ) {
+			initializeHostedFields();
+		} else if ( paymentMethodId.includes( 'buckaroo_creditcard_' ) ) {
 			updateFormState(
 				`${ paymentMethodId }-creditcard-issuer`,
 				paymentMethodId.replace( 'buckaroo_creditcard_', '' )
 			);
-
-		if ( isEncryptAndSecure ) {
-			initializeHostedFields();
 		}
 	}, [ methodName ] );
 
 	useEffect( () => {
 		if ( isEncryptAndSecure ) {
-			return onCheckoutBeforeProcessing( async () => {
+			const unsubscribe = eventRegistration.onPaymentSetup( async () => {
 				if ( ! sdkClientRef.current ) {
 					return {
 						type: emitResponse.responseTypes.FAIL,
@@ -214,11 +213,17 @@ function CreditCard( {
 						throw new Error( 'Failed to get encrypted card data.' );
 					}
 
-					updateFormState( {
-						[ `${ paymentMethodId }-encrypted-data` ]: paymentToken,
-						[ `${ paymentMethodId }-creditcard-issuer` ]:
-							sdkClientRef.current.getService(),
-					} );
+					return {
+						type: emitResponse.responseTypes.SUCCESS,
+						meta: {
+							paymentMethodData: {
+								[ `${ paymentMethodId }-encrypted-data` ]:
+									paymentToken,
+								[ `${ paymentMethodId }-creditcard-issuer` ]:
+									sdkClientRef.current.getService(),
+							},
+						},
+					};
 				} catch ( error ) {
 					console.error( error );
 					return {
@@ -227,8 +232,9 @@ function CreditCard( {
 					};
 				}
 			} );
+			return () => unsubscribe();
 		}
-	}, [ onCheckoutBeforeProcessing, paymentMethodId ] );
+	}, [ onPaymentSetup, paymentMethodId ] );
 
 	return (
 		<div>
@@ -312,7 +318,7 @@ function CreditCard( {
 					</div>
 
 					<div className="form-row form-row-wide validate-required"></div>
-					<div className="required" style={ { float: 'right' } }>
+					<div className="required" style={ { textAlign: 'right' } }>
 						*{ __( 'Required', 'wc-buckaroo-bpe-gateway' ) }
 					</div>
 				</div>

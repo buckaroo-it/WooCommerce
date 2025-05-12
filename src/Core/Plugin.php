@@ -11,12 +11,12 @@ use Buckaroo\Woocommerce\Hooks\HookRegistry;
  */
 class Plugin {
 
-    /**
-     * Plugin version.
-     *
-     * @var string
-     */
-    const  VERSION = '4.0.3';
+	/**
+	 * Plugin version.
+	 *
+	 * @var string
+	 */
+	const  VERSION = '4.1.0';
 
     /**
      * Instance of PaymentGatewayRegistry.

@@ -5,7 +5,6 @@ class BuckarooCreditCardsHostedFields {
 		this.tokenExpiresAt = null;
 		this.paymentMethodId = 'buckaroo_creditcard';
 		this.isSubmitting = false;
-		this.submitEvents = [];
 		this.fieldSelectors = [];
 		this.refreshTimeout = null;
 		this.skipHostedFields = false;
@@ -24,7 +23,7 @@ class BuckarooCreditCardsHostedFields {
 		} catch ( error ) {
 			console.error( 'Hosted fields initialization failed:', error );
 			this.showError( 'Failed to initialize payment form' );
-            return false;
+			return false;
 		}
 	}
 
@@ -174,16 +173,14 @@ class BuckarooCreditCardsHostedFields {
 
 	async handleFormSubmit() {
 		if ( ! this.sdkClient ) {
-			this.showError( 'Payment form not initialized' );
-			return false;
+			throw new Error( 'Payment form not initialized' );
 		}
 
 		if ( Date.now() > this.tokenExpiresAt ) {
 			try {
 				await this.refreshToken();
 			} catch ( error ) {
-				this.showError( 'Session expired, please try again' );
-				return false;
+				throw new Error( 'Session expired, please try again' );
 			}
 		}
 
@@ -196,9 +193,7 @@ class BuckarooCreditCardsHostedFields {
 
 			return true;
 		} catch ( error ) {
-			console.error( 'Payment submission failed:', error );
-			this.showError( error.message || 'Invalid payment details' );
-			return false;
+			throw new Error( error.message || 'Invalid payment details' );
 		}
 	}
 
@@ -224,43 +219,6 @@ class BuckarooCreditCardsHostedFields {
 		jQuery( document.body ).trigger( 'checkout_error' );
 	}
 
-	overrideFormSubmit() {
-		const formEl = this.form.get( 0 );
-		const events = jQuery._data( formEl, 'events' );
-		if ( events?.submit ) {
-			this.submitEvents = events.submit.map( ( e ) => e.handler );
-		}
-
-		this.form.off( 'submit' );
-
-		this.form.on( 'submit', async ( e ) => {
-			e.preventDefault();
-			if ( this.isSubmitting ) return;
-
-			this.isSubmitting = true;
-			try {
-				const paymentMethod = this.selectedPaymentMethod() || '';
-				if ( paymentMethod.includes( 'buckaroo_creditcard' ) ) {
-					const isValid = await this.handleFormSubmit();
-					if ( isValid ) this.triggerSubmitHandlers( e );
-				} else {
-					this.triggerSubmitHandlers( e );
-				}
-			} catch ( error ) {
-				console.error( 'Form submission error:', error );
-				this.showError( 'An error occurred during submission' );
-			} finally {
-				this.isSubmitting = false;
-			}
-		} );
-	}
-
-	triggerSubmitHandlers( e ) {
-		this.submitEvents.forEach( ( handler ) =>
-			handler.call( this.form, e )
-		);
-	}
-
 	selectedPaymentMethod() {
 		return jQuery( '[name="payment_method"]:checked' ).val() || '';
 	}
@@ -274,7 +232,29 @@ class BuckarooCreditCardsHostedFields {
 
 				if ( ! result ) return;
 
-				this.overrideFormSubmit();
+				const formHandlerEvent = `checkout_place_order_${ this.paymentMethodId }`;
+				this.form
+					.off( formHandlerEvent )
+					.on( formHandlerEvent, ( e ) => {
+						e.preventDefault();
+
+						if ( this.isSubmitting ) return false;
+
+						this.isSubmitting = true;
+
+						this.handleFormSubmit()
+							.then( () => {
+								this.form.trigger( 'submit' );
+							} )
+							.catch( ( error ) => {
+								this.showError( error );
+							} )
+							.finally( () => {
+								this.isSubmitting = false;
+							} );
+
+						return false;
+					} );
 			}
 		} );
 	}
