@@ -113,12 +113,17 @@ class BuckarooClient {
 	 * @param mixed|null $data Data to validate.
 	 *
 	 * @return bool True if valid, false otherwise.
-	 * @throws BuckarooException
 	 */
 	public function isReplyHandlerValid( $data = null, $authHeader = '', $url = '' ): bool {
-		$replyHandler = new ReplyHandler( $this->buckarooClient->client()->config(), $data, $authHeader ?? '', $url ?? '' );
+        try {
+            $replyHandler = new ReplyHandler( $this->buckarooClient->client()->config(), $data, $authHeader ?? '', $url ?? '' );
 
-		return $replyHandler->validate()->isValid();
+            return $replyHandler->validate()->isValid();
+        } catch ( Exception $e ) {
+            Logger::log( __METHOD__ . '|1|', array( $e->getMessage(), $data ) );
+
+            return false;
+        }
 	}
 
 	/**
