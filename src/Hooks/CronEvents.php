@@ -16,7 +16,7 @@ class CronEvents
     /**
      * Number of days to keep the logs
      */
-    const LOG_STALE_DAYS = 14;
+public const LOG_STALE_DAYS = 14;
 
     public function __construct()
     {

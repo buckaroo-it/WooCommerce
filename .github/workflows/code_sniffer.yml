@@ -30,4 +30,4 @@ jobs:
                 run: composer install --no-interaction --prefer-dist --no-progress
 
             -   name: Run PHPCS via Composer script
-                run: composer --quiet phpcs
+                run: composer phpcs
