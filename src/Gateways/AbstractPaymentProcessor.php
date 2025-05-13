@@ -30,32 +30,32 @@ class AbstractPaymentProcessor extends AbstractProcessor {
 	}
 
 	public function getBody(): array {
-        $body = array_merge(
-            array(
-                'order'                => (string) $this->get_order()->get_id(),
-                'invoice'              => $this->get_invoice_number(),
-                'amountDebit'          => number_format( (float) $this->get_order()->get_total( 'edit' ), 2, '.', '' ),
-                'currency'             => get_woocommerce_currency(),
-                'returnURL'            => $this->get_return_url(),
-                'cancelURL'            => $this->get_return_url(),
-                'pushURL'              => $this->get_push_url(),
-                'additionalParameters' => array(
-                    'real_order_id' => $this->get_order()->get_id(),
-                ),
+		$body = array_merge(
+			array(
+				'order'                => (string) $this->get_order()->get_id(),
+				'invoice'              => $this->get_invoice_number(),
+				'amountDebit'          => number_format( (float) $this->get_order()->get_total( 'edit' ), 2, '.', '' ),
+				'currency'             => get_woocommerce_currency(),
+				'returnURL'            => $this->get_return_url(),
+				'cancelURL'            => $this->get_return_url(),
+				'pushURL'              => $this->get_push_url(),
+				'additionalParameters' => array(
+					'real_order_id' => $this->get_order()->get_id(),
+				),
 
-                'description'          => $this->get_description(),
-                'clientIP'             => $this->getIp(),
-                'culture'              => $this->determineCulture(),
-            ),
-            $this->getMethodBody(),
-        );
+				'description'          => $this->get_description(),
+				'clientIP'             => $this->getIp(),
+				'culture'              => $this->determineCulture(),
+			),
+			$this->getMethodBody(),
+		);
 
-        Logger::log( __METHOD__ . '|1|', array( $_POST, $body ) );
+		Logger::log( __METHOD__ . '|1|', array( $_POST, $body ) );
 
 		return $body;
 	}
 
-    protected function getMethodBody(): array {
+	protected function getMethodBody(): array {
 		return array();
 	}
 
@@ -93,22 +93,22 @@ class AbstractPaymentProcessor extends AbstractProcessor {
 	 *
 	 * @return string
 	 */
-    public function get_description(): string {
-        $order        = $this->get_order();
-        $order_number = $order->get_order_number();
-        $label        = $this->gateway->get_option( 'transactiondescription', 'Order #' . $order->get_order_number() );
+	public function get_description(): string {
+		$order        = $this->get_order();
+		$order_number = $order->get_order_number();
+		$label        = $this->gateway->get_option( 'transactiondescription', 'Order #' . $order->get_order_number() );
 
-        $label = str_replace( '{order_number}', $order_number, $label );
-        $label = str_replace( '{shop_name}', get_bloginfo( 'name' ), $label );
+		$label = str_replace( '{order_number}', $order_number, $label );
+		$label = str_replace( '{shop_name}', get_bloginfo( 'name' ), $label );
 
-        $products = $order->get_items( 'line_item' );
-        if ( count( $products ) ) {
-            $label = str_replace( '{product_name}', reset( $products )->get_name(), $label );
-        }
+		$products = $order->get_items( 'line_item' );
+		if ( count( $products ) ) {
+			$label = str_replace( '{product_name}', reset( $products )->get_name(), $label );
+		}
 
-        $label = preg_replace( "/\r?\n|\r/", '', $label );
-        return mb_substr( $label, 0, 244 );
-    }
+		$label = preg_replace( "/\r?\n|\r/", '', $label );
+		return mb_substr( $label, 0, 244 );
+	}
 
 	/**
 	 * Get address component
@@ -122,11 +122,11 @@ class AbstractPaymentProcessor extends AbstractProcessor {
 	protected function getAddress( string $type, string $key, $default = '' ) {
 		$value = $this->order_details->get( $type . '_' . $key, $default );
 
-        if ( ! $value && $type == 'shipping' ) {
-            $value = $this->order_details->get( 'billing_' . $key, $default );
-        }
+		if ( ! $value && $type == 'shipping' ) {
+			$value = $this->order_details->get( 'billing_' . $key, $default );
+		}
 
-        return $value;
+		return $value;
 	}
 
 	/**

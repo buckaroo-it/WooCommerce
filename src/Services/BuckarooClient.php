@@ -115,15 +115,15 @@ class BuckarooClient {
 	 * @return bool True if valid, false otherwise.
 	 */
 	public function isReplyHandlerValid( $data = null, $authHeader = '', $url = '' ): bool {
-        try {
-            $replyHandler = new ReplyHandler( $this->buckarooClient->client()->config(), $data, $authHeader ?? '', $url ?? '' );
+		try {
+			$replyHandler = new ReplyHandler( $this->buckarooClient->client()->config(), $data, $authHeader ?? '', $url ?? '' );
 
-            return $replyHandler->validate()->isValid();
-        } catch ( Exception $e ) {
-            Logger::log( __METHOD__ . '|1|', array( $e->getMessage(), $data ) );
+			return $replyHandler->validate()->isValid();
+		} catch ( Exception $e ) {
+			Logger::log( __METHOD__ . '|1|', array( $e->getMessage(), $data ) );
 
-            return false;
-        }
+			return false;
+		}
 	}
 
 	/**
@@ -158,7 +158,7 @@ class BuckarooClient {
 		$serviceCode = $processor->gateway->getServiceCode( $processor );
 		$action      = $processor->getAction();
 		$requestData = array_merge( $processor->getBody(), $additionalData );
-        Logger::log( __METHOD__ . '|1|', array( get_class( $processor ), $serviceCode, $action, $requestData ) );
+		Logger::log( __METHOD__ . '|1|', array( get_class( $processor ), $serviceCode, $action, $requestData ) );
 
 		return $this->method( $serviceCode )->{$action}( $requestData );
 	}

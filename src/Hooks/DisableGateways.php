@@ -28,9 +28,9 @@ class DisableGateways {
 				}
 
 				foreach ( $available_gateways as $key => $gateway ) {
-                    if ( ! $this->isBuckarooPayment( $key ) ) {
-                        continue;
-                    }
+					if ( ! $this->isBuckarooPayment( $key ) ) {
+						continue;
+					}
 
 					if ( method_exists( $gateway, 'isVisibleInCheckout' ) && ! $gateway->isVisibleInCheckout() ) {
 						unset( $available_gateways[ $key ] );

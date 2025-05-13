@@ -69,7 +69,7 @@ class AfterpayNewGateway extends AbstractPaymentGateway {
 		if (
 			self::CUSTOMER_TYPE_B2C !== $this->customer_type &&
 			$country === 'NL' &&
-            $this->request->input( 'billing_company' )
+			$this->request->input( 'billing_company' )
 		) {
 			if ( $this->request->input( 'buckaroo-afterpaynew-company-coc-registration' ) === null ) {
 				wc_add_notice( __( 'Company registration number is required', 'wc-buckaroo-bpe-gateway' ), 'error' );
@@ -223,11 +223,11 @@ class AfterpayNewGateway extends AbstractPaymentGateway {
 	}
 
 	public function canShowCaptureForm( $order ): bool {
-        $order = Helper::resolveOrder( $order );
+		$order = Helper::resolveOrder( $order );
 
-        if ( ! $order instanceof WC_Order ) {
-            return false;
-        }
+		if ( ! $order instanceof WC_Order ) {
+			return false;
+		}
 
 		return $this->afterpaynewpayauthorize == 'authorize' && get_post_meta( $order->get_id(), '_wc_order_authorized', true ) == 'yes';
 	}

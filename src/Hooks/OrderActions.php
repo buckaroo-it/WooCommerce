@@ -22,24 +22,24 @@ class OrderActions {
 		new OrderCaptureRefund();
 	}
 
-    public function handleOrderInTestMode( $post ): void {
-        $isOrderInstance = Helper::isOrderInstance( $post );
+	public function handleOrderInTestMode( $post ): void {
+		$isOrderInstance = Helper::isOrderInstance( $post );
 
-        if ( ! $isOrderInstance && ( $post->post_type ?? '' ) !== 'shop_order' ) {
-            return;
-        }
+		if ( ! $isOrderInstance && ( $post->post_type ?? '' ) !== 'shop_order' ) {
+			return;
+		}
 
-        $orderId = $isOrderInstance ? $post->get_id() : $post->ID;
+		$orderId = $isOrderInstance ? $post->get_id() : $post->ID;
 
-        if ( get_post_meta( $orderId, '_buckaroo_order_in_test_mode', true ) !== '1' ) {
-            return;
-        }
+		if ( get_post_meta( $orderId, '_buckaroo_order_in_test_mode', true ) !== '1' ) {
+			return;
+		}
 
-        printf(
-            '<div class="notice notice-error"><p>%s</p></div>',
-            esc_html__( 'The payment for this order was made in test mode' )
-        );
-    }
+		printf(
+			'<div class="notice notice-error"><p>%s</p></div>',
+			esc_html__( 'The payment for this order was made in test mode' )
+		);
+	}
 
 	public function handleOrderCapture(): void {
 		if ( ! isset( $_POST['order_id'] ) ) {

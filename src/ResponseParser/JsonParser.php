@@ -2,172 +2,141 @@
 
 namespace Buckaroo\Woocommerce\ResponseParser;
 
-class JsonParser extends ResponseParser
-{
-    protected function normalizeItems( array $array ): array {
-        if ( count($array) === 1 && ( isset($array['Transaction']) || isset($array['DataRequest']) ) ) {
-            $array = $array['Transaction'] ?? $array['DataRequest'];
-        }
+class JsonParser extends ResponseParser {
 
-        return parent::normalizeItems($array);
-    }
+	protected function normalizeItems( array $array ): array {
+		if ( count( $array ) === 1 && ( isset( $array['Transaction'] ) || isset( $array['DataRequest'] ) ) ) {
+			$array = $array['Transaction'] ?? $array['DataRequest'];
+		}
 
-    public function getAmountCredit(): ?float
-    {
-        return $this->formatAmount($this->get('AmountCredit'));
-    }
+		return parent::normalizeItems( $array );
+	}
 
-    public function getAmount(): ?float
-    {
-        return $this->formatAmount($this->get('Amount')) ?? $this->getAmountDebit();
-    }
+	public function getAmountCredit(): ?float {
+		return $this->formatAmount( $this->get( 'AmountCredit' ) );
+	}
 
-    public function getAmountDebit(): ?float
-    {
-        return $this->formatAmount($this->get('AmountDebit'));
-    }
+	public function getAmount(): ?float {
+		return $this->formatAmount( $this->get( 'Amount' ) ) ?? $this->getAmountDebit();
+	}
 
-    public function getCurrency(): ?string
-    {
-        return $this->get('Currency');
-    }
+	public function getAmountDebit(): ?float {
+		return $this->formatAmount( $this->get( 'AmountDebit' ) );
+	}
 
-    public function getCustomerName(): ?string
-    {
-        return $this->get('CustomerName');
-    }
+	public function getCurrency(): ?string {
+		return $this->get( 'Currency' );
+	}
 
-    public function getDescription()
-    {
-        return $this->get('Description');
-    }
+	public function getCustomerName(): ?string {
+		return $this->get( 'CustomerName' );
+	}
 
-    public function getInvoice(): ?string
-    {
-        return $this->get('Invoice');
-    }
+	public function getDescription() {
+		return $this->get( 'Description' );
+	}
 
-    public function getOrderNumber(): ?string
-    {
-        return $this->get('Order');
-    }
+	public function getInvoice(): ?string {
+		return $this->get( 'Invoice' );
+	}
 
-    public function getMutationType()
-    {
-        return $this->get('MutationType');
-    }
+	public function getOrderNumber(): ?string {
+		return $this->get( 'Order' );
+	}
 
-    public function getSubCodeMessage(): ?string
-    {
-        return $this->get('Status.SubCode.Description');
-    }
+	public function getMutationType() {
+		return $this->get( 'MutationType' );
+	}
 
-    public function hasRedirect(): bool
-    {
-        return $this->get('RequiredAction.RedirectURL')
-            && $this->get('RequiredAction.Name') == 'Redirect';
-    }
+	public function getSubCodeMessage(): ?string {
+		return $this->get( 'Status.SubCode.Description' );
+	}
 
-    public function getRedirectUrl(): string
-    {
-        return $this->get('RequiredAction.RedirectURL');
-    }
+	public function hasRedirect(): bool {
+		return $this->get( 'RequiredAction.RedirectURL' )
+			&& $this->get( 'RequiredAction.Name' ) == 'Redirect';
+	}
 
-    public function getTransactionMethod()
-    {
-        return $this->get('ServiceCode');
-    }
+	public function getRedirectUrl(): string {
+		return $this->get( 'RequiredAction.RedirectURL' );
+	}
 
-    public function getTransactionType()
-    {
-        return $this->get('TransactionType');
-    }
+	public function getTransactionMethod() {
+		return $this->get( 'ServiceCode' );
+	}
 
-    public function getTransactionKey(): ?string
-    {
-        return $this->get('Key');
-    }
+	public function getTransactionType() {
+		return $this->get( 'TransactionType' );
+	}
 
-    public function getDataRequest(): ?string
-    {
-        return $this->get('Key');
-    }
+	public function getTransactionKey(): ?string {
+		return $this->get( 'Key' );
+	}
 
-    public function getPaymentMethod(): ?string
-    {
-        return $this->getService('PaymentMethod') ?? $this->get('ServiceCode');
-    }
+	public function getDataRequest(): ?string {
+		return $this->get( 'Key' );
+	}
 
-    public function getService($name)
-    {
-        return $this->firstWhere($this->get('services'), 'name', $name);
-    }
+	public function getPaymentMethod(): ?string {
+		return $this->getService( 'PaymentMethod' ) ?? $this->get( 'ServiceCode' );
+	}
 
-    public function getRelatedTransactionPartialPayment(): ?string
-    {
-        return $this->getRelatedTransactions('partialpayment');
-    }
+	public function getService( $name ) {
+		return $this->firstWhere( $this->get( 'services' ), 'name', $name );
+	}
 
-    protected function getRelatedTransactions($type = 'refund')
-    {
-        return $this->firstWhere($this->get('RelatedTransactions'), 'RelationType', $type)['RelatedTransactionKey'] ?? null;
-    }
+	public function getRelatedTransactionPartialPayment(): ?string {
+		return $this->getRelatedTransactions( 'partialpayment' );
+	}
 
-    public function isRefund(): bool
-    {
-        return $this->getRelatedTransactions() !== null;
-    }
+	protected function getRelatedTransactions( $type = 'refund' ) {
+		return $this->firstWhere( $this->get( 'RelatedTransactions' ), 'RelationType', $type )['RelatedTransactionKey'] ?? null;
+	}
 
-    public function getStatusCode(): ?int
-    {
-        return $this->get('Status.Code.Code');
-    }
+	public function isRefund(): bool {
+		return $this->getRelatedTransactions() !== null;
+	}
 
-    public function getSubStatusCode(): ?string
-    {
-        return $this->get('Status.SubCode.Code');
-    }
+	public function getStatusCode(): ?int {
+		return $this->get( 'Status.Code.Code' );
+	}
 
-    public function getPayerHash(): ?string
-    {
-        return $this->get('PayerHash');
-    }
+	public function getSubStatusCode(): ?string {
+		return $this->get( 'Status.SubCode.Code' );
+	}
 
-    public function getPaymentKey(): ?string
-    {
-        return $this->get('PaymentKey');
-    }
+	public function getPayerHash(): ?string {
+		return $this->get( 'PayerHash' );
+	}
 
-    public function getRefundParentKey(): ?string
-    {
-        return $this->getRelatedTransactions();
-    }
+	public function getPaymentKey(): ?string {
+		return $this->get( 'PaymentKey' );
+	}
 
-    public function getServiceParameter($name, $service = null)
-    {
-        $service = $service ?? $this->getPaymentMethod();
+	public function getRefundParentKey(): ?string {
+		return $this->getRelatedTransactions();
+	}
 
-        return $this->firstWhere($this->getServiceParameters($service), 'name', ucfirst($name))['value'] ?? null;
-    }
+	public function getServiceParameter( $name, $service = null ) {
+		$service = $service ?? $this->getPaymentMethod();
 
-    public function getServiceParameters($name)
-    {
-        $service = $this->getService($name);
-        return $service['parameters'] ?? null;
-    }
+		return $this->firstWhere( $this->getServiceParameters( $service ), 'name', ucfirst( $name ) )['value'] ?? null;
+	}
 
-    public function isTest(): bool
-    {
-        return filter_var( $this->get('IsTest'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
-    }
+	public function getServiceParameters( $name ) {
+		$service = $this->getService( $name );
+		return $service['parameters'] ?? null;
+	}
 
-    public function getRealOrderId()
-    {
-        return $this->getAdditionalInformation('real_order_id');
-    }
+	public function isTest(): bool {
+		return filter_var( $this->get( 'IsTest' ), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+	}
 
-    public function getAdditionalInformation($propertyName)
-    {
-        return $this->firstWhere($this->get('AdditionalParameters.List'), 'Name', $propertyName)['Value'] ?? null;
-    }
+	public function getRealOrderId() {
+		return $this->getAdditionalInformation( 'real_order_id' );
+	}
+
+	public function getAdditionalInformation( $propertyName ) {
+		return $this->firstWhere( $this->get( 'AdditionalParameters.List' ), 'Name', $propertyName )['Value'] ?? null;
+	}
 }

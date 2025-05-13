@@ -11,7 +11,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway {
 	public $paymentmethodppe;
 	public $frontendVisible;
 
-    public bool $usePayPerLink = false;
+	public bool $usePayPerLink = false;
 
 	protected array $supportedCurrencies = array(
 		'ARS',
@@ -172,26 +172,26 @@ class PayPerEmailGateway extends AbstractPaymentGateway {
 		$this->frontendVisible  = $this->get_option( 'show_PayPerEmail_frontend', '' );
 	}
 
-    protected function isEnabled() {
-        return $this->get_option( 'enabled' ) === 'yes';
-    }
+	protected function isEnabled() {
+		return $this->get_option( 'enabled' ) === 'yes';
+	}
 
-    protected function canShowPayPerEmail( $status ) {
-        return $this->isEnabled()
-            && in_array( $status, array( 'auto-draft', 'pending', 'on-hold' ) )
-            && $this->get_option( 'show_PayPerEmail' ) === 'TRUE';
-    }
+	protected function canShowPayPerEmail( $status ) {
+		return $this->isEnabled()
+			&& in_array( $status, array( 'auto-draft', 'pending', 'on-hold' ) )
+			&& $this->get_option( 'show_PayPerEmail' ) === 'TRUE';
+	}
 
-    protected function canShowPaylink( $status ) {
-        return $this->isEnabled()
-            && in_array( $status, array( 'pending', 'on-hold', 'failed' ) )
-            && $this->get_option( 'show_PayLink' ) === 'TRUE';
-    }
+	protected function canShowPaylink( $status ) {
+		return $this->isEnabled()
+			&& in_array( $status, array( 'pending', 'on-hold', 'failed' ) )
+			&& $this->get_option( 'show_PayLink' ) === 'TRUE';
+	}
 
-    public function handleHooks() {
-        add_action(
-            'woocommerce_admin_order_actions_end',
-            function ( $order ) {
+	public function handleHooks() {
+		add_action(
+			'woocommerce_admin_order_actions_end',
+			function ( $order ) {
 				if ( ! $order instanceof WC_Order ) {
 					return;
 				}
@@ -223,19 +223,19 @@ class PayPerEmailGateway extends AbstractPaymentGateway {
 
 				foreach ( array_filter( $buttons, fn( $b ) => $b['enabled'] ) as $button ) {
 					printf(
-                        '<a class="wc-buckaroo-action-button button tips wc-action-button wc-action-button-%1$s %1$s" href="%2$s" data-tip="%3$s">%4$s</a>',
-                        esc_attr( $button['icon'] ),
-                        esc_url( $button['url'] ),
-                        esc_attr( $button['tooltip'] ),
-                        esc_html( $button['label'] )
+						'<a class="wc-buckaroo-action-button button tips wc-action-button wc-action-button-%1$s %1$s" href="%2$s" data-tip="%3$s">%4$s</a>',
+						esc_attr( $button['icon'] ),
+						esc_url( $button['url'] ),
+						esc_attr( $button['tooltip'] ),
+						esc_html( $button['label'] )
 					);
 				}
 			}
-        );
+		);
 
-        add_filter(
-            'woocommerce_order_actions',
-            function ( $actions ) {
+		add_filter(
+			'woocommerce_order_actions',
+			function ( $actions ) {
 				global $theorder;
 				if ( $this->isEnabled() ) {
 					$status = $theorder->get_status();
@@ -248,38 +248,38 @@ class PayPerEmailGateway extends AbstractPaymentGateway {
 				}
 				return $actions;
 			}
-        );
+		);
 
-        add_action(
-            'woocommerce_order_action_buckaroo_send_admin_payperemail',
-            function ( $order ) {
-                $response = $this->process_payment( $order->get_id() );
-                wp_redirect( $response );
+		add_action(
+			'woocommerce_order_action_buckaroo_send_admin_payperemail',
+			function ( $order ) {
+				$response = $this->process_payment( $order->get_id() );
+				wp_redirect( $response );
 			}
-        );
+		);
 
-        add_action(
-            'wp_ajax_buckaroo_send_admin_payperemail',
-            function () {
+		add_action(
+			'wp_ajax_buckaroo_send_admin_payperemail',
+			function () {
 				$orderId = absint( $_GET['order_id'] ?? 0 );
 				$this->process_payment( $orderId );
 				wp_safe_redirect( wp_get_referer() ?: admin_url( 'edit.php?post_type=shop_order' ) );
 				exit;
 			}
-        );
+		);
 
-        add_action(
-            'woocommerce_order_action_buckaroo_create_paylink',
-            function ( $order ) {
-                $this->usePayPerLink = true;
-                $response            = $this->process_payment( $order->get_id() );
-                wp_redirect( $response );
+		add_action(
+			'woocommerce_order_action_buckaroo_create_paylink',
+			function ( $order ) {
+				$this->usePayPerLink = true;
+				$response            = $this->process_payment( $order->get_id() );
+				wp_redirect( $response );
 			}
-        );
+		);
 
-        add_action(
-            'wp_ajax_buckaroo_create_paylink',
-            function () {
+		add_action(
+			'wp_ajax_buckaroo_create_paylink',
+			function () {
 				$orderId             = absint( $_GET['order_id'] ?? 0 );
 				$this->usePayPerLink = true;
 				$this->process_payment( $orderId );
@@ -287,6 +287,6 @@ class PayPerEmailGateway extends AbstractPaymentGateway {
 				wp_safe_redirect( wp_get_referer() ?: admin_url( 'edit.php?post_type=shop_order' ) );
 				exit;
 			}
-        );
+		);
 	}
 }

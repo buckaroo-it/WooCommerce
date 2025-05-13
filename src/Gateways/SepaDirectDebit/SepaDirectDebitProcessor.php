@@ -37,22 +37,22 @@ class SepaDirectDebitProcessor extends AbstractPaymentProcessor {
 		return array();
 	}
 
-    public function beforeReturnHandler( ResponseParser $responseParser, string $redirectUrl ) {
-        if ( $responseParser->isSuccess() ) {
-            $params = $responseParser->get( 'Services.Service.ResponseParameter' );
-            $order  = $this->get_order();
+	public function beforeReturnHandler( ResponseParser $responseParser, string $redirectUrl ) {
+		if ( $responseParser->isSuccess() ) {
+			$params = $responseParser->get( 'Services.Service.ResponseParameter' );
+			$order  = $this->get_order();
 
-            if ( ! is_array( $params ) ) {
-                return;
-            }
-            foreach ( $params as $param ) {
-                if ( $param->Name === 'MandateReference' ) {
-                    $order->add_order_note( 'MandateReference: ' . $param->_, 1 );
-                }
-                if ( $param->Name === 'MandateDate' ) {
-                    $order->add_order_note( 'MandateDate: ' . $param->_, 1 );
-                }
-            }
-        }
-    }
+			if ( ! is_array( $params ) ) {
+				return;
+			}
+			foreach ( $params as $param ) {
+				if ( $param->Name === 'MandateReference' ) {
+					$order->add_order_note( 'MandateReference: ' . $param->_, 1 );
+				}
+				if ( $param->Name === 'MandateDate' ) {
+					$order->add_order_note( 'MandateDate: ' . $param->_, 1 );
+				}
+			}
+		}
+	}
 }

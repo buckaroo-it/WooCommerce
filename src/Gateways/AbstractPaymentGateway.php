@@ -496,14 +496,14 @@ class AbstractPaymentGateway extends WC_Payment_Gateway {
 		$processor = $this->newPaymentProcessorInstance( $order );
 		$payment   = new BuckarooClient( $this->getMode() );
 
-        $capturePayload = array(
-            'amountDebit'            => $capture_amount,
-            'originalTransactionKey' => $order->get_transaction_id(),
-        );
+		$capturePayload = array(
+			'amountDebit'            => $capture_amount,
+			'originalTransactionKey' => $order->get_transaction_id(),
+		);
 
-        if ( $this instanceof KlarnaKpGateway ) {
-            unset( $capturePayload['originalTransactionKey'] );
-        }
+		if ( $this instanceof KlarnaKpGateway ) {
+			unset( $capturePayload['originalTransactionKey'] );
+		}
 
 		$res = $payment->process( $processor, $capturePayload );
 
@@ -691,7 +691,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway {
 		}
 
 		$processorClass = $this->get_payment_class( $order );
-        Logger::log( __METHOD__ . '|1|', $processorClass );
+		Logger::log( __METHOD__ . '|1|', $processorClass );
 
 		return new $processorClass(
 			$this,
@@ -722,7 +722,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway {
 		return false;
 	}
 
-    public function isVisibleInCheckout(): bool {
-        return $this->enabled == 'yes' && $this->checkCurrencySupported();
-    }
+	public function isVisibleInCheckout(): bool {
+		return $this->enabled == 'yes' && $this->checkCurrencySupported();
+	}
 }

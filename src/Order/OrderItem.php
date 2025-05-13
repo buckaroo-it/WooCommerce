@@ -75,8 +75,8 @@ class OrderItem {
 			return $this->order_item->get_method_id();
 		}
 		return empty( $this->order_item->get_name() ) ?
-            bin2hex( random_bytes( 16 ) ) :
-            sanitize_title( $this->order_item->get_name() );
+			bin2hex( random_bytes( 16 ) ) :
+			sanitize_title( $this->order_item->get_name() );
 	}
 
 	/**

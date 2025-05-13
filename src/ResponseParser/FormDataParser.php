@@ -85,16 +85,16 @@ class FormDataParser extends ResponseParser {
 	}
 
 	public function getService( $name ) {
-        return $this->getServiceParameter( $name );
+		return $this->getServiceParameter( $name );
 	}
 
-    public function getServiceParameter( $name, $service = null ) {
-        $service = strtolower( $this->getPaymentMethod() ?? $this->getPrimaryService() );
+	public function getServiceParameter( $name, $service = null ) {
+		$service = strtolower( $this->getPaymentMethod() ?? $this->getPrimaryService() );
 
-        return $this->get( 'brq_SERVICE_' . $service . '_' . $name );
-    }
+		return $this->get( 'brq_SERVICE_' . $service . '_' . $name );
+	}
 
-    public function getPaymentMethod(): ?string {
+	public function getPaymentMethod(): ?string {
 		return $this->get( 'brq_transaction_method' ) ?? $this->get( 'brq_payment_method' );
 	}
 

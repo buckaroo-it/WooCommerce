@@ -15,9 +15,9 @@ class Helper {
 		return in_array( $status_code, array( ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER, ResponseStatus::BUCKAROO_STATUSCODE_REJECTED ) );
 	}
 
-    public static function isOrderInstance( $instance ): bool {
-        return $instance instanceof Order || $instance instanceof WC_Order;
-    }
+	public static function isOrderInstance( $instance ): bool {
+		return $instance instanceof Order || $instance instanceof WC_Order;
+	}
 
 	public static function findOrder( $order_id ) {
 		return self::isWooCommerceVersion3OrGreater() ?
@@ -25,16 +25,16 @@ class Helper {
 	}
 
 	public static function resolveOrder( $input ) {
-        if ( static::isOrderInstance( $input ) ) {
-            return $input;
-        }
+		if ( static::isOrderInstance( $input ) ) {
+			return $input;
+		}
 
-        if ( $input instanceof WP_Post || is_scalar( $input ) ) {
-            return self::findOrder( $input );
-        }
+		if ( $input instanceof WP_Post || is_scalar( $input ) ) {
+			return self::findOrder( $input );
+		}
 
-        return null;
-    }
+		return null;
+	}
 
 	/**
 	 * Checks if WooCommerce Version 3 or greater is installed

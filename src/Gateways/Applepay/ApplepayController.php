@@ -164,7 +164,7 @@ class ApplepayController {
 	}
 
 	public static function calculate_fee( $cart ) {
-        WC()->session->set( 'chosen_payment_method', 'buckaroo_applepay' );
+		WC()->session->set( 'chosen_payment_method', 'buckaroo_applepay' );
 		$cart->calculate_totals();
 
 		$feed_settings = self::get_extra_feed_settings();

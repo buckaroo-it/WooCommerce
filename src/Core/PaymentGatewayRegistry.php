@@ -82,7 +82,7 @@ class PaymentGatewayRegistry {
 		return $this;
 	}
 
-    public function newGatewayInstance( $method ) {
+	public function newGatewayInstance( $method ) {
 		if ( is_string( $method ) ) {
 			$method = $this->getAllGateways()[ strtolower( $method ) ] ?? null;
 		}

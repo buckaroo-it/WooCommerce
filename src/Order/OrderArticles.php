@@ -180,17 +180,17 @@ class OrderArticles {
 	 * @return float
 	 */
 	protected function sum_products_amount( array $products ) {
-        return Helper::roundAmount(
-            array_reduce(
-                $products,
-                function ( $carier, $product ) {
-                    if ( isset( $product['price'] ) && isset( $product['quantity'] ) ) {
-                        return $carier + ( $product['price'] * $product['quantity'] );
-                    }
-                    return $carier;
-                },
+		return Helper::roundAmount(
+			array_reduce(
+				$products,
+				function ( $carier, $product ) {
+					if ( isset( $product['price'] ) && isset( $product['quantity'] ) ) {
+						return $carier + ( $product['price'] * $product['quantity'] );
+					}
+					return $carier;
+				},
 				0
-            )
-        );
+			)
+		);
 	}
 }

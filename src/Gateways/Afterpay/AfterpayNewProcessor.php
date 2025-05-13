@@ -43,10 +43,10 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor {
 		$data         = array(
 			'billing' => array(
 				'recipient' => array(
-					'category'       => $this->getCategory( 'billing' ),
-					'careOf'         => $this->getCareOf( 'billing' ),
-					'firstName'      => $this->getAddress( 'billing', 'first_name' ),
-					'lastName'       => $this->getAddress( 'billing', 'last_name' ),
+					'category'  => $this->getCategory( 'billing' ),
+					'careOf'    => $this->getCareOf( 'billing' ),
+					'firstName' => $this->getAddress( 'billing', 'first_name' ),
+					'lastName'  => $this->getAddress( 'billing', 'last_name' ),
 				),
 				'address'   => array(
 					'street'                => $streetParts->get_street(),
@@ -194,10 +194,10 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor {
 		$data = array(
 			'shipping' => array(
 				'recipient' => array(
-					'category'       => $this->getCategory( 'shipping' ),
-					'careOf'         => $this->getCareOf( 'shipping' ),
-					'firstName'      => $this->getAddress( 'shipping', 'first_name' ),
-					'lastName'       => $this->getAddress( 'shipping', 'last_name' ),
+					'category'  => $this->getCategory( 'shipping' ),
+					'careOf'    => $this->getCareOf( 'shipping' ),
+					'firstName' => $this->getAddress( 'shipping', 'first_name' ),
+					'lastName'  => $this->getAddress( 'shipping', 'last_name' ),
 				),
 				'address'   => array(
 					'street'                => $streetParts->get_street(),
@@ -216,14 +216,14 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor {
 		);
 	}
 
-    public function unsuccessfulReturnHandler( ResponseParser $responseParser, string $redirectUrl ) {
-        if ( $responseParser->getStatusCode() === ResponseStatus::BUCKAROO_STATUSCODE_REJECTED ) {
-            wc_add_notice( __( $responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway' ), 'error' );
+	public function unsuccessfulReturnHandler( ResponseParser $responseParser, string $redirectUrl ) {
+		if ( $responseParser->getStatusCode() === ResponseStatus::BUCKAROO_STATUSCODE_REJECTED ) {
+			wc_add_notice( __( $responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway' ), 'error' );
 
-            return array(
+			return array(
 				'redirect' => $redirectUrl,
 				'result'   => $redirectUrl,
 			);
-        }
-    }
+		}
+	}
 }

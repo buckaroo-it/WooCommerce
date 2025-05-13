@@ -21,7 +21,7 @@ class KlarnaKpGateway extends KlarnaGateway {
 		$this->method_title        = 'Buckaroo Klarna Pay later (authorize/capture)';
 		$this->has_fields          = true;
 		$this->type                = 'klarnakp';
-        $this->klarnaPaymentFlowId = 'pay';
+		$this->klarnaPaymentFlowId = 'pay';
 
 		$this->setIcon( 'svg/klarna.svg' );
 		$this->setCountry();
@@ -57,7 +57,7 @@ class KlarnaKpGateway extends KlarnaGateway {
 	}
 
 
-    /**
+	/**
 	 * Process payment
 	 *
 	 * @param integer $order_id
@@ -136,11 +136,11 @@ class KlarnaKpGateway extends KlarnaGateway {
 	}
 
 	public function canShowCaptureForm( $order ): bool {
-        $order = Helper::resolveOrder( $order );
+		$order = Helper::resolveOrder( $order );
 
-        if ( ! $order instanceof WC_Order ) {
-            return false;
-        }
+		if ( ! $order instanceof WC_Order ) {
+			return false;
+		}
 
 		return $order->get_meta( 'buckaroo_is_reserved' ) === 'yes';
 	}

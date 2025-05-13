@@ -28,13 +28,13 @@ class ReportPage extends WP_List_Table {
 	Total items in file
 
 	@var int
-     */
+	 */
 	protected $total_items = 0;
 	/**
 	Items per page
 
 	@var integer
-     */
+	 */
 	protected $per_page = 20;
 
 	protected $file_raport_lines = array();
@@ -43,7 +43,7 @@ class ReportPage extends WP_List_Table {
 
 	/**
 	Constructor.
-     */
+	 */
 	public function __construct() {
 		parent::__construct(
 			array(
@@ -57,7 +57,7 @@ class ReportPage extends WP_List_Table {
 
 	/**
 	Get total lines from file
-     */
+	 */
 	protected function set_total_items_count() {
 		$this->total_items = $this->get_total_items_count_for_storage();
 	}
@@ -66,7 +66,7 @@ class ReportPage extends WP_List_Table {
 	Get total count for database storage
 
 	@return void
-     */
+	 */
 	public function get_total_items_count_for_storage() {
 		$storage = LoggerStorage::getStorage();
 		if ( strlen( $storage ) === 0 || $storage === LoggerStorage::STORAGE_ALL ) {
@@ -81,14 +81,14 @@ class ReportPage extends WP_List_Table {
 
 	/**
 	No items found text.
-     */
+	 */
 	public function no_items() {
 		esc_html__( 'No log data found.', 'wc-buckaroo-bpe-gateway' );
 	}
 
 	/**
 	Output the report.
-     */
+	 */
 	public function output_report() {
 		$this->prepare_items();
 		echo '<style>#date {min-width:130px;} #index {min-width:30px;}</style><div id="buckaroo-report" class="woocommerce-reports-wide">';
@@ -98,7 +98,7 @@ class ReportPage extends WP_List_Table {
 
 	/**
 	Prepare report list items.
-     */
+	 */
 	public function prepare_items() {
 		$this->_column_headers = array( $this->get_columns(), array(), array() );
 		$current_page          = absint( $this->get_pagenum() );
@@ -120,7 +120,7 @@ class ReportPage extends WP_List_Table {
 	Get columns.
 
 	@return array
-     */
+	 */
 	public function get_columns() {
 		$columns = array(
 			'index'       => esc_html__( 'Error no', 'wc-buckaroo-bpe-gateway' ),
@@ -137,7 +137,7 @@ class ReportPage extends WP_List_Table {
 	@param int $current_page Current page
 
 	@return array $items
-     */
+	 */
 	public function get_items( $current_page ) {
 		return $this->get_items_from_storage( $current_page );
 	}
@@ -146,7 +146,7 @@ class ReportPage extends WP_List_Table {
 	Get items for current page from selected storage
 
 	@return void
-     */
+	 */
 	public function get_items_from_storage( $current_page ) {
 		$storage = LoggerStorage::getStorage();
 		$method  = $this->get_storage_method( $storage );
@@ -163,7 +163,7 @@ class ReportPage extends WP_List_Table {
 	@param string $storage
 
 	@return string
-     */
+	 */
 	protected function get_storage_method( $storage ) {
 		if ( strlen( $storage ) === 0 || $storage === LoggerStorage::STORAGE_ALL ) {
 			$storage = LoggerStorage::STORAGE_FILE;
@@ -176,7 +176,7 @@ class ReportPage extends WP_List_Table {
 
 	@param mixed  $item
 	@param string $column_name
-     */
+	 */
 	public function column_default( $item, $column_name ) {
 		return $item[ $column_name ];
 	}
@@ -185,7 +185,7 @@ class ReportPage extends WP_List_Table {
 	Get total count for file storage
 
 	@return void
-     */
+	 */
 	public function get_total_count_database() {
 		global $wpdb;
 		$wpdb->hide_errors();
@@ -238,7 +238,7 @@ class ReportPage extends WP_List_Table {
 	Get total count for file storage
 
 	@return void
-     */
+	 */
 	public function get_total_count_file() {
 		$directory = LoggerStorage::get_file_storage_location();
 		$logs      = glob( $directory . '*.log' );
@@ -251,7 +251,7 @@ class ReportPage extends WP_List_Table {
 	@param int $current_page
 
 	@return array
-     */
+	 */
 	protected function get_page_item_from_file( $current_page ) {
 		$directory = LoggerStorage::get_file_storage_location();
 		$logs      = glob( $directory . '*.log' );

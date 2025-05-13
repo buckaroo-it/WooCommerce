@@ -11,8 +11,8 @@ class IdealProcessor extends AbstractPaymentProcessor {
 	protected $data;
 
 	protected function getMethodBody(): array {
-        return array(
-            'continueOnIncomplete' => true,
-        );
+		return array(
+			'continueOnIncomplete' => true,
+		);
 	}
 }

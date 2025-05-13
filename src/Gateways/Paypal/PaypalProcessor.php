@@ -71,9 +71,9 @@ class PaypalProcessor extends AbstractPaymentProcessor {
 		);
 	}
 
-    public function beforeReturnHandler( ResponseParser $responseParser ) {
-        if ( $responseParser->get( 'coreStatus' ) === BuckarooTransactionStatus::STATUS_ON_HOLD ) {
-            $responseParser->set( 'coreStatus', BuckarooTransactionStatus::STATUS_CANCELLED );
-        }
-    }
+	public function beforeReturnHandler( ResponseParser $responseParser ) {
+		if ( $responseParser->get( 'coreStatus' ) === BuckarooTransactionStatus::STATUS_ON_HOLD ) {
+			$responseParser->set( 'coreStatus', BuckarooTransactionStatus::STATUS_CANCELLED );
+		}
+	}
 }

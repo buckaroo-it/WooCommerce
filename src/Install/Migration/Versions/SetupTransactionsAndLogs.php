@@ -20,7 +20,7 @@ use Buckaroo\Woocommerce\Install\Migration\Migration;
 use Buckaroo\Woocommerce\Services\LoggerStorage;
 
 class SetupTransactionsAndLogs implements Migration {
-    public $version = '2.24.1';
+	public $version = '2.24.1';
 
 	public function execute() {
 		global $wpdb;
@@ -121,4 +121,4 @@ class SetupTransactionsAndLogs implements Migration {
 		}
 		return $collate;
 	}
-};
+}

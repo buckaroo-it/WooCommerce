@@ -123,11 +123,11 @@ class ApplepayGateway extends AbstractPaymentGateway {
 			);
 
 			if ( $orderResult ) {
-                $result = $this->process_payment( $orderResult['data']['id'] );
-                Logger::log( __METHOD__ . '|1|', $result );
+				$result = $this->process_payment( $orderResult['data']['id'] );
+				Logger::log( __METHOD__ . '|1|', $result );
 
-                echo json_encode( $result );
-                exit;
+				echo json_encode( $result );
+				exit;
 			} else {
 				$this->error_response( 'Error while creation of WooCommerce order' );
 			}

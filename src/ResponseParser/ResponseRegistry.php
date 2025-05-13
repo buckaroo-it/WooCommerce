@@ -22,19 +22,19 @@ class ResponseRegistry {
 		}
 	}
 
-    final public static function getResponseFromRequest(): ResponseParser {
-        if (
-            isset( $_SERVER['REQUEST_METHOD'] ) &&
-            $_SERVER['REQUEST_METHOD'] === 'POST' &&
-            str_contains( $_SERVER['CONTENT_TYPE'] ?? '', 'application/json' )
-        ) {
-            $data = json_decode( file_get_contents( 'php://input' ), true ) ?: array();
-        } elseif ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
-            $data = $_POST;
-        } else {
-            $data = $_GET;
-        }
+	final public static function getResponseFromRequest(): ResponseParser {
+		if (
+			isset( $_SERVER['REQUEST_METHOD'] ) &&
+			$_SERVER['REQUEST_METHOD'] === 'POST' &&
+			str_contains( $_SERVER['CONTENT_TYPE'] ?? '', 'application/json' )
+		) {
+			$data = json_decode( file_get_contents( 'php://input' ), true ) ?: array();
+		} elseif ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
+			$data = $_POST;
+		} else {
+			$data = $_GET;
+		}
 
-        return self::getResponse( $data );
-    }
+		return self::getResponse( $data );
+	}
 }

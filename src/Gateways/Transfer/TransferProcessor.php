@@ -39,13 +39,13 @@ class TransferProcessor extends AbstractPaymentProcessor {
 		return $this->gateway->get_option( 'sendmail' ) == 'TRUE';
 	}
 
-    public function unsuccessfulReturnHandler( ResponseParser $responseParser, string $redirectUrl ) {
-        Logger::log( 'Transfer status check: ' . $responseParser->getStatusCode() );
-        if ( Helper::handleUnsuccessfulPayment( $responseParser->getStatusCode() ) ) {
-            return array(
+	public function unsuccessfulReturnHandler( ResponseParser $responseParser, string $redirectUrl ) {
+		Logger::log( 'Transfer status check: ' . $responseParser->getStatusCode() );
+		if ( Helper::handleUnsuccessfulPayment( $responseParser->getStatusCode() ) ) {
+			return array(
 				'result'   => 'error',
 				'redirect' => $redirectUrl,
 			);
-        }
-    }
+		}
+	}
 }

@@ -17,7 +17,7 @@ class GeneralSettings extends WC_Settings_Page {
 	 */
 	public function __construct( WC_Settings_API $gateway ) {
 		$this->gateway = $gateway;
-        Logger::log( __METHOD__ . '|1|', $_POST );
+		Logger::log( __METHOD__ . '|1|', $_POST );
 		$this->id    = 'buckaroo_settings';
 		$this->label = __( 'Buckaroo Settings', 'wc-buckaroo-bpe-gateway' );
 		parent::__construct();

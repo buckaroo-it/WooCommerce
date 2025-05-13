@@ -13,8 +13,8 @@ class PaymentMethodSettings extends AbstractPaymentGateway {
 		$this->title        = 'Master Settings';
 		$this->has_fields   = false;
 		$this->method_title = __(
-            'Buckaroo Master Settings',
-            'wc-buckaroo-bpe-gateway'
+			'Buckaroo Master Settings',
+			'wc-buckaroo-bpe-gateway'
 		);
 		parent::__construct();
 	}
@@ -22,7 +22,7 @@ class PaymentMethodSettings extends AbstractPaymentGateway {
 	/**
 
 		public
-     */
+	 */
 	public function init_form_fields() {
 		$this->id = ( ! isset( $this->id ) ? '' : $this->id );
 
@@ -77,11 +77,11 @@ class PaymentMethodSettings extends AbstractPaymentGateway {
 			'title'       => __( 'Language', 'wc-buckaroo-bpe-gateway' ),
 			'type'        => 'select',
 			'description' => __(
-                "The chosen language (culture) for the Buckaroo payment engine <br>page.
+				"The chosen language (culture) for the Buckaroo payment engine <br>page.
 When this is set to “Dynamic language” the plugin will <br>automatically determine the language based on the
 language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>
 English will be used as a fallback language for unknown language types.",
-                'wc-buckaroo-bpe-gateway'
+				'wc-buckaroo-bpe-gateway'
 			),
 			'options'     => array(
 				'dynamic' => 'Dynamic language (based on the web browser language)',
@@ -149,10 +149,10 @@ English will be used as a fallback language for unknown language types.",
 
 		$idinCategories = array();
 		if ( $categories = get_terms(
-            array(
+			array(
 				'taxonomy'   => 'product_cat',
 				'hide_empty' => false,
-            )
+			)
 		)
 		) {
 			foreach ( $categories as $category ) {
