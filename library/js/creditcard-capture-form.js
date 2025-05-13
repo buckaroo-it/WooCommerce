@@ -113,7 +113,7 @@ jQuery(document).ready(function () {
         jQuery('.capture_line_tax', $row).each(function () {
             var $refund_line_total_tax = jQuery(this);
             var tax_id = $refund_line_total_tax.data('tax_id');
-            var line_total_tax = jQuery('input.line_tax[data-tax_id="' + tax_id + '"]', $row);
+          var line_total_tax = jQuery('input.line_tax[data-tax_id="' + tax_id + '"]', $row);
             var unit_total_tax =
                 accounting.unformat(line_total_tax.data('total_tax'), woocommerce_admin.mon_decimal_point) / qty;
 
