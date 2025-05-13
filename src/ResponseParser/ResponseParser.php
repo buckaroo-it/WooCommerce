@@ -2,157 +2,175 @@
 
 namespace Buckaroo\Woocommerce\ResponseParser;
 
-use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use Buckaroo\Woocommerce\Constraints\BuckarooTransactionStatus;
-use Buckaroo\Woocommerce\Services\Helper;
+use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 
-abstract class ResponseParser implements IResponseParser {
+abstract class ResponseParser implements IResponseParser
+{
+    protected array $items;
 
-	protected array $items;
-	protected array $unformattedItems;
+    protected array $unformattedItems;
 
-	public function __construct( array $items = array() ) {
-		$this->unformattedItems = $items;
-		$this->items            = $this->normalizeItems( $items );
-	}
+    public function __construct(array $items = [])
+    {
+        $this->unformattedItems = $items;
+        $this->items = $this->normalizeItems($items);
+    }
 
-	protected function normalizeItems( array $array ): array {
-		$result = array();
+    protected function normalizeItems(array $array): array
+    {
+        $result = [];
 
-		foreach ( $array as $key => $value ) {
-			$lowerKey = is_string( $key ) ? strtolower( $key ) : $key;
+        foreach ($array as $key => $value) {
+            $lowerKey = is_string($key) ? strtolower($key) : $key;
 
-			if ( is_array( $value ) ) {
-				$result[ $lowerKey ] = $this->normalizeItems( $value );
-			} else {
-				$result[ $lowerKey ] = $value;
-			}
-		}
+            if (is_array($value)) {
+                $result[$lowerKey] = $this->normalizeItems($value);
+            } else {
+                $result[$lowerKey] = $value;
+            }
+        }
 
-		return $result;
-	}
+        return $result;
+    }
 
-	public static function make( $items = array() ) {
-		$filtered = array_filter(
-			$items,
-			function ( $item, $key ) {
-				return str_starts_with( strtolower( $key ), 'brq_' );
-			},
-			ARRAY_FILTER_USE_BOTH
-		);
+    public static function make($items = [])
+    {
+        $filtered = array_filter(
+            $items,
+            function ($item, $key) {
+                return str_starts_with(strtolower($key), 'brq_');
+            },
+            ARRAY_FILTER_USE_BOTH
+        );
 
-		if ( empty( $filtered ) ) {
-			return new JsonParser( $items );
-		} else {
-			return new FormDataParser( $items );
-		}
-	}
+        if (empty($filtered)) {
+            return new JsonParser($items);
+        } else {
+            return new FormDataParser($items);
+        }
+    }
 
-	public function get( $key = null, $default = null, $formatted = true ) {
-		return $this->getDeep( $formatted ? $this->items : $this->unformattedItems, $key ? strtolower( $key ) : null, $default );
-	}
+    public function get($key = null, $default = null, $formatted = true)
+    {
+        return $this->getDeep($formatted ? $this->items : $this->unformattedItems, $key ? strtolower($key) : null, $default);
+    }
 
-	protected function getDeep( $array, $key, $default = null ) {
-		if ( ! is_array( $array ) ) {
-			return $default;
-		}
+    protected function getDeep($array, $key, $default = null)
+    {
+        if (! is_array($array)) {
+            return $default;
+        }
 
-		if ( is_null( $key ) || empty( $key ) ) {
-			return $array;
-		}
+        if (is_null($key) || empty($key)) {
+            return $array;
+        }
 
-		if ( isset( $array[ $key ] ) ) {
-			return $array[ $key ];
-		}
+        if (isset($array[$key])) {
+            return $array[$key];
+        }
 
-		$keys = explode( '.', $key );
+        $keys = explode('.', $key);
 
-		foreach ( $keys as $segment ) {
-			if ( is_array( $array ) && array_key_exists( $segment, $array ) ) {
-				$array = $array[ $segment ];
-			} else {
-				return $default;
-			}
-		}
+        foreach ($keys as $segment) {
+            if (is_array($array) && array_key_exists($segment, $array)) {
+                $array = $array[$segment];
+            } else {
+                return $default;
+            }
+        }
 
-		return $array;
-	}
+        return $array;
+    }
 
-	public function set( $key, $value ) {
-		$this->setDeep( $this->items, strtolower( $key ), $value );
-	}
+    public function set($key, $value)
+    {
+        $this->setDeep($this->items, strtolower($key), $value);
+    }
 
-	protected function setDeep( &$array, $key, $value ): void {
-		if ( ! is_array( $array ) ) {
-			$array = array();
-		}
+    protected function setDeep(&$array, $key, $value): void
+    {
+        if (! is_array($array)) {
+            $array = [];
+        }
 
-		$keys = explode( '.', $key );
+        $keys = explode('.', $key);
 
-		while ( count( $keys ) > 1 ) {
-			$segment = array_shift( $keys );
+        while (count($keys) > 1) {
+            $segment = array_shift($keys);
 
-			if ( ! isset( $array[ $segment ] ) || ! is_array( $array[ $segment ] ) ) {
-				$array[ $segment ] = array();
-			}
+            if (! isset($array[$segment]) || ! is_array($array[$segment])) {
+                $array[$segment] = [];
+            }
 
-			$array = &$array[ $segment ];
-		}
+            $array = &$array[$segment];
+        }
 
-		$array[ array_shift( $keys ) ] = $value;
-	}
+        $array[array_shift($keys)] = $value;
+    }
 
-	public function firstWhere( $array, $key, $value ) {
-		if ( is_array( $array ) ) {
-			foreach ( $array as $item ) {
-				if ( isset( $item[ $key ] ) && $item[ $key ] == $value ) {
-					return $item;
-				}
-			}
-		}
-		return null;
-	}
+    public function firstWhere($array, $key, $value)
+    {
+        if (is_array($array)) {
+            foreach ($array as $item) {
+                if (isset($item[$key]) && $item[$key] == $value) {
+                    return $item;
+                }
+            }
+        }
 
-	public function isOnHold(): bool {
-		return BuckarooTransactionStatus::fromTransactionStatus( $this->getStatusCode() ) == BuckarooTransactionStatus::STATUS_ON_HOLD;
-	}
+        return null;
+    }
 
-	public function isSuccess(): bool {
-		$buckarooTransactionStatus = BuckarooTransactionStatus::fromTransactionStatus( $this->getStatusCode() );
+    public function isOnHold(): bool
+    {
+        return BuckarooTransactionStatus::fromTransactionStatus($this->getStatusCode()) == BuckarooTransactionStatus::STATUS_ON_HOLD;
+    }
 
-		return ! ( $buckarooTransactionStatus === BuckarooTransactionStatus::STATUS_ON_HOLD && $this->getPaymentMethod() === 'paypal' ) &&
-			( $buckarooTransactionStatus === BuckarooTransactionStatus::STATUS_ON_HOLD || $buckarooTransactionStatus === BuckarooTransactionStatus::STATUS_COMPLETED );
-	}
+    public function isSuccess(): bool
+    {
+        $buckarooTransactionStatus = BuckarooTransactionStatus::fromTransactionStatus($this->getStatusCode());
 
-	public function isFailed(): bool {
-		$buckarooTransactionStatus = BuckarooTransactionStatus::fromTransactionStatus( $this->getStatusCode() );
+        return ! ($buckarooTransactionStatus === BuckarooTransactionStatus::STATUS_ON_HOLD && $this->getPaymentMethod() === 'paypal') &&
+            ($buckarooTransactionStatus === BuckarooTransactionStatus::STATUS_ON_HOLD || $buckarooTransactionStatus === BuckarooTransactionStatus::STATUS_COMPLETED);
+    }
 
-		return $buckarooTransactionStatus === BuckarooTransactionStatus::STATUS_FAILED;
-	}
+    public function isFailed(): bool
+    {
+        $buckarooTransactionStatus = BuckarooTransactionStatus::fromTransactionStatus($this->getStatusCode());
 
-	public function getStatusMessage(): bool {
-		return BuckarooTransactionStatus::getMessageFromCode( $this->getStatusCode() );
-	}
+        return $buckarooTransactionStatus === BuckarooTransactionStatus::STATUS_FAILED;
+    }
 
-	public function isPendingProcessing(): bool {
-		return BuckarooTransactionStatus::fromTransactionStatus( $this->getStatusCode() ) == BuckarooTransactionStatus::STATUS_PENDING ||
-			in_array( $this->getSubStatusCode(), array( 'P190', 'P191' ) );
-	}
+    public function getStatusMessage(): bool
+    {
+        return BuckarooTransactionStatus::getMessageFromCode($this->getStatusCode());
+    }
 
-	public function isPendingApproval(): bool {
-		return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_APPROVAL;
-	}
+    public function isPendingProcessing(): bool
+    {
+        return BuckarooTransactionStatus::fromTransactionStatus($this->getStatusCode()) == BuckarooTransactionStatus::STATUS_PENDING ||
+            in_array($this->getSubStatusCode(), ['P190', 'P191']);
+    }
 
-	public function isCanceled(): bool {
-		return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER
-			|| $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT;
-	}
+    public function isPendingApproval(): bool
+    {
+        return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_APPROVAL;
+    }
 
-	public function isAwaitingConsumer(): bool {
-		return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_WAITING_ON_CONSUMER;
-	}
+    public function isCanceled(): bool
+    {
+        return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_USER
+            || $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT;
+    }
 
-	protected function formatAmount( $amount ): ?float {
-		return is_numeric( $amount ) ? (float) $amount : null;
-	}
+    public function isAwaitingConsumer(): bool
+    {
+        return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_WAITING_ON_CONSUMER;
+    }
+
+    protected function formatAmount($amount): ?float
+    {
+        return is_numeric($amount) ? (float) $amount : null;
+    }
 }
