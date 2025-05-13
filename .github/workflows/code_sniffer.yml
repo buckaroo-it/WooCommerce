@@ -32,6 +32,7 @@ jobs:
 
             -   name: Run PHPCS via Composer script
                 run: composer phpcs
+
             ##### JS – Prettier #####################################################
             -   name: Set up Node
                 uses: actions/setup-node@v3
@@ -41,7 +42,9 @@ jobs:
                     cache-dependency-path: assets/js/package-lock.json
 
             -   name: Install JS deps
-                run: npm ci --prefix assets/js
+                working-directory: assets/js
+                run: npm ci
 
             -   name: Run Prettier check
-                run: npx --prefix assets/js prettier --check .
+                working-directory: assets/js
+                run: npx prettier --check .
