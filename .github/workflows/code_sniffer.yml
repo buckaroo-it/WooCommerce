@@ -1,36 +1,33 @@
 name: Code sniffer
-on: [push]
+on: [ push ]
 
 jobs:
-  code_sniffer:
-    name: Code sniffer
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+    code_sniffer:
+        name: Code sniffer
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                php: [ '7.4' ]
+        steps:
+            -   uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '7.4'
-          coverage: none
-          tools: composer, cs2pr, phpcs
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php }}
+                    coverage: none
 
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+            -   name: Cache composer
+                uses: actions/cache@v4
+                with:
+                    path: |
+                        vendor
+                        ~/.composer/cache
+                    key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+                    restore-keys: ${{ runner.os }}-composer-
 
-      - name: Setup cache
-        uses: pat-s/always-upload-cache@v1.1.4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          # Use the hash of composer.json as the key for your cache if you do not commit composer.lock.
-          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
+            -   name: Install dependencies
+                run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-suggest --no-progress
-
-      - name: Run code sniffer
-        run: composer phpcs --report=checkstyle | cs2pr --prepend-filename
+            -   name: Run PHPCS via Composer script
+                run: composer --quiet phpcs
