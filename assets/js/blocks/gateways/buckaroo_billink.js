@@ -7,88 +7,69 @@ import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
 
-function Billink( {
-	onStateChange,
-	methodName,
-	title,
-	gateway: { genders, b2b, financialWarning },
-	billing,
-	locale,
-} ) {
-	const initialState = {
-		[ `${ methodName }-company-coc-registration` ]: '',
-		[ `${ methodName }-VatNumber` ]: '',
-		[ `${ methodName }-gender` ]: '',
-		[ `${ methodName }-birthdate` ]: '',
-		[ `${ methodName }-b2b` ]: '',
-	};
+function Billink({ onStateChange, methodName, title, gateway: { genders, b2b, financialWarning }, billing, locale }) {
+    const initialState = {
+        [`${methodName}-company-coc-registration`]: '',
+        [`${methodName}-VatNumber`]: '',
+        [`${methodName}-gender`]: '',
+        [`${methodName}-birthdate`]: '',
+        [`${methodName}-b2b`]: '',
+    };
 
-	const { handleChange, updateFormState } = useFormData(
-		initialState,
-		onStateChange
-	);
-	const [ company, setCompany ] = useState( billing?.company || '' );
+    const { handleChange, updateFormState } = useFormData(initialState, onStateChange);
+    const [company, setCompany] = useState(billing?.company || '');
 
-	useEffect( () => {
-		setCompany( billing?.company || '' );
-	}, [ billing?.company ] );
-	const handleBirthDayChange = ( value ) => {
-		updateFormState( `${ methodName }-birthdate`, value );
-	};
+    useEffect(() => {
+        setCompany(billing?.company || '');
+    }, [billing?.company]);
+    const handleBirthDayChange = value => {
+        updateFormState(`${methodName}-birthdate`, value);
+    };
 
-	const handleTermsChange = ( value ) => {
-		updateFormState( `${ methodName }-accept`, value );
-	};
+    const handleTermsChange = value => {
+        updateFormState(`${methodName}-accept`, value);
+    };
 
-	return (
-		<div>
-			{ company !== '' ? (
-				<div id="buckaroo_billink_b2b">
-					<CoCField
-						methodName={ methodName }
-						handleChange={ handleChange }
-					/>
-					<p className="form-row form-row-wide validate-required">
-						<label htmlFor={ `${ methodName }-VatNumber` }>
-							{ __( 'VAT-number:', 'wc-buckaroo-bpe-gateway' ) }
-							<span className="required">*</span>
-						</label>
-						<input
-							id={ `${ methodName }-VatNumber` }
-							name={ `${ methodName }-VatNumber` }
-							className="input-text"
-							type="text"
-							maxLength="250"
-							autoComplete="off"
-							onChange={ handleChange }
-						/>
-					</p>
-				</div>
-			) : (
-				<div id="buckaroo_billink_b2c">
-					<GenderDropdown
-						paymentMethod={ methodName }
-						genders={ genders }
-						handleChange={ handleChange }
-					/>
-					<BirthDayField
-						paymentMethod={ methodName }
-						handleBirthDayChange={ handleBirthDayChange }
-						locale={ locale }
-					/>
-				</div>
-			) }
-			<TermsAndConditionsCheckbox
-				paymentMethod={ methodName }
-				handleTermsChange={ handleTermsChange }
-				billingData={ billing }
-				b2b={ b2b }
-			/>
-			{ financialWarning === 'enable' && (
-				<FinancialWarning title={ title } />
-			) }
-		</div>
-	);
+    return (
+        <div>
+            {company !== '' ? (
+                <div id="buckaroo_billink_b2b">
+                    <CoCField methodName={methodName} handleChange={handleChange} />
+                    <p className="form-row form-row-wide validate-required">
+                        <label htmlFor={`${methodName}-VatNumber`}>
+                            {__('VAT-number:', 'wc-buckaroo-bpe-gateway')}
+                            <span className="required">*</span>
+                        </label>
+                        <input
+                            id={`${methodName}-VatNumber`}
+                            name={`${methodName}-VatNumber`}
+                            className="input-text"
+                            type="text"
+                            maxLength="250"
+                            autoComplete="off"
+                            onChange={handleChange}
+                        />
+                    </p>
+                </div>
+            ) : (
+                <div id="buckaroo_billink_b2c">
+                    <GenderDropdown paymentMethod={methodName} genders={genders} handleChange={handleChange} />
+                    <BirthDayField
+                        paymentMethod={methodName}
+                        handleBirthDayChange={handleBirthDayChange}
+                        locale={locale}
+                    />
+                </div>
+            )}
+            <TermsAndConditionsCheckbox
+                paymentMethod={methodName}
+                handleTermsChange={handleTermsChange}
+                billingData={billing}
+                b2b={b2b}
+            />
+            {financialWarning === 'enable' && <FinancialWarning title={title} />}
+        </div>
+    );
 }
 
 export default Billink;

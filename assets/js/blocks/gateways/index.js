@@ -11,17 +11,17 @@ import buckaroo_payperemail from './buckaroo_payperemail';
 import buckaroo_sepadirectdebit from './buckaroo_sepadirectdebit';
 
 export const paymentGatewaysTemplates = {
-	buckaroo_afterpay,
-	buckaroo_afterpaynew,
-	buckaroo_billink,
-	buckaroo_creditcard,
-	buckaroo_in3,
-	buckaroo_klarnakp,
-	buckaroo_klarnapay,
-	buckaroo_klarnapii,
-	buckaroo_paybybank,
-	buckaroo_payperemail,
-	buckaroo_sepadirectdebit,
+    buckaroo_afterpay,
+    buckaroo_afterpaynew,
+    buckaroo_billink,
+    buckaroo_creditcard,
+    buckaroo_in3,
+    buckaroo_klarnakp,
+    buckaroo_klarnapay,
+    buckaroo_klarnapii,
+    buckaroo_paybybank,
+    buckaroo_payperemail,
+    buckaroo_sepadirectdebit,
 };
 
 export const separateCreditCards = [

@@ -9,19 +9,17 @@ use Buckaroo\Woocommerce\Hooks\HookRegistry;
  *
  * Main class responsible for initializing and registering plugin components.
  */
-class Plugin {
-
-	/**
-	 * Plugin version.
-	 *
-	 * @var string
-	 */
-	const  VERSION = '4.1.0';
+class Plugin
+{
+    /**
+     * Plugin version.
+     *
+     * @var string
+     */
+    public const VERSION = '4.1.0';
 
     /**
      * Instance of PaymentGatewayRegistry.
-     *
-     * @var PaymentGatewayRegistry
      */
     protected PaymentGatewayRegistry $gatewayRegistry;
 
@@ -30,36 +28,35 @@ class Plugin {
      *
      * Initializes the PaymentGatewayRegistry.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->gatewayRegistry = new PaymentGatewayRegistry();
     }
 
-    public function init(): void {
-		add_action( 'woocommerce_init', array( $this, 'registerGateways' ) );
+    public function init(): void
+    {
+        add_action('woocommerce_init', [$this, 'registerGateways']);
         new HookRegistry();
     }
 
     /**
      * Register payment gateways with WooCommerce.
-     *
-     * @return void
      */
-    public function registerGateways(): void {
+    public function registerGateways(): void
+    {
         $this->gatewayRegistry->load();
 
         add_filter(
             'woocommerce_payment_gateways',
-            array( $this->gatewayRegistry, 'hookGatewaysToWooCommerce' )
+            [$this->gatewayRegistry, 'hookGatewaysToWooCommerce']
         );
     }
 
-
     /**
      * Get the PaymentGatewayRegistry instance.
-     *
-     * @return PaymentGatewayRegistry
      */
-    public function getGatewayRegistry(): PaymentGatewayRegistry {
+    public function getGatewayRegistry(): PaymentGatewayRegistry
+    {
         return $this->gatewayRegistry;
     }
 }

@@ -13,10 +13,7 @@
         "buckaroo/sdk": "^1.14"
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "^3.7",
-        "wp-coding-standards/wpcs": "^2.3",
-        "phpcompatibility/phpcompatibility-wp": "^2.1",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
+        "squizlabs/php_codesniffer": "^3.9",
         "coenjacobs/mozart": "^0.7.1"
     },
     "autoload": {
@@ -38,8 +35,10 @@
         }
     },
     "scripts": {
-        "phpcs": "phpcs --standard=phpcs.xml src template",
+        "phpcs": "phpcs --standard=phpcs.xml src templates",
         "phpcbf": "phpcbf --standard=phpcs.xml src templates",
+        "prettier:blocks": "cd assets/js && npx prettier --write . --config ./.prettierrc.js",
+        "prettier:legacy": "cd assets/js && npx prettier --write ../../library --config ./.prettierrc.js",
         "post-install-cmd": [
             "vendor/bin/mozart compose",
             "composer dump-autoload -o"
@@ -54,5 +53,6 @@
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

@@ -4,15 +4,18 @@ namespace Buckaroo\Woocommerce\Gateways\Ideal;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 
-class IdealProcessor extends AbstractPaymentProcessor {
+class IdealProcessor extends AbstractPaymentProcessor
+{
+    public $issuer;
 
-	public $issuer;
-	public $channel;
-	protected $data;
+    public $channel;
 
-	protected function getMethodBody(): array {
-        return array(
+    protected $data;
+
+    protected function getMethodBody(): array
+    {
+        return [
             'continueOnIncomplete' => true,
-        );
-	}
+        ];
+    }
 }
