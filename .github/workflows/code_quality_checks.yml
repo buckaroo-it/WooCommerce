@@ -50,5 +50,5 @@ jobs:
                 run: npx prettier --check . --config ./.prettierrc.js
 
             -   name: Prettier legacy
-                working-directory: assets/js
+                working-directory: library
                 run: npx prettier --check . --config ../assets/js/.prettierrc.js
