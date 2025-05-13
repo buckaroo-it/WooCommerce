@@ -10,15 +10,13 @@
   ],
   "require": {
     "php": ">=7.4",
-    "buckaroo/sdk": "^1.14",
-    "inpsyde/modularity": "^1.12"
+    "buckaroo/sdk": "^1.14"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "^3.9",
     "wp-coding-standards/wpcs": "^3.1",
     "phpcsstandards/phpcsextra": "^1.2.1",
-    "coenjacobs/mozart": "^0.7.1",
-    "laravel/pint": "^1.22"
+    "coenjacobs/mozart": "^0.7.1"
   },
   "autoload": {
     "psr-4": {
