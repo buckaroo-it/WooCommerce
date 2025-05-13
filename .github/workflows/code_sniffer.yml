@@ -11,6 +11,7 @@ jobs:
         steps:
             -   uses: actions/checkout@v4
 
+            ##### PHP – PHPCS #######################################################
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
@@ -31,3 +32,16 @@ jobs:
 
             -   name: Run PHPCS via Composer script
                 run: composer phpcs
+            ##### JS – Prettier #####################################################
+            -   name: Set up Node
+                uses: actions/setup-node@v3
+                with:
+                    node-version: '20'
+                    cache: 'npm'
+                    cache-dependency-path: assets/js/package-lock.json
+
+            -   name: Install JS deps
+                run: npm ci --prefix assets/js
+
+            -   name: Run Prettier check
+                run: npx --prefix assets/js prettier --check .

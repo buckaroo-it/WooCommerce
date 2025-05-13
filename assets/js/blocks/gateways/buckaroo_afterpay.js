@@ -8,102 +8,71 @@ import PhoneDropdown from '../partials/buckaroo_phone';
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
 
-function AfterPayView( {
-	onStateChange,
-	methodName,
-	title,
-	gateway: { type, b2b, financialWarning },
-	billing,
-	locale,
-} ) {
-	const initialState = {
-		[ `${ methodName }-phone` ]: billing?.phone || '',
-		[ `${ methodName }-birthdate` ]: '',
-		[ `${ methodName }-b2b` ]: '',
-		[ `${ methodName }-company-coc-registration` ]: '',
-		[ `${ methodName }-company-name` ]: '',
-		[ `${ methodName }-accept` ]: '',
-	};
+function AfterPayView({ onStateChange, methodName, title, gateway: { type, b2b, financialWarning }, billing, locale }) {
+    const initialState = {
+        [`${methodName}-phone`]: billing?.phone || '',
+        [`${methodName}-birthdate`]: '',
+        [`${methodName}-b2b`]: '',
+        [`${methodName}-company-coc-registration`]: '',
+        [`${methodName}-company-name`]: '',
+        [`${methodName}-accept`]: '',
+    };
 
-	const { formState, handleChange, updateFormState } = useFormData(
-		initialState,
-		onStateChange
-	);
+    const { formState, handleChange, updateFormState } = useFormData(initialState, onStateChange);
 
-	const handleTermsChange = ( value ) => {
-		updateFormState( `${ methodName }-accept`, value );
-	};
+    const handleTermsChange = value => {
+        updateFormState(`${methodName}-accept`, value);
+    };
 
-	const handleBirthDayChange = ( value ) => {
-		updateFormState( `${ methodName }-birthdate`, value );
-	};
+    const handleBirthDayChange = value => {
+        updateFormState(`${methodName}-birthdate`, value);
+    };
 
-	const handlePhoneChange = ( value ) => {
-		updateFormState( `${ methodName }-phone`, value );
-	};
+    const handlePhoneChange = value => {
+        updateFormState(`${methodName}-phone`, value);
+    };
 
-	const [ isAdditionalCheckboxChecked, setIsAdditionalCheckboxChecked ] =
-		useState( false );
+    const [isAdditionalCheckboxChecked, setIsAdditionalCheckboxChecked] = useState(false);
 
-	const handleAdditionalCheckboxChange = ( isChecked ) => {
-		setIsAdditionalCheckboxChecked( isChecked );
-		updateFormState( `${ methodName }-b2b`, isChecked ? 'ON' : 'OFF' );
-	};
+    const handleAdditionalCheckboxChange = isChecked => {
+        setIsAdditionalCheckboxChecked(isChecked);
+        updateFormState(`${methodName}-b2b`, isChecked ? 'ON' : 'OFF');
+    };
 
-	return (
-		<div>
-			<PhoneDropdown
-				paymentMethod={ methodName }
-				formState={ formState }
-				handlePhoneChange={ handlePhoneChange }
-			/>
-			{ type === 'afterpayacceptgiro' && (
-				<CoCField
-					methodName={ methodName }
-					handleChange={ handleChange }
-				/>
-			) }
+    return (
+        <div>
+            <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange} />
+            {type === 'afterpayacceptgiro' && <CoCField methodName={methodName} handleChange={handleChange} />}
 
-			{ ! isAdditionalCheckboxChecked && (
-				<BirthDayField
-					paymentMethod={ methodName }
-					handleBirthDayChange={ handleBirthDayChange }
-					locale={ locale }
-				/>
-			) }
+            {!isAdditionalCheckboxChecked && (
+                <BirthDayField paymentMethod={methodName} handleBirthDayChange={handleBirthDayChange} locale={locale} />
+            )}
 
-			{ b2b === 'enable' && type === 'afterpaydigiaccept' && (
-				<div>
-					<div className="form-row form-row-wide validate-required">
-						<label htmlFor="buckaroo-afterpay-b2b">
-							{ __(
-								'Checkout for company',
-								'wc-buckaroo-bpe-gateway'
-							) }
-							<input
-								id="buckaroo-afterpay-b2b"
-								name="buckaroo-afterpay-b2b"
-								type="checkbox"
-								onChange={ handleAdditionalCheckboxChange }
-							/>
-						</label>
-					</div>
-					{ isAdditionalCheckboxChecked && (
-						<AfterPayB2B handleChange={ handleChange } />
-					) }
-				</div>
-			) }
-			<TermsAndConditionsCheckbox
-				paymentMethod={ methodName }
-				handleTermsChange={ handleTermsChange }
-				billingData={ billing }
-				b2b={ b2b }
-			/>
-			{ financialWarning === 'enable' && (
-				<FinancialWarning title={ title } />
-			) }
-		</div>
-	);
+            {b2b === 'enable' && type === 'afterpaydigiaccept' && (
+                <div>
+                    <div className="form-row form-row-wide validate-required">
+                        <label htmlFor="buckaroo-afterpay-b2b">
+                            {__('Checkout for company', 'wc-buckaroo-bpe-gateway')}
+                            <input
+                                id="buckaroo-afterpay-b2b"
+                                name="buckaroo-afterpay-b2b"
+                                type="checkbox"
+                                onChange={handleAdditionalCheckboxChange}
+                            />
+                        </label>
+                    </div>
+                    {isAdditionalCheckboxChecked && <AfterPayB2B handleChange={handleChange} />}
+                </div>
+            )}
+            <TermsAndConditionsCheckbox
+                paymentMethod={methodName}
+                handleTermsChange={handleTermsChange}
+                billingData={billing}
+                b2b={b2b}
+            />
+            {financialWarning === 'enable' && <FinancialWarning title={title} />}
+        </div>
+    );
 }
 
 export default AfterPayView;
