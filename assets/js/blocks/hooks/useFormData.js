@@ -10,16 +10,15 @@ const useFormData = ( initialState, onStateChange ) => {
 		onStateChange( updatedState );
 	};
 
-	const updateFormState = (fieldNameOrObject, value) => {
+	const updateFormState = ( fieldNameOrObject, value ) => {
 		const updatedState =
 			typeof fieldNameOrObject === 'object' && fieldNameOrObject !== null
 				? { ...formState, ...fieldNameOrObject }
-				: { ...formState, [fieldNameOrObject]: value };
+				: { ...formState, [ fieldNameOrObject ]: value };
 
-		setFormState(updatedState);
-		onStateChange(updatedState);
+		setFormState( updatedState );
+		onStateChange( updatedState );
 	};
-
 
 	return { formState, handleChange, updateFormState };
 };
