@@ -45,6 +45,10 @@ jobs:
                 working-directory: assets/js
                 run: npm ci
 
-            -   name: Run Prettier check
+            -   name: Run Prettier check (blocks)
                 working-directory: assets/js
-                run: npx prettier --check .
+                run: npx prettier --check . --config ./.prettierrc.js
+
+            -   name: Run Prettier check (legacy)
+                working-directory: library
+                run: npx prettier --check . --config ../assets/js/.prettierrc.js

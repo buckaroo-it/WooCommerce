@@ -19,9 +19,9 @@ if (! defined('BK_PLUGIN_FILE')) {
 add_action(
     'plugins_loaded',
     function () {
-        require_once __DIR__.'/vendor/autoload.php';
+        require_once __DIR__ . '/vendor/autoload.php';
 
-        (new Buckaroo\Woocommerce\Core\Plugin)->init();
+        (new Buckaroo\Woocommerce\Core\Plugin())->init();
     },
     -1
 );
