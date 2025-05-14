@@ -4,8 +4,9 @@ namespace Buckaroo\Woocommerce\ResponseParser;
 
 class JsonParser extends ResponseParser
 {
-    protected function normalizeItems( array $array ): array {
-        if ( count($array) === 1 && ( isset($array['Transaction']) || isset($array['DataRequest']) ) ) {
+    protected function normalizeItems(array $array): array
+    {
+        if (count($array) === 1 && (isset($array['Transaction']) || isset($array['DataRequest']))) {
             $array = $array['Transaction'] ?? $array['DataRequest'];
         }
 
@@ -153,12 +154,13 @@ class JsonParser extends ResponseParser
     public function getServiceParameters($name)
     {
         $service = $this->getService($name);
+
         return $service['parameters'] ?? null;
     }
 
     public function isTest(): bool
     {
-        return filter_var( $this->get('IsTest'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+        return filter_var($this->get('IsTest'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
     }
 
     public function getRealOrderId()

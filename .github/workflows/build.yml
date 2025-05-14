@@ -1,84 +1,84 @@
 name: Build
 on:
-  schedule:
-    - cron: '0 2 * * 0' # Weekly on Sundays at 02:00
-  push:
-    branches:
-      - master
-      - feature/ci
-  pull_request:
-    branches:
-      - master
+    schedule:
+        -   cron: '0 2 * * 0' # Weekly on Sundays at 02:00
+    push:
+        branches:
+            - master
+            - feature/ci
+    pull_request:
+        branches:
+            - master
 
 jobs:
-  build:
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: false
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: wordpress
-        ports:
-          - 3306
-        options: --tmpfs /tmp:rw --tmpfs /var/lib/mysql:rw --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php-version: [ '7.3', '7.4' ]
-    steps:
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-version }}
+    build:
+        services:
+            mysql:
+                image: mysql:5.7
+                env:
+                    MYSQL_ALLOW_EMPTY_PASSWORD: false
+                    MYSQL_ROOT_PASSWORD: password
+                    MYSQL_DATABASE: wordpress
+                ports:
+                    - 3306
+                options: --tmpfs /tmp:rw --tmpfs /var/lib/mysql:rw --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                php-version: [ '7.3', '7.4' ]
+        steps:
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php-version }}
 
-      - name: Setup WP CLI
-        run: |
-          curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-          php wp-cli.phar --info
-          chmod +x wp-cli.phar
-          sudo mv wp-cli.phar /usr/local/bin/wp
+            -   name: Setup WP CLI
+                run: |
+                    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+                    php wp-cli.phar --info
+                    chmod +x wp-cli.phar
+                    sudo mv wp-cli.phar /usr/local/bin/wp
 
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          path: wc-buckaroo-bpe-gateway
+            -   name: Checkout code
+                uses: actions/checkout@v2
+                with:
+                    path: wc-buckaroo-bpe-gateway
 
-      - name: Get latest release tag of WooCommerce
-        id: latestrelease
-        run: |
-          echo "::set-output name=releasetag::$(curl -s https://api.github.com/repos/woocommerce/woocommerce/releases/latest | jq '.tag_name' | sed 's/\"//g')"
+            -   name: Get latest release tag of WooCommerce
+                id: latestrelease
+                run: |
+                    echo "::set-output name=releasetag::$(curl -s https://api.github.com/repos/woocommerce/woocommerce/releases/latest | jq '.tag_name' | sed 's/\"//g')"
 
-      - name: Install WooCommerce
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ steps.latestrelease.outputs.releasetag }}
-          repository: 'woocommerce/woocommerce'
-          path: woocommerce-tmp
+            -   name: Install WooCommerce
+                uses: actions/checkout@v2
+                with:
+                    ref: ${{ steps.latestrelease.outputs.releasetag }}
+                    repository: 'woocommerce/woocommerce'
+                    path: woocommerce-tmp
 
-      - name: Move WooCommerce plugin files to the right directory
-        run: mv woocommerce-tmp/plugins/woocommerce woocommerce
+            -   name: Move WooCommerce plugin files to the right directory
+                run: mv woocommerce-tmp/plugins/woocommerce woocommerce
 
-      - name: Remove tmp directory
-        run: rm -rf woocommerce-tmp
+            -   name: Remove tmp directory
+                run: rm -rf woocommerce-tmp
 
-      - name: Install composer for plugin
-        working-directory: wc-buckaroo-bpe-gateway
-        run: composer install --dev
+            -   name: Install composer for plugin
+                working-directory: wc-buckaroo-bpe-gateway
+                run: composer install --dev
 
-      - name: install composer for woocommerce
-        working-directory: woocommerce
-        run: composer install --no-dev
+            -   name: install composer for woocommerce
+                working-directory: woocommerce
+                run: composer install --no-dev
 
-      - name: Setup test environment
-        working-directory: wc-buckaroo-bpe-gateway
-        shell: bash
-        run: bin/install-wp-tests.sh woocommerce_test root password 127.0.0.1:${{ job.services.mysql.ports['3306'] }}
+            -   name: Setup test environment
+                working-directory: wc-buckaroo-bpe-gateway
+                shell: bash
+                run: bin/install-wp-tests.sh woocommerce_test root password 127.0.0.1:${{ job.services.mysql.ports['3306'] }}
 
-      # - name: Run PHPUnit
-      #   working-directory: wc-buckaroo-bpe-gateway
-      #   run: php vendor/bin/phpunit --coverage-clover=coverage.xml
+            # - name: Run PHPUnit
+            #   working-directory: wc-buckaroo-bpe-gateway
+            #   run: php vendor/bin/phpunit --coverage-clover=coverage.xml
 
-      # - name: upload code coverage
-      #   working-directory: wc-buckaroo-bpe-gateway
-      #   run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }}
+            # - name: upload code coverage
+            #   working-directory: wc-buckaroo-bpe-gateway
+            #   run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }}

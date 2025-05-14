@@ -4,295 +4,309 @@ namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
 use Exception;
 
-class ApplepayController {
+class ApplepayController
+{
+    public static function getShopInformation()
+    {
+        $country_code = preg_replace('/\:\*/', '', get_option('woocommerce_default_country'));
 
-	public static function getShopInformation() {
-		$country_code = preg_replace( '/\:\*/', '', get_option( 'woocommerce_default_country' ) );
+        wp_send_json(
+            [
+                'store_name' => get_option('blogname'),
+                'country_code' => $country_code,
+                'currency_code' => get_option('woocommerce_currency'),
+                'culture_code' => $country_code,
+                'merchant_id' => get_option('woocommerce_buckaroo_applepay_settings')['merchant_guid'],
+            ]
+        );
+    }
 
-		wp_send_json(
-			array(
-				'store_name'    => get_option( 'blogname' ),
-				'country_code'  => $country_code,
-				'currency_code' => get_option( 'woocommerce_currency' ),
-				'culture_code'  => $country_code,
-				'merchant_id'   => get_option( 'woocommerce_buckaroo_applepay_settings' )['merchant_guid'],
-			)
-		);
-	}
+    public static function getItemsFromDetailPage()
+    {
+        $items = self::createTemporaryCart(
+            function () {
+                global $woocommerce;
 
-	public static function getItemsFromDetailPage() {
-		$items = self::createTemporaryCart(
-			function () {
-				global $woocommerce;
+                $cart = $woocommerce->cart;
 
-				$cart = $woocommerce->cart;
+                $products = self::getProductsFromCart($cart);
 
-				$products = self::getProductsFromCart( $cart );
+                $product = reset($products);
 
-				$product = reset( $products );
+                $coupons = array_map(
+                    function ($coupon) use ($cart) {
+                        $price = $cart->get_coupon_discount_amount($coupon->get_code(), $cart->display_cart_ex_tax);
 
-				$coupons = array_map(
-					function ( $coupon ) use ( $cart ) {
-						$price = $cart->get_coupon_discount_amount( $coupon->get_code(), $cart->display_cart_ex_tax );
-						return array(
-							'type'       => 'coupon',
-							'id'         => $coupon->get_id(),
-							'name'       => "Coupon: {$coupon->get_code()}",
-							'price'      => "-{$price}",
-							'quantity'   => 1,
-							'attributes' => array(),
-						);
-					},
-					$cart->get_coupons()
-				);
+                        return [
+                            'type' => 'coupon',
+                            'id' => $coupon->get_id(),
+                            'name' => "Coupon: {$coupon->get_code()}",
+                            'price' => "-{$price}",
+                            'quantity' => 1,
+                            'attributes' => [],
+                        ];
+                    },
+                    $cart->get_coupons()
+                );
 
-				$fees = array_map(
-					function ( $fee ) {
-						return array(
-							'type'       => 'fee',
-							'id'         => $fee->id,
-							'name'       => $fee->name,
-							'price'      => $fee->amount,
-							'quantity'   => 1,
-							'attributes' => array(
-								'taxable' => $fee->taxable,
-							),
-						);
-					},
-					$cart->get_fees()
-				);
-				return array_merge( array( $product ), $coupons, $fees );
-			}
-		);
+                $fees = array_map(
+                    function ($fee) {
+                        return [
+                            'type' => 'fee',
+                            'id' => $fee->id,
+                            'name' => $fee->name,
+                            'price' => $fee->amount,
+                            'quantity' => 1,
+                            'attributes' => [
+                                'taxable' => $fee->taxable,
+                            ],
+                        ];
+                    },
+                    $cart->get_fees()
+                );
 
-		wp_send_json( array_values( $items ) );
-	}
+                return array_merge([$product], $coupons, $fees);
+            }
+        );
 
-	/**
-	 * Some methods need to have a temporary cart if a user is on the product detail page
-	 * We empty the cart and put the current shown product + quantity in the cart and reapply the coupons
-	 * to determine the discounts, free shipping and other rules based on that cart
-	 *
-	 * @return array
-	 */
-	private static function createTemporaryCart( $callback ) {
-		if ( ! ( isset( $_GET['product_id'] ) && is_numeric( $_GET['product_id'] ) ) ) {
-			throw new Exception( 'Invalid product_id' );
-		}
+        wp_send_json(array_values($items));
+    }
 
-		if ( isset( $_GET['variation_id'] ) && ! is_numeric( $_GET['variation_id'] ) ) {
-			throw new Exception( 'Invalid variation_id' );
-		}
+    /**
+     * Some methods need to have a temporary cart if a user is on the product detail page
+     * We empty the cart and put the current shown product + quantity in the cart and reapply the coupons
+     * to determine the discounts, free shipping and other rules based on that cart
+     *
+     * @return array
+     */
+    private static function createTemporaryCart($callback)
+    {
+        if (! (isset($_GET['product_id']) && is_numeric($_GET['product_id']))) {
+            throw new Exception('Invalid product_id');
+        }
 
-		if ( ! ( isset( $_GET['quantity'] ) && is_numeric( $_GET['quantity'] ) && $_GET['quantity'] > 0 ) ) {
-			throw new Exception( 'Invalid quantity' );
-		}
+        if (isset($_GET['variation_id']) && ! is_numeric($_GET['variation_id'])) {
+            throw new Exception('Invalid variation_id');
+        }
 
-		global $woocommerce;
+        if (! (isset($_GET['quantity']) && is_numeric($_GET['quantity']) && $_GET['quantity'] > 0)) {
+            throw new Exception('Invalid quantity');
+        }
 
-		/** @var WC_Cart */
-		$cart = $woocommerce->cart;
+        global $woocommerce;
 
-		$current_shown_product = array(
-			'product_id'   => absint( $_GET['product_id'] ),
-			'variation_id' => absint( $_GET['variation_id'] ),
-			'quantity'     => (int) $_GET['quantity'],
-		);
+        /** @var WC_Cart */
+        $cart = $woocommerce->cart;
 
-		$original_cart_products = array_map(
-			function ( $product ) {
-				return array(
-					'product_id'   => $product['product_id'],
-					'variation_id' => $product['variation_id'],
-					'quantity'     => $product['quantity'],
-				);
-			},
-			$cart->get_cart_contents()
-		);
+        $current_shown_product = [
+            'product_id' => absint($_GET['product_id']),
+            'variation_id' => absint($_GET['variation_id']),
+            'quantity' => (int) $_GET['quantity'],
+        ];
 
-		$original_applied_coupons = array_map(
-			function ( $coupon ) {
-				return array(
-					'coupon_id' => $coupon->get_id(),
-					'code'      => $coupon->get_code(),
-				);
-			},
-			$cart->get_coupons()
-		);
+        $original_cart_products = array_map(
+            function ($product) {
+                return [
+                    'product_id' => $product['product_id'],
+                    'variation_id' => $product['variation_id'],
+                    'quantity' => $product['quantity'],
+                ];
+            },
+            $cart->get_cart_contents()
+        );
 
-		$cart->empty_cart();
+        $original_applied_coupons = array_map(
+            function ($coupon) {
+                return [
+                    'coupon_id' => $coupon->get_id(),
+                    'code' => $coupon->get_code(),
+                ];
+            },
+            $cart->get_coupons()
+        );
 
-		if ( $current_shown_product['product_id'] != $current_shown_product['variation_id'] ) {
-			$cart->add_to_cart(
-				$current_shown_product['product_id'],
-				$current_shown_product['quantity'],
-				$current_shown_product['variation_id']
-			);
-		} else {
-			$cart->add_to_cart(
-				$current_shown_product['product_id'],
-				$current_shown_product['quantity'],
-			);
-		}
+        $cart->empty_cart();
 
-		foreach ( $original_applied_coupons as $original_applied_coupon ) {
-			$cart->apply_coupon( $original_applied_coupon['code'] );
-		}
+        if ($current_shown_product['product_id'] != $current_shown_product['variation_id']) {
+            $cart->add_to_cart(
+                $current_shown_product['product_id'],
+                $current_shown_product['quantity'],
+                $current_shown_product['variation_id']
+            );
+        } else {
+            $cart->add_to_cart(
+                $current_shown_product['product_id'],
+                $current_shown_product['quantity'],
+            );
+        }
 
-		self::calculate_fee( $cart );
+        foreach ($original_applied_coupons as $original_applied_coupon) {
+            $cart->apply_coupon($original_applied_coupon['code']);
+        }
 
-		$temporary_cart_result = call_user_func( $callback );
+        self::calculate_fee($cart);
 
-		// restore previous cart
-		$cart->empty_cart();
+        $temporary_cart_result = call_user_func($callback);
 
-		foreach ( $original_cart_products as $original_product ) {
-			$cart->add_to_cart(
-				$original_product['product_id'],
-				$original_product['quantity'],
-				$original_product['variation_id']
-			);
-		}
+        // restore previous cart
+        $cart->empty_cart();
 
-		foreach ( $original_applied_coupons as $original_applied_coupon ) {
-			$cart->apply_coupon( $original_applied_coupon['code'] );
-		}
+        foreach ($original_cart_products as $original_product) {
+            $cart->add_to_cart(
+                $original_product['product_id'],
+                $original_product['quantity'],
+                $original_product['variation_id']
+            );
+        }
 
-		wc_clear_notices();
+        foreach ($original_applied_coupons as $original_applied_coupon) {
+            $cart->apply_coupon($original_applied_coupon['code']);
+        }
 
-		return $temporary_cart_result;
-	}
+        wc_clear_notices();
 
-	public static function calculate_fee( $cart ) {
-        WC()->session->set( 'chosen_payment_method', 'buckaroo_applepay' );
-		$cart->calculate_totals();
+        return $temporary_cart_result;
+    }
 
-		$feed_settings = self::get_extra_feed_settings();
-		do_action(
-			'buckaroo_cart_calculate_fees',
-			$cart,
-			$feed_settings['extrachargeamount'],
-			$feed_settings['feetax']
-		);
-	}
+    public static function calculate_fee($cart)
+    {
+        WC()->session->set('chosen_payment_method', 'buckaroo_applepay');
+        $cart->calculate_totals();
 
-	private static function get_extra_feed_settings() {
-		$settings = get_option( 'woocommerce_buckaroo_applepay_settings' );
-		return array(
-			'extrachargeamount' => isset( $settings['extrachargeamount'] ) ? $settings['extrachargeamount'] : 0,
-			'feetax'            => isset( $settings['feetax'] ) ? $settings['feetax'] : '',
-		);
-	}
+        $feed_settings = self::get_extra_feed_settings();
+        do_action(
+            'buckaroo_cart_calculate_fees',
+            $cart,
+            $feed_settings['extrachargeamount'],
+            $feed_settings['feetax']
+        );
+    }
 
-	private static function getProductsFromCart( $cart ) {
-		$products = array_map(
-			function ( $product ) {
+    private static function get_extra_feed_settings()
+    {
+        $settings = get_option('woocommerce_buckaroo_applepay_settings');
 
-				$id = $product['variation_id'] !== 0
-					? $product['variation_id']
-					: $product['product_id'];
-				return array(
-					'type'       => 'product',
-					'id'         => absint( $id ),
-					'name'       => wc_get_product( $id )->get_name(),
-					'price'      => $product['line_total'] + $product['line_tax'],
-					'quantity'   => $product['quantity'],
-					'attributes' => array(),
-				);
-			},
-			$cart->get_cart_contents()
-		);
+        return [
+            'extrachargeamount' => isset($settings['extrachargeamount']) ? $settings['extrachargeamount'] : 0,
+            'feetax' => isset($settings['feetax']) ? $settings['feetax'] : '',
+        ];
+    }
 
-		return $products;
-	}
+    private static function getProductsFromCart($cart)
+    {
+        $products = array_map(
+            function ($product) {
 
-	public static function getItemsFromCart() {
-		global $woocommerce;
+                $id = $product['variation_id'] !== 0
+                    ? $product['variation_id']
+                    : $product['product_id'];
 
-		$cart = $woocommerce->cart;
+                return [
+                    'type' => 'product',
+                    'id' => absint($id),
+                    'name' => wc_get_product($id)->get_name(),
+                    'price' => $product['line_total'] + $product['line_tax'],
+                    'quantity' => $product['quantity'],
+                    'attributes' => [],
+                ];
+            },
+            $cart->get_cart_contents()
+        );
 
-		$products = self::getProductsFromCart( $cart );
+        return $products;
+    }
 
-		$coupons = array_map(
-			function ( $coupon ) use ( $cart ) {
-				$price = $cart->get_coupon_discount_amount( $coupon->get_code(), $cart->display_cart_ex_tax );
-				return array(
-					'type'       => 'coupon',
-					'id'         => $coupon->get_id(),
-					'name'       => "Coupon: {$coupon->get_code()}",
-					'price'      => "-{$price}",
-					'quantity'   => 1,
-					'attributes' => array(),
-				);
-			},
-			$cart->get_coupons()
-		);
+    public static function getItemsFromCart()
+    {
+        global $woocommerce;
 
-		self::calculate_fee( $cart );
+        $cart = $woocommerce->cart;
 
-		$fees = array_map(
-			function ( $fee ) {
-				return array(
-					'type'       => 'fee',
-					'id'         => $fee->id,
-					'name'       => $fee->name,
-					'price'      => $fee->amount,
-					'quantity'   => 1,
-					'attributes' => array(
-						'taxable' => $fee->taxable,
-					),
-				);
-			},
-			$cart->get_fees()
-		);
+        $products = self::getProductsFromCart($cart);
 
-		$items = array_merge( $products, $coupons, $fees );
+        $coupons = array_map(
+            function ($coupon) use ($cart) {
+                $price = $cart->get_coupon_discount_amount($coupon->get_code(), $cart->display_cart_ex_tax);
 
-		wp_send_json( array_values( $items ) );
-	}
+                return [
+                    'type' => 'coupon',
+                    'id' => $coupon->get_id(),
+                    'name' => "Coupon: {$coupon->get_code()}",
+                    'price' => "-{$price}",
+                    'quantity' => 1,
+                    'attributes' => [],
+                ];
+            },
+            $cart->get_coupons()
+        );
 
-	public static function getShippingMethods() {
-		function wcMethods() {
-			global $woocommerce;
+        self::calculate_fee($cart);
 
-			$cart = $woocommerce->cart;
+        $fees = array_map(
+            function ($fee) {
+                return [
+                    'type' => 'fee',
+                    'id' => $fee->id,
+                    'name' => $fee->name,
+                    'price' => $fee->amount,
+                    'quantity' => 1,
+                    'attributes' => [
+                        'taxable' => $fee->taxable,
+                    ],
+                ];
+            },
+            $cart->get_fees()
+        );
 
-			$country_code = '';
-			if ( isset( $_GET['country_code'] ) && is_string( $_GET['country_code'] ) ) {
-				$country_code = strtoupper( sanitize_text_field( $_GET['country_code'] ) );
-			}
+        $items = array_merge($products, $coupons, $fees);
 
-			$customer = $woocommerce->customer;
-			$customer->set_shipping_country( $country_code );
+        wp_send_json(array_values($items));
+    }
 
-			$packages = $woocommerce->cart->get_shipping_packages();
+    public static function getShippingMethods()
+    {
+        function wcMethods()
+        {
+            global $woocommerce;
 
-			return $woocommerce->shipping
-				->calculate_shipping_for_package( current( $packages ) )['rates'];
-		}
+            $cart = $woocommerce->cart;
 
-		if ( isset( $_GET['product_id'] ) && is_numeric( $_GET['product_id'] ) ) {
-			$wc_methods = self::createTemporaryCart(
-				function () {
-					return wcMethods();
-				}
-			);
-		} else {
-			$wc_methods = wcMethods();
-		}
+            $country_code = '';
+            if (isset($_GET['country_code']) && is_string($_GET['country_code'])) {
+                $country_code = strtoupper(sanitize_text_field($_GET['country_code']));
+            }
 
-		$shipping_methods = array_map(
-			function ( $wc_method ) {
-				return array(
-					'identifier' => $wc_method->get_id(),
-					'detail'     => '',
-					'label'      => $wc_method->get_label(),
-					'amount'     => (float) number_format( $wc_method->get_cost() + $wc_method->get_shipping_tax(), 2 ),
-				);
-			},
-			$wc_methods
-		);
+            $customer = $woocommerce->customer;
+            $customer->set_shipping_country($country_code);
 
-		wp_send_json( array_values( $shipping_methods ) );
-	}
+            $packages = $woocommerce->cart->get_shipping_packages();
+
+            return $woocommerce->shipping
+                ->calculate_shipping_for_package(current($packages))['rates'];
+        }
+
+        if (isset($_GET['product_id']) && is_numeric($_GET['product_id'])) {
+            $wc_methods = self::createTemporaryCart(
+                function () {
+                    return wcMethods();
+                }
+            );
+        } else {
+            $wc_methods = wcMethods();
+        }
+
+        $shipping_methods = array_map(
+            function ($wc_method) {
+                return [
+                    'identifier' => $wc_method->get_id(),
+                    'detail' => '',
+                    'label' => $wc_method->get_label(),
+                    'amount' => (float) number_format($wc_method->get_cost() + $wc_method->get_shipping_tax(), 2),
+                ];
+            },
+            $wc_methods
+        );
+
+        wp_send_json(array_values($shipping_methods));
+    }
 }

@@ -6,13 +6,13 @@
     background-color: white;
 }
 
-input[type="password"].error,
-input[type="text"].error {
+input[type='password'].error,
+input[type='text'].error {
     border-color: red;
 }
 
-input[type="password"].validated,
-input[type="text"].validated {
+input[type='password'].validated,
+input[type='text'].validated {
     border-color: green;
 }
 
@@ -50,24 +50,23 @@ input[type="text"].validated {
     user-select: none;
 }
 
-
 /* .thumbs div::before {
-	font-family: WooCommerce;
-	speak: none;
-	font-weight: 400;
-	font-variant: normal;
-	text-transform: none;
-	line-height: 1;
-	margin: 0;
-	text-indent: 0;
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	text-align: center;
-	content: "";
-	color: #ccc;
+    font-family: WooCommerce;
+    speak: none;
+    font-weight: 400;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    margin: 0;
+    text-indent: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    content: "";
+    color: #ccc;
 } */
 
 #woocommerce-order-items .woocommerce_order_items_wrapper table.woocommerce_order_items tbody tr:first-child td {
@@ -193,7 +192,7 @@ table.woocommerce_order_items tbody tr:first-child td {
     }
 }
 
-label[for^="payment_method_buckaroo_"] img {
+label[for^='payment_method_buckaroo_'] img {
     max-height: 25px;
     width: 32px;
     float: right;
@@ -269,7 +268,7 @@ label[for^="payment_method_buckaroo_"] img {
     }
 
     .bk-paybybank-selector .bank-method-input:checked + .bank-method-label {
-        background-color: #EDEDED;
+        background-color: #ededed;
         color: #000;
         border-radius: 5px;
     }
@@ -380,13 +379,12 @@ label.bk-in3-logo img {
 }
 
 .wc-buckaroo-action-button.email::after {
-    content: "\f465";
+    content: '\f465';
 }
 
 .wc-buckaroo-action-button.links::after {
-    content: "\f103";
+    content: '\f103';
 }
-
 
 /* Credit Card Form Styling */
 
