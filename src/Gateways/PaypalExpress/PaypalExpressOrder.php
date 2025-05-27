@@ -2,6 +2,10 @@
 
 namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 
+use WC_Order;
+use WC_Order_Item_Fee;
+use stdClass;
+
 /**
  * PayPal express order class
  * php version 7.2
