@@ -74,11 +74,7 @@ class AbstractPaymentProcessor extends AbstractProcessor
 
     private function get_invoice_number(): string
     {
-        if (in_array($this->gateway->id, ['buckaroo_afterpaynew', 'buckaroo_afterpay'])) {
-            return (string) $this->get_order()->get_order_number() . time();
-        }
-
-        return (string) $this->get_order()->get_order_number();
+        return $this->get_order()->get_order_number();
     }
 
     public function get_return_url($order = null): string
