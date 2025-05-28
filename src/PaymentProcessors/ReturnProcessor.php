@@ -181,10 +181,6 @@ class ReturnProcessor
 
     protected function getRedirectUrl($paymentGateway, $order, $type = 'success')
     {
-        if (is_admin()) {
-            return wp_get_referer() ?: $order->get_edit_order_url();
-        }
-
         return $type === 'success'
             ? $paymentGateway->get_return_url($order)
             : $paymentGateway->get_failed_url();
