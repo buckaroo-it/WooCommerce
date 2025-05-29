@@ -30,7 +30,7 @@ class In3Processor extends AbstractPaymentProcessor
                     'firstName' => $this->getAddress('billing', 'first_name'),
                     'lastName' => $this->getAddress('billing', 'last_name'),
                     'birthDate' => date('Y-m-d', strtotime($this->request->input('buckaroo-in3-birthdate'))),
-                    'customerNumber' => get_current_user_id() ?: null,
+                    'customerNumber' => get_current_user_id() ?? '',
                     'phone' => $phone,
                     'country' => $this->getAddress('billing', 'country'),
                 ],
