@@ -193,7 +193,13 @@ class ApplepayGateway extends AbstractPaymentGateway
 
             foreach ($products as $product) {
                 if (isset($product['id']) && isset($product['quantity'])) {
-                    $order->add_product(wc_get_product($product['id']), $product['quantity']);
+                    $wc_product = wc_get_product($product['id']);
+                    if ($wc_product) {
+                        $order->add_product($wc_product, $product['quantity'], [
+                            'subtotal' => $product['price'],
+                            'total' => $product['price']
+                        ]);
+                    }
                 }
             }
 
@@ -206,17 +212,17 @@ class ApplepayGateway extends AbstractPaymentGateway
 
             foreach ($extra_charge as $charge) {
                 $taxable = $charge['attributes']['taxable']
-                    ? 'taxable'
-                    : 'none';
+                        ? 'taxable'
+                        : 'none';
 
-                $item_fee = new WC_Order_Item_Fee();
+                    $item_fee = new WC_Order_Item_Fee();
                 $item_fee->set_name($charge['name']);
                 $item_fee->set_amount((string) $charge['price']);
-                $item_fee->set_tax_status('taxable');
-                $item_fee->set_tax_class('');
-                $item_fee->set_tax_status($taxable);
+                    $item_fee->set_tax_status('taxable');
+                    $item_fee->set_tax_class('');
+                    $item_fee->set_tax_status($taxable);
                 $item_fee->set_total((string) $charge['price']);
-                $order->add_item($item_fee);
+                    $order->add_item($item_fee);
             }
 
             $order->set_address(self::orderAddresses($billing_addresses), 'billing');
@@ -317,6 +323,11 @@ class ApplepayGateway extends AbstractPaymentGateway
         foreach ($original_applied_coupons as $original_applied_coupon) {
             $cart->apply_coupon($original_applied_coupon['code']);
         }
+
+        // Trigger hooks for discount plugins
+        do_action('woocommerce_before_calculate_totals', $cart);
+        $cart->calculate_totals();
+        do_action('woocommerce_after_calculate_totals', $cart);
 
         $fake_cart_result = call_user_func($callback);
 
