@@ -324,7 +324,6 @@ class ApplepayGateway extends AbstractPaymentGateway
             $cart->apply_coupon($original_applied_coupon['code']);
         }
 
-        // Trigger hooks for discount plugins
         do_action('woocommerce_before_calculate_totals', $cart);
         $cart->calculate_totals();
         do_action('woocommerce_after_calculate_totals', $cart);
