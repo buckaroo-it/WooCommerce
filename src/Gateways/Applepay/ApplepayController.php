@@ -144,7 +144,13 @@ class ApplepayController
             $cart->apply_coupon($original_applied_coupon['code']);
         }
 
+        do_action('woocommerce_before_calculate_totals', $cart);
+
         self::calculate_fee($cart);
+
+        $cart->calculate_totals();
+
+        do_action('woocommerce_after_calculate_totals', $cart);
 
         $temporary_cart_result = call_user_func($callback);
 
