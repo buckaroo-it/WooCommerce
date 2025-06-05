@@ -215,14 +215,14 @@ class ApplepayGateway extends AbstractPaymentGateway
                         ? 'taxable'
                         : 'none';
 
-                    $item_fee = new WC_Order_Item_Fee();
+                $item_fee = new WC_Order_Item_Fee();
                 $item_fee->set_name($charge['name']);
                 $item_fee->set_amount((string) $charge['price']);
-                    $item_fee->set_tax_status('taxable');
-                    $item_fee->set_tax_class('');
-                    $item_fee->set_tax_status($taxable);
+                $item_fee->set_tax_status('taxable');
+                $item_fee->set_tax_class('');
+                $item_fee->set_tax_status($taxable);
                 $item_fee->set_total((string) $charge['price']);
-                    $order->add_item($item_fee);
+                $order->add_item($item_fee);
             }
 
             $order->set_address(self::orderAddresses($billing_addresses), 'billing');
