@@ -212,8 +212,8 @@ class ApplepayGateway extends AbstractPaymentGateway
 
             foreach ($extra_charge as $charge) {
                 $taxable = $charge['attributes']['taxable']
-                        ? 'taxable'
-                        : 'none';
+                    ? 'taxable'
+                    : 'none';
 
                 $item_fee = new WC_Order_Item_Fee();
                 $item_fee->set_name($charge['name']);
