@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 5.3.18
 Tested up to: 6.7.2
-Stable tag: 4.2.2
+Stable tag: 4.2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,6 +72,8 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
+= 4.2.3 =
+BP-4362 Fix: Apple pay incorrect amount in WooCommerce in combination with discount rules
 = 4.2.2 =
 BP-4406 Fix: iDEAL in3 critical error
 = 4.2.1 =

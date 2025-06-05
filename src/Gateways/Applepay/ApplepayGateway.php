@@ -193,7 +193,13 @@ class ApplepayGateway extends AbstractPaymentGateway
 
             foreach ($products as $product) {
                 if (isset($product['id']) && isset($product['quantity'])) {
-                    $order->add_product(wc_get_product($product['id']), $product['quantity']);
+                    $wc_product = wc_get_product($product['id']);
+                    if ($wc_product) {
+                        $order->add_product($wc_product, $product['quantity'], [
+                            'subtotal' => $product['price'],
+                            'total' => $product['price']
+                        ]);
+                    }
                 }
             }
 
@@ -317,6 +323,10 @@ class ApplepayGateway extends AbstractPaymentGateway
         foreach ($original_applied_coupons as $original_applied_coupon) {
             $cart->apply_coupon($original_applied_coupon['code']);
         }
+
+        do_action('woocommerce_before_calculate_totals', $cart);
+        $cart->calculate_totals();
+        do_action('woocommerce_after_calculate_totals', $cart);
 
         $fake_cart_result = call_user_func($callback);
 
