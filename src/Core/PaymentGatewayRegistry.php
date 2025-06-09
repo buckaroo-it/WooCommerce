@@ -7,6 +7,7 @@ use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
 use Buckaroo\Woocommerce\Gateways\Applepay\ApplepayGateway;
 use Buckaroo\Woocommerce\Gateways\Bancontact\BancontactGateway;
 use Buckaroo\Woocommerce\Gateways\Belfius\BelfiusGateway;
+use Buckaroo\Woocommerce\Gateways\Alipay\AlipayGateway;
 use Buckaroo\Woocommerce\Gateways\Billink\BillinkGateway;
 use Buckaroo\Woocommerce\Gateways\Blik\BlikGateway;
 use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
@@ -62,6 +63,7 @@ class PaymentGatewayRegistry
         'payperemail' => ['gateway_class' => PayPerEmailGateway::class],
         'sepadirectdebit' => ['gateway_class' => SepaDirectDebitGateway::class],
         'transfer' => ['gateway_class' => TransferGateway::class],
+        'alipay' => ['gateway_class' => AlipayGateway::class],
     ];
 
     /**
