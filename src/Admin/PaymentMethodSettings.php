@@ -21,6 +21,22 @@ class PaymentMethodSettings extends AbstractPaymentGateway
     }
 
     /**
+     * Custom validation for textarea fields to prevent HTML entity encoding
+     *
+     * @param string $key
+     * @param string $value
+     * @return string
+     */
+    public function validate_textarea_field($key, $value)
+    {
+        if (in_array($key, ['transactiondescription', 'refund_description'])) {
+            return is_null($value) ? '' : wp_unslash(trim($value));
+        }
+
+        return parent::validate_textarea_field($key, $value);
+    }
+
+    /**
         public
      */
     public function init_form_fields()

@@ -32,9 +32,9 @@ class ResponseRegistry
         ) {
             $data = json_decode(file_get_contents('php://input'), true) ?: [];
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = $_POST;
+            $data = stripslashes_deep($_POST);
         } else {
-            $data = $_GET;
+            $data = stripslashes_deep($_GET);
         }
 
         return self::getResponse($data);
