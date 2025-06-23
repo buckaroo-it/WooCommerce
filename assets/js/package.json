@@ -16,7 +16,7 @@
         "rimraf": "^5.0.7",
         "style-loader": "^3.3.3",
         "webpack-cli": "^4.10.0",
-        "webpack-dev-server": "^4.11.1",
+        "webpack-dev-server": "^5.2.1",
         "@wordpress/prettier-config": "^4.16.0"
     },
     "dependencies": {
