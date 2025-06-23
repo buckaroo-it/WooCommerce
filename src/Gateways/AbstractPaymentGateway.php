@@ -349,7 +349,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function response_handler()
     {
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $result = (new ReturnProcessor($_POST ?? $_GET))->handle($this);
+        $result = (new ReturnProcessor(stripslashes_deep($_POST ?? $_GET)))->handle($this);
 
         if (! is_null($result)) {
             wp_safe_redirect($result['redirect']);
