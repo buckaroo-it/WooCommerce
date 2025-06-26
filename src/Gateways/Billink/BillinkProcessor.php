@@ -93,7 +93,7 @@ class BillinkProcessor extends AbstractPaymentProcessor
                     'firstName' => $first_name,
                     'lastName' => $this->getAddress('billing', 'last_name'),
                     'birthDate' => $this->getBirthDate(),
-                    'salutation' => $this->request->input('buckaroo-billink-gender'),
+                    'title' => $this->request->input('buckaroo-billink-gender'),
                 ],
                 'address' => [
                     'street' => $streetParts->get_street(),
