@@ -11,10 +11,18 @@ use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
+use WC_Data_Exception;
 use WC_Order;
 
 class PushProcessor
 {
+    /**
+     * @param $order_id
+     * @param WC_Order $order
+     * @param ResponseParser $responseParser
+     * @return array|void
+     * @throws WC_Data_Exception
+     */
     protected function onSuccess($order_id, $order, ResponseParser $responseParser)
     {
         global $woocommerce, $wpdb;
@@ -122,6 +130,7 @@ class PushProcessor
                     break;
                 default:
                     Logger::log('Update status 1. Order status: on-hold');
+                    $order->set_transaction_id($responseParser->getTransactionKey());
                     $order->update_status('on-hold', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
                     // Reduce stock levels
                     break;
