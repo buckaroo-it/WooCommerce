@@ -74,6 +74,7 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 == Changelog ==
 = 4.3.1 =
 BP-4476: Add support for Billink V2
+BP-4479: Keep track for transactionKey for SEPA on-hold orders
 New PHP SDK Version that will solve “guzzle not found” error
 = 4.3.0 =
 BP-3630: Add payment method: Alipay
