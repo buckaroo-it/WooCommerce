@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 5.3.18
 Tested up to: 6.7.2
-Stable tag: 4.3.0
+Stable tag: 4.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,6 +72,10 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
+= 4.3.1 =
+BP-4476: Add support for Billink V2
+BP-4479: Keep track for transactionKey for SEPA on-hold orders
+New PHP SDK Version that will solve “guzzle not found” error
 = 4.3.0 =
 BP-3630: Add payment method: Alipay
 BP-3631: Add payment method: WeChat Pay
