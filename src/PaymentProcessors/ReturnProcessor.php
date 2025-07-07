@@ -58,6 +58,9 @@ class ReturnProcessor
             }
         }
 
+        $order->set_transaction_id($responseParser->getTransactionKey());
+        $order->save();
+
         update_post_meta($orderId, '_buckaroo_order_in_test_mode', $responseParser->isTest());
 
         // Check if we need to redirect first (based on the response)

@@ -48,6 +48,7 @@ class AbstractRefundProcessor extends AbstractProcessor
                 'returnURL' => $this->get_return_url(),
                 'cancelURL' => $this->get_return_url(),
                 'pushURL' => $this->get_push_url(),
+                'pushURLFailure' => $this->get_push_url(),
                 'originalTransactionKey' => (string) $this->getOrder()->get_transaction_id('edit'),
                 'additionalParameters' => [
                     'real_order_id' => $this->getOrder()->get_id(),

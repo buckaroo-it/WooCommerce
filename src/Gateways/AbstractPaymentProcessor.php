@@ -43,6 +43,7 @@ class AbstractPaymentProcessor extends AbstractProcessor
                 'returnURL' => $this->get_return_url(),
                 'cancelURL' => $this->get_return_url(),
                 'pushURL' => $this->get_push_url(),
+                'pushURLFailure' => $this->get_push_url(),
                 'additionalParameters' => [
                     'real_order_id' => $this->get_order()->get_id(),
                 ],
