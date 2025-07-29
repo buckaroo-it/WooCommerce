@@ -58,10 +58,6 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
         $this->setProperties();
 
-        if (version_compare(PHP_VERSION, '7.3.0') >= 0) {
-            add_filter('woocommerce_session_handler', [$this, 'woocommerce_session_handler']);
-        }
-
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
             add_filter('woocommerce_order_button_html', [$this, 'replace_order_button_html']);
         }
@@ -295,11 +291,6 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
             $this->notify_url = add_query_arg('wc-api', $class, $this->notify_url);
         }
-    }
-
-    public function woocommerce_session_handler()
-    {
-        return SessionHandler::class;
     }
 
     /**
