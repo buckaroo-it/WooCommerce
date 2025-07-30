@@ -75,6 +75,7 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 = 4.4.0 =
 Add support for WooCommerce 10.0.3, 10.0.2, 10.0.1 & 10.0.0.
 BP-4531: Cart empties when adding product (WooCommerce 10 issue)
+BP-4494: Keep track for transactionKey for Pending processing orders
 = 4.3.1 =
 BP-4476: Add support for Billink V2
 BP-4479: Keep track for transactionKey for SEPA on-hold orders
