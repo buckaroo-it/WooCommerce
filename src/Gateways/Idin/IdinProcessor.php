@@ -140,6 +140,7 @@ class IdinProcessor extends AbstractPaymentProcessor
             'returnURL' => $this->get_return_url(),
             'cancelURL' => $this->get_return_url(),
             'pushURL' => $this->get_push_url(),
+            'pushURLFailure' => $this->get_push_url(),
             'clientIP' => $this->getIp(),
             'issuer' => $this->gateway->issuer,
             // 'additionalParameters' => [
