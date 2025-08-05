@@ -34,7 +34,7 @@ Payment method support list by Buckaroo WooCommerce payments plugin
 14. Billink
 15. Belfius
 16. Klarna
-17. iDEAL In3
+17. In3
 18. PayByBank
 19. EPS
 20. Multibanco
