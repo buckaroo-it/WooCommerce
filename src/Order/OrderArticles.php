@@ -147,7 +147,7 @@ class OrderArticles
     {
         $product_amount = $this->sum_products_amount($products);
 
-        $diffAmount = $total_order_amount - $product_amount;
+        $diffAmount = Helper::roundAmount($total_order_amount - $product_amount);
 
         if (abs($diffAmount) >= 0.01) {
             $product = [
