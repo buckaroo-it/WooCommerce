@@ -7,8 +7,10 @@ use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use Exception;
 use Throwable;
+use WC_Cart;
 use WC_Order;
 use WC_Order_Item_Fee;
+use WC_Order_Item_Product;
 
 class ApplepayGateway extends AbstractPaymentGateway
 {
@@ -170,60 +172,9 @@ class ApplepayGateway extends AbstractPaymentGateway
         );
 
         try {
-            $products = array_filter(
-                $items,
-                function ($item) {
-                    return isset($item['type']) && $item['type'] === 'product';
-                }
-            );
+            $cart = self::recreateCartFromItems($items);
 
-            $coupons = array_filter(
-                $items,
-                function ($item) {
-                    return isset($item['type']) && $item['type'] === 'coupon';
-                }
-            );
-
-            $extra_charge = array_filter(
-                $items,
-                function ($item) {
-                    return isset($item['type']) && $item['type'] === 'extra_charge';
-                }
-            );
-
-            foreach ($products as $product) {
-                if (isset($product['id']) && isset($product['quantity'])) {
-                    $wc_product = wc_get_product($product['id']);
-                    if ($wc_product) {
-                        $order->add_product($wc_product, $product['quantity'], [
-                            'subtotal' => $product['price'],
-                            'total' => $product['price']
-                        ]);
-                    }
-                }
-            }
-
-            foreach ($coupons as $coupon) {
-                if (isset($coupon['name']) && is_string($coupon['name'])) {
-                    preg_match('/coupon\:\s(.*)/i', $coupon['name'], $matches);
-                    $order->apply_coupon($matches[1]);
-                }
-            }
-
-            foreach ($extra_charge as $charge) {
-                $taxable = $charge['attributes']['taxable']
-                    ? 'taxable'
-                    : 'none';
-
-                $item_fee = new WC_Order_Item_Fee();
-                $item_fee->set_name($charge['name']);
-                $item_fee->set_amount((string) $charge['price']);
-                $item_fee->set_tax_status('taxable');
-                $item_fee->set_tax_class('');
-                $item_fee->set_tax_status($taxable);
-                $item_fee->set_total((string) $charge['price']);
-                $order->add_item($item_fee);
-            }
+            self::createOrderFromCart($order, $cart);
 
             $order->set_address(self::orderAddresses($billing_addresses), 'billing');
             $order->set_address(self::orderAddresses($shipping_addresses), 'shipping');
@@ -274,6 +225,87 @@ class ApplepayGateway extends AbstractPaymentGateway
                 'items' => $items,
             ],
         ];
+    }
+
+    private static function recreateCartFromItems($items)
+    {
+        $cart = new WC_Cart();
+
+        $products = array_filter($items, function ($item) {
+            return isset($item['type']) && $item['type'] === 'product';
+        });
+
+        foreach ($products as $product_item) {
+            if (isset($product_item['id']) && isset($product_item['quantity'])) {
+                $product = wc_get_product($product_item['id']);
+                if ($product) {
+                    if ($product->is_type('variation')) {
+                        $cart->add_to_cart($product->get_parent_id(), $product_item['quantity'], $product_item['id']);
+                    } else {
+                        $cart->add_to_cart($product_item['id'], $product_item['quantity']);
+                    }
+                }
+            }
+        }
+
+        $coupons = array_filter($items, function ($item) {
+            return isset($item['type']) && $item['type'] === 'coupon';
+        });
+
+        foreach ($coupons as $coupon_item) {
+            if (isset($coupon_item['name']) && is_string($coupon_item['name'])) {
+                preg_match('/coupon\:\s(.*)/i', $coupon_item['name'], $matches);
+                if (!empty($matches[1])) {
+                    $cart->apply_coupon($matches[1]);
+                }
+            }
+        }
+
+        WC()->session->set('chosen_payment_method', 'buckaroo_applepay');
+
+        $cart->calculate_totals();
+
+        return $cart;
+    }
+
+    /**
+     * Create order from cart using WooCommerce native methods
+     */
+    private static function createOrderFromCart($order, $cart)
+    {
+        foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+            $product = $cart_item['data'];
+            $quantity = $cart_item['quantity'];
+
+            $item = new WC_Order_Item_Product();
+            $item->set_props([
+                'product' => $product,
+                'quantity' => $quantity,
+                'subtotal' => $cart_item['line_subtotal'],
+                'total' => $cart_item['line_total'],
+                'subtotal_tax' => $cart_item['line_subtotal_tax'],
+                'total_tax' => $cart_item['line_tax'],
+            ]);
+            $item->set_product($product);
+            $order->add_item($item);
+        }
+
+        foreach ($cart->get_applied_coupons() as $coupon_code) {
+            $order->apply_coupon($coupon_code);
+        }
+
+        foreach ($cart->get_fees() as $fee_key => $fee) {
+            $item_fee = new WC_Order_Item_Fee();
+            $item_fee->set_props([
+                'name' => $fee->name,
+                'tax_class' => $fee->tax_class,
+                'tax_status' => $fee->taxable ? 'taxable' : 'none',
+                'amount' => $fee->amount,
+                'total' => $fee->total,
+                'total_tax' => $fee->tax,
+            ]);
+            $order->add_item($item_fee);
+        }
     }
 
     private static function createFakeCart($items, $callback)

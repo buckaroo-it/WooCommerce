@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
 use Exception;
+use WC_Coupon;
 
 class ApplepayController
 {
@@ -29,43 +30,7 @@ class ApplepayController
 
                 $cart = $woocommerce->cart;
 
-                $products = self::getProductsFromCart($cart);
-
-                $product = reset($products);
-
-                $coupons = array_map(
-                    function ($coupon) use ($cart) {
-                        $price = $cart->get_coupon_discount_amount($coupon->get_code(), $cart->display_cart_ex_tax);
-
-                        return [
-                            'type' => 'coupon',
-                            'id' => $coupon->get_id(),
-                            'name' => "Coupon: {$coupon->get_code()}",
-                            'price' => "-{$price}",
-                            'quantity' => 1,
-                            'attributes' => [],
-                        ];
-                    },
-                    $cart->get_coupons()
-                );
-
-                $fees = array_map(
-                    function ($fee) {
-                        return [
-                            'type' => 'fee',
-                            'id' => $fee->id,
-                            'name' => $fee->name,
-                            'price' => $fee->amount,
-                            'quantity' => 1,
-                            'attributes' => [
-                                'taxable' => $fee->taxable,
-                            ],
-                        ];
-                    },
-                    $cart->get_fees()
-                );
-
-                return array_merge([$product], $coupons, $fees);
+                return self::getCartItemsForApplePay($cart);
             }
         );
 
@@ -228,45 +193,69 @@ class ApplepayController
 
         $cart = $woocommerce->cart;
 
-        $products = self::getProductsFromCart($cart);
+        self::calculate_fee($cart);
 
-        $coupons = array_map(
-            function ($coupon) use ($cart) {
-                $price = $cart->get_coupon_discount_amount($coupon->get_code(), $cart->display_cart_ex_tax);
+        $items = self::getCartItemsForApplePay($cart);
 
-                return [
+        wp_send_json(array_values($items));
+    }
+
+    private static function getCartItemsForApplePay($cart)
+    {
+        $items = [];
+
+        foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+            $product = $cart_item['data'];
+            $quantity = $cart_item['quantity'];
+
+            $line_total = $cart_item['line_total'] + $cart_item['line_tax'];
+
+            $items[] = [
+                'type' => 'product',
+                'id' => $product->get_id(),
+                'name' => $product->get_name(),
+                'price' => $line_total,
+                'quantity' => $quantity,
+                'attributes' => [],
+            ];
+        }
+
+        foreach ($cart->get_applied_coupons() as $coupon_code) {
+            $coupon = new WC_Coupon($coupon_code);
+
+            $discount_amount = $cart->get_coupon_discount_amount($coupon_code, false);
+
+            if ($discount_amount > 0) {
+                $items[] = [
                     'type' => 'coupon',
                     'id' => $coupon->get_id(),
-                    'name' => "Coupon: {$coupon->get_code()}",
-                    'price' => "-{$price}",
+                    'name' => "Coupon: {$coupon_code}",
+                    'price' => "-{$discount_amount}",
                     'quantity' => 1,
                     'attributes' => [],
                 ];
-            },
-            $cart->get_coupons()
-        );
+            }
+        }
 
-        self::calculate_fee($cart);
+        foreach ($cart->get_fees() as $fee) {
+            $fee_total = $fee->amount;
+            if ($fee->taxable && isset($fee->tax)) {
+                $fee_total += $fee->tax;
+            }
 
-        $fees = array_map(
-            function ($fee) {
-                return [
-                    'type' => 'fee',
-                    'id' => $fee->id,
-                    'name' => $fee->name,
-                    'price' => $fee->amount,
-                    'quantity' => 1,
-                    'attributes' => [
-                        'taxable' => $fee->taxable,
-                    ],
-                ];
-            },
-            $cart->get_fees()
-        );
+            $items[] = [
+                'type' => 'fee',
+                'id' => $fee->id,
+                'name' => $fee->name,
+                'price' => $fee_total,
+                'quantity' => 1,
+                'attributes' => [
+                    'taxable' => $fee->taxable,
+                ],
+            ];
+        }
 
-        $items = array_merge($products, $coupons, $fees);
-
-        wp_send_json(array_values($items));
+        return $items;
     }
 
     public static function getShippingMethods()
