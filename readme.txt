@@ -41,6 +41,8 @@ Payment method support list by Buckaroo WooCommerce payments plugin
 21. MB Way
 22. goSettle
 23. Blik
+24. WeChat Pay
+25. Alipay
 
 == Release notes ==
 For detailed release notes, please visit our [GitHub repository](https://github.com/buckaroo-it/WooCommerce).
