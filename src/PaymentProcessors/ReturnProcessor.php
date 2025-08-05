@@ -192,7 +192,7 @@ class ReturnProcessor
     protected function getOrderId(ResponseParser $responseParser)
     {
         $orderId = $responseParser->getOrderNumber() ?: $responseParser->getInvoice();
-        if (is_int($responseParser->getRealOrderId())) {
+        if (!is_null($responseParser->getRealOrderId())) {
             $orderId = $responseParser->getRealOrderId();
         }
 

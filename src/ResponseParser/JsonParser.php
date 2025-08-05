@@ -170,6 +170,6 @@ class JsonParser extends ResponseParser
 
     public function getAdditionalInformation($propertyName)
     {
-        return $this->firstWhere($this->get('AdditionalParameters.List'), 'Name', $propertyName)['Value'] ?? null;
+        return $this->firstWhere($this->get('AdditionalParameters.List'), 'name', $propertyName)['value'] ?? null;
     }
 }
