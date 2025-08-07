@@ -187,7 +187,7 @@ class ReturnProcessor
     {
         return $type === 'success'
             ? $paymentGateway->get_return_url($order)
-            : ($paymentGateway->get_failed_url(). ($errorMessage ? '?bck_err=' . $errorMessage : ''));
+            : ($paymentGateway->get_failed_url() . ($errorMessage ? '?bck_err=' . $errorMessage : ''));
     }
 
     protected function getOrderId(ResponseParser $responseParser)
