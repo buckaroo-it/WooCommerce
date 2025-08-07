@@ -165,7 +165,7 @@ class CreditCardGateway extends AbstractPaymentGateway
     {
         $processedPayment = parent::process_payment($order_id);
 
-        if ($processedPayment['result'] == 'success' && $this->creditcardpayauthorize == 'authorize') {
+        if (isset($processedPayment['result']) && $processedPayment['result'] == 'success' && $this->creditcardpayauthorize == 'authorize') {
             update_post_meta($order_id, '_wc_order_authorized', 'yes');
             $this->set_order_capture($order_id, 'Creditcard', $this->request->input($this->id . '-creditcard-issuer'));
         }

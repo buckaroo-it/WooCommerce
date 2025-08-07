@@ -76,7 +76,7 @@ class BillinkGateway extends AbstractPaymentGateway
     {
         $processedPayment = parent::process_payment($order_id);
 
-        if ($processedPayment['result'] == 'success' && $this->billinkpayauthorize == 'authorize') {
+        if (isset($processedPayment['result']) && $processedPayment['result'] == 'success' && $this->billinkpayauthorize == 'authorize') {
             update_post_meta($order_id, '_wc_order_authorized', 'yes');
             $this->set_order_capture($order_id, 'Billink');
         }
