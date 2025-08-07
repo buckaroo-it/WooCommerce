@@ -70,7 +70,7 @@ class KlarnaKpGateway extends KlarnaGateway
     {
         $processedPayment = parent::process_payment($order_id);
 
-        if ($processedPayment['result'] == 'success') {
+        if (isset($processedPayment['result']) && $processedPayment['result'] == 'success') {
             update_post_meta($order_id, '_wc_order_authorized', 'yes');
             $this->setOrderCapture($order_id, 'KlarnaKp');
         }

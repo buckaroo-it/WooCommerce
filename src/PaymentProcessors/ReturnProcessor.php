@@ -43,7 +43,7 @@ class ReturnProcessor
         if (! $order) {
             Logger::log(__METHOD__ . '|10|');
 
-            return;
+            return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Order not found.');
         }
 
         // Validate signature if needed
@@ -54,7 +54,7 @@ class ReturnProcessor
                 Logger::log('Response not valid for order. Signature failed. Order id: ' . ($orderId ?: 'order not created'));
                 Logger::log('Response not valid!', $responseParser);
 
-                return;
+                return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Response not valid!');
             }
         }
 
@@ -131,7 +131,7 @@ class ReturnProcessor
                 ];
         }
 
-        return null;
+        return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Payment failed.');
     }
 
     /**
@@ -172,21 +172,22 @@ class ReturnProcessor
      */
     protected function handleFailureRedirect($paymentGateway, $order, $responseParser, $defaultMessage)
     {
+        $encodedMsg = base64_encode($this->parseErrorMessage($responseParser, $order, $defaultMessage));
+
         if ($paymentGateway->get_failed_url()) {
             $url = $this->getRedirectUrl($paymentGateway, $order, 'error');
-            $encodedMsg = base64_encode($this->parseErrorMessage($responseParser, $order, $defaultMessage));
 
-            return ['redirect' => $url . '?bck_err=' . $encodedMsg];
+            return ['result' => 'error', 'redirect' => $url . '?bck_err=' . $this->getRedirectUrl($paymentGateway, $order, 'error', $encodedMsg)];
         }
 
-        return ['redirect' => $this->getRedirectUrl($paymentGateway, $order, 'error')];
+        return ['result' => 'error', 'redirect' => $this->getRedirectUrl($paymentGateway, $order, 'error')];
     }
 
-    protected function getRedirectUrl($paymentGateway, $order, $type = 'success')
+    protected function getRedirectUrl($paymentGateway, $order, $type = 'success', $errorMessage = '')
     {
         return $type === 'success'
             ? $paymentGateway->get_return_url($order)
-            : $paymentGateway->get_failed_url();
+            : ($paymentGateway->get_failed_url() . ($errorMessage ? '?bck_err=' . $errorMessage : ''));
     }
 
     protected function getOrderId(ResponseParser $responseParser)
