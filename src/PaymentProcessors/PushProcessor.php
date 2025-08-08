@@ -156,6 +156,11 @@ class PushProcessor
         return ! empty($transactions) ? explode(',', $transactions) : '';
     }
 
+    protected function isOrderFullyPaid($order)
+    {
+        return !empty($order->get_date_paid());
+    }
+
     protected function metaUpdate($order_id, $order, ResponseParser $responseParser)
     {
         if (strtolower($order->get_payment_method()) === 'buckaroo_payperemail') {
@@ -280,20 +285,28 @@ class PushProcessor
 
                 Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
 
-                if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled', 'refunded'])) {
+                if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled', 'refunded']) && ! $this->isOrderFullyPaid($order)) {
                     // We receive a valid response that the payment is canceled/failed.
                     Logger::log('Update status 2. Order status: failed');
                     $order->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
                 } else {
-                    Logger::log('Push message. Order status cannot be changed.');
+                    if ($this->isOrderFullyPaid($order)) {
+                        Logger::log('Push message. Order was previously fully paid - status cannot be changed to failed.');
+                    } else {
+                        Logger::log('Push message. Order status cannot be changed.');
+                    }
                 }
 
                 if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_CANCELLED) {
                     Logger::log('Update status 3. Order status: cancelled');
-                    if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled'])) {
+                    if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled']) && ! $this->isOrderFullyPaid($order)) {
                         $order->update_status('cancelled', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
                     } else {
-                        Logger::log('Push message. Order status cannot be changed.');
+                        if ($this->isOrderFullyPaid($order)) {
+                            Logger::log('Push message. Order was previously fully paid - status cannot be changed to cancelled.');
+                        } else {
+                            Logger::log('Push message. Order status cannot be changed.');
+                        }
                     }
                     wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
                 } elseif ($responseParser->getPaymentMethod() == 'afterpaydigiaccept' && $responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_REJECTED) {
