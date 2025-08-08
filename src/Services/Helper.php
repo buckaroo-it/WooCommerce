@@ -45,7 +45,7 @@ class Helper
      */
     public static function isWooCommerceVersion3OrGreater(): bool
     {
-        return substr(WC()->version, 0, 1) >= 3;
+        return version_compare(WC()->version, '3.0.0', '>=');
     }
 
     public static function roundAmount($amount)
