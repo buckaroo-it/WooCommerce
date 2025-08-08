@@ -139,8 +139,12 @@ class ReturnProcessor
      */
     protected function updateStatusFailedOrCancelled($order, ResponseParser $responseParser)
     {
-        if (! $this->canUpdateStatus($order)) {
-            Logger::log('Order status cannot be changed.');
+        if (! $this->canUpdateStatus($order) || $this->isOrderFullyPaid($order)) {
+            if ($this->isOrderFullyPaid($order)) {
+                Logger::log('Order was previously fully paid - status cannot be changed to failed.');
+            } else {
+                Logger::log('Order status cannot be changed.');
+            }
 
             return;
         }
@@ -150,10 +154,14 @@ class ReturnProcessor
 
         if ($responseParser->isCanceled()) {
             Logger::log('Update status: cancelled');
-            if ($this->canUpdateStatus($order)) {
+            if ($this->canUpdateStatus($order) && ! $this->isOrderFullyPaid($order)) {
                 $order->update_status('cancelled', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
             } else {
-                Logger::log('Response. Order status cannot be changed.');
+                if ($this->isOrderFullyPaid($order)) {
+                    Logger::log('Response. Order was previously fully paid - status cannot be changed to cancelled.');
+                } else {
+                    Logger::log('Response. Order status cannot be changed.');
+                }
             }
             wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
         }
@@ -165,6 +173,11 @@ class ReturnProcessor
     protected function canUpdateStatus($order)
     {
         return ! in_array($order->get_status(), ['completed', 'processing', 'cancelled', 'failed', 'refund'], true);
+    }
+
+    protected function isOrderFullyPaid($order)
+    {
+        return !empty($order->get_date_paid());
     }
 
     /**
