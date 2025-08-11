@@ -70,30 +70,25 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     }
 
     /**
-     * Ensure plugin options are not autoloaded on the frontend.
-     * This minimizes memory usage by avoiding loading all gateway settings on every request.
+     * Ensure the given options are NOT autoloaded.
+     * Uses the WordPress Options API to set autoload to 'no'.
      *
      * @param  array  $optionNames
      * @return void
      */
-    protected function enforceOptionsAutoloadNo(array $optionNames): void
+    protected function ensureOptionsNotAutoloaded(array $optionNames): void
     {
-        global $wpdb;
-
-        if (! isset($wpdb)) {
-            return;
-        }
-
         foreach ($optionNames as $optionName) {
             if (! is_string($optionName) || $optionName === '') {
                 continue;
             }
 
-            $wpdb->update(
-                $wpdb->options,
-                ['autoload' => 'no'],
-                ['option_name' => $optionName]
-            );
+            $existingValue = get_option($optionName, null);
+            if ($existingValue === null) {
+                continue;
+            }
+
+            update_option($optionName, $existingValue, 'no');
         }
     }
 
@@ -210,7 +205,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         parent::process_admin_options();
 
         $optionKey = $this->plugin_id . $this->id . '_settings';
-        $this->enforceOptionsAutoloadNo([
+        $this->ensureOptionsNotAutoloaded([
             $optionKey,
             'woocommerce_buckaroo_mastersettings_settings',
         ]);
@@ -660,7 +655,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         $result = parent::update_option($key, $value);
 
         $optionKey = $this->plugin_id . $this->id . '_settings';
-        $this->enforceOptionsAutoloadNo([$optionKey]);
+        $this->ensureOptionsNotAutoloaded([$optionKey]);
 
         return $result;
     }
