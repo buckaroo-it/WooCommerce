@@ -78,17 +78,22 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     protected function ensureOptionsNotAutoloaded(array $optionNames): void
     {
+        global $wpdb;
+
+        if (! isset($wpdb)) {
+            return;
+        }
+
         foreach ($optionNames as $optionName) {
             if (! is_string($optionName) || $optionName === '') {
                 continue;
             }
 
-            $existingValue = get_option($optionName, null);
-            if ($existingValue === null) {
-                continue;
-            }
-
-            update_option($optionName, $existingValue, 'no');
+            $wpdb->update(
+                $wpdb->options,
+                ['autoload' => 'no'],
+                ['option_name' => $optionName]
+            );
         }
     }
 
