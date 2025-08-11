@@ -17,14 +17,13 @@ class DisableAutoloadForSettings implements Migration
         }
 
         $likeClauses = [
-            $wpdb->esc_like('woocommerce_buckaroo_') . '%_settings',
-            'woocommerce_buckaroo_mastersettings_settings',
+            $wpdb->esc_like('woocommerce_buckaroo_') . '%',
         ];
 
         foreach ($likeClauses as $pattern) {
             $wpdb->query(
                 $wpdb->prepare(
-                    "UPDATE {$wpdb->options} SET autoload = 'no' WHERE option_name LIKE %s",
+                    "UPDATE {$wpdb->options} SET autoload = 'auto' WHERE option_name LIKE %s",
                     $pattern
                 )
             );
