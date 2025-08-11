@@ -23,7 +23,7 @@ class DisableAutoloadForSettings implements Migration
         foreach ($likeClauses as $pattern) {
             $wpdb->query(
                 $wpdb->prepare(
-                    "UPDATE {$wpdb->options} SET autoload = 'auto' WHERE option_name LIKE %s",
+                    "UPDATE {$wpdb->options} SET autoload = 'off' WHERE option_name LIKE %s",
                     $pattern
                 )
             );
