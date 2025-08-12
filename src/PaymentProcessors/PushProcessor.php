@@ -62,10 +62,9 @@ class PushProcessor
                         return;
                     }
 
-                    $transaction = $responseParser->getTransactionKey();
+                    $transaction = $this->getTransactionKey($responseParser);
                     $payment_methodname = $responseParser->getPaymentMethod();
                     if ($responseParser->getRelatedTransactionPartialPayment() !== null) {
-                        $transaction = $responseParser->getRelatedTransactionPartialPayment();
                         $payment_methodname = 'grouptransaction';
                     }
 
@@ -84,29 +83,11 @@ class PushProcessor
                         }
                     }
 
-                    // Calculate total received amount
-                    $prefix = 'buckaroo_settlement_';
-                    $settlement = $prefix . $responseParser->getPaymentKey();
-
                     $orderAmount = Helper::roundAmount($order->get_total());
                     $paidAmount = Helper::roundAmount($responseParser->getAmount());
-                    $alreadyPaidSettlements = 0;
-                    $isNewPayment = true;
-
-                    if ($items = get_post_meta($order_id)) {
-                        foreach ($items as $key => $meta) {
-                            if (strpos($key, $prefix) !== false && strpos($key, $responseParser->getPaymentKey()) === false) {
-                                $alreadyPaidSettlements += (float) $meta[0];
-                            }
-
-                            // Check if push is a new payment
-                            if (strpos($key, $prefix) !== false && strpos($key, $responseParser->getPaymentKey()) !== false) {
-                                $isNewPayment = false;
-                            }
-                        }
-                    }
-
-                    $totalPaid = $paidAmount + $alreadyPaidSettlements;
+                    $settlementState = $this->calculateSettlementState($order_id, $responseParser, $paidAmount);
+                    $totalPaid = $settlementState['totalPaid'];
+                    $isNewPayment = $settlementState['isNewPayment'];
 
                     // Order is completely paid
                     if ($totalPaid >= $orderAmount) {
@@ -124,7 +105,7 @@ class PushProcessor
                     }
 
                     add_post_meta($order_id, '_payment_method_transaction', $payment_methodname, true);
-                    add_post_meta($order_id, $settlement, $paidAmount, true);
+                    $this->updateSettlementMeta($order_id, $responseParser, $paidAmount);
                     add_post_meta($order_id, '_pushallowed', 'ok', true);
 
                     break;
@@ -151,9 +132,46 @@ class PushProcessor
         }
     }
 
+    protected function getTransactionKey(ResponseParser $responseParser)
+    {
+        return $responseParser->getRelatedTransactionPartialPayment() !== null ?
+            $responseParser->getRelatedTransactionPartialPayment() :
+            $responseParser->getTransactionKey();
+    }
+
     protected function parsePPENewTransactionId($transactions)
     {
         return ! empty($transactions) ? explode(',', $transactions) : '';
+    }
+
+    protected function calculateSettlementState($order_id, ResponseParser $responseParser, $paidAmount)
+    {
+        $currentKey = $this->getTransactionKey($responseParser);
+        $settlements = get_post_meta($order_id, 'buckaroo_settlement', true);
+        if (!is_array($settlements)) {
+            $settlements = [];
+        }
+
+        $alreadyPaidSettlements = (float) array_sum($settlements);
+        $isNewPayment = !isset($settlements[$currentKey]);
+
+        return [
+            'totalPaid' => $alreadyPaidSettlements + ($isNewPayment ? (float) $paidAmount : 0.0),
+            'isNewPayment' => $isNewPayment,
+        ];
+    }
+
+    protected function updateSettlementMeta($order_id, ResponseParser $responseParser, $paidAmount)
+    {
+        $currentKey = $this->getTransactionKey($responseParser);
+        $settlements = get_post_meta($order_id, 'buckaroo_settlement', true);
+        if (!is_array($settlements)) {
+            $settlements = [];
+        }
+
+        $settlements[$currentKey] = (float) $paidAmount;
+
+        update_post_meta($order_id, 'buckaroo_settlement', $settlements);
     }
 
     protected function isOrderFullyPaid($order)
