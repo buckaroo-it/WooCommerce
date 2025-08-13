@@ -36,7 +36,7 @@ jobs:
                 run: |
                     RELEASE_VERSION=$(grep "^Stable tag:" readme.txt | awk -F' ' '{print $NF}')
                     echo "Release Version: $RELEASE_VERSION"
-                    echo "::set-output name=version::$RELEASE_VERSION"
+                    echo "version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
 
                 # Step 6: Install Subversion (SVN)
             -   name: Install Subversion
@@ -48,6 +48,10 @@ jobs:
                     SVN_PASSWORD: ${{ secrets.SVN_REP_PW }}
                 run: |
                     RELEASE_VERSION=${{ steps.get_version.outputs.version }}
+                    if [ -z "$RELEASE_VERSION" ]; then
+                        echo "Error: RELEASE_VERSION is empty. Ensure readme.txt contains a 'Stable tag:' line and the previous step exported it."
+                        exit 1
+                    fi
                     echo "version: $RELEASE_VERSION"
                     mkdir ~/tmp
                     cd ~/tmp
