@@ -6,7 +6,7 @@ use Buckaroo\Woocommerce\Install\Migration\Migration;
 
 class DisableAutoloadForSettings implements Migration
 {
-    public $version = '4.4.2';
+    public $version = '4.5.0';
 
     public function execute()
     {
