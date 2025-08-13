@@ -43,7 +43,7 @@ class ReturnProcessor
         if (! $order) {
             Logger::log(__METHOD__ . '|10|');
 
-            return;
+            return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Order not found.');
         }
 
         // Validate signature if needed
@@ -54,7 +54,7 @@ class ReturnProcessor
                 Logger::log('Response not valid for order. Signature failed. Order id: ' . ($orderId ?: 'order not created'));
                 Logger::log('Response not valid!', $responseParser);
 
-                return;
+                return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Response not valid!');
             }
         }
 
@@ -131,7 +131,7 @@ class ReturnProcessor
                 ];
         }
 
-        return null;
+        return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Payment failed.');
     }
 
     /**
@@ -139,8 +139,12 @@ class ReturnProcessor
      */
     protected function updateStatusFailedOrCancelled($order, ResponseParser $responseParser)
     {
-        if (! $this->canUpdateStatus($order)) {
-            Logger::log('Order status cannot be changed.');
+        if (! $this->canUpdateStatus($order) || $this->isOrderFullyPaid($order)) {
+            if ($this->isOrderFullyPaid($order)) {
+                Logger::log('Order was previously fully paid - status cannot be changed to failed.');
+            } else {
+                Logger::log('Order status cannot be changed.');
+            }
 
             return;
         }
@@ -150,10 +154,14 @@ class ReturnProcessor
 
         if ($responseParser->isCanceled()) {
             Logger::log('Update status: cancelled');
-            if ($this->canUpdateStatus($order)) {
+            if ($this->canUpdateStatus($order) && ! $this->isOrderFullyPaid($order)) {
                 $order->update_status('cancelled', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
             } else {
-                Logger::log('Response. Order status cannot be changed.');
+                if ($this->isOrderFullyPaid($order)) {
+                    Logger::log('Response. Order was previously fully paid - status cannot be changed to cancelled.');
+                } else {
+                    Logger::log('Response. Order status cannot be changed.');
+                }
             }
             wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
         }
@@ -167,26 +175,32 @@ class ReturnProcessor
         return ! in_array($order->get_status(), ['completed', 'processing', 'cancelled', 'failed', 'refund'], true);
     }
 
+    protected function isOrderFullyPaid($order)
+    {
+        return !empty($order->get_date_paid());
+    }
+
     /**
      * Handles final redirect in case of failure.
      */
     protected function handleFailureRedirect($paymentGateway, $order, $responseParser, $defaultMessage)
     {
+        $encodedMsg = base64_encode($this->parseErrorMessage($responseParser, $order, $defaultMessage));
+
         if ($paymentGateway->get_failed_url()) {
             $url = $this->getRedirectUrl($paymentGateway, $order, 'error');
-            $encodedMsg = base64_encode($this->parseErrorMessage($responseParser, $order, $defaultMessage));
 
-            return ['redirect' => $url . '?bck_err=' . $encodedMsg];
+            return ['result' => 'error', 'redirect' => $url . '?bck_err=' . $this->getRedirectUrl($paymentGateway, $order, 'error', $encodedMsg)];
         }
 
-        return ['redirect' => $this->getRedirectUrl($paymentGateway, $order, 'error')];
+        return ['result' => 'error', 'redirect' => $this->getRedirectUrl($paymentGateway, $order, 'error')];
     }
 
-    protected function getRedirectUrl($paymentGateway, $order, $type = 'success')
+    protected function getRedirectUrl($paymentGateway, $order, $type = 'success', $errorMessage = '')
     {
         return $type === 'success'
             ? $paymentGateway->get_return_url($order)
-            : $paymentGateway->get_failed_url();
+            : ($paymentGateway->get_failed_url() . ($errorMessage ? '?bck_err=' . $errorMessage : ''));
     }
 
     protected function getOrderId(ResponseParser $responseParser)

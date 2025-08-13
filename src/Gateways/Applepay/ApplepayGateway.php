@@ -104,7 +104,7 @@ class ApplepayGateway extends AbstractPaymentGateway
         if (
             count(
                 array_diff(
-                    ['givenName', 'familyName', 'addressLines', 'locality', 'postalCode', 'countryCode'],
+                    ['givenName', 'familyName', 'emailAddress', 'addressLines', 'locality', 'postalCode', 'countryCode'],
                     array_keys($this->paymentData['billingContact'])
                 )
             )

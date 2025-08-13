@@ -7,6 +7,7 @@ use Buckaroo\Woocommerce\Install\Install;
 use Buckaroo\Woocommerce\Install\Migration\Versions\SetupTransactionsAndLogs;
 use Buckaroo\Woocommerce\Services\Logger;
 use Throwable;
+use Buckaroo\Woocommerce\Install\Migration\Versions\DisableAutoloadForSettings;
 
 /**
  * Core class for handling migrations
@@ -183,6 +184,7 @@ class MigrationHandler
     {
         return [
             new SetupTransactionsAndLogs(),
+            new DisableAutoloadForSettings(),
         ];
     }
 

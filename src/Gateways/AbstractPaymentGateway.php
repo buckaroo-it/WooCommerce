@@ -70,6 +70,34 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     }
 
     /**
+     * Ensure the given options are NOT autoloaded.
+     * Uses the WordPress Options API to set autoload to 'no'.
+     *
+     * @param  array  $optionNames
+     * @return void
+     */
+    protected function ensureOptionsNotAutoloaded(array $optionNames): void
+    {
+        global $wpdb;
+
+        if (! isset($wpdb)) {
+            return;
+        }
+
+        foreach ($optionNames as $optionName) {
+            if (! is_string($optionName) || $optionName === '') {
+                continue;
+            }
+
+            $wpdb->update(
+                $wpdb->options,
+                ['autoload' => 'no'],
+                ['option_name' => $optionName]
+            );
+        }
+    }
+
+    /**
      * Initialize Gateway Settings Form Fields
      */
     public function init_form_fields()
@@ -174,6 +202,18 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             );
             $this->settings = array_replace($this->settings, $options);
         }
+    }
+
+    /** {@inheritDoc} */
+    public function process_admin_options()
+    {
+        parent::process_admin_options();
+
+        $optionKey = $this->plugin_id . $this->id . '_settings';
+        $this->ensureOptionsNotAutoloaded([
+            $optionKey,
+            'woocommerce_buckaroo_mastersettings_settings',
+        ]);
     }
 
     /**
@@ -609,9 +649,20 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             ! get_option('woocommerce_' . $this->id . '_settings') &&
             ($oldSettings = get_option($oldKey))
         ) {
-            add_option('woocommerce_' . $this->id . '_settings', $oldSettings);
+            add_option('woocommerce_' . $this->id . '_settings', $oldSettings, '', 'no');
             delete_option($oldKey); // clean the table
         }
+    }
+
+    /** {@inheritDoc} */
+    public function update_option($key, $value = '')
+    {
+        $result = parent::update_option($key, $value);
+
+        $optionKey = $this->plugin_id . $this->id . '_settings';
+        $this->ensureOptionsNotAutoloaded([$optionKey]);
+
+        return $result;
     }
 
     /**

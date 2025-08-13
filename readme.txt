@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 5.3.18
 Tested up to: 6.7.2
-Stable tag: 4.4.1
+Stable tag: 4.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,13 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
+= 4.5.0 =
+BP-4538: Optimized storage of buckaroo_settlement data in WooCommerce orders.
+BP-4537: Prevented autoloading of unnecessary options on the frontend.
+BP-4539: Fix: Corrected incorrect usage warning for billing_address_1.
+BP-4549: Fix: Resolved warning for undefined array key result.
+BP-4546: Fix: Resolved undefined array key emailAddress issue for Apple Pay.
+BP-4559: Fix: Ensured failed PUSH status does not overwrite custom status.
 = 4.4.1 =
 BP-4511 Fix: Duplicate order created and no plaza transaction is generated for Klarna authorize/capture orders.
 BP-4540 Fix: Orders paid with Apple Pay have sometimes an incorrect amount in WooCommerce with discount rules (price paid is correct).
