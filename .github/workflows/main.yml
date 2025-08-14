@@ -86,24 +86,17 @@ jobs:
                         svn rm --force "$f"
                     done || true
 
-                    # commit if any Adds, Mods, Deletes, Replacements, Conflicts, or property-only Mods exist
-                    if svn status | grep -qE '^([AMDRC]| M)'; then
-                        svn commit \
-                            --config-option servers:global:http-timeout=3600 \
-                            --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --no-auth-cache \
-                            --non-interactive --trust-server-cert \
-                            -m "release $RELEASE_VERSION"
-                    else
-                        echo "No changes to commit"
-                    fi
-
-                    TRUNK_REV=$(svn info trunk | awk -F': ' '/Last Changed Rev:/ {print $2}')
+                    svn commit \
+                        --config-option servers:global:http-timeout=3600 \
+                        --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --no-auth-cache \
+                        --non-interactive --trust-server-cert \
+                        -m "release $RELEASE_VERSION"
 
                     svn copy \
                         --config-option servers:global:http-timeout=3600 \
                         --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --no-auth-cache \
                         --non-interactive --trust-server-cert \
-                        "$SVN_URL/trunk@$TRUNK_REV" "$SVN_URL/tags/$RELEASE_VERSION" \
+                        "$SVN_URL/trunk" "$SVN_URL/tags/$RELEASE_VERSION" \
                         -m "release $RELEASE_VERSION"
 
                     echo "SVN sync completed successfully for version: $RELEASE_VERSION"
