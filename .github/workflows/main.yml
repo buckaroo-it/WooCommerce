@@ -73,24 +73,21 @@ jobs:
                         svn add assets || true
                     fi
 
-                    # Mirror repository to trunk without nuking it
-                    rsync -a --delete --delete-excluded \
+                    rsync -a --delete --delete-excluded -c \
                         --exclude='.git' --exclude='.github' --exclude='.wordpress-org' \
                         "${{ github.workspace }}/" trunk/
 
-                    # Sync wordpress.org assets if present
                     if [ -d "${{ github.workspace }}/.wordpress-org" ]; then
-                        rsync -a --delete --delete-excluded "${{ github.workspace }}/.wordpress-org/" assets/
+                        rsync -a --delete --delete-excluded -c "${{ github.workspace }}/.wordpress-org/" assets/
                     fi
 
-                    # Stage changes precisely
                     svn add --force trunk assets 2>/dev/null || true
                     svn status --ignore-externals | grep -E "^\!" | sed -E 's/^\![[:space:]]+//' | while IFS= read -r f; do
                         svn rm --force "$f"
                     done || true
 
-                    # Commit once, like the original flow
-                    if svn status | grep -qE '^[MADRC]'; then
+                    # commit if any Adds, Mods, Deletes, Replacements, Conflicts, or property-only Mods exist
+                    if svn status | grep -qE '^([AMDRC]| M)'; then
                         svn commit \
                             --config-option servers:global:http-timeout=3600 \
                             --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --no-auth-cache \
@@ -100,12 +97,13 @@ jobs:
                         echo "No changes to commit"
                     fi
 
-                    # Tag using server-side copy
+                    TRUNK_REV=$(svn info trunk | awk -F': ' '/Last Changed Rev:/ {print $2}')
+
                     svn copy \
                         --config-option servers:global:http-timeout=3600 \
                         --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --no-auth-cache \
                         --non-interactive --trust-server-cert \
-                        "$SVN_URL/trunk" "$SVN_URL/tags/$RELEASE_VERSION" \
+                        "$SVN_URL/trunk@$TRUNK_REV" "$SVN_URL/tags/$RELEASE_VERSION" \
                         -m "release $RELEASE_VERSION"
 
                     echo "SVN sync completed successfully for version: $RELEASE_VERSION"
