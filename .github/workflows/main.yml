@@ -47,27 +47,67 @@ jobs:
                     SVN_USERNAME: ${{ secrets.SVN_REP_USER }}
                     SVN_PASSWORD: ${{ secrets.SVN_REP_PW }}
                 run: |
+                    set -euo pipefail
+
                     RELEASE_VERSION=${{ steps.get_version.outputs.version }}
                     if [ -z "$RELEASE_VERSION" ]; then
                         echo "Error: RELEASE_VERSION is empty. Ensure readme.txt contains a 'Stable tag:' line and the previous step exported it."
                         exit 1
                     fi
                     echo "version: $RELEASE_VERSION"
-                    mkdir ~/tmp
-                    cd ~/tmp
-                    svn co --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive --trust-server-cert https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway/
+
+                    SVN_URL="https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway"
+                    WORKDIR="$HOME/tmp"
+                    mkdir -p "$WORKDIR"
+                    cd "$WORKDIR"
+
+                    # Shallow checkout root, then fully fetch trunk and assets
+                    svn checkout --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --no-auth-cache \
+                        --non-interactive --trust-server-cert --depth immediates "$SVN_URL" wc-buckaroo-bpe-gateway
                     cd wc-buckaroo-bpe-gateway
-                    svn delete trunk/*
-                    rsync -r --exclude='.git' --exclude='.github' --exclude='.wordpress-org' ${{ github.workspace }}/ trunk/
+                    svn update trunk --set-depth infinity || true
+                    if [ -d assets ]; then
+                        svn update assets --set-depth infinity || true
+                    else
+                        mkdir -p assets
+                        svn add assets || true
+                    fi
 
-                    mkdir -p assets
-                    svn rm --force assets/banner-* assets/icon-* assets/screenshot-* 2>/dev/null || true
-                    rsync -av ${{ github.workspace }}/.wordpress-org/ ./assets/
+                    # Mirror repository to trunk without nuking it
+                    rsync -a --delete --delete-excluded \
+                        --exclude='.git' --exclude='.github' --exclude='.wordpress-org' \
+                        "${{ github.workspace }}/" trunk/
 
-                    svn add --force assets/*
-                    svn add --force trunk/*
-                    svn commit --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive --trust-server-cert -m "release $RELEASE_VERSION"
-                    svn copy --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --non-interactive --trust-server-cert https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway/trunk https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway/tags/$RELEASE_VERSION -m "release $RELEASE_VERSION"
+                    # Sync wordpress.org assets if present
+                    if [ -d "${{ github.workspace }}/.wordpress-org" ]; then
+                        rsync -a --delete --delete-excluded "${{ github.workspace }}/.wordpress-org/" assets/
+                    fi
+
+                    # Stage changes precisely
+                    svn add --force trunk assets 2>/dev/null || true
+                    svn status --ignore-externals | grep -E "^\!" | sed -E 's/^\![[:space:]]+//' | while IFS= read -r f; do
+                        svn rm --force "$f"
+                    done || true
+
+                    # Commit once, like the original flow
+                    if svn status | grep -qE '^[MADRC]'; then
+                        svn commit \
+                            --config-option servers:global:http-timeout=3600 \
+                            --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --no-auth-cache \
+                            --non-interactive --trust-server-cert \
+                            -m "release $RELEASE_VERSION"
+                    else
+                        echo "No changes to commit"
+                    fi
+
+                    # Tag using server-side copy
+                    svn copy \
+                        --config-option servers:global:http-timeout=3600 \
+                        --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --no-auth-cache \
+                        --non-interactive --trust-server-cert \
+                        "$SVN_URL/trunk" "$SVN_URL/tags/$RELEASE_VERSION" \
+                        -m "release $RELEASE_VERSION"
+
                     echo "SVN sync completed successfully for version: $RELEASE_VERSION"
 
             -   name: Package Plugin
