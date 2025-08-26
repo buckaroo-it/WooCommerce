@@ -1384,3 +1384,41 @@ msgstr ""
 "les services de %s à l'avenir. En continuant, vous acceptez les Conditions "
 "Générales et confirmez avoir lu la Déclaration de Confidentialité et la "
 "Déclaration sur les Cookies."
+
+#: src/Admin/PaymentMethodSettings.php:76
+msgid "Automatic payment method configuration"
+msgstr "Configuration automatique des méthodes de paiement"
+
+#: src/Admin/PaymentMethodSettings.php:78
+msgid "Automatically configure the Buckaroo plugin based on your active subscriptions. When you use this option, the plugin will connect to your Buckaroo account, check which payment methods are active, and enable them in Live mode. You will be asked to confirm before changes are applied."
+msgstr "Configurer automatiquement le plugin Buckaroo en fonction de vos abonnements actifs. Lorsque vous utilisez cette option, le plugin se connecte à votre compte Buckaroo, vérifie quelles méthodes de paiement sont actives et les active en mode Live. Une confirmation vous sera demandée avant l'application des modifications."
+
+
+#: src/Admin/PaymentMethodSettings.php:83
+msgid "Auto-configure"
+msgstr "Configurer automatiquement"
+
+#: src/Hooks/AutoConfiguration.php:18
+msgid "Failed to retrieve active subscriptions. Please check your credentials."
+msgstr "Échec de récupération des abonnements actifs. Veuillez vérifier vos identifiants."
+
+#: src/Hooks/AutoConfiguration.php:22
+msgid "No active subscriptions found. Please check your Buckaroo account."
+msgstr "Aucun abonnement actif trouvé. Veuillez vérifier votre compte Buckaroo."
+
+#: src/Hooks/AutoConfiguration.php:32
+msgid "Configuration failed: "
+msgstr "Configuration échouée: "
+
+#: src/Services/AutoConfiguration.php:152
+msgid "No payment methods were configured. Please check your active subscriptions."
+msgstr "Aucune méthode de paiement n'a été configurée. Veuillez vérifier vos abonnements actifs."
+
+#: src/Services/AutoConfiguration.php:155
+msgid "Successfully configured %d payment method(s): %s"
+msgstr "Configuration réussie de %d méthode(s) de paiement: %s"
+
+
+#: src/Services/AutoConfiguration.php:194
+msgid "Failed to configure %s: %s"
+msgstr "Échec de configuration de %s: %s"
