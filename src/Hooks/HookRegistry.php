@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Hooks;
 
 use Buckaroo\Woocommerce\Install\Migration\MigrationHandler;
+use Buckaroo\Woocommerce\Services\AutoConfiguration;
 
 class HookRegistry
 {
@@ -17,6 +18,7 @@ class HookRegistry
         OrderActions::class,
         CronEvents::class,
         MigrationHandler::class,
+        AutoConfiguration::class,
     ];
 
     public function __construct()
