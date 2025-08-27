@@ -25,7 +25,6 @@ class InitGateways
 
         add_action('template_redirect', [$this, 'displayBuckarooErrors']);
 
-
         add_action('woocommerce_api_wc_gateway_buckaroo_idin-identify', [$idinController, 'identify']);
         add_action('woocommerce_api_wc_gateway_buckaroo_idin-reset', [$idinController, 'reset']);
         add_action('woocommerce_api_wc_gateway_buckaroo_idin-return', [$idinController, 'returnHandler']);
