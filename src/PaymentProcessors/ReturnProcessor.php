@@ -187,12 +187,6 @@ class ReturnProcessor
     {
         $encodedMsg = base64_encode($this->parseErrorMessage($responseParser, $order, $defaultMessage));
 
-        if ($paymentGateway->get_failed_url()) {
-            $url = $this->getRedirectUrl($paymentGateway, $order, 'error');
-
-            return ['result' => 'error', 'redirect' => $this->getRedirectUrl($paymentGateway, $order, 'error', $encodedMsg)];
-        }
-
         return ['result' => 'error', 'redirect' => $this->getRedirectUrl($paymentGateway, $order, 'error', $encodedMsg)];
     }
 
