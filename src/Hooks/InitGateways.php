@@ -23,6 +23,9 @@ class InitGateways
         add_action('woocommerce_before_cart', [$this, 'idinCart']);
         add_action('woocommerce_review_order_before_payment', [$this, 'idinCheckout']);
 
+        add_action('template_redirect', [$this, 'displayBuckarooErrors']);
+
+
         add_action('woocommerce_api_wc_gateway_buckaroo_idin-identify', [$idinController, 'identify']);
         add_action('woocommerce_api_wc_gateway_buckaroo_idin-reset', [$idinController, 'reset']);
         add_action('woocommerce_api_wc_gateway_buckaroo_idin-return', [$idinController, 'returnHandler']);
@@ -52,12 +55,34 @@ class InitGateways
 
     public function idinCheckout(): void
     {
-        if (! empty($_GET['bck_err']) && ($error = base64_decode($_GET['bck_err']))) {
-            wc_add_notice(esc_html__(sanitize_text_field($error), 'wc-buckaroo-bpe-gateway'), 'error');
-        }
+        $this->displayBuckarooErrors();
         if (IdinProcessor::isIdin(IdinProcessor::getCartProductIds())) {
             include plugin_dir_path(BK_PLUGIN_FILE) . 'templates/idin/checkout.php';
         }
+    }
+
+    public function displayBuckarooErrors(): void
+    {
+        if (empty($_GET['bck_err'])) {
+            return;
+        }
+
+        if (!is_checkout() && !is_wc_endpoint_url() && !is_page('checkout')) {
+            return;
+        }
+
+        if ($this->isBlocksCheckout()) {
+            return;
+        }
+
+        if ($error = base64_decode($_GET['bck_err'])) {
+            wc_add_notice(esc_html__(sanitize_text_field($error), 'wc-buckaroo-bpe-gateway'), 'error');
+        }
+    }
+
+    private function isBlocksCheckout(): bool
+    {
+        return function_exists('has_block') && has_block('woocommerce/checkout');
     }
 
     public function initGatewaysOnCheckout()

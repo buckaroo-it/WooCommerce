@@ -190,10 +190,10 @@ class ReturnProcessor
         if ($paymentGateway->get_failed_url()) {
             $url = $this->getRedirectUrl($paymentGateway, $order, 'error');
 
-            return ['result' => 'error', 'redirect' => $url . '?bck_err=' . $this->getRedirectUrl($paymentGateway, $order, 'error', $encodedMsg)];
+            return ['result' => 'error', 'redirect' => $url . '?bck_err=' . $encodedMsg];
         }
 
-        return ['result' => 'error', 'redirect' => $this->getRedirectUrl($paymentGateway, $order, 'error')];
+        return ['result' => 'error', 'redirect' => $this->getRedirectUrl($paymentGateway, $order, 'error', $encodedMsg)];
     }
 
     protected function getRedirectUrl($paymentGateway, $order, $type = 'success', $errorMessage = '')

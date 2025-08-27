@@ -203,8 +203,28 @@ const createOptions = (wc, gateway) => ({
     content: <BuckarooComponent gateway={gateway} wc={wc} />,
 });
 
+const handleBuckarooErrorDisplay = ({ location, wp }) => {
+    const urlParams = new URLSearchParams(location.search);
+    const bckErr = urlParams.get('bck_err');
+
+    if (!bckErr || !document.querySelector('.wc-block-checkout')) {
+        return;
+    }
+
+    if (wp && wp.data && wp.data.dispatch) {
+        const noticesDispatch = wp.data.dispatch('core/notices');
+        if (noticesDispatch && noticesDispatch.createNotice) {
+            noticesDispatch.createNotice('error', atob(bckErr), {
+                context: 'wc/checkout',
+                isDismissible: true,
+            });
+        }
+    }
+};
+
 registerBuckarooPaymentMethods(window);
 
 (async () => {
     await registerBuckarooExpressPaymentMethods(window);
+    handleBuckarooErrorDisplay(window);
 })();
