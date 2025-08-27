@@ -72,17 +72,6 @@ class PaymentMethodSettings extends AbstractPaymentGateway
             'default' => '',
         ];
 
-        $this->form_fields['auto_configure'] = [
-            'title' => __('Automatic payment method configuration', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'button',
-            'description' => __('Automatically configure the Buckaroo plugin based on your active subscriptions. When you use this option, the plugin will connect to your Buckaroo account, check which payment methods are active, and enable them in Live mode. You will be asked to confirm before changes are applied.', 'wc-buckaroo-bpe-gateway'),
-            'custom_attributes' => [
-                'title' => __('Auto-configure', 'wc-buckaroo-bpe-gateway'),
-            ],
-            'value' => __('Auto-configure', 'wc-buckaroo-bpe-gateway'),
-            'default' => '',
-        ];
-
         $taxes = $this->getTaxClasses();
         $this->form_fields['feetax'] = [
             'title' => __('Select tax class for fee', 'wc-buckaroo-bpe-gateway'),
