@@ -680,7 +680,7 @@ msgid "Offer customer to pay afterwards by SEPA Direct Debit."
 msgstr ""
 "Bied de klant de mogelijkheid om later te betalen via SEPA Direct Debit."
 
-#: src/Gateways/AbstractPaymentGateway.php:192 assets/js/blocks/index.js:138
+#: src/Gateways/AbstractPaymentGateway.php:151 assets/js/blocks/index.js:138
 #: assets/js/dist/blocks.js:2
 msgid "Pay with %s"
 msgstr "Betaal met %s"
@@ -1369,41 +1369,3 @@ msgstr ""
 "opnieuw gebruik kunt maken van de diensten van %s. Door verder te gaan, "
 "accepteer je de Algemene Voorwaarden en bevestig je dat je het Privacybeleid "
 "en het Cookiebeleid hebt gelezen."
-
-#: src/Admin/PaymentMethodSettings.php:76
-msgid "Automatic payment method configuration"
-msgstr "Automatische configuratie betaalmethoden"
-
-#: src/Admin/PaymentMethodSettings.php:78
-msgid "Automatically configure the Buckaroo plugin based on your active subscriptions. When you use this option, the plugin will connect to your Buckaroo account, check which payment methods are active, and enable them in Live mode. You will be asked to confirm before changes are applied."
-msgstr "Stel de Buckaroo-plugin automatisch in op basis van je actieve abonnementen. De plugin maakt verbinding met je Buckaroo-account, controleert welke betaalmethoden actief zijn en schakelt deze direct in Live-modus in. Je ontvangt eerst een bevestigingsmelding voordat de wijzigingen worden toegepast."
-
-
-#: src/Admin/PaymentMethodSettings.php:83
-msgid "Auto-configure"
-msgstr "Automatisch configureren"
-
-#: src/Hooks/AutoConfiguration.php:18
-msgid "Failed to retrieve active subscriptions. Please check your credentials."
-msgstr "Kan actieve abonnementen niet ophalen. Controleer je inloggegevens."
-
-#: src/Hooks/AutoConfiguration.php:22
-msgid "No active subscriptions found. Please check your Buckaroo account."
-msgstr "Geen actieve abonnementen gevonden. Controleer je Buckaroo-account."
-
-#: src/Hooks/AutoConfiguration.php:32
-msgid "Configuration failed: "
-msgstr "Configuratie mislukt: "
-
-#: src/Services/AutoConfiguration.php:152
-msgid "No payment methods were configured. Please check your active subscriptions."
-msgstr "Geen betaalmethoden geconfigureerd. Controleer je actieve abonnementen."
-
-#: src/Services/AutoConfiguration.php:155
-msgid "Successfully configured %d payment method(s): %s"
-msgstr "Succesvol %d betaalmethode(n) geconfigureerd: %s"
-
-
-#: src/Services/AutoConfiguration.php:194
-msgid "Failed to configure %s: %s"
-msgstr "Configuratie van %s mislukt: %s"

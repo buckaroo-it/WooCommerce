@@ -42,24 +42,6 @@ buckarooAdmin = {
             );
         });
     },
-    autoConfigureButton: function () {
-        let autoConfigButton = jQuery('[id$="auto_configure"]');
-        autoConfigButton.addClass('button-primary');
-        autoConfigButton.val(autoConfigButton.attr('title'));
-
-        autoConfigButton.on('click', function () {
-            if (
-                confirm(
-                    'Warning! This action will automatically enable payment methods in LIVE mode based on your active Buckaroo subscriptions. This will overwrite your current payment method settings. Are you sure you want to proceed?'
-                )
-            ) {
-                jQuery.post(ajaxurl, { action: 'buckaroo_auto_configure' }, function (response) {
-                    alert(response);
-                    location.reload();
-                });
-            }
-        });
-    },
     credicardToggleSelect: function () {
         this.setCredicardSeparate(jQuery('#woocommerce_buckaroo_creditcard_creditcardmethod').val());
         var self = this;
@@ -116,7 +98,6 @@ buckarooAdmin = {
 
     init: function () {
         this.testButton();
-        this.autoConfigureButton();
         this.credicardToggleSelect();
         this.in3ToggleLogoSelector();
         this.in3FrontEndLabel();
