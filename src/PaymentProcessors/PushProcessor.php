@@ -49,6 +49,10 @@ class PushProcessor
         } else {
             switch ($responseParser->get('coreStatus')) {
                 case 'completed':
+                    $completedOrder = true;
+                    $transaction = $this->getTransactionKey($responseParser);
+                    $payment_methodname = $responseParser->getPaymentMethod();
+
                     /** Handle KlarnaKP reservation push */
                     if (
                         $responseParser->getServiceParameter('reservationNumber') !== null &&
@@ -59,11 +63,10 @@ class PushProcessor
                         $order->add_meta_data('buckaroo_is_reserved', 'yes', true);
                         $order->save_meta_data();
 
-                        return;
+                        $transaction = $responseParser->getDataRequest();
+                        $completedOrder = false;
                     }
 
-                    $transaction = $this->getTransactionKey($responseParser);
-                    $payment_methodname = $responseParser->getPaymentMethod();
                     if ($responseParser->getRelatedTransactionPartialPayment() !== null) {
                         $payment_methodname = 'grouptransaction';
                     }
@@ -90,7 +93,7 @@ class PushProcessor
                     $isNewPayment = $settlementState['isNewPayment'];
 
                     // Order is completely paid
-                    if ($totalPaid >= $orderAmount) {
+                    if ($totalPaid >= $orderAmount && $completedOrder) {
                         $order->payment_complete($transaction);
                     }
 
