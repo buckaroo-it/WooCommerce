@@ -44,23 +44,13 @@ class In3Gateway extends AbstractPaymentGateway
 
         parent::__construct();
 
-        $this->setIcons();
+        $this->setIcon('svg/in3.svg');
         $this->addRefundSupport();
     }
 
     private function getTitleForVersion()
     {
         return $this->get_option('api_version') === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
-    }
-
-    /**
-     * Set icons based on version
-     *
-     * @return void
-     */
-    private function setIcons()
-    {
-        $this->setIcon('svg/in3.svg');
     }
 
     public function getServiceCode(?AbstractProcessor $processor = null)
