@@ -2,11 +2,12 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
+use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinController;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
-use Buckaroo\Woocommerce\Gateways\Paypal\PaypalExpressBlocksSupport;
+use Buckaroo\Woocommerce\Gateways\BuckarooExpressBlocks;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
 use Buckaroo\Woocommerce\Services\Helper;
@@ -18,7 +19,7 @@ class InitGateways
         add_action('enqueue_block_assets', [$this, 'initGatewaysOnCheckout']);
         add_action('woocommerce_api_wc_push_buckaroo', [$this, 'pushClassInit']);
 
-        add_action('woocommerce_blocks_payment_method_type_registration', [$this, 'registerPaypalExpressBlocks']);
+        add_action('woocommerce_blocks_payment_method_type_registration', [$this, 'registerBuckarooExpressBlocks']);
 
         $idinController = new IdinController();
 
@@ -180,17 +181,17 @@ class InitGateways
     }
 
     /**
-     * Register PayPal Express blocks support
+     * Register Buckaroo Express payment methods blocks support
      *
      * @param object $payment_method_registry Payment method registry from WooCommerce Blocks
      */
-    public function registerPaypalExpressBlocks($payment_method_registry)
+    public function registerBuckarooExpressBlocks($payment_method_registry)
     {
-        if (! class_exists('Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType')) {
+        if (! class_exists(AbstractPaymentMethodType::class)) {
             return;
         }
 
-        // Register PayPal Express blocks support
-        $payment_method_registry->register(new PaypalExpressBlocksSupport());
+        // Register universal blocks support for all Buckaroo express payment methods
+        $payment_method_registry->register(new BuckarooExpressBlocks());
     }
 }

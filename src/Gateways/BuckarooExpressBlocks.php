@@ -1,28 +1,21 @@
 <?php
 
-namespace Buckaroo\Woocommerce\Gateways\Paypal;
+namespace Buckaroo\Woocommerce\Gateways;
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 use Buckaroo\Woocommerce\Core\Plugin;
-use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 
 /**
- * PayPal Express payment method integration for WooCommerce Blocks
+ * Buckaroo Express payment methods integration for WooCommerce Blocks
  */
-class PaypalExpressBlocksSupport extends AbstractPaymentMethodType
+class BuckarooExpressBlocks extends AbstractPaymentMethodType
 {
-    /**
-     * Initializes the payment method type.
-     */
     public function initialize()
     {
-//        $this->settings = get_option('woocommerce_buckaroo_paypal_settings', []);
-//        $gateways = WC()->payment_gateways()->payment_gateways();
-//        $this->gateway = isset($gateways['buckaroo_paypal']) ? $gateways['buckaroo_paypal'] : null;
+        //
     }
+
     /**
-     * Returns an array of scripts/handles to be registered for this payment method.
-     *
      * @return array
      */
     public function get_payment_method_script_handles()
