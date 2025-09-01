@@ -13,7 +13,6 @@ class PaymentSetupScripts
     {
         add_action('plugins_loaded', [$this, 'handlePluginsLoaded'], 0);
         add_action('admin_enqueue_scripts', [$this, 'handleAdminAssets']);
-        add_action('enqueue_block_assets', [$this, 'handleBlockAssets']);
         add_action('wp_enqueue_scripts', [$this, 'initFrontendScripts']);
     }
 
@@ -69,26 +68,6 @@ class PaymentSetupScripts
                     'in3_v3' => In3Gateway::IN3_V3_TITLE,
                 ]
             );
-        }
-        wp_enqueue_script(
-            'buckaroo-block-script',
-            $pluginDir . 'assets/js/dist/blocks.js',
-            ['wp-blocks', 'wp-element']
-        );
-    }
-
-    public function handleBlockAssets()
-    {
-        if (has_block('woocommerce/checkout', get_post())) {
-            wp_enqueue_script(
-                'buckaroo-blocks',
-                plugins_url('/assets/js/dist/blocks.js', BK_PLUGIN_FILE),
-                ['wc-blocks-registry', 'wp-element', 'wp-i18n', 'wp-data'],
-                Plugin::VERSION,
-                true
-            );
-
-            wp_set_script_translations('buckaroo-blocks', 'wc-buckaroo-bpe-gateway', plugin_dir_path(BK_PLUGIN_FILE) . 'languages');
         }
     }
 

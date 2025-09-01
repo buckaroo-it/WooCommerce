@@ -133,16 +133,6 @@ const registerBuckarooPaymentMethods = ({ wc, buckarooGateways }) => {
 };
 
 const registerBuckarooExpressPaymentMethods = async ({ buckarooGateways }) => {
-    const ready = async () =>
-        new Promise(resolve => {
-            document.addEventListener('bk-jquery-loaded', () => resolve(true), { once: true });
-            setTimeout(() => resolve(false), 5000);
-        });
-
-    if (!(await ready())) {
-        return;
-    }
-
     const applepay = buckarooGateways.find(gateway => gateway.paymentMethodId === 'buckaroo_applepay');
     await registerApplePay(applepay);
 
@@ -223,8 +213,4 @@ const handleBuckarooErrorDisplay = ({ location, wp }) => {
 };
 
 registerBuckarooPaymentMethods(window);
-
-(async () => {
-    await registerBuckarooExpressPaymentMethods(window);
-    handleBuckarooErrorDisplay(window);
-})();
+registerBuckarooExpressPaymentMethods(window);
