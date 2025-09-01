@@ -98,11 +98,6 @@ table.woocommerce_order_items tbody tr:first-child td {
     text-align: right;
 }
 
-.applepay-button-container {
-    max-width: 200px;
-    margin: 10px 0;
-}
-
 #woocommerce_buckaroo_creditcard_AllowedProvider,
 #woocommerce_buckaroo_creditcard_show_in_checkout {
     width: 400px;
@@ -196,11 +191,6 @@ label[for^='payment_method_buckaroo_'] img {
     max-height: 25px;
     width: 32px;
     float: right;
-}
-
-.buckaroo-paypal-express {
-    margin: 10px 0;
-    max-width: 200px;
 }
 
 /* paybybank */
@@ -373,11 +363,6 @@ label.bk-in3-logo img {
     display: none;
 }
 
-#express-payment-method-buckaroo_paypal_express .buckaroo-paypal-express {
-    margin: 18px 0;
-    max-width: none;
-}
-
 .wc-buckaroo-action-button.email::after {
     content: '\f465';
 }
@@ -420,4 +405,23 @@ label.bk-in3-logo img {
 .woocommerce-page.woocommerce-checkout #payment .buckaroo-creditcard-fieldset div.form-row {
     margin: 0 0 1em;
     padding: 3px;
+}
+
+/* Buckaroo Express Payment Buttons - Minimal Consistent Styling */
+.wc-block-components-express-payment .applepay-button-container,
+.wc-block-components-express-payment .buckaroo-paypal-express,
+.wc-block-components-express-payment [id*="express-payment-method-buckaroo"] {
+    height: 45px !important;
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 0 12px 0 !important;
+    box-sizing: border-box !important;
+}
+
+.wc-block-components-express-payment .applepay-button-container *,
+.wc-block-components-express-payment .buckaroo-paypal-express *,
+.wc-block-components-express-payment [id*="express-payment-method-buckaroo"] * {
+    height: 45px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }

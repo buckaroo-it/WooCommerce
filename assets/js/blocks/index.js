@@ -23,9 +23,6 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
                 action: 'woocommerce_cart_calculate_fees',
                 method: gateway.paymentMethodId,
             },
-            success: function () {
-                storeCartDispatch.updateCustomerData();
-            },
         });
     }, [gateway.paymentMethodId]);
 
