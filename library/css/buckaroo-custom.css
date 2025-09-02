@@ -409,6 +409,7 @@ label.bk-in3-logo img {
 
 .buckaroo-express-payments,
 .wc-block-components-express-payment {
+    width: 100%;
     display: grid !important;
     gap: 12px !important;
     margin: 15px 0 !important;
@@ -422,9 +423,9 @@ label.bk-in3-logo img {
 .applepay-button-container,
 .buckaroo-paypal-express {
     flex: 1 !important;
-    height: 35px !important;
-    min-height: 35px !important;
-    max-height: 35px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
     min-width: 200px !important;
     max-width: 300px !important;
     width: 100% !important;
@@ -433,7 +434,7 @@ label.bk-in3-logo img {
 
 .applepay-button-container .apple-pay-button,
 .buckaroo-paypal-express > * {
-    height: 35px !important;
+    height: 40px !important;
     width: 100% !important;
     min-width: 100% !important;
 }
