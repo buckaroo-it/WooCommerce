@@ -407,7 +407,6 @@ label.bk-in3-logo img {
     padding: 3px;
 }
 
-/* Express Payments - Force Same Height */
 .buckaroo-express-payments,
 .wc-block-components-express-payment {
     display: grid !important;
