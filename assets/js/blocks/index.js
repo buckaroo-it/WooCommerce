@@ -211,3 +211,4 @@ const handleBuckarooErrorDisplay = ({ location, wp }) => {
 
 registerBuckarooPaymentMethods(window);
 registerBuckarooExpressPaymentMethods(window);
+handleBuckarooErrorDisplay(window);
