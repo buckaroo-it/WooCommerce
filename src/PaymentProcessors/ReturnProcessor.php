@@ -229,7 +229,7 @@ class ReturnProcessor
             return;
         }
         $subCodeMessage = $responseParser->getSubCodeMessage();
-        if (strrpos($subCodeMessage, ': ') !== false) {
+        if ($subCodeMessage && strrpos($subCodeMessage, ': ') !== false) {
             $defaultMessage = str_replace(':', '', substr($subCodeMessage, strrpos($subCodeMessage, ': ')));
             wc_add_notice(__($defaultMessage, 'wc-buckaroo-bpe-gateway'), 'error');
         }
@@ -241,7 +241,7 @@ class ReturnProcessor
             return $defaultMessage;
         }
         $subCodeMessage = $responseParser->getSubCodeMessage();
-        if (strrpos($subCodeMessage, ': ') !== false) {
+        if ($subCodeMessage && strrpos($subCodeMessage, ': ') !== false) {
             return str_replace(':', '', substr($subCodeMessage, strrpos($subCodeMessage, ': ')));
         }
 
