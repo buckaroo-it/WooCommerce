@@ -25,7 +25,8 @@ class ApplepayButtons
 
     public function render_button()
     {
-        echo "<div class='applepay-button-container'><div></div></div>";
+        $isDetailPage = get_post_type() == 'product';
+        echo "<div class='applepay-button-container" . ($isDetailPage ? ' is-detail-page' : null) . "'><div></div></div>";
     }
 
     private function buttonIsEnabled($page)
