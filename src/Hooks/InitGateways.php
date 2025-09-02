@@ -192,6 +192,6 @@ class InitGateways
         }
 
         // Register universal blocks support for all Buckaroo express payment methods
-        $payment_method_registry->register(new BuckarooExpressBlocks());
+        $payment_method_registry->register(new BuckarooExpressBlocks($this->initGatewaysOnCheckout()));
     }
 }
