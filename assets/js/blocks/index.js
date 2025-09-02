@@ -6,14 +6,12 @@ import BuckarooApplepay from './components/BuckarooApplepay';
 import BuckarooPaypalExpress from './components/BuckarooPaypalExpress';
 import { paymentGatewaysTemplates, separateCreditCards } from './gateways';
 import { __ } from '@wordpress/i18n';
-import { useDispatch } from '@wordpress/data';
 
 function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitResponse }) {
     const [errorMessage, setErrorMessage] = useState('');
     const [PaymentComponent, setPaymentComponent] = useState(null);
     const [activePaymentMethodState, setActivePaymentMethodState] = useState({});
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
-    const storeCartDispatch = useDispatch('wc/store/cart');
 
     useEffect(() => {
         jQuery.ajax({
@@ -122,14 +120,25 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
     );
 }
 
-const registerBuckarooPaymentMethods = ({ wc, buckarooGateways }) => {
-    const { registerPaymentMethod } = wc.wcBlocksRegistry;
+const getEnabledBuckarooPaymentMethods = () => {
+    return (
+        window.wc.wcSettings.getPaymentMethodData('buckaroo_express_blocks')?.buckarooGateways ??
+        window.buckarooGateways ??
+        []
+    );
+};
+
+const registerBuckarooPaymentMethods = () => {
+    const buckarooGateways = getEnabledBuckarooPaymentMethods();
+    const { registerPaymentMethod } = window.wc.wcBlocksRegistry;
     buckarooGateways.forEach(gateway => {
-        registerPaymentMethod(createOptions(wc, gateway));
+        registerPaymentMethod(createOptions(window.wc, gateway));
     });
 };
 
-const registerBuckarooExpressPaymentMethods = async ({ buckarooGateways }) => {
+const registerBuckarooExpressPaymentMethods = async () => {
+    const buckarooGateways = getEnabledBuckarooPaymentMethods();
+
     const applepay = buckarooGateways.find(gateway => gateway.paymentMethodId === 'buckaroo_applepay');
     await registerApplePay(applepay);
 
@@ -190,16 +199,16 @@ const createOptions = (wc, gateway) => ({
     content: <BuckarooComponent gateway={gateway} wc={wc} />,
 });
 
-const handleBuckarooErrorDisplay = ({ location, wp }) => {
-    const urlParams = new URLSearchParams(location.search);
+const handleBuckarooErrorDisplay = () => {
+    const urlParams = new URLSearchParams(window.location.search);
     const bckErr = urlParams.get('bck_err');
 
     if (!bckErr || !document.querySelector('.wc-block-checkout')) {
         return;
     }
 
-    if (wp && wp.data && wp.data.dispatch) {
-        const noticesDispatch = wp.data.dispatch('core/notices');
+    if (window.wp && window.wp.data && window.wp.data.dispatch) {
+        const noticesDispatch = window.wp.data.dispatch('core/notices');
         if (noticesDispatch && noticesDispatch.createNotice) {
             noticesDispatch.createNotice('error', atob(bckErr), {
                 context: 'wc/checkout',
@@ -209,6 +218,6 @@ const handleBuckarooErrorDisplay = ({ location, wp }) => {
     }
 };
 
-registerBuckarooPaymentMethods(window);
-registerBuckarooExpressPaymentMethods(window);
-handleBuckarooErrorDisplay(window);
+registerBuckarooPaymentMethods();
+registerBuckarooExpressPaymentMethods();
+handleBuckarooErrorDisplay();

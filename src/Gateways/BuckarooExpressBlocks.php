@@ -10,9 +10,25 @@ use Buckaroo\Woocommerce\Core\Plugin;
  */
 class BuckarooExpressBlocks extends AbstractPaymentMethodType
 {
+    protected $name = 'buckaroo_express_blocks';
+
+    protected array $paymentMethods;
+
+    public function __construct(array $paymentMethods = [])
+    {
+        $this->paymentMethods  = $paymentMethods;
+    }
+
     public function initialize()
     {
         //
+    }
+
+    public function get_payment_method_data()
+    {
+        return [
+            'buckarooGateways' => $this->paymentMethods,
+        ];
     }
 
     /**
