@@ -29,7 +29,7 @@ class BuckarooExpressBlocks extends AbstractPaymentMethodType
         );
 
         if (function_exists('wp_set_script_translations')) {
-            wp_set_script_translations('buckaroo-blocks', 'wc-buckaroo-bpe-gateway');
+            wp_set_script_translations('buckaroo-blocks', 'wc-buckaroo-bpe-gateway', plugin_dir_path(BK_PLUGIN_FILE) . 'languages');
         }
 
         return ['buckaroo-blocks'];
