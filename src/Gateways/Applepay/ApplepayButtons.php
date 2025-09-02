@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
-use Buckaroo\Woocommerce\Gateways\ExpressPayments\ExpressPaymentManager;
+use Buckaroo\Woocommerce\Gateways\ExpressPaymentManager;
 
 class ApplepayButtons
 {

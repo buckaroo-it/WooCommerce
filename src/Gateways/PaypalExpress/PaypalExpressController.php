@@ -4,7 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Services\Logger;
-use Buckaroo\Woocommerce\Gateways\ExpressPayments\ExpressPaymentManager;
+use Buckaroo\Woocommerce\Gateways\ExpressPaymentManager;
 use Throwable;
 
 /**

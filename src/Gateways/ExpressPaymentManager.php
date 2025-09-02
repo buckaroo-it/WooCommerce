@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Woocommerce\Gateways\ExpressPayments;
+namespace Buckaroo\Woocommerce\Gateways;
 
 class ExpressPaymentManager
 {
