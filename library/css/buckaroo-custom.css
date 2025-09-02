@@ -183,7 +183,7 @@ table.woocommerce_order_items tbody tr:first-child td {
 
 @media (max-width: 768px) {
     .buckaroo-payment-list li {
-        width: 1000%;
+        width: 100%;
     }
 }
 
@@ -407,21 +407,35 @@ label.bk-in3-logo img {
     padding: 3px;
 }
 
-/* Buckaroo Express Payment Buttons - Minimal Consistent Styling */
-.wc-block-components-express-payment .applepay-button-container,
-.wc-block-components-express-payment .buckaroo-paypal-express,
-.wc-block-components-express-payment [id*="express-payment-method-buckaroo"] {
-    height: 45px !important;
-    max-width: none !important;
-    width: 100% !important;
-    margin: 0 0 12px 0 !important;
-    box-sizing: border-box !important;
+/* Express Payments - Force Same Height */
+.buckaroo-express-payments,
+.wc-block-components-express-payment {
+    display: grid !important;
+    gap: 12px !important;
+    margin: 15px 0 !important;
 }
 
-.wc-block-components-express-payment .applepay-button-container *,
-.wc-block-components-express-payment .buckaroo-paypal-express *,
-.wc-block-components-express-payment [id*="express-payment-method-buckaroo"] * {
-    height: 45px !important;
+.buckaroo-express-payments:empty,
+.wc-block-components-express-payment:empty {
+    display: none !important;
+}
+
+.applepay-button-container,
+.buckaroo-paypal-express {
+    flex: 1 !important;
+    height: 35px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    min-width: 200px !important;
+    max-width: 300px !important;
     width: 100% !important;
-    box-sizing: border-box !important;
+    cursor: pointer;
+}
+
+
+.applepay-button-container .apple-pay-button,
+.buckaroo-paypal-express > * {
+    height: 35px !important;
+    width: 100% !important;
+    min-width: 100% !important;
 }
