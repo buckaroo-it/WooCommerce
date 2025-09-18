@@ -115,7 +115,7 @@ class PayPerEmailProcessor extends AbstractPaymentProcessor
         Logger::log('Payperemail status check: ' . $responseParser->getStatusCode());
         if (Helper::handleUnsuccessfulPayment($responseParser->getStatusCode())) {
             return [
-                'result' => 'error',
+                'result' => 'failure',
                 'redirect' => $redirectUrl,
             ];
         }
