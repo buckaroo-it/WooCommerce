@@ -215,12 +215,13 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
 
     public function unsuccessfulReturnHandler(ResponseParser $responseParser, string $redirectUrl)
     {
-        if ($responseParser->getStatusCode() === ResponseStatus::BUCKAROO_STATUSCODE_REJECTED) {
-            wc_add_notice(__($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'), 'error');
+        if ($responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_REJECTED) {
+            $errorMessage = $responseParser->getSubCodeMessage() ?: $responseParser->getServiceParameter('ErrorResponseMessage', 'afterpay');
+            wc_add_notice(__($errorMessage, 'wc-buckaroo-bpe-gateway'), 'error');
 
             return [
-                'redirect' => $redirectUrl,
-                'result' => $redirectUrl,
+                'redirect' => $redirectUrl . '?bck_err=' . $errorMessage,
+                'result' => 'failure',
             ];
         }
     }

@@ -92,7 +92,7 @@ class In3Processor extends AbstractPaymentProcessor
     {
         if ($responseParser->isPendingProcessing()) {
             return [
-                'result' => 'error',
+                'result' => 'failure',
                 'redirect' => $redirectUrl,
             ];
         }
