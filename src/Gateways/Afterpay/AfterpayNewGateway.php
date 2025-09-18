@@ -15,6 +15,8 @@ class AfterpayNewGateway extends AbstractPaymentGateway
 
     public const PAYMENT_CLASS = AfterpayNewProcessor::class;
 
+    public const REFUND_CLASS = AfterpayNewRefundProcessor::class;
+
     public const CUSTOMER_TYPE_B2C = 'b2c';
 
     public const CUSTOMER_TYPE_B2B = 'b2b';

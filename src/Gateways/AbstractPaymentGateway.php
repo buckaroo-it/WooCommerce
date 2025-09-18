@@ -787,12 +787,45 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
         $processorClass = static::REFUND_CLASS ?: AbstractRefundProcessor::class;
 
+        $line_items = $this->getRefundLineItemsFromRequest();
+
         return new $processorClass(
             $this,
             new OrderDetails($order),
             $amount,
-            $reason
+            $reason,
+            $line_items
         );
+    }
+
+    private function getRefundLineItemsFromRequest(): array
+    {
+        if (!isset($_POST['line_item_qtys']) || !is_string($_POST['line_item_qtys'])) {
+            return [];
+        }
+
+        $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
+        $line_item_totals = [];
+
+        if (isset($_POST['line_item_totals']) && is_string($_POST['line_item_totals'])) {
+            $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true) ?? [];
+        }
+
+        if (!is_array($line_item_qtys)) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            array_map(
+                fn($item_id, $qty) => $qty > 0 ? [
+                    'item_id' => $item_id,
+                    'qty' => $qty,
+                    'total' => $line_item_totals[$item_id] ?? 0
+                ] : null,
+                array_keys($line_item_qtys),
+                $line_item_qtys
+            )
+        ));
     }
 
     public function checkCurrencySupported(): bool
