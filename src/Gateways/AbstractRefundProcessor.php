@@ -13,16 +13,20 @@ class AbstractRefundProcessor extends AbstractProcessor
 
     private string $reason;
 
+    private array $line_items;
+
     public function __construct(
         AbstractPaymentGateway $gateway,
         OrderDetails $order_details,
         float $amount,
-        string $reason
+        string $reason,
+        array $line_items = []
     ) {
         $this->gateway = $gateway;
         $this->order_details = $order_details;
         $this->amount = $amount;
         $this->reason = $reason;
+        $this->line_items = $line_items;
     }
 
     /**
@@ -38,6 +42,16 @@ class AbstractRefundProcessor extends AbstractProcessor
      */
     public function getBody(): array
     {
+        $originalTransactionKey = (string) $this->getOrder()->get_transaction_id('edit');
+
+        $captures = get_post_meta($this->getOrder()->get_id(), '_wc_order_captures');
+        if ($captures && !empty($captures)) {
+            $lastCapture = end($captures);
+            if (isset($lastCapture['transaction_id'])) {
+                $originalTransactionKey = $lastCapture['transaction_id'];
+            }
+        }
+
         return array_merge(
             $this->getMethodBody(),
             [
@@ -49,7 +63,7 @@ class AbstractRefundProcessor extends AbstractProcessor
                 'cancelURL' => $this->get_return_url(),
                 'pushURL' => $this->get_push_url(),
                 'pushURLFailure' => $this->get_push_url(),
-                'originalTransactionKey' => (string) $this->getOrder()->get_transaction_id('edit'),
+                'originalTransactionKey' => $originalTransactionKey,
                 'additionalParameters' => [
                     'real_order_id' => $this->getOrder()->get_id(),
                 ],
@@ -120,5 +134,13 @@ class AbstractRefundProcessor extends AbstractProcessor
         $label = preg_replace("/\r?\n|\r/", '', $label);
 
         return mb_substr($label, 0, 244);
+    }
+
+    /**
+     * Get refunded line items
+     */
+    protected function getRefundedLineItems(): array
+    {
+        return $this->line_items;
     }
 }
