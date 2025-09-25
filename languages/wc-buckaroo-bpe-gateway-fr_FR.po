@@ -1189,9 +1189,23 @@ msgstr "Rapports"
 msgid "Buckaroo General Settings"
 msgstr "Paramètres Généraux Buckaroo"
 
-#: src/Admin/GeneralSettings.php:138
-msgid "Configure your basic Buckaroo payment settings."
-msgstr "Configurez vos paramètres de paiement Buckaroo de base."
+#: src/Admin/GeneralSettings.php:140
+msgid ""
+"Integrate more then 30+ international payment methods in your WooCommerce "
+"webshop. Simply enable them into your WooCommerce webshop with the Buckaroo "
+"Payments plugin.</br>Please go to the <a href=\"https://plaza.buckaroo."
+"nl/Configuration/Website/Index/\">signup page</a> to create a Buckaroo "
+"account and start receiving payments.</br>Contact <a href=\"mailto:"
+"support@buckaroo.nl\">support@buckaroo.nl</a> if you have any questions "
+"about this plugin."
+msgstr ""
+"Intégrez plus de 30 méthodes de paiement internationales dans votre boutique "
+"WooCommerce. Activez-les simplement dans votre boutique WooCommerce avec le "
+"plugin Buckaroo Payments.</br>Veuillez vous rendre sur la <a href=\"https:"
+"//plaza.buckaroo.nl/Configuration/Website/Index/\">page d'inscription</a> "
+"pour créer un compte Buckaroo et commencer à recevoir des paiements.</br>"
+"Contactez <a href=\"mailto:support@buckaroo.nl\">support@buckaroo.nl</a> si "
+"vous avez des questions concernant ce plugin."
 
 #: src/Admin/GeneralSettings.php:170
 msgid "Configure verification settings for age verification and identity checking."
