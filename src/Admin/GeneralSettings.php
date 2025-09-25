@@ -62,9 +62,9 @@ class GeneralSettings extends WC_Settings_Page
     {
         return [
             '' => __('General Settings', 'wc-buckaroo-bpe-gateway'),
+            'methods' => __('Payment Methods', 'wc-buckaroo-bpe-gateway'),
             'verification' => __('Verification Settings', 'wc-buckaroo-bpe-gateway'),
             'advanced' => __('Advanced Settings', 'wc-buckaroo-bpe-gateway'),
-            'methods' => __('Payment Methods', 'wc-buckaroo-bpe-gateway'),
             'report' => __('Reports', 'wc-buckaroo-bpe-gateway'),
         ];
     }
@@ -258,7 +258,7 @@ class GeneralSettings extends WC_Settings_Page
     protected function render_gateway_list()
     {
         ?>
-<h2><?php echo esc_html__('Payment methods', 'wc-buckaroo-bpe-gateway'); ?></h2>
+<h2><?php echo esc_html__('Payment Methods', 'wc-buckaroo-bpe-gateway'); ?></h2>
 <p>
         <?php
         echo esc_html__('Buckaroo payment methods are listed below and can be accessed, enabled or disabled.', 'wc-buckaroo-bpe-gateway');
@@ -274,7 +274,7 @@ aria-describedby="payment_gateways_options-description">
         $columns = [
             'name' => __('Method', 'wc-buckaroo-bpe-gateway'),
             'status' => __('Enabled', 'wc-buckaroo-bpe-gateway'),
-            'action' => '',
+            'action' => __('Actions', 'wc-buckaroo-bpe-gateway'),
         ];
         foreach ($columns as $key => $column) {
             echo '<th class="' . esc_attr($key) . '">' . esc_html($column) . '</th>';
