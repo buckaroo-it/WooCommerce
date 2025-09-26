@@ -6,6 +6,8 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class TrustlyGateway extends AbstractPaymentGateway
 {
+    public const PAYMENT_CLASS = TrustlyProcessor::class;
+
     protected array $supportedCurrencies = ['EUR', 'SEK', 'NOK', 'DKK', 'GBP'];
 
     public function __construct()
