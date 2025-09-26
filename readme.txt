@@ -44,6 +44,7 @@ Payment method support list by Buckaroo WooCommerce payments plugin
 24. WeChat Pay
 25. Alipay
 26. Twint
+27. Trustly
 
 == Release notes ==
 For detailed release notes, please visit our [GitHub repository](https://github.com/buckaroo-it/WooCommerce).

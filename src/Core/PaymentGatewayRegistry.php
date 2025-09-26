@@ -29,6 +29,7 @@ use Buckaroo\Woocommerce\Gateways\PayPerEmail\PayPerEmailGateway;
 use Buckaroo\Woocommerce\Gateways\Przelewy24\Przelewy24Gateway;
 use Buckaroo\Woocommerce\Gateways\SepaDirectDebit\SepaDirectDebitGateway;
 use Buckaroo\Woocommerce\Gateways\Transfer\TransferGateway;
+use Buckaroo\Woocommerce\Gateways\Trustly\TrustlyGateway;
 use Buckaroo\Woocommerce\Gateways\Twint\TwintGateway;
 use Buckaroo\Woocommerce\Gateways\WeChatPay\WeChatPayGateway;
 use Buckaroo\Woocommerce\Order\OrderCapture;
@@ -65,6 +66,7 @@ class PaymentGatewayRegistry
         'payperemail' => ['gateway_class' => PayPerEmailGateway::class],
         'sepadirectdebit' => ['gateway_class' => SepaDirectDebitGateway::class],
         'transfer' => ['gateway_class' => TransferGateway::class],
+        'trustly' => ['gateway_class' => TrustlyGateway::class],
         'twint' => ['gateway_class' => TwintGateway::class],
         'alipay' => ['gateway_class' => AlipayGateway::class],
         'wechatpay' => ['gateway_class' => WeChatPayGateway::class],
