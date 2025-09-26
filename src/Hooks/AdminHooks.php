@@ -66,15 +66,29 @@ class AdminHooks
         );
         add_submenu_page(
             'admin.php?page=wc-settings&tab=buckaroo_settings',
-            esc_html__('Payment methods', 'wc-buckaroo-bpe-gateway'),
-            esc_html__('Payment methods', 'wc-buckaroo-bpe-gateway'),
+            esc_html__('Payment Methods', 'wc-buckaroo-bpe-gateway'),
+            esc_html__('Payment Methods', 'wc-buckaroo-bpe-gateway'),
             'manage_options',
             'admin.php?page=wc-settings&tab=buckaroo_settings&section=methods'
         );
         add_submenu_page(
             'admin.php?page=wc-settings&tab=buckaroo_settings',
-            esc_html__('Report', 'wc-buckaroo-bpe-gateway'),
-            esc_html__('Report', 'wc-buckaroo-bpe-gateway'),
+            esc_html__('Verification Settings', 'wc-buckaroo-bpe-gateway'),
+            esc_html__('Verification Settings', 'wc-buckaroo-bpe-gateway'),
+            'manage_options',
+            'admin.php?page=wc-settings&tab=buckaroo_settings&section=verification'
+        );
+        add_submenu_page(
+            'admin.php?page=wc-settings&tab=buckaroo_settings',
+            esc_html__('Advanced Settings', 'wc-buckaroo-bpe-gateway'),
+            esc_html__('Advanced Settings', 'wc-buckaroo-bpe-gateway'),
+            'manage_options',
+            'admin.php?page=wc-settings&tab=buckaroo_settings&section=advanced'
+        );
+        add_submenu_page(
+            'admin.php?page=wc-settings&tab=buckaroo_settings',
+            esc_html__('Reports', 'wc-buckaroo-bpe-gateway'),
+            esc_html__('Reports', 'wc-buckaroo-bpe-gateway'),
             'manage_options',
             'admin.php?page=wc-settings&tab=buckaroo_settings&section=report'
         );
