@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-25T12:15:21+00:00\n"
+"POT-Creation-Date: 2025-09-26T08:08:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
@@ -35,146 +35,139 @@ msgstr ""
 msgid "Buckaroo"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:22
+#: src/Admin/GeneralSettings.php:23
 msgid "Buckaroo Settings"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:63
+#: src/Admin/GeneralSettings.php:64
 msgid "General Settings"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:64
-#: src/Admin/GeneralSettings.php:167
+#: src/Admin/GeneralSettings.php:65
+#: src/Admin/GeneralSettings.php:264
 #: src/Hooks/AdminHooks.php:69
 #: src/Hooks/AdminHooks.php:70
-msgid "Verification Settings"
-msgstr ""
-
-#: src/Admin/GeneralSettings.php:65
-#: src/Admin/GeneralSettings.php:196
-#: src/Hooks/AdminHooks.php:76
-#: src/Hooks/AdminHooks.php:77
-msgid "Advanced Settings"
-msgstr ""
-
-#: src/Admin/GeneralSettings.php:66
-#: src/Admin/GeneralSettings.php:260
-#: src/Hooks/AdminHooks.php:83
-#: src/Hooks/AdminHooks.php:84
 msgid "Payment Methods"
 msgstr ""
 
+#: src/Admin/GeneralSettings.php:66
+#: src/Admin/GeneralSettings.php:171
+#: src/Hooks/AdminHooks.php:76
+#: src/Hooks/AdminHooks.php:77
+msgid "Verification Settings"
+msgstr ""
+
 #: src/Admin/GeneralSettings.php:67
+#: src/Admin/GeneralSettings.php:200
+#: src/Hooks/AdminHooks.php:83
+#: src/Hooks/AdminHooks.php:84
+msgid "Advanced Settings"
+msgstr ""
+
+#: src/Admin/GeneralSettings.php:68
 #: src/Hooks/AdminHooks.php:90
 #: src/Hooks/AdminHooks.php:91
 msgid "Reports"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:122
+#: src/Admin/GeneralSettings.php:123
 msgid "Buckaroo General Settings"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:126
+#: src/Admin/GeneralSettings.php:127
 msgid "Documentation"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:130
+#: src/Admin/GeneralSettings.php:131
 msgid "FAQ"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:140
-msgid ""
-"Integrate more then 30+ international payment methods in your WooCommerce "
-"webshop. Simply enable them into your WooCommerce webshop with the Buckaroo "
-"Payments plugin.</br>Please go to the <a href=\"https://plaza.buckaroo."
-"nl/Configuration/Website/Index/\">signup page</a> to create a Buckaroo "
-"account and start receiving payments.</br>Contact <a href=\"mailto:"
-"support@buckaroo.nl\">support@buckaroo.nl</a> if you have any questions "
-"about this plugin."
+#: src/Admin/GeneralSettings.php:139
+msgid "Integrate more then 30+ international payment methods in your WooCommerce webshop. Simply enable them into your WooCommerce webshop with the Buckaroo Payments plugin.</br>Please go to the <a href=\"https://plaza.buckaroo.nl/Configuration/Website/Index/\">signup page</a> to create a Buckaroo account and start receiving payments.</br>Contact <a href=\"mailto:support@buckaroo.nl\">support@buckaroo.nl</a> if you have any questions about this plugin."
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:170
+#: src/Admin/GeneralSettings.php:174
 msgid "Configure verification settings for age verification and identity checking."
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:199
+#: src/Admin/GeneralSettings.php:203
 msgid "Configure advanced debugging and development settings."
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:263
+#: src/Admin/GeneralSettings.php:267
 msgid "Buckaroo payment methods are listed below and can be accessed, enabled or disabled."
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:274
+#: src/Admin/GeneralSettings.php:278
 msgid "Method"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:275
+#: src/Admin/GeneralSettings.php:279
 #: src/Gateways/Paypal/PaypalGateway.php:100
 msgid "Enabled"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:276
+#: src/Admin/GeneralSettings.php:280
 msgid "Actions"
 msgstr ""
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:311
+#: src/Admin/GeneralSettings.php:315
 msgid "Manage the \"%s\" payment method"
 msgstr ""
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:311
+#: src/Admin/GeneralSettings.php:315
 msgid "Manage"
 msgstr ""
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:314
+#: src/Admin/GeneralSettings.php:318
 msgid "Set up the \"%s\" payment method"
 msgstr ""
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:314
+#: src/Admin/GeneralSettings.php:318
 msgid "Set up"
 msgstr ""
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:321
+#: src/Admin/GeneralSettings.php:325
 msgid "The \"%s\" payment method is currently enabled"
 msgstr ""
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:321
+#: src/Admin/GeneralSettings.php:325
 #: src/Gateways/Transfer/TransferGateway.php:73
 #: src/Gateways/Transfer/TransferGateway.php:83
 msgid "Yes"
 msgstr ""
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:324
+#: src/Admin/GeneralSettings.php:328
 msgid "The \"%s\" payment method is currently disabled"
 msgstr ""
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:324
+#: src/Admin/GeneralSettings.php:328
 #: src/Gateways/Transfer/TransferGateway.php:74
 #: src/Gateways/Transfer/TransferGateway.php:84
 msgid "No"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:480
+#: src/Admin/GeneralSettings.php:484
 msgid "enabled (live)"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:482
+#: src/Admin/GeneralSettings.php:486
 msgid "enabled (test)"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:485
+#: src/Admin/GeneralSettings.php:489
 msgid "disabled"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:490
+#: src/Admin/GeneralSettings.php:494
 msgid "edit"
 msgstr ""
 
@@ -844,6 +837,14 @@ msgstr ""
 
 #: src/Gateways/Transfer/TransferGateway.php:81
 msgid "Show payment procedures on the thank you page after payment confirmation."
+msgstr ""
+
+#: src/Gateways/Trustly/TrustlyGateway.php:17
+msgid "Trustly is a secure online banking payment method that allows customers to pay directly from their bank account."
+msgstr ""
+
+#: src/Gateways/Twint/TwintGateway.php:17
+msgid "TWINT is Switzerland's payment app for convenient and secure payments using your smartphone."
 msgstr ""
 
 #: src/Hooks/AdminHooks.php:29

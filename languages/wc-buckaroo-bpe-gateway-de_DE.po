@@ -1265,3 +1265,11 @@ msgstr ""
 #: assets/js/dist/blocks.js:2
 msgid "Session expired, please try again."
 msgstr ""
+
+#: src/Gateways/Trustly/TrustlyGateway.php:17
+msgid "Trustly is a secure online banking payment method that allows customers to pay directly from their bank account."
+msgstr "Trustly ist eine sichere Online-Banking-Zahlungsmethode, mit der Kunden direkt von ihrem Bankkonto bezahlen können."
+
+#: src/Gateways/Twint/TwintGateway.php:17
+msgid "TWINT is Switzerland's payment app for convenient and secure payments using your smartphone."
+msgstr "TWINT ist die Schweizer Bezahl-App für bequeme und sichere Zahlungen mit Ihrem Smartphone."
