@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 5.3.18
 Tested up to: 6.7.2
-Stable tag: 4.5.1
+Stable tag: 4.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,18 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
+= 4.6.0 =
+BP-4600 Add payment method: Twint
+BP-4578 Add payment method: Trustly
+BP-4543 The payment method “iDEAL In3” is rebranded back to its original name “In3”.
+BP-4567 Add “Automatic Configuration” button to check the Buckaroo subscriptions and configure the plugin.
+BP-4587 Restructure plugin settings.
+BP-4569 Improve the way express payment buttons are displayed (like: Apple Pay & PayPal Express).
+BP-4592 Update README.md with the latest supported versions.
+BP-4534 Fix: No clear error message displayed when the payment was getting rejected.
+BP-4553 Fix: Klarna (authorize/capture) refund from the Buckaroo plaza not updating in WooCommerce (order status and amount).
+BP-4666 Fix: Rejection message for Rivery was not showed correctly in some specific scenario’s.
+BP-4581 Fix: Riverty Missing articles in partial refund request (JSON).
 = 4.5.1 =
 BP-4538: Optimized storage of buckaroo_settlement data in WooCommerce orders.
 BP-4537: Prevented autoloading of unnecessary options on the frontend.
