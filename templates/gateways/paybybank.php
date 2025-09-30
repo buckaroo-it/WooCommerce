@@ -25,7 +25,7 @@ $selectedIssuer = \Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor::g
         <div class="form-row form-row-wide">
             <select name="buckaroo-paybybank-issuer" id="buckaroo-paybybank-issuer">
                 <option value="0" style="color: grey !important">
-                    <?php echo esc_html_e('Select your bank', 'wc-buckaroo-bpe-gateway'); ?>
+                    <?php esc_html_e('Select your bank', 'wc-buckaroo-bpe-gateway'); ?>
                 </option>
                 <?php foreach ($issuers as $key => $issuer) { ?>
                 <div>
@@ -35,7 +35,7 @@ $selectedIssuer = \Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor::g
                                                     ?>
 selected 
                                                 <?php } ?> id="bankMethod<?php echo esc_attr($key); ?>">
-                        <?php echo esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?>
+                        <?php esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?>
                     </option>
                 </div>
                 <?php } ?>
@@ -46,7 +46,7 @@ selected
     <div class="form-row form-row-wide bk-paybybank-input bk-paybybank-mobile" style="display: none;">
         <select class="buckaroo-paybybank-select">
             <option value style="color: grey !important">
-                <?php echo esc_html_e('Select your bank', 'wc-buckaroo-bpe-gateway'); ?>
+                <?php esc_html_e('Select your bank', 'wc-buckaroo-bpe-gateway'); ?>
             </option>
             <?php foreach ($issuers as $key => $issuer) { ?>
             <div>
@@ -56,7 +56,7 @@ selected
                                                 ?>
 selected 
                                             <?php } ?> id="bankMethod<?php echo esc_attr($key); ?>">
-                    <?php echo esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?>
+                    <?php esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?>
                 </option>
             </div>
             <?php } ?>
@@ -74,16 +74,16 @@ selected
 checked 
                     <?php } ?> id="radio-bankMethod<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($key); ?>" class="custom-control-input bank-method-input bk-paybybank-radio">
                     <label class="custom-control-label bank-method-label" for="radio-bankMethod<?php echo esc_attr($key); ?>">
-                        <img src="<?php echo esc_url(plugin_dir_url(__DIR__) . '../library/buckaroo_images/ideal/' . $issuer['logo']); ?>" wdith="45" class="bank-method-image" alt="<?php echo esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?>" title="<?php echo esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?>">
-                        <strong><?php echo esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?></strong>
+                        <img src="<?php echo esc_url(plugin_dir_url(__DIR__) . '../library/buckaroo_images/ideal/' . $issuer['logo']); ?>" wdith="45" class="bank-method-image" alt="<?php esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?>" title="<?php esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?>">
+                        <strong><?php esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?></strong>
                     </label>
                 </div>
             <?php } ?>
         </div>
         <div class="bk-paybybank-toggle-list">
             <div class="bk-toggle-wrap">
-                <div class="bk-toggle-text" text-less="<?php echo esc_html_e('Less banks', 'wc-buckaroo-bpe-gateway'); ?>" text-more="<?php echo esc_html_e('More banks', 'wc-buckaroo-bpe-gateway'); ?>">
-                    <?php echo esc_html_e('More banks', 'wc-buckaroo-bpe-gateway'); ?>
+                <div class="bk-toggle-text" text-less="<?php esc_html_e('Less banks', 'wc-buckaroo-bpe-gateway'); ?>" text-more="<?php esc_html_e('More banks', 'wc-buckaroo-bpe-gateway'); ?>">
+                    <?php esc_html_e('More banks', 'wc-buckaroo-bpe-gateway'); ?>
                 </div>
                 <div class="bk-toggle bk-toggle-down"></div>
             </div>
