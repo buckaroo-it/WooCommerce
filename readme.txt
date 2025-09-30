@@ -76,7 +76,7 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
-= 4.6.0 =
+= 4.6.1 =
 BP-4600 Add payment method: Twint
 BP-4578 Add payment method: Trustly
 BP-4543 The payment method “iDEAL In3” is rebranded back to its original name “In3”.
