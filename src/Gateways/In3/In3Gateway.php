@@ -24,7 +24,7 @@ class In3Gateway extends AbstractPaymentGateway
 
     public const IN3_V2_TITLE = 'In3';
 
-    public const IN3_V3_TITLE = 'iDEAL In3';
+    public const IN3_V3_TITLE = 'In3';
 
     public $type;
 
@@ -44,30 +44,13 @@ class In3Gateway extends AbstractPaymentGateway
 
         parent::__construct();
 
-        $this->setIcons();
+        $this->setIcon('svg/in3.svg');
         $this->addRefundSupport();
     }
 
     private function getTitleForVersion()
     {
         return $this->get_option('api_version') === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
-    }
-
-    /**
-     * Set icons based on version
-     *
-     * @return void
-     */
-    private function setIcons()
-    {
-        if (
-            $this->get_option('api_version') === 'v2'
-        ) {
-            $this->setIcon('svg/in3.svg');
-
-            return;
-        }
-        $this->setIcon('svg/in3-ideal.svg');
     }
 
     public function getServiceCode(?AbstractProcessor $processor = null)
@@ -142,7 +125,7 @@ class In3Gateway extends AbstractPaymentGateway
             'type' => 'select',
             'description' => __('Chose the api version for this payment method.', 'wc-buckaroo-bpe-gateway'),
             'options' => [
-                self::VERSION3 => __('V3 (iDEAL In3)'),
+                self::VERSION3 => __('V3 (In3)'),
                 self::VERSION2 => __('V2 (Capayabel/In3)'),
             ],
             'default' => self::VERSION3,

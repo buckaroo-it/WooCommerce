@@ -24,8 +24,7 @@ jobs:
                     cd Media
                     cp -R "Payment methods/SVG/." ${{ github.workspace }}/library/buckaroo_images/svg/
                     cd ${{ github.workspace }}/library/buckaroo_images/svg/
-                    mv ideal-in3.svg in3-ideal.svg
-                    rm -f vouchers.svg trustly.svg tinka.svg buckaroovoucher.svg
+                    rm -f vouchers.svg tinka.svg buckaroovoucher.svg
                     rm -f ideal-qr.svg paylink.svg pos.svg pos-nfc.svg riverty.svg
             -   name: Copy creditcards icons
                 run: |

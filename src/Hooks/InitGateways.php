@@ -2,10 +2,12 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
+use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinController;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
+use Buckaroo\Woocommerce\Gateways\BuckarooExpressBlocks;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
 use Buckaroo\Woocommerce\Services\Helper;
@@ -17,11 +19,15 @@ class InitGateways
         add_action('enqueue_block_assets', [$this, 'initGatewaysOnCheckout']);
         add_action('woocommerce_api_wc_push_buckaroo', [$this, 'pushClassInit']);
 
+        add_action('woocommerce_blocks_payment_method_type_registration', [$this, 'registerBuckarooExpressBlocks']);
+
         $idinController = new IdinController();
 
         add_action('woocommerce_before_single_product', [$this, 'idinProduct']);
         add_action('woocommerce_before_cart', [$this, 'idinCart']);
         add_action('woocommerce_review_order_before_payment', [$this, 'idinCheckout']);
+
+        add_action('template_redirect', [$this, 'displayBuckarooErrors']);
 
         add_action('woocommerce_api_wc_gateway_buckaroo_idin-identify', [$idinController, 'identify']);
         add_action('woocommerce_api_wc_gateway_buckaroo_idin-reset', [$idinController, 'reset']);
@@ -52,12 +58,34 @@ class InitGateways
 
     public function idinCheckout(): void
     {
-        if (! empty($_GET['bck_err']) && ($error = base64_decode($_GET['bck_err']))) {
-            wc_add_notice(esc_html__(sanitize_text_field($error), 'wc-buckaroo-bpe-gateway'), 'error');
-        }
+        $this->displayBuckarooErrors();
         if (IdinProcessor::isIdin(IdinProcessor::getCartProductIds())) {
             include plugin_dir_path(BK_PLUGIN_FILE) . 'templates/idin/checkout.php';
         }
+    }
+
+    public function displayBuckarooErrors(): void
+    {
+        if (empty($_GET['bck_err'])) {
+            return;
+        }
+
+        if (!is_checkout() && !is_wc_endpoint_url() && !is_page('checkout')) {
+            return;
+        }
+
+        if ($this->isBlocksCheckout()) {
+            return;
+        }
+
+        if ($error = base64_decode($_GET['bck_err'])) {
+            wc_add_notice(esc_html__(sanitize_text_field($error), 'wc-buckaroo-bpe-gateway'), 'error');
+        }
+    }
+
+    private function isBlocksCheckout(): bool
+    {
+        return function_exists('has_block') && has_block('woocommerce/checkout');
     }
 
     public function initGatewaysOnCheckout()
@@ -150,5 +178,20 @@ class InitGateways
     {
         return (! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
             || ! empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443;
+    }
+
+    /**
+     * Register Buckaroo Express payment methods blocks support
+     *
+     * @param object $payment_method_registry Payment method registry from WooCommerce Blocks
+     */
+    public function registerBuckarooExpressBlocks($payment_method_registry)
+    {
+        if (! class_exists(AbstractPaymentMethodType::class)) {
+            return;
+        }
+
+        // Register universal blocks support for all Buckaroo express payment methods
+        $payment_method_registry->register(new BuckarooExpressBlocks($this->initGatewaysOnCheckout()));
     }
 }

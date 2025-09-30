@@ -61,9 +61,11 @@ class GeneralSettings extends WC_Settings_Page
     protected function get_own_sections()
     {
         return [
-            '' => __('General', 'wc-buckaroo-bpe-gateway'),
-            'methods' => __('Payment methods', 'wc-buckaroo-bpe-gateway'),
-            'report' => __('Report', 'wc-buckaroo-bpe-gateway'),
+            '' => __('General Settings', 'wc-buckaroo-bpe-gateway'),
+            'methods' => __('Payment Methods', 'wc-buckaroo-bpe-gateway'),
+            'verification' => __('Verification Settings', 'wc-buckaroo-bpe-gateway'),
+            'advanced' => __('Advanced Settings', 'wc-buckaroo-bpe-gateway'),
+            'report' => __('Reports', 'wc-buckaroo-bpe-gateway'),
         ];
     }
 
@@ -74,94 +76,161 @@ class GeneralSettings extends WC_Settings_Page
     {
         global $current_section, $hide_save_button;
 
-        if (version_compare(WOOCOMMERCE_VERSION, '5.5.0', '<')) {
-            if ($current_section === '') {
-                WC_Admin_Settings::output_fields($this->get_settings_for_default_section());
-            }
-        }
-
-        parent::output();
-
-        if ($current_section === 'report') {
-            (new ReportPage())->output_report();
-            $hide_save_button = true;
-        }
-        if ($current_section === 'methods') {
-            $this->render_gateway_list();
-            $hide_save_button = true;
-        }
-        if ($current_section === 'logs' && isset($_GET['log_file'])) {
-            (new ReportPage())->display_log_file(
-                sanitize_text_field($_GET['log_file'])
-            );
-            $hide_save_button = true;
+        switch ($current_section) {
+            case '':
+                WC_Admin_Settings::output_fields($this->get_general_settings());
+                break;
+            case 'verification':
+                WC_Admin_Settings::output_fields($this->get_verification_settings());
+                break;
+            case 'advanced':
+                WC_Admin_Settings::output_fields($this->get_advanced_settings());
+                break;
+            case 'methods':
+                $this->render_gateway_list();
+                $hide_save_button = true;
+                break;
+            case 'report':
+                if (isset($_GET['log_file'])) {
+                    (new ReportPage())->display_log_file(sanitize_text_field($_GET['log_file']));
+                } else {
+                    (new ReportPage())->output_report();
+                }
+                $hide_save_button = true;
+                break;
         }
     }
 
     /**
-    {@inheritDoc}
+     * Get general settings
      */
-    public function get_settings_for_default_section()
+    public function get_general_settings()
     {
-        $settings = array_merge(
+        $generalFields = [
+            'merchantkey',
+            'secretkey',
+            'test_credentials',
+            'auto_configure',
+            'transactiondescription',
+            'refund_description',
+            'feetax',
+            'paymentfeevat',
+            'culture'
+        ];
+
+        $settings = [
             [
-                [
-                    'title' => __(
-                        'Buckaroo settings',
-                        'wc-buckaroo-bpe-gateway'
-                    ),
-                    'type' => 'buckaroo_submeniu',
-                    'links' => [
-                        [
-                            'name' => __('Documentation', 'wc-buckaroo-bpe-gateway'),
-                            'href' => 'https://support.buckaroo.nl/categorieen/plugins/woocommerce',
-                        ],
-                        [
-                            'name' => __('FAQ', 'wc-buckaroo-bpe-gateway'),
-                            'href' => 'https://support.buckaroo.nl/categorieen/plugins/woocommerce/faq-woocommerce',
-                        ],
+                'title' => __('Buckaroo General Settings', 'wc-buckaroo-bpe-gateway'),
+                'type' => 'buckaroo_submeniu',
+                'links' => [
+                    [
+                        'name' => __('Documentation', 'wc-buckaroo-bpe-gateway'),
+                        'href' => 'https://support.buckaroo.nl/categorieen/plugins/woocommerce',
+                    ],
+                    [
+                        'name' => __('FAQ', 'wc-buckaroo-bpe-gateway'),
+                        'href' => 'https://support.buckaroo.nl/categorieen/plugins/woocommerce/faq-woocommerce',
                     ],
                 ],
-                [
-                    'type' => 'title',
-                    'id' => 'buckaroo-page',
-                    'desc' => __(
-                        'Integrate more then 30+ international payment methods in your WooCommerce webshop. Simply enable them into your WooCommerce webshop with the Buckaroo Payments plugin.</br>Please go to the <a href="https://plaza.buckaroo.nl/Configuration/Website/Index/">signup page</a> to create a Buckaroo account and start receiving payments.</br>Contact <a href="mailto:support@buckaroo.nl">support@buckaroo.nl</a> if you have any questions about this plugin.',
-                        'wc-buckaroo-bpe-gateway'
-                    ),
-                ],
-                [
-                    'type' => 'buckaroo_payment_list',
-                ],
-                [
-                    'title' => __(
-                        'General settings',
-                        'wc-buckaroo-bpe-gateway'
-                    ),
-                    'type' => 'title',
-                    'id' => 'buckaroo-general-settings',
-
-                ],
             ],
-            $this->get_master_settings()
-        );
+            [
+                'type' => 'title',
+                'id' => 'buckaroo-general',
+                'desc' => __(
+                    'Integrate more then 30+ international payment methods in your WooCommerce webshop. Simply enable them into your WooCommerce webshop with the Buckaroo Payments plugin.</br>Please go to the <a href="https://plaza.buckaroo.nl/Configuration/Website/Index/">signup page</a> to create a Buckaroo account and start receiving payments.</br>Contact <a href="mailto:support@buckaroo.nl">support@buckaroo.nl</a> if you have any questions about this plugin.',
+                    'wc-buckaroo-bpe-gateway'
+                ),
+            ],
+            [
+                'type' => 'buckaroo_payment_list',
+            ],
+        ];
+
+        $settings = array_merge($settings, $this->get_fields_by_keys($generalFields));
+
         $settings[] = [
             'type' => 'sectionend',
-            'id' => 'buckaroo-page',
+            'id' => 'buckaroo-general',
         ];
 
         return $settings;
     }
 
     /**
-    Get master fields
-
-    @return array
+     * Get verification settings
      */
-    public function get_master_settings()
+    public function get_verification_settings()
     {
+        $verificationFields = [
+            'useidin',
+            'idincategories'
+        ];
+
+        $settings = [
+            [
+                'title' => __('Verification Settings', 'wc-buckaroo-bpe-gateway'),
+                'type' => 'title',
+                'id' => 'buckaroo-verification',
+                'desc' => __('Configure verification settings for age verification and identity checking.', 'wc-buckaroo-bpe-gateway'),
+            ],
+        ];
+
+        $settings = array_merge($settings, $this->get_fields_by_keys($verificationFields));
+
+        $settings[] = [
+            'type' => 'sectionend',
+            'id' => 'buckaroo-verification',
+        ];
+
+        return $settings;
+    }
+
+    /**
+     * Get advanced settings
+     */
+    public function get_advanced_settings()
+    {
+        $advancedFields = [
+            'debugmode',
+            'logstorage'
+        ];
+
+        $settings = [
+            [
+                'title' => __('Advanced Settings', 'wc-buckaroo-bpe-gateway'),
+                'type' => 'title',
+                'id' => 'buckaroo-advanced',
+                'desc' => __('Configure advanced debugging and development settings.', 'wc-buckaroo-bpe-gateway'),
+            ],
+        ];
+
+        $settings = array_merge($settings, $this->get_fields_by_keys($advancedFields));
+
+        $settings[] = [
+            'type' => 'sectionend',
+            'id' => 'buckaroo-advanced',
+        ];
+
+        return $settings;
+    }
+
+    /**
+     * Get specific fields by their keys
+     *
+     * @param array $fieldKeys
+     * @return array
+     */
+    public function get_fields_by_keys($fieldKeys)
+    {
+        $this->gateway->init_form_fields();
         $fields = [];
-        foreach ($this->gateway->form_fields as $id => $field) {
+
+        foreach ($fieldKeys as $id) {
+            if (!isset($this->gateway->form_fields[$id])) {
+                continue;
+            }
+
+            $field = $this->gateway->form_fields[$id];
             $type = $field['type'];
 
             if (in_array($field['type'], ['button', 'hidden', 'file'])) {
@@ -192,7 +261,7 @@ class GeneralSettings extends WC_Settings_Page
     protected function render_gateway_list()
     {
         ?>
-<h2><?php echo esc_html__('Payment methods', 'wc-buckaroo-bpe-gateway'); ?></h2>
+<h2><?php echo esc_html__('Payment Methods', 'wc-buckaroo-bpe-gateway'); ?></h2>
 <p>
         <?php
         echo esc_html__('Buckaroo payment methods are listed below and can be accessed, enabled or disabled.', 'wc-buckaroo-bpe-gateway');
@@ -208,7 +277,7 @@ aria-describedby="payment_gateways_options-description">
         $columns = [
             'name' => __('Method', 'wc-buckaroo-bpe-gateway'),
             'status' => __('Enabled', 'wc-buckaroo-bpe-gateway'),
-            'action' => '',
+            'action' => __('Actions', 'wc-buckaroo-bpe-gateway'),
         ];
         foreach ($columns as $key => $column) {
             echo '<th class="' . esc_attr($key) . '">' . esc_html($column) . '</th>';
@@ -317,21 +386,63 @@ aria-describedby="payment_gateways_options-description">
 
     public function save()
     {
-        if (version_compare(WOOCOMMERCE_VERSION, '5.5.0', '<')) {
-            $this->save_settings_for_current_section();
+        global $current_section;
+
+        if (in_array($current_section, ['', 'verification', 'advanced'])) {
+            $originalFields = $this->gateway->form_fields;
+            $this->gateway->form_fields = $this->get_current_section_fields($current_section);
+
+            $this->gateway->process_admin_options();
+            $this->gateway->form_fields = $originalFields;
+
+            $this->getErrors();
         }
-        parent::save();
     }
 
     /**
-    {@inheritDoc}
+     * Get fields for current section only
      */
-    public function save_settings_for_current_section()
+    private function get_current_section_fields($section)
     {
-        global $current_section;
-        if ($current_section === '') {
-            $this->gateway->process_admin_options();
-            $this->getErrors();
+        $this->gateway->init_form_fields();
+        $allFields = $this->gateway->form_fields;
+        $sectionFields = [];
+
+        $fieldKeys = $this->get_section_field_keys($section);
+
+        foreach ($fieldKeys as $key) {
+            if (isset($allFields[$key])) {
+                $sectionFields[$key] = $allFields[$key];
+            }
+        }
+
+        return $sectionFields;
+    }
+
+    /**
+     * Get field keys for a specific section
+     */
+    private function get_section_field_keys($section)
+    {
+        switch ($section) {
+            case '':
+                return [
+                    'merchantkey',
+                    'secretkey',
+                    'test_credentials',
+                    'auto_configure',
+                    'transactiondescription',
+                    'refund_description',
+                    'feetax',
+                    'paymentfeevat',
+                    'culture'
+                ];
+            case 'verification':
+                return ['useidin', 'idincategories'];
+            case 'advanced':
+                return ['debugmode', 'logstorage'];
+            default:
+                return [];
         }
     }
 
@@ -353,7 +464,7 @@ aria-describedby="payment_gateways_options-description">
     public function render_payment_list()
     {
         $gateways = $this->getBuckarooGateways();
-        $containerHeight = ceil(count($gateways) / 3) * 45
+        $containerHeight = ceil(count($gateways) / 3) * 45;
         ?>
 <ul class="buckaroo-payment-list" style="height:<?php echo esc_attr($containerHeight); ?>px">
         <?php

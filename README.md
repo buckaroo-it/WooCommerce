@@ -19,14 +19,14 @@
 
 WooCommerce is an open source ecommerce plugin for WordPress. It is designed for small to large online merchants using WordPress.
 
-The Buckaroo WooCommerce Payments Plugin ([Dutch](https://support.buckaroo.nl/categorieen/plugins/woocommerce) or [English](https://support.buckaroo.eu/categories/plugins/woocommerce)) is convenient and works like a charm, it's easy to install and takes all the trouble out of your hands. It is a plugin with multiple different payment methods, all of which are SEPA proof. This plugin is completely free to download. WooCommerce is an excellent platform for a webshop to look professional, comes with built-in tools to analyze sales and it is also fully customizable. WooCommerce is used by 30% of all webshops worldwide, [download](https://wordpress.org/plugins/wc-buckaroo-bpe-gateway/) this plugin now and find out more!
+The [Buckaroo WooCommerce Payments Plugin](https://wordpress.org/plugins/wc-buckaroo-bpe-gateway/) is convenient and works like a charm, it's easy to install and takes all the trouble out of your hands. It is a plugin with multiple different payment methods, all of which are SEPA proof. This plugin is completely free to download. WooCommerce is an excellent platform for a webshop to look professional, comes with built-in tools to analyze sales and it is also fully customizable. WooCommerce is used by 30% of all webshops worldwide, [download](https://wordpress.org/plugins/wc-buckaroo-bpe-gateway/) this plugin now and find out more!
 
 ### Requirements
 
 To use the Buckaroo plugin, please be aware of the following minimum requirements:
 - A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
-- WordPress 5.3.18 up to 6.7.2
-- WooCommerce 5.0 up to 9.8.1
+- WordPress 5.3.18 up to 6.7.3
+- WooCommerce 5.0 up to 10.0.3
 - PHP 7.4, 8.0, 8.1, 8.2, 8.3
 
 ### Quick installation
@@ -46,7 +46,7 @@ To use the Buckaroo plugin, please be aware of the following minimum requirement
 
 ### Configuration
 
-For the configuration of the plugin, please refer to our [Dutch](https://docs.buckaroo.io/docs/nl/woocommerce-configuratie) or [English](https://docs.buckaroo.io/docs/woocommerce-configuration) support website. You'll find all the needed information there.
+For the configuration of the plugin, please refer to the [Buckaroo Knowledge Base](https://docs.buckaroo.io/docs/woocommerce-configuration). You'll find all the needed information there.
 You can also contact our [technical support department](mailto:support@buckaroo.nl) if you still have some unanswered questions.
 
 ### Contribute
@@ -64,8 +64,7 @@ If you want to contribute as well, then please follow our [Contribution Guidelin
 - **PATCHES:** Bug and hotfixes only.
 
 ### Additional information
-- **Knowledge base & FAQ:** Available in [Dutch](https://docs.buckaroo.io/docs/nl/woocommerce) or [English](https://docs.buckaroo.io/docs/woocommerce).
-- **Support:** https://docs.buckaroo.io
+- **Knowledge Base:** [https://docs.buckaroo.io](https://docs.buckaroo.io/docs/woocommerce)
 - **Contact:** [support@buckaroo.nl](mailto:support@buckaroo.nl) or [+31 (0)30 711 50 50](tel:+310307115050)
 
 <b>Please note:</b><br>

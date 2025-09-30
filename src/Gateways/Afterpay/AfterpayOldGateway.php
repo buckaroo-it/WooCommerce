@@ -14,6 +14,8 @@ class AfterpayOldGateway extends AbstractPaymentGateway
 
     public const PAYMENT_CLASS = AfterpayOldProcessor::class;
 
+    public const REFUND_CLASS = AbstractAfterpayRefundProcessor::class;
+
     public $type;
 
     public $b2b;

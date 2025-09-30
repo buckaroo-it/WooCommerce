@@ -48,7 +48,7 @@ class TransferProcessor extends AbstractPaymentProcessor
         Logger::log('Transfer status check: ' . $responseParser->getStatusCode());
         if (Helper::handleUnsuccessfulPayment($responseParser->getStatusCode())) {
             return [
-                'result' => 'error',
+                'result' => 'failure',
                 'redirect' => $redirectUrl,
             ];
         }

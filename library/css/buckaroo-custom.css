@@ -98,11 +98,6 @@ table.woocommerce_order_items tbody tr:first-child td {
     text-align: right;
 }
 
-.applepay-button-container {
-    max-width: 200px;
-    margin: 10px 0;
-}
-
 #woocommerce_buckaroo_creditcard_AllowedProvider,
 #woocommerce_buckaroo_creditcard_show_in_checkout {
     width: 400px;
@@ -188,7 +183,7 @@ table.woocommerce_order_items tbody tr:first-child td {
 
 @media (max-width: 768px) {
     .buckaroo-payment-list li {
-        width: 1000%;
+        width: 100%;
     }
 }
 
@@ -196,11 +191,6 @@ label[for^='payment_method_buckaroo_'] img {
     max-height: 25px;
     width: 32px;
     float: right;
-}
-
-.buckaroo-paypal-express {
-    margin: 10px 0;
-    max-width: 200px;
 }
 
 /* paybybank */
@@ -373,11 +363,6 @@ label.bk-in3-logo img {
     display: none;
 }
 
-#express-payment-method-buckaroo_paypal_express .buckaroo-paypal-express {
-    margin: 18px 0;
-    max-width: none;
-}
-
 .wc-buckaroo-action-button.email::after {
     content: '\f465';
 }
@@ -420,4 +405,36 @@ label.bk-in3-logo img {
 .woocommerce-page.woocommerce-checkout #payment .buckaroo-creditcard-fieldset div.form-row {
     margin: 0 0 1em;
     padding: 3px;
+}
+
+.buckaroo-express-payments,
+.wc-block-components-express-payment {
+    width: 100%;
+    display: grid !important;
+    gap: 12px !important;
+    margin: 15px 0 !important;
+}
+
+.buckaroo-express-payments:empty,
+.wc-block-components-express-payment:empty {
+    display: none !important;
+}
+
+.applepay-button-container,
+.buckaroo-paypal-express {
+    flex: 1 !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    min-width: 200px !important;
+    max-width: 400px !important;
+    width: 100% !important;
+    cursor: pointer;
+}
+
+.applepay-button-container .apple-pay-button,
+.buckaroo-paypal-express > * {
+    height: 40px !important;
+    width: 100% !important;
+    min-width: 100% !important;
 }

@@ -2,27 +2,31 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
+use Buckaroo\Woocommerce\Gateways\ExpressPaymentManager;
+
 class ApplepayButtons
 {
     public function loadActions()
     {
-        add_action('woocommerce_after_add_to_cart_button', [$this, 'renderButtonOnProductPage']);
-        add_action('woocommerce_after_cart_totals', [$this, 'renderButtonOnCartPage']);
-        add_action('woocommerce_before_checkout_form', [$this, 'renderButtonOnCheckoutPage']);
+        $expressManager = ExpressPaymentManager::getInstance();
+
+        if ($this->paymentMethodIsEnabled()) {
+            if ($this->buttonIsEnabled('product')) {
+                $expressManager->registerExpressPayment('applepay', [$this, 'render_button'], 'product');
+            }
+            if ($this->buttonIsEnabled('cart')) {
+                $expressManager->registerExpressPayment('applepay', [$this, 'render_button'], 'cart');
+            }
+            if ($this->buttonIsEnabled('checkout')) {
+                $expressManager->registerExpressPayment('applepay', [$this, 'render_button'], 'checkout');
+            }
+        }
     }
 
-    public function renderButtonOnProductPage()
+    public function render_button()
     {
-        global $product;
-
-        if (
-            $this->buttonIsEnabled('product') &&
-            $this->paymentMethodIsEnabled() &&
-            $this->isHttpsConnection() &&
-            $product->get_stock_status() === 'instock'
-        ) {
-            echo "<div class='applepay-button-container is-detail-page'><div></div></div>";
-        }
+        $isDetailPage = get_post_type() == 'product';
+        echo "<div class='applepay-button-container" . ($isDetailPage ? ' is-detail-page' : null) . "'><div></div></div>";
     }
 
     private function buttonIsEnabled($page)
@@ -45,32 +49,5 @@ class ApplepayButtons
         }
 
         return false;
-    }
-
-    private function isHttpsConnection()
-    {
-        return isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? true : false;
-    }
-
-    public function renderButtonOnCartPage()
-    {
-        if (
-            $this->buttonIsEnabled('cart') &&
-            $this->paymentMethodIsEnabled() &&
-            $this->isHttpsConnection()
-        ) {
-            echo "<div class='applepay-button-container'><div></div></div>";
-        }
-    }
-
-    public function renderButtonOnCheckoutPage()
-    {
-        if (
-            $this->buttonIsEnabled('checkout') &&
-            $this->paymentMethodIsEnabled() &&
-            $this->isHttpsConnection()
-        ) {
-            echo "<div class='applepay-button-container'><div></div></div>";
-        }
     }
 }

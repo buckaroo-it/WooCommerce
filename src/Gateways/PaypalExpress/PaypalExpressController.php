@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Services\Logger;
+use Buckaroo\Woocommerce\Gateways\ExpressPaymentManager;
 use Throwable;
 
 /**
@@ -155,14 +156,16 @@ class PaypalExpressController
      */
     protected function hook_active_buttons()
     {
+        $expressManager = ExpressPaymentManager::getInstance();
+
         if ($this->active_on_page(self::LOCATION_PRODUCT)) {
-            add_action('woocommerce_after_add_to_cart_button', [$this, 'render_button']);
+            $expressManager->registerExpressPayment('paypal_express', [$this, 'render_button'], 'product');
         }
         if ($this->active_on_page(self::LOCATION_CART)) {
-            add_action('woocommerce_after_cart_totals', [$this, 'render_button']);
+            $expressManager->registerExpressPayment('paypal_express', [$this, 'render_button'], 'cart');
         }
         if ($this->active_on_page(self::LOCATION_CHECKOUT)) {
-            add_action('woocommerce_before_checkout_form', [$this, 'render_button']);
+            $expressManager->registerExpressPayment('paypal_express', [$this, 'render_button'], 'checkout');
         }
     }
 

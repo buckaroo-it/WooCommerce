@@ -187,13 +187,7 @@ class ReturnProcessor
     {
         $encodedMsg = base64_encode($this->parseErrorMessage($responseParser, $order, $defaultMessage));
 
-        if ($paymentGateway->get_failed_url()) {
-            $url = $this->getRedirectUrl($paymentGateway, $order, 'error');
-
-            return ['result' => 'error', 'redirect' => $url . '?bck_err=' . $this->getRedirectUrl($paymentGateway, $order, 'error', $encodedMsg)];
-        }
-
-        return ['result' => 'error', 'redirect' => $this->getRedirectUrl($paymentGateway, $order, 'error')];
+        return ['result' => 'failure', 'redirect' => $this->getRedirectUrl($paymentGateway, $order, 'error', $encodedMsg)];
     }
 
     protected function getRedirectUrl($paymentGateway, $order, $type = 'success', $errorMessage = '')
@@ -235,7 +229,7 @@ class ReturnProcessor
             return;
         }
         $subCodeMessage = $responseParser->getSubCodeMessage();
-        if (strrpos($subCodeMessage, ': ') !== false) {
+        if ($subCodeMessage && strrpos($subCodeMessage, ': ') !== false) {
             $defaultMessage = str_replace(':', '', substr($subCodeMessage, strrpos($subCodeMessage, ': ')));
             wc_add_notice(__($defaultMessage, 'wc-buckaroo-bpe-gateway'), 'error');
         }
@@ -247,7 +241,7 @@ class ReturnProcessor
             return $defaultMessage;
         }
         $subCodeMessage = $responseParser->getSubCodeMessage();
-        if (strrpos($subCodeMessage, ': ') !== false) {
+        if ($subCodeMessage && strrpos($subCodeMessage, ': ') !== false) {
             return str_replace(':', '', substr($subCodeMessage, strrpos($subCodeMessage, ': ')));
         }
 
