@@ -30,7 +30,7 @@ $country = ! empty($country) ? $country : $this->country;
     <?php if ($country == 'FI') { ?>
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-afterpaynew-identification-number">
-            <?php echo esc_html_e('Identification Number', 'wc-buckaroo-bpe-gateway'); ?>
+            <?php esc_html_e('Identification Number', 'wc-buckaroo-bpe-gateway'); ?>
             <span class="required">*</span>
         </label>
 
@@ -51,7 +51,7 @@ $country = ! empty($country) ? $country : $this->country;
         ?>
     <p class="form-row validate-required">
         <label for="buckaroo-afterpaynew-phone">
-            <?php echo esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway'); ?>
+            <?php esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway'); ?>
             <span class="required">*</span>
         </label>
         <input
@@ -67,7 +67,7 @@ $country = ! empty($country) ? $country : $this->country;
     <?php if ($country == 'NL' && $this->customer_type !== \Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway::CUSTOMER_TYPE_B2C) { ?>
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-afterpaynew-company-coc-registration">
-            <?php echo esc_html_e('CoC-number:', 'wc-buckaroo-bpe-gateway'); ?>
+            <?php esc_html_e('CoC-number:', 'wc-buckaroo-bpe-gateway'); ?>
             <span class="required">*</span>
         </label>
 

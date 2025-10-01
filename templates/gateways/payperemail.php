@@ -30,7 +30,7 @@ $customerEmail = $this->getScalarCheckoutField('billing_email');
 
 <p class="form-row validate-required">
     <label for="buckaroo-payperemail-firstname">
-        <?php echo esc_html_e('First Name:', 'wc-buckaroo-bpe-gateway'); ?>
+        <?php esc_html_e('First Name:', 'wc-buckaroo-bpe-gateway'); ?>
         <span class="required">*</span>
     </label>
     <input
@@ -44,7 +44,7 @@ $customerEmail = $this->getScalarCheckoutField('billing_email');
 
 <p class="form-row validate-required">
     <label for="buckaroo-payperemail-lastname">
-        <?php echo esc_html_e('Last Name:', 'wc-buckaroo-bpe-gateway'); ?>
+        <?php esc_html_e('Last Name:', 'wc-buckaroo-bpe-gateway'); ?>
         <span class="required">*</span>
     </label>
     <input
@@ -58,7 +58,7 @@ $customerEmail = $this->getScalarCheckoutField('billing_email');
 
 <p class="form-row validate-required">
     <label for="buckaroo-payperemail-email">
-        <?php echo esc_html_e('Email:', 'wc-buckaroo-bpe-gateway'); ?>
+        <?php esc_html_e('Email:', 'wc-buckaroo-bpe-gateway'); ?>
         <span class="required">*</span>
     </label>
     <input
@@ -70,6 +70,6 @@ $customerEmail = $this->getScalarCheckoutField('billing_email');
 </p>
 
 <p class="required" style="float:right;">
-    * <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
+    * <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
 </p>
 </fieldset>

@@ -25,7 +25,7 @@ $customer_name .= ' ' . $this->getScalarCheckoutField('billing_last_name');
 <fieldset>
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-sepadirectdebit-accountname">
-            <?php echo esc_html_e('Bank account holder:', 'wc-buckaroo-bpe-gateway'); ?>
+            <?php esc_html_e('Bank account holder:', 'wc-buckaroo-bpe-gateway'); ?>
             <span class="required">*</span>
         </label>
         <input
@@ -39,7 +39,7 @@ $customer_name .= ' ' . $this->getScalarCheckoutField('billing_last_name');
     </p>
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-sepadirectdebit-iban">
-            <?php echo esc_html_e('IBAN:', 'wc-buckaroo-bpe-gateway'); ?>
+            <?php esc_html_e('IBAN:', 'wc-buckaroo-bpe-gateway'); ?>
             <span class="required">*</span>
         </label>
         <input
@@ -54,7 +54,7 @@ $customer_name .= ' ' . $this->getScalarCheckoutField('billing_last_name');
     </p>
     <p class="form-row form-row-wide">
         <label for="buckaroo-sepadirectdebit-bic">
-            <?php echo esc_html_e('BIC:', 'wc-buckaroo-bpe-gateway'); ?>
+            <?php esc_html_e('BIC:', 'wc-buckaroo-bpe-gateway'); ?>
         </label>
         <input
         id="buckaroo-sepadirectdebit-bic"
@@ -66,6 +66,6 @@ $customer_name .= ' ' . $this->getScalarCheckoutField('billing_last_name');
         value=""/>
     </p>
     <p class="required" style="float:right;">
-        * <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
+        * <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
     </p>
 </fieldset>

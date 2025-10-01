@@ -21,11 +21,11 @@ defined('ABSPATH') || exit;
 
 <fieldset id="buckaroo_billink_b2b">
     <p class="form-row form-row-wide validate-required">
-        <?php echo esc_html_e('Fill required fields if bill in on the company:', 'wc-buckaroo-bpe-gateway'); ?>
+        <?php esc_html_e('Fill required fields if bill in on the company:', 'wc-buckaroo-bpe-gateway'); ?>
     </p>
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-billink-company-coc-registration">
-            <?php echo esc_html_e('COC (KvK) number:', 'wc-buckaroo-bpe-gateway'); ?>
+            <?php esc_html_e('COC (KvK) number:', 'wc-buckaroo-bpe-gateway'); ?>
             <span class="required">*</span>
         </label>
         
@@ -41,7 +41,7 @@ defined('ABSPATH') || exit;
 
     <p class="form-row form-row-wide">
         <label for="buckaroo-billink-VatNumber">
-            <?php echo esc_html_e('VAT number:', 'wc-buckaroo-bpe-gateway'); ?>
+            <?php esc_html_e('VAT number:', 'wc-buckaroo-bpe-gateway'); ?>
         </label>
         <input
         id="buckaroo-billink-VatNumber"
@@ -57,7 +57,7 @@ defined('ABSPATH') || exit;
         <a
         href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf"
         target="_blank">
-            <?php echo esc_html_e('Accept terms of use', 'wc-buckaroo-bpe-gateway'); ?>:
+            <?php esc_html_e('Accept terms of use', 'wc-buckaroo-bpe-gateway'); ?>:
         </a>
         <span class="required">*</span>
         <input
@@ -68,7 +68,7 @@ defined('ABSPATH') || exit;
     </p>
 
     <p class="required" style="float:right;">
-        * <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
+        * <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
     </p>
 </fieldset>
 <fieldset id="buckaroo_billink_b2c">
@@ -81,7 +81,7 @@ defined('ABSPATH') || exit;
         <a
         href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf"
         target="_blank">
-            <?php echo esc_html_e('Accept terms of use', 'wc-buckaroo-bpe-gateway'); ?>:
+            <?php esc_html_e('Accept terms of use', 'wc-buckaroo-bpe-gateway'); ?>:
         </a><span class="required">*</span>
         <input
         id="buckaroo-billink-accept"
@@ -91,7 +91,7 @@ defined('ABSPATH') || exit;
     </p>
 
     <p class="required" style="float:right;">
-        * <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
+        * <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
     </p>
 </fieldset>
 
