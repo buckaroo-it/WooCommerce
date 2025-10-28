@@ -20,6 +20,7 @@ use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPiiGateway;
 use Buckaroo\Woocommerce\Gateways\KnakenSettle\KnakenSettleGateway;
+use Buckaroo\Woocommerce\Gateways\Bizum\BizumGateway;
 use Buckaroo\Woocommerce\Gateways\MbWay\MbWayGateway;
 use Buckaroo\Woocommerce\Gateways\Multibanco\MultibancoGateway;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankGateway;
@@ -48,6 +49,7 @@ class PaymentGatewayRegistry
         'belfius' => ['gateway_class' => BelfiusGateway::class],
         'billink' => ['gateway_class' => BillinkGateway::class],
         'blik' => ['gateway_class' => BlikGateway::class],
+        'bizum' => ['gateway_class' => BizumGateway::class],
         'creditcard' => ['gateway_class' => CreditCardGateway::class],
         'eps' => ['gateway_class' => EpsGateway::class],
         'giftcard' => ['gateway_class' => GiftCardGateway::class],
