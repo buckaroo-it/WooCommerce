@@ -21,5 +21,3 @@ class BizumGateway extends AbstractPaymentGateway
         $this->addRefundSupport();
     }
 }
-
-
