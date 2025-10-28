@@ -6,7 +6,6 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class SwishGateway extends AbstractPaymentGateway
 {
-
     public function __construct()
     {
         $this->id = 'buckaroo_swish';
