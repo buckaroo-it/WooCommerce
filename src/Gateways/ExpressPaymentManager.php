@@ -31,9 +31,10 @@ class ExpressPaymentManager
             return;
         }
 
-        add_action('woocommerce_after_add_to_cart_button', [$this, 'maybeRenderContainerProduct']);
-        add_action('woocommerce_after_cart_totals', [$this, 'maybeRenderContainerCart']);
-        add_action('woocommerce_before_checkout_form', [$this, 'maybeRenderContainerCheckout']);
+		add_action('woocommerce_after_add_to_cart_button', [$this, 'maybeRenderContainerProduct']);
+		add_action('woocommerce_after_cart_totals', [$this, 'maybeRenderContainerCart']);
+		$checkout_priority = apply_filters('buckaroo_express_checkout_priority', 21);
+		add_action('woocommerce_before_checkout_form', [$this, 'maybeRenderContainerCheckout'], $checkout_priority);
 
         $this->hooksRegistered = true;
     }
@@ -100,6 +101,9 @@ class ExpressPaymentManager
 
         $this->containerRendered[$location] = true;
 
+		// Fire location-specific before hook to allow wrappers or markup around the container
+		// do_action("buckaroo_before_express_payments_{$location}");
+
         echo '<div class="buckaroo-express-payments">';
 
         foreach ($this->expressPayments[$location] as $method_id => $renderer) {
@@ -109,6 +113,9 @@ class ExpressPaymentManager
         }
 
         echo '</div>';
+
+		// Fire location-specific after hook to allow wrappers or markup around the container
+		// do_action("buckaroo_after_express_payments_{$location}");
     }
 
     /**
