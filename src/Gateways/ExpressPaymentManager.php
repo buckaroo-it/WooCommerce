@@ -101,8 +101,6 @@ class ExpressPaymentManager
 
         $this->containerRendered[$location] = true;
 
-		// Fire location-specific before hook to allow wrappers or markup around the container
-		// do_action("buckaroo_before_express_payments_{$location}");
 
         echo '<div class="buckaroo-express-payments">';
 
@@ -114,8 +112,6 @@ class ExpressPaymentManager
 
         echo '</div>';
 
-		// Fire location-specific after hook to allow wrappers or markup around the container
-		// do_action("buckaroo_after_express_payments_{$location}");
     }
 
     /**
