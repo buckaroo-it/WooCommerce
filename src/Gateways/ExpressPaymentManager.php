@@ -31,10 +31,10 @@ class ExpressPaymentManager
             return;
         }
 
-		add_action('woocommerce_after_add_to_cart_button', [$this, 'maybeRenderContainerProduct']);
-		add_action('woocommerce_after_cart_totals', [$this, 'maybeRenderContainerCart']);
-		$checkout_priority = apply_filters('buckaroo_express_checkout_priority', 21);
-		add_action('woocommerce_before_checkout_form', [$this, 'maybeRenderContainerCheckout'], $checkout_priority);
+        add_action('woocommerce_after_add_to_cart_button', [$this, 'maybeRenderContainerProduct']);
+        add_action('woocommerce_after_cart_totals', [$this, 'maybeRenderContainerCart']);
+        $checkout_priority = apply_filters('buckaroo_express_checkout_priority', 21);
+        add_action('woocommerce_before_checkout_form', [$this, 'maybeRenderContainerCheckout'], $checkout_priority);
 
         $this->hooksRegistered = true;
     }
