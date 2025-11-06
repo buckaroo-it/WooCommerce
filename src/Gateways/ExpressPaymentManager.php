@@ -101,7 +101,6 @@ class ExpressPaymentManager
 
         $this->containerRendered[$location] = true;
 
-
         echo '<div class="buckaroo-express-payments">';
 
         foreach ($this->expressPayments[$location] as $method_id => $renderer) {
@@ -111,7 +110,6 @@ class ExpressPaymentManager
         }
 
         echo '</div>';
-
     }
 
     /**
