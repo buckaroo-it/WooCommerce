@@ -151,7 +151,6 @@ class OrderItem
                 }
             }
         }
-        
         $tax = new WC_Tax();
         $taxes = $tax->get_rates($this->order_item->get_tax_class());
         if (! count($taxes)) {
