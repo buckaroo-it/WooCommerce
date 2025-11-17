@@ -84,7 +84,7 @@ class OrderArticles
 
         if ($this->gateway->id === 'buckaroo_afterpay') {
             $vat_category = $this->gateway->get_option('vattype');
-            if (! is_scalar($vat_category) || $item->get_type() !== 'line_item') {
+            if (! is_scalar($vat_category)) {
                 $vat_category = 4;
             }
             unset($product['vatPercentage']);
