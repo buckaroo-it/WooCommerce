@@ -124,6 +124,33 @@ class OrderItem
      */
     public function get_vat()
     {
+        if ($this->order_item instanceof WC_Order_Item_Shipping) {
+            $shipping_tax_class = get_option('woocommerce_shipping_tax_class');
+            if ($shipping_tax_class === 'inherit' || $shipping_tax_class === '') {
+                $tax_classes = [];
+                foreach ($this->order->get_items('line_item') as $line_item) {
+                    $product = $line_item->get_product();
+                    if ($product) {
+                        $item_tax_class = $product->get_tax_class();
+                        $item_tax_class = $item_tax_class ? $item_tax_class : '';
+                        if (!in_array($item_tax_class, $tax_classes, true)) {
+                            $tax_classes[] = $item_tax_class;
+                        }
+                    }
+                }
+                if (!empty($tax_classes)) {
+                    $tax_class_to_use = $tax_classes[0];
+                    $tax = new WC_Tax();
+                    $taxes = $tax->get_rates($tax_class_to_use);
+                    if (count($taxes)) {
+                        $taxRate = array_shift($taxes);
+                        if (isset($taxRate['rate'])) {
+                            return Helper::roundAmount($taxRate['rate']);
+                        }
+                    }
+                }
+            }
+        }
         $tax = new WC_Tax();
         $taxes = $tax->get_rates($this->order_item->get_tax_class());
         if (! count($taxes)) {
