@@ -7,7 +7,6 @@ use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use Exception;
 use Throwable;
-use WC_Cart;
 use WC_Order;
 use WC_Order_Item_Fee;
 use WC_Order_Item_Product;
@@ -162,8 +161,12 @@ class ApplepayGateway extends AbstractPaymentGateway
 
         $wc_methods = self::createFakeCart(
             $items,
-            function () {
-                $packages = WC()->cart->get_shipping_packages();
+            function ($cart) use ($order) {
+                ApplepayController::calculate_fee($cart);
+
+                self::createOrderFromCart($order, $cart);
+
+                $packages = $cart->get_shipping_packages();
 
                 return WC()
                     ->shipping
@@ -172,10 +175,6 @@ class ApplepayGateway extends AbstractPaymentGateway
         );
 
         try {
-            $cart = self::recreateCartFromItems($items);
-
-            self::createOrderFromCart($order, $cart);
-
             $order->set_address(self::orderAddresses($billing_addresses), 'billing');
             $order->set_address(self::orderAddresses($shipping_addresses), 'shipping');
 
@@ -225,47 +224,6 @@ class ApplepayGateway extends AbstractPaymentGateway
                 'items' => $items,
             ],
         ];
-    }
-
-    private static function recreateCartFromItems($items)
-    {
-        $cart = new WC_Cart();
-
-        $products = array_filter($items, function ($item) {
-            return isset($item['type']) && $item['type'] === 'product';
-        });
-
-        foreach ($products as $product_item) {
-            if (isset($product_item['id']) && isset($product_item['quantity'])) {
-                $product = wc_get_product($product_item['id']);
-                if ($product) {
-                    if ($product->is_type('variation')) {
-                        $cart->add_to_cart($product->get_parent_id(), $product_item['quantity'], $product_item['id']);
-                    } else {
-                        $cart->add_to_cart($product_item['id'], $product_item['quantity']);
-                    }
-                }
-            }
-        }
-
-        $coupons = array_filter($items, function ($item) {
-            return isset($item['type']) && $item['type'] === 'coupon';
-        });
-
-        foreach ($coupons as $coupon_item) {
-            if (isset($coupon_item['name']) && is_string($coupon_item['name'])) {
-                preg_match('/coupon\:\s(.*)/i', $coupon_item['name'], $matches);
-                if (!empty($matches[1])) {
-                    $cart->apply_coupon($matches[1]);
-                }
-            }
-        }
-
-        WC()->session->set('chosen_payment_method', 'buckaroo_applepay');
-
-        $cart->calculate_totals();
-
-        return $cart;
     }
 
     /**
@@ -360,7 +318,7 @@ class ApplepayGateway extends AbstractPaymentGateway
         $cart->calculate_totals();
         do_action('woocommerce_after_calculate_totals', $cart);
 
-        $fake_cart_result = call_user_func($callback);
+        $fake_cart_result = call_user_func($callback, $cart);
 
         $cart->empty_cart();
 
