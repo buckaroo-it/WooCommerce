@@ -203,7 +203,19 @@ class ApplepayGateway extends AbstractPaymentGateway
             }
 
             if (! empty($selected_method_id) && ! preg_match('/free/', $selected_method_id)) {
-                $order->add_shipping($wc_methods[$selected_method_id]);
+                $shipping_rate = $wc_methods[$selected_method_id] ?? null;
+
+                // Fallback: if no matching rate found or invalid type, try the first available rate.
+                if (! is_object($shipping_rate)) {
+                    $first_rate = reset($wc_methods);
+                    if (is_object($first_rate)) {
+                        $shipping_rate = $first_rate;
+                    }
+                }
+
+                if (is_object($shipping_rate)) {
+                    $order->add_shipping($shipping_rate);
+                }
             }
 
             update_post_meta($order->get_id(), '_payment_method', $this->id);
