@@ -253,14 +253,18 @@ class ApplepayGateway extends AbstractPaymentGateway
         }
 
         foreach ($cart->get_fees() as $fee_key => $fee) {
+            if (! is_object($fee)) {
+                continue;
+            }
+
             $item_fee = new WC_Order_Item_Fee();
             $item_fee->set_props([
-                'name' => $fee->name,
-                'tax_class' => $fee->tax_class,
-                'tax_status' => $fee->taxable ? 'taxable' : 'none',
-                'amount' => $fee->amount,
-                'total' => $fee->total,
-                'total_tax' => $fee->tax,
+                'name' => $fee->name ?? '',
+                'tax_class' => $fee->tax_class ?? '',
+                'tax_status' => ! empty($fee->taxable) ? 'taxable' : 'none',
+                'amount' => $fee->amount ?? 0,
+                'total' => $fee->total ?? 0,
+                'total_tax' => $fee->tax ?? 0,
             ]);
             $order->add_item($item_fee);
         }
