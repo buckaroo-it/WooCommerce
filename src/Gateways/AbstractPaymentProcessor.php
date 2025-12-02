@@ -110,6 +110,8 @@ class AbstractPaymentProcessor extends AbstractProcessor
 
         $label = preg_replace("/\r?\n|\r/", '', $label);
 
+        $label = html_entity_decode($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
         return mb_substr($label, 0, 244);
     }
 
