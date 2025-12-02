@@ -34,6 +34,7 @@ use Buckaroo\Woocommerce\Gateways\Trustly\TrustlyGateway;
 use Buckaroo\Woocommerce\Gateways\Twint\TwintGateway;
 use Buckaroo\Woocommerce\Gateways\WeChatPay\WeChatPayGateway;
 use Buckaroo\Woocommerce\Gateways\Swish\SwishGateway;
+use Buckaroo\Woocommerce\Gateways\Wero\WeroGateway;
 use Buckaroo\Woocommerce\Order\OrderCapture;
 
 class PaymentGatewayRegistry
@@ -74,6 +75,7 @@ class PaymentGatewayRegistry
         'swish' => ['gateway_class' => SwishGateway::class],
         'alipay' => ['gateway_class' => AlipayGateway::class],
         'wechatpay' => ['gateway_class' => WeChatPayGateway::class],
+        'wero' => ['gateway_class' => WeroGateway::class],
     ];
 
     /**
