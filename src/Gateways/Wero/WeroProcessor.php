@@ -30,5 +30,3 @@ class WeroProcessor extends AbstractPaymentProcessor
         return $this->gateway->get_option('weropayauthorize', 'pay') === 'authorize';
     }
 }
-
-

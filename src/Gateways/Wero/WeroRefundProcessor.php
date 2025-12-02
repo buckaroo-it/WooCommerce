@@ -19,11 +19,10 @@ class WeroRefundProcessor extends AbstractRefundProcessor
         $isCaptured = (bool) get_post_meta($order->get_id(), '_wc_order_is_captured', true);
 
         if ($isAuthorized && ! $isCaptured) {
-            return 'CancelAuthorize';
+            // This must match the Buckaroo SDK method name on the Wero payment method.
+            return 'cancelAuthorize';
         }
 
         return parent::getAction();
     }
 }
-
-

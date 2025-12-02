@@ -102,5 +102,3 @@ class WeroGateway extends AbstractPaymentGateway
             get_post_meta($order->get_id(), '_wc_order_authorized', true) === 'yes';
     }
 }
-
-
