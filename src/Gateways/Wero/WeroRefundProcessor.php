@@ -15,7 +15,6 @@ class WeroRefundProcessor extends AbstractRefundProcessor
     {
         $order = $this->getOrder();
 
-        // If the order was only authorized (not captured yet), cancel the authorization.
         $isAuthorized = get_post_meta($order->get_id(), '_wc_order_authorized', true) === 'yes';
         $isCaptured = (bool) get_post_meta($order->get_id(), '_wc_order_is_captured', true);
 
