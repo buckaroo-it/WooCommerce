@@ -20,7 +20,7 @@ class WeroRefundProcessor extends AbstractRefundProcessor
         $isCaptured = (bool) get_post_meta($order->get_id(), '_wc_order_is_captured', true);
 
         if ($isAuthorized && ! $isCaptured) {
-            return 'cancelAuthorize';
+            return 'CancelAuthorize';
         }
 
         return parent::getAction();
