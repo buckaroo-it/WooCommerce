@@ -61,7 +61,6 @@ class TransferGateway extends AbstractPaymentGateway
         $bic               = get_post_meta($order->get_id(), 'buckaroo_BIC', true);
         $account_holder    = get_post_meta($order->get_id(), 'buckaroo_accountHolderName', true) ?: 'Buckaroo Stichting Derdengelden';
 
-       
         $intro = sprintf(
             __('Thank you for your order. You have chosen to pay by transfer. To complete your order, please transfer the outstanding amount, %1$s, using the details below.', 'wc-buckaroo-bpe-gateway'),
             $amount
