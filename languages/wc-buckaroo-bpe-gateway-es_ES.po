@@ -1,0 +1,50 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WC Buckaroo BPE Gateway 3.13.2\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-buckaroo-bpe-gateway\n"
+"Last-Translator: \n"
+"Language-Team: Spanish\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-10-29T14:35:35+00:00\n"
+"PO-Revision-Date: 2025-12-03 00:00+0000\n"
+"Language: es_ES\n"
+"X-Generator: AI\n"
+"X-Domain: wc-buckaroo-bpe-gateway\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "Thank you for your order. You have chosen to pay by transfer. To complete your order, please transfer the outstanding amount, %1$s, using the details below."
+msgstr "Gracias por su pedido. Ha elegido pagar mediante transferencia bancaria. Para completar su pedido, por favor transfiera el importe pendiente de %1$s utilizando los datos que se indican a continuación."
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "To ensure that your payment can be processed smoothly, you must quote the payment reference %1$s in the description of your transfer. This will enable faster processing of the payment."
+msgstr "Para garantizar que su pago se procese correctamente, debe indicar la referencia de pago %1$s en el concepto de su transferencia. Esto permitirá una tramitación más rápida del pago."
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "Amount"
+msgstr "Importe"
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "Payment reference"
+msgstr "Referencia de pago"
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "Accountholder"
+msgstr "Titular de la cuenta"
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "IBAN"
+msgstr "IBAN"
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "BIC"
+msgstr "BIC"
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "NB:"
+msgstr "Nota:"
+
+
+
