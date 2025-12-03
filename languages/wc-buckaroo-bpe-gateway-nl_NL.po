@@ -1273,3 +1273,35 @@ msgstr "Trustly is een veilige online banking betaalmethode waarmee klanten dire
 #: src/Gateways/Twint/TwintGateway.php:17
 msgid "TWINT is Switzerland's payment app for convenient and secure payments using your smartphone."
 msgstr "TWINT is de Zwitserse betaal-app voor gemakkelijke en veilige betalingen met uw smartphone."
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "Thank you for your order. You have chosen to pay by transfer. To complete your order, please transfer the outstanding amount, %1$s, using the details below."
+msgstr "Bedankt voor uw bestelling. U heeft ervoor gekozen om via overboeking te betalen. Om uw bestelling te voltooien, maakt u het openstaande bedrag van %1$s over met behulp van de onderstaande gegevens."
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "To ensure that your payment can be processed smoothly, you must quote the payment reference %1$s in the description of your transfer. This will enable faster processing of the payment."
+msgstr "Om ervoor te zorgen dat uw betaling goed verwerkt kan worden, dient u de betaalreferentie %1$s te vermelden in de omschrijving van uw overboeking. Dit zorgt voor een snellere verwerking van de betaling."
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "Amount"
+msgstr "Bedrag"
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "Payment reference"
+msgstr "Betaalreferentie"
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "Accountholder"
+msgstr "Rekeninghouder"
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "IBAN"
+msgstr "IBAN"
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "BIC"
+msgstr "BIC"
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "NB:"
+msgstr "NB:"

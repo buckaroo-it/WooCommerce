@@ -61,85 +61,23 @@ class TransferGateway extends AbstractPaymentGateway
         $bic               = get_post_meta($order->get_id(), 'buckaroo_BIC', true);
         $account_holder    = get_post_meta($order->get_id(), 'buckaroo_accountHolderName', true) ?: 'Buckaroo Stichting Derdengelden';
 
-        $locale = (method_exists($order, 'get_locale') && $order->get_locale()) ? $order->get_locale() : get_locale();
-        $lang   = strtolower(substr($locale, 0, 2));
+       
+        $intro = sprintf(
+            __('Thank you for your order. You have chosen to pay by transfer. To complete your order, please transfer the outstanding amount, %1$s, using the details below.', 'wc-buckaroo-bpe-gateway'),
+            $amount
+        );
 
-        $templates = [
-            'nl' => [
-                'intro' => 'Bedankt voor uw bestelling. U heeft ervoor gekozen om via overboeking te betalen. Om uw bestelling te voltooien, maakt u het openstaande bedrag van [AMOUNT] over met behulp van de onderstaande gegevens.',
-                'amount_label' => 'Bedrag',
-                'payment_ref_label' => 'Betaalreferentie',
-                'accountholder_label' => 'Rekeninghouder',
-                'iban_label' => 'IBAN',
-                'bic_label' => 'BIC',
-                'note_prefix' => 'NB:',
-                'note' => 'Om ervoor te zorgen dat uw betaling goed verwerkt kan worden, dient u de betaalreferentie [ORDER ID] te vermelden in de omschrijving van uw overboeking. Dit zorgt voor een snellere verwerking van de betaling.',
-            ],
-            'de' => [
-                'intro' => 'Vielen Dank für Ihre Bestellung. Sie haben sich für eine Überweisung als Zahlungsmethode entschieden. Um Ihre Bestellung abzuschließen, überweisen Sie bitte den ausstehenden Betrag von [AMOUNT] unter Verwendung der untenstehenden Angaben.',
-                'amount_label' => 'Betrag',
-                'payment_ref_label' => 'Zahlungsreferenz',
-                'accountholder_label' => 'Kontoinhaber',
-                'iban_label' => 'IBAN',
-                'bic_label' => 'BIC',
-                'note_prefix' => 'Hinweis:',
-                'note' => 'Damit Ihre Zahlung ordnungsgemäß verarbeitet werden kann, geben Sie bitte die Zahlungsreferenz [ORDER ID] im Verwendungszweck Ihrer Überweisung an. Dies ermöglicht eine schnellere Bearbeitung der Zahlung.',
-            ],
-            'fr' => [
-                'intro' => 'Merci pour votre commande. Vous avez choisi de payer par virement bancaire. Pour finaliser votre commande, veuillez transférer le montant restant de [AMOUNT] en utilisant les informations ci-dessous.',
-                'amount_label' => 'Montant',
-                'payment_ref_label' => 'Référence de paiement',
-                'accountholder_label' => 'Titulaire du compte',
-                'iban_label' => 'IBAN',
-                'bic_label' => 'BIC',
-                'note_prefix' => 'NB :',
-                'note' => 'Afin de garantir un traitement rapide de votre paiement, vous devez indiquer la référence de paiement [ORDER ID] dans la description de votre virement. Cela permettra un traitement plus rapide du paiement.',
-            ],
-            'es' => [
-                'intro' => 'Gracias por su pedido. Ha elegido pagar mediante transferencia bancaria. Para completar su pedido, por favor transfiera el importe pendiente de [AMOUNT] utilizando los datos que se indican a continuación.',
-                'amount_label' => 'Importe',
-                'payment_ref_label' => 'Referencia de pago',
-                'accountholder_label' => 'Titular de la cuenta',
-                'iban_label' => 'IBAN',
-                'bic_label' => 'BIC',
-                'note_prefix' => 'Nota:',
-                'note' => 'Para garantizar que su pago se procese correctamente, debe indicar la referencia de pago [ORDER ID] en el concepto de su transferencia. Esto permitirá una tramitación más rápida del pago.',
-            ],
-            'en' => [
-                'intro' => 'Thank you for your order. You have chosen to pay by transfer. To complete your order, please transfer the outstanding amount, [AMOUNT], using the details below.',
-                'amount_label' => 'Amount',
-                'payment_ref_label' => 'Payment reference',
-                'accountholder_label' => 'Accountholder',
-                'iban_label' => 'IBAN',
-                'bic_label' => 'BIC',
-                'note_prefix' => 'NB:',
-                'note' => 'To ensure that your payment can be processed smoothly, you must quote the payment reference [ORDER ID] in the description of your transfer. This will enable faster processing of the payment.',
-            ],
-        ];
+        $amount_label        = __('Amount', 'wc-buckaroo-bpe-gateway');
+        $payment_ref_label   = __('Payment reference', 'wc-buckaroo-bpe-gateway');
+        $accountholder_label = __('Accountholder', 'wc-buckaroo-bpe-gateway');
+        $iban_label          = __('IBAN', 'wc-buckaroo-bpe-gateway');
+        $bic_label           = __('BIC', 'wc-buckaroo-bpe-gateway');
+        $note_prefix         = __('NB:', 'wc-buckaroo-bpe-gateway');
 
-        if (! isset($templates[$lang])) {
-            $lang = 'en';
-        }
-
-        $template = $templates[$lang];
-
-        $replacements = [
-            '[AMOUNT]'   => $amount,
-            '[ORDER NO]' => $payment_reference,
-            '[ORDER ID]' => $payment_reference,
-            '[IBAN NO]'  => $iban,
-            '[BIC NO]'   => $bic,
-        ];
-
-        $intro = strtr($template['intro'], $replacements);
-        $note  = strtr($template['note'], $replacements);
-
-        $amount_label        = $template['amount_label'];
-        $payment_ref_label   = $template['payment_ref_label'];
-        $accountholder_label = $template['accountholder_label'];
-        $iban_label          = $template['iban_label'];
-        $bic_label           = $template['bic_label'];
-        $note_prefix         = $template['note_prefix'];
+        $note = sprintf(
+            __('To ensure that your payment can be processed smoothly, you must quote the payment reference %1$s in the description of your transfer. This will enable faster processing of the payment.', 'wc-buckaroo-bpe-gateway'),
+            $payment_reference
+        );
 
         echo '<section class="woocommerce-buckaroo-transfer-instructions">';
         echo wp_kses_post(wpautop($intro));
