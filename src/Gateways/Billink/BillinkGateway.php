@@ -3,9 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Billink;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Traits\HasDateValidation;
-use WC_Order;
 
 class BillinkGateway extends AbstractPaymentGateway
 {
@@ -21,9 +19,7 @@ class BillinkGateway extends AbstractPaymentGateway
 
     public $country;
 
-    public $billinkpayauthorize;
-
-    public bool $capturable = true;
+    public bool $capturable = false;
 
     public function __construct()
     {
@@ -66,39 +62,11 @@ class BillinkGateway extends AbstractPaymentGateway
         parent::validate_fields();
     }
 
-    /**
-     * Process payment
-     *
-     * @param  int  $order_id
-     * @return callable|void fn_buckaroo_process_response() or void
-     */
-    public function process_payment($order_id)
-    {
-        $processedPayment = parent::process_payment($order_id);
-
-        if (isset($processedPayment['result']) && $processedPayment['result'] == 'success' && $this->billinkpayauthorize == 'authorize') {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes');
-            $this->set_order_capture($order_id, 'Billink');
-        }
-
-        return $processedPayment;
-    }
-
     /** {@inheritDoc} */
     public function init_form_fields()
     {
         parent::init_form_fields();
         $this->add_financial_warning_field();
-        $this->form_fields['billinkpayauthorize'] = [
-            'title' => __('Billink Pay or Capture', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'select',
-            'description' => __('Choose to execute Pay or Capture call', 'wc-buckaroo-bpe-gateway'),
-            'options' => [
-                'pay' => 'Pay',
-                'authorize' => 'Authorize',
-            ],
-            'default' => 'pay',
-        ];
     }
 
     /**  {@inheritDoc} */
@@ -107,17 +75,5 @@ class BillinkGateway extends AbstractPaymentGateway
         parent::setProperties();
         $this->type = 'billink';
         $this->vattype = $this->get_option('vattype');
-        $this->billinkpayauthorize = $this->get_option('billinkpayauthorize');
-    }
-
-    public function canShowCaptureForm($order): bool
-    {
-        $order = Helper::resolveOrder($order);
-
-        if (! $order instanceof WC_Order) {
-            return false;
-        }
-
-        return $this->billinkpayauthorize == 'authorize' && get_post_meta($order->get_id(), '_wc_order_authorized', true) == 'yes';
     }
 }
