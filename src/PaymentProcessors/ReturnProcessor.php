@@ -243,10 +243,7 @@ class ReturnProcessor
 
     protected function isNlOrder($order)
     {
-        if (Helper::isWooCommerceVersion3OrGreater()) {
-            return $order->get_billing_country() === 'NL';
-        }
-
-        return isset($order->billing_country) && $order->billing_country === 'NL';
+        // WooCommerce 3.0+ uses getter methods, which is required for HPOS compatibility
+        return $order->get_billing_country() === 'NL';
     }
 }
