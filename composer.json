@@ -1,6 +1,6 @@
 {
     "name": "buckaroo/woocommerce",
-    "description": "Buckaroo Payment Gateway for WooCommerce - Accept payments via iDEAL, Credit Card, PayPal, and more",
+    "description": "Buckaroo Payment Gateway for WooCommerce",
     "type": "wordpress-plugin",
     "license": "GPL-3.0-or-later",
     "authors": [
