@@ -153,16 +153,9 @@ class ReturnProcessor
         $order->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
 
         if ($responseParser->isCanceled()) {
-            Logger::log('Update status: cancelled');
-            if ($this->canUpdateStatus($order) && ! $this->isOrderFullyPaid($order)) {
-                $order->update_status('cancelled', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
-            } else {
-                if ($this->isOrderFullyPaid($order)) {
-                    Logger::log('Response. Order was previously fully paid - status cannot be changed to cancelled.');
-                } else {
-                    Logger::log('Response. Order status cannot be changed.');
-                }
-            }
+            Logger::log('Payment cancelled by customer - keeping status as failed to allow retry');
+            // Keep order as 'failed' instead of 'cancelled' to allow customer to retry payment
+            // WooCommerce only allows 'pending' or 'failed' orders to be retried
             wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
         }
     }

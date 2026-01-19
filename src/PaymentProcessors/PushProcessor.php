@@ -319,12 +319,19 @@ class PushProcessor
                 }
 
                 if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_CANCELLED) {
-                    Logger::log('Update status 3. Order status: cancelled');
-                    if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled']) && ! $this->isOrderFullyPaid($order)) {
-                        $order->update_status('cancelled', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
+                    Logger::log('Payment cancelled by customer - keeping status as failed to allow retry');
+                    // Keep order as 'failed' instead of 'cancelled' to allow customer to retry payment
+                    // WooCommerce only allows 'pending' or 'failed' orders to be retried
+                    // Only update to failed if order is not already in a final state
+                    if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled', 'refunded']) && ! $this->isOrderFullyPaid($order)) {
+                        // If order is not already failed, update it to failed
+                        if ($order->get_status() !== 'failed') {
+                            Logger::log('Update status: failed (from cancelled push)');
+                            $order->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
+                        }
                     } else {
                         if ($this->isOrderFullyPaid($order)) {
-                            Logger::log('Push message. Order was previously fully paid - status cannot be changed to cancelled.');
+                            Logger::log('Push message. Order was previously fully paid - status cannot be changed.');
                         } else {
                             Logger::log('Push message. Order status cannot be changed.');
                         }
