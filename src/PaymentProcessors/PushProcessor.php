@@ -221,7 +221,6 @@ class PushProcessor
         }
         $_SESSION['buckaroo_response'] = '';
         Logger::log('Return start / fn_buckaroo_process_response_push');
-        $headers = getallheaders();
 
         $original_precision = ini_get('serialize_precision');
 
@@ -243,6 +242,9 @@ class PushProcessor
         } else {
             $order = new WC_Order($order_id);
         }
+
+        // Get headers in a cross-server compatible way
+        $headers = $this->getAllHeaders();
 
         $buckarooClient = new BuckarooClient($responseParser->isTest() ? 'test' : 'live');
         if (
@@ -381,5 +383,32 @@ class PushProcessor
 
             return;
         }
+    }
+
+    /**
+     * Get all HTTP headers in a cross-server compatible way.
+     * getallheaders() is not available on all servers (e.g., nginx).
+     *
+     * @return array
+     */
+    protected function getAllHeaders(): array
+    {
+        if (function_exists('getallheaders')) {
+            return getallheaders();
+        }
+
+        // Fallback for servers that don't support getallheaders()
+        $headers = [];
+        foreach ($_SERVER as $name => $value) {
+            if (substr($name, 0, 5) === 'HTTP_') {
+                $headerName = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
+                $headers[$headerName] = $value;
+            } elseif (in_array($name, ['CONTENT_TYPE', 'CONTENT_LENGTH', 'CONTENT_MD5'], true)) {
+                $headerName = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', $name))));
+                $headers[$headerName] = $value;
+            }
+        }
+
+        return $headers;
     }
 }
