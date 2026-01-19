@@ -173,9 +173,10 @@ class Test_RefundFlow extends TestCase
         
         $this->assertFalse($refund2['success']);
         // Error will be either "already refunded" or "exceeds order total"
+        $error = strtolower($refund2['error']);
         $this->assertTrue(
-            str_contains(strtolower($refund2['error']), 'already') ||
-            str_contains(strtolower($refund2['error']), 'exceeds'),
+            strpos($error, 'already') !== false ||
+            strpos($error, 'exceeds') !== false,
             'Should prevent refund on fully refunded order'
         );
     }
@@ -379,17 +380,21 @@ class Test_RefundFlow extends TestCase
     {
         $statusCode = $data['brq_statuscode'] ?? '0';
         
-        return match($statusCode) {
-            '190' => [
+        if ($statusCode === '190') {
+            return [
                 'success' => true,
                 'order_status' => 'refunded',
-            ],
-            '490' => [
+            ];
+        }
+        
+        if ($statusCode === '490') {
+            return [
                 'failed' => true,
                 'message' => $data['brq_statusmessage'] ?? 'Refund failed',
-            ],
-            default => ['unknown' => true],
-        };
+            ];
+        }
+        
+        return ['unknown' => true];
     }
 
     private function markOrderAsChargeback($order): void

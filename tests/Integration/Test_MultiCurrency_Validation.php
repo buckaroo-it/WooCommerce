@@ -343,7 +343,9 @@ class Test_MultiCurrency_Validation extends TestCase
     private function validatePhoneNumber(string $phone): array
     {
         $cleaned = preg_replace('/[^0-9+]/', '', $phone);
-        $isValid = strlen($cleaned) >= 10 && (str_starts_with($cleaned, '+') || str_starts_with($cleaned, '0'));
+        $startsWithPlus = substr($cleaned, 0, 1) === '+';
+        $startsWithZero = substr($cleaned, 0, 1) === '0';
+        $isValid = strlen($cleaned) >= 10 && ($startsWithPlus || $startsWithZero);
         
         return [
             'valid' => $isValid,

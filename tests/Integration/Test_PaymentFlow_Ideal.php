@@ -232,13 +232,23 @@ class Test_PaymentFlow_Ideal extends TestCase
     {
         $statusCode = $webhookData['brq_statuscode'] ?? '0';
         
-        return match($statusCode) {
-            '190' => ['success' => true, 'status' => 'completed'],
-            '890' => ['cancelled' => true, 'status' => 'cancelled'],
-            '490' => ['failed' => true, 'status' => 'failed', 'message' => $webhookData['brq_statusmessage'] ?? 'Payment failed'],
-            '690' => ['expired' => true, 'status' => 'expired'],
-            default => ['duplicate' => true],
-        };
+        if ($statusCode === '190') {
+            return ['success' => true, 'status' => 'completed'];
+        }
+        
+        if ($statusCode === '890') {
+            return ['cancelled' => true, 'status' => 'cancelled'];
+        }
+        
+        if ($statusCode === '490') {
+            return ['failed' => true, 'status' => 'failed', 'message' => $webhookData['brq_statusmessage'] ?? 'Payment failed'];
+        }
+        
+        if ($statusCode === '690') {
+            return ['expired' => true, 'status' => 'expired'];
+        }
+        
+        return ['duplicate' => true];
     }
 
     /**

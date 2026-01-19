@@ -381,23 +381,38 @@ class Test_PaymentFlow_CreditCard extends TestCase
     {
         $statusCode = $data['brq_statuscode'] ?? '0';
         
-        return match($statusCode) {
-            '190' => [
+        if ($statusCode === '190') {
+            $transactionType = $data['brq_transaction_type'] ?? '';
+            $paymentStatus = 'completed';
+            
+            if ($transactionType === 'C021') {
+                $paymentStatus = 'authorized';
+            } elseif ($transactionType === 'C022') {
+                $paymentStatus = 'captured';
+            }
+            
+            return [
                 'success' => true,
-                'payment_status' => ($data['brq_transaction_type'] ?? '') === 'C021' ? 'authorized' : 
-                                   (($data['brq_transaction_type'] ?? '') === 'C022' ? 'captured' : 'completed'),
+                'payment_status' => $paymentStatus,
                 'payment_count' => 1,
-            ],
-            '490' => [
+            ];
+        }
+        
+        if ($statusCode === '490') {
+            return [
                 'failed' => true,
                 'message' => $data['brq_statusmessage'] ?? 'Payment failed',
-            ],
-            '591' => [
+            ];
+        }
+        
+        if ($statusCode === '591') {
+            return [
                 'chargeback' => true,
                 'requires_review' => true,
-            ],
-            default => ['unknown' => true],
-        };
+            ];
+        }
+        
+        return ['unknown' => true];
     }
 
     private function capturePayment(int $orderId, string $amount): array

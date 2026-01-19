@@ -287,11 +287,18 @@ class Test_OrderStateTransitions extends TestCase
     {
         $statusCode = $data['brq_statuscode'] ?? '0';
         
-        return match($statusCode) {
-            '190' => ['success' => true],
-            '890' => ['cancelled' => true],
-            '690' => ['timeout' => true, 'can_retry' => true],
-            default => ['unknown' => true],
-        };
+        if ($statusCode === '190') {
+            return ['success' => true];
+        }
+        
+        if ($statusCode === '890') {
+            return ['cancelled' => true];
+        }
+        
+        if ($statusCode === '690') {
+            return ['timeout' => true, 'can_retry' => true];
+        }
+        
+        return ['unknown' => true];
     }
 }
