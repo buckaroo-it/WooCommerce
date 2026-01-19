@@ -29,6 +29,8 @@
 			<directory>./vendor</directory>
 			<directory>./vendor_buckaroo</directory>
 			<directory>./templates</directory>
+			<file>./src/Gateways/Klarna/capture-form.php</file>
+			<file>./src/Gateways/Klarna/refund-form.php</file>
 		</exclude>
 		<report>
 			<html outputDirectory="coverage" lowUpperBound="50" highLowerBound="80"/>

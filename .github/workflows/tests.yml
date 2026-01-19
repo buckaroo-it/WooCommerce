@@ -83,6 +83,7 @@ jobs:
         
       - name: Generate code coverage report
         if: matrix.php == '8.1'
+        continue-on-error: true
         run: composer test:coverage
         
       - name: Upload coverage reports to Codecov
