@@ -1,0 +1,102 @@
+name: Unit Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+jobs:
+  test:
+    name: PHPUnit Tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.0', '8.1', '8.2', '8.3']
+        
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mysql, mbstring, zip
+          coverage: xdebug
+          tools: composer
+          
+      - name: Validate composer.json
+        run: composer validate --strict
+        
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+        
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+          
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+        
+      - name: Install WordPress test suite
+        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest true
+        
+      - name: Run Unit Tests
+        run: vendor/bin/phpunit --testsuite unit --testdox
+        
+      - name: Run Integration Tests
+        run: vendor/bin/phpunit --testsuite integration --testdox
+        
+      - name: Run All Tests with Coverage
+        run: composer test
+        
+      - name: Generate code coverage report
+        if: matrix.php == '8.1'
+        run: composer test:coverage
+        
+      - name: Upload coverage reports to Codecov
+        if: matrix.php == '8.1'
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/clover.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          
+  phpcs:
+    name: PHP CodeSniffer
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer, cs2pr
+          
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+        
+      - name: Run PHPCS
+        run: composer phpcs -- --report=checkstyle | cs2pr
