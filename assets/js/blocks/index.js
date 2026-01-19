@@ -112,7 +112,10 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
     return (
         <div className="container">
             {gateway.description && (
-                <div className="buckaroo-payment-description" dangerouslySetInnerHTML={{ __html: gateway.description }} />
+                <div
+                    className="buckaroo-payment-description"
+                    dangerouslySetInnerHTML={{ __html: gateway.description }}
+                />
             )}
             {errorMessage && errorMessage?.length && <div className="woocommerce-error">{errorMessage}</div>}
             <PaymentComponent gateway={gateway} title={decodeHtmlEntities(gateway.title)} />
