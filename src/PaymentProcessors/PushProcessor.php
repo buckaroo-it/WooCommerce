@@ -387,7 +387,8 @@ class PushProcessor
 
     /**
      * Get all HTTP headers in a cross-server compatible way.
-     * getallheaders() is not available on all servers (e.g., nginx).
+     * getallheaders() is only available when PHP runs as an Apache module.
+     * When PHP runs as CGI/FastCGI (common with nginx), this function may not be available.
      *
      * @return array
      */
@@ -397,15 +398,17 @@ class PushProcessor
             return getallheaders();
         }
 
-        // Fallback for servers that don't support getallheaders()
+        // Fallback for PHP that don't support getallheaders() (e.g., CGI/FastCGI)
         $headers = [];
         foreach ($_SERVER as $name => $value) {
             if (substr($name, 0, 5) === 'HTTP_') {
                 $headerName = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
-                $headers[$headerName] = $value;
+                // Normalize to lowercase keys to make lookups (e.g. 'authorization') predictable
+                $headers[strtolower($headerName)] = $value;
             } elseif (in_array($name, ['CONTENT_TYPE', 'CONTENT_LENGTH', 'CONTENT_MD5'], true)) {
                 $headerName = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', $name))));
-                $headers[$headerName] = $value;
+                // Normalize to lowercase keys to make lookups (e.g. 'content-type') predictable
+                $headers[strtolower($headerName)] = $value;
             }
         }
 
