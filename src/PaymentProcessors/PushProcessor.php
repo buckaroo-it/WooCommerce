@@ -246,11 +246,14 @@ class PushProcessor
         // Get headers in a cross-server compatible way
         $headers = $this->getAllHeaders();
 
+        // Support both original and normalized (lowercase) header keys for Authorization
+        $authorizationHeader = $headers['Authorization'] ?? ($headers['authorization'] ?? '');
+
         $buckarooClient = new BuckarooClient($responseParser->isTest() ? 'test' : 'live');
         if (
             $buckarooClient->isReplyHandlerValid(
                 $responseParser->get(null, null, false),
-                $headers['Authorization'] ?? '',
+                $authorizationHeader,
                 add_query_arg($wp->query_vars, home_url($wp->request ?: '/'))
             )
         ) {
