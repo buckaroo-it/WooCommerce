@@ -353,7 +353,7 @@ class PushProcessor
                 } else {
                     wc_add_notice(
                         __(
-                            'Payment unsuccessful. Please try again or choose another payment method.',
+                            'Payment unsuccessful1. Please try again or choose another payment method.',
                             'wc-buckaroo-bpe-gateway'
                         ),
                         'error'
@@ -377,7 +377,7 @@ class PushProcessor
             } else {
                 wc_add_notice(
                     __(
-                        'Payment unsuccessful. Please try again or choose another payment method.',
+                        'Payment unsuccessful2. Please try again or choose another payment method.',
                         'wc-buckaroo-bpe-gateway'
                     ),
                     'error'
