@@ -614,7 +614,7 @@ msgstr "La méthode de paiement n'est pas prise en charge pour le pays ("
 
 #: src/PaymentProcessors/PushProcessor.php:343
 #: src/PaymentProcessors/PushProcessor.php:367
-msgid "Payment unsuccessful. Please try again or choose another payment method."
+msgid "Payment unsuccessful1. Please try again or choose another payment method."
 msgstr "Paiement non réussi. Veuillez réessayer ou choisir une autre méthode de paiement."
 
 #: src/Gateways/Paypal/PaypalGateway.php:111

@@ -614,7 +614,7 @@ msgstr "Betaalmethode wordt niet ondersteund voor land ("
 
 #: src/PaymentProcessors/PushProcessor.php:343
 #: src/PaymentProcessors/PushProcessor.php:367
-msgid "Payment unsuccessful. Please try again or choose another payment method."
+msgid "Payment unsuccessful4. Please try again or choose another payment method."
 msgstr "Betaling niet succesvol. Probeer het alstublieft opnieuw of kies een andere betaalmethode."
 
 #: src/Gateways/Paypal/PaypalGateway.php:111

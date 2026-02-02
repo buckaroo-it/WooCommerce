@@ -990,7 +990,7 @@ msgstr ""
 #: src/PaymentProcessors/PushProcessor.php:355
 #: src/PaymentProcessors/PushProcessor.php:379
 #: src/PaymentProcessors/ReturnProcessor.php:109
-msgid "Payment unsuccessful. Please try again or choose another payment method."
+msgid "Payment unsuccessfu5l. Please try again or choose another payment method."
 msgstr ""
 
 #: src/Services/AutoConfiguration.php:32
