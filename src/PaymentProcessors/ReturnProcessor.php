@@ -105,7 +105,7 @@ class ReturnProcessor
         $this->updateStatusFailedOrCancelled($order, $responseParser);
 
         // Show notice
-        $errorDescription = 'Payment unsuccessful. Please try again or choose another payment method.';
+        $errorDescription = __('Payment unsuccessful. Please try again or choose another payment method.', 'wc-buckaroo-bpe-gateway');
         wc_add_notice(__('Payment unsuccessful. Please try again or choose another payment method.', 'wc-buckaroo-bpe-gateway'), 'error');
         $this->maybeAddNlSpecificError($responseParser, $order, $errorDescription);
 
@@ -187,7 +187,7 @@ class ReturnProcessor
     {
         return $type === 'success'
             ? $paymentGateway->get_return_url($order)
-            : ($paymentGateway->get_failed_url() . ($errorMessage ? '?bck_err=' . urlencode(__($errorMessage, 'wc-buckaroo-bpe-gateway')) : ''));
+            : ($paymentGateway->get_failed_url() . ($errorMessage ? '?bck_err=' . $errorMessage : ''));
     }
 
     protected function getOrderId(ResponseParser $responseParser)
