@@ -1,17 +1,17 @@
-# Copyright (C) 2025 Buckaroo
+# Copyright (C) 2026 Buckaroo
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WC Buckaroo BPE Gateway 4.6.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-buckaroo-bpe-gateway\n"
+"Project-Id-Version: WC Buckaroo BPE Gateway 4.6.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/buckaroo-woocommerce\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-26T08:08:52+00:00\n"
+"POT-Creation-Date: 2026-02-02T14:41:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.11.0\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
 
 #. Plugin Name of the plugin
@@ -113,6 +113,7 @@ msgstr ""
 
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:315
+#, php-format
 msgid "Manage the \"%s\" payment method"
 msgstr ""
 
@@ -123,6 +124,7 @@ msgstr ""
 
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:318
+#, php-format
 msgid "Set up the \"%s\" payment method"
 msgstr ""
 
@@ -133,25 +135,27 @@ msgstr ""
 
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:325
+#, php-format
 msgid "The \"%s\" payment method is currently enabled"
 msgstr ""
 
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:325
-#: src/Gateways/Transfer/TransferGateway.php:73
-#: src/Gateways/Transfer/TransferGateway.php:83
+#: src/Gateways/Transfer/TransferGateway.php:158
+#: src/Gateways/Transfer/TransferGateway.php:168
 msgid "Yes"
 msgstr ""
 
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:328
+#, php-format
 msgid "The \"%s\" payment method is currently disabled"
 msgstr ""
 
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:328
-#: src/Gateways/Transfer/TransferGateway.php:74
-#: src/Gateways/Transfer/TransferGateway.php:84
+#: src/Gateways/Transfer/TransferGateway.php:159
+#: src/Gateways/Transfer/TransferGateway.php:169
 msgid "No"
 msgstr ""
 
@@ -238,9 +242,9 @@ msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:107
 msgid ""
-"The chosen language (culture) for the Buckaroo payment engine <br>page.\n"
-"When this is set to “Dynamic language” the plugin will <br>automatically determine the language based on the\n"
-"language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>\n"
+"The chosen language (culture) for the Buckaroo payment engine <br>page.\r\n"
+"When this is set to “Dynamic language” the plugin will <br>automatically determine the language based on the\r\n"
+"language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>\r\n"
 "English will be used as a fallback language for unknown language types."
 msgstr ""
 
@@ -316,6 +320,7 @@ msgid "Enable/Disable"
 msgstr ""
 
 #: src/Gateways/AbstractPaymentGateway.php:119
+#, php-format
 msgid "Enable %s Payment Method"
 msgstr ""
 
@@ -365,8 +370,7 @@ msgid "Specify maximum order amount allowed to show the current method. Zero or 
 msgstr ""
 
 #: src/Gateways/AbstractPaymentGateway.php:184
-#: assets/js/blocks/index.js:115
-#: assets/js/dist/blocks.js:2
+#, php-format
 msgid "Pay with %s"
 msgstr ""
 
@@ -413,7 +417,6 @@ msgstr ""
 
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:151
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:152
-#: src/Gateways/Billink/BillinkGateway.php:95
 #: src/Gateways/CreditCard/CreditCardGateway.php:234
 msgid "Choose to execute Pay or Capture call"
 msgstr ""
@@ -546,26 +549,22 @@ msgstr ""
 msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
 msgstr ""
 
-#: src/Gateways/Billink/BillinkGateway.php:50
+#: src/Gateways/Billink/BillinkGateway.php:46
 msgid "Please enter correct COC (KvK) number"
 msgstr ""
 
-#: src/Gateways/Billink/BillinkGateway.php:56
+#: src/Gateways/Billink/BillinkGateway.php:52
 msgid "Please enter correct birth date"
 msgstr ""
 
-#: src/Gateways/Billink/BillinkGateway.php:59
+#: src/Gateways/Billink/BillinkGateway.php:55
 #: src/Gateways/Klarna/KlarnaGateway.php:38
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:71
 msgid "Unknown gender"
 msgstr ""
 
-#: src/Gateways/Billink/BillinkGateway.php:64
+#: src/Gateways/Billink/BillinkGateway.php:60
 msgid "Please accept license agreements"
-msgstr ""
-
-#: src/Gateways/Billink/BillinkGateway.php:93
-msgid "Billink Pay or Capture"
 msgstr ""
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:106
@@ -651,6 +650,7 @@ msgid "Giftcards must be comma separated"
 msgstr ""
 
 #: src/Gateways/GiftCard/GiftCardProcessor.php:30
+#, php-format
 msgid "Card number or pin is incorrect for %s"
 msgstr ""
 
@@ -667,6 +667,7 @@ msgid "Verification has been failed"
 msgstr ""
 
 #: src/Gateways/In3/In3Gateway.php:85
+#, php-format
 msgid "Please fill in a phone number for %s. This is required in order to use this payment method."
 msgstr ""
 
@@ -815,36 +816,82 @@ msgstr ""
 msgid "Wrong IBAN number"
 msgstr ""
 
-#: src/Gateways/Transfer/TransferGateway.php:63
-msgid "Number of days till order expire"
+#: src/Gateways/Swish/SwishGateway.php:15
+msgid "Swish is Sweden's real-time mobile payment method, authorized via BankID."
 msgstr ""
 
 #: src/Gateways/Transfer/TransferGateway.php:65
-msgid "Number of days to the date that the order should be payed."
+#, php-format
+msgid "Thank you for your order. You have chosen to pay by transfer. To complete your order, please transfer the outstanding amount, %1$s, using the details below."
 msgstr ""
 
 #: src/Gateways/Transfer/TransferGateway.php:69
-msgid "Send email"
+msgid "Amount"
+msgstr ""
+
+#: src/Gateways/Transfer/TransferGateway.php:70
+msgid "Payment reference"
 msgstr ""
 
 #: src/Gateways/Transfer/TransferGateway.php:71
+msgid "Accountholder"
+msgstr ""
+
+#: src/Gateways/Transfer/TransferGateway.php:72
+msgid "IBAN"
+msgstr ""
+
+#: src/Gateways/Transfer/TransferGateway.php:73
+msgid "BIC"
+msgstr ""
+
+#: src/Gateways/Transfer/TransferGateway.php:74
+msgid "NB:"
+msgstr ""
+
+#: src/Gateways/Transfer/TransferGateway.php:77
+#, php-format
+msgid "To ensure that your payment can be processed smoothly, you must quote the payment reference %1$s in the description of your transfer. This will enable faster processing of the payment."
+msgstr ""
+
+#: src/Gateways/Transfer/TransferGateway.php:148
+msgid "Number of days till order expire"
+msgstr ""
+
+#: src/Gateways/Transfer/TransferGateway.php:150
+msgid "Number of days to the date that the order should be payed."
+msgstr ""
+
+#: src/Gateways/Transfer/TransferGateway.php:154
+msgid "Send email"
+msgstr ""
+
+#: src/Gateways/Transfer/TransferGateway.php:156
 msgid "Buckaroo sends an email to the customer with the payment procedures."
 msgstr ""
 
-#: src/Gateways/Transfer/TransferGateway.php:79
+#: src/Gateways/Transfer/TransferGateway.php:164
 msgid "Show payment procedures"
 msgstr ""
 
-#: src/Gateways/Transfer/TransferGateway.php:81
+#: src/Gateways/Transfer/TransferGateway.php:166
 msgid "Show payment procedures on the thank you page after payment confirmation."
 msgstr ""
 
-#: src/Gateways/Trustly/TrustlyGateway.php:17
+#: src/Gateways/Trustly/TrustlyGateway.php:19
 msgid "Trustly is a secure online banking payment method that allows customers to pay directly from their bank account."
 msgstr ""
 
 #: src/Gateways/Twint/TwintGateway.php:17
 msgid "TWINT is Switzerland's payment app for convenient and secure payments using your smartphone."
+msgstr ""
+
+#: src/Gateways/Wero/WeroGateway.php:74
+msgid "Wero Pay or Authorize"
+msgstr ""
+
+#: src/Gateways/Wero/WeroGateway.php:76
+msgid "Choose to execute Pay or Authorize/Capture flow for Wero."
 msgstr ""
 
 #: src/Hooks/AdminHooks.php:29
@@ -888,24 +935,29 @@ msgid "Klarna reservation was successfully canceled"
 msgstr ""
 
 #: src/PaymentProcessors/Actions/CancelReservationAction.php:22
+#, php-format
 msgid "Klarna reservation for order #%s was successfully canceled"
 msgstr ""
 
 #: src/PaymentProcessors/Actions/CancelReservationAction.php:33
+#, php-format
 msgid "Cannot cancel klarna reservation for order #%s"
 msgstr ""
 
 #: src/PaymentProcessors/Actions/CaptureAction.php:62
+#, php-format
 msgid "Captured %1$s - Capture transaction ID: %2$s"
 msgstr ""
 
 #: src/PaymentProcessors/Actions/CaptureAction.php:84
+#, php-format
 msgid ""
 "Capture failed for transaction ID: %s \n"
 ""
 msgstr ""
 
 #: src/PaymentProcessors/Actions/CaptureAction.php:97
+#, php-format
 msgid "Capture failed for transaction ID: %s"
 msgstr ""
 
@@ -914,27 +966,31 @@ msgid "Refunded"
 msgstr ""
 
 #: src/PaymentProcessors/Actions/RefundAction.php:68
+#, php-format
 msgid "Refunded %1$s - Refund transaction ID: %2$s"
 msgstr ""
 
 #: src/PaymentProcessors/Actions/RefundAction.php:85
+#, php-format
 msgid ""
 "Refund failed for transaction ID: %s \n"
 ""
 msgstr ""
 
-#: src/PaymentProcessors/PushProcessor.php:332
-#: src/PaymentProcessors/ReturnProcessor.php:166
+#: src/PaymentProcessors/PushProcessor.php:344
+#: src/PaymentProcessors/ReturnProcessor.php:159
 msgid "Payment cancelled by customer."
 msgstr ""
 
-#: src/PaymentProcessors/PushProcessor.php:335
-#: src/PaymentProcessors/PushProcessor.php:359
+#: src/PaymentProcessors/PushProcessor.php:347
+#: src/PaymentProcessors/PushProcessor.php:371
 msgid "We are sorry to inform you that the request to pay afterwards with Riverty is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty. Or you can visit the website of Riverty and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order."
 msgstr ""
 
-#: src/PaymentProcessors/PushProcessor.php:343
-#: src/PaymentProcessors/PushProcessor.php:367
+#: src/PaymentProcessors/PushProcessor.php:355
+#: src/PaymentProcessors/PushProcessor.php:379
+#: src/PaymentProcessors/ReturnProcessor.php:108
+#: src/PaymentProcessors/ReturnProcessor.php:109
 msgid "Payment unsuccessful. Please try again or choose another payment method."
 msgstr ""
 
@@ -956,10 +1012,12 @@ msgid "No payment methods were configured. Please check your active subscription
 msgstr ""
 
 #: src/Services/AutoConfiguration.php:138
+#, php-format
 msgid "Successfully configured %d payment method(s): %s"
 msgstr ""
 
 #: src/Services/AutoConfiguration.php:202
+#, php-format
 msgid "Failed to configure %s: %s"
 msgstr ""
 
@@ -1238,6 +1296,7 @@ msgstr ""
 
 #: assets/js/blocks/partials/buckaroo_financial_warning.js:6
 #: assets/js/dist/blocks.js:2
+#, js-format
 msgid "You must be at least 18+ to use this service. By paying on time, you avoid extra costs and ensure that you can use %s services again in the future. By continuing, you accept the Terms and Conditions and confirm that you have read the Privacy Statement and Cookie Statement."
 msgstr ""
 
