@@ -17,6 +17,60 @@ use WC_Order;
 class PushProcessor
 {
     /**
+     * Find WooCommerce order ID by parent/original transaction key.
+     * Used when processing refund pushes from Plaza where invoice/order identifiers may be missing.
+     *
+     * @param string $parentTransactionKey The original payment transaction key (from brq_relatedtransaction_refund)
+     * @return int|null Order ID if found, null otherwise
+     */
+    protected function findOrderIdByTransactionKey(string $parentTransactionKey): ?int
+    {
+        global $wpdb;
+
+        if (empty($parentTransactionKey)) {
+            return null;
+        }
+
+        // 1. Check woocommerce_buckaroo_transactions table
+        $table = $wpdb->prefix . 'woocommerce_buckaroo_transactions';
+        $order_id = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT wc_orderid FROM {$table} WHERE transaction = %s LIMIT 1",
+                $parentTransactionKey
+            )
+        );
+
+        if ($order_id) {
+            return (int) $order_id;
+        }
+
+        // 2. Fallback: check buckaroo_settlement meta (stores transaction keys)
+        $settlements = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'buckaroo_settlement' AND meta_value LIKE %s LIMIT 1",
+                '%' . $wpdb->esc_like($parentTransactionKey) . '%'
+            )
+        );
+
+        if (! empty($settlements)) {
+            return (int) $settlements[0];
+        }
+
+        // 3. Fallback: check _transaction_id on orders
+        $order_id = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT pm.post_id FROM {$wpdb->postmeta} pm
+                INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id AND p.post_type = 'shop_order'
+                WHERE pm.meta_key = '_transaction_id' AND pm.meta_value = %s
+                LIMIT 1",
+                $parentTransactionKey
+            )
+        );
+
+        return $order_id ? (int) $order_id : null;
+    }
+
+    /**
      * @param $order_id
      * @param WC_Order $order
      * @param ResponseParser $responseParser
@@ -235,13 +289,19 @@ class PushProcessor
 
         $order_id = $responseParser->getRealOrderId() ?: $responseParser->getOrderNumber() ?: $responseParser->getInvoice();
 
+        // For refund pushes from Plaza: invoice/order may be missing - resolve by parent transaction key
+        $refundParentKey = $responseParser->getRefundParentKey();
+        if ($refundParentKey !== null && ((int) $order_id <= 0 || ! wc_get_order((int) $order_id))) {
+            $resolved_order_id = $this->findOrderIdByTransactionKey($refundParentKey);
+            if ($resolved_order_id) {
+                Logger::log(__METHOD__ . '|refund_push|', 'Resolved order ' . $resolved_order_id . ' by parent transaction key ' . $refundParentKey);
+                $order_id = $resolved_order_id;
+            }
+        }
+
         Logger::log(__METHOD__ . '|5|', $order_id);
 
-        if ((int) $order_id > 0) {
-            $order = new WC_Order($order_id);
-        } else {
-            $order = new WC_Order($order_id);
-        }
+        $order = wc_get_order((int) $order_id) ?: new WC_Order($order_id);
 
         // Get headers in a cross-server compatible way
         $headers = $this->getAllHeaders();

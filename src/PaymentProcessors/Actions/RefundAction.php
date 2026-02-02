@@ -30,22 +30,48 @@ class RefundAction
 
     public static function initiateExternalServiceRefund($order_id, ResponseParser $responseParser)
     {
-        Logger::log('PUSH', 'Refund payment PUSH received ' . $responseParser->get('coreStatus'));
+        Logger::log('PUSH', 'Refund payment PUSH received ' . $responseParser->get('coreStatus') . ' for order ' . $order_id);
+
+        $order = wc_get_order((int) $order_id);
+        if (! $order || ! $order->get_id()) {
+            Logger::log(__METHOD__, 'Cannot process refund push: order ' . $order_id . ' not found');
+            exit();
+        }
+
         $allowedPush = get_post_meta($order_id, '_pushallowed', true);
-        Logger::log(__METHOD__ . '|10|', $allowedPush);
-        if ($responseParser->isSuccess() && $allowedPush == 'ok') {
-            $tmp = get_post_meta($order_id, '_refundbuckaroo' . $responseParser->getTransactionKey(), true);
-            if (empty($tmp)) {
-                add_post_meta($order_id, '_refundbuckaroo' . $responseParser->getTransactionKey(), 'ok', true);
-                wc_create_refund(
-                    [
-                        'amount' => $responseParser->getAmountCredit(),
-                        'reason' => __('Refunded', 'wc-buckaroo-bpe-gateway'),
-                        'order_id' => $order_id,
-                        'line_items' => [],
-                    ]
-                );
-            }
+        Logger::log(__METHOD__ . '|10|', 'allowedPush=' . $allowedPush);
+
+        if (! $responseParser->isSuccess()) {
+            Logger::log(__METHOD__, 'Refund push ignored: status is not success (' . $responseParser->getStatusCode() . ')');
+            exit();
+        }
+
+        if ($allowedPush !== 'ok') {
+            Logger::log(__METHOD__, 'Refund push ignored: _pushallowed not set for order (ensure original payment push was received)');
+            exit();
+        }
+
+        $refundAmount = $responseParser->getAmountCredit();
+        if ($refundAmount === null || $refundAmount <= 0) {
+            Logger::log(__METHOD__, 'Refund push ignored: amount_credit missing or invalid (' . var_export($refundAmount, true) . ')');
+            $order->add_order_note(
+                __('Buckaroo Plaza refund received but amount was missing in push. Please add refund manually. Transaction: ', 'wc-buckaroo-bpe-gateway') .
+                $responseParser->getTransactionKey()
+            );
+            exit();
+        }
+
+        $tmp = get_post_meta($order_id, '_refundbuckaroo' . $responseParser->getTransactionKey(), true);
+        if (empty($tmp)) {
+            add_post_meta($order_id, '_refundbuckaroo' . $responseParser->getTransactionKey(), 'ok', true);
+            wc_create_refund(
+                [
+                    'amount' => $refundAmount,
+                    'reason' => __('Refunded via Buckaroo Plaza', 'wc-buckaroo-bpe-gateway'),
+                    'order_id' => $order_id,
+                    'line_items' => [],
+                ]
+            );
         }
         exit();
     }
