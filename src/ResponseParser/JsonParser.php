@@ -111,7 +111,9 @@ class JsonParser extends ResponseParser
 
     protected function getRelatedTransactions($type = 'refund')
     {
-        return $this->firstWhere($this->get('RelatedTransactions'), 'RelationType', $type)['RelatedTransactionKey'] ?? null;
+        $related = $this->firstWhere($this->get('RelatedTransactions'), 'relationtype', $type);
+
+        return $related['relatedtransactionkey'] ?? null;
     }
 
     public function isRefund(): bool
