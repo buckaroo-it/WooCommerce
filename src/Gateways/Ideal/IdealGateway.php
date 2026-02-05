@@ -6,44 +6,58 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class IdealGateway extends AbstractPaymentGateway
 {
-    private const COBRANDED_LABEL = 'iDEAL | Wero';
-
     public const PAYMENT_CLASS = IdealProcessor::class;
 
     public function __construct()
     {
         $this->id = 'buckaroo_ideal';
-        $this->title = self::getBrandingDisplayName();
+        $this->title = 'iDEAL | Wero';
         $this->has_fields = true;
-        $this->method_title = 'Buckaroo ' . self::getBrandingDisplayName();
-        $this->setIcon(self::getBrandingIconPath());
+        $this->method_title = 'Buckaroo iDEAL | Wero';
+        $this->setIcon('svg/ideal-wero.svg');
 
         parent::__construct();
-        $this->addRefundSupport();
-        apply_filters('buckaroo_init_payment_class', $this);
-    }
+        $settings = $this->settings ?? [];
+        $optionKey = 'woocommerce_buckaroo_ideal_settings';
+        $rawSettings = get_option($optionKey);
 
-    public static function getBrandingDisplayName(): string
-    {
-        return self::COBRANDED_LABEL;
-    }
+        // Normalize title both in runtime and (if needed) in stored settings,
+        // but only when merchants are still using legacy or empty values.
+        $needsUpdate = false;
 
-    public static function getBrandingIconPath(): string
-    {
-        return 'svg/ideal-wero.svg';
-    }
+        if (
+            ! isset($settings['title']) ||
+            $settings['title'] === '' ||
+            $settings['title'] === 'iDEAL'
+        ) {
+            $this->title = 'iDEAL | Wero';
+            if (is_array($rawSettings)) {
+                $rawSettings['title'] = 'iDEAL | Wero';
+                $needsUpdate = true;
+            }
+        }
 
-    protected function setProperties()
-    {
-        parent::setProperties();
-
-        $this->title = self::getBrandingDisplayName();
-
-        if (empty($this->description) || stripos($this->description, 'ideal') !== false) {
+        if (
+            ! isset($settings['description']) ||
+            $settings['description'] === '' ||
+            stripos($settings['description'], 'ideal') !== false
+        ) {
             $this->description = sprintf(
                 __('Pay with %s', 'wc-buckaroo-bpe-gateway'),
                 $this->title
             );
+
+            if (is_array($rawSettings)) {
+                $rawSettings['description'] = $this->description;
+                $needsUpdate = true;
+            }
         }
+
+        if ($needsUpdate && is_array($rawSettings)) {
+            update_option($optionKey, $rawSettings, 'no');
+        }
+
+        $this->addRefundSupport();
+        apply_filters('buckaroo_init_payment_class', $this);
     }
 }

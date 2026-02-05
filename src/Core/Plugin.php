@@ -16,7 +16,7 @@ class Plugin
      *
      * @var string
      */
-    public const VERSION = '4.6.1';
+    public const VERSION = '4.7.0';
 
     /**
      * Instance of PaymentGatewayRegistry.

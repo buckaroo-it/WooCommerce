@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\PayPerEmail;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\Ideal\IdealGateway;
 use WC_Order;
 
 class PayPerEmailGateway extends AbstractPaymentGateway
@@ -157,7 +158,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway
                 'bancontactmrcash' => 'Bancontact / Mr Cash',
                 'transfer' => 'Bank Transfer',
                 'giftcard' => 'Giftcards',
-                'ideal' => 'iDEAL',
+                'ideal' => 'iDEAL | Wero',
                 'paypal' => 'PayPal',
                 'sepadirectdebit' => 'SEPA Direct Debit',
                 'belfius' => 'Belfius',

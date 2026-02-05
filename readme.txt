@@ -18,33 +18,36 @@ Improve your checkout experience and increase conversions - try the Buckaroo plu
 
 Payment method support list by Buckaroo WooCommerce payments plugin
 
-1. iDEAL
-2. PayPal
-3. Credit and debit cards (American Express, Visa, MasterCard, VPAY, Visa Electron, Maestro, Carte Bleue, Carte Bancaire, Dankort, Nexi, PostePay)
-4. Riverty
-5. Giftcards
-6. Bancontact
-7. SEPA Credit Transfer (Bank transfer)
-8. SEPA Direct Debit (With or without Credit management)
-9. Payconiq
-10. Przelewy24
-11. Apple Pay
-12. KBC
-13. PayPerEmail
-14. Billink
-15. Belfius
-16. Klarna
-17. In3
+1. Alipay
+2. Apple Pay
+3. Bancontact
+4. Belfius
+5. Billink
+6. Bizum
+7. Blik
+8. Cards (American Express, Visa, MasterCard, VPAY, Visa Electron, Maestro, Carte Bleue, Carte Bancaire, Dankort, Nexi, PostePay)
+9. EPS
+10. Giftcards
+11. goSettle
+12. iDEAL | Wero
+13. In3
+14. KBC
+15. Klarna
+16. MB Way
+17. Multibanco
 18. PayByBank
-19. EPS
-20. Multibanco
-21. MB Way
-22. goSettle
-23. Blik
-24. WeChat Pay
-25. Alipay
-26. Twint
+19. Payconiq
+20. PayPal
+21. PayPerEmail
+22. Przelewy24
+23. Riverty
+24. SEPA Credit Transfer (Bank transfer)
+25. SEPA Direct Debit
+26. Swish
 27. Trustly
+28. Twint
+29. WeChat Pay
+30. Wero (BE, DE, FR)
 
 == Release notes ==
 For detailed release notes, please visit our [GitHub repository](https://github.com/buckaroo-it/WooCommerce).
