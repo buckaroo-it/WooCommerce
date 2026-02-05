@@ -111,11 +111,14 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
 
     return (
         <div className="container">
-            <span className="description">
-                {sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), decodeHtmlEntities(gateway.title))}
-            </span>
+            {gateway.description && (
+                <div
+                    className="buckaroo-payment-description"
+                    dangerouslySetInnerHTML={{ __html: gateway.description }}
+                />
+            )}
             {errorMessage && errorMessage?.length && <div className="woocommerce-error">{errorMessage}</div>}
-            <PaymentComponent />
+            <PaymentComponent gateway={gateway} title={decodeHtmlEntities(gateway.title)} />
         </div>
     );
 }

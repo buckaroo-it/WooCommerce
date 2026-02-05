@@ -32,7 +32,7 @@ $customer_phone = $this->getScalarCheckoutField('billing_phone');
     ?>
     <p class="form-row validate-required">
         <label for="buckaroo-afterpay-phone">
-            <?php echo esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway'); ?>
+            <?php esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway'); ?>
             <span class="required">*</span>
         </label>
 
@@ -59,7 +59,7 @@ $customer_phone = $this->getScalarCheckoutField('billing_phone');
         ?>
         <p class="form-row form-row-wide validate-required">
             <label for="buckaroo-afterpay-company-coc-registration">
-                <?php echo esc_html_e('IBAN:', 'wc-buckaroo-bpe-gateway'); ?>
+                <?php esc_html_e('IBAN:', 'wc-buckaroo-bpe-gateway'); ?>
                 <span class="required">*</span>
             </label>
             

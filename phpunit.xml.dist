@@ -6,23 +6,38 @@
 	convertErrorsToExceptions="true"
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
+	verbose="true"
 	>
 	<testsuites>
 		<testsuite name="unit">
 			<directory prefix="Test_" suffix=".php">./tests/</directory>
+			<exclude>./tests/Integration/</exclude>
+		</testsuite>
+		<testsuite name="integration">
+			<directory prefix="Test_" suffix=".php">./tests/Integration/</directory>
 		</testsuite>
 	</testsuites>
-	<filter>
-		<whitelist processUncoveredFilesFromWhitelist="true">
+	<coverage processUncoveredFiles="true">
+		<include>
 			<directory suffix=".php">./src</directory>
-			<exclude>
-				<directory>./tests</directory>
-				<directory>./assets</directory>
-				<directory>./bin</directory>
-				<directory>./languages</directory>
-				<directory>./vendor</directory>
-				<directory>./templates</directory>
-			</exclude>
-		</whitelist>
-	</filter>
+		</include>
+		<exclude>
+			<directory>./tests</directory>
+			<directory>./assets</directory>
+			<directory>./bin</directory>
+			<directory>./languages</directory>
+			<directory>./vendor</directory>
+			<directory>./vendor_buckaroo</directory>
+			<directory>./templates</directory>
+			<file>./src/Gateways/Klarna/capture-form.php</file>
+			<file>./src/Gateways/Klarna/refund-form.php</file>
+		</exclude>
+		<report>
+			<html outputDirectory="coverage" lowUpperBound="50" highLowerBound="80"/>
+			<clover outputFile="coverage/clover.xml"/>
+		</report>
+	</coverage>
+	<php>
+		<env name="WP_TESTS_DIR" value="/tmp/wordpress-tests-lib"/>
+	</php>
 </phpunit>

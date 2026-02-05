@@ -53,11 +53,11 @@ if (! is_array($tos)) {
     <a 
     href="<?php echo esc_url($tos); ?>"
     target="_blank">
-        <?php echo esc_html_e('Accept Riverty conditions:', 'wc-buckaroo-bpe-gateway'); ?>
+        <?php esc_html_e('Accept Riverty conditions:', 'wc-buckaroo-bpe-gateway'); ?>
     </a>
     <?php
 } else {
-    echo esc_html_e('Accept Riverty conditions:', 'wc-buckaroo-bpe-gateway');
+    esc_html_e('Accept Riverty conditions:', 'wc-buckaroo-bpe-gateway');
 }
 ?>
     <span class="required">*</span> 
@@ -71,7 +71,7 @@ if (! is_array($tos)) {
             ?>
             <br>
             <a href="<?php echo esc_url($tosElement['link']); ?>" target="_blank">
-                <?php echo esc_html_e($tosElement['label'], 'wc-buckaroo-bpe-gateway'); ?>
+                <?php esc_html_e($tosElement['label'], 'wc-buckaroo-bpe-gateway'); ?>
             </a>
             <?php
         }
@@ -80,5 +80,5 @@ if (! is_array($tos)) {
 </p>
     
 <p class="required" style="float:right;">*
-    <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
+    <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
 </p>

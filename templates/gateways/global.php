@@ -19,7 +19,7 @@ defined('ABSPATH') || exit;
 
 if ($this->mode == 'test') {
     ?>
-    <p> <?php echo esc_html_e('TEST MODE', 'wc-buckaroo-bpe-gateway'); ?></p>
+    <p> <?php esc_html_e('TEST MODE', 'wc-buckaroo-bpe-gateway'); ?></p>
     <?php
 }
 if (strlen($this->description)) {

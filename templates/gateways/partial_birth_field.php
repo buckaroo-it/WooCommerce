@@ -21,7 +21,7 @@ $section_id = str_replace('_', '-', $this->id);
 ?>
 <p class="form-row form-row-wide validate-required">
     <label for="<?php echo esc_attr($section_id); ?>-birthdate">
-        <?php echo esc_html_e('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway'); ?>
+        <?php esc_html_e('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway'); ?>
         <span class="required">*</span>
     </label>
 

@@ -221,7 +221,6 @@ class PushProcessor
         }
         $_SESSION['buckaroo_response'] = '';
         Logger::log('Return start / fn_buckaroo_process_response_push');
-        $headers = getallheaders();
 
         $original_precision = ini_get('serialize_precision');
 
@@ -244,11 +243,17 @@ class PushProcessor
             $order = new WC_Order($order_id);
         }
 
+        // Get headers in a cross-server compatible way
+        $headers = $this->getAllHeaders();
+
+        // Support both original and normalized (lowercase) header keys for Authorization
+        $authorizationHeader = $headers['Authorization'] ?? ($headers['authorization'] ?? '');
+
         $buckarooClient = new BuckarooClient($responseParser->isTest() ? 'test' : 'live');
         if (
             $buckarooClient->isReplyHandlerValid(
                 $responseParser->get(null, null, false),
-                $headers['Authorization'] ?? '',
+                $authorizationHeader,
                 add_query_arg($wp->query_vars, home_url($wp->request ?: '/'))
             )
         ) {
@@ -319,12 +324,19 @@ class PushProcessor
                 }
 
                 if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_CANCELLED) {
-                    Logger::log('Update status 3. Order status: cancelled');
-                    if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled']) && ! $this->isOrderFullyPaid($order)) {
-                        $order->update_status('cancelled', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
+                    Logger::log('Payment cancelled by customer - keeping status as failed to allow retry');
+                    // Keep order as 'failed' instead of 'cancelled' to allow customer to retry payment
+                    // WooCommerce only allows 'pending' or 'failed' orders to be retried
+                    // Only update to failed if order is not already in a final state
+                    if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled', 'refunded']) && ! $this->isOrderFullyPaid($order)) {
+                        // If order is not already failed, update it to failed
+                        if ($order->get_status() !== 'failed') {
+                            Logger::log('Update status: failed (from cancelled push)');
+                            $order->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
+                        }
                     } else {
                         if ($this->isOrderFullyPaid($order)) {
-                            Logger::log('Push message. Order was previously fully paid - status cannot be changed to cancelled.');
+                            Logger::log('Push message. Order was previously fully paid - status cannot be changed.');
                         } else {
                             Logger::log('Push message. Order status cannot be changed.');
                         }
@@ -374,5 +386,35 @@ class PushProcessor
 
             return;
         }
+    }
+
+    /**
+     * Get all HTTP headers in a cross-server compatible way.
+     * getallheaders() is only available when PHP runs as an Apache module.
+     * When PHP runs as CGI/FastCGI (common with nginx), this function may not be available.
+     *
+     * @return array
+     */
+    protected function getAllHeaders(): array
+    {
+        if (function_exists('getallheaders')) {
+            return getallheaders();
+        }
+
+        // Fallback for PHP that don't support getallheaders() (e.g., CGI/FastCGI)
+        $headers = [];
+        foreach ($_SERVER as $name => $value) {
+            if (substr($name, 0, 5) === 'HTTP_') {
+                $headerName = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
+                // Normalize to lowercase keys to make lookups (e.g. 'authorization') predictable
+                $headers[strtolower($headerName)] = $value;
+            } elseif (in_array($name, ['CONTENT_TYPE', 'CONTENT_LENGTH', 'CONTENT_MD5'], true)) {
+                $headerName = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', $name))));
+                // Normalize to lowercase keys to make lookups (e.g. 'content-type') predictable
+                $headers[strtolower($headerName)] = $value;
+            }
+        }
+
+        return $headers;
     }
 }

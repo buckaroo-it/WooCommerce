@@ -20,6 +20,7 @@ use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPiiGateway;
 use Buckaroo\Woocommerce\Gateways\KnakenSettle\KnakenSettleGateway;
+use Buckaroo\Woocommerce\Gateways\Bizum\BizumGateway;
 use Buckaroo\Woocommerce\Gateways\MbWay\MbWayGateway;
 use Buckaroo\Woocommerce\Gateways\Multibanco\MultibancoGateway;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankGateway;
@@ -32,6 +33,8 @@ use Buckaroo\Woocommerce\Gateways\Transfer\TransferGateway;
 use Buckaroo\Woocommerce\Gateways\Trustly\TrustlyGateway;
 use Buckaroo\Woocommerce\Gateways\Twint\TwintGateway;
 use Buckaroo\Woocommerce\Gateways\WeChatPay\WeChatPayGateway;
+use Buckaroo\Woocommerce\Gateways\Swish\SwishGateway;
+use Buckaroo\Woocommerce\Gateways\Wero\WeroGateway;
 use Buckaroo\Woocommerce\Order\OrderCapture;
 
 class PaymentGatewayRegistry
@@ -48,6 +51,7 @@ class PaymentGatewayRegistry
         'belfius' => ['gateway_class' => BelfiusGateway::class],
         'billink' => ['gateway_class' => BillinkGateway::class],
         'blik' => ['gateway_class' => BlikGateway::class],
+        'bizum' => ['gateway_class' => BizumGateway::class],
         'creditcard' => ['gateway_class' => CreditCardGateway::class],
         'eps' => ['gateway_class' => EpsGateway::class],
         'giftcard' => ['gateway_class' => GiftCardGateway::class],
@@ -68,8 +72,10 @@ class PaymentGatewayRegistry
         'transfer' => ['gateway_class' => TransferGateway::class],
         'trustly' => ['gateway_class' => TrustlyGateway::class],
         'twint' => ['gateway_class' => TwintGateway::class],
+        'swish' => ['gateway_class' => SwishGateway::class],
         'alipay' => ['gateway_class' => AlipayGateway::class],
         'wechatpay' => ['gateway_class' => WeChatPayGateway::class],
+        'wero' => ['gateway_class' => WeroGateway::class],
     ];
 
     /**

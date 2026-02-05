@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 5.3.18
-Tested up to: 6.7.2
-Stable tag: 4.6.1
+Tested up to: 6.9
+Stable tag: 4.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,33 +18,36 @@ Improve your checkout experience and increase conversions - try the Buckaroo plu
 
 Payment method support list by Buckaroo WooCommerce payments plugin
 
-1. iDEAL
-2. PayPal
-3. Credit and debit cards (American Express, Visa, MasterCard, VPAY, Visa Electron, Maestro, Carte Bleue, Carte Bancaire, Dankort, Nexi, PostePay)
-4. Riverty
-5. Giftcards
-6. Bancontact
-7. SEPA Credit Transfer (Bank transfer)
-8. SEPA Direct Debit (With or without Credit management)
-9. Payconiq
-10. Przelewy24
-11. Apple Pay
-12. KBC
-13. PayPerEmail
-14. Billink
-15. Belfius
-16. Klarna
-17. In3
+1. Alipay
+2. Apple Pay
+3. Bancontact
+4. Belfius
+5. Billink
+6. Bizum
+7. Blik
+8. Cards (American Express, Visa, MasterCard, VPAY, Visa Electron, Maestro, Carte Bleue, Carte Bancaire, Dankort, Nexi, PostePay)
+9. EPS
+10. Giftcards
+11. goSettle
+12. iDEAL | Wero
+13. In3
+14. KBC
+15. Klarna
+16. MB Way
+17. Multibanco
 18. PayByBank
-19. EPS
-20. Multibanco
-21. MB Way
-22. goSettle
-23. Blik
-24. WeChat Pay
-25. Alipay
-26. Twint
+19. Payconiq
+20. PayPal
+21. PayPerEmail
+22. Przelewy24
+23. Riverty
+24. SEPA Credit Transfer (Bank transfer)
+25. SEPA Direct Debit
+26. Swish
 27. Trustly
+28. Twint
+29. WeChat Pay
+30. Wero (BE, DE, FR)
 
 == Release notes ==
 For detailed release notes, please visit our [GitHub repository](https://github.com/buckaroo-it/WooCommerce).
@@ -76,17 +79,36 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
+= 4.7.0 =
+Changelog:
+Improvements & New Features
+BP-5249 Added support for WordPress 6.9 and WooCommerce 10.4.2 / 10.4.3.
+BTI-102 Updated the payment method name &  logo from “iDEAL” to the co-branding “iDEAL | Wero”.
+BP-5136 Added the Wero payment method (BE, DE, FR).
+BP-4950 Added the Bizum payment method.
+BP-4951 Added the Swish payment method.
+BP-4952 Added the Twint payment method.
+BP-4929 Added priority handling for Express payment buttons.
+BP-5199 Removed the separate authorize/capture flow for Billink; only the PAY flow is now supported
+BTI-102 We’ve updated the readme.txt file with the list of supported payment methods.
+Bug Fixes
+BP-5081 Fixed an issue where shipping costs were sent with 0% VAT when the shipping tax class was based on cart products.
+BP-5109 Fixed an issue where “Show payment procedures” did not work correctly for Bank Transfer.
+BP-5108 Fixed an issue where PUSH payments failed due to special characters in the description.
+BP-5331 Fixed an issue preventing a new transaction attempt after cancelling the first attempt.
+BP-5347 Fixed missing payment method input fields on the WooCommerce checkout (related to BP-5249).
+BP-5348 Fixed an issue where payments remained in a pending state (related to BP-5249).
 = 4.6.1 =
 BP-4600 Add payment method: Twint
 BP-4578 Add payment method: Trustly
-BP-4543 The payment method “iDEAL In3” is rebranded back to its original name “In3”.
-BP-4567 Add “Automatic Configuration” button to check the Buckaroo subscriptions and configure the plugin.
+BP-4543 The payment method "iDEAL In3" is rebranded back to its original name "In3".
+BP-4567 Add "Automatic Configuration" button to check the Buckaroo subscriptions and configure the plugin.
 BP-4587 Restructure plugin settings.
 BP-4569 Improve the way express payment buttons are displayed (like: Apple Pay & PayPal Express).
 BP-4592 Update README.md with the latest supported versions.
 BP-4534 Fix: No clear error message displayed when the payment was getting rejected.
 BP-4553 Fix: Klarna (authorize/capture) refund from the Buckaroo plaza not updating in WooCommerce (order status and amount).
-BP-4666 Fix: Rejection message for Rivery was not showed correctly in some specific scenario’s.
+BP-4666 Fix: Rejection message for Rivery was not showed correctly in some specific scenario's.
 BP-4581 Fix: Riverty Missing articles in partial refund request (JSON).
 = 4.5.1 =
 BP-4538: Optimized storage of buckaroo_settlement data in WooCommerce orders.

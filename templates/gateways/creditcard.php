@@ -29,11 +29,11 @@ $show_required = ($creditCardMethod == 'encrypt' && $this->isSecure()) || ($cred
                 name='<?php echo esc_attr($this->id); ?>-creditcard-issuer'
                 id='buckaroo-creditcard-issuer'>
                 <option value='0' style='color: grey !important'>
-                    <?php echo esc_html_e('Select your credit card:', 'wc-buckaroo-bpe-gateway'); ?>
+                    <?php esc_html_e('Select your credit card:', 'wc-buckaroo-bpe-gateway'); ?>
                 </option>
                 <?php foreach ($this->getCardsList() as $issuer) { ?>
                     <option value='<?php echo esc_attr($issuer['servicename']); ?>'>
-                        <?php echo esc_html_e($issuer['displayname'], 'wc-buckaroo-bpe-gateway'); ?>
+                        <?php esc_html_e($issuer['displayname'], 'wc-buckaroo-bpe-gateway'); ?>
                     </option>
                 <?php } ?>
             </select>
@@ -95,7 +95,7 @@ $show_required = ($creditCardMethod == 'encrypt' && $this->isSecure()) || ($cred
     <?php if ($show_required) { ?>
     <p class="form-row form-row-wide validate-required"></p>
     <p class="required" style="float:right;">*
-        <?php echo esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
+        <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
     </p>
     <?php } ?>
 </fieldset>

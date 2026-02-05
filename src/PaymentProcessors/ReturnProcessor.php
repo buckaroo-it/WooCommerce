@@ -105,8 +105,8 @@ class ReturnProcessor
         $this->updateStatusFailedOrCancelled($order, $responseParser);
 
         // Show notice
-        $errorDescription = 'Payment unsuccessful. Please try again or choose another payment method.';
-        wc_add_notice(__($errorDescription, 'wc-buckaroo-bpe-gateway'), 'error');
+        $errorDescription = __('Payment unsuccessful. Please try again or choose another payment method.', 'wc-buckaroo-bpe-gateway');
+        wc_add_notice(__('Payment unsuccessful. Please try again or choose another payment method.', 'wc-buckaroo-bpe-gateway'), 'error');
         $this->maybeAddNlSpecificError($responseParser, $order, $errorDescription);
 
         // Redirect
@@ -153,16 +153,9 @@ class ReturnProcessor
         $order->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
 
         if ($responseParser->isCanceled()) {
-            Logger::log('Update status: cancelled');
-            if ($this->canUpdateStatus($order) && ! $this->isOrderFullyPaid($order)) {
-                $order->update_status('cancelled', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
-            } else {
-                if ($this->isOrderFullyPaid($order)) {
-                    Logger::log('Response. Order was previously fully paid - status cannot be changed to cancelled.');
-                } else {
-                    Logger::log('Response. Order status cannot be changed.');
-                }
-            }
+            Logger::log('Payment cancelled by customer - keeping status as failed to allow retry');
+            // Keep order as 'failed' instead of 'cancelled' to allow customer to retry payment
+            // WooCommerce only allows 'pending' or 'failed' orders to be retried
             wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
         }
     }
@@ -250,10 +243,7 @@ class ReturnProcessor
 
     protected function isNlOrder($order)
     {
-        if (Helper::isWooCommerceVersion3OrGreater()) {
-            return $order->get_billing_country() === 'NL';
-        }
-
-        return isset($order->billing_country) && $order->billing_country === 'NL';
+        // WooCommerce 3.0+ uses getter methods, which is required for HPOS compatibility
+        return $order->get_billing_country() === 'NL';
     }
 }
