@@ -39,7 +39,7 @@ class IdealWeroBranding implements Migration
             stripos($settings['description'], 'ideal') !== false
         ) {
             $settings['description'] = sprintf(
-                __('Pay with %s', 'buckaroo-woocommerce'),
+                __('Pay with %s', 'wc-buckaroo-bpe-gateway'),
                 $settings['title']
             );
         }
