@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 5.3.18
 Tested up to: 6.9
-Stable tag: 4.6.1
+Stable tag: 4.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,11 +79,25 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
-= 4.6.2 =
-Add support for WordPress 6.9
-Add support for WooCommerce 10.4.2 & 10.4.3
-Fix: Improved cross-server compatibility for HTTP headers (getallheaders fallback for nginx)
-Fix: Removed legacy order property access for better HPOS compatibility
+= 4.7.0 =
+Changelog:
+Improvements & New Features
+BP-5249 Added support for WordPress 6.9 and WooCommerce 10.4.2 / 10.4.3.
+BTI-102 Updated the payment method name &  logo from “iDEAL” to the co-branding “iDEAL | Wero”.
+BP-5136 Added the Wero payment method (BE, DE, FR).
+BP-4950 Added the Bizum payment method.
+BP-4951 Added the Swish payment method.
+BP-4952 Added the Twint payment method.
+BP-4929 Added priority handling for Express payment buttons.
+BP-5199 Removed the separate authorize/capture flow for Billink; only the PAY flow is now supported
+BTI-102 We’ve updated the readme.txt file with the list of supported payment methods.
+Bug Fixes
+BP-5081 Fixed an issue where shipping costs were sent with 0% VAT when the shipping tax class was based on cart products.
+BP-5109 Fixed an issue where “Show payment procedures” did not work correctly for Bank Transfer.
+BP-5108 Fixed an issue where PUSH payments failed due to special characters in the description.
+BP-5331 Fixed an issue preventing a new transaction attempt after cancelling the first attempt.
+BP-5347 Fixed missing payment method input fields on the WooCommerce checkout (related to BP-5249).
+BP-5348 Fixed an issue where payments remained in a pending state (related to BP-5249).
 = 4.6.1 =
 BP-4600 Add payment method: Twint
 BP-4578 Add payment method: Trustly
