@@ -5,7 +5,6 @@ namespace Buckaroo\Woocommerce\Install\Migration;
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Install\Install;
 use Buckaroo\Woocommerce\Install\Migration\Versions\SetupTransactionsAndLogs;
-use Buckaroo\Woocommerce\Install\Migration\Versions\IdealWeroBranding;
 use Buckaroo\Woocommerce\Services\Logger;
 use Throwable;
 use Buckaroo\Woocommerce\Install\Migration\Versions\DisableAutoloadForSettings;
@@ -186,7 +185,6 @@ class MigrationHandler
         return [
             new SetupTransactionsAndLogs(),
             new DisableAutoloadForSettings(),
-            new IdealWeroBranding(),
         ];
     }
 
