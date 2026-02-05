@@ -33,26 +33,13 @@ class IdealGateway extends AbstractPaymentGateway
         return 'svg/ideal-wero.svg';
     }
 
-    /**
-     * Override default property initialisation to enforce the co-branded
-     * naming in checkout even when legacy settings are stored.
-     */
     protected function setProperties()
     {
         parent::setProperties();
 
+        $this->title = self::getBrandingDisplayName();
 
-        if ($this->title === 'iDEAL') {
-            $this->title = self::getBrandingDisplayName();
-        }
-
-
-        $legacyDescription = sprintf(
-            __('Pay with %s', 'wc-buckaroo-bpe-gateway'),
-            'iDEAL'
-        );
-
-        if ($this->description === $legacyDescription) {
+        if (empty($this->description) || stripos($this->description, 'ideal') !== false) {
             $this->description = sprintf(
                 __('Pay with %s', 'wc-buckaroo-bpe-gateway'),
                 $this->title
