@@ -42,8 +42,17 @@ export default class GooglePay {
 
         const environment = this.store_info.mode === 'live' ? 'PRODUCTION' : 'TEST';
         const buttonStyle = this.store_info.button_style || 'black';
+        const hasShipping = shipping_methods && shipping_methods.length > 0;
 
-        const googlePayPayment = new BuckarooSdk.GooglePay.GooglePayPayment({
+        const shippingOptions = hasShipping
+            ? shipping_methods.map(method => ({
+                id: method.identifier,
+                label: method.label,
+                description: '',
+            }))
+            : [];
+
+        const options = {
             environment: environment,
             buttonColor: buttonStyle === 'white' ? 'white' : 'black',
             buttonType: 'pay',
@@ -56,9 +65,10 @@ export default class GooglePay {
             countryCode: this.store_info.country_code,
             merchantName: this.store_info.store_name,
             merchantId: this.store_info.google_merchant_id || '',
+            merchantOrigin: window.location.hostname,
             gatewayMerchantId: this.store_info.merchant_id,
             shippingAddressRequired: true,
-            shippingOptionRequired: true,
+            shippingOptionRequired: hasShipping,
             emailRequired: true,
             billingAddressRequired: true,
             billingAddressParameters: {
@@ -71,62 +81,99 @@ export default class GooglePay {
             processPayment: paymentData => {
                 return this.processGooglepayCallback(paymentData);
             },
-            onPaymentDataChanged: intermediatePaymentData => {
+        };
+
+        if (hasShipping) {
+            options.shippingOptionParameters = {
+                shippingOptions: shippingOptions,
+                defaultSelectedOptionId: shippingOptions[0].id,
+            };
+            options.onPaymentDataChanged = intermediatePaymentData => {
                 return this.onPaymentDataChanged(intermediatePaymentData);
-            },
-        });
+            };
+        }
+
+        const googlePayPayment = new BuckarooSdk.GooglePay.GooglePayPayment(options);
 
         googlePayPayment.initiate();
     }
 
     onPaymentDataChanged(intermediatePaymentData) {
-        const countryCode = intermediatePaymentData.shippingAddress?.countryCode || this.country_code;
-        this.country_code = countryCode;
+        try {
+            const countryCode = intermediatePaymentData.shippingAddress?.countryCode || this.country_code;
+            this.country_code = countryCode;
 
-        const shippingMethods = this.woocommerce.getShippingMethods(countryCode);
-        const cartItems = this.getItems();
+            const shippingMethods = this.woocommerce.getShippingMethods(countryCode);
+            const cartItems = this.getItems();
 
-        const shippingOptions = shippingMethods.map((method, index) => ({
-            id: method.identifier,
-            label: method.label,
-            description: '',
-        }));
-
-        if (intermediatePaymentData.shippingOptionData?.id) {
-            const selectedMethod = shippingMethods.find(
-                m => m.identifier === intermediatePaymentData.shippingOptionData.id
-            );
-            if (selectedMethod) {
-                this.selected_shipping_method = selectedMethod.identifier;
-                this.selected_shipping_amount = selectedMethod.amount;
+            if (!shippingMethods || !Array.isArray(shippingMethods) || shippingMethods.length === 0) {
+                return Promise.resolve({
+                    newTransactionInfo: {
+                        totalPriceStatus: 'FINAL',
+                        totalPrice: String(this.total_price),
+                        currencyCode: this.store_info.currency_code,
+                        countryCode: this.store_info.country_code,
+                    },
+                    error: {
+                        reason: 'SHIPPING_ADDRESS_UNSERVICEABLE',
+                        message: 'Cannot ship to this address',
+                        intent: 'SHIPPING_ADDRESS',
+                    },
+                });
             }
-        } else if (shippingMethods.length > 0) {
-            this.selected_shipping_method = shippingMethods[0].identifier;
-            this.selected_shipping_amount = shippingMethods[0].amount;
+
+            const shippingOptions = shippingMethods.map(method => ({
+                id: method.identifier,
+                label: method.label,
+                description: '',
+            }));
+
+            if (intermediatePaymentData.shippingOptionData?.id) {
+                const selectedMethod = shippingMethods.find(
+                    m => m.identifier === intermediatePaymentData.shippingOptionData.id
+                );
+                if (selectedMethod) {
+                    this.selected_shipping_method = selectedMethod.identifier;
+                    this.selected_shipping_amount = selectedMethod.amount;
+                }
+            } else if (shippingMethods.length > 0) {
+                this.selected_shipping_method = shippingMethods[0].identifier;
+                this.selected_shipping_amount = shippingMethods[0].amount;
+            }
+
+            const shippingCost = this.selected_shipping_amount || 0;
+            const itemsTotal = cartItems.reduce((sum, item) => sum + item.amount, 0);
+            const totalPrice = convert.toDecimal(itemsTotal + shippingCost);
+            this.total_price = totalPrice;
+
+            return Promise.resolve({
+                newTransactionInfo: {
+                    totalPriceStatus: 'FINAL',
+                    totalPrice: String(totalPrice),
+                    currencyCode: this.store_info.currency_code,
+                    countryCode: this.store_info.country_code,
+                },
+                newShippingOptionParameters: {
+                    shippingOptions: shippingOptions,
+                    defaultSelectedOptionId: this.selected_shipping_method || shippingOptions[0].id,
+                },
+            });
+        } catch (error) {
+            console.error('Error in onPaymentDataChanged:', error);
+            return Promise.resolve({
+                newTransactionInfo: {
+                    totalPriceStatus: 'FINAL',
+                    totalPrice: String(this.total_price),
+                    currencyCode: this.store_info.currency_code,
+                    countryCode: this.store_info.country_code,
+                },
+                error: {
+                    reason: 'SHIPPING_ADDRESS_UNSERVICEABLE',
+                    message: 'Cannot ship to this address',
+                    intent: 'SHIPPING_ADDRESS',
+                },
+            });
         }
-
-        const shippingCost = this.selected_shipping_amount || 0;
-        const itemsTotal = cartItems.reduce((sum, item) => sum + item.amount, 0);
-        const totalPrice = convert.toDecimal(itemsTotal + shippingCost);
-        this.total_price = totalPrice;
-
-        const result = {
-            newTransactionInfo: {
-                totalPriceStatus: 'FINAL',
-                totalPrice: String(totalPrice),
-                currencyCode: this.store_info.currency_code,
-                countryCode: this.store_info.country_code,
-            },
-        };
-
-        if (shippingOptions.length > 0) {
-            result.newShippingOptionParameters = {
-                shippingOptions: shippingOptions,
-                defaultSelectedOptionId: this.selected_shipping_method || shippingOptions[0].id,
-            };
-        }
-
-        return Promise.resolve(result);
     }
 
     processGooglepayCallback(paymentData) {
