@@ -46,10 +46,10 @@ export default class GooglePay {
 
         const shippingOptions = hasShipping
             ? shipping_methods.map(method => ({
-                id: method.identifier,
-                label: method.label,
-                description: '',
-            }))
+                  id: method.identifier,
+                  label: method.label,
+                  description: '',
+              }))
             : [];
 
         const options = {
