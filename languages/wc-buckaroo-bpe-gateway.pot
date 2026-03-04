@@ -2,16 +2,16 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WC Buckaroo BPE Gateway 4.6.1\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/buckaroo-woocommerce\n"
+"Project-Id-Version: WC Buckaroo BPE Gateway 4.7.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-buckaroo-bpe-gateway\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-02T14:41:00+00:00\n"
+"POT-Creation-Date: 2026-03-03T22:08:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.12.0\n"
+"X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
 
 #. Plugin Name of the plugin
@@ -113,7 +113,6 @@ msgstr ""
 
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:315
-#, php-format
 msgid "Manage the \"%s\" payment method"
 msgstr ""
 
@@ -124,7 +123,6 @@ msgstr ""
 
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:318
-#, php-format
 msgid "Set up the \"%s\" payment method"
 msgstr ""
 
@@ -135,7 +133,6 @@ msgstr ""
 
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:325
-#, php-format
 msgid "The \"%s\" payment method is currently enabled"
 msgstr ""
 
@@ -148,7 +145,6 @@ msgstr ""
 
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:328
-#, php-format
 msgid "The \"%s\" payment method is currently disabled"
 msgstr ""
 
@@ -242,9 +238,9 @@ msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:107
 msgid ""
-"The chosen language (culture) for the Buckaroo payment engine <br>page.\r\n"
-"When this is set to “Dynamic language” the plugin will <br>automatically determine the language based on the\r\n"
-"language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>\r\n"
+"The chosen language (culture) for the Buckaroo payment engine <br>page.\n"
+"When this is set to “Dynamic language” the plugin will <br>automatically determine the language based on the\n"
+"language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>\n"
 "English will be used as a fallback language for unknown language types."
 msgstr ""
 
@@ -320,7 +316,6 @@ msgid "Enable/Disable"
 msgstr ""
 
 #: src/Gateways/AbstractPaymentGateway.php:119
-#, php-format
 msgid "Enable %s Payment Method"
 msgstr ""
 
@@ -370,7 +365,7 @@ msgid "Specify maximum order amount allowed to show the current method. Zero or 
 msgstr ""
 
 #: src/Gateways/AbstractPaymentGateway.php:184
-#, php-format
+#: src/Gateways/Ideal/IdealGateway.php:46
 msgid "Pay with %s"
 msgstr ""
 
@@ -502,6 +497,7 @@ msgid "We are sorry to inform you that the request to pay afterwards with Rivert
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:426
+#: src/Gateways/Googlepay/GooglepayGateway.php:433
 msgid "Button on product page"
 msgstr ""
 
@@ -512,20 +508,27 @@ msgstr ""
 #: src/Gateways/Applepay/ApplepayGateway.php:430
 #: src/Gateways/Applepay/ApplepayGateway.php:441
 #: src/Gateways/Applepay/ApplepayGateway.php:452
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:119
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:130
+#: src/Gateways/Googlepay/GooglepayGateway.php:437
+#: src/Gateways/Googlepay/GooglepayGateway.php:448
+#: src/Gateways/Googlepay/GooglepayGateway.php:459
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:120
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:131
 msgid "Show"
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:431
 #: src/Gateways/Applepay/ApplepayGateway.php:442
 #: src/Gateways/Applepay/ApplepayGateway.php:453
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:120
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:131
+#: src/Gateways/Googlepay/GooglepayGateway.php:438
+#: src/Gateways/Googlepay/GooglepayGateway.php:449
+#: src/Gateways/Googlepay/GooglepayGateway.php:460
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:121
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:132
 msgid "Hide"
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:437
+#: src/Gateways/Googlepay/GooglepayGateway.php:444
 msgid "Button on cart page"
 msgstr ""
 
@@ -534,6 +537,7 @@ msgid "Show the Apple pay button on the cart page"
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:448
+#: src/Gateways/Googlepay/GooglepayGateway.php:455
 msgid "Button on checkout page"
 msgstr ""
 
@@ -542,10 +546,12 @@ msgid "Show the Apple pay button on the checkout page"
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:472
+#: src/Gateways/Googlepay/GooglepayGateway.php:491
 msgid "GUID"
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:474
+#: src/Gateways/Googlepay/GooglepayGateway.php:493
 msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
 msgstr ""
 
@@ -559,7 +565,7 @@ msgstr ""
 
 #: src/Gateways/Billink/BillinkGateway.php:55
 #: src/Gateways/Klarna/KlarnaGateway.php:38
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:71
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:72
 msgid "Unknown gender"
 msgstr ""
 
@@ -650,8 +656,43 @@ msgid "Giftcards must be comma separated"
 msgstr ""
 
 #: src/Gateways/GiftCard/GiftCardProcessor.php:30
-#, php-format
 msgid "Card number or pin is incorrect for %s"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:435
+msgid "Show the Google Pay button on the product page"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:446
+msgid "Show the Google Pay button on the cart page"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:457
+msgid "Show the Google Pay button on the checkout page"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:466
+msgid "Button style"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:468
+msgid "Select the Google Pay button style"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:470
+msgid "Dark"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:471
+msgid "Light"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:497
+msgid "Google Merchant ID"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:499
+msgid "Your Google Merchant ID from the Google Pay Business Console (e.g. BCR2DN4T...)."
 msgstr ""
 
 #: src/Gateways/Idin/IdinController.php:25
@@ -667,7 +708,6 @@ msgid "Verification has been failed"
 msgstr ""
 
 #: src/Gateways/In3/In3Gateway.php:85
-#, php-format
 msgid "Please fill in a phone number for %s. This is required in order to use this payment method."
 msgstr ""
 
@@ -748,63 +788,63 @@ msgstr ""
 msgid "PayPal merchant id is required"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:65
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:66
 msgid "Please select gender"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:75
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:76
 msgid "Please enter firstname"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:79
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:80
 msgid "Please enter lastname"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:82
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:83
 msgid "Please enter email"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:84
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:85
 msgid "Please enter valid email"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:108
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:109
 msgid "Show on Checkout page"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:110
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:111
 msgid "Show PayPerEmail on Checkout page"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:115
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:116
 msgid "Show PayLink"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:117
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:118
 msgid "Show PayLink in admin order actions"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:126
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:127
 msgid "Show PayPerEmail"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:128
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:129
 msgid "Show PayPerEmail in admin order actions"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:137
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:138
 msgid "Due date (in days)"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:139
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:140
 msgid "The expiration date for the paylink."
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:144
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:145
 msgid "Allowed methods"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:166
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:167
 msgid "Select which methods appear to the customer"
 msgstr ""
 
@@ -821,7 +861,6 @@ msgid "Swish is Sweden's real-time mobile payment method, authorized via BankID.
 msgstr ""
 
 #: src/Gateways/Transfer/TransferGateway.php:65
-#, php-format
 msgid "Thank you for your order. You have chosen to pay by transfer. To complete your order, please transfer the outstanding amount, %1$s, using the details below."
 msgstr ""
 
@@ -850,7 +889,6 @@ msgid "NB:"
 msgstr ""
 
 #: src/Gateways/Transfer/TransferGateway.php:77
-#, php-format
 msgid "To ensure that your payment can be processed smoothly, you must quote the payment reference %1$s in the description of your transfer. This will enable faster processing of the payment."
 msgstr ""
 
@@ -935,29 +973,24 @@ msgid "Klarna reservation was successfully canceled"
 msgstr ""
 
 #: src/PaymentProcessors/Actions/CancelReservationAction.php:22
-#, php-format
 msgid "Klarna reservation for order #%s was successfully canceled"
 msgstr ""
 
 #: src/PaymentProcessors/Actions/CancelReservationAction.php:33
-#, php-format
 msgid "Cannot cancel klarna reservation for order #%s"
 msgstr ""
 
 #: src/PaymentProcessors/Actions/CaptureAction.php:62
-#, php-format
 msgid "Captured %1$s - Capture transaction ID: %2$s"
 msgstr ""
 
 #: src/PaymentProcessors/Actions/CaptureAction.php:84
-#, php-format
 msgid ""
 "Capture failed for transaction ID: %s \n"
 ""
 msgstr ""
 
 #: src/PaymentProcessors/Actions/CaptureAction.php:97
-#, php-format
 msgid "Capture failed for transaction ID: %s"
 msgstr ""
 
@@ -966,12 +999,10 @@ msgid "Refunded"
 msgstr ""
 
 #: src/PaymentProcessors/Actions/RefundAction.php:68
-#, php-format
 msgid "Refunded %1$s - Refund transaction ID: %2$s"
 msgstr ""
 
 #: src/PaymentProcessors/Actions/RefundAction.php:85
-#, php-format
 msgid ""
 "Refund failed for transaction ID: %s \n"
 ""
@@ -1012,12 +1043,10 @@ msgid "No payment methods were configured. Please check your active subscription
 msgstr ""
 
 #: src/Services/AutoConfiguration.php:138
-#, php-format
 msgid "Successfully configured %d payment method(s): %s"
 msgstr ""
 
 #: src/Services/AutoConfiguration.php:202
-#, php-format
 msgid "Failed to configure %s: %s"
 msgstr ""
 
@@ -1296,7 +1325,6 @@ msgstr ""
 
 #: assets/js/blocks/partials/buckaroo_financial_warning.js:6
 #: assets/js/dist/blocks.js:2
-#, js-format
 msgid "You must be at least 18+ to use this service. By paying on time, you avoid extra costs and ensure that you can use %s services again in the future. By continuing, you accept the Terms and Conditions and confirm that you have read the Privacy Statement and Cookie Statement."
 msgstr ""
 

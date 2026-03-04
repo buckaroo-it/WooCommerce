@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=7.4",
-        "buckaroo/sdk": "^1.14"
+        "buckaroo/sdk": "^1.21"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.9",

@@ -59,7 +59,7 @@ msgstr "Volgens iDIN ben je jonger dan 18 jaar"
 msgid "Age verification"
 msgstr "Leeftijdsverificatie"
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:144
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:145
 msgid "Allowed methods"
 msgstr "Toegestane methoden"
 
@@ -124,14 +124,17 @@ msgid "Buckaroo Settings"
 msgstr "Buckaroo Instellingen"
 
 #: src/Gateways/Applepay/ApplepayGateway.php:437
+#: src/Gateways/Googlepay/GooglepayGateway.php:444
 msgid "Button on cart page"
 msgstr "Knop op winkelwagenpagina"
 
 #: src/Gateways/Applepay/ApplepayGateway.php:448
+#: src/Gateways/Googlepay/GooglepayGateway.php:455
 msgid "Button on checkout page"
 msgstr "Knop op afrekenpagina"
 
 #: src/Gateways/Applepay/ApplepayGateway.php:426
+#: src/Gateways/Googlepay/GooglepayGateway.php:433
 msgid "Button on product page"
 msgstr "Knop op productpagina"
 
@@ -315,7 +318,7 @@ msgstr "uitgeschakeld"
 msgid "Documentation"
 msgstr "Documentatie"
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:137
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:138
 msgid "Due date (in days)"
 msgstr "Vervaldatum (in dagen)"
 
@@ -412,6 +415,7 @@ msgid "Giftcards must be comma separated"
 msgstr "Giftcards moeten met komma's gescheiden zijn"
 
 #: src/Gateways/Applepay/ApplepayGateway.php:472
+#: src/Gateways/Googlepay/GooglepayGateway.php:491
 msgid "GUID"
 msgstr "GUID"
 
@@ -424,8 +428,11 @@ msgstr "Hij/hem"
 #: src/Gateways/Applepay/ApplepayGateway.php:431
 #: src/Gateways/Applepay/ApplepayGateway.php:442
 #: src/Gateways/Applepay/ApplepayGateway.php:453
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:120
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:131
+#: src/Gateways/Googlepay/GooglepayGateway.php:438
+#: src/Gateways/Googlepay/GooglepayGateway.php:449
+#: src/Gateways/Googlepay/GooglepayGateway.php:460
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:121
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:132
 msgid "Hide"
 msgstr "Verberg"
 
@@ -587,6 +594,7 @@ msgid "Offer customer to pay afterwards by SEPA Direct Debit."
 msgstr "Bied de klant de mogelijkheid om later te betalen via SEPA Direct Debit."
 
 #: src/Gateways/AbstractPaymentGateway.php:184
+#: src/Gateways/Ideal/IdealGateway.php:46
 #, php-format
 msgid "Pay with %s"
 msgstr "Betaal met %s"
@@ -666,15 +674,15 @@ msgstr "Voer de correcte geboortedatum in"
 msgid "Please enter correct COC (KvK) number"
 msgstr "Voer het correcte COC (KvK) nummer in"
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:82
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:83
 msgid "Please enter email"
 msgstr "Voer alstublieft e-mail in"
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:75
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:76
 msgid "Please enter firstname"
 msgstr "Voer alstublieft voornaam in"
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:79
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:80
 msgid "Please enter lastname"
 msgstr "Voer alstublieft achternaam in"
 
@@ -683,7 +691,7 @@ msgstr "Voer alstublieft achternaam in"
 msgid "Please enter phone number"
 msgstr "Voer alstublieft je telefoonnummer in"
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:84
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:85
 msgid "Please enter valid email"
 msgstr "Voer alstublieft een geldig e-mailadres in"
 
@@ -696,7 +704,7 @@ msgstr "Vul alstublieft een telefoonnummer in voor %s. Dit is vereist om deze be
 msgid "Please fill in all required fields"
 msgstr "Vul alstublieft alle verplichte velden in"
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:65
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:66
 msgid "Please select gender"
 msgstr "Selecteer alstublieft geslacht"
 
@@ -801,7 +809,7 @@ msgstr "Selecteer welke credit- of debitcardaanbieders afzonderlijk worden weerg
 msgid "Select which credit or debit card providers will be visible to customer"
 msgstr "Selecteer welke credit- of debitcardaanbieders zichtbaar zullen zijn voor de klant"
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:166
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:167
 msgid "Select which methods appear to the customer"
 msgstr "Selecteer welke methoden aan de klant worden getoond"
 
@@ -870,20 +878,23 @@ msgstr "Zij/haar"
 #: src/Gateways/Applepay/ApplepayGateway.php:430
 #: src/Gateways/Applepay/ApplepayGateway.php:441
 #: src/Gateways/Applepay/ApplepayGateway.php:452
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:119
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:130
+#: src/Gateways/Googlepay/GooglepayGateway.php:437
+#: src/Gateways/Googlepay/GooglepayGateway.php:448
+#: src/Gateways/Googlepay/GooglepayGateway.php:459
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:120
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:131
 msgid "Show"
 msgstr "Toon"
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:108
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:109
 msgid "Show on Checkout page"
 msgstr "Toon op de afrekenpagina"
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:115
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:116
 msgid "Show PayLink"
 msgstr "Toon PayLink"
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:117
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:118
 msgid "Show PayLink in admin order actions"
 msgstr "Toon PayLink in beheerdersorderacties"
 
@@ -895,15 +906,15 @@ msgstr "Toon betalingsprocedures"
 msgid "Show payment procedures on the thank you page after payment confirmation."
 msgstr "Toon betalingsprocedures op de bedankpagina na betalingsbevestiging."
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:126
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:127
 msgid "Show PayPerEmail"
 msgstr "Toon PayPerEmail"
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:128
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:129
 msgid "Show PayPerEmail in admin order actions"
 msgstr "Toon PayPerEmail in beheerdersorderacties"
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:110
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:111
 msgid "Show PayPerEmail on Checkout page"
 msgstr "Toon PayPerEmail op de afrekenpagina"
 
@@ -964,10 +975,11 @@ msgid "The \"%s\" payment method is currently enabled"
 msgstr "De \"%s\" betaalmethode is momenteel ingeschakeld"
 
 #: src/Gateways/Applepay/ApplepayGateway.php:474
+#: src/Gateways/Googlepay/GooglepayGateway.php:493
 msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
 msgstr "De Buckaroo GUID die te vinden is in de Buckaroo Plaza > Mijn Buckaroo > Algemeen."
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:139
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:140
 msgid "The expiration date for the paylink."
 msgstr "De vervaldatum voor de paylink."
 
@@ -1028,7 +1040,7 @@ msgstr "Transactiemodus gebruikt voor het verwerken van bestellingen"
 
 #: src/Gateways/Billink/BillinkGateway.php:55
 #: src/Gateways/Klarna/KlarnaGateway.php:38
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:71
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:72
 msgid "Unknown gender"
 msgstr "Onbekend geslacht"
 
@@ -1295,14 +1307,6 @@ msgstr "BIC"
 msgid "NB:"
 msgstr "NB:"
 
-#: src/Admin/PaymentMethodSettings.php:107
-msgid ""
-"The chosen language (culture) for the Buckaroo payment engine <br>page.\r\n"
-"When this is set to “Dynamic language” the plugin will <br>automatically determine the language based on the\r\n"
-"language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>\r\n"
-"English will be used as a fallback language for unknown language types."
-msgstr ""
-
 #: src/Gateways/Swish/SwishGateway.php:15
 msgid "Swish is Sweden's real-time mobile payment method, authorized via BankID."
 msgstr ""
@@ -1314,3 +1318,47 @@ msgstr ""
 #: src/Gateways/Wero/WeroGateway.php:76
 msgid "Choose to execute Pay or Authorize/Capture flow for Wero."
 msgstr ""
+
+#: src/Admin/PaymentMethodSettings.php:107
+msgid ""
+"The chosen language (culture) for the Buckaroo payment engine <br>page.\n"
+"When this is set to “Dynamic language” the plugin will <br>automatically determine the language based on the\n"
+"language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>\n"
+"English will be used as a fallback language for unknown language types."
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:435
+msgid "Show the Google Pay button on the product page"
+msgstr "Toon de Google Pay-knop op de productpagina"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:446
+msgid "Show the Google Pay button on the cart page"
+msgstr "Toon de Google Pay-knop op de winkelwagenpagina"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:457
+msgid "Show the Google Pay button on the checkout page"
+msgstr "Toon de Google Pay-knop op de afrekenpagina"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:466
+msgid "Button style"
+msgstr "Knopstijl"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:468
+msgid "Select the Google Pay button style"
+msgstr "Selecteer de Google Pay-knopstijl"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:470
+msgid "Dark"
+msgstr "Donker"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:471
+msgid "Light"
+msgstr "Licht"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:497
+msgid "Google Merchant ID"
+msgstr "Google Merchant ID"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:499
+msgid "Your Google Merchant ID from the Google Pay Business Console (e.g. BCR2DN4T...)."
+msgstr "Uw Google Merchant ID van de Google Pay Business Console (bijv. BCR2DN4T...)."

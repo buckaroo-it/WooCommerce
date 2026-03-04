@@ -58,6 +58,9 @@ class DisableGateways
         if (isset($available_gateways['buckaroo_applepay'])) {
             unset($available_gateways['buckaroo_applepay']);
         }
+        if (isset($available_gateways['buckaroo_googlepay'])) {
+            unset($available_gateways['buckaroo_googlepay']);
+        }
         if (isset($available_gateways['buckaroo_payperemail']) && $available_gateways['buckaroo_payperemail']->frontendVisible === 'no') {
             unset($available_gateways['buckaroo_payperemail']);
         }
