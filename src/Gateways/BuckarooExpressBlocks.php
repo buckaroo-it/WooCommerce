@@ -39,7 +39,7 @@ class BuckarooExpressBlocks extends AbstractPaymentMethodType
         wp_register_script(
             'buckaroo-blocks',
             plugins_url('/assets/js/dist/blocks.js', BK_PLUGIN_FILE),
-            ['wc-blocks-registry', 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-data'],
+            ['wc-blocks-registry', 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-data', 'buckaroo_apple_pay', 'buckaroo_google_pay'],
             Plugin::VERSION,
             true
         );

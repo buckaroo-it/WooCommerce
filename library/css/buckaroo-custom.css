@@ -440,3 +440,12 @@ label.bk-in3-logo img {
     width: 100% !important;
     min-width: 100% !important;
 }
+
+.googlepay-button-container button:focus,
+.googlepay-button-container button:active,
+.googlepay-button-container .gpay-button:focus,
+.googlepay-button-container .gpay-button:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+}
