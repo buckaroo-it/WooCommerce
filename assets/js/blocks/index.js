@@ -3,6 +3,7 @@ import DefaultPayment from './gateways/default_payment';
 import { convertUnderScoreToDash, decodeHtmlEntities } from './utils/utils';
 import BuckarooLabel from './components/BuckarooLabel';
 import BuckarooApplepay from './components/BuckarooApplepay';
+import BuckarooGooglepay from './components/BuckarooGooglepay';
 import BuckarooPaypalExpress from './components/BuckarooPaypalExpress';
 import { paymentGatewaysTemplates, separateCreditCards } from './gateways';
 import { __ } from '@wordpress/i18n';
@@ -145,6 +146,9 @@ const registerBuckarooExpressPaymentMethods = async () => {
     const applepay = buckarooGateways.find(gateway => gateway.paymentMethodId === 'buckaroo_applepay');
     await registerApplePay(applepay);
 
+    const googlepay = buckarooGateways.find(gateway => gateway.paymentMethodId === 'buckaroo_googlepay');
+    await registerGooglePay(googlepay);
+
     const paypalExpress = buckarooGateways.find(gateway => gateway.paymentMethodId === 'buckaroo_paypal');
     await registerPaypalExpress(paypalExpress);
 };
@@ -163,6 +167,24 @@ const registerPaypalExpress = async gateway => {
             edit: <div />,
             canMakePayment: () => true,
             paymentMethodId: 'buckaroo_paypal_express',
+        });
+    }
+};
+
+const registerGooglePay = async googlepay => {
+    if (googlepay === undefined) {
+        return;
+    }
+
+    if (googlepay.showInCheckout) {
+        const { registerExpressPaymentMethod } = wc.wcBlocksRegistry;
+
+        registerExpressPaymentMethod({
+            name: 'buckaroo_express_googlepay',
+            content: <BuckarooGooglepay />,
+            edit: <div />,
+            canMakePayment: () => true,
+            paymentMethodId: 'buckaroo_express_googlepay',
         });
     }
 };

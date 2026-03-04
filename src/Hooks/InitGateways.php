@@ -139,6 +139,17 @@ class InitGateways
                     );
                 }
 
+                if ($gateway_id === 'buckaroo_googlepay') {
+                    $payment_method = array_merge(
+                        $payment_method,
+                        [
+                            'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE',
+                            'merchantIdentifier' => $gateway->get_option('merchant_guid'),
+                            'buttonStyle' => $gateway->get_option('button_style', 'black'),
+                        ]
+                    );
+                }
+
                 if ($gateway_id === 'buckaroo_paypal') {
                     $expressPages = $gateway->get_option('express', []);
                     $payment_method = array_merge(
