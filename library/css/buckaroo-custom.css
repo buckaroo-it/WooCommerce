@@ -441,11 +441,18 @@ label.bk-in3-logo img {
     min-width: 100% !important;
 }
 
-.googlepay-button-container button:focus,
-.googlepay-button-container button:active,
-.googlepay-button-container .gpay-button:focus,
-.googlepay-button-container .gpay-button:active {
+.googlepay-button-container button.gpay-button {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    line-height: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.googlepay-button-container button.gpay-button:focus,
+.googlepay-button-container button.gpay-button:active {
     outline: none !important;
     box-shadow: none !important;
-    border-color: transparent !important;
+    border: none !important;
 }
