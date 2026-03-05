@@ -441,9 +441,9 @@ label.bk-in3-logo img {
     min-width: 100% !important;
 }
 
-.googlepay-button-container button.gpay-button,
-.googlepay-button-container button.gpay-button:focus,
-.googlepay-button-container button.gpay-button:active {
+.googlepay-button-container button,
+.googlepay-button-container button:focus,
+.googlepay-button-container button:active {
     padding: 0 !important;
     padding-top: 0 !important;
     padding-right: 0 !important;
