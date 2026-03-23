@@ -449,11 +449,7 @@ label.bk-in3-logo img {
 .googlepay-button-container button:active {
     height: 40px !important;
     max-height: 40px !important;
-    padding: 0 !important;
-    padding-top: 0 !important;
-    padding-right: 0 !important;
-    padding-bottom: 0 !important;
-    padding-left: 0 !important;
+    padding: 8px 0 !important;
     margin: 0 !important;
     border: 0 none transparent !important;
     border-style: none !important;
@@ -462,7 +458,8 @@ label.bk-in3-logo img {
     line-height: 0 !important;
     font-size: 0 !important;
     box-sizing: border-box !important;
-    background-size: auto 60% !important;
+    background-size: contain !important;
+    background-origin: content-box !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
 }
