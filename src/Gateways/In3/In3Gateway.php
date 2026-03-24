@@ -4,10 +4,6 @@ namespace Buckaroo\Woocommerce\Gateways\In3;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
-use Buckaroo\Woocommerce\Order\OrderArticles;
-use Buckaroo\Woocommerce\Order\OrderDetails;
-use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
-use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Traits\HasDateValidation;
 
 class In3Gateway extends AbstractPaymentGateway
@@ -15,16 +11,6 @@ class In3Gateway extends AbstractPaymentGateway
     use HasDateValidation;
 
     public const PAYMENT_CLASS = In3Processor::class;
-
-    public const VERSION_FLAG = 'buckaroo_in3_version';
-
-    public const VERSION3 = 'v3';
-
-    public const VERSION2 = 'v2';
-
-    public const IN3_V2_TITLE = 'In3';
-
-    public const IN3_V3_TITLE = 'In3';
 
     public $type;
 
@@ -38,7 +24,7 @@ class In3Gateway extends AbstractPaymentGateway
         $this->has_fields = false;
         $this->method_title = 'Buckaroo In3';
 
-        $this->title = $this->getTitleForVersion();
+        $this->title = 'In3';
 
         $this->setCountry();
 
@@ -48,14 +34,9 @@ class In3Gateway extends AbstractPaymentGateway
         $this->addRefundSupport();
     }
 
-    private function getTitleForVersion()
-    {
-        return $this->get_option('api_version') === self::VERSION2 ? self::IN3_V2_TITLE : self::IN3_V3_TITLE;
-    }
-
     public function getServiceCode(?AbstractProcessor $processor = null)
     {
-        return $this->get_option('api_version') === self::VERSION2 ? 'in3Old' : 'in3';
+        return 'in3';
     }
 
     /**
@@ -83,33 +64,13 @@ class In3Gateway extends AbstractPaymentGateway
             wc_add_notice(
                 sprintf(
                     __('Please fill in a phone number for %s. This is required in order to use this payment method.', 'wc-buckaroo-bpe-gateway'),
-                    $this->getTitleForVersion()
+                    'In3'
                 ),
                 'error'
             );
         }
 
         parent::validate_fields();
-    }
-
-    public function process_payment($order_id)
-    {
-        if ($this->get_option('api_version') === 'v2') {
-            return (new PayAction($this->getV2Payload((int) $order_id), $order_id))->process();
-        }
-
-        return parent::process_payment($order_id);
-    }
-
-    private function getV2Payload(int $order_id)
-    {
-        $order = Helper::findOrder($order_id);
-
-        return new In3V2Processor(
-            $this,
-            $order_details = new OrderDetails($order),
-            new OrderArticles($order_details, $this)
-        );
     }
 
     /**
@@ -120,16 +81,6 @@ class In3Gateway extends AbstractPaymentGateway
         parent::init_form_fields();
 
         $this->add_financial_warning_field();
-        $this->form_fields['api_version'] = [
-            'title' => __('Api version', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'select',
-            'description' => __('Chose the api version for this payment method.', 'wc-buckaroo-bpe-gateway'),
-            'options' => [
-                self::VERSION3 => __('V3 (In3)'),
-                self::VERSION2 => __('V2 (Capayabel/In3)'),
-            ],
-            'default' => self::VERSION3,
-        ];
     }
 
     /**  {@inheritDoc} */
