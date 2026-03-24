@@ -13,6 +13,7 @@ use Buckaroo\Woocommerce\Gateways\Blik\BlikGateway;
 use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
 use Buckaroo\Woocommerce\Gateways\Eps\EpsGateway;
 use Buckaroo\Woocommerce\Gateways\GiftCard\GiftCardGateway;
+use Buckaroo\Woocommerce\Gateways\Googlepay\GooglepayGateway;
 use Buckaroo\Woocommerce\Gateways\Ideal\IdealGateway;
 use Buckaroo\Woocommerce\Gateways\In3\In3Gateway;
 use Buckaroo\Woocommerce\Gateways\Kbc\KbcGateway;
@@ -55,6 +56,7 @@ class PaymentGatewayRegistry
         'creditcard' => ['gateway_class' => CreditCardGateway::class],
         'eps' => ['gateway_class' => EpsGateway::class],
         'giftcard' => ['gateway_class' => GiftCardGateway::class],
+        'googlepay' => ['gateway_class' => GooglepayGateway::class],
         'in3' => ['gateway_class' => In3Gateway::class],
         'kbc' => ['gateway_class' => KbcGateway::class],
         'klarnakp' => ['gateway_class' => KlarnaKpGateway::class],

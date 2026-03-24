@@ -421,6 +421,7 @@ label.bk-in3-logo img {
 }
 
 .applepay-button-container,
+.googlepay-button-container,
 .buckaroo-paypal-express {
     flex: 1 !important;
     height: 40px !important;
@@ -433,6 +434,7 @@ label.bk-in3-logo img {
 }
 
 .applepay-button-container .apple-pay-button,
+.googlepay-button-container > *,
 .buckaroo-paypal-express > * {
     height: 40px !important;
     width: 100% !important;

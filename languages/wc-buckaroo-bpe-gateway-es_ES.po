@@ -274,14 +274,6 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:107
-msgid ""
-"The chosen language (culture) for the Buckaroo payment engine <br>page.\r\n"
-"When this is set to “Dynamic language” the plugin will <br>automatically determine the language based on the\r\n"
-"language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>\r\n"
-"English will be used as a fallback language for unknown language types."
-msgstr ""
-
 #: src/Admin/PaymentMethodSettings.php:126
 msgid "Debug mode"
 msgstr ""
@@ -404,6 +396,7 @@ msgid "Specify maximum order amount allowed to show the current method. Zero or 
 msgstr ""
 
 #: src/Gateways/AbstractPaymentGateway.php:184
+#: src/Gateways/Ideal/IdealGateway.php:46
 #, php-format
 msgid "Pay with %s"
 msgstr ""
@@ -536,6 +529,7 @@ msgid "We are sorry to inform you that the request to pay afterwards with Rivert
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:426
+#: src/Gateways/Googlepay/GooglepayGateway.php:433
 msgid "Button on product page"
 msgstr ""
 
@@ -546,20 +540,27 @@ msgstr ""
 #: src/Gateways/Applepay/ApplepayGateway.php:430
 #: src/Gateways/Applepay/ApplepayGateway.php:441
 #: src/Gateways/Applepay/ApplepayGateway.php:452
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:119
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:130
+#: src/Gateways/Googlepay/GooglepayGateway.php:437
+#: src/Gateways/Googlepay/GooglepayGateway.php:448
+#: src/Gateways/Googlepay/GooglepayGateway.php:459
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:120
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:131
 msgid "Show"
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:431
 #: src/Gateways/Applepay/ApplepayGateway.php:442
 #: src/Gateways/Applepay/ApplepayGateway.php:453
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:120
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:131
+#: src/Gateways/Googlepay/GooglepayGateway.php:438
+#: src/Gateways/Googlepay/GooglepayGateway.php:449
+#: src/Gateways/Googlepay/GooglepayGateway.php:460
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:121
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:132
 msgid "Hide"
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:437
+#: src/Gateways/Googlepay/GooglepayGateway.php:444
 msgid "Button on cart page"
 msgstr ""
 
@@ -568,6 +569,7 @@ msgid "Show the Apple pay button on the cart page"
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:448
+#: src/Gateways/Googlepay/GooglepayGateway.php:455
 msgid "Button on checkout page"
 msgstr ""
 
@@ -576,10 +578,12 @@ msgid "Show the Apple pay button on the checkout page"
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:472
+#: src/Gateways/Googlepay/GooglepayGateway.php:491
 msgid "GUID"
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:474
+#: src/Gateways/Googlepay/GooglepayGateway.php:493
 msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
 msgstr ""
 
@@ -593,7 +597,7 @@ msgstr ""
 
 #: src/Gateways/Billink/BillinkGateway.php:55
 #: src/Gateways/Klarna/KlarnaGateway.php:38
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:71
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:72
 msgid "Unknown gender"
 msgstr ""
 
@@ -782,63 +786,63 @@ msgstr ""
 msgid "PayPal merchant id is required"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:65
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:66
 msgid "Please select gender"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:75
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:76
 msgid "Please enter firstname"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:79
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:80
 msgid "Please enter lastname"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:82
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:83
 msgid "Please enter email"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:84
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:85
 msgid "Please enter valid email"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:108
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:109
 msgid "Show on Checkout page"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:110
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:111
 msgid "Show PayPerEmail on Checkout page"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:115
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:116
 msgid "Show PayLink"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:117
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:118
 msgid "Show PayLink in admin order actions"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:126
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:127
 msgid "Show PayPerEmail"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:128
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:129
 msgid "Show PayPerEmail in admin order actions"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:137
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:138
 msgid "Due date (in days)"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:139
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:140
 msgid "The expiration date for the paylink."
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:144
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:145
 msgid "Allowed methods"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:166
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:167
 msgid "Select which methods appear to the customer"
 msgstr ""
 
@@ -1309,3 +1313,47 @@ msgstr ""
 #: assets/js/dist/blocks.js:2
 msgid "Phone Number:"
 msgstr ""
+
+#: src/Admin/PaymentMethodSettings.php:107
+msgid ""
+"The chosen language (culture) for the Buckaroo payment engine <br>page.\n"
+"When this is set to “Dynamic language” the plugin will <br>automatically determine the language based on the\n"
+"language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>\n"
+"English will be used as a fallback language for unknown language types."
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:435
+msgid "Show the Google Pay button on the product page"
+msgstr "Mostrar el botón de Google Pay en la página del producto"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:446
+msgid "Show the Google Pay button on the cart page"
+msgstr "Mostrar el botón de Google Pay en la página del carrito"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:457
+msgid "Show the Google Pay button on the checkout page"
+msgstr "Mostrar el botón de Google Pay en la página de pago"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:466
+msgid "Button style"
+msgstr "Estilo del botón"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:468
+msgid "Select the Google Pay button style"
+msgstr "Seleccione el estilo del botón de Google Pay"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:470
+msgid "Dark"
+msgstr "Oscuro"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:471
+msgid "Light"
+msgstr "Claro"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:497
+msgid "Google Merchant ID"
+msgstr "Google Merchant ID"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:499
+msgid "Your Google Merchant ID from the Google Pay Business Console (e.g. BCR2DN4T...)."
+msgstr "Su Google Merchant ID de la Google Pay Business Console (p. ej. BCR2DN4T...)."

@@ -118,6 +118,14 @@ class PaymentSetupScripts
             );
         }
 
+        wp_enqueue_script(
+            'buckaroo_google_pay',
+            $pluginDir . 'assets/js/dist/googlepay.js',
+            ['jquery', 'buckaroo_sdk'],
+            Plugin::VERSION,
+            true
+        );
+
         wp_localize_script(
             'buckaroo_sdk',
             'buckaroo_global',
