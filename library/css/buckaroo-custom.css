@@ -430,6 +430,7 @@ label.bk-in3-logo img {
     min-width: 200px !important;
     max-width: 400px !important;
     width: 100% !important;
+    overflow: hidden !important;
     cursor: pointer;
 }
 
@@ -437,6 +438,34 @@ label.bk-in3-logo img {
 .googlepay-button-container > *,
 .buckaroo-paypal-express > * {
     height: 40px !important;
+    max-height: 40px !important;
     width: 100% !important;
     min-width: 100% !important;
+    overflow: hidden !important;
+}
+
+.googlepay-button-container button,
+.googlepay-button-container button:focus,
+.googlepay-button-container button:active {
+    height: 40px !important;
+    max-height: 40px !important;
+    padding: 8px 0 !important;
+    margin: 0 !important;
+    border: 0 none transparent !important;
+    border-style: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    box-sizing: border-box !important;
+    background-size: contain !important;
+    background-origin: content-box !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+
+.googlepay-button-container iframe {
+    height: 40px !important;
+    max-height: 40px !important;
+    overflow: hidden !important;
 }
