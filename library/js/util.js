@@ -93,32 +93,9 @@ buckarooAdmin = {
         }
     },
 
-    in3ToggleLogoSelector() {
-        const iconSelector = jQuery('.bk-in3-logo-wrap').closest('tr');
-        const apiVersionSelector = jQuery('#woocommerce_buckaroo_in3_api_version');
-        iconSelector.toggle(apiVersionSelector.val() === 'v3');
-        apiVersionSelector.on('change', function () {
-            let canShowIconSelector = jQuery(this).val() === 'v3';
-            iconSelector.toggle(canShowIconSelector);
-        });
-    },
-
-    in3FrontEndLabel() {
-        jQuery('#woocommerce_buckaroo_in3_api_version').on('change', function () {
-            let apiVersion = jQuery(this).val();
-            let titleField = jQuery('#woocommerce_buckaroo_in3_title');
-
-            const label =
-                apiVersion === buckaroo_php_vars.version2 ? buckaroo_php_vars.in3_v2 : buckaroo_php_vars.in3_v3;
-            titleField.val(label);
-        });
-    },
-
     init: function () {
         this.testButton();
         this.autoConfigureButton();
         this.credicardToggleSelect();
-        this.in3ToggleLogoSelector();
-        this.in3FrontEndLabel();
     },
 };

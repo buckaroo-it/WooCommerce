@@ -4,7 +4,6 @@ namespace Buckaroo\Woocommerce\Hooks;
 
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
-use Buckaroo\Woocommerce\Gateways\In3\In3Gateway;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 
@@ -59,17 +58,6 @@ class PaymentSetupScripts
             Plugin::VERSION,
             true
         );
-        if (class_exists('WooCommerce')) {
-            wp_localize_script(
-                'buckaroo_admin_utils_js',
-                'buckaroo_php_vars',
-                [
-                    'version2' => In3Gateway::VERSION2,
-                    'in3_v2' => In3Gateway::IN3_V2_TITLE,
-                    'in3_v3' => In3Gateway::IN3_V3_TITLE,
-                ]
-            );
-        }
     }
 
     public function initFrontendScripts()
