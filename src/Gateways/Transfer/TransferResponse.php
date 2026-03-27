@@ -64,6 +64,8 @@ class TransferResponse implements IGatewayResponse
                 }
             }
 
+            $this->saveConsumerMessage($order_id);
+
             return;
         }
 
@@ -93,6 +95,22 @@ class TransferResponse implements IGatewayResponse
 
         if ($val = $this->responseParser->getService('paymentreference')) {
             update_post_meta($order_id, 'buckaroo_paymentReference', $val);
+        }
+
+        $this->saveConsumerMessage($order_id);
+    }
+
+    protected function saveConsumerMessage(string $order_id): void
+    {
+        if ($val = $this->responseParser->get('ConsumerMessage.HtmlText')) {
+            $allowed_html = [
+                'table' => ['class' => true],
+                'td' => ['class' => true, 'id' => true],
+                'tr' => [],
+                'br' => [],
+                'b' => [],
+            ];
+            update_post_meta($order_id, 'buckaroo_consumerMessageHtml', wp_kses($val, $allowed_html));
         }
     }
 
