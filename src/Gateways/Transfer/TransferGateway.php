@@ -54,6 +54,25 @@ class TransferGateway extends AbstractPaymentGateway
             return;
         }
 
+        $consumerMessageHtml = get_post_meta($order->get_id(), 'buckaroo_consumerMessageHtml', true);
+
+        if (! empty($consumerMessageHtml)) {
+            echo '<section class="woocommerce-buckaroo-transfer-instructions">';
+            echo wp_kses(
+                $consumerMessageHtml,
+                [
+                    'table' => ['class' => true],
+                    'td' => ['class' => true, 'id' => true],
+                    'tr' => [],
+                    'br' => [],
+                    'b' => [],
+                ]
+            );
+            echo '</section>';
+
+            return;
+        }
+
         $amount            = wc_price($order->get_total(), ['currency' => $order->get_currency()]);
         $order_number      = $order->get_order_number();
         $payment_reference = get_post_meta($order->get_id(), 'buckaroo_paymentReference', true) ?: $order_number;
