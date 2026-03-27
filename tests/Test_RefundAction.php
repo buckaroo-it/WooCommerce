@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
-use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use PHPUnit\Framework\TestCase;
 
@@ -92,7 +91,7 @@ class Test_RefundAction extends TestCase
         return $refundAction;
     }
 
-    private function getOrderFromRefundAction(RefundAction $refundAction): \WC_Order|\PHPUnit\Framework\MockObject\MockObject
+    private function getOrderFromRefundAction(RefundAction $refundAction)
     {
         $reflection = new \ReflectionClass(RefundAction::class);
         $orderProp = $reflection->getProperty('order');
