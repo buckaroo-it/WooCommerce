@@ -207,8 +207,8 @@ class ApplepayGateway extends AbstractPaymentGateway
                 $order->add_shipping($wc_methods[$selected_method_id]);
             }
 
-            update_post_meta($order->get_id(), '_payment_method', $this->id);
-            update_post_meta($order->get_id(), '_payment_method_title', $this->title);
+            $order->set_payment_method($this->id);
+            $order->set_payment_method_title($this->title);
             $this->setOrderContribution($order);
 
             $order->calculate_totals();
