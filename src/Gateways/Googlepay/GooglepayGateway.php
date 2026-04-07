@@ -7,7 +7,6 @@ use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use Exception;
 use Throwable;
-use WC_Cart;
 use WC_Order;
 use WC_Order_Item_Fee;
 use WC_Order_Item_Product;
@@ -236,10 +235,22 @@ class GooglepayGateway extends AbstractPaymentGateway
 
     private static function recreateCartFromItems($items)
     {
-        $cart = new WC_Cart();
+        $cart = WC()->cart;
+        $cart->empty_cart(false);
 
         $products = array_filter($items, function ($item) {
-            return isset($item['type']) && $item['type'] === 'product';
+            if (!isset($item['type']) || $item['type'] !== 'product') {
+                return false;
+            }
+
+            if (isset($item['id']) && isset($item['price']) && floatval($item['price']) == 0) {
+                $product = wc_get_product($item['id']);
+                if ($product && floatval($product->get_price()) > 0) {
+                    return false;
+                }
+            }
+
+            return true;
         });
 
         foreach ($products as $product_item) {
