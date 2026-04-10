@@ -5,6 +5,7 @@ namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 use Buckaroo\Woocommerce\Gateways\AbstractRefundProcessor;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
+use WC_Order_Refund;
 
 class AbstractAfterpayRefundProcessor extends AbstractRefundProcessor
 {
@@ -19,11 +20,59 @@ class AbstractAfterpayRefundProcessor extends AbstractRefundProcessor
     {
         $refunded_line_items = $this->getRefundedLineItems();
 
-        if (empty($refunded_line_items)) {
-            return $this->getAllArticlesWithRefundType();
+        if (!empty($refunded_line_items)) {
+            return $this->getPartialRefundArticles($refunded_line_items);
         }
 
-        return $this->getPartialRefundArticles($refunded_line_items);
+        return $this->buildPartialAmountArticles() ?? $this->getAllArticlesWithRefundType();
+    }
+
+    protected function buildPartialAmountArticles(): ?array
+    {
+        $refund_amount = $this->resolvePartialRefundAmount();
+        if ($refund_amount === null) {
+            return null;
+        }
+
+        $first_product = $this->resolveFallbackProduct();
+        if ($first_product === null) {
+            return null;
+        }
+
+        $article = $this->buildAfterpayArticle($first_product, 1);
+        $article['price'] = $refund_amount;
+
+        return [$article];
+    }
+
+    protected function resolvePartialRefundAmount(): ?float
+    {
+        $order = $this->getOrder();
+        $refunds = $order->get_refunds();
+        if (empty($refunds)) {
+            return null;
+        }
+
+        $latest = reset($refunds);
+        if (!$latest instanceof WC_Order_Refund) {
+            return null;
+        }
+
+        $refund_amount = round(abs((float) $latest->get_amount()), 2);
+        $order_total = round((float) $order->get_total(), 2);
+
+        if (abs($order_total - $refund_amount) < 0.01) {
+            return null;
+        }
+
+        return $refund_amount;
+    }
+
+    protected function resolveFallbackProduct()
+    {
+        $products = (new OrderDetails($this->getOrder()))->get_products();
+
+        return empty($products) ? null : reset($products);
     }
 
     protected function getAllArticlesWithRefundType(): array
