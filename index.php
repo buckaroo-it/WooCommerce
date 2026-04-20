@@ -8,6 +8,7 @@ Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
 Version: 4.7.0
 Text Domain: wc-buckaroo-bpe-gateway
+Domain Path: /languages
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
