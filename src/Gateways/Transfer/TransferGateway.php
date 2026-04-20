@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Transfer;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use WC_Order;
 
 class TransferGateway extends AbstractPaymentGateway
 {
@@ -31,10 +32,7 @@ class TransferGateway extends AbstractPaymentGateway
     /**
      * Print thank you description to the screen.
      *
-     * Follows WooCommerce BACS behaviour by rendering clear bank transfer
-     * instructions on the order received page.
-     *
-     * @param int|string|null $order_id
+     * @param  int|string|null  $order_id
      */
     public function thankyou_description($order_id = null)
     {
@@ -44,53 +42,34 @@ class TransferGateway extends AbstractPaymentGateway
         }
         $rendered = true;
 
-        if (! session_id()) {
-            @session_start();
-        }
-
         $order = $order_id ? wc_get_order($order_id) : null;
 
-        if (! $order instanceof \WC_Order) {
+        if (! $order instanceof WC_Order) {
             return;
         }
 
-        $consumerMessageHtml = get_post_meta($order->get_id(), 'buckaroo_consumerMessageHtml', true);
+        $this->render_transfer_instructions($order);
+    }
 
-        if (! empty($consumerMessageHtml)) {
-            echo '<section class="woocommerce-buckaroo-transfer-instructions">';
-            echo wp_kses(
-                $consumerMessageHtml,
-                [
-                    'table' => ['class' => true],
-                    'td' => ['class' => true, 'id' => true],
-                    'tr' => [],
-                    'br' => [],
-                    'b' => [],
-                ]
-            );
-            echo '</section>';
-
-            return;
-        }
-
-        $amount            = wc_price($order->get_total(), ['currency' => $order->get_currency()]);
-        $order_number      = $order->get_order_number();
-        $payment_reference = get_post_meta($order->get_id(), 'buckaroo_paymentReference', true) ?: $order_number;
-        $iban              = get_post_meta($order->get_id(), 'buckaroo_IBAN', true);
-        $bic               = get_post_meta($order->get_id(), 'buckaroo_BIC', true);
-        $account_holder    = get_post_meta($order->get_id(), 'buckaroo_accountHolderName', true) ?: 'Buckaroo Stichting Derdengelden';
-
+    protected function render_transfer_instructions(WC_Order $order): void
+    {
+        $amount = wc_price($order->get_total(), ['currency' => $order->get_currency()]);
+        $payment_reference = $order->get_meta('buckaroo_paymentReference') ?: $order->get_order_number();
+        $iban = $order->get_meta('buckaroo_IBAN');
+        $bic = $order->get_meta('buckaroo_BIC');
+        $account_holder = $order->get_meta('buckaroo_accountHolderName') ?: 'Buckaroo Stichting Derdengelden';
+        $GLOBALS['test'] = true;
         $intro = sprintf(
             __('Thank you for your order. You have chosen to pay by transfer. To complete your order, please transfer the outstanding amount, %1$s, using the details below.', 'wc-buckaroo-bpe-gateway'),
             $amount
         );
 
-        $amount_label        = __('Amount', 'wc-buckaroo-bpe-gateway');
-        $payment_ref_label   = __('Payment reference', 'wc-buckaroo-bpe-gateway');
+        $amount_label = __('Amount', 'wc-buckaroo-bpe-gateway');
+        $payment_ref_label = __('Payment reference', 'wc-buckaroo-bpe-gateway');
         $accountholder_label = __('Accountholder', 'wc-buckaroo-bpe-gateway');
-        $iban_label          = __('IBAN', 'wc-buckaroo-bpe-gateway');
-        $bic_label           = __('BIC', 'wc-buckaroo-bpe-gateway');
-        $note_prefix         = __('NB:', 'wc-buckaroo-bpe-gateway');
+        $iban_label = __('IBAN', 'wc-buckaroo-bpe-gateway');
+        $bic_label = __('BIC', 'wc-buckaroo-bpe-gateway');
+        $note_prefix = __('NB:', 'wc-buckaroo-bpe-gateway');
 
         $note = sprintf(
             __('To ensure that your payment can be processed smoothly, you must quote the payment reference %1$s in the description of your transfer. This will enable faster processing of the payment.', 'wc-buckaroo-bpe-gateway'),
@@ -100,20 +79,20 @@ class TransferGateway extends AbstractPaymentGateway
         echo '<section class="woocommerce-buckaroo-transfer-instructions">';
         echo wp_kses_post(wpautop($intro));
 
-        echo '<ul class="wc-bacs-bank-details order_details buckaroo-transfer-details">';
-        echo '<li class="amount">' . esc_html($amount_label) . ': <strong>' . wp_kses_post($amount) . '</strong></li>';
-        echo '<li class="payment-reference">' . esc_html($payment_ref_label) . ': <strong>' . esc_html($payment_reference) . '</strong></li>';
-        echo '<li class="accountholder">' . esc_html($accountholder_label) . ': <strong>' . esc_html($account_holder) . '</strong></li>';
+        echo '<table class="bankdetails">';
+        echo '<tr><td class="label" id="amountlabel">' . esc_html($amount_label) . ':</td><td class="labelvalue" id="amount">' . wp_kses_post($amount) . '</td></tr>';
+        echo '<tr><td class="label" id="referencelabel">' . esc_html($payment_ref_label) . ':</td><td class="labelvalue" id="reference">' . esc_html($payment_reference) . '</td></tr>';
+        echo '<tr><td class="label" id="accountholdernamelabel">' . esc_html($accountholder_label) . ':</td><td class="labelvalue" id="accountholdername">' . esc_html($account_holder) . '</td></tr>';
 
         if (! empty($iban)) {
-            echo '<li class="iban">' . esc_html($iban_label) . ': <strong>' . esc_html($iban) . '</strong></li>';
+            echo '<tr><td class="label" id="ibanlabel">' . esc_html($iban_label) . ':</td><td class="labelvalue" id="ibancode">' . esc_html($iban) . '</td></tr>';
         }
 
         if (! empty($bic)) {
-            echo '<li class="bic">' . esc_html($bic_label) . ': <strong>' . esc_html($bic) . '</strong></li>';
+            echo '<tr><td class="label" id="biclabel">' . esc_html($bic_label) . ':</td><td class="labelvalue" id="biccode">' . esc_html($bic) . '</td></tr>';
         }
 
-        echo '</ul>';
+        echo '</table>';
 
         echo wp_kses_post(
             wpautop(
@@ -126,34 +105,6 @@ class TransferGateway extends AbstractPaymentGateway
         );
 
         echo '</section>';
-    }
-
-    /**
-     * Legacy thank you description renderer based on the ConsumerMessage.HtmlText
-     * from Buckaroo (if present). Kept for backwards compatibility and as a
-     * fallback when no structured bank details are available.
-     *
-     * @return void
-     */
-    protected function render_legacy_thankyou_description(): void
-    {
-        if (empty($_SESSION['buckaroo_response'])) {
-            return;
-        }
-
-        echo wp_kses(
-            $_SESSION['buckaroo_response'],
-            [
-                'table' => ['class' => true],
-                'td' => [
-                    'class' => true,
-                    'id' => true,
-                ],
-                'tr' => [],
-                'br' => [],
-                'b' => [],
-            ]
-        );
     }
 
     /**
