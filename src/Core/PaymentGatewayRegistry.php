@@ -19,7 +19,6 @@ use Buckaroo\Woocommerce\Gateways\In3\In3Gateway;
 use Buckaroo\Woocommerce\Gateways\Kbc\KbcGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
-use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPiiGateway;
 use Buckaroo\Woocommerce\Gateways\KnakenSettle\KnakenSettleGateway;
 use Buckaroo\Woocommerce\Gateways\Bizum\BizumGateway;
 use Buckaroo\Woocommerce\Gateways\MbWay\MbWayGateway;
@@ -61,7 +60,6 @@ class PaymentGatewayRegistry
         'kbc' => ['gateway_class' => KbcGateway::class],
         'klarnakp' => ['gateway_class' => KlarnaKpGateway::class],
         'klarnapay' => ['gateway_class' => KlarnaPayGateway::class],
-        'klarnapii' => ['gateway_class' => KlarnaPiiGateway::class],
         'knaken' => ['gateway_class' => KnakenSettleGateway::class],
         'mbway' => ['gateway_class' => MbWayGateway::class],
         'multibanco' => ['gateway_class' => MultibancoGateway::class],

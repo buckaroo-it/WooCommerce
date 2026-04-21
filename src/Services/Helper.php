@@ -143,7 +143,6 @@ class Helper
             'buckaroo-billink' => $billinkGenders,
             'buckaroo-klarnakp' => $klarnaGenders,
             'buckaroo-klarnapay' => $klarnaGenders,
-            'buckaroo-klarnapii' => $klarnaGenders,
         ];
     }
 

@@ -93,7 +93,6 @@ class Test_Helper extends TestCase
         $this->assertArrayHasKey('buckaroo-billink', $genders);
         $this->assertArrayHasKey('buckaroo-klarnakp', $genders);
         $this->assertArrayHasKey('buckaroo-klarnapay', $genders);
-        $this->assertArrayHasKey('buckaroo-klarnapii', $genders);
     }
 
     /**

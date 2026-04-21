@@ -67,6 +67,21 @@ class PushProcessor
                         $completedOrder = false;
                     }
 
+                    /** Handle Klarna MoR reservation push (no reservationNumber, uses Data Request key) */
+                    if (
+                        $order->get_payment_method() === 'buckaroo_klarnapay' &&
+                        $order->get_meta('buckaroo_is_reserved') !== 'yes' &&
+                        $order->get_status() !== 'cancelled'
+                    ) {
+                        $order->payment_complete($responseParser->getTransactionKey());
+                        $order->add_order_note('Payment successfully reserved');
+                        $order->add_meta_data('buckaroo_is_reserved', 'yes', true);
+                        $order->save_meta_data();
+
+                        $transaction = $responseParser->getDataRequest();
+                        $completedOrder = false;
+                    }
+
                     if ($responseParser->getRelatedTransactionPartialPayment() !== null) {
                         $payment_methodname = 'grouptransaction';
                     }

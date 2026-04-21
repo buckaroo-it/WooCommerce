@@ -159,7 +159,7 @@ class InitGateways
                         ]
                     );
                 }
-                if ($gateway_id === 'buckaroo_klarnakp' || $gateway_id === 'buckaroo_klarnapay' || $gateway_id === 'buckaroo_klarnapii') {
+                if ($gateway_id === 'buckaroo_klarnakp' || $gateway_id === 'buckaroo_klarnapay') {
                     $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
                 }
                 if ($gateway_id === 'buckaroo_in3') {

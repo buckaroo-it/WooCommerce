@@ -3,26 +3,49 @@
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 
 class KlarnaProcessor extends AbstractPaymentProcessor
 {
+    const DATA_REQUEST_META_KEY = '_buckaroo_klarna_data_request_key';
+
     /** {@inheritDoc} */
     protected function getMethodBody(): array
     {
-        return array_merge_recursive(
+        $body = array_merge_recursive(
             $this->getBilling(),
             $this->getShipping(),
             ['articles' => $this->getArticles()]
         );
+
+        $dataRequestKey = get_post_meta($this->get_order()->get_id(), self::DATA_REQUEST_META_KEY, true);
+
+        if (is_string($dataRequestKey) && strlen($dataRequestKey) > 0) {
+            $body['originalTransactionKey'] = $dataRequestKey;
+        }
+
+        return $body;
     }
 
     public function getAction(): string
     {
-        if ($this->gateway instanceof KlarnaPiiGateway) {
-            return 'payInInstallments';
+        $dataRequestKey = get_post_meta($this->get_order()->get_id(), self::DATA_REQUEST_META_KEY, true);
+
+        if (is_string($dataRequestKey) && strlen($dataRequestKey) > 0) {
+            return 'pay';
         }
 
-        return parent::getAction();
+        return 'reserve';
+    }
+
+    public function beforeReturnHandler(ResponseParser $responseParser, string $redirectUrl)
+    {
+        $dataRequestKey = $responseParser->getDataRequest();
+
+        if (is_string($dataRequestKey) && strlen($dataRequestKey) > 0) {
+            update_post_meta($this->get_order()->get_id(), self::DATA_REQUEST_META_KEY, $dataRequestKey);
+            update_post_meta($this->get_order()->get_id(), 'buckaroo_is_reserved', 'yes');
+        }
     }
 
     /**
@@ -38,7 +61,6 @@ class KlarnaProcessor extends AbstractPaymentProcessor
                     'category' => $this->getCategory('billing'),
                     'firstName' => $this->getAddress('billing', 'first_name'),
                     'lastName' => $this->getAddress('billing', 'last_name'),
-                    'gender' => $this->request->input($this->gateway->getKlarnaSelector() . '-gender', 'male'),
                 ],
                 'address' => [
                     'street' => $streetParts->get_street(),
@@ -71,7 +93,6 @@ class KlarnaProcessor extends AbstractPaymentProcessor
                     'category' => $this->getCategory('shipping'),
                     'firstName' => $this->getAddress('shipping', 'first_name'),
                     'lastName' => $this->getAddress('shipping', 'last_name'),
-                    'gender' => $this->request->input($this->gateway->getKlarnaSelector() . '-gender', 'male'),
                 ],
                 'address' => [
                     'street' => $streetParts->get_street(),
