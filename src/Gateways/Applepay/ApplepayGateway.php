@@ -5,11 +5,12 @@ namespace Buckaroo\Woocommerce\Gateways\Applepay;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
-use Exception;
 use Throwable;
 use WC_Order;
+use WC_Order_Item_Coupon;
 use WC_Order_Item_Fee;
 use WC_Order_Item_Product;
+use WC_Order_Item_Shipping;
 
 class ApplepayGateway extends AbstractPaymentGateway
 {
@@ -87,7 +88,7 @@ class ApplepayGateway extends AbstractPaymentGateway
             $this->error_response('Invalid shipping method.');
         }
         $amount = $this->request->input('amount');
-        if ($amount === null || ! is_scalar($amount)) {
+        if ($amount === null || ! is_scalar($amount) || (float) $amount <= 0) {
             $this->error_response('Invalid amount.');
         }
         if (
@@ -159,21 +160,22 @@ class ApplepayGateway extends AbstractPaymentGateway
 
         $order = wc_create_order();
 
-        $wc_methods = self::createFakeCart(
-            $items,
-            function () {
-                $packages = WC()->cart->get_shipping_packages();
-
-                return WC()
-                    ->shipping
-                    ->calculate_shipping_for_package(current($packages))['rates'];
-            }
-        );
-
         try {
-            $cart = self::recreateCartFromItems($items);
+            $useExistingCart = self::cartCoversWalletItems(WC()->cart, $items);
+            if ($useExistingCart) {
+                $wc_methods = self::getShippingRatesForCart(WC()->cart);
+                self::createOrderFromCart($order, WC()->cart, $wc_methods, $selected_method_id);
+            } else {
+                self::createFakeCart(
+                    $items,
+                    function ($cart) use ($order, $selected_method_id) {
+                        $wc_methods = self::getShippingRatesForCart($cart);
+                        self::createOrderFromCart($order, $cart, $wc_methods, $selected_method_id);
 
-            self::createOrderFromCart($order, $cart);
+                        return $wc_methods;
+                    }
+                );
+            }
 
             $order->set_address(self::orderAddresses($billing_addresses), 'billing');
             $order->set_address(self::orderAddresses($shipping_addresses), 'shipping');
@@ -202,17 +204,28 @@ class ApplepayGateway extends AbstractPaymentGateway
                 $order->set_billing_phone($billingPhone);
             }
 
-            if (! empty($selected_method_id) && ! preg_match('/free/', $selected_method_id)) {
-                $order->add_shipping($wc_methods[$selected_method_id]);
-            }
-
             $order->set_payment_method($this->id);
             $order->set_payment_method_title($this->title);
             $this->setOrderContribution($order);
 
             $order->calculate_totals();
+
+            $authorizedAmount = (float) $this->amount;
+            if ($authorizedAmount > 0) {
+                $computed = (float) $order->get_total('edit');
+                if (abs($computed - $authorizedAmount) > 0.01) {
+                    Logger::log(__METHOD__ . '|total drift|', [
+                        'computed' => $computed,
+                        'authorized' => $authorizedAmount,
+                    ]);
+                    throw new \UnexpectedValueException('Apple Pay amount does not match the WooCommerce order total.');
+                }
+            }
+
             $order->update_status('pending payment', 'Order created using Apple pay', true);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
+            Logger::log(__METHOD__ . '|fail|', $e->getMessage());
+
             return false;
         }
 
@@ -226,97 +239,193 @@ class ApplepayGateway extends AbstractPaymentGateway
         ];
     }
 
-    private static function recreateCartFromItems($items)
+    private static function createOrderFromCart($order, $cart, array $wc_methods, $selected_method_id)
     {
-        $cart = WC()->cart;
-        $cart->empty_cart(false);
-
-        $products = array_filter($items, function ($item) {
-            if (!isset($item['type']) || $item['type'] !== 'product') {
-                return false;
-            }
-
-            if (isset($item['id']) && isset($item['price']) && floatval($item['price']) == 0) {
-                $product = wc_get_product($item['id']);
-                if ($product && floatval($product->get_price()) > 0) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-
-        foreach ($products as $product_item) {
-            if (isset($product_item['id']) && isset($product_item['quantity'])) {
-                $product = wc_get_product($product_item['id']);
-                if ($product) {
-                    if ($product->is_type('variation')) {
-                        $cart->add_to_cart($product->get_parent_id(), $product_item['quantity'], $product_item['id']);
-                    } else {
-                        $cart->add_to_cart($product_item['id'], $product_item['quantity']);
-                    }
-                }
-            }
-        }
-
-        $coupons = array_filter($items, function ($item) {
-            return isset($item['type']) && $item['type'] === 'coupon';
-        });
-
-        foreach ($coupons as $coupon_item) {
-            if (isset($coupon_item['name']) && is_string($coupon_item['name'])) {
-                preg_match('/coupon\:\s(.*)/i', $coupon_item['name'], $matches);
-                if (!empty($matches[1])) {
-                    $cart->apply_coupon($matches[1]);
-                }
-            }
-        }
-
-        WC()->session->set('chosen_payment_method', 'buckaroo_applepay');
-
-        $cart->calculate_totals();
-
-        return $cart;
+        self::createOrderLineItems($order, $cart);
+        self::createOrderFeeLines($order, $cart);
+        self::createOrderCouponLines($order, $cart);
+        self::createOrderShippingLine($order, $wc_methods, $selected_method_id);
+        self::createOrderTaxLines($order, $cart);
     }
 
-    /**
-     * Create order from cart using WooCommerce native methods
-     */
-    private static function createOrderFromCart($order, $cart)
+    private static function createOrderLineItems($order, $cart)
     {
+        $checkout = WC()->checkout();
+        if (is_callable([$checkout, 'create_order_line_items'])) {
+            $checkout->create_order_line_items($order, $cart);
+
+            return;
+        }
+
         foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
             $product = $cart_item['data'];
-            $quantity = $cart_item['quantity'];
 
-            $item = new WC_Order_Item_Product();
-            $item->set_props([
-                'product' => $product,
-                'quantity' => $quantity,
+            $orderItem = apply_filters(
+                'woocommerce_checkout_create_order_line_item_object',
+                new WC_Order_Item_Product(),
+                $cart_item_key,
+                $cart_item,
+                $order
+            );
+            $orderItem->legacy_values = $cart_item;
+            $orderItem->legacy_cart_item_key = $cart_item_key;
+            $orderItem->set_props([
+                'quantity' => $cart_item['quantity'],
+                'variation' => $cart_item['variation'],
                 'subtotal' => $cart_item['line_subtotal'],
                 'total' => $cart_item['line_total'],
                 'subtotal_tax' => $cart_item['line_subtotal_tax'],
                 'total_tax' => $cart_item['line_tax'],
+                'taxes' => $cart_item['line_tax_data'],
             ]);
-            $item->set_product($product);
-            $order->add_item($item);
-        }
 
-        foreach ($cart->get_applied_coupons() as $coupon_code) {
-            $order->apply_coupon($coupon_code);
+            if ($product) {
+                $orderItem->set_props([
+                    'name' => $product->get_name(),
+                    'tax_class' => $product->get_tax_class(),
+                    'product_id' => $product->is_type('variation') ? $product->get_parent_id() : $product->get_id(),
+                    'variation_id' => $product->is_type('variation') ? $product->get_id() : 0,
+                ]);
+            }
+
+            $orderItem->set_backorder_meta();
+            do_action('woocommerce_checkout_create_order_line_item', $orderItem, $cart_item_key, $cart_item, $order);
+            $order->add_item($orderItem);
+        }
+    }
+
+    private static function createOrderFeeLines($order, $cart)
+    {
+        $checkout = WC()->checkout();
+        if (is_callable([$checkout, 'create_order_fee_lines'])) {
+            $checkout->create_order_fee_lines($order, $cart);
+
+            return;
         }
 
         foreach ($cart->get_fees() as $fee_key => $fee) {
-            $item_fee = new WC_Order_Item_Fee();
-            $item_fee->set_props([
+            $feeItem = new WC_Order_Item_Fee();
+            $feeItem->legacy_fee = $fee;
+            $feeItem->legacy_fee_key = $fee_key;
+            $feeItem->set_props([
                 'name' => $fee->name,
-                'tax_class' => $fee->tax_class,
-                'tax_status' => $fee->taxable ? 'taxable' : 'none',
+                'tax_class' => $fee->taxable ? $fee->tax_class : 0,
                 'amount' => $fee->amount,
                 'total' => $fee->total,
                 'total_tax' => $fee->tax,
+                'taxes' => [
+                    'total' => $fee->tax_data,
+                ],
             ]);
-            $order->add_item($item_fee);
+            do_action('woocommerce_checkout_create_order_fee_item', $feeItem, $fee_key, $fee, $order);
+            $order->add_item($feeItem);
         }
+    }
+
+    private static function createOrderCouponLines($order, $cart)
+    {
+        $checkout = WC()->checkout();
+        if (is_callable([$checkout, 'create_order_coupon_lines'])) {
+            $checkout->create_order_coupon_lines($order, $cart);
+
+            return;
+        }
+
+        foreach ($cart->get_coupons() as $code => $coupon) {
+            $couponItem = new WC_Order_Item_Coupon();
+            $couponItem->set_props([
+                'code' => $code,
+                'discount' => $cart->get_coupon_discount_amount($code),
+                'discount_tax' => $cart->get_coupon_discount_tax_amount($code),
+            ]);
+            do_action('woocommerce_checkout_create_order_coupon_item', $couponItem, $code, $coupon, $order);
+            $order->add_item($couponItem);
+        }
+    }
+
+    private static function createOrderTaxLines($order, $cart)
+    {
+        $checkout = WC()->checkout();
+        if (is_callable([$checkout, 'create_order_tax_lines'])) {
+            $checkout->create_order_tax_lines($order, $cart);
+        }
+    }
+
+    private static function createOrderShippingLine($order, array $wc_methods, $selected_method_id)
+    {
+        if (
+            empty($selected_method_id)
+            || preg_match('/free/', $selected_method_id)
+        ) {
+            return;
+        }
+
+        if (
+            ! isset($wc_methods[$selected_method_id])
+            || ! $wc_methods[$selected_method_id] instanceof \WC_Shipping_Rate
+        ) {
+            Logger::log(__METHOD__ . '|missing shipping rate|', $selected_method_id);
+
+            return;
+        }
+
+        $rate = $wc_methods[$selected_method_id];
+        $shippingItem = new WC_Order_Item_Shipping();
+        $shippingItem->set_props([
+            'method_title' => $rate->get_label(),
+            'method_id' => $rate->get_method_id(),
+            'instance_id' => $rate->get_instance_id(),
+            'total' => wc_format_decimal($rate->get_cost()),
+            'taxes' => [
+                'total' => $rate->get_taxes(),
+            ],
+            'tax_status' => $rate->get_tax_status(),
+        ]);
+
+        foreach ($rate->get_meta_data() as $key => $value) {
+            $shippingItem->add_meta_data($key, $value, true);
+        }
+
+        do_action('woocommerce_checkout_create_order_shipping_item', $shippingItem, 0, [], $order);
+        $order->add_item($shippingItem);
+    }
+
+    private static function getShippingRatesForCart($cart): array
+    {
+        $packages = $cart->get_shipping_packages();
+
+        return $packages
+            ? WC()->shipping->calculate_shipping_for_package(current($packages))['rates']
+            : [];
+    }
+
+    private static function cartCoversWalletItems($cart, array $items): bool
+    {
+        if ($cart->is_empty()) {
+            return false;
+        }
+
+        $cartFingerprint = [];
+        foreach ($cart->get_cart() as $cart_item) {
+            $id = (int) ($cart_item['variation_id'] ?: $cart_item['product_id']);
+            $cartFingerprint[] = $id . ':' . (int) $cart_item['quantity'];
+        }
+
+        $walletFingerprint = [];
+        foreach ($items as $item) {
+            if (($item['type'] ?? '') === 'product' && isset($item['id'], $item['quantity'])) {
+                $walletFingerprint[] = (int) $item['id'] . ':' . (int) $item['quantity'];
+            }
+        }
+
+        if (empty($walletFingerprint) || empty($cartFingerprint)) {
+            return false;
+        }
+
+        sort($cartFingerprint);
+        sort($walletFingerprint);
+
+        return $cartFingerprint === $walletFingerprint;
     }
 
     private static function createFakeCart($items, $callback)
@@ -324,72 +433,64 @@ class ApplepayGateway extends AbstractPaymentGateway
         global $woocommerce;
         $cart = $woocommerce->cart;
 
-        $original_cart_products = array_map(
-            function ($product) {
-                return [
-                    'product_id' => $product['product_id'],
-                    'variation_id' => $product['variation_id'],
-                    'quantity' => $product['quantity'],
-                ];
-            },
-            $cart->get_cart_contents()
-        );
+        $original_cart_contents = $cart->get_cart_contents();
+        $original_applied_coupons = $cart->get_applied_coupons();
+        $original_payment_method = WC()->session ? WC()->session->get('chosen_payment_method') : null;
 
-        $original_applied_coupons = array_map(
-            function ($coupon) {
-                return [
-                    'coupon_id' => $coupon->get_id(),
-                    'code' => $coupon->get_code(),
-                ];
-            },
-            $cart->get_coupons()
-        );
+        try {
+            $cart->empty_cart(false);
 
-        $cart->empty_cart();
-
-        foreach ($items as $item) {
-            if (
-                count(
-                    array_diff(
-                        ['id', 'quantity'],
-                        array_keys($item)
-                    )
-                ) === 0
-            ) {
-                $cart->add_to_cart(
-                    $item['id'],
-                    $item['quantity'],
-                );
+            foreach ($items as $item) {
+                if (($item['type'] ?? '') !== 'product' || ! isset($item['id'], $item['quantity'])) {
+                    continue;
+                }
+                self::addProductToCart($cart, $item['id'], $item['quantity']);
             }
+
+            foreach ($original_applied_coupons as $coupon_code) {
+                $cart->apply_coupon($coupon_code);
+            }
+
+            if (WC()->session) {
+                WC()->session->set('chosen_payment_method', 'buckaroo_applepay');
+            }
+
+            do_action('woocommerce_before_calculate_totals', $cart);
+            $cart->calculate_totals();
+            do_action('woocommerce_after_calculate_totals', $cart);
+
+            return call_user_func($callback, $cart);
+        } finally {
+            $cart->empty_cart(false);
+            $cart->set_cart_contents($original_cart_contents);
+
+            foreach ($original_applied_coupons as $coupon_code) {
+                $cart->apply_coupon($coupon_code);
+            }
+
+            if (WC()->session) {
+                WC()->session->set('chosen_payment_method', $original_payment_method);
+            }
+
+            $cart->calculate_totals();
+            wc_clear_notices();
+        }
+    }
+
+    private static function addProductToCart($cart, $product_id, $quantity)
+    {
+        $product = wc_get_product($product_id);
+        if (! $product) {
+            return;
         }
 
-        foreach ($original_applied_coupons as $original_applied_coupon) {
-            $cart->apply_coupon($original_applied_coupon['code']);
+        if ($product->is_type('variation')) {
+            $cart->add_to_cart($product->get_parent_id(), $quantity, $product_id);
+
+            return;
         }
 
-        do_action('woocommerce_before_calculate_totals', $cart);
-        $cart->calculate_totals();
-        do_action('woocommerce_after_calculate_totals', $cart);
-
-        $fake_cart_result = call_user_func($callback);
-
-        $cart->empty_cart();
-
-        foreach ($original_cart_products as $original_product) {
-            $cart->add_to_cart(
-                $original_product['product_id'],
-                $original_product['quantity'],
-                $original_product['variation_id']
-            );
-        }
-
-        foreach ($original_applied_coupons as $original_applied_coupon) {
-            $cart->apply_coupon($original_applied_coupon['code']);
-        }
-
-        wc_clear_notices();
-
-        return $fake_cart_result;
+        $cart->add_to_cart($product_id, $quantity);
     }
 
     private static function orderAddresses($address)
