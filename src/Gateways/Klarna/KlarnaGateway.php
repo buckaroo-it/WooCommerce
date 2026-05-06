@@ -12,6 +12,8 @@ class KlarnaGateway extends AbstractPaymentGateway
 
     protected $vattype;
 
+    protected $klarnaPaymentFlowId = '';
+
     public function __construct()
     {
         $this->has_fields = true;

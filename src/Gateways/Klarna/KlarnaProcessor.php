@@ -13,29 +13,52 @@ class KlarnaProcessor extends AbstractPaymentProcessor
     protected function getMethodBody(): array
     {
         $body = array_merge_recursive(
+            [
+                'operatingCountry' => $this->getOperatingCountry(),
+                'gender' => $this->getGender(),
+            ],
             $this->getBilling(),
             $this->getShipping(),
             ['articles' => $this->getArticles()]
         );
 
-        $dataRequestKey = get_post_meta($this->get_order()->get_id(), self::DATA_REQUEST_META_KEY, true);
+        if ($this->isReserved()) {
+            $dataRequestKey = get_post_meta($this->get_order()->get_id(), self::DATA_REQUEST_META_KEY, true);
 
-        if (is_string($dataRequestKey) && strlen($dataRequestKey) > 0) {
-            $body['originalTransactionKey'] = $dataRequestKey;
+            if (is_string($dataRequestKey) && strlen($dataRequestKey) > 0) {
+                $body['originalTransactionKey'] = $dataRequestKey;
+            }
         }
 
         return $body;
     }
 
-    public function getAction(): string
+    private function getOperatingCountry(): string
     {
-        $dataRequestKey = get_post_meta($this->get_order()->get_id(), self::DATA_REQUEST_META_KEY, true);
+        $country = $this->getAddress('billing', 'country');
 
-        if (is_string($dataRequestKey) && strlen($dataRequestKey) > 0) {
-            return 'pay';
+        if (! is_string($country) || strlen(trim($country)) === 0) {
+            $country = $this->getAddress('shipping', 'country');
         }
 
-        return 'reserve';
+        return is_string($country) ? strtoupper($country) : '';
+    }
+
+    private function getGender(): int
+    {
+        $value = $this->request->input($this->gateway->getKlarnaSelector() . '-gender');
+
+        if (is_numeric($value) && (int) $value > 0) {
+            return (int) $value;
+        }
+
+        // Default to male (1) if no value submitted; Klarna requires a positive integer.
+        return 1;
+    }
+
+    public function getAction(): string
+    {
+        return $this->isReserved() ? 'pay' : 'reserve';
     }
 
     public function beforeReturnHandler(ResponseParser $responseParser, string $redirectUrl)
@@ -44,8 +67,25 @@ class KlarnaProcessor extends AbstractPaymentProcessor
 
         if (is_string($dataRequestKey) && strlen($dataRequestKey) > 0) {
             update_post_meta($this->get_order()->get_id(), self::DATA_REQUEST_META_KEY, $dataRequestKey);
-            update_post_meta($this->get_order()->get_id(), 'buckaroo_is_reserved', 'yes');
+
+            if ($this->isResponseReserved($responseParser)) {
+                update_post_meta($this->get_order()->get_id(), 'buckaroo_is_reserved', 'yes');
+            }
         }
+    }
+
+    private function isReserved(): bool
+    {
+        return get_post_meta($this->get_order()->get_id(), 'buckaroo_is_reserved', true) === 'yes';
+    }
+
+    private function isResponseReserved(ResponseParser $responseParser): bool
+    {
+        if ($responseParser->isSuccess()) {
+            return true;
+        }
+
+        return in_array($responseParser->get('coreStatus'), ['completed', 'processing', 'pending', 'on-hold'], true);
     }
 
     /**
@@ -58,7 +98,6 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         return [
             'billing' => [
                 'recipient' => [
-                    'category' => $this->getCategory('billing'),
                     'firstName' => $this->getAddress('billing', 'first_name'),
                     'lastName' => $this->getAddress('billing', 'last_name'),
                 ],
@@ -90,7 +129,6 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         return [
             'shipping' => [
                 'recipient' => [
-                    'category' => $this->getCategory('shipping'),
                     'firstName' => $this->getAddress('shipping', 'first_name'),
                     'lastName' => $this->getAddress('shipping', 'last_name'),
                 ],
@@ -119,23 +157,4 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         return $phone;
     }
 
-    /**
-     * Get type of request b2b or b2c
-     */
-    private function getCategory(string $address_type): string
-    {
-        if (! $this->isCompanyEmpty($this->getAddress($address_type, 'company'))) {
-            return 'B2B';
-        }
-
-        return 'B2C';
-    }
-
-    /**
-     * Check if company is empty
-     */
-    public function isCompanyEmpty(?string $company = null): bool
-    {
-        return $company === null || strlen(trim($company)) === 0;
-    }
 }

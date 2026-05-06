@@ -73,10 +73,19 @@ class PushProcessor
                         $order->get_meta('buckaroo_is_reserved') !== 'yes' &&
                         $order->get_status() !== 'cancelled'
                     ) {
-                        $order->payment_complete($responseParser->getTransactionKey());
-                        $order->add_order_note('Payment successfully reserved');
+                        // Reservation only authorizes the funds; do NOT mark the order as paid.
+                        // The order stays in 'on-hold' until the merchant captures it, at which
+                        // point a follow-up Pay push will run the regular completed branch below
+                        // and call payment_complete().
+                        $order->set_transaction_id($responseParser->getTransactionKey());
+                        $order->update_status(
+                            'on-hold',
+                            __('Klarna reservation authorized; awaiting capture.', 'wc-buckaroo-bpe-gateway')
+                        );
                         $order->add_meta_data('buckaroo_is_reserved', 'yes', true);
+                        $order->update_meta_data('_wc_order_authorized', 'yes');
                         $order->save_meta_data();
+                        $order->save();
 
                         $transaction = $responseParser->getDataRequest();
                         $completedOrder = false;
