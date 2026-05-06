@@ -33,6 +33,29 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         return $body;
     }
 
+    /**
+     * Klarna's `klarna` service rejects order lines with unit_price = 0 (e.g. free
+     * shipping methods, $0 free-gift items). Such lines contribute nothing to the
+     * order total, so dropping them keeps the article sum equal to the order total
+     * while staying within Klarna's validation rules. Scoped to Klarna MoR only.
+     */
+    protected function getArticles(): array
+    {
+        return array_values(array_filter(
+            parent::getArticles(),
+            static function ($article) {
+                if (! is_array($article)) {
+                    return false;
+                }
+
+                $price = isset($article['price']) ? (float) $article['price'] : 0.0;
+                $quantity = isset($article['quantity']) ? (int) $article['quantity'] : 0;
+
+                return abs($price) >= 0.01 && $quantity > 0;
+            }
+        ));
+    }
+
     private function getOperatingCountry(): string
     {
         $country = $this->getAddress('billing', 'country');
