@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\PaymentProcessors;
 
 use Buckaroo\Woocommerce\Constraints\BuckarooTransactionStatus;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaProcessor;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressUpdateOrderAddresses;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
@@ -84,6 +85,14 @@ class PushProcessor
                         );
                         $order->add_meta_data('buckaroo_is_reserved', 'yes', true);
                         $order->update_meta_data('_wc_order_authorized', 'yes');
+
+                        // Persist the Data Request key from the push so that the later capture
+                        // (Pay action) can send it as `originalTransactionKey`. Without this,
+                        $dataRequestKey = $responseParser->getDataRequest();
+                        if (is_string($dataRequestKey) && strlen($dataRequestKey) > 0) {
+                            $order->update_meta_data(KlarnaProcessor::DATA_REQUEST_META_KEY, $dataRequestKey);
+                        }
+
                         $order->save_meta_data();
                         $order->save();
 
