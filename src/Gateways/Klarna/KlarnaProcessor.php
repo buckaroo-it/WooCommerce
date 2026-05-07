@@ -7,7 +7,7 @@ use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 
 class KlarnaProcessor extends AbstractPaymentProcessor
 {
-    const DATA_REQUEST_META_KEY = '_buckaroo_klarna_data_request_key';
+    public const DATA_REQUEST_META_KEY = '_buckaroo_klarna_data_request_key';
 
     /** {@inheritDoc} */
     protected function getMethodBody(): array
@@ -183,5 +183,4 @@ class KlarnaProcessor extends AbstractPaymentProcessor
 
         return $phone;
     }
-
 }
