@@ -328,6 +328,29 @@ class PushProcessor
                 return;
             }
 
+            // Klarna MoR `CancelReservation` PUSH only confirms an already-cancelled
+            // reservation.
+            if (
+                $order->get_payment_method() === 'buckaroo_klarnapay' &&
+                strcasecmp((string) $responseParser->getActionCode(), 'CancelReservation') === 0
+            ) {
+                if ($responseParser->isSuccess()) {
+                    $order->add_order_note(
+                        __('Klarna reservation cancellation confirmed (push received).', 'wc-buckaroo-bpe-gateway')
+                    );
+                } else {
+                    $order->add_order_note(
+                        sprintf(
+                            __('Klarna reservation cancellation push reported a failure: %s', 'wc-buckaroo-bpe-gateway'),
+                            $responseParser->getSubCodeMessage() ?: ''
+                        )
+                    );
+                }
+                add_post_meta($order_id, '_pushallowed', 'ok', true);
+
+                return;
+            }
+
             if ($responseParser->isSuccess()) {
                 $this->onSuccess($order_id, $order, $responseParser);
             } else {
