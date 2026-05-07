@@ -64,8 +64,9 @@ class KlarnaPayGateway extends KlarnaGateway
 
         if (isset($processedPayment['result']) && $processedPayment['result'] === 'success') {
             update_post_meta($order_id, '_wc_order_authorized', 'yes');
-            update_post_meta($order_id, '_wc_order_selected_payment_method', 'Klarna (MoR)');
-            update_post_meta($order_id, '_wc_order_payment_issuer', $this->type);
+            // Must match the registry key ('klarnapay') so the capture AJAX
+            // handler can resolve the gateway via PaymentGatewayRegistry::newGatewayInstance().
+            $this->set_order_capture($order_id, 'KlarnaPay', $this->type);
         }
 
         return $processedPayment;
