@@ -134,7 +134,10 @@ class KlarnaFulfillmentActions
         $response = $payment->method($gateway->getServiceCode($processor))->{$sdkMethod}(
             array_merge(
                 $processor->getBody(),
-                ['originalTransactionKey' => $dataRequestKey]
+                // Klarna's `klarna` service references the original reserve via
+                // a service-level `DataRequestKey` parameter (the SDK's `Pay`
+                // model exposes it as `dataRequestKey`).
+                ['dataRequestKey' => $dataRequestKey]
             )
         );
 

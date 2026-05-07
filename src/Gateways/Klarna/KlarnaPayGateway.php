@@ -110,7 +110,10 @@ class KlarnaPayGateway extends KlarnaGateway
             $payment->method($this->getServiceCode($processor))->cancelReserve(
                 array_merge(
                     $processor->getBody(),
-                    ['originalTransactionKey' => $dataRequestKey]
+                    // Klarna's `klarna` service references the original reserve via
+                    // a service-level `DataRequestKey` parameter (the SDK's `Pay`
+                    // model exposes it as `dataRequestKey`).
+                    ['dataRequestKey' => $dataRequestKey]
                 )
             ),
             $order

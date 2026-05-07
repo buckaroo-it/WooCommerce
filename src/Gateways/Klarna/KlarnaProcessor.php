@@ -26,7 +26,11 @@ class KlarnaProcessor extends AbstractPaymentProcessor
             $dataRequestKey = get_post_meta($this->get_order()->get_id(), self::DATA_REQUEST_META_KEY, true);
 
             if (is_string($dataRequestKey) && strlen($dataRequestKey) > 0) {
-                $body['originalTransactionKey'] = $dataRequestKey;
+                // Klarna's `klarna` service identifies a reservation by a service-level
+                // `DataRequestKey` parameter (not the top-level `OriginalTransactionKey`).
+                // Sending it as `originalTransactionKey` causes Buckaroo to reject the
+                // capture with "originaltransaction is invalid for the action Pay".
+                $body['dataRequestKey'] = $dataRequestKey;
             }
         }
 
