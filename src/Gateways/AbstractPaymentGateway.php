@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways;
 
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
@@ -561,7 +562,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             'originalTransactionKey' => $order->get_transaction_id(),
         ];
 
-        if ($this instanceof KlarnaKpGateway) {
+        if ($this instanceof KlarnaKpGateway || $this instanceof KlarnaPayGateway) {
             unset($capturePayload['originalTransactionKey']);
         }
 

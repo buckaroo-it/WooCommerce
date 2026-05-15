@@ -34,6 +34,8 @@ interface IResponseParser
 
     public function getTransactionKey(): ?string;
 
+    public function getActionCode(): ?string;
+
     public function getDataRequest(): ?string;
 
     public function getPaymentMethod(): ?string;
