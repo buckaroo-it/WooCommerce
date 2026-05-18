@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CancelReservationAction;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\ExtendReservationAction;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use WC_Order;
@@ -108,6 +109,37 @@ class KlarnaPayGateway extends KlarnaGateway
 
         (new CancelReservationAction())->handle(
             $payment->method($this->getServiceCode($processor))->cancelReserve(
+                array_merge(
+                    $processor->getBody(),
+                    // Klarna's `klarna` service references the original reserve via
+                    // a service-level `DataRequestKey` parameter (the SDK's `Pay`
+                    // model exposes it as `dataRequestKey`).
+                    ['dataRequestKey' => $dataRequestKey]
+                )
+            ),
+            $order
+        );
+    }
+
+    /**
+     * Extend the Klarna reservation for an order
+     *
+     * @param  WC_Order  $order
+     * @return void
+     */
+    public function extend_reservation(WC_Order $order)
+    {
+        $processor = $this->newPaymentProcessorInstance($order);
+        $payment = new BuckarooClient($this->getMode());
+
+        $dataRequestKey = get_post_meta($order->get_id(), KlarnaProcessor::DATA_REQUEST_META_KEY, true);
+
+        if (! is_string($dataRequestKey) || strlen($dataRequestKey) === 0) {
+            return $this->create_capture_error(__('Cannot extend reservation, Klarna Data Request key not found', 'wc-buckaroo-bpe-gateway'));
+        }
+
+        (new ExtendReservationAction())->handle(
+            $payment->method($this->getServiceCode($processor))->extendReservation(
                 array_merge(
                     $processor->getBody(),
                     // Klarna's `klarna` service references the original reserve via
