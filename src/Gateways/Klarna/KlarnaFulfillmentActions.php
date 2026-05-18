@@ -84,7 +84,11 @@ class KlarnaFulfillmentActions
      */
     public function handle_extend_reservation(WC_Order $order)
     {
-        $this->dispatch_data_request($order, 'extendReservation', 'ExtendReservation');
+        $gateway = new KlarnaPayGateway();
+        $gateway->extend_reservation($order);
+
+        wp_safe_redirect(admin_url("post.php?post={$order->get_id()}&action=edit"));
+        exit;
     }
 
     /**
