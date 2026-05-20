@@ -18,6 +18,7 @@ use Buckaroo\Woocommerce\Services\Request;
 use Buckaroo\Woocommerce\Services\SessionHandler;
 use Exception;
 use WC_Order;
+use WC_Order_Refund;
 use WC_Payment_Gateway;
 use WC_Tax;
 use WP_Error;
@@ -788,7 +789,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
         $processorClass = static::REFUND_CLASS ?: AbstractRefundProcessor::class;
 
-        $line_items = $this->getRefundLineItemsFromRequest();
+        $line_items = $this->getRefundedLineItemsFromOrder($order, $amount);
 
         return new $processorClass(
             $this,
@@ -799,34 +800,55 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         );
     }
 
-    private function getRefundLineItemsFromRequest(): array
+    // Match the refund just created by wc_create_refund (WC admin UI + REST API both
+    // create the refund before invoking process_refund). Selecting by amount avoids
+    // picking up unrelated prior refunds in flows where process_refund runs first
+    // (e.g. bl_refund_capture). HPOS does not guarantee get_refunds() ordering, so the
+    // newest matching refund is identified by max ID rather than reset().
+    protected function getRefundedLineItemsFromOrder(WC_Order $order, $amount): array
     {
-        if (!isset($_POST['line_item_qtys']) || !is_string($_POST['line_item_qtys'])) {
+        $target = (float) $amount;
+        if ($target <= 0) {
             return [];
         }
 
-        $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
-        $line_item_totals = [];
+        $match = null;
+        foreach ($order->get_refunds() as $refund) {
+            if (!$refund instanceof WC_Order_Refund) {
+                continue;
+            }
 
-        if (isset($_POST['line_item_totals']) && is_string($_POST['line_item_totals'])) {
-            $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true) ?? [];
+            $refund_amount = abs((float) $refund->get_amount());
+            if (abs($refund_amount - $target) > 0.01) {
+                continue;
+            }
+
+            if ($match === null || $refund->get_id() > $match->get_id()) {
+                $match = $refund;
+            }
         }
 
-        if (!is_array($line_item_qtys)) {
+        if ($match === null) {
             return [];
         }
 
-        return array_values(array_filter(
-            array_map(
-                fn($item_id, $qty) => $qty > 0 ? [
-                    'item_id' => $item_id,
-                    'qty' => $qty,
-                    'total' => $line_item_totals[$item_id] ?? 0
-                ] : null,
-                array_keys($line_item_qtys),
-                $line_item_qtys
-            )
-        ));
+        $line_items = [];
+        foreach ($match->get_items('line_item') as $refund_item) {
+            $refunded_item_id = (int) $refund_item->get_meta('_refunded_item_id');
+            $qty = abs((int) $refund_item->get_quantity());
+
+            if ($refunded_item_id <= 0 || $qty <= 0) {
+                continue;
+            }
+
+            $line_items[] = [
+                'item_id' => $refunded_item_id,
+                'qty' => $qty,
+                'total' => abs((float) $refund_item->get_total()),
+            ];
+        }
+
+        return $line_items;
     }
 
     public function checkCurrencySupported(): bool
