@@ -113,27 +113,83 @@ class OrderArticles
 
     public function get_product_image($product)
     {
-        if ($this->gateway->get_option('sendimageinfo')) {
-            $src = get_the_post_thumbnail_url($product->get_id());
-            if (! $src) {
-                $imgTag = $product->get_image();
-                $doc = new DOMDocument();
-                $doc->loadHTML($imgTag);
-                $xpath = new DOMXPath($doc);
-                $src = $xpath->evaluate('string(//img/@src)');
-            }
+        // Only run when the setting is explicitly enabled.
 
-            if (strpos($src, '?') !== false) {
-                $src = substr($src, 0, strpos($src, '?'));
-            }
+        if ((string) $this->gateway->get_option('sendimageinfo') !== '1') {
+            return;
+        }
 
-            if ($srcInfo = @getimagesize($src)) {
-                if (! empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg'])) {
-                    if (! empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280)) {
-                        return $src;
-                    }
-                }
+        $src = get_the_post_thumbnail_url($product->get_id());
+        if (! $src) {
+            $imgTag = $product->get_image();
+            $doc = new DOMDocument();
+            $doc->loadHTML($imgTag);
+            $xpath = new DOMXPath($doc);
+            $src = $xpath->evaluate('string(//img/@src)');
+        }
+
+        if (! is_string($src) || $src === '') {
+            return;
+        }
+
+        if (strpos($src, '?') !== false) {
+            $src = substr($src, 0, strpos($src, '?'));
+        }
+
+        $srcInfo = $this->safe_remote_getimagesize($src);
+        if (! is_array($srcInfo)) {
+            return;
+        }
+
+        if (! empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg'])) {
+            if (! empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280)) {
+                return $src;
             }
+        }
+    }
+
+    /**
+     * Wrap getimagesize() so a slow/unreachable remote image cannot block the
+     * checkout request. PHP's default_socket_timeout (often 60s) would otherwise
+     * be applied per call, multiplied by the number of items in the cart, which
+     * is what used to make Riverty/Afterpay checkout hang indefinitely.
+     *
+     * @param  string  $src
+     * @return array|false
+     */
+    protected function safe_remote_getimagesize(string $src)
+    {
+        $isRemote = (bool) preg_match('#^https?://#i', $src);
+
+        if (! $isRemote) {
+            return @getimagesize($src);
+        }
+
+        $previousSocketTimeout = ini_set('default_socket_timeout', '3');
+        $previousDefaultOptions = stream_context_get_options(stream_context_get_default());
+
+        stream_context_set_default([
+            'http' => [
+                'timeout' => 3,
+                'follow_location' => 1,
+                'ignore_errors' => true,
+            ],
+            'https' => [
+                'timeout' => 3,
+                'follow_location' => 1,
+                'ignore_errors' => true,
+            ],
+        ]);
+
+        try {
+            return @getimagesize($src);
+        } catch (\Throwable $e) {
+            return false;
+        } finally {
+            if ($previousSocketTimeout !== false) {
+                ini_set('default_socket_timeout', $previousSocketTimeout);
+            }
+            stream_context_set_default(is_array($previousDefaultOptions) ? $previousDefaultOptions : []);
         }
     }
 
