@@ -14,8 +14,8 @@ class BizumGateway extends AbstractPaymentGateway
         $this->method_title = 'Buckaroo Bizum';
         $this->setIcon('svg/bizum.svg');
 
-        // Bizum supports EUR only (default already contains EUR)
         $this->supportedCurrencies = ['EUR'];
+        $this->supportedCountries = ['ES'];
 
         parent::__construct();
         $this->addRefundSupport();

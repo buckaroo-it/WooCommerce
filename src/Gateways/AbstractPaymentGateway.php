@@ -49,6 +49,9 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
     protected array $supportedCurrencies = ['EUR'];
 
+    /** ISO 3166-1 alpha-2 country codes. Empty = worldwide / no restriction. */
+    protected array $supportedCountries = [];
+
     public bool $capturable = false;
 
     public function __construct()
@@ -854,6 +857,16 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function checkCurrencySupported(): bool
     {
         return (bool) in_array(get_woocommerce_currency(), $this->supportedCurrencies);
+    }
+
+    public function getSupportedCurrencies(): array
+    {
+        return $this->supportedCurrencies;
+    }
+
+    public function getSupportedCountries(): array
+    {
+        return $this->supportedCountries;
     }
 
     public function canShowCaptureForm($order): bool

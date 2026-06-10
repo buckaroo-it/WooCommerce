@@ -6,6 +6,8 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class KnakenSettleGateway extends AbstractPaymentGateway
 {
+    protected array $supportedCountries = ['NL'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_knaken';

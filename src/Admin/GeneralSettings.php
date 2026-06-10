@@ -24,6 +24,10 @@ class GeneralSettings extends WC_Settings_Page
         parent::__construct();
 
         add_action(
+            'woocommerce_admin_field_buckaroo_api_credentials',
+            [$this, 'render_api_credentials_card']
+        );
+        add_action(
             'woocommerce_admin_field_buckaroo_payment_list',
             [$this, 'render_payment_list']
         );
@@ -76,9 +80,20 @@ class GeneralSettings extends WC_Settings_Page
     {
         global $current_section, $hide_save_button;
 
+
         switch ($current_section) {
             case '':
-                WC_Admin_Settings::output_fields($this->get_general_settings());
+                // Top part: submenu, title, payment list
+                WC_Admin_Settings::output_fields($this->get_general_top_settings());
+                // API credentials card (full width)
+                $this->render_api_credentials_card_inner();
+                // General options fields wrapped in a matching card
+                echo '<div class="bk-general-options-card">';
+                echo '<div class="bk-general-options-card__header">';
+                echo '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+                echo '<div><strong class="bk-general-options-card__title">' . esc_html__('General Options', 'wc-buckaroo-bpe-gateway') . '</strong><span class="bk-general-options-card__sub">' . esc_html__('Configure transaction, fee and locale settings.', 'wc-buckaroo-bpe-gateway') . '</span></div>';
+                echo '</div>';
+                WC_Admin_Settings::output_fields($this->get_general_right_settings());                echo '</div>';
                 break;
             case 'verification':
                 WC_Admin_Settings::output_fields($this->get_verification_settings());
@@ -102,23 +117,19 @@ class GeneralSettings extends WC_Settings_Page
     }
 
     /**
-     * Get general settings
+     * Get general settings - kept for save() compatibility
      */
     public function get_general_settings()
     {
-        $generalFields = [
-            'merchantkey',
-            'secretkey',
-            'test_credentials',
-            'auto_configure',
-            'transactiondescription',
-            'refund_description',
-            'feetax',
-            'paymentfeevat',
-            'culture'
-        ];
+        return array_merge($this->get_general_top_settings(), $this->get_general_right_settings());
+    }
 
-        $settings = [
+    /**
+     * Top part: submenu, intro text, payment list
+     */
+    public function get_general_top_settings()
+    {
+        return [
             [
                 'title' => __('Buckaroo General Settings', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'buckaroo_submeniu',
@@ -144,13 +155,39 @@ class GeneralSettings extends WC_Settings_Page
             [
                 'type' => 'buckaroo_payment_list',
             ],
+            [
+                'type' => 'sectionend',
+                'id' => 'buckaroo-general-top',
+            ],
+        ];
+    }
+
+    /**
+     * Right column: the other general fields
+     */
+    public function get_general_right_settings()
+    {
+        $generalFields = [
+            'transactiondescription',
+            'refund_description',
+            'feetax',
+            'paymentfeevat',
+            'culture'
+        ];
+
+        $settings = [
+            [
+                'type'  => 'title',
+                'id'    => 'buckaroo-general-options',
+                'title' => '', // hidden via CSS; card header already shows the title
+            ],
         ];
 
         $settings = array_merge($settings, $this->get_fields_by_keys($generalFields));
 
         $settings[] = [
             'type' => 'sectionend',
-            'id' => 'buckaroo-general',
+            'id'   => 'buckaroo-general-options',
         ];
 
         return $settings;
@@ -461,44 +498,216 @@ aria-describedby="payment_gateways_options-description">
         }
     }
 
+    public function render_api_credentials_card()
+    {
+        echo '<tr><td colspan="2" style="padding:0;">';
+        $this->render_api_credentials_card_inner();
+        echo '</td></tr>';
+    }
+
+    public function render_api_credentials_card_inner()
+    {
+        $merchant_key    = $this->gateway->get_option('merchantkey', '');
+        $secret_key      = $this->gateway->get_option('secretkey', '');
+        $merchant_key_id = $this->gateway->get_field_key('merchantkey');
+        $secret_key_id   = $this->gateway->get_field_key('secretkey');
+
+        $this->gateway->init_form_fields();
+        $test_btn_field = $this->gateway->form_fields['test_credentials'] ?? null;
+        $auto_btn_field = $this->gateway->form_fields['auto_configure'] ?? null;
+        ?>
+<div class="bk-creds-card">
+
+    <div class="bk-creds-card__header">
+        <div class="bk-creds-card__header-left">
+            <svg class="bk-creds-card__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div>
+                <strong class="bk-creds-card__title"><?php esc_html_e('API credentials', 'wc-buckaroo-bpe-gateway'); ?></strong>
+                <span class="bk-creds-card__sub"><?php esc_html_e('Find these in Buckaroo Plaza → My Buckaroo → Websites.', 'wc-buckaroo-bpe-gateway'); ?></span>
+            </div>
+        </div>
+    </div>
+
+    <table class="form-table bk-creds-table"><tbody>
+
+        <tr>
+            <th scope="row" class="titledesc">
+                <label for="<?php echo esc_attr($merchant_key_id); ?>"><?php esc_html_e('Website key', 'wc-buckaroo-bpe-gateway'); ?></label>
+            </th>
+            <td class="forminp">
+                <div class="bk-creds-field">
+                    <input type="password"
+                           id="<?php echo esc_attr($merchant_key_id); ?>"
+                           name="<?php echo esc_attr($merchant_key_id); ?>"
+                           value="<?php echo esc_attr($merchant_key); ?>"
+                           class="regular-input bk-creds-input"
+                           placeholder="<?php esc_attr_e('Enter your website key', 'wc-buckaroo-bpe-gateway'); ?>"
+                           autocomplete="off" />
+                    <button type="button" class="bk-key-btn bk-key-btn--toggle" data-target="<?php echo esc_attr($merchant_key_id); ?>" title="<?php esc_attr_e('Show / hide', 'wc-buckaroo-bpe-gateway'); ?>">
+                        <svg class="bk-eye-show" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg class="bk-eye-hide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    </button>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <th scope="row" class="titledesc">
+                <label for="<?php echo esc_attr($secret_key_id); ?>"><?php esc_html_e('Secret key', 'wc-buckaroo-bpe-gateway'); ?></label>
+            </th>
+            <td class="forminp">
+                <div class="bk-creds-field">
+                    <input type="password"
+                           id="<?php echo esc_attr($secret_key_id); ?>"
+                           name="<?php echo esc_attr($secret_key_id); ?>"
+                           value="<?php echo esc_attr($secret_key); ?>"
+                           class="regular-input bk-creds-input"
+                           placeholder="<?php esc_attr_e('Enter your secret key', 'wc-buckaroo-bpe-gateway'); ?>"
+                           autocomplete="off" />
+                    <button type="button" class="bk-key-btn bk-key-btn--toggle" data-target="<?php echo esc_attr($secret_key_id); ?>" title="<?php esc_attr_e('Show / hide', 'wc-buckaroo-bpe-gateway'); ?>">
+                        <svg class="bk-eye-show" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg class="bk-eye-hide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    </button>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <th></th>
+            <td class="forminp">
+                <div class="bk-creds-actions">
+                    <?php if ($test_btn_field): ?>
+                    <button type="button" id="<?php echo esc_attr($this->gateway->get_field_key('test_credentials')); ?>" class="button button-primary bk-creds-btn"
+                        <?php foreach ((array)($test_btn_field['custom_attributes'] ?? []) as $attr => $val) { echo esc_attr($attr) . '="' . esc_attr($val) . '" '; } ?>>
+                        <?php echo esc_html($test_btn_field['value'] ?? __('Test credentials', 'wc-buckaroo-bpe-gateway')); ?>
+                    </button>
+                    <p class="bk-autoconfigure-disclaimer"><?php esc_html_e('Click here to verify store key & secret key.', 'wc-buckaroo-bpe-gateway'); ?></p>
+                    <?php endif; ?>
+                    <?php if ($auto_btn_field && ($auto_btn_field['type'] ?? '') === 'button'): ?>
+                    <button type="button" id="<?php echo esc_attr($this->gateway->get_field_key('auto_configure')); ?>" class="button bk-creds-btn"
+                        <?php foreach ((array)($auto_btn_field['custom_attributes'] ?? []) as $attr => $val) { echo esc_attr($attr) . '="' . esc_attr($val) . '" '; } ?>>
+                        <?php echo esc_html($auto_btn_field['value'] ?? __('Auto-configure', 'wc-buckaroo-bpe-gateway')); ?>
+                    </button>
+                    <p class="bk-autoconfigure-disclaimer"><?php esc_html_e('Automatically configure the Buckaroo plugin based on your active subscriptions. When you use this option, the plugin will connect to your Buckaroo account, check which payment methods are active, and enable them in Live mode. You will be asked to confirm before changes are applied.', 'wc-buckaroo-bpe-gateway'); ?></p>
+                    <?php endif; ?>
+                </div>
+            </td>
+        </tr>
+
+    </tbody></table>
+</div>
+
+<script>
+(function () {
+    document.querySelectorAll('.bk-key-btn--toggle').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var input = document.getElementById(btn.dataset.target);
+            var hidden = input.type === 'password';
+            input.type = hidden ? 'text' : 'password';
+            btn.querySelector('.bk-eye-show').style.display = hidden ? 'none' : '';
+            btn.querySelector('.bk-eye-hide').style.display = hidden ? '' : 'none';
+        });
+    });
+    document.querySelectorAll('.bk-key-btn--copy').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var input = document.getElementById(btn.dataset.target);
+            if (!input || !input.value) return;
+            navigator.clipboard.writeText(input.value).then(function () {
+                btn.classList.add('bk-key-btn--copied');
+                setTimeout(function () { btn.classList.remove('bk-key-btn--copied'); }, 1500);
+            });
+        });
+    });
+})();
+</script>
+        <?php
+    }
+
+
     public function render_payment_list()
     {
         $gateways = $this->getBuckarooGateways();
-        $containerHeight = ceil(count($gateways) / 3) * 45;
         ?>
-<ul class="buckaroo-payment-list" style="height:<?php echo esc_attr($containerHeight); ?>px">
+<div class="buckaroo-payment-cards">
         <?php
         foreach ($gateways as $gateway) {
             $method_title = $gateway->get_method_title() ? $gateway->get_method_title() : $gateway->get_title();
-            ?>
-<li>
-            <?php
-            if ($gateway->icon !== null) {
-                ?>
-<img class="buckaroo-payment-list-icon" src="<?php echo esc_url($gateway->icon); ?>">
-                <?php
-            }
-            echo wp_kses_post(str_replace('Buckaroo ', '', $method_title));
-            if (wc_string_to_bool($gateway->enabled)) {
-                if ($gateway->mode === 'live') {
-                    echo '<b class="buckaroo-payment-status buckaroo-payment-enabled-live">' . esc_html__('enabled (live)', 'wc-buckaroo-bpe-gateway') . '</b>';
+            $display_title = str_replace('Buckaroo ', '', $method_title);
+            $custom_title = $gateway->get_title();
+            $is_enabled = wc_string_to_bool($gateway->enabled);
+            $manage_url = admin_url('admin.php?page=wc-settings&tab=checkout&section=' . strtolower($gateway->id));
+
+            $mode_label = '';
+            $status_class = 'bk-status--disabled';
+            $status_label = esc_html__('Inactive', 'wc-buckaroo-bpe-gateway');
+            if ($is_enabled) {
+                $mode = isset($gateway->mode) ? strtolower((string) $gateway->mode) : 'test';
+                if ($mode === 'live') {
+                    $status_class = 'bk-status--live';
+                    $status_label = esc_html__('Active', 'wc-buckaroo-bpe-gateway');
                 } else {
-                    echo '<b class="buckaroo-payment-status buckaroo-payment-enabled-test">' . esc_html__('enabled (test)', 'wc-buckaroo-bpe-gateway') . '</b>';
+                    // 'test' or any other/unconfigured value defaults to Test
+                    $status_class = 'bk-status--test';
+                    $status_label = esc_html__('Test', 'wc-buckaroo-bpe-gateway');
                 }
+            }
+            ?>
+<div class="buckaroo-payment-card">
+    <div class="buckaroo-payment-card-icon">
+            <?php if ($gateway->icon !== null): ?>
+        <img src="<?php echo esc_url($gateway->icon); ?>" alt="<?php echo esc_attr($display_title); ?>">
+            <?php else: ?>
+        <span style="width:48px;height:48px;border-radius:10px;background:#1a2340;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;text-align:center;line-height:1.2;flex-shrink:0;"><?php echo esc_html(strtoupper(substr($display_title, 0, 2))); ?></span>
+            <?php endif; ?>
+    </div>
+    <div class="buckaroo-payment-card-info">
+        <div class="buckaroo-payment-card-title"><?php echo esc_html($display_title); ?></div>
+        <?php
+            $currencies = $gateway->getSupportedCurrencies();
+            $countries  = $gateway->getSupportedCountries();
+
+            $parts = [];
+
+            // â”€â”€ Country label â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            $european_countries = ['AT','BE','BG','CH','CY','CZ','DE','DK','EE','ES','FI','FR','GB','GR','HR','HU','IE','IS','IT','LI','LT','LU','LV','MT','NL','NO','PL','PT','RO','SE','SI','SK'];
+
+            if (empty($countries)) {
+                $parts[] = '<span class="bk-meta-countries">Global</span>';
+            } elseif (count($countries) >= 5 && count(array_diff($countries, $european_countries)) === 0) {
+                $parts[] = '<span class="bk-meta-countries">Europe</span>';
             } else {
-                echo '<b class="buckaroo-payment-status buckaroo-payment-disabled">' . esc_html__('disabled', 'wc-buckaroo-bpe-gateway') . '</b>';
+                $parts[] = '<span class="bk-meta-countries">' . implode('<span class="bk-meta-sep"> &middot; </span>', array_map('esc_html', $countries)) . '</span>';
             }
 
-            ?>
-<a href="<?php echo esc_url(admin_url('admin.php?page=wc-settings&tab=checkout&section=' . strtolower($gateway->id))); ?>">
-            <?php echo esc_html__('edit', 'wc-buckaroo-bpe-gateway'); ?>
-</a>
-</li>
+            $multi_currency_threshold = 6;
+            if (count($currencies) >= $multi_currency_threshold) {
+                $parts[] = '<span class="bk-meta-currencies">Multi-currency</span>';
+            } else {
+                $parts[] = '<span class="bk-meta-currencies">' . implode('<span class="bk-meta-sep"> &middot; </span>', array_map('esc_html', $currencies)) . '</span>';
+            }
+        ?>
+        <div class="buckaroo-payment-card-subtitle"><?php echo !empty($parts) ? wp_kses_post(implode('<span class="bk-meta-divider"> | </span>', $parts)) : '&nbsp;'; ?></div>
+    </div>
+    <div class="buckaroo-payment-card-actions">
+        <span class="bk-status-pill <?php echo esc_attr($status_class); ?>">
+            <span class="bk-status-pill-dot"></span><?php echo esc_html($status_label); ?>
+        </span>
+        <a href="<?php echo esc_url($manage_url); ?>" class="buckaroo-payment-card-settings" title="<?php echo esc_attr__('Settings', 'wc-buckaroo-bpe-gateway'); ?>">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="6" x2="20" y2="6"/>
+                <line x1="4" y1="12" x2="20" y2="12"/>
+                <line x1="4" y1="18" x2="20" y2="18"/>
+                <circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/>
+                <circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/>
+                <circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/>
+            </svg>
+        </a>
+    </div>
+</div>
             <?php
         }
         ?>
-
-</ul>
+</div>
         <?php
     }
 

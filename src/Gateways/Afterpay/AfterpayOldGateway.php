@@ -16,6 +16,8 @@ class AfterpayOldGateway extends AbstractPaymentGateway
 
     public const REFUND_CLASS = AbstractAfterpayRefundProcessor::class;
 
+    protected array $supportedCountries = ['NL', 'BE', 'DE'];
+
     public $type;
 
     public $b2b;

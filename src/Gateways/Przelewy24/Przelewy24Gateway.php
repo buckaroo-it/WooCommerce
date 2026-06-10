@@ -9,6 +9,7 @@ class Przelewy24Gateway extends AbstractPaymentGateway
     public const PAYMENT_CLASS = Przelewy24Processor::class;
 
     protected array $supportedCurrencies = ['EUR', 'PLN'];
+    protected array $supportedCountries = ['PL'];
 
     public function __construct()
     {

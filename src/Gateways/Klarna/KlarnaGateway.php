@@ -8,6 +8,8 @@ class KlarnaGateway extends AbstractPaymentGateway
 {
     public const PAYMENT_CLASS = KlarnaProcessor::class;
 
+    protected array $supportedCountries = ['DE', 'AT', 'SE', 'NO', 'FI', 'DK', 'NL', 'CH', 'GB', 'BE'];
+
     protected $type;
 
     protected $vattype;

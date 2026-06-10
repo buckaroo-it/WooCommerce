@@ -9,6 +9,8 @@ class BillinkGateway extends AbstractPaymentGateway
 {
     use HasDateValidation;
 
+    protected array $supportedCountries = ['NL', 'BE'];
+
     public const PAYMENT_CLASS = BillinkProcessor::class;
 
     public $type;

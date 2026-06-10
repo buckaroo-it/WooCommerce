@@ -1,4 +1,4 @@
-.wc_payment_method.payment_method_ {
+﻿.wc_payment_method.payment_method_ {
     display: none;
 }
 
@@ -65,7 +65,7 @@ input[type='text'].validated {
     width: 100%;
     height: 100%;
     text-align: center;
-    content: "";
+    content: "î€š";
     color: #ccc;
 } */
 
@@ -468,4 +468,359 @@ label.bk-in3-logo img {
     height: 40px !important;
     max-height: 40px !important;
     overflow: hidden !important;
+}
+
+/* â”€â”€ Payment method card list (General Settings > Payment Methods) â”€â”€ */
+.buckaroo-payment-cards {
+    column-count: 3;
+    column-gap: 10px;
+    margin: 16px 0;
+}
+
+@media (max-width: 1024px) {
+    .buckaroo-payment-cards {
+        column-count: 2;
+    }
+}
+
+@media (max-width: 640px) {
+    .buckaroo-payment-cards {
+        column-count: 1;
+    }
+}
+.buckaroo-payment-card {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 10px 16px;
+    gap: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    break-inside: avoid;
+    margin-bottom: 10px;
+}
+.buckaroo-payment-card-icon {
+    width: 64px;
+    height: 44px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    box-sizing: border-box;
+}
+.buckaroo-payment-card-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 0;
+}
+.buckaroo-payment-card-info {
+    flex: 1;
+    min-width: 0;
+}
+.buckaroo-payment-card-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1a1a2e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.buckaroo-payment-card-subtitle {
+    font-size: 12px;
+    color: #888;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.bk-meta-sep {
+    color: #ccc;
+    font-weight: 300;
+}
+.bk-meta-divider {
+    color: #d0d0d0;
+    margin: 0 3px;
+    font-weight: 300;
+}
+.bk-meta-more {
+    display: inline-flex;
+    align-items: center;
+    background: #f0f0f0;
+    color: #888;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 1px 5px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.bk-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.bk-status--live {
+    background: #34c759;
+}
+.bk-status--test {
+    background: #f59e0b;
+}
+.bk-status--disabled {
+    background: transparent;
+    border: 1.5px solid #aaa;
+}
+
+/* Status pill badge */
+.bk-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    border: none;
+    box-sizing: border-box;
+    cursor: default;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Shared dot style */
+.bk-status-pill-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+/* Live â€” strong green, most authority */
+.bk-status-pill.bk-status--live {
+    background: #c6f0d4;
+    color: #0f5c28;
+    font-weight: 700;
+}
+.bk-status-pill.bk-status--live .bk-status-pill-dot {
+    background: #1a8c3c;
+}
+
+/* Test â€” amber/gold, neutral tone (not warning) */
+.bk-status-pill.bk-status--test {
+    background: #fde9b0;
+    color: #7a5500;
+    font-weight: 600;
+}
+.bk-status-pill.bk-status--test .bk-status-pill-dot {
+    background: #c47d00;
+}
+
+/* Disabled â€” plain gray pill, no border, hollow dot */
+.bk-status-pill.bk-status--disabled {
+    background: #ebebeb;
+    color: #888;
+    font-weight: 500;
+}
+.bk-status-pill.bk-status--disabled .bk-status-pill-dot {
+    background: transparent;
+    border: 1.5px solid #999;
+    width: 7px;
+    height: 7px;
+}
+.buckaroo-payment-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+.buckaroo-payment-card-settings {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    color: #555;
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    flex-shrink: 0;
+}
+.buckaroo-payment-card-settings:hover {
+    background: #e8e9ea;
+    border-color: #b5b5b5;
+    color: #1a1a2e;
+}
+.buckaroo-payment-card-settings svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* ── API Credentials card ────────────────────────────────────────────── */
+.bk-creds-card {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 12px;
+    padding: 20px 24px 22px;
+    max-width: 100%;
+    margin: 20px 0 28px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+}
+.bk-creds-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.bk-creds-card__header-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+.bk-creds-card__icon {
+    color: #2271b1;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+.bk-creds-card__title {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 3px;
+}
+.bk-creds-card__sub {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    line-height: 1.4;
+}
+.bk-creds-card__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1a7a40;
+    background: #eaf6ef;
+    border: 1px solid #b6dfc8;
+    border-radius: 20px;
+    padding: 4px 11px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+/* form-table inside the creds card — flush with header, no extra margin */
+.bk-creds-table {
+    width: 100%;
+    margin: 0 !important;
+}
+/* buttons sit inline next to the regular-input */
+.bk-creds-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.bk-creds-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+.bk-creds-btn {
+    height: 28px !important;
+    line-height: 26px !important;
+    padding: 0 12px !important;
+    font-size: 13px !important;
+}
+.bk-autoconfigure-disclaimer {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: #888;
+    line-height: 1.5;
+    max-width: 520px;
+}
+.bk-key-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.1s;
+}
+.bk-key-btn:active { transform: scale(0.93); }
+.bk-key-btn--copy {
+    background: #e03030;
+    color: #fff;
+}
+.bk-key-btn--copy:hover { background: #c22424; }
+.bk-key-btn--copied { background: #1a7a40 !important; }
+.bk-key-btn--toggle {
+    background: #f6f7f7;
+    color: #555;
+    border: 1px solid #dcdcde;
+}
+.bk-key-btn--toggle:hover { background: #e8e9ea; color: #1a1a2e; }
+
+/* ── General Options card ────────────────────────────────────────────── */
+.bk-general-options-card {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 12px;
+    padding: 20px 24px 8px;
+    max-width: 100%;
+    margin: 16px 0 28px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+}
+.bk-general-options-card__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.bk-general-options-card__header svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: #2271b1;
+}
+.bk-general-options-card__title {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 3px;
+}
+.bk-general-options-card__sub {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    line-height: 1.4;
+}
+/* Hide the empty <h3> WC injects for the title type */
+.bk-general-options-card h3:empty,
+.bk-general-options-card h3 {
+    display: none;
+}
+/* Let WC's form-table fill the card */
+.bk-general-options-card .form-table {
+    width: 100%;
+    margin: 0;
 }

@@ -8,6 +8,8 @@ class IdealGateway extends AbstractPaymentGateway
 {
     public const PAYMENT_CLASS = IdealProcessor::class;
 
+    protected array $supportedCountries = ['NL'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_ideal';

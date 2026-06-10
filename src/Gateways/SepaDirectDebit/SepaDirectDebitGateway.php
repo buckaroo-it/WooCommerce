@@ -8,6 +8,8 @@ class SepaDirectDebitGateway extends AbstractPaymentGateway
 {
     public const PAYMENT_CLASS = SepaDirectDebitProcessor::class;
 
+    protected array $supportedCountries = ['AT', 'BE', 'DE', 'ES', 'FR', 'GB', 'IT', 'NL', 'PT', 'LU'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_sepadirectdebit';

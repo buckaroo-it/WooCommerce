@@ -6,6 +6,8 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class KbcGateway extends AbstractPaymentGateway
 {
+    protected array $supportedCountries = ['BE'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_kbc';

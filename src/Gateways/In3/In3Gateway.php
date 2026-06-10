@@ -12,6 +12,8 @@ class In3Gateway extends AbstractPaymentGateway
 
     public const PAYMENT_CLASS = In3Processor::class;
 
+    protected array $supportedCountries = ['NL'];
+
     public $type;
 
     public $vattype;

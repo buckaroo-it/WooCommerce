@@ -6,6 +6,8 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class BelfiusGateway extends AbstractPaymentGateway
 {
+    protected array $supportedCountries = ['BE'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_belfius';

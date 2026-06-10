@@ -6,6 +6,8 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class MbWayGateway extends AbstractPaymentGateway
 {
+    protected array $supportedCountries = ['PT'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_mbway';

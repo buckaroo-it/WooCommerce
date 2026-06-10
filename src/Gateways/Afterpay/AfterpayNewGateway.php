@@ -17,6 +17,8 @@ class AfterpayNewGateway extends AbstractPaymentGateway
 
     public const REFUND_CLASS = AfterpayNewRefundProcessor::class;
 
+    protected array $supportedCountries = ['NL', 'BE', 'DE'];
+
     public const CUSTOMER_TYPE_B2C = 'b2c';
 
     public const CUSTOMER_TYPE_B2B = 'b2b';

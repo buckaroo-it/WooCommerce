@@ -6,6 +6,8 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class AlipayGateway extends AbstractPaymentGateway
 {
+    protected array $supportedCountries = ['CN'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_alipay';
