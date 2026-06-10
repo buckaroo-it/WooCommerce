@@ -7,6 +7,7 @@ use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Services\Request;
 use WC_Order;
+use WC_Order_Item_Fee;
 
 class AbstractPaymentProcessor extends AbstractProcessor
 {
@@ -36,11 +37,9 @@ class AbstractPaymentProcessor extends AbstractProcessor
     {
         $order = $this->get_order();
 
-        // Ensure the persisted order total reflects every line item (incl. the
-        // Buckaroo "Payment fee"). In some Blocks Store API flows the cart's
-        // _fees_hash caching can leave the order with fee line items present
-        // but a stale total that does not include them, which then makes
-        // amountDebit and the success-page total disagree with the article list.
+
+        $this->ensureBuckarooFeeItem($order);
+
         $this->refreshOrderTotal($order);
 
         $body = array_merge(
@@ -86,6 +85,64 @@ class AbstractPaymentProcessor extends AbstractProcessor
         if (abs((float) $order->get_total('edit') - $previousTotal) >= 0.01) {
             $order->save();
         }
+    }
+
+    /**
+     * Materialize the gateway's configured Payment fee
+     * (`extrachargeamount`) on the order when the cart -> order fee
+     * transfer was skipped (e.g. Blocks Store API persisted the order
+     * before `chosen_payment_method` was set). Mirrors the cart-side
+     * logic in OrderActions::add_fee_to_cart so both paths produce the
+     * same fee name, amount and tax handling.
+     */
+    protected function ensureBuckarooFeeItem(WC_Order $order): void
+    {
+        $rawAmount = $this->gateway->get_option('extrachargeamount', 0);
+        if (! is_scalar($rawAmount)) {
+            return;
+        }
+
+        $rawAmount = trim((string) $rawAmount);
+        if ($rawAmount === '' || (float) $rawAmount === 0.0) {
+            return;
+        }
+
+        if (! preg_match('/^\d+(?:\.\d+)?%?$/', $rawAmount)) {
+            return;
+        }
+
+        $feeName = __('Payment fee', 'wc-buckaroo-bpe-gateway');
+
+        foreach ($order->get_items('fee') as $existingFee) {
+            if ($existingFee instanceof WC_Order_Item_Fee && $existingFee->get_name() === $feeName) {
+                return;
+            }
+        }
+
+        $isPercentage = strpos($rawAmount, '%') !== false;
+        $feeAmount = (float) str_replace('%', '', $rawAmount);
+        if ($feeAmount === 0.0) {
+            return;
+        }
+
+        if ($isPercentage) {
+            $subtotal = (float) $order->get_subtotal();
+            $feeAmount = round($subtotal * $feeAmount / 100, 2);
+        }
+
+        $feeTaxClass = $this->gateway->get_option('feetax', '');
+        $feeTaxClass = is_scalar($feeTaxClass) ? (string) $feeTaxClass : '';
+
+        $item = new WC_Order_Item_Fee();
+        $item->set_name($feeName);
+        $item->set_amount((string) $feeAmount);
+        $item->set_tax_class($feeTaxClass);
+        $item->set_tax_status('taxable');
+        $item->set_total((string) $feeAmount);
+        $item->calculate_taxes($order->get_address('shipping'));
+
+        $order->add_item($item);
+        $order->save();
     }
 
     protected function getMethodBody(): array
