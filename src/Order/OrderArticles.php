@@ -78,6 +78,12 @@ class OrderArticles
             'vatPercentage' => $item->get_vat(),
         ];
 
+        if ($this->is_buckaroo_payment_fee_item($item)) {
+            $product['identifier'] = 'BuckarooFee';
+            $product['description'] = 'Buckaroo Fee';
+            $product['vatPercentage'] = $this->resolve_buckaroo_fee_vat_percentage($item);
+        }
+
         if ($this->gateway->id === 'buckaroo_afterpaynew' || $this->gateway->id === 'buckaroo_klarnapay') {
             $product = array_merge($product, $this->get_afterpay_data($item));
         }
@@ -92,6 +98,38 @@ class OrderArticles
         }
 
         return $product;
+    }
+
+    /**
+     * Detect the Buckaroo-managed Payment fee order item.
+     *
+     * Both `OrderActions::add_fee_to_cart` and
+     * `AbstractPaymentProcessor::ensureBuckarooFeeItem` create the fee with
+     * the same localized name, so we match against that.
+     */
+    private function is_buckaroo_payment_fee_item(OrderItem $item): bool
+    {
+        if ($item->get_type() !== 'fee') {
+            return false;
+        }
+
+        return $item->get_title() === __('Payment fee', 'wc-buckaroo-bpe-gateway');
+    }
+
+    /**
+     * Resolve the value Buckaroo expects in `VatPercentage`
+     */
+    private function resolve_buckaroo_fee_vat_percentage(OrderItem $item): float
+    {
+        $order = $this->order_details->get_order();
+        $amountDebit = (float) $order->get_total('edit');
+        $feeAmount = (float) $item->get_unit_price() * (int) $item->get_quantity();
+        $remainder = $amountDebit - $feeAmount;
+        if ($feeAmount <= 0 || $remainder <= 0) {
+            return 0.0;
+        }
+
+        return Helper::roundAmount(($feeAmount / $remainder) * 100);
     }
 
     /**
