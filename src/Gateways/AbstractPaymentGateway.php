@@ -303,6 +303,72 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     }
 
     /**
+     * Resolve the configured Payment fee tax class (`feetax`) into a numeric
+     * VAT percentage that can be sent in the Buckaroo article payload as a
+     * fee metadata value. Uses the order's address when an order is provided
+     * so the result is stable in admin / Blocks Store API / push contexts
+     * where `WC()->customer` is not aligned with the order, falling back to
+     * the customer session location only when no order is available.
+     *
+     * Returns 0.0 when no `feetax` is configured or no matching rate exists.
+     *
+     * @return float
+     */
+    public function getPaymentFeeVatPercentage(?WC_Order $order = null): float
+    {
+        $taxClass = $this->get_option('feetax', '');
+        $taxClass = is_scalar($taxClass) ? (string) $taxClass : '';
+
+        $location = $this->resolvePaymentFeeTaxLocation($order);
+
+        $rates = WC_Tax::find_rates(array_merge($location, ['tax_class' => $taxClass]));
+        if (empty($rates)) {
+            return 0.0;
+        }
+
+        $rate = reset($rates);
+        if (! is_array($rate) || ! isset($rate['rate'])) {
+            return 0.0;
+        }
+
+        return (float) Helper::roundAmount($rate['rate']);
+    }
+
+    /**
+     * Build the location array used by `WC_Tax::find_rates()` for the
+     * Payment fee VAT lookup. Prefers shipping over billing on whichever
+     * source we use.
+     */
+    protected function resolvePaymentFeeTaxLocation(?WC_Order $order): array
+    {
+        if ($order instanceof WC_Order) {
+            return [
+                'country' => $order->get_shipping_country() ?: $order->get_billing_country(),
+                'state' => $order->get_shipping_state() ?: $order->get_billing_state(),
+                'city' => $order->get_shipping_city() ?: $order->get_billing_city(),
+                'postcode' => $order->get_shipping_postcode() ?: $order->get_billing_postcode(),
+            ];
+        }
+
+        $customer = function_exists('WC') && WC() ? WC()->customer : null;
+        if (! $customer) {
+            return [
+                'country' => '',
+                'state' => '',
+                'city' => '',
+                'postcode' => '',
+            ];
+        }
+
+        return [
+            'country' => $customer->get_shipping_country() ?: $customer->get_billing_country(),
+            'state' => $customer->get_shipping_state() ?: $customer->get_billing_state(),
+            'city' => $customer->get_shipping_city() ?: $customer->get_billing_city(),
+            'postcode' => $customer->get_shipping_postcode() ?: $customer->get_billing_postcode(),
+        ];
+    }
+
+    /**
      * Add the gateway hooks
      *
      * @param  string  $class  Gateway Class name
