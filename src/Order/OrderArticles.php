@@ -84,8 +84,12 @@ class OrderArticles
             $product['vatPercentage'] = $this->resolve_buckaroo_fee_vat_percentage($item);
         }
 
-        if ($this->gateway->id === 'buckaroo_afterpaynew' || $this->gateway->id === 'buckaroo_klarnapay') {
-            $product = array_merge($product, $this->get_afterpay_data($item));
+        if ($this->gateway->id === 'buckaroo_afterpaynew') {
+            $product = array_merge($product, $this->get_afterpay_data($item, true));
+        }
+
+        if ($this->gateway->id === 'buckaroo_klarnapay') {
+            $product = array_merge($product, $this->get_afterpay_data($item, false));
         }
 
         if ($this->gateway->id === 'buckaroo_afterpay') {
@@ -135,13 +139,15 @@ class OrderArticles
     /**
      * Get custom afterpay attributes
      */
-    private function get_afterpay_data(OrderItem $item): array
+    private function get_afterpay_data(OrderItem $item, bool $with_image = true): array
     {
         $data = [];
         if ($item->get_type() === 'line_item') {
-            $img = $this->get_product_image($item->get_order_item()->get_product());
-            if (! empty($img)) {
-                $data['imgUrl'] = $img;
+            if ($with_image) {
+                $img = $this->get_product_image($item->get_order_item()->get_product());
+                if (! empty($img)) {
+                    $data['imageUrl'] = $img;
+                }
             }
             $data['url'] = get_permalink($item->get_id());
         }
@@ -151,12 +157,6 @@ class OrderArticles
 
     public function get_product_image($product)
     {
-        // Only run when the setting is explicitly enabled.
-
-        if ((string) $this->gateway->get_option('sendimageinfo') !== '1') {
-            return;
-        }
-
         $src = get_the_post_thumbnail_url($product->get_id());
         if (! $src) {
             $imgTag = $product->get_image();

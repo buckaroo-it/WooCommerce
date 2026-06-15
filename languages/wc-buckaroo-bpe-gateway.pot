@@ -416,14 +416,6 @@ msgstr ""
 msgid "Choose to execute Pay or Capture call"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:160
-msgid "Send image info"
-msgstr ""
-
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:162
-msgid "Image info will be sent to BPE gateway inside ImageUrl parameter"
-msgstr ""
-
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:171
 msgid "Riverty customer type"
 msgstr ""

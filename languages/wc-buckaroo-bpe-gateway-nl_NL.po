@@ -476,10 +476,6 @@ msgstr "iDIN modus"
 msgid "iDIN specific product categories"
 msgstr "iDIN specifieke productcategorieën"
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:162
-msgid "Image info will be sent to BPE gateway inside ImageUrl parameter"
-msgstr "Afbeeldingsinformatie wordt naar de BPE-gateway gestuurd binnen de ImageUrl-parameter"
-
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:101
 msgid "Invalid billing address, cannot find house number"
 msgstr "Ongeldig factuuradres, kan het huisnummer niet vinden"
@@ -843,10 +839,6 @@ msgstr "Verkoper Bescherming"
 #: src/Gateways/Transfer/TransferGateway.php:154
 msgid "Send email"
 msgstr "Stuur e-mail"
-
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:160
-msgid "Send image info"
-msgstr "Stuur afbeeldingsinformatie"
 
 #: src/Gateways/Paypal/PaypalGateway.php:98
 msgid "Sends customer address information to PayPal to enable PayPal seller protection."
