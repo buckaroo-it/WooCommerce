@@ -118,21 +118,20 @@ class OrderArticles
 
     /**
      * Resolve the value Buckaroo expects in `VatPercentage` for the fee
-     * article. The fee is expressed as a percentage of the total order
-     * amount, e.g. a 1 EUR fee on a 100 EUR order resolves to 1%.
+     * article. We send the fee amount itself; the engine derives the
+     * percentage relative to the total order amount.
      *
-     * Returns 0.0 when the order total is missing or the fee is invalid.
+     * Returns 0.0 when the fee is invalid.
      */
     private function resolve_buckaroo_fee_vat_percentage(OrderItem $item): float
     {
-        $totalAmount = (float) $this->order_details->get_order()->get_total('edit');
         $feeAmount = (float) $item->get_unit_price() * (int) $item->get_quantity();
 
-        if ($totalAmount <= 0 || $feeAmount <= 0) {
+        if ($feeAmount <= 0) {
             return 0.0;
         }
 
-        return Helper::roundAmount(($feeAmount / $totalAmount) * 100);
+        return Helper::roundAmount($feeAmount);
     }
 
     /**
