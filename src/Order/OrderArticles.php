@@ -118,20 +118,16 @@ class OrderArticles
 
     /**
      * Resolve the value Buckaroo expects in `VatPercentage` for the fee
-     * article. We send the fee amount itself; the engine derives the
-     * percentage relative to the total order amount.
+     * article. Buckaroo (Riverty / Afterpay) validates this field as a real,
+     * published VAT rate (e.g. 0/6/9/19/21), so we resolve it from the
+     * configured `feetax` tax class for the order's tax location rather than
+     * deriving an arbitrary ratio from the order total.
      *
-     * Returns 0.0 when the fee is invalid.
+     * Returns 0.0 when the fee tax class resolves to no applicable rate.
      */
     private function resolve_buckaroo_fee_vat_percentage(OrderItem $item): float
     {
-        $feeAmount = (float) $item->get_unit_price() * (int) $item->get_quantity();
-
-        if ($feeAmount <= 0) {
-            return 0.0;
-        }
-
-        return Helper::roundAmount($feeAmount);
+        return $this->gateway->getPaymentFeeVatPercentage($this->order_details->get_order());
     }
 
     /**
