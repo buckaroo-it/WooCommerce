@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 5.3.18
-Tested up to: 6.9
-Stable tag: 4.7.2
+Tested up to: 7.0
+Stable tag: 4.8.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,6 +79,19 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
+= 4.8.0=
+What's changed:
+BTI-902 Add support for WooCommerce 10.7.0 en WordPress 6.9.4
+BTI-685 Added support for WooCommerce 10.5.0, 10.5.1, 10.5.2, and 10.5.3.
+BTI-603 Added Google Pay as a payment method.
+BTI-577 Added Klarna (MoR) as a payment method.
+BTI-638 Removed the API version setting for the In3 payment method and enforced the V3 API.
+BTI-629 Prevented Express payment method scripts from loading on product pages when Express methods are disabled.
+BTI-717 Fixed an issue where stock was not updated when a pending refund was processed later.
+BTI-665 Fixed an issue where bank transfer payment instructions were always displayed in English despite different culture codes being sent.
+BTI-708 Fixed an issue where the iDEAL | Wero frontend label translation was not saved and remained in English.
+BTI-509 Fixed an Riverty tax issue regarding the percentage of payment fee’s.
+
 = 4.7.2 =
 Bug Fixes
 BTI-4 Fixed Apple Pay order creation with bundle / discount-rule plugins: line subtotals, taxes, and shipping cost now read from the customer's existing cart so the order matches what was authorized in the wallet sheet.
@@ -88,7 +101,6 @@ Bug Fixes
 BTI-4 Fixed Apple Pay incorrect order amount when used with third-party discount plugins (e.g. Woo Discount Rules "Buy X Get Y").
 
 = 4.7.0 =
-Changelog:
 Improvements & New Features
 BP-5249 Added support for WordPress 6.9 and WooCommerce 10.4.2 / 10.4.3.
 BTI-102 Updated the payment method name &  logo from “iDEAL” to the co-branding “iDEAL | Wero”.
