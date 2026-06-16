@@ -82,22 +82,17 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 == Changelog ==
 = 4.8.0 =
 Improvements & New Features
-BTI-603 Added the Google Pay payment method (express checkout button).
-BTI-577 Added support for Klarna Merchant of Record (MoR), including Reserve, Cancel Reservation, Update Reservation, Extend Reservation and Add Shipping Info actions.
-BTI-685 Added support for WooCommerce 10.5.
-BTI-638 Removed the In3 API version setting; In3 now always uses API V3.
-BTI-877 / BTI-509 Improved payment fee and VAT handling, including correct fee calculation on the Blocks checkout and the correct VAT percentage for Riverty.
-BTI-629 Express payment buttons (Apple Pay, Google Pay, PayPal) no longer load their scripts on product pages when express checkout is disabled.
-Bug Fixes
-BTI-708 Fixed the “iDEAL | Wero” payment method label reverting to “iDEAL” on every page load.
-BTI-665 Fixed Bank Transfer payment instructions and their translations by using the Buckaroo consumer message.
-BTI-717 Fixed stock handling so pending refunds no longer incorrectly restore stock.
-BTI-1062 Fixed a Riverty issue that could cause an endless loop / payment delay.
-BTI-899 Fixed the missing ImageUrl field in the Riverty payload.
-BTI-1035 Fixed a duplicate phone number field for Riverty in the checkout.
-BTI-971 / BTI-775 Fixed Riverty partial refunds performed through the WooCommerce REST API.
-BTI-4 Improved Apple Pay / Google Pay order creation to correctly handle product bundles and third-party discount rules.
-Updated bundled JavaScript dev dependencies to address security advisories.
+BTI-902 Add support for WooCommerce 10.7.0 en WordPress 7.0
+BTI-685 Added support for WooCommerce 10.5.0, 10.5.1, 10.5.2, and 10.5.3.
+BTI-603 Added Google Pay as a payment method.
+BTI-577 Added Klarna (MoR) as a payment method.
+BTI-638 Removed the API version setting for the In3 payment method and enforced the V3 API.
+BTI-629 Prevented Express payment method scripts from loading on product pages when Express methods are disabled.
+BTI-717 Fixed an issue where stock was not updated when a pending refund was processed later.
+BTI-665 Fixed an issue where bank transfer payment instructions were always displayed in English despite different culture codes being sent.
+BTI-708 Fixed an issue where the iDEAL | Wero frontend label translation was not saved and remained in English.
+BTI-509 Fixed an Riverty tax issue regarding the percentage of payment fee’s.
+BTI-1035 Avoid duplicate Riverty phone number field when WooCommerce billing phone is already provided.
 
 = 4.7.2 =
 Bug Fixes
