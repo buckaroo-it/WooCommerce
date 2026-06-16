@@ -37,7 +37,6 @@ class AbstractPaymentProcessor extends AbstractProcessor
     {
         $order = $this->get_order();
 
-
         $this->ensureBuckarooFeeItem($order);
 
         $this->refreshOrderTotal($order);
@@ -69,18 +68,24 @@ class AbstractPaymentProcessor extends AbstractProcessor
     }
 
     /**
-     * Recompute the order total from its existing line items (products,
-     * shipping, fees, taxes) and persist the result when it changed.
+     * Recompute and persist the order total from its existing line items
+     * (products, shipping, fees and their taxes).
      *
-     * `calculate_totals(false)` does NOT re-apply tax rates, it just sums the
-     * subtotal/shipping/fee/tax that are already stored on each line item, so
-     * it can safely run after the order has been created without double-taxing
-     * anything. We only call `save()` when the total actually changed, so this
-     * is a no-op for orders that were already in sync.
+     * `update_taxes()` rebuilds the order tax lines (and `cart_tax` /
+     * `shipping_tax`) by summing the taxes ALREADY stored on each line item
+     * and fee. It does not re-apply tax rates, so it never double-taxes
+     * existing items, but it does roll in the tax of a Payment fee that was
+     * added after the order's taxes were last calculated. This is required
+     * because `calculate_totals(false)` derives the grand total from the
+     * persisted `cart_tax`, which would otherwise omit that fee tax and make
+     * amountDebit lower than the total the customer agreed to in checkout
+     * (e.g. a Blocks Store API order created before the payment method, and
+     * therefore the fee, was known).
      */
     protected function refreshOrderTotal(WC_Order $order): void
     {
         $previousTotal = (float) $order->get_total('edit');
+        $order->update_taxes();
         $order->calculate_totals(false);
         if (abs((float) $order->get_total('edit') - $previousTotal) >= 0.01) {
             $order->save();
@@ -94,35 +99,37 @@ class AbstractPaymentProcessor extends AbstractProcessor
      * before `chosen_payment_method` was set). Mirrors the cart-side
      * logic in OrderActions::add_fee_to_cart so both paths produce the
      * same fee name, amount and tax handling.
+     *
+     * @return bool True when a fee item was added to the order.
      */
-    protected function ensureBuckarooFeeItem(WC_Order $order): void
+    protected function ensureBuckarooFeeItem(WC_Order $order): bool
     {
         $rawAmount = $this->gateway->get_option('extrachargeamount', 0);
         if (! is_scalar($rawAmount)) {
-            return;
+            return false;
         }
 
         $rawAmount = trim((string) $rawAmount);
         if ($rawAmount === '' || (float) $rawAmount === 0.0) {
-            return;
+            return false;
         }
 
         if (! preg_match('/^\d+(?:\.\d+)?%?$/', $rawAmount)) {
-            return;
+            return false;
         }
 
         $feeName = __('Payment fee', 'wc-buckaroo-bpe-gateway');
 
         foreach ($order->get_items('fee') as $existingFee) {
             if ($existingFee instanceof WC_Order_Item_Fee && $existingFee->get_name() === $feeName) {
-                return;
+                return false;
             }
         }
 
         $isPercentage = strpos($rawAmount, '%') !== false;
         $feeAmount = (float) str_replace('%', '', $rawAmount);
         if ($feeAmount === 0.0) {
-            return;
+            return false;
         }
 
         if ($isPercentage) {
@@ -139,10 +146,29 @@ class AbstractPaymentProcessor extends AbstractProcessor
         $item->set_tax_class($feeTaxClass);
         $item->set_tax_status('taxable');
         $item->set_total((string) $feeAmount);
-        $item->calculate_taxes($order->get_address('shipping'));
+        $item->calculate_taxes($this->resolveTaxLocation($order));
 
         $order->add_item($item);
         $order->save();
+
+        return true;
+    }
+
+    /**
+     * Tax location used to compute the Payment fee tax. Falls back to the
+     * billing address when the order has no shipping country, so the fee tax
+     * is correctly stored (and later summed by update_taxes()) for orders
+     * without a separate shipping address (e.g. virtual products).
+     */
+    private function resolveTaxLocation(WC_Order $order): array
+    {
+        $location = $order->get_address('shipping');
+
+        if (empty($location['country'])) {
+            $location = $order->get_address('billing');
+        }
+
+        return is_array($location) ? $location : [];
     }
 
     protected function getMethodBody(): array

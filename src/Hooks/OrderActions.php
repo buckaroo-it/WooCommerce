@@ -135,8 +135,16 @@ class OrderActions
         }
 
         $cart = WC()->cart;
-        $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
         $chosen_payment_method = WC()->session->chosen_payment_method;
+
+        // Only our gateways add a Buckaroo fee. Bail before the (relatively
+        // expensive) gateway resolution when another method is selected, so
+        // switching between non-Buckaroo methods stays fast.
+        if (strpos((string) $chosen_payment_method, 'buckaroo_') !== 0) {
+            return;
+        }
+
+        $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
 
         // no payments available
         if (empty($available_gateways)) {
@@ -194,7 +202,7 @@ class OrderActions
         }
 
         if ($is_percentage) {
-            $extra_charge_amount = number_format($subtotal * $extra_charge_amount / 100, 2);
+            $extra_charge_amount = round($subtotal * $extra_charge_amount / 100, 2);
         }
 
         $feedName = __('Payment fee', 'wc-buckaroo-bpe-gateway');
@@ -234,11 +242,12 @@ class OrderActions
      */
     protected function get_fee($cart, $id)
     {
-        $fees = $cart->get_fees();
-        foreach ($fees as $id => $fee) {
+        foreach ($cart->get_fees() as $fee) {
             if ($fee->id === $id) {
                 return $fee;
             }
         }
+
+        return null;
     }
 }
