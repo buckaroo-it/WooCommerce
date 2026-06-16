@@ -38,9 +38,10 @@ class AbstractPaymentProcessor extends AbstractProcessor
         $order = $this->get_order();
 
 
-        $this->ensureBuckarooFeeItem($order);
 
-        $this->refreshOrderTotal($order);
+        if ($this->ensureBuckarooFeeItem($order)) {
+            $this->refreshOrderTotal($order);
+        }
 
         $body = array_merge(
             [
@@ -94,35 +95,37 @@ class AbstractPaymentProcessor extends AbstractProcessor
      * before `chosen_payment_method` was set). Mirrors the cart-side
      * logic in OrderActions::add_fee_to_cart so both paths produce the
      * same fee name, amount and tax handling.
+     *
+     * @return bool True when a fee item was added to the order.
      */
-    protected function ensureBuckarooFeeItem(WC_Order $order): void
+    protected function ensureBuckarooFeeItem(WC_Order $order): bool
     {
         $rawAmount = $this->gateway->get_option('extrachargeamount', 0);
         if (! is_scalar($rawAmount)) {
-            return;
+            return false;
         }
 
         $rawAmount = trim((string) $rawAmount);
         if ($rawAmount === '' || (float) $rawAmount === 0.0) {
-            return;
+            return false;
         }
 
         if (! preg_match('/^\d+(?:\.\d+)?%?$/', $rawAmount)) {
-            return;
+            return false;
         }
 
         $feeName = __('Payment fee', 'wc-buckaroo-bpe-gateway');
 
         foreach ($order->get_items('fee') as $existingFee) {
             if ($existingFee instanceof WC_Order_Item_Fee && $existingFee->get_name() === $feeName) {
-                return;
+                return false;
             }
         }
 
         $isPercentage = strpos($rawAmount, '%') !== false;
         $feeAmount = (float) str_replace('%', '', $rawAmount);
         if ($feeAmount === 0.0) {
-            return;
+            return false;
         }
 
         if ($isPercentage) {
@@ -143,6 +146,8 @@ class AbstractPaymentProcessor extends AbstractProcessor
 
         $order->add_item($item);
         $order->save();
+
+        return true;
     }
 
     protected function getMethodBody(): array

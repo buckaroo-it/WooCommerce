@@ -15,7 +15,14 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
 
     useEffect(() => {
-        jQuery.ajax({
+        // Only methods that actually carry a payment fee need the server-side
+        // recalculation. Skipping it for fee-less methods avoids a full
+        // WordPress bootstrap on every payment method switch.
+        if (!gateway.hasFee) {
+            return;
+        }
+
+        const request = jQuery.ajax({
             url: '/wp-admin/admin-ajax.php',
             type: 'POST',
             data: {
@@ -23,7 +30,11 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
                 method: gateway.paymentMethodId,
             },
         });
-    }, [gateway.paymentMethodId]);
+
+        // Abort the in-flight request when the selection changes again so
+        // rapid switching does not pile up redundant requests.
+        return () => request.abort();
+    }, [gateway.paymentMethodId, gateway.hasFee]);
 
     const onPaymentStateChange = newState => {
         setActivePaymentMethodState(newState);

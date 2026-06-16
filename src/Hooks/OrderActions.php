@@ -194,7 +194,7 @@ class OrderActions
         }
 
         if ($is_percentage) {
-            $extra_charge_amount = number_format($subtotal * $extra_charge_amount / 100, 2);
+            $extra_charge_amount = round($subtotal * $extra_charge_amount / 100, 2);
         }
 
         $feedName = __('Payment fee', 'wc-buckaroo-bpe-gateway');
@@ -234,11 +234,12 @@ class OrderActions
      */
     protected function get_fee($cart, $id)
     {
-        $fees = $cart->get_fees();
-        foreach ($fees as $id => $fee) {
+        foreach ($cart->get_fees() as $fee) {
             if ($fee->id === $id) {
                 return $fee;
             }
         }
+
+        return null;
     }
 }
