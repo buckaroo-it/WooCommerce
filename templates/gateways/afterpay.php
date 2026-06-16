@@ -30,6 +30,7 @@ $customer_phone = $this->getScalarCheckoutField('billing_phone');
     }
     $this->getPaymentTemplate('partial_birth_field');
     ?>
+    <?php if (strlen(trim($customer_phone)) === 0) { ?>
     <p class="form-row validate-required">
         <label for="buckaroo-afterpay-phone">
             <?php esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway'); ?>
@@ -43,6 +44,7 @@ $customer_phone = $this->getScalarCheckoutField('billing_phone');
         autocomplete="off"
         value="<?php echo esc_html($customer_phone) ?? ''; ?>">
     </p>
+    <?php } ?>
     <?php
     if (! empty($this->getScalarCheckoutField('ship_to_different_address'))) {
         ?>

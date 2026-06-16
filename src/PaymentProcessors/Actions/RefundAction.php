@@ -6,6 +6,7 @@ use Buckaroo\Woocommerce\Gateways\AbstractRefundProcessor;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Logger;
+use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use WC_Order;
 use WP_Error;
@@ -80,6 +81,24 @@ class RefundAction
             return true;
         }
 
+        if ($this->isPendingRefund($transactionResponse)) {
+            $this->order->add_order_note(
+                sprintf(
+                    __('Refund of %1$s is pending processing - Transaction ID: %2$s', 'wc-buckaroo-bpe-gateway'),
+                    wc_price($transactionResponse->get('AmountCredit')),
+                    $transactionResponse->getTransactionKey()
+                )
+            );
+            add_post_meta(
+                $this->order->get_id(),
+                '_refundbuckaroo' . $transactionResponse->getTransactionKey(),
+                'ok',
+                true
+            );
+
+            return true;
+        }
+
         $this->order->add_order_note(
             sprintf(
                 __(
@@ -91,5 +110,13 @@ class RefundAction
         );
 
         return new WP_Error('error_refund', __('Refund failed: ') . $transactionResponse->getSomeError());
+    }
+
+    private function isPendingRefund(TransactionResponse $transactionResponse): bool
+    {
+        $statusCode = $transactionResponse->getStatusCode();
+
+        return $transactionResponse->isPendingProcessing()
+            || $statusCode == ResponseStatus::BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD;
     }
 }

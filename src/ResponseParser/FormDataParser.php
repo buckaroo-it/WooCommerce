@@ -79,6 +79,11 @@ class FormDataParser extends ResponseParser
         return $this->get('brq_transactions');
     }
 
+    public function getActionCode(): ?string
+    {
+        return $this->get('brq_action');
+    }
+
     public function getDataRequest(): ?string
     {
         return $this->get('brq_datarequest');

@@ -89,6 +89,11 @@ class JsonParser extends ResponseParser
         return $this->get('Key');
     }
 
+    public function getActionCode(): ?string
+    {
+        return $this->get('ActionCode');
+    }
+
     public function getDataRequest(): ?string
     {
         return $this->get('Key');

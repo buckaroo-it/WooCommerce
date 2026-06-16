@@ -41,7 +41,9 @@ function AfterPayView({ onStateChange, methodName, title, gateway: { type, b2b, 
 
     return (
         <div>
-            <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange} />
+            {billing.phone === '' && (
+                <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange} />
+            )}
             {type === 'afterpayacceptgiro' && <CoCField methodName={methodName} handleChange={handleChange} />}
 
             {!isAdditionalCheckboxChecked && (

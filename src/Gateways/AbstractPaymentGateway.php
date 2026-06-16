@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways;
 
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
@@ -17,6 +18,7 @@ use Buckaroo\Woocommerce\Services\Request;
 use Buckaroo\Woocommerce\Services\SessionHandler;
 use Exception;
 use WC_Order;
+use WC_Order_Refund;
 use WC_Payment_Gateway;
 use WC_Tax;
 use WP_Error;
@@ -301,6 +303,66 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     }
 
     /**
+     * Resolve the configured Payment fee tax class (`feetax`)
+     *
+     * Returns 0.0 when no `feetax` is configured or no matching rate exists.
+     *
+     * @return float
+     */
+    public function getPaymentFeeVatPercentage(?WC_Order $order = null): float
+    {
+        $taxClass = $this->get_option('feetax', '');
+        $taxClass = is_scalar($taxClass) ? (string) $taxClass : '';
+
+        $location = $this->resolvePaymentFeeTaxLocation($order);
+
+        $rates = WC_Tax::find_rates(array_merge($location, ['tax_class' => $taxClass]));
+        if (empty($rates)) {
+            return 0.0;
+        }
+
+        $rate = reset($rates);
+        if (! is_array($rate) || ! isset($rate['rate'])) {
+            return 0.0;
+        }
+
+        return (float) Helper::roundAmount($rate['rate']);
+    }
+
+    /**
+     * Build the location array used by `WC_Tax::find_rates()` for the
+     * Payment fee VAT lookup.
+     */
+    protected function resolvePaymentFeeTaxLocation(?WC_Order $order): array
+    {
+        if ($order instanceof WC_Order) {
+            return [
+                'country' => $order->get_shipping_country() ?: $order->get_billing_country(),
+                'state' => $order->get_shipping_state() ?: $order->get_billing_state(),
+                'city' => $order->get_shipping_city() ?: $order->get_billing_city(),
+                'postcode' => $order->get_shipping_postcode() ?: $order->get_billing_postcode(),
+            ];
+        }
+
+        $customer = function_exists('WC') && WC() ? WC()->customer : null;
+        if (! $customer) {
+            return [
+                'country' => '',
+                'state' => '',
+                'city' => '',
+                'postcode' => '',
+            ];
+        }
+
+        return [
+            'country' => $customer->get_shipping_country() ?: $customer->get_billing_country(),
+            'state' => $customer->get_shipping_state() ?: $customer->get_billing_state(),
+            'city' => $customer->get_shipping_city() ?: $customer->get_billing_city(),
+            'postcode' => $customer->get_shipping_postcode() ?: $customer->get_billing_postcode(),
+        ];
+    }
+
+    /**
      * Add the gateway hooks
      *
      * @param  string  $class  Gateway Class name
@@ -561,7 +623,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             'originalTransactionKey' => $order->get_transaction_id(),
         ];
 
-        if ($this instanceof KlarnaKpGateway) {
+        if ($this instanceof KlarnaKpGateway || $this instanceof KlarnaPayGateway) {
             unset($capturePayload['originalTransactionKey']);
         }
 
@@ -787,7 +849,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
         $processorClass = static::REFUND_CLASS ?: AbstractRefundProcessor::class;
 
-        $line_items = $this->getRefundLineItemsFromRequest();
+        $line_items = $this->getRefundedLineItemsFromOrder($order, $amount);
 
         return new $processorClass(
             $this,
@@ -798,34 +860,55 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         );
     }
 
-    private function getRefundLineItemsFromRequest(): array
+    // Match the refund just created by wc_create_refund (WC admin UI + REST API both
+    // create the refund before invoking process_refund). Selecting by amount avoids
+    // picking up unrelated prior refunds in flows where process_refund runs first
+    // (e.g. bl_refund_capture). HPOS does not guarantee get_refunds() ordering, so the
+    // newest matching refund is identified by max ID rather than reset().
+    protected function getRefundedLineItemsFromOrder(WC_Order $order, $amount): array
     {
-        if (!isset($_POST['line_item_qtys']) || !is_string($_POST['line_item_qtys'])) {
+        $target = (float) $amount;
+        if ($target <= 0) {
             return [];
         }
 
-        $line_item_qtys = json_decode(stripslashes($_POST['line_item_qtys']), true);
-        $line_item_totals = [];
+        $match = null;
+        foreach ($order->get_refunds() as $refund) {
+            if (!$refund instanceof WC_Order_Refund) {
+                continue;
+            }
 
-        if (isset($_POST['line_item_totals']) && is_string($_POST['line_item_totals'])) {
-            $line_item_totals = json_decode(stripslashes($_POST['line_item_totals']), true) ?? [];
+            $refund_amount = abs((float) $refund->get_amount());
+            if (abs($refund_amount - $target) > 0.01) {
+                continue;
+            }
+
+            if ($match === null || $refund->get_id() > $match->get_id()) {
+                $match = $refund;
+            }
         }
 
-        if (!is_array($line_item_qtys)) {
+        if ($match === null) {
             return [];
         }
 
-        return array_values(array_filter(
-            array_map(
-                fn($item_id, $qty) => $qty > 0 ? [
-                    'item_id' => $item_id,
-                    'qty' => $qty,
-                    'total' => $line_item_totals[$item_id] ?? 0
-                ] : null,
-                array_keys($line_item_qtys),
-                $line_item_qtys
-            )
-        ));
+        $line_items = [];
+        foreach ($match->get_items('line_item') as $refund_item) {
+            $refunded_item_id = (int) $refund_item->get_meta('_refunded_item_id');
+            $qty = abs((int) $refund_item->get_quantity());
+
+            if ($refunded_item_id <= 0 || $qty <= 0) {
+                continue;
+            }
+
+            $line_items[] = [
+                'item_id' => $refunded_item_id,
+                'qty' => $qty,
+                'total' => abs((float) $refund_item->get_total()),
+            ];
+        }
+
+        return $line_items;
     }
 
     public function checkCurrencySupported(): bool

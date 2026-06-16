@@ -82,40 +82,44 @@ class PaypalExpressController
      */
     public function enqueue_scripts()
     {
-        if (
-            class_exists('WC_Order') && (
-                is_product() ||
-                is_checkout() ||
-                is_cart()
-            )
-        ) {
-            wp_enqueue_script(
-                'buckaroo_paypal_express',
-                plugin_dir_url(BK_PLUGIN_FILE) . '/library/js/paypal_express.js',
-                ['buckaroo_sdk'],
-                Plugin::VERSION,
-                true
-            );
-            wp_localize_script(
-                'buckaroo_paypal_express',
-                'buckaroo_paypal_express',
-                [
-                    'set_shipping_nonce' => wp_create_nonce('express-set-shipping'),
-                    'cart_total_nonce' => wp_create_nonce('express-cart-totals'),
-                    'send_order_nonce' => wp_create_nonce('express-send_order'),
-                    'ajaxurl' => admin_url('admin-ajax.php'),
-                    'currency' => get_woocommerce_currency(),
-                    'websiteKey' => $this->get_website_key(),
-                    'merchant_id' => $this->get_merchant_id(),
-                    'page' => $this->determine_page(),
-                    'i18n' => [
-                        'cancel_error_message' => __('You have canceled the payment request', 'wc-buckaroo-bpe-gateway'),
-                        'cannot_create_payment' => __('Cannot create payment', 'wc-buckaroo-bpe-gateway'),
-                        'merchant_id_required' => __('PayPal merchant id is required', 'wc-buckaroo-bpe-gateway'),
-                    ],
-                ]
-            );
+        if (! class_exists('WC_Order')) {
+            return;
         }
+
+        $shouldLoad = (is_product() && $this->active_on_page(self::LOCATION_PRODUCT))
+            || (is_cart() && $this->active_on_page(self::LOCATION_CART))
+            || (is_checkout() && $this->active_on_page(self::LOCATION_CHECKOUT));
+
+        if (! $shouldLoad) {
+            return;
+        }
+
+        wp_enqueue_script(
+            'buckaroo_paypal_express',
+            plugin_dir_url(BK_PLUGIN_FILE) . '/library/js/paypal_express.js',
+            ['buckaroo_sdk'],
+            Plugin::VERSION,
+            true
+        );
+        wp_localize_script(
+            'buckaroo_paypal_express',
+            'buckaroo_paypal_express',
+            [
+                'set_shipping_nonce' => wp_create_nonce('express-set-shipping'),
+                'cart_total_nonce' => wp_create_nonce('express-cart-totals'),
+                'send_order_nonce' => wp_create_nonce('express-send_order'),
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'currency' => get_woocommerce_currency(),
+                'websiteKey' => $this->get_website_key(),
+                'merchant_id' => $this->get_merchant_id(),
+                'page' => $this->determine_page(),
+                'i18n' => [
+                    'cancel_error_message' => __('You have canceled the payment request', 'wc-buckaroo-bpe-gateway'),
+                    'cannot_create_payment' => __('Cannot create payment', 'wc-buckaroo-bpe-gateway'),
+                    'merchant_id_required' => __('PayPal merchant id is required', 'wc-buckaroo-bpe-gateway'),
+                ],
+            ]
+        );
     }
 
     /**

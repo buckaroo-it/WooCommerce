@@ -107,6 +107,7 @@ class InitGateways
                     'buckarooImagesUrl' => plugin_dir_url(BK_PLUGIN_FILE) . 'library/buckaroo_images/',
                     'genders' => Helper::getAllGendersForPaymentMethods(),
                     'displayMode' => $gateway->get_option('displaymode'),
+                    'hasFee' => $this->gatewayHasFee($gateway),
                 ];
 
                 if ($gateway_id === 'buckaroo_paybybank') {
@@ -139,6 +140,17 @@ class InitGateways
                     );
                 }
 
+                if ($gateway_id === 'buckaroo_googlepay') {
+                    $payment_method = array_merge(
+                        $payment_method,
+                        [
+                            'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE',
+                            'merchantIdentifier' => $gateway->get_option('merchant_guid'),
+                            'buttonStyle' => $gateway->get_option('button_style', 'black'),
+                        ]
+                    );
+                }
+
                 if ($gateway_id === 'buckaroo_paypal') {
                     $expressPages = $gateway->get_option('express', []);
                     $payment_method = array_merge(
@@ -148,7 +160,7 @@ class InitGateways
                         ]
                     );
                 }
-                if ($gateway_id === 'buckaroo_klarnakp' || $gateway_id === 'buckaroo_klarnapay' || $gateway_id === 'buckaroo_klarnapii') {
+                if ($gateway_id === 'buckaroo_klarnakp' || $gateway_id === 'buckaroo_klarnapay') {
                     $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
                 }
                 if ($gateway_id === 'buckaroo_in3') {
@@ -164,6 +176,30 @@ class InitGateways
         wp_localize_script('buckaroo-blocks', 'buckarooGateways', $payment_methods);
 
         return $payment_methods;
+    }
+
+    /**
+     * Whether the gateway has a non-zero, valid payment fee configured.
+     *
+     * Used by the Blocks checkout to avoid firing the (full WordPress
+     * bootstrap) fee-recalculation AJAX request when switching to a method
+     * that carries no fee, which is the common case and keeps switching fast.
+     */
+    private function gatewayHasFee($gateway): bool
+    {
+        $rawAmount = $gateway->get_option('extrachargeamount', 0);
+
+        if (! is_scalar($rawAmount)) {
+            return false;
+        }
+
+        $rawAmount = trim((string) $rawAmount);
+
+        if (! preg_match('/^\d+(?:\.\d+)?%?$/', $rawAmount)) {
+            return false;
+        }
+
+        return (float) str_replace('%', '', $rawAmount) !== 0.0;
     }
 
     /**

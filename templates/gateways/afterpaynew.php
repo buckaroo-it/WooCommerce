@@ -49,6 +49,7 @@ $country = ! empty($country) ? $country : $this->country;
     if (in_array($country, ['BE', 'NL', 'DE'])) {
         $this->getPaymentTemplate('partial_birth_field');
         ?>
+        <?php if (strlen(trim($customer_phone)) === 0) { ?>
     <p class="form-row validate-required">
         <label for="buckaroo-afterpaynew-phone">
             <?php esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway'); ?>
@@ -62,6 +63,7 @@ $country = ! empty($country) ? $country : $this->country;
         autocomplete="off"
         value="<?php echo esc_html($customer_phone); ?>">
     </p>
+        <?php } ?>
     <?php } ?>
 
     <?php if ($country == 'NL' && $this->customer_type !== \Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway::CUSTOMER_TYPE_B2C) { ?>

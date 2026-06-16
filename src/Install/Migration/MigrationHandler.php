@@ -8,6 +8,8 @@ use Buckaroo\Woocommerce\Install\Migration\Versions\SetupTransactionsAndLogs;
 use Buckaroo\Woocommerce\Services\Logger;
 use Throwable;
 use Buckaroo\Woocommerce\Install\Migration\Versions\DisableAutoloadForSettings;
+use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateIdealToIdealWero;
+use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateKlarnaPayLaterLabels;
 
 /**
  * Core class for handling migrations
@@ -185,6 +187,8 @@ class MigrationHandler
         return [
             new SetupTransactionsAndLogs(),
             new DisableAutoloadForSettings(),
+            new MigrateIdealToIdealWero(),
+            new MigrateKlarnaPayLaterLabels(),
         ];
     }
 

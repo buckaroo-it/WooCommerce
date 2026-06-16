@@ -57,16 +57,70 @@ class OrderActions
             );
         }
 
-        $paymentMethod = get_post_meta((int) sanitize_text_field($_POST['order_id']), '_wc_order_selected_payment_method', true);
+        $orderId = (int) sanitize_text_field($_POST['order_id']);
+        $gateway = $this->resolveCapturableGateway($orderId);
 
-        $gateway = (new PaymentGatewayRegistry())->newGatewayInstance($paymentMethod);
-
-        if ($gateway->capturable && $gateway->canShowCaptureForm($_POST['order_id'])) {
+        if ($gateway === null) {
             wp_send_json(
-                $gateway->process_capture($_POST['order_id'])
+                [
+                    'errors' => [
+                        'error_capture' => [
+                            [esc_html__('Could not resolve a Buckaroo gateway for this order. The order may have been created with an older version of the plugin.', 'wc-buckaroo-bpe-gateway')],
+                        ],
+                    ],
+                ]
             );
         }
-        exit;
+
+        if ($gateway->capturable && $gateway->canShowCaptureForm($orderId)) {
+            wp_send_json(
+                $gateway->process_capture($orderId)
+            );
+        }
+
+        wp_send_json(
+            [
+                'errors' => [
+                    'error_capture' => [
+                        [esc_html__('This order is not in a capturable state.', 'wc-buckaroo-bpe-gateway')],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Resolve the Buckaroo gateway for an order, falling back to the WooCommerce
+     * payment method id (e.g. `buckaroo_klarnapay`) when the legacy
+     * `_wc_order_selected_payment_method` meta value cannot be matched against
+     * the gateway registry. This keeps capture working for orders created with
+     * earlier plugin versions that wrote display titles into that meta.
+     */
+    private function resolveCapturableGateway(int $orderId): ?AbstractPaymentGateway
+    {
+        $registry = new PaymentGatewayRegistry();
+
+        $primary = get_post_meta($orderId, '_wc_order_selected_payment_method', true);
+        if (is_string($primary) && $primary !== '') {
+            $gateway = $registry->newGatewayInstance($primary);
+            if ($gateway instanceof AbstractPaymentGateway) {
+                return $gateway;
+            }
+        }
+
+        $order = Helper::findOrder($orderId);
+        if ($order) {
+            $methodId = (string) $order->get_payment_method();
+            if (strpos($methodId, 'buckaroo_') === 0) {
+                $fallbackKey = substr($methodId, strlen('buckaroo_'));
+                $gateway = $registry->newGatewayInstance($fallbackKey);
+                if ($gateway instanceof AbstractPaymentGateway) {
+                    return $gateway;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -81,8 +135,16 @@ class OrderActions
         }
 
         $cart = WC()->cart;
-        $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
         $chosen_payment_method = WC()->session->chosen_payment_method;
+
+        // Only our gateways add a Buckaroo fee. Bail before the (relatively
+        // expensive) gateway resolution when another method is selected, so
+        // switching between non-Buckaroo methods stays fast.
+        if (strpos((string) $chosen_payment_method, 'buckaroo_') !== 0) {
+            return;
+        }
+
+        $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
 
         // no payments available
         if (empty($available_gateways)) {
@@ -140,7 +202,7 @@ class OrderActions
         }
 
         if ($is_percentage) {
-            $extra_charge_amount = number_format($subtotal * $extra_charge_amount / 100, 2);
+            $extra_charge_amount = round($subtotal * $extra_charge_amount / 100, 2);
         }
 
         $feedName = __('Payment fee', 'wc-buckaroo-bpe-gateway');
@@ -180,11 +242,12 @@ class OrderActions
      */
     protected function get_fee($cart, $id)
     {
-        $fees = $cart->get_fees();
-        foreach ($fees as $id => $fee) {
+        foreach ($cart->get_fees() as $fee) {
             if ($fee->id === $id) {
                 return $fee;
             }
         }
+
+        return null;
     }
 }

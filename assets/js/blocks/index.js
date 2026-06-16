@@ -3,6 +3,7 @@ import DefaultPayment from './gateways/default_payment';
 import { convertUnderScoreToDash, decodeHtmlEntities } from './utils/utils';
 import BuckarooLabel from './components/BuckarooLabel';
 import BuckarooApplepay from './components/BuckarooApplepay';
+import BuckarooGooglepay from './components/BuckarooGooglepay';
 import BuckarooPaypalExpress from './components/BuckarooPaypalExpress';
 import { paymentGatewaysTemplates, separateCreditCards } from './gateways';
 import { __ } from '@wordpress/i18n';
@@ -14,7 +15,14 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
 
     useEffect(() => {
-        jQuery.ajax({
+        // Only methods that actually carry a payment fee need the server-side
+        // recalculation. Skipping it for fee-less methods avoids a full
+        // WordPress bootstrap on every payment method switch.
+        if (!gateway.hasFee) {
+            return;
+        }
+
+        const request = jQuery.ajax({
             url: '/wp-admin/admin-ajax.php',
             type: 'POST',
             data: {
@@ -22,7 +30,11 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
                 method: gateway.paymentMethodId,
             },
         });
-    }, [gateway.paymentMethodId]);
+
+        // Abort the in-flight request when the selection changes again so
+        // rapid switching does not pile up redundant requests.
+        return () => request.abort();
+    }, [gateway.paymentMethodId, gateway.hasFee]);
 
     const onPaymentStateChange = newState => {
         setActivePaymentMethodState(newState);
@@ -145,6 +157,9 @@ const registerBuckarooExpressPaymentMethods = async () => {
     const applepay = buckarooGateways.find(gateway => gateway.paymentMethodId === 'buckaroo_applepay');
     await registerApplePay(applepay);
 
+    const googlepay = buckarooGateways.find(gateway => gateway.paymentMethodId === 'buckaroo_googlepay');
+    await registerGooglePay(googlepay);
+
     const paypalExpress = buckarooGateways.find(gateway => gateway.paymentMethodId === 'buckaroo_paypal');
     await registerPaypalExpress(paypalExpress);
 };
@@ -163,6 +178,24 @@ const registerPaypalExpress = async gateway => {
             edit: <div />,
             canMakePayment: () => true,
             paymentMethodId: 'buckaroo_paypal_express',
+        });
+    }
+};
+
+const registerGooglePay = async googlepay => {
+    if (googlepay === undefined) {
+        return;
+    }
+
+    if (googlepay.showInCheckout) {
+        const { registerExpressPaymentMethod } = wc.wcBlocksRegistry;
+
+        registerExpressPaymentMethod({
+            name: 'buckaroo_express_googlepay',
+            content: <BuckarooGooglepay />,
+            edit: <div />,
+            canMakePayment: () => true,
+            paymentMethodId: 'buckaroo_express_googlepay',
         });
     }
 };

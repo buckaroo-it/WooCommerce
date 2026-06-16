@@ -49,9 +49,9 @@ abstract class AbstractProcessor extends WC_Payment_Gateway
 
         // Check if the dynamic language option is selected.
         if ($config['culture'] == 'dynamic') {
-            // Get the first two characters of the browser's language setting.
-            $browserLanguage = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-            // Map of supported browser languages to Buckaroo culture codes.
+            $locale = function_exists('determine_locale') ? determine_locale() : get_locale();
+            $language = substr((string) $locale, 0, 2);
+
             $supportedLanguages = [
                 'nl' => 'nl-NL',
                 'en' => 'en-US',
@@ -59,8 +59,7 @@ abstract class AbstractProcessor extends WC_Payment_Gateway
                 'fr' => 'fr-FR',
             ];
 
-            // Use the browser language if supported, otherwise default to English.
-            return $supportedLanguages[$browserLanguage] ?? 'en-US';
+            return $supportedLanguages[$language] ?? 'en-US';
         }
 
         return $config['culture'];

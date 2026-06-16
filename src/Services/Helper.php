@@ -138,12 +138,16 @@ class Helper
             'female' => 'female',
         ];
 
+        $klarnaPayGenders = [
+            'male' => 1,
+            'female' => 2,
+        ];
+
         return [
             'buckaroo-payperemail' => $defaultGenders,
             'buckaroo-billink' => $billinkGenders,
             'buckaroo-klarnakp' => $klarnaGenders,
-            'buckaroo-klarnapay' => $klarnaGenders,
-            'buckaroo-klarnapii' => $klarnaGenders,
+            'buckaroo-klarnapay' => $klarnaPayGenders,
         ];
     }
 

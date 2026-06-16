@@ -4,6 +4,7 @@ const WooCommerceDependencyExtractionWebpackPlugin = require('@woocommerce/depen
 module.exports = {
     entry: {
         applepay: './applepay/index.js',
+        googlepay: './googlepay/index.js',
         checkout: './checkout/index.js',
         blocks: './blocks/index.js', // Adjust this path to your blocks index.js
     },

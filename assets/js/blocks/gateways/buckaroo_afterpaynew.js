@@ -44,7 +44,9 @@ function AfterPayNew({
 
     return (
         <div>
-            <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange} />
+            {billing.phone === '' && (
+                <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange} />
+            )}
 
             {['BE', 'NL', 'DE'].includes(billing.country) && (
                 <div>
