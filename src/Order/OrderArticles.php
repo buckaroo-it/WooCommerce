@@ -213,9 +213,11 @@ class OrderArticles
     {
         $data = [];
         if ($item->get_type() === 'line_item') {
-            $img = $this->get_product_image($item->get_order_item()->get_product());
-            if (! empty($img)) {
-                $data['imgUrl'] = $img;
+            if ($this->gateway->id === 'buckaroo_afterpaynew') {
+                $img = $this->get_product_image($item->get_order_item()->get_product());
+                if (! empty($img)) {
+                    $data['imageUrl'] = $img;
+                }
             }
             $data['url'] = get_permalink($item->get_id());
         }
@@ -225,12 +227,6 @@ class OrderArticles
 
     public function get_product_image($product)
     {
-        // Only run when the setting is explicitly enabled.
-
-        if ((string) $this->gateway->get_option('sendimageinfo') !== '1') {
-            return;
-        }
-
         $src = get_the_post_thumbnail_url($product->get_id());
         if (! $src) {
             $imgTag = $product->get_image();
@@ -253,7 +249,7 @@ class OrderArticles
             return;
         }
 
-        if (! empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg'])) {
+        if (! empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg', 'image/gif', 'image/webp'])) {
             if (! empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280)) {
                 return $src;
             }
