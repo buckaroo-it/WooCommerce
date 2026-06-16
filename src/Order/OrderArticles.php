@@ -56,13 +56,63 @@ class OrderArticles
             )
         );
 
-        $productDiff = $this->get_product_with_differences($products, $this->order_details->get_total('edit'));
+        $total_order_amount = $this->order_details->get_total('edit');
+
+        if ($this->absorb_difference_into_fee($products, $total_order_amount)) {
+            return $products;
+        }
+
+        $productDiff = $this->get_product_with_differences($products, $total_order_amount);
 
         if (is_array($productDiff)) {
             $products[] = $productDiff;
         }
 
         return $products;
+    }
+
+    /**
+     * When a Buckaroo fee article is present, absorb any difference between
+     * the order total and the summed article prices into the fee line itself
+     * instead of emitting a separate `rounding_errors` article.
+     *
+     * This keeps the article list clean (no extra rounding line) and makes the
+     * fee reflect the amount actually charged, e.g. a fee whose gross unit
+     * price carries VAT that the order total does not account for.
+     *
+     * Only applies when the fee has a single unit, so the per-unit gross price
+     * stays exact; otherwise the caller falls back to the rounding article.
+     *
+     * @param  array  $products  Passed by reference so the fee line can be adjusted in place.
+     * @return bool True when the difference was absorbed (or there was none).
+     */
+    protected function absorb_difference_into_fee(array &$products, float $total_order_amount): bool
+    {
+        $feeIndex = null;
+        foreach ($products as $index => $product) {
+            if (isset($product['identifier']) && $product['identifier'] === 'BuckarooFee') {
+                $feeIndex = $index;
+                break;
+            }
+        }
+
+        if ($feeIndex === null) {
+            return false;
+        }
+
+        if (! isset($products[$feeIndex]['quantity']) || (int) $products[$feeIndex]['quantity'] !== 1) {
+            return false;
+        }
+
+        $diffAmount = Helper::roundAmount($total_order_amount - $this->sum_products_amount($products));
+
+        if (abs($diffAmount) < 0.01) {
+            return true;
+        }
+
+        $products[$feeIndex]['price'] = Helper::roundAmount($products[$feeIndex]['price'] + $diffAmount);
+
+        return true;
     }
 
     /**
@@ -117,19 +167,43 @@ class OrderArticles
     }
 
     /**
-     * Resolve the value Buckaroo expects in `VatPercentage`
+     * Resolve the value Buckaroo expects in `VatPercentage` for the fee
+     * article. Mirrors the Shopware 6 plugin
+     * (FormatRequestParamService::resolveBuckarooFeeVatPercentage):
+     *
+     * - When the fee is configured as a percentage (`extrachargeamount`
+     *   contains `%`), send that configured percentage directly.
+     * - Otherwise (fixed fee), derive it from the fee relative to the rest
+     *   of the order: `(fee / (orderTotal - fee)) * 100`, falling back to
+     *   the full total when the remainder is non-positive.
+     *
+     * Returns 0.0 when no usable value can be derived.
      */
     private function resolve_buckaroo_fee_vat_percentage(OrderItem $item): float
     {
-        $order = $this->order_details->get_order();
-        $amountDebit = (float) $order->get_total('edit');
+        $rawAmount = $this->gateway->get_option('extrachargeamount', '');
+        $rawAmount = is_scalar($rawAmount) ? trim((string) $rawAmount) : '';
+
+        if (strpos($rawAmount, '%') !== false) {
+            $percentageValue = (float) str_replace(['%', ',', ' '], ['', '.', ''], $rawAmount);
+            if ($percentageValue >= 0) {
+                return Helper::roundAmount($percentageValue);
+            }
+        }
+
         $feeAmount = (float) $item->get_unit_price() * (int) $item->get_quantity();
-        $remainder = $amountDebit - $feeAmount;
-        if ($feeAmount <= 0 || $remainder <= 0) {
+        $totalAmount = (float) $this->order_details->get_order()->get_total('edit');
+
+        $baseAmount = $totalAmount - $feeAmount;
+        if ($baseAmount <= 0.0) {
+            $baseAmount = $totalAmount;
+        }
+
+        if ($baseAmount <= 0.0 || $feeAmount <= 0.0) {
             return 0.0;
         }
 
-        return Helper::roundAmount(($feeAmount / $remainder) * 100);
+        return Helper::roundAmount(($feeAmount / $baseAmount) * 100);
     }
 
     /**
