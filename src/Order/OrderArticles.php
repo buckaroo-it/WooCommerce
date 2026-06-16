@@ -227,7 +227,20 @@ class OrderArticles
 
     public function get_product_image($product)
     {
-        $src = get_the_post_thumbnail_url($product->get_id());
+        $src = '';
+
+        // Prefer a bounded WooCommerce image size so the width stays within
+        // Riverty's 100-1280px requirement instead of the (often oversized)
+        // original upload.
+        $image_id = $product->get_image_id();
+        if ($image_id) {
+            $src = wp_get_attachment_image_url($image_id, 'woocommerce_single');
+        }
+
+        if (! $src) {
+            $src = get_the_post_thumbnail_url($product->get_id());
+        }
+
         if (! $src) {
             $imgTag = $product->get_image();
             $doc = new DOMDocument();
@@ -244,16 +257,21 @@ class OrderArticles
             $src = substr($src, 0, strpos($src, '?'));
         }
 
+        // Best-effort validation: when the image can be read server-side, enforce
+        // Riverty's format and width constraints. When it cannot be read (e.g. the
+        // shop server cannot reach its own media URL, common on staging), still
+        // send the URL so Riverty can fetch and render the thumbnail itself.
         $srcInfo = $this->safe_remote_getimagesize($src);
-        if (! is_array($srcInfo)) {
-            return;
-        }
+        if (is_array($srcInfo)) {
+            $mimeAllowed = ! empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg', 'image/gif', 'image/webp']);
+            $widthAllowed = ! empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280);
 
-        if (! empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg', 'image/gif', 'image/webp'])) {
-            if (! empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280)) {
-                return $src;
+            if (! $mimeAllowed || ! $widthAllowed) {
+                return;
             }
         }
+
+        return $src;
     }
 
     /**
