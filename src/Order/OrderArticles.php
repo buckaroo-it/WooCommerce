@@ -168,42 +168,16 @@ class OrderArticles
 
     /**
      * Resolve the value Buckaroo expects in `VatPercentage` for the fee
-     * article. Mirrors the Shopware 6 plugin
-     * (FormatRequestParamService::resolveBuckarooFeeVatPercentage):
+     * article. The fee uses the same real VAT rate as the other articles,
+     * resolved from the configured `feetax` tax class for the order's tax
+     * location (i.e. based on country / WooCommerce tax configuration), e.g.
+     * 21%.
      *
-     * - When the fee is configured as a percentage (`extrachargeamount`
-     *   contains `%`), send that configured percentage directly.
-     * - Otherwise (fixed fee), derive it from the fee relative to the rest
-     *   of the order: `(fee / (orderTotal - fee)) * 100`, falling back to
-     *   the full total when the remainder is non-positive.
-     *
-     * Returns 0.0 when no usable value can be derived.
+     * Returns 0.0 when the fee tax class resolves to no applicable rate.
      */
     private function resolve_buckaroo_fee_vat_percentage(OrderItem $item): float
     {
-        $rawAmount = $this->gateway->get_option('extrachargeamount', '');
-        $rawAmount = is_scalar($rawAmount) ? trim((string) $rawAmount) : '';
-
-        if (strpos($rawAmount, '%') !== false) {
-            $percentageValue = (float) str_replace(['%', ',', ' '], ['', '.', ''], $rawAmount);
-            if ($percentageValue >= 0) {
-                return Helper::roundAmount($percentageValue);
-            }
-        }
-
-        $feeAmount = (float) $item->get_unit_price() * (int) $item->get_quantity();
-        $totalAmount = (float) $this->order_details->get_order()->get_total('edit');
-
-        $baseAmount = $totalAmount - $feeAmount;
-        if ($baseAmount <= 0.0) {
-            $baseAmount = $totalAmount;
-        }
-
-        if ($baseAmount <= 0.0 || $feeAmount <= 0.0) {
-            return 0.0;
-        }
-
-        return Helper::roundAmount(($feeAmount / $baseAmount) * 100);
+        return $this->gateway->getPaymentFeeVatPercentage($this->order_details->get_order());
     }
 
     /**
