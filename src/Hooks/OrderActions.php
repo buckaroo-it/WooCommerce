@@ -135,8 +135,16 @@ class OrderActions
         }
 
         $cart = WC()->cart;
-        $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
         $chosen_payment_method = WC()->session->chosen_payment_method;
+
+        // Only our gateways add a Buckaroo fee. Bail before the (relatively
+        // expensive) gateway resolution when another method is selected, so
+        // switching between non-Buckaroo methods stays fast.
+        if (strpos((string) $chosen_payment_method, 'buckaroo_') !== 0) {
+            return;
+        }
+
+        $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
 
         // no payments available
         if (empty($available_gateways)) {
