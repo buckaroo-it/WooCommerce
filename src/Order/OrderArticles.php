@@ -213,9 +213,11 @@ class OrderArticles
     {
         $data = [];
         if ($item->get_type() === 'line_item') {
-            $img = $this->get_product_image($item->get_order_item()->get_product());
-            if (! empty($img)) {
-                $data['imgUrl'] = $img;
+            if ($this->gateway->id === 'buckaroo_afterpaynew') {
+                $img = $this->get_product_image($item->get_order_item()->get_product());
+                if (! empty($img)) {
+                    $data['imageUrl'] = $img;
+                }
             }
             $data['url'] = get_permalink($item->get_id());
         }
@@ -225,13 +227,20 @@ class OrderArticles
 
     public function get_product_image($product)
     {
-        // Only run when the setting is explicitly enabled.
+        $src = '';
 
-        if ((string) $this->gateway->get_option('sendimageinfo') !== '1') {
-            return;
+        // Prefer a bounded WooCommerce image size so the width stays within
+        // Riverty's 100-1280px requirement instead of the (often oversized)
+        // original upload.
+        $image_id = $product->get_image_id();
+        if ($image_id) {
+            $src = wp_get_attachment_image_url($image_id, 'woocommerce_single');
         }
 
-        $src = get_the_post_thumbnail_url($product->get_id());
+        if (! $src) {
+            $src = get_the_post_thumbnail_url($product->get_id());
+        }
+
         if (! $src) {
             $imgTag = $product->get_image();
             $doc = new DOMDocument();
@@ -248,16 +257,21 @@ class OrderArticles
             $src = substr($src, 0, strpos($src, '?'));
         }
 
+        // Best-effort validation: when the image can be read server-side, enforce
+        // Riverty's format and width constraints. When it cannot be read (e.g. the
+        // shop server cannot reach its own media URL, common on staging), still
+        // send the URL so Riverty can fetch and render the thumbnail itself.
         $srcInfo = $this->safe_remote_getimagesize($src);
-        if (! is_array($srcInfo)) {
-            return;
-        }
+        if (is_array($srcInfo)) {
+            $mimeAllowed = ! empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg', 'image/gif', 'image/webp']);
+            $widthAllowed = ! empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280);
 
-        if (! empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg'])) {
-            if (! empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280)) {
-                return $src;
+            if (! $mimeAllowed || ! $widthAllowed) {
+                return;
             }
         }
+
+        return $src;
     }
 
     /**
