@@ -28,26 +28,27 @@ Payment method support list by Buckaroo WooCommerce payments plugin
 8. Cards (American Express, Visa, MasterCard, VPAY, Visa Electron, Maestro, Carte Bleue, Carte Bancaire, Dankort, Nexi, PostePay)
 9. EPS
 10. Giftcards
-11. goSettle
-12. iDEAL | Wero
-13. In3
-14. KBC
-15. Klarna
-16. MB Way
-17. Multibanco
-18. PayByBank
-19. Payconiq
-20. PayPal
-21. PayPerEmail
-22. Przelewy24
-23. Riverty
-24. SEPA Credit Transfer (Bank transfer)
-25. SEPA Direct Debit
-26. Swish
-27. Trustly
-28. Twint
-29. WeChat Pay
-30. Wero (BE, DE, FR)
+11. Google Pay
+12. goSettle
+13. iDEAL | Wero
+14. In3
+15. KBC
+16. Klarna
+17. MB Way
+18. Multibanco
+19. PayByBank
+20. Payconiq
+21. PayPal
+22. PayPerEmail
+23. Przelewy24
+24. Riverty
+25. SEPA Credit Transfer (Bank transfer)
+26. SEPA Direct Debit
+27. Swish
+28. Trustly
+29. Twint
+30. WeChat Pay
+31. Wero (BE, DE, FR)
 
 == Release notes ==
 For detailed release notes, please visit our [GitHub repository](https://github.com/buckaroo-it/WooCommerce).
@@ -79,18 +80,24 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
-= 4.8.0=
-What's changed:
-BTI-902 Add support for WooCommerce 10.7.0 en WordPress 6.9.4
-BTI-685 Added support for WooCommerce 10.5.0, 10.5.1, 10.5.2, and 10.5.3.
-BTI-603 Added Google Pay as a payment method.
-BTI-577 Added Klarna (MoR) as a payment method.
-BTI-638 Removed the API version setting for the In3 payment method and enforced the V3 API.
-BTI-629 Prevented Express payment method scripts from loading on product pages when Express methods are disabled.
-BTI-717 Fixed an issue where stock was not updated when a pending refund was processed later.
-BTI-665 Fixed an issue where bank transfer payment instructions were always displayed in English despite different culture codes being sent.
-BTI-708 Fixed an issue where the iDEAL | Wero frontend label translation was not saved and remained in English.
-BTI-509 Fixed an Riverty tax issue regarding the percentage of payment fee’s.
+= 4.8.0 =
+Improvements & New Features
+BTI-603 Added the Google Pay payment method (express checkout button).
+BTI-577 Added support for Klarna Merchant of Record (MoR), including Reserve, Cancel Reservation, Update Reservation, Extend Reservation and Add Shipping Info actions.
+BTI-685 Added support for WooCommerce 10.5.
+BTI-638 Removed the In3 API version setting; In3 now always uses API V3.
+BTI-877 / BTI-509 Improved payment fee and VAT handling, including correct fee calculation on the Blocks checkout and the correct VAT percentage for Riverty.
+BTI-629 Express payment buttons (Apple Pay, Google Pay, PayPal) no longer load their scripts on product pages when express checkout is disabled.
+Bug Fixes
+BTI-708 Fixed the “iDEAL | Wero” payment method label reverting to “iDEAL” on every page load.
+BTI-665 Fixed Bank Transfer payment instructions and their translations by using the Buckaroo consumer message.
+BTI-717 Fixed stock handling so pending refunds no longer incorrectly restore stock.
+BTI-1062 Fixed a Riverty issue that could cause an endless loop / payment delay.
+BTI-899 Fixed the missing ImageUrl field in the Riverty payload.
+BTI-1035 Fixed a duplicate phone number field for Riverty in the checkout.
+BTI-971 / BTI-775 Fixed Riverty partial refunds performed through the WooCommerce REST API.
+BTI-4 Improved Apple Pay / Google Pay order creation to correctly handle product bundles and third-party discount rules.
+Updated bundled JavaScript dev dependencies to address security advisories.
 
 = 4.7.2 =
 Bug Fixes
