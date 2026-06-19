@@ -119,6 +119,7 @@ class PaymentSetupScripts
             'buckaroo_global',
             [
                 'ajax_url' => home_url('/'),
+                'admin_ajax_url' => admin_url('admin-ajax.php'),
                 'idin_i18n' => [
                     'general_error' => esc_html__('Something went wrong while processing your identification.'),
                     'bank_required' => esc_html__('You need to select your bank!'),
