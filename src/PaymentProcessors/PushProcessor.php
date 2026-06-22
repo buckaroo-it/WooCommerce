@@ -180,6 +180,27 @@ class PushProcessor
         return ! empty($transactions) ? explode(',', $transactions) : '';
     }
 
+    /**
+     * Determine whether a (related) partial-payment push fully settles the order.
+     *
+     * Used to decide if a push that carries a RelatedTransactions partial-payment reference
+     * should still be treated as a deferred partial payment, or is in fact the successful,
+     * order-covering transaction (e.g. a PayPal capture) that must be allowed to complete.
+     * Read-only: it does not mutate the stored settlement meta.
+     */
+    protected function pushSettlesOrderInFull($order_id, $order, ResponseParser $responseParser): bool
+    {
+        if (! $responseParser->isSuccess()) {
+            return false;
+        }
+
+        $orderAmount = Helper::roundAmount($order->get_total());
+        $paidAmount = Helper::roundAmount($responseParser->getAmount());
+        $settlementState = $this->calculateSettlementState($order_id, $responseParser, $paidAmount);
+
+        return $settlementState['totalPaid'] >= $orderAmount;
+    }
+
     protected function calculateSettlementState($order_id, ResponseParser $responseParser, $paidAmount)
     {
         $currentKey = $this->getTransactionKey($responseParser);
@@ -306,7 +327,21 @@ class PushProcessor
 
             $giftCardPartialPayment = ($responseParser->isAwaitingConsumer() && $responseParser->getTransactionType() == 'I150');
 
-            if ($responseParser->getRelatedTransactionPartialPayment() !== null || $giftCardPartialPayment) {
+            // A genuine partial/group payment must wait for the remaining legs before the order
+            // can be completed, so those pushes are short-circuited here. A fully-covering
+            // successful transaction must NOT be short-circuited, however: e.g. a PayPal capture
+            // that merely *references* another transaction through RelatedTransactions would
+            // otherwise leave the order stuck on "on hold" and never complete it.
+            //
+            // Before 4.7.0 the related-transaction lookup was effectively dead for JSON pushes
+            // (RelatedTransactions keys were read with the wrong casing), so this branch never
+            // fired for PayPal. Once the lookup started resolving (JsonParser fix), full PayPal
+            // captures began hitting this early exit. We therefore only bail out for genuine
+            // partials: a gift-card push still awaiting the consumer, or a related partial-payment
+            // push that does not (yet) settle the order in full. See BTI-747.
+            $isRelatedPartialPayment = $responseParser->getRelatedTransactionPartialPayment() !== null;
+
+            if ($giftCardPartialPayment || ($isRelatedPartialPayment && ! $this->pushSettlesOrderInFull($order_id, $order, $responseParser))) {
                 Logger::log('PUSH', 'Partial payment PUSH received ' . $responseParser->getStatusCode());
                 exit();
             }
