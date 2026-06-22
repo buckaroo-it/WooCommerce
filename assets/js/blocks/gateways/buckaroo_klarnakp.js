@@ -1,10 +1,17 @@
 import React from 'react';
-import FinancialWarning from '../partials/buckaroo_financial_warning';
+import GenderDropdown from '../partials/buckaroo_gender';
 
-// Gender selection removed from checkout to reduce friction.
-// The processor always sends "Unknown" for the mandatory Klarna gender parameter.
-function KlarnaKp({ title, gateway: { financialWarning } }) {
-    return <div id="buckaroo_klarnakp">{financialWarning === 'enable' && <FinancialWarning title={title} />}</div>;
+function KlarnaKp({ onStateChange, methodName, gateway: { genders } }) {
+    const handleChange = e => {
+        const { value } = e.target;
+        onStateChange({ [`${methodName}-gender`]: value });
+    };
+
+    return (
+        <div id="buckaroo_klarnapay">
+            <GenderDropdown paymentMethod={methodName} genders={genders} handleChange={handleChange} />
+        </div>
+    );
 }
 
 export default KlarnaKp;
