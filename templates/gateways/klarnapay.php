@@ -35,7 +35,8 @@ if (strtoupper($country) == 'NL' && strtolower($this->klarnaPaymentFlowId) !== '
 
 <fieldset>
     <?php
-    $this->getPaymentTemplate('partial_gender_field');
+    // Gender selection removed from checkout to reduce friction; the gateway
+    // always sends "Unknown" for the mandatory Klarna gender/salutation parameter.
     ?>
 
     <p class="form-row validate-required">
