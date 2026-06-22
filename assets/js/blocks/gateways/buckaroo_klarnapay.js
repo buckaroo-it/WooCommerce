@@ -1,17 +1,9 @@
 import React from 'react';
-import GenderDropdown from '../partials/buckaroo_gender';
 
-function KlarnaPay({ onStateChange, methodName, gateway: { genders } }) {
-    const handleChange = e => {
-        const { value } = e.target;
-        onStateChange({ [`${methodName}-gender`]: value });
-    };
-
-    return (
-        <div id="buckaroo_klarnapay">
-            <GenderDropdown paymentMethod={methodName} genders={genders} handleChange={handleChange} />
-        </div>
-    );
+// Gender selection removed from checkout to reduce friction.
+// The processor always sends "Unknown" for the mandatory Klarna gender parameter.
+function KlarnaPay() {
+    return <div id="buckaroo_klarnapay" />;
 }
 
 export default KlarnaPay;
