@@ -6,13 +6,7 @@ import PhoneDropdown from '../partials/buckaroo_phone';
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
 
-function AfterPayNew({
-    onStateChange,
-    methodName,
-    gateway: { customer_type, b2b },
-    billing,
-    locale,
-}) {
+function AfterPayNew({ onStateChange, methodName, gateway: { customer_type, b2b }, billing, locale }) {
     const initialState = {
         [`${methodName}-phone`]: billing?.phone || '',
         [`${methodName}-birthdate`]: '',
