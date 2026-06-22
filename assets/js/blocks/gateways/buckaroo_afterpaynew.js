@@ -1,20 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import BirthDayField from '../partials/buckaroo_partial_birth_field';
-import FinancialWarning from '../partials/buckaroo_financial_warning';
 import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition';
 import PhoneDropdown from '../partials/buckaroo_phone';
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
 
-function AfterPayNew({
-    onStateChange,
-    methodName,
-    title,
-    gateway: { customer_type, b2b, financialWarning },
-    billing,
-    locale,
-}) {
+function AfterPayNew({ onStateChange, methodName, gateway: { customer_type, b2b }, billing, locale }) {
     const initialState = {
         [`${methodName}-phone`]: billing?.phone || '',
         [`${methodName}-birthdate`]: '',
@@ -86,8 +78,6 @@ function AfterPayNew({
                 billingData={billing}
                 b2b={b2b}
             />
-
-            {financialWarning === 'enable' && <FinancialWarning title={title} />}
         </div>
     );
 }

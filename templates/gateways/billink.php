@@ -103,4 +103,3 @@ defined('ABSPATH') || exit;
     value="1" />
     <?php
 }
-$this->getPaymentTemplate('financial_warning');

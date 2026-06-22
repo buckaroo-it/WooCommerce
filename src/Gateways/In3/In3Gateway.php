@@ -73,16 +73,6 @@ class In3Gateway extends AbstractPaymentGateway
         parent::validate_fields();
     }
 
-    /**
-     * Add fields to the form_fields() array, specific to this page.
-     */
-    public function init_form_fields()
-    {
-        parent::init_form_fields();
-
-        $this->add_financial_warning_field();
-    }
-
     /**  {@inheritDoc} */
     protected function setProperties()
     {

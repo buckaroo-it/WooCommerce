@@ -142,7 +142,6 @@ class AfterpayNewGateway extends AbstractPaymentGateway
     public function init_form_fields()
     {
         parent::init_form_fields();
-        $this->add_financial_warning_field();
         $this->form_fields['afterpaynewpayauthorize'] = [
             'title' => __('Riverty Pay or Capture', 'wc-buckaroo-bpe-gateway'),
             'type' => 'select',

@@ -63,5 +63,4 @@ if (strtoupper($country) == 'NL' && strtolower($this->klarnaPaymentFlowId) !== '
     <p class="required" style="float:right;">*
         <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
     </p>
-    <?php $this->getPaymentTemplate('financial_warning'); ?>
 </fieldset>
