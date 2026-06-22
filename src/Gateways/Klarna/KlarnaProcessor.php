@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
+use BuckarooDeps\Buckaroo\Resources\Constants\Gender;
 
 class KlarnaProcessor extends AbstractPaymentProcessor
 {
@@ -73,14 +74,10 @@ class KlarnaProcessor extends AbstractPaymentProcessor
 
     private function getGender(): int
     {
-        $value = $this->request->input($this->gateway->getKlarnaSelector() . '-gender');
-
-        if (is_numeric($value) && (int) $value > 0) {
-            return (int) $value;
-        }
-
-        // Default to male (1) if no value submitted; Klarna requires a positive integer.
-        return 1;
+        // The gender selection step was removed from checkout to improve conversion.
+        // Klarna still requires the gender/salutation parameter, so we always send
+        // "Unknown" (Gender::UNKNOWN === 0), which Buckaroo accepts as a valid value.
+        return Gender::UNKNOWN;
     }
 
     public function getAction(): string
