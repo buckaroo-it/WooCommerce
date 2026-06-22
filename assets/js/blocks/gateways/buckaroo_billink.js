@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import BirthDayField from '../partials/buckaroo_partial_birth_field';
 import GenderDropdown from '../partials/buckaroo_gender';
-import FinancialWarning from '../partials/buckaroo_financial_warning';
 import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition';
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
 
-function Billink({ onStateChange, methodName, title, gateway: { genders, b2b, financialWarning }, billing, locale }) {
+function Billink({ onStateChange, methodName, gateway: { genders, b2b }, billing, locale }) {
     const initialState = {
         [`${methodName}-company-coc-registration`]: '',
         [`${methodName}-VatNumber`]: '',
@@ -67,7 +66,6 @@ function Billink({ onStateChange, methodName, title, gateway: { genders, b2b, fi
                 billingData={billing}
                 b2b={b2b}
             />
-            {financialWarning === 'enable' && <FinancialWarning title={title} />}
         </div>
     );
 }
