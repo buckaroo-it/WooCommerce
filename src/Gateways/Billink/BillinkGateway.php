@@ -62,13 +62,6 @@ class BillinkGateway extends AbstractPaymentGateway
         parent::validate_fields();
     }
 
-    /** {@inheritDoc} */
-    public function init_form_fields()
-    {
-        parent::init_form_fields();
-        $this->add_financial_warning_field();
-    }
-
     /**  {@inheritDoc} */
     protected function setProperties()
     {

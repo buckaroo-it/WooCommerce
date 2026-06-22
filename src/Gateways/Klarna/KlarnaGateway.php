@@ -30,13 +30,6 @@ class KlarnaGateway extends AbstractPaymentGateway
         return str_replace('_', '-', $this->id);
     }
 
-    /** {@inheritDoc} */
-    public function init_form_fields()
-    {
-        parent::init_form_fields();
-        $this->add_financial_warning_field();
-    }
-
     /**  {@inheritDoc} */
     protected function setProperties()
     {
