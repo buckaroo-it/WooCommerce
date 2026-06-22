@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import BirthDayField from '../partials/buckaroo_partial_birth_field';
 import GenderDropdown from '../partials/buckaroo_gender';
+import FinancialWarning from '../partials/buckaroo_financial_warning';
 import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition';
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
@@ -10,7 +11,6 @@ function Billink({ onStateChange, methodName, gateway: { genders, b2b }, billing
     const initialState = {
         [`${methodName}-company-coc-registration`]: '',
         [`${methodName}-VatNumber`]: '',
-        [`${methodName}-gender`]: '',
         [`${methodName}-birthdate`]: '',
         [`${methodName}-b2b`]: '',
     };
@@ -52,7 +52,6 @@ function Billink({ onStateChange, methodName, gateway: { genders, b2b }, billing
                 </div>
             ) : (
                 <div id="buckaroo_billink_b2c">
-                    <GenderDropdown paymentMethod={methodName} genders={genders} handleChange={handleChange} />
                     <BirthDayField
                         paymentMethod={methodName}
                         handleBirthDayChange={handleBirthDayChange}
