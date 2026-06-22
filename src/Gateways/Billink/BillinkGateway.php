@@ -51,9 +51,6 @@ class BillinkGateway extends AbstractPaymentGateway
             ) {
                 wc_add_notice(__('Please enter correct birth date', 'wc-buckaroo-bpe-gateway'), 'error');
             }
-            if (! in_array($this->request->input('buckaroo-billink-gender'), ['Male', 'Female', 'Unknown'])) {
-                wc_add_notice(__('Unknown gender', 'wc-buckaroo-bpe-gateway'), 'error');
-            }
         }
 
         if (! $this->request->input('buckaroo-billink-accept')) {
