@@ -112,6 +112,7 @@ class PaypalExpressController
                 'currency' => get_woocommerce_currency(),
                 'websiteKey' => $this->get_website_key(),
                 'merchant_id' => $this->get_merchant_id(),
+                'is_test' => $this->is_test_mode(),
                 'page' => $this->determine_page(),
                 'i18n' => [
                     'cancel_error_message' => __('You have canceled the payment request', 'wc-buckaroo-bpe-gateway'),
@@ -381,15 +382,49 @@ class PaypalExpressController
     }
 
     /**
-     * Get paypal merchant id
+     * Whether the PayPal gateway is running in test (sandbox) mode.
+     *
+     * @return bool
+     */
+    protected function is_test_mode()
+    {
+        return isset($this->settings['mode']) && strtolower((string) $this->settings['mode']) === 'test';
+    }
+
+    /**
+     * Get paypal merchant id for the active environment.
+     *
+     * In test mode the sandbox merchant id is used, falling back to the live
+     * merchant id when no sandbox value is configured. The SDK selects the
+     * matching (sandbox/live) PayPal client id from the isTestMode flag.
      *
      * @return string|null
      */
     protected function get_merchant_id()
     {
-        if (isset($this->settings['express_merchant_id']) && strlen(trim($this->settings['express_merchant_id']))) {
-            return $this->settings['express_merchant_id'];
+        if ($this->is_test_mode()) {
+            $sandbox = $this->get_setting_value('express_sandbox_merchant_id');
+            if ($sandbox !== null) {
+                return $sandbox;
+            }
         }
+
+        return $this->get_setting_value('express_merchant_id');
+    }
+
+    /**
+     * Return a trimmed, non-empty setting value or null.
+     *
+     * @param  string  $key
+     * @return string|null
+     */
+    protected function get_setting_value($key)
+    {
+        if (isset($this->settings[$key]) && strlen(trim((string) $this->settings[$key]))) {
+            return trim((string) $this->settings[$key]);
+        }
+
+        return null;
     }
 
     protected function determine_page()
