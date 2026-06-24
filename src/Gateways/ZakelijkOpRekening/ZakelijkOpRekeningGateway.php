@@ -89,20 +89,21 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
     public function validate_fields()
     {
         $country = $this->request->input('billing_country');
-        if ($country === null) {
-            $country = $this->country;
+        if (empty($country)) {
+            $customer = (function_exists('WC') && WC()) ? WC()->customer : null;
+            $country = $customer ? ($customer->get_billing_country() ?: $customer->get_shipping_country()) : $this->country;
         }
 
-        if ($country !== 'NL') {
+        if (! empty($country) && $country !== 'NL') {
             wc_add_notice(
                 __('Zakelijk op rekening is only available for companies located in The Netherlands.', 'wc-buckaroo-bpe-gateway'),
                 'error'
             );
         }
 
-        if (! $this->request->input('billing_company')) {
+        if ($this->getCheckoutCompany() === '') {
             wc_add_notice(
-                __('A company name is required to pay with Zakelijk op rekening.', 'wc-buckaroo-bpe-gateway'),
+                __('A company name is required to pay with Zakelijk op rekening. Please fill in the company name in your billing details.', 'wc-buckaroo-bpe-gateway'),
                 'error'
             );
         }
@@ -237,6 +238,38 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
         $country = $customer->get_billing_country() ?: $customer->get_shipping_country();
 
         return $country === '' || $country === 'NL';
+    }
+
+    /**
+     * Resolve the billing company name from the submitted request, falling
+     * back to the WooCommerce customer session. This keeps validation correct
+     * across the classic checkout (posted field) and any context where the
+     * company is only available on the customer object.
+     */
+    private function getCheckoutCompany(): string
+    {
+        // Our own company field (collected by this payment method) takes
+        // precedence, so the method works even when the WooCommerce billing
+        // "Company" field is hidden in the checkout.
+        $own = $this->request->input('buckaroo-zakelijkoprekening-company');
+        if (is_string($own) && trim($own) !== '') {
+            return trim($own);
+        }
+
+        $company = $this->request->input('billing_company');
+        if (is_string($company) && trim($company) !== '') {
+            return trim($company);
+        }
+
+        $customer = (function_exists('WC') && WC()) ? WC()->customer : null;
+        if ($customer) {
+            $company = $customer->get_billing_company();
+            if (is_string($company) && trim($company) !== '') {
+                return trim($company);
+            }
+        }
+
+        return '';
     }
 
     /**

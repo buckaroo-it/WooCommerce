@@ -126,6 +126,13 @@ class ZakelijkOpRekeningProcessor extends AbstractPaymentProcessor
      */
     private function getCompanyName(string $address_type): string
     {
+        // Company name entered in the payment method itself takes precedence
+        // (the WooCommerce billing "Company" field may be hidden).
+        $own = $this->request->input('buckaroo-zakelijkoprekening-company');
+        if (is_string($own) && strlen(trim($own)) > 0) {
+            return trim($own);
+        }
+
         $company = $this->getAddress($address_type, 'company');
         if (is_string($company) && strlen(trim($company)) > 0) {
             return $company;

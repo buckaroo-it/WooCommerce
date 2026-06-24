@@ -15,15 +15,29 @@
 
 defined('ABSPATH') || exit;
 
+$company = $this->getScalarCheckoutField('billing_company');
 ?>
 <fieldset id="buckaroo_zakelijkoprekening_b2b">
     <p class="form-row form-row-wide">
         <?php esc_html_e('Voor iedereen, powered by ABN AMRO. Betaal later.', 'wc-buckaroo-bpe-gateway'); ?>
     </p>
 
-    <p class="form-row form-row-wide">
-        <?php esc_html_e('Available for companies in The Netherlands. Make sure a company name is filled in your billing details.', 'wc-buckaroo-bpe-gateway'); ?>
+    <?php if (strlen(trim($company)) === 0) { ?>
+    <p class="form-row form-row-wide validate-required">
+        <label for="buckaroo-zakelijkoprekening-company">
+            <?php esc_html_e('Company name:', 'wc-buckaroo-bpe-gateway'); ?>
+            <span class="required">*</span>
+        </label>
+        <input
+            id="buckaroo-zakelijkoprekening-company"
+            name="buckaroo-zakelijkoprekening-company"
+            class="input-text"
+            type="text"
+            maxlength="250"
+            autocomplete="organization"
+            value="" />
     </p>
+    <?php } ?>
 
     <p class="form-row form-row-wide validate-required">
         <label for="buckaroo-zakelijkoprekening-company-coc-registration">

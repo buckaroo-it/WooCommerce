@@ -5,6 +5,7 @@ import CoCField from '../partials/buckaroo_coc_field';
 
 function ZakelijkOpRekening({ onStateChange, methodName, billing }) {
     const initialState = {
+        [`${methodName}-company`]: billing?.company || '',
         [`${methodName}-company-coc-registration`]: '',
     };
 
@@ -14,9 +15,7 @@ function ZakelijkOpRekening({ onStateChange, methodName, billing }) {
 
     return (
         <div id="buckaroo_zakelijkoprekening_b2b">
-            <p className="buckaroo-zakelijkoprekening-subtext">
-                {__('Betaal later', 'wc-buckaroo-bpe-gateway')}
-            </p>
+            <p className="buckaroo-zakelijkoprekening-subtext">{__('Betaal later', 'wc-buckaroo-bpe-gateway')}</p>
             <p className="buckaroo-zakelijkoprekening-tooltip">
                 {__('Voor iedereen, powered by ABN AMRO.', 'wc-buckaroo-bpe-gateway')}{' '}
                 <a
@@ -29,11 +28,20 @@ function ZakelijkOpRekening({ onStateChange, methodName, billing }) {
             </p>
 
             {!hasCompany && (
-                <p className="form-row form-row-wide">
-                    {__(
-                        'Available for companies in The Netherlands. Make sure a company name is filled in your billing details.',
-                        'wc-buckaroo-bpe-gateway'
-                    )}
+                <p className="form-row form-row-wide validate-required">
+                    <label htmlFor={`${methodName}-company`}>
+                        {__('Company name:', 'wc-buckaroo-bpe-gateway')}
+                        <span className="required">*</span>
+                    </label>
+                    <input
+                        id={`${methodName}-company`}
+                        name={`${methodName}-company`}
+                        className="input-text"
+                        type="text"
+                        maxLength="250"
+                        autoComplete="organization"
+                        onChange={handleChange}
+                    />
                 </p>
             )}
 
