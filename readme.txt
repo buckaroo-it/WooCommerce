@@ -81,7 +81,7 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 
 == Changelog ==
 = 4.8.1 =
-Fix 4.8.1 release tag
+Maintenance release: corrected version metadata; includes all 4.8.0 features
 
 = 4.8.0 =
 Improvements & New Features
