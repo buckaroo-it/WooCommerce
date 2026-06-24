@@ -219,7 +219,11 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
      */
     public function isAvailable(float $cartTotal)
     {
-        if ($cartTotal < self::MIN_AMOUNT || $cartTotal > self::MAX_AMOUNT) {
+        // Keep the method visible while the cart is still empty/zero (e.g. the
+        // amount is not yet known); only hide it once an out-of-range total is
+        // known. The B2B company + KvK requirements are enforced in
+        // validate_fields() so the method can still be selected and filled in.
+        if ($cartTotal > 0 && ($cartTotal < self::MIN_AMOUNT || $cartTotal > self::MAX_AMOUNT)) {
             return false;
         }
 
@@ -228,14 +232,11 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
             return true;
         }
 
+        // Netherlands only. Hide solely when a country is known and it is not
+        // NL; an unknown/empty country keeps the method visible.
         $country = $customer->get_billing_country() ?: $customer->get_shipping_country();
-        if ($country !== 'NL') {
-            return false;
-        }
 
-        $company = $customer->get_billing_company();
-
-        return is_string($company) && strlen(trim($company)) > 0;
+        return $country === '' || $country === 'NL';
     }
 
     /**
