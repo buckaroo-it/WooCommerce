@@ -6,9 +6,12 @@ use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
+use BuckarooDeps\Buckaroo\Resources\Constants\Endpoints;
 
 class PaymentSetupScripts
 {
+    private const SDK_SCRIPT_PATH = 'api/buckaroosdk/script';
+
     public function __construct()
     {
         add_action('plugins_loaded', [$this, 'handlePluginsLoaded'], 0);
@@ -91,7 +94,7 @@ class PaymentSetupScripts
 
         wp_enqueue_script(
             'buckaroo_sdk',
-            'https://checkout.buckaroo.nl/api/buckaroosdk/script',
+            $this->getBuckarooSdkUrl(),
             ['jquery'],
             Plugin::VERSION
         );
@@ -138,6 +141,37 @@ class PaymentSetupScripts
                 true
             );
         }
+    }
+
+    /**
+     * Resolve the Buckaroo Client SDK url for the current environment.
+     *
+     * When PayPal is enabled and in test mode the sandbox SDK build is loaded
+     * (from the SDK's TEST endpoint), which exposes the PayPal sandbox client
+     * ids and Base.setTestMode(). Otherwise the live endpoint is used so live
+     * stores are unaffected.
+     *
+     * @return string
+     */
+    private function getBuckarooSdkUrl(): string
+    {
+        $base = $this->isPaypalTestMode() ? Endpoints::TEST : Endpoints::LIVE;
+
+        return rtrim($base, '/') . '/' . self::SDK_SCRIPT_PATH;
+    }
+
+    /**
+     * Whether the PayPal gateway is enabled and running in test mode.
+     *
+     * @return bool
+     */
+    private function isPaypalTestMode(): bool
+    {
+        $settings = get_option('woocommerce_buckaroo_paypal_settings');
+
+        return is_array($settings)
+            && ($settings['enabled'] ?? '') === 'yes'
+            && strtolower((string) ($settings['mode'] ?? '')) === 'test';
     }
 
     private function isApplePayEnabledForPage(bool $isProduct, bool $isCart, bool $isCheckout): bool
