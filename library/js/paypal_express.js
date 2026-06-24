@@ -18,11 +18,36 @@ const BuckarooInitPaypalExpress = function () {
 
         var isTestMode = !!buckaroo_paypal_express.is_test;
 
+        // --- Buckaroo PayPal Express sandbox diagnostics ---
+        try {
+            var bkSdkScript = (function () {
+                var s = document.querySelectorAll('script[src*="buckaroosdk"]');
+                return s.length ? s[s.length - 1].src : '(buckaroosdk script not found)';
+            })();
+            console.group('[Buckaroo PayPal Express] sandbox diagnostics');
+            console.log('is_test (raw):', buckaroo_paypal_express.is_test, '-> isTestMode:', isTestMode);
+            console.log('SDK script src:', bkSdkScript);
+            console.log('merchant_id:', buckaroo_paypal_express.merchant_id);
+            console.log('Base.setTestMode:', typeof (window.BuckarooSdk && BuckarooSdk.Base && BuckarooSdk.Base.setTestMode));
+            console.log('PayPal.syncClientIdsWithMode:', typeof (window.BuckarooSdk && BuckarooSdk.PayPal && BuckarooSdk.PayPal.syncClientIdsWithMode));
+            console.log('PayPal.testModePayPalClientId:', window.BuckarooSdk && BuckarooSdk.PayPal && BuckarooSdk.PayPal.testModePayPalClientId);
+            console.log('PayPal.payPalClientId (before setTestMode):', window.BuckarooSdk && BuckarooSdk.PayPal && BuckarooSdk.PayPal.payPalClientId);
+        } catch (e) {
+            console.warn('[Buckaroo PayPal Express] diagnostics error:', e);
+        }
+
         // Signal the environment to the SDK; it then selects the matching
         // (sandbox/live) PayPal client id internally.
         if (BuckarooSdk && BuckarooSdk.Base && typeof BuckarooSdk.Base.setTestMode === 'function') {
             BuckarooSdk.Base.setTestMode(isTestMode);
         }
+
+        try {
+            console.log('PayPal.payPalClientId (after setTestMode):', window.BuckarooSdk && BuckarooSdk.PayPal && BuckarooSdk.PayPal.payPalClientId);
+            console.log('Base.isTestMode:', window.BuckarooSdk && BuckarooSdk.Base && BuckarooSdk.Base.isTestMode);
+            console.log('Base.checkoutUrl:', window.BuckarooSdk && BuckarooSdk.Base && BuckarooSdk.Base.checkoutUrl);
+            console.groupEnd();
+        } catch (e) {}
 
         let buckaroo_paypal_express_class = new BuckarooPaypalExpress(
             BuckarooSdk.PayPal,
