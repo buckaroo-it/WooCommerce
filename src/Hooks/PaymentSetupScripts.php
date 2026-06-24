@@ -6,9 +6,12 @@ use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
+use BuckarooDeps\Buckaroo\Resources\Constants\Endpoints;
 
 class PaymentSetupScripts
 {
+    private const SDK_SCRIPT_PATH = 'api/buckaroosdk/script';
+
     public function __construct()
     {
         add_action('plugins_loaded', [$this, 'handlePluginsLoaded'], 0);
@@ -144,19 +147,17 @@ class PaymentSetupScripts
      * Resolve the Buckaroo Client SDK url for the current environment.
      *
      * When PayPal is enabled and in test mode the sandbox SDK build is loaded
-     * from testcheckout.buckaroo.nl, which exposes the PayPal sandbox client
-     * ids and Base.setTestMode(). Otherwise the live SDK is used so live
+     * (from the SDK's TEST endpoint), which exposes the PayPal sandbox client
+     * ids and Base.setTestMode(). Otherwise the live endpoint is used so live
      * stores are unaffected.
      *
      * @return string
      */
     private function getBuckarooSdkUrl(): string
     {
-        if ($this->isPaypalTestMode()) {
-            return 'https://testcheckout.buckaroo.nl/api/buckaroosdk/script';
-        }
+        $base = $this->isPaypalTestMode() ? Endpoints::TEST : Endpoints::LIVE;
 
-        return 'https://checkout.buckaroo.nl/api/buckaroosdk/script';
+        return rtrim($base, '/') . '/' . self::SDK_SCRIPT_PATH;
     }
 
     /**
