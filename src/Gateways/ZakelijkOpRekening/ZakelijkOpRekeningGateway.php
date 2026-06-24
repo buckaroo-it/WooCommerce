@@ -126,12 +126,24 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
      */
     public function process_payment($order_id)
     {
-        $processor = $this->newPaymentProcessorInstance($order_id);
-
         try {
+            $processor = $this->newPaymentProcessorInstance($order_id);
+
             $response = $this->runBuckarooAction($processor, 'authorize');
+
+            $result = (new ReturnProcessor($response->toArray(), false))->handle($this);
+
+            if (isset($result['result']) && $result['result'] === 'success') {
+                update_post_meta($order_id, '_wc_order_authorized', 'yes');
+                $this->set_order_capture($order_id, 'ZakelijkOpRekening');
+            }
+
+            return $result;
         } catch (\Throwable $e) {
-            Logger::log(__METHOD__ . '|error|', $e->getMessage());
+            Logger::log(
+                __METHOD__ . '|error|',
+                [$e->getMessage(), $e->getFile() . ':' . $e->getLine(), $e->getTraceAsString()]
+            );
             wc_add_notice(
                 __('Could not start the payment. Please try again or choose another payment method.', 'wc-buckaroo-bpe-gateway'),
                 'error'
@@ -139,15 +151,6 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
 
             return ['result' => 'failure'];
         }
-
-        $result = (new ReturnProcessor($response->toArray(), false))->handle($this);
-
-        if (isset($result['result']) && $result['result'] === 'success') {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes');
-            $this->set_order_capture($order_id, 'ZakelijkOpRekening');
-        }
-
-        return $result;
     }
 
     /**
@@ -283,6 +286,10 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
             return false;
         }
 
-        return (bool) preg_match('/^\d{8}$/', trim((string) $coc));
+        // Require digits only (no letters); any non-digit formatting such as
+        // spaces, dots or dashes is ignored. At least one digit must remain.
+        $digits = preg_replace('/\D+/', '', (string) $coc);
+
+        return strlen((string) $digits) > 0;
     }
 }

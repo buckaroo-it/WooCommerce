@@ -49,7 +49,8 @@ $company = $this->getScalarCheckoutField('billing_company');
             name="buckaroo-zakelijkoprekening-company-coc-registration"
             class="input-text"
             type="text"
-            maxlength="8"
+            maxlength="14"
+            placeholder="12345678"
             autocomplete="off"
             value="" />
     </p>

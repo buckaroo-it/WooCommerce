@@ -155,8 +155,12 @@ class ZakelijkOpRekeningProcessor extends AbstractPaymentProcessor
     private function getCocNumber(): string
     {
         $coc = $this->request->input('buckaroo-zakelijkoprekening-company-coc-registration');
+        if (! is_scalar($coc)) {
+            return '';
+        }
 
-        return is_scalar($coc) ? (string) $coc : '';
+        // Send only digits (strip any spaces/dots/dashes the customer typed).
+        return preg_replace('/\D+/', '', (string) $coc);
     }
 
     /** {@inheritDoc} */
