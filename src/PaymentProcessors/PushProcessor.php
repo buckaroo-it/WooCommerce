@@ -354,7 +354,7 @@ class PushProcessor
             if ($responseParser->isSuccess()) {
                 $this->onSuccess($order_id, $order, $responseParser);
             } else {
-                if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_ON_HOLD && $order->get_payment_method() == 'buckaroo_in3') {
+                if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_ON_HOLD && in_array($order->get_payment_method(), ['buckaroo_in3', 'buckaroo_zakelijkoprekening'], true)) {
                     return;
                 }
 
