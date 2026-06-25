@@ -11,7 +11,7 @@ use Buckaroo\Woocommerce\Install\Migration\Migration;
  */
 class MigrateKlarnaPayLaterLabels implements Migration
 {
-    public $version = '4.8.0';
+    public $version = '4.8.1';
 
     public function execute()
     {
