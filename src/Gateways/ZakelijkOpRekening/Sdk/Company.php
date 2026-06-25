@@ -16,12 +16,12 @@ use BuckarooDeps\Buckaroo\PaymentMethods\In3\Models\Company as In3Company;
 class Company extends In3Company
 {
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $companyName;
+    protected ?string $companyName;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $chamberOfCommerce;
+    protected ?string $chamberOfCommerce;
 }
