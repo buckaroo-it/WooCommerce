@@ -20,7 +20,7 @@ defined('ABSPATH') || exit;
 $customerPhone = $this->getScalarCheckoutField('billing_phone');
 $country = $this->getScalarCheckoutField('billing_country');
 
-  ?>
+?>
 
 <fieldset>
     <?php
