@@ -23,7 +23,7 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
         }
 
         const request = jQuery.ajax({
-            url: '/wp-admin/admin-ajax.php',
+            url: buckaroo_global.admin_ajax_url,
             type: 'POST',
             data: {
                 action: 'woocommerce_cart_calculate_fees',
