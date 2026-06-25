@@ -20,18 +20,7 @@ defined('ABSPATH') || exit;
 $customerPhone = $this->getScalarCheckoutField('billing_phone');
 $country = $this->getScalarCheckoutField('billing_country');
 
-if (strtoupper($country) == 'NL' && strtolower($this->klarnaPaymentFlowId) !== 'pay') {
-    ?>
-    <div class="woocommerce-error">
-        <p>
-            <?php
-                echo esc_html__('Payment method is not supported for country ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html($country) . ')';
-            ?>
-        </p>
-    </div>
-    <?php
-}
-?>
+  ?>
 
 <fieldset>
     <?php
