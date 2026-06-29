@@ -195,7 +195,8 @@ $refunded_capture_ids = $this->get_refunded_captures($order->get_id());
                         capture_id: $(this).attr('data-capture-id'),
                         order_id: woocommerce_admin_meta_boxes.post_id,
                         reason: form.find('.bk-refund-reason input').val(),
-                        restock: form.find('.bk-refund-restock input').is(':checked')
+                        restock: form.find('.bk-refund-restock input').is(':checked'),
+                        security: woocommerce_admin_meta_boxes.order_item_nonce
                     }
 
                     $.post(ajaxurl, data, function (response) {
