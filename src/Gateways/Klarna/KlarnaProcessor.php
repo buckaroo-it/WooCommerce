@@ -4,7 +4,6 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
-use BuckarooDeps\Buckaroo\Resources\Constants\Gender;
 
 class KlarnaProcessor extends AbstractPaymentProcessor
 {
@@ -16,7 +15,7 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         $body = array_merge_recursive(
             [
                 'operatingCountry' => $this->getOperatingCountry(),
-                'gender' => $this->getGender(),
+                'salutation' => $this->getSalutation(),
             ],
             $this->getBilling(),
             $this->getShipping(),
@@ -72,12 +71,14 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         return is_string($country) ? strtoupper($country) : '';
     }
 
-    private function getGender(): int
+    private function getSalutation(): string
     {
-        // The gender selection step was removed from checkout to improve conversion.
-        // Klarna still requires the gender/salutation parameter, so we always send
-        // "Unknown" (Gender::UNKNOWN === 0), which Buckaroo accepts as a valid value.
-        return Gender::UNKNOWN;
+        // Gender selection was removed from checkout to improve conversion. Klarna MOR
+        // (the `klarna` service) rejects the integer Gender value 0 ("Bad value:
+        // customer.gender"), so we always send "unknown" as a `Salutation` parameter
+        // under the BillingCustomer group (see KlarnaPay\Models\Pay). Buckaroo accepts
+        // Male/Female/Unknown here.
+        return 'unknown';
     }
 
     public function getAction(): string
