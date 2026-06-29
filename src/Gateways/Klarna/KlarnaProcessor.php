@@ -15,7 +15,7 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         $body = array_merge_recursive(
             [
                 'operatingCountry' => $this->getOperatingCountry(),
-                'Gender' => $this->getSalutation(),
+                'gender' => 0
             ],
             $this->getBilling(),
             $this->getShipping(),
