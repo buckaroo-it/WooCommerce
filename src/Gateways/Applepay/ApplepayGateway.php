@@ -353,10 +353,7 @@ class ApplepayGateway extends AbstractPaymentGateway
 
     private static function createOrderShippingLine($order, array $wc_methods, $selected_method_id)
     {
-        if (
-            empty($selected_method_id)
-            || preg_match('/free/', $selected_method_id)
-        ) {
+        if (empty($selected_method_id)) {
             return;
         }
 

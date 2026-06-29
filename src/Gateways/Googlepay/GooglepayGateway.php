@@ -210,7 +210,7 @@ class GooglepayGateway extends AbstractPaymentGateway
                 $order->set_billing_phone($billingPhone);
             }
 
-            if (! empty($selected_method_id) && ! preg_match('/free/', $selected_method_id)) {
+            if (! empty($selected_method_id) && isset($wc_methods[$selected_method_id])) {
                 $order->add_shipping($wc_methods[$selected_method_id]);
             }
 
