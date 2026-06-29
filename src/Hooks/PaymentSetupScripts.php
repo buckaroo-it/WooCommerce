@@ -61,6 +61,14 @@ class PaymentSetupScripts
             Plugin::VERSION,
             true
         );
+
+        wp_localize_script(
+            'buckaroo_admin_utils_js',
+            'buckarooAdminAjax',
+            [
+                'nonce' => wp_create_nonce('buckaroo_admin_ajax'),
+            ]
+        );
     }
 
     public function initFrontendScripts()

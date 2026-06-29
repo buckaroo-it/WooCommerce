@@ -45,6 +45,30 @@ class OrderActions
 
     public function handleOrderCapture(): void
     {
+        if (! check_ajax_referer('order-item', 'security', false)) {
+            wp_send_json(
+                [
+                    'errors' => [
+                        'error_capture' => [
+                            [esc_html__('Invalid security token. Please reload the page and try again.', 'wc-buckaroo-bpe-gateway')],
+                        ],
+                    ],
+                ]
+            );
+        }
+
+        if (! current_user_can('edit_shop_orders')) {
+            wp_send_json(
+                [
+                    'errors' => [
+                        'error_capture' => [
+                            [esc_html__('You are not allowed to capture this order.', 'wc-buckaroo-bpe-gateway')],
+                        ],
+                    ],
+                ]
+            );
+        }
+
         if (! isset($_POST['order_id'])) {
             wp_send_json(
                 [
