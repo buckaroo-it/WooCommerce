@@ -15,6 +15,7 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         $body = array_merge_recursive(
             [
                 'operatingCountry' => $this->getOperatingCountry(),
+                'gender' => 1
             ],
             $this->getBilling(),
             $this->getShipping(),
@@ -68,16 +69,6 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         }
 
         return is_string($country) ? strtoupper($country) : '';
-    }
-
-    private function getSalutation(): string
-    {
-        // Gender selection was removed from checkout to improve conversion. Klarna MOR
-        // (the `klarna` service) rejects the integer Gender value 0 ("Bad value:
-        // customer.gender"), so we always send "unknown" as a `Salutation` parameter
-        // under the BillingCustomer group (see KlarnaPay\Models\Pay). Buckaroo accepts
-        // Male/Female/Unknown here.
-        return 'unknown';
     }
 
     public function getAction(): string
