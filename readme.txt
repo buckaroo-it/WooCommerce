@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 5.3.18
 Tested up to: 7.0
-Stable tag: 4.8.1
+Stable tag: 4.8.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,10 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
+= 4.8.2 =
+Improvements
+BTI-1124 Fixed an issue where orders using Klarna (MoR) could not be placed through the WooCommerce legacy checkout when the address was in the Netherlands.
+
 = 4.8.1 =
 Maintenance release: corrected version metadata; includes all 4.8.0 features
 
