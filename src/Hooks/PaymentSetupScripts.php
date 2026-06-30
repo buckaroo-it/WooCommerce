@@ -12,6 +12,16 @@ class PaymentSetupScripts
 {
     private const SDK_SCRIPT_PATH = 'api/buckaroosdk/script';
 
+    /**
+     * Apple's official Apple Pay JS SDK.
+     *
+     * Provides the <apple-pay-button> web component, ApplePaySession.applePayCapabilities()
+     * and the cross-device (QR-code) handoff so Apple Pay works in every browser
+     * (Chrome, Edge, Firefox, Safari). The Buckaroo SDK is still used for the
+     * ApplePaySession orchestration and merchant validation.
+     */
+    private const APPLE_PAY_SDK_URL = 'https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js';
+
     public function __construct()
     {
         add_action('plugins_loaded', [$this, 'handlePluginsLoaded'], 0);
@@ -108,6 +118,24 @@ class PaymentSetupScripts
         );
 
         if ($applePayEnabled) {
+            // Apple's official SDK (web component + applePayCapabilities + QR handoff).
+            //
+            // IMPORTANT: this is enqueued standalone in the <head> and is NOT added
+            // to the WP dependency array of `buckaroo_apple_pay`. The WooCommerce
+            // Blocks integration (`buckaroo-blocks`) depends on `buckaroo_apple_pay`
+            // and recursively validates its dependency tree; adding this external
+            // CDN handle to that tree caused Blocks to deactivate the whole Buckaroo
+            // integration ("dependency not registered"). Loading it in the head
+            // guarantees the <apple-pay-button> element and applePayCapabilities()
+            // are available before the footer bundle runs, without the coupling.
+            wp_enqueue_script(
+                'apple_pay_sdk',
+                self::APPLE_PAY_SDK_URL,
+                [],
+                null,
+                false
+            );
+
             wp_enqueue_script(
                 'buckaroo_apple_pay',
                 $pluginDir . 'assets/js/dist/applepay.js',
@@ -142,10 +170,16 @@ class PaymentSetupScripts
         );
 
         if ($isCheckout) {
+            $checkoutDeps = ['jquery'];
+            if ($applePayEnabled) {
+                // The classic-checkout Apple Pay method relies on window.BuckarooApplePay
+                // exposed by the applepay bundle.
+                $checkoutDeps[] = 'buckaroo_apple_pay';
+            }
             wp_enqueue_script(
                 'wc-pf-checkout',
                 $pluginDir . 'assets/js/dist/checkout.js',
-                ['jquery'],
+                $checkoutDeps,
                 Plugin::VERSION,
                 true
             );

@@ -134,6 +134,11 @@ class InitGateways
                         [
                             'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE',
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
+                            'buttonStyle' => $gateway->get_option('button_style', 'black'),
+                            // Whether Apple Pay is also listed as a standard,
+                            // selectable checkout payment method (Part 2).
+                            'showAsPaymentMethod' => method_exists($gateway, 'isCheckoutMethodEnabled')
+                                && $gateway->isCheckoutMethodEnabled(),
                         ]
                     );
                 }
