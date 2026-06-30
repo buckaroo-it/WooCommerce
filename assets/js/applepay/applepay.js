@@ -40,6 +40,10 @@ export default class ApplePay {
         // "Place Order" action and only authorises the payment.
         this.renderButton = options.renderButton !== false;
         this.onReady = typeof options.onReady === 'function' ? options.onReady : null;
+        // Apple's <apple-pay-button> reads `locale` when other attributes change;
+        // a null/missing locale makes it call ''.trim() on undefined and throw.
+        // Always provide a valid locale string.
+        this.locale = options.locale || (typeof navigator !== 'undefined' && navigator.language) || 'en-US';
         this.supported = false;
         this.payment = null;
     }
@@ -91,12 +95,22 @@ export default class ApplePay {
 
         // Only the express button renders the web component. The standard
         // checkout method has no button (driven by "Place Order").
-        if (this.renderButton) {
-            // Rendered visible; init() removes it only if Apple Pay is unsupported.
-            container.append(
-                `<apple-pay-button buttonstyle="${this.buttonStyle}" type="plain" style="width:100%;"></apple-pay-button>`
-            );
+        if (!this.renderButton) {
+            return;
         }
+
+        // Build via createElement and set attributes in a safe order. Apple's
+        // <apple-pay-button> re-reads `locale` when `type` changes, so `locale`
+        // must be a valid string and set BEFORE `type` (otherwise it calls
+        // .trim() on null and throws "t.trim is not a function").
+        const button = document.createElement('apple-pay-button');
+        button.setAttribute('locale', this.locale);
+        button.setAttribute('buttonstyle', this.buttonStyle);
+        button.setAttribute('type', 'plain');
+        button.style.width = '100%';
+
+        // Rendered visible; init() removes it only if Apple Pay is unsupported.
+        container.append(button);
     }
 
     init() {
