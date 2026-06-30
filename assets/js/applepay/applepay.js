@@ -34,6 +34,13 @@ export default class ApplePay {
         this.onAuthorized = typeof options.onAuthorized === 'function' ? options.onAuthorized : null;
         this.buttonStyle = options.buttonStyle || 'black';
         this.containerSelector = options.containerSelector || '.applepay-button-container';
+
+        // Express renders the <apple-pay-button> web component. The standard
+        // checkout method renders NO button — it is triggered from the normal
+        // "Place Order" action and only authorises the payment.
+        this.renderButton = options.renderButton !== false;
+        this.onReady = typeof options.onReady === 'function' ? options.onReady : null;
+        this.supported = false;
         this.payment = null;
     }
 
@@ -81,15 +88,26 @@ export default class ApplePay {
         const container = jQuery(this.containerSelector);
         container.find('apple-pay-button').remove();
         container.find('div').remove();
-        container.append(
-            `<apple-pay-button buttonstyle="${this.buttonStyle}" type="plain" style="display:none;width:100%;"></apple-pay-button>`
-        );
+
+        // Only the express button renders the web component. The standard
+        // checkout method has no button (driven by "Place Order").
+        if (this.renderButton) {
+            // Rendered visible; init() removes it only if Apple Pay is unsupported.
+            container.append(
+                `<apple-pay-button buttonstyle="${this.buttonStyle}" type="plain" style="width:100%;"></apple-pay-button>`
+            );
+        }
     }
 
     init() {
         this.checkSupport().then(is_applepay_supported => {
+            this.supported = is_applepay_supported === true;
+
             if (!is_applepay_supported) {
-                jQuery(this.containerSelector).find('apple-pay-button').hide();
+                jQuery(this.containerSelector).find('apple-pay-button').remove();
+                if (this.onReady) {
+                    this.onReady(false);
+                }
                 return;
             }
 
@@ -136,13 +154,39 @@ export default class ApplePay {
                 requiredContactFields
             );
 
-            this.payment = new BuckarooSdk.ApplePay.ApplePayPayment(
-                `${this.containerSelector} apple-pay-button`,
-                applepay_options
-            );
+            // The SDK needs a button selector; for the standard method (no
+            // button) we pass the container itself — beginPayment() does not
+            // require the element, it is triggered programmatically.
+            const buttonSelector = this.renderButton
+                ? `${this.containerSelector} apple-pay-button`
+                : this.containerSelector;
 
-            this.injectApplePayButton();
+            this.payment = new BuckarooSdk.ApplePay.ApplePayPayment(buttonSelector, applepay_options);
+
+            if (this.renderButton) {
+                this.injectApplePayButton();
+            }
+
+            if (this.onReady) {
+                this.onReady(true);
+            }
         });
+    }
+
+    /**
+     * Programmatically open the Apple Pay sheet. Used by the standard checkout
+     * method, which triggers payment from the normal "Place Order" action
+     * (within the click user-gesture) instead of from a dedicated button.
+     *
+     * @param {Event} event
+     * @returns {boolean} whether a session could be started
+     */
+    triggerPayment(event) {
+        if (this.payment && typeof this.payment.beginPayment === 'function') {
+            this.payment.beginPayment(event || new Event('click'));
+            return true;
+        }
+        return false;
     }
 
     /**

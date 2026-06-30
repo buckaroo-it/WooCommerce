@@ -31,11 +31,11 @@ class BuckarooApplePayCheckout {
 
         // Require an authorised token before the order is placed. The place-order
         // click is a user gesture, so opening the Apple Pay sheet from here is allowed.
-        jQuery('form.checkout').on('checkout_place_order_buckaroo_applepay', () => {
+        jQuery('form.checkout').on('checkout_place_order_buckaroo_applepay', event => {
             if (self.token) {
                 return true;
             }
-            self.beginPayment();
+            self.beginPayment(event);
             return false;
         });
     }
@@ -49,12 +49,12 @@ class BuckarooApplePayCheckout {
         }
 
         const self = this;
-        const style = jQuery('.applepay-checkout-button-container').data('button-style') || 'black';
 
         try {
             this.instance = window.BuckarooApplePay.create({
                 isOnCheckout: true,
-                buttonStyle: style,
+                // No button: the standard method is triggered from "Place Order".
+                renderButton: false,
                 containerSelector: '.applepay-checkout-button-container',
                 onAuthorized: payment => {
                     self.token = JSON.stringify(payment);
@@ -66,14 +66,15 @@ class BuckarooApplePayCheckout {
             this.instance.rebuild();
             this.instance.init();
         } catch (e) {
-            // Apple Pay unavailable in this context; leave the button unrendered.
+            // Apple Pay unavailable in this context; method stays inert.
         }
     }
 
-    beginPayment() {
-        if (this.instance && this.instance.payment) {
-            this.instance.payment.beginPayment(new Event('click'));
+    beginPayment(event) {
+        if (this.instance && typeof this.instance.triggerPayment === 'function') {
+            return this.instance.triggerPayment(event);
         }
+        return false;
     }
 }
 

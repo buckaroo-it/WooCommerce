@@ -26,10 +26,11 @@ $buttonStyle = $this->get_option('button_style', 'black');
 ?>
 <fieldset class="buckaroo-applepay-checkout-method" style="background: none">
     <div class="applepay-checkout-button-container"
-         data-button-style="<?php echo esc_attr($buttonStyle); ?>">
+         data-button-style="<?php echo esc_attr($buttonStyle); ?>"
+         style="display:none;">
     </div>
     <input type="hidden" name="paymentData" class="buckaroo-applepay-payment-data" value="" />
     <p class="buckaroo-applepay-checkout-hint">
-        <?php esc_html_e('Click the Apple Pay button to authorise your payment, then place the order.', 'wc-buckaroo-bpe-gateway'); ?>
+        <?php esc_html_e('Place your order to authorise the payment with Apple Pay.', 'wc-buckaroo-bpe-gateway'); ?>
     </p>
 </fieldset>
