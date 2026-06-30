@@ -109,20 +109,6 @@ class BuckarooCheckout {
      * Shared birthdate datepicker initialiser for every BNPL method in the
      * classic (legacy) checkout.
      *
-     * All BNPL gateways render their birthdate field through the same
-     * `partial_birth_field` template, producing an `<input>` whose id matches
-     * `buckaroo-<method>-birthdate` (Riverty/Afterpay, Riverty Old, Billink,
-     * In3). A single selector therefore covers every method and avoids the
-     * duplicated, per-method initialisation logic that the Blocks checkout
-     * keeps inside its React `BirthDayField` component.
-     *
-     * The method is safe to call repeatedly: WooCommerce replaces the payment
-     * box markup on every `updated_checkout` (shipping/address changes, fragment
-     * refreshes, switching payment methods), so it must run on each refresh.
-     * jQuery UI flags initialised inputs with the `hasDatepicker` class, which
-     * we use both as a duplicate guard and to tear down any stale instance
-     * before re-binding, preventing multiple datepicker instances from being
-     * attached to the same field.
      */
     initBirthdatePickers() {
         // jquery-ui-datepicker is a WooCommerce/WordPress core dependency, but
