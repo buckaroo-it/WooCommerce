@@ -1,13 +1,14 @@
 <?php
 
 /**
- * The Template for displaying the Apple Pay standard checkout payment method
+ * The Template for the Apple Pay standard checkout payment method
  * (classic / shortcode checkout).
  *
- * Renders Apple's official <apple-pay-button> web component and a hidden field
- * that carries the authorised Apple Pay token into the normal WooCommerce
- * checkout submission. The Apple sheet only authorises payment; billing and
- * shipping come from the WooCommerce checkout form.
+ * No Apple Pay button is rendered here — the standard method is triggered from
+ * the normal "Place Order" action and only authorises the payment. This markup
+ * just provides the (hidden) anchor element for the JS instance and the hidden
+ * field that carries the authorised token into the WooCommerce submission.
+ * Billing and shipping come from the checkout form.
  *
  * php version 7.2
  *
@@ -24,10 +25,9 @@ defined('ABSPATH') || exit;
 
 $buttonStyle = $this->get_option('button_style', 'black');
 ?>
-<fieldset class="buckaroo-applepay-checkout-method" style="background: none">
+<div class="buckaroo-applepay-checkout-method">
     <div class="applepay-checkout-button-container"
          data-button-style="<?php echo esc_attr($buttonStyle); ?>"
-         style="display:none;">
-    </div>
+         style="display:none;"></div>
     <input type="hidden" name="paymentData" class="buckaroo-applepay-payment-data" value="" />
-</fieldset>
+</div>
