@@ -110,11 +110,7 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
     }, [eventRegistration, emitResponse]);
 
     return (
-        <div className="payment_box payment_method_buckaroo buckaroo-applepay-checkout-method applepay-blocks-checkout-method">
-            <p className="buckaroo-applepay-checkout-hint">
-                {__('Place your order to authorise the payment with Apple Pay.', 'wc-buckaroo-bpe-gateway')}
-            </p>
-        </div>
+        <div className="payment_box payment_method_buckaroo buckaroo-applepay-checkout-method applepay-blocks-checkout-method" />
     );
 }
 

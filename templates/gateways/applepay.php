@@ -30,7 +30,4 @@ $buttonStyle = $this->get_option('button_style', 'black');
          style="display:none;">
     </div>
     <input type="hidden" name="paymentData" class="buckaroo-applepay-payment-data" value="" />
-    <p class="buckaroo-applepay-checkout-hint">
-        <?php esc_html_e('Place your order to authorise the payment with Apple Pay.', 'wc-buckaroo-bpe-gateway'); ?>
-    </p>
 </fieldset>
