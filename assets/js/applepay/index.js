@@ -15,6 +15,17 @@ const BuckarooListenToApplePayChange = function (applepay) {
     };
 };
 
+/**
+ * Expose the Apple Pay integration so the Blocks and classic checkout bundles
+ * can create a checkout-mode (authorise-only) instance without re-bundling the
+ * Buckaroo/Apple SDKs. Used by the standard Apple Pay payment method (Part 2).
+ */
+window.BuckarooApplePay = {
+    create(options) {
+        return new ApplePay(options);
+    },
+};
+
 window.BuckarooInitApplePay = function () {
     if (typeof jQuery === 'undefined') {
         console.error('Cannot initialize ApplePay missing jquery');

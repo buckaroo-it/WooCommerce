@@ -1,5 +1,6 @@
 import buckaroo_afterpay from './buckaroo_afterpay';
 import buckaroo_afterpaynew from './buckaroo_afterpaynew';
+import buckaroo_applepay from './buckaroo_applepay';
 import buckaroo_billink from './buckaroo_billink';
 import buckaroo_creditcard from './buckaroo_creditcard';
 import buckaroo_in3 from './buckaroo_in3';
@@ -12,6 +13,7 @@ import buckaroo_sepadirectdebit from './buckaroo_sepadirectdebit';
 export const paymentGatewaysTemplates = {
     buckaroo_afterpay,
     buckaroo_afterpaynew,
+    buckaroo_applepay,
     buckaroo_billink,
     buckaroo_creditcard,
     buckaroo_in3,

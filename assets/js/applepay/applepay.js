@@ -2,8 +2,25 @@ import * as convert from './helpers/convert.js';
 import Woocommerce from './woocommerce.js';
 import Buckaroo from './buckaroo.js';
 
+/**
+ * Apple Pay integration.
+ *
+ * Detection and the button now come from Apple's official SDK
+ * (apple-pay-sdk.js): the <apple-pay-button> web component renders in every
+ * browser and Apple provides the cross-device QR-code handoff on non-Apple
+ * devices. The Buckaroo SDK (BuckarooSdk.ApplePay) is still used to create the
+ * ApplePaySession and to perform merchant validation.
+ *
+ * The class supports two modes:
+ *   - Express (default): the Apple sheet gathers shipping/billing/contact and
+ *     the order is created from that data (product/cart/top-of-checkout button).
+ *   - Checkout (isOnCheckout = true): the Apple sheet only authorises payment.
+ *     Shipping methods/callbacks are omitted and required contact fields are
+ *     minimal, so the WooCommerce checkout form remains the source of truth for
+ *     addresses. On authorisation `onAuthorized(payment)` is invoked.
+ */
 export default class ApplePay {
-    constructor() {
+    constructor(options = {}) {
         this.buckaroo = new Buckaroo();
         this.woocommerce = new Woocommerce();
         this.store_info = this.woocommerce.getStoreInformation();
@@ -11,62 +28,141 @@ export default class ApplePay {
         this.selected_shipping_amount = null;
         this.total_price = null;
         this.country_code = this.store_info.country_code;
+
+        // Checkout-method behaviour (Part 2). Defaults preserve express behaviour.
+        this.isOnCheckout = options.isOnCheckout === true;
+        this.onAuthorized = typeof options.onAuthorized === 'function' ? options.onAuthorized : null;
+        this.buttonStyle = options.buttonStyle || 'black';
+        this.containerSelector = options.containerSelector || '.applepay-button-container';
+        this.payment = null;
+    }
+
+    /**
+     * Detect Apple Pay support using Apple's official API.
+     *
+     * applePayCapabilities() works across browsers (and underpins the QR
+     * handoff); canMakePayments() is the fallback for older WebKit.
+     *
+     * @returns {Promise<boolean>}
+     */
+    checkSupport() {
+        const merchantId = this.store_info.merchant_id;
+
+        // Apple Pay requires a secure context (HTTPS, no mixed content). Calling
+        // the session/capabilities APIs on an insecure document throws
+        // InvalidAccessError, so bail out gracefully (hide Apple Pay) instead of
+        // letting an uncaught rejection break checkout rendering.
+        if (typeof window.ApplePaySession === 'undefined' || window.isSecureContext === false) {
+            return Promise.resolve(false);
+        }
+
+        const safeCanMakePayments = () => {
+            try {
+                return ApplePaySession.canMakePayments() === true;
+            } catch (e) {
+                return false;
+            }
+        };
+
+        try {
+            if (typeof ApplePaySession.applePayCapabilities === 'function') {
+                return Promise.resolve(ApplePaySession.applePayCapabilities(merchantId))
+                    .then(caps => !!caps && caps.paymentCredentialStatus !== 'applePayUnsupported')
+                    .catch(() => safeCanMakePayments());
+            }
+
+            return Promise.resolve(safeCanMakePayments());
+        } catch (e) {
+            return Promise.resolve(false);
+        }
     }
 
     rebuild() {
-        jQuery('.applepay-button-container div').remove();
-        jQuery('.applepay-button-container').append('<div>');
+        const container = jQuery(this.containerSelector);
+        container.find('apple-pay-button').remove();
+        container.find('div').remove();
+        container.append(
+            `<apple-pay-button buttonstyle="${this.buttonStyle}" type="plain" locale="" style="display:none;width:100%;"></apple-pay-button>`
+        );
     }
 
     init() {
-        BuckarooSdk.ApplePay.checkApplePaySupport(this.store_info.merchant_id).then(is_applepay_supported => {
-            if (is_applepay_supported) {
-                const cart_items = this.getItems();
-                const shipping_methods = this.woocommerce.getShippingMethods(this.country_code);
-                const first_shipping_item = this.getFirstShippingItem(shipping_methods);
-
-                const all_items =
-                    first_shipping_item !== null ? [].concat(cart_items, first_shipping_item) : cart_items;
-
-                const total_to_pay = this.sumTotalAmount(all_items);
-
-                const total_item = {
-                    label: 'Totaal',
-                    amount: total_to_pay,
-                    type: 'final',
-                };
-
-                if (shipping_methods.length > 0) {
-                    this.selected_shipping_method = shipping_methods[0].identifier;
-                    this.selected_shipping_amount = shipping_methods[0].amount;
-                }
-                this.total_price = total_to_pay;
-
-                const requiredContactFields = ['name', 'email', 'postalAddress', 'phone'];
-                const applepay_options = new BuckarooSdk.ApplePay.ApplePayOptions(
-                    this.store_info.store_name,
-                    this.store_info.country_code,
-                    this.store_info.currency_code,
-                    this.store_info.culture_code,
-                    this.store_info.merchant_id,
-                    all_items,
-                    total_item,
-                    'shipping',
-                    shipping_methods,
-                    this.processApplepayCallback.bind(this),
-                    this.processShippingMethodsCallback.bind(this),
-                    this.processChangeContactInfoCallback.bind(this),
-                    requiredContactFields,
-                    requiredContactFields
-                );
-                const applepay_payment = new BuckarooSdk.ApplePay.ApplePayPayment(
-                    '.applepay-button-container div',
-                    applepay_options
-                );
-
-                applepay_payment.showPayButton('black');
+        this.checkSupport().then(is_applepay_supported => {
+            if (!is_applepay_supported) {
+                jQuery(this.containerSelector).find('apple-pay-button').hide();
+                return;
             }
+
+            const cart_items = this.getItems();
+            const shipping_methods = this.isOnCheckout ? [] : this.woocommerce.getShippingMethods(this.country_code);
+            const first_shipping_item = this.getFirstShippingItem(shipping_methods);
+
+            const all_items = first_shipping_item !== null ? [].concat(cart_items, first_shipping_item) : cart_items;
+
+            const total_to_pay = this.sumTotalAmount(all_items);
+
+            const total_item = {
+                label: 'Totaal',
+                amount: total_to_pay,
+                type: 'final',
+            };
+
+            if (shipping_methods.length > 0) {
+                this.selected_shipping_method = shipping_methods[0].identifier;
+                this.selected_shipping_amount = shipping_methods[0].amount;
+            }
+            this.total_price = total_to_pay;
+
+            // Express gathers full contact data from the Apple sheet; the
+            // checkout method only authorises and uses the WooCommerce form.
+            const requiredContactFields = this.isOnCheckout ? [] : ['name', 'email', 'postalAddress', 'phone'];
+            const shippingMethodsCallback = this.isOnCheckout ? null : this.processShippingMethodsCallback.bind(this);
+            const changeContactCallback = this.isOnCheckout ? null : this.processChangeContactInfoCallback.bind(this);
+
+            const applepay_options = new BuckarooSdk.ApplePay.ApplePayOptions(
+                this.store_info.store_name,
+                this.store_info.country_code,
+                this.store_info.currency_code,
+                this.store_info.culture_code,
+                this.store_info.merchant_id,
+                all_items,
+                total_item,
+                'shipping',
+                shipping_methods,
+                this.processApplepayCallback.bind(this),
+                shippingMethodsCallback,
+                changeContactCallback,
+                requiredContactFields,
+                requiredContactFields
+            );
+
+            this.payment = new BuckarooSdk.ApplePay.ApplePayPayment(
+                `${this.containerSelector} apple-pay-button`,
+                applepay_options
+            );
+
+            this.injectApplePayButton();
         });
+    }
+
+    /**
+     * Wire Apple's <apple-pay-button> web component to the Buckaroo SDK session.
+     * We do not call showPayButton() (which draws the legacy styled button);
+     * the official web component is the button.
+     */
+    injectApplePayButton() {
+        const button = jQuery(this.containerSelector).find('apple-pay-button')[0];
+        if (!button || !this.payment) {
+            return;
+        }
+
+        const paymentRef = this.payment;
+        button.addEventListener('click', event => {
+            event.stopPropagation();
+            paymentRef.beginPayment(event);
+        });
+
+        button.style.display = '';
     }
 
     processChangeContactInfoCallback(contact_info) {
@@ -139,6 +235,16 @@ export default class ApplePay {
             status: ApplePaySession.STATUS_SUCCESS,
             errors: [],
         };
+
+        // Checkout method: hand the authorised token back to the caller (Blocks
+        // or classic checkout) which places the order through WooCommerce using
+        // the checkout-form addresses. Do NOT create an order from Apple data.
+        if (this.isOnCheckout) {
+            if (this.onAuthorized) {
+                this.onAuthorized(payment);
+            }
+            return Promise.resolve(authorization_result);
+        }
 
         if (authorization_result.status === ApplePaySession.STATUS_SUCCESS) {
             this.buckaroo.createTransaction(
