@@ -82,7 +82,7 @@ export default class ApplePay {
         container.find('apple-pay-button').remove();
         container.find('div').remove();
         container.append(
-            `<apple-pay-button buttonstyle="${this.buttonStyle}" type="plain" locale="" style="display:none;width:100%;"></apple-pay-button>`
+            `<apple-pay-button buttonstyle="${this.buttonStyle}" type="plain" style="display:none;width:100%;"></apple-pay-button>`
         );
     }
 
