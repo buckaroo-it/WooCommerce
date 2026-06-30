@@ -170,7 +170,7 @@ class PaymentSetupScripts
         );
 
         if ($isCheckout) {
-            $checkoutDeps = ['jquery'];
+            $checkoutDeps = ['jquery', 'jquery-ui-datepicker'];
             if ($applePayEnabled) {
                 // The classic-checkout Apple Pay method relies on window.BuckarooApplePay
                 // exposed by the applepay bundle.

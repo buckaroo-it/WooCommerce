@@ -16,8 +16,12 @@ class BuckarooCheckout {
             self.afterpaynew();
             self.bilink();
             self.klarna();
+            self.initBirthdatePickers();
             paybyBank.onLoad();
         });
+        // Initialise on first load as well (payment box may already be present
+        // before the first `updated_checkout` fires).
+        self.initBirthdatePickers();
         /**
          * toggle between bilink payment types on company name change
          */
@@ -99,6 +103,62 @@ class BuckarooCheckout {
             billinkB2b.toggle(toggleState);
             billinkB2c.toggle(!toggleState);
         }
+    }
+
+    /**
+     * Shared birthdate datepicker initialiser for every BNPL method in the
+     * classic (legacy) checkout.
+     *
+     * All BNPL gateways render their birthdate field through the same
+     * `partial_birth_field` template, producing an `<input>` whose id matches
+     * `buckaroo-<method>-birthdate` (Riverty/Afterpay, Riverty Old, Billink,
+     * In3). A single selector therefore covers every method and avoids the
+     * duplicated, per-method initialisation logic that the Blocks checkout
+     * keeps inside its React `BirthDayField` component.
+     *
+     * The method is safe to call repeatedly: WooCommerce replaces the payment
+     * box markup on every `updated_checkout` (shipping/address changes, fragment
+     * refreshes, switching payment methods), so it must run on each refresh.
+     * jQuery UI flags initialised inputs with the `hasDatepicker` class, which
+     * we use both as a duplicate guard and to tear down any stale instance
+     * before re-binding, preventing multiple datepicker instances from being
+     * attached to the same field.
+     */
+    initBirthdatePickers() {
+        // jquery-ui-datepicker is a WooCommerce/WordPress core dependency, but
+        // guard anyway so a missing dependency degrades to a plain text field
+        // (still typeable as DD-MM-YYYY) instead of throwing.
+        if (typeof jQuery.fn.datepicker !== 'function') {
+            return;
+        }
+
+        jQuery('input[id^="buckaroo-"][id$="-birthdate"]').each(function () {
+            const $field = jQuery(this);
+
+            // Re-initialise cleanly if a previous instance is still attached.
+            if ($field.hasClass('hasDatepicker')) {
+                try {
+                    $field.datepicker('destroy');
+                } catch (e) {
+                    // ignore – field will be re-initialised below
+                }
+            }
+
+            $field.datepicker({
+                dateFormat: 'dd-mm-yy', // jQuery UI 'yy' = 4-digit year => DD-MM-YYYY
+                changeMonth: true,
+                changeYear: true,
+                yearRange: '1900:+0',
+                minDate: new Date(1900, 0, 1),
+                maxDate: 0, // no future dates – birthdate must be in the past
+                defaultDate: '-18y', // open near a plausible adult birth year
+                onClose(selectedDate) {
+                    // Mirror the value back so WooCommerce validation / fragment
+                    // serialisation always sees the latest selection.
+                    jQuery(this).val(selectedDate).trigger('change');
+                },
+            });
+        });
     }
 
     /**
