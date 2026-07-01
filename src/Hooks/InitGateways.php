@@ -99,7 +99,7 @@ class InitGateways
         $payment_methods = [];
 
         foreach ($gateways as $gateway_id => $gateway) {
-            if ($this->isBuckarooPayment($gateway_id) && $gateway->isVisibleInCheckout()) {
+            if ($this->isBuckarooPayment($gateway_id) && $gateway->enabled === 'yes') {
                 $payment_method = [
                     'paymentMethodId' => $gateway_id,
                     'title' => $gateway->get_title(),
@@ -109,6 +109,7 @@ class InitGateways
                     'genders' => Helper::getAllGendersForPaymentMethods(),
                     'displayMode' => $gateway->get_option('displaymode'),
                     'hasFee' => $this->gatewayHasFee($gateway),
+                    'available' => $gateway->isVisibleInCheckout(),
                 ];
 
                 if ($gateway_id === 'buckaroo_paybybank') {

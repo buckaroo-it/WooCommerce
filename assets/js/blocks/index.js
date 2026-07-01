@@ -230,7 +230,7 @@ const createOptions = (wc, gateway) => ({
     label: <BuckarooLabel imagePath={gateway.image_path} title={decodeHtmlEntities(gateway.title)} />,
     paymentMethodId: gateway.paymentMethodId,
     edit: <div />,
-    canMakePayment: () => true,
+    canMakePayment: () => gateway.available !== false,
     ariaLabel: gateway.title,
     content: <BuckarooComponent gateway={gateway} wc={wc} />,
 });
