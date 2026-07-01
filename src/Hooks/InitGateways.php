@@ -99,7 +99,14 @@ class InitGateways
         $payment_methods = [];
 
         foreach ($gateways as $gateway_id => $gateway) {
-            if ($this->isBuckarooPayment($gateway_id) && $gateway->isVisibleInCheckout()) {
+            // Register every enabled Buckaroo gateway so it is declared block-
+            // compatible in the Site Editor. Runtime availability (e.g. store
+            // currency vs the gateway's supported currencies) is carried by the
+            // "available" flag and enforced client-side via canMakePayment in
+            // blocks.js, so currency-restricted methods (Swish/Twint/Blik) are
+            // recognised as compatible but never offered at an incompatible
+            // checkout.
+            if ($this->isBuckarooPayment($gateway_id) && $gateway->enabled === 'yes') {
                 $payment_method = [
                     'paymentMethodId' => $gateway_id,
                     'title' => $gateway->get_title(),
@@ -109,6 +116,7 @@ class InitGateways
                     'genders' => Helper::getAllGendersForPaymentMethods(),
                     'displayMode' => $gateway->get_option('displaymode'),
                     'hasFee' => $this->gatewayHasFee($gateway),
+                    'available' => $gateway->isVisibleInCheckout(),
                 ];
 
                 if ($gateway_id === 'buckaroo_paybybank') {
