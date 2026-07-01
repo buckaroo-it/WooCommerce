@@ -7,6 +7,7 @@ use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinController;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
+use Buckaroo\Woocommerce\Gateways\BuckarooBlocks;
 use Buckaroo\Woocommerce\Gateways\BuckarooExpressBlocks;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
@@ -217,7 +218,18 @@ class InitGateways
     }
 
     /**
-     * Register Buckaroo Express payment methods blocks support
+     * Register Buckaroo blocks support with WooCommerce Blocks.
+     *
+     * Two things are registered here:
+     *
+     *  1. One integration per enabled Buckaroo gateway, whose get_name() matches
+     *     the gateway id. WooCommerce matches these names against the list of
+     *     enabled gateways to decide block compatibility, so this is what removes
+     *     the "Incompatible with block-based checkout" warning in the Site Editor.
+     *
+     *  2. The umbrella BuckarooExpressBlocks integration, which continues to
+     *     expose the aggregated gateway list consumed by the shared frontend
+     *     script for both regular and express payment method registration.
      *
      * @param object $payment_method_registry Payment method registry from WooCommerce Blocks
      */
@@ -227,7 +239,52 @@ class InitGateways
             return;
         }
 
-        // Register universal blocks support for all Buckaroo express payment methods
-        $payment_method_registry->register(new BuckarooExpressBlocks($this->initGatewaysOnCheckout()));
+        $paymentMethods = $this->initGatewaysOnCheckout();
+
+        // Declare per-gateway block compatibility for every enabled Buckaroo gateway.
+        foreach ($this->getEnabledBuckarooGatewayIds() as $gatewayId) {
+            if ($payment_method_registry->is_registered($gatewayId)) {
+                continue;
+            }
+
+            $payment_method_registry->register(
+                new BuckarooBlocks($gatewayId)
+            );
+        }
+
+        // Register universal blocks support for all Buckaroo express payment methods.
+        if (! $payment_method_registry->is_registered('buckaroo_express_blocks')) {
+            $payment_method_registry->register(new BuckarooExpressBlocks($paymentMethods));
+        }
+    }
+
+    /**
+     * Return the ids of every enabled Buckaroo payment gateway.
+     *
+     * Uses the full enabled-gateway list (not only the checkout-visible ones)
+     * because the Site Editor evaluates block compatibility against every
+     * enabled gateway.
+     *
+     * @return string[]
+     */
+    private function getEnabledBuckarooGatewayIds(): array
+    {
+        if (! class_exists('WC_Payment_Gateways')) {
+            return [];
+        }
+
+        $ids = [];
+
+        foreach (WC()->payment_gateways()->payment_gateways() as $gatewayId => $gateway) {
+            if (! $this->isBuckarooPayment($gatewayId)) {
+                continue;
+            }
+
+            if (filter_var($gateway->enabled, FILTER_VALIDATE_BOOLEAN)) {
+                $ids[] = $gatewayId;
+            }
+        }
+
+        return $ids;
     }
 }

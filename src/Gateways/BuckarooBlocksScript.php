@@ -1,0 +1,54 @@
+<?php
+
+namespace Buckaroo\Woocommerce\Gateways;
+
+use Buckaroo\Woocommerce\Core\Plugin;
+
+/**
+ * Central, idempotent registration of the shared Buckaroo Blocks frontend script.
+ *
+ * IMPORTANT (hydration): WooCommerce injects every active payment method script
+ * handle into the dependency list of the Cart and Checkout block frontend
+ * scripts (see Automattic\WooCommerce\Blocks\Payments\Api::add_payment_method_script_dependencies).
+ * If `buckaroo-blocks` declares a dependency on a script that is not registered
+ * on the current request, WordPress cannot resolve the dependency chain and
+ * silently drops `wc-cart-block-frontend` / `wc-checkout-block-frontend`,
+ * leaving the Cart/Checkout blocks stuck in their server-rendered loading state
+ * (Store API hydration never completes).
+ *
+ * The Apple Pay / Google Pay button scripts (`buckaroo_apple_pay`,
+ * `buckaroo_google_pay`) are only enqueued conditionally by PaymentSetupScripts
+ * (Apple Pay only when enabled; neither on the Cart block page when no express
+ * method is active for the cart). They therefore MUST NOT be hard dependencies
+ * of `buckaroo-blocks`. The express block components already guard their use of
+ * `window.BuckarooInitApplePay` / `window.BuckarooInitGooglePay`, so the express
+ * buttons still initialise when those scripts are present and degrade gracefully
+ * when they are not.
+ */
+class BuckarooBlocksScript
+{
+    public const HANDLE = 'buckaroo-blocks';
+
+    public static function register(): void
+    {
+        if (wp_script_is(self::HANDLE, 'registered')) {
+            return;
+        }
+
+        wp_register_script(
+            self::HANDLE,
+            plugins_url('/assets/js/dist/blocks.js', BK_PLUGIN_FILE),
+            ['wc-blocks-registry', 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-data'],
+            Plugin::VERSION,
+            true
+        );
+
+        if (function_exists('wp_set_script_translations')) {
+            wp_set_script_translations(
+                self::HANDLE,
+                'wc-buckaroo-bpe-gateway',
+                plugin_dir_path(BK_PLUGIN_FILE) . 'languages'
+            );
+        }
+    }
+}

@@ -26,3 +26,25 @@ add_action(
     },
     -1
 );
+
+/*
+ * Declare compatibility with the WooCommerce Cart & Checkout Blocks feature.
+ *
+ * Without this declaration WooCommerce lists the plugin under the "incompatible"
+ * extensions for the `cart_checkout_blocks` feature (see the WooCommerce Checkout
+ * block "incompatibleExtensions" data), which is what triggers the Site Editor
+ * notice suggesting merchants switch back to the Classic Checkout. The Buckaroo
+ * gateways fully support the block checkout, so this declaration is correct.
+ */
+add_action(
+    'before_woocommerce_init',
+    function () {
+        if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+                'cart_checkout_blocks',
+                BK_PLUGIN_FILE,
+                true
+            );
+        }
+    }
+);
