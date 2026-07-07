@@ -17,7 +17,7 @@ import { __ } from '@wordpress/i18n';
  *   4. onPaymentSetup hands the token to the server, which charges it against
  *      the order built from the checkout-form addresses.
  */
-function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, setErrorMessage }) {
+function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, setErrorMessage, onStateChange }) {
     const tokenRef = useRef(null);
     const applepayRef = useRef(null);
 
@@ -39,10 +39,22 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
                 onAuthorized: payment => {
                     // Authorised: keep the token and let Place Order proceed.
                     tokenRef.current = JSON.stringify(payment);
-                    const button = getPlaceOrderButton();
-                    if (button) {
-                        button.click();
+                    // Also push the token through the parent component's payment
+                    // state: Blocks does not merge paymentMethodData from multiple
+                    // onPaymentSetup observers, so this guarantees the token
+                    // reaches the server whichever observer response is used.
+                    if (typeof onStateChange === 'function') {
+                        onStateChange({ paymentData: tokenRef.current });
                     }
+                    // Defer the Place Order click one tick so React has
+                    // re-registered the parent's onPaymentSetup observer with the
+                    // token in its payment state before checkout processing runs.
+                    setTimeout(() => {
+                        const button = getPlaceOrderButton();
+                        if (button) {
+                            button.click();
+                        }
+                    }, 0);
                 },
             });
             applepayRef.current.rebuild();

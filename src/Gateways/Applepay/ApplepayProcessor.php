@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use Buckaroo\Woocommerce\Services\Logger;
 
 class ApplepayProcessor extends AbstractPaymentProcessor
 {
@@ -12,6 +13,17 @@ class ApplepayProcessor extends AbstractPaymentProcessor
     protected function getMethodBody(): array
     {
         if ($this->getPaymentToken() === '') {
+            // Diagnostic: log what actually reached the server (keys only, no
+            // sensitive values) so a missing/renamed field or an empty hidden
+            // input can be told apart from a failed client-side authorisation.
+            $rawPaymentData = $this->request->input('paymentData');
+            Logger::log(__METHOD__ . '|missing applepay token|', [
+                'request_keys' => array_keys($this->request->all()),
+                'paymentData_type' => gettype($rawPaymentData),
+                'paymentData_keys' => is_array($rawPaymentData) ? array_keys($rawPaymentData) : null,
+                'paymentData_length' => is_string($rawPaymentData) ? strlen($rawPaymentData) : null,
+            ]);
+
             throw new \UnexpectedValueException(
                 __(
                     'Apple Pay authorisation was not completed. Please try again or choose another payment method.',
