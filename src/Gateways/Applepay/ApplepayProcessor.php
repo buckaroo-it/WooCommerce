@@ -8,6 +8,12 @@ class ApplepayProcessor extends AbstractPaymentProcessor
 {
     protected $data;
 
+    /**
+     * Buckaroo rejects additionalParameter values longer than 50 characters,
+     * so every value is sanitized and truncated to this limit.
+     */
+    private const ADDITIONAL_PARAMETER_MAX_LENGTH = 50;
+
     /** {@inheritDoc} */
     public function getBody(): array
     {
@@ -62,13 +68,17 @@ class ApplepayProcessor extends AbstractPaymentProcessor
                 continue;
             }
 
+            // Collapse whitespace / strip control characters, then enforce the
+            // Buckaroo additionalParameter length limit.
             $value = trim((string) $value);
+            $value = preg_replace('/\s+/', ' ', $value);
+            $value = preg_replace('/[\x00-\x1F\x7F]/', '', $value);
+
             if ($value === '') {
                 continue;
             }
 
-            // Keep values within Buckaroo's additionalParameter length limit.
-            $filtered[$key] = mb_substr($value, 0, 128);
+            $filtered[$key] = mb_substr($value, 0, self::ADDITIONAL_PARAMETER_MAX_LENGTH);
         }
 
         return $filtered;
