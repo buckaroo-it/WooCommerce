@@ -11,17 +11,34 @@ class ApplepayProcessor extends AbstractPaymentProcessor
     /** {@inheritDoc} */
     protected function getMethodBody(): array
     {
-        // Express posts the Apple payment object as a nested array; the standard
-        // checkout method (classic + Blocks) posts it as a JSON string. Accept both.
+        if ($this->getPaymentToken() === '') {
+            throw new \UnexpectedValueException(
+                __(
+                    'Apple Pay authorisation was not completed. Please try again or choose another payment method.',
+                    'wc-buckaroo-bpe-gateway'
+                )
+            );
+        }
+
         $paymentData = $this->normalize_payment_data($this->request->input('paymentData'));
 
         return array_merge(
             [
                 'customerCardName' => $this->get_customer_name($paymentData),
-                'paymentData' => $this->get_payment_data($paymentData),
+                'paymentData' => $this->getPaymentToken(),
             ],
             $this->getBillingData(),
             $this->getShippingData()
+        );
+    }
+
+    /**
+     * The base64-encoded Apple Pay token, or an empty string when absent.
+     */
+    private function getPaymentToken(): string
+    {
+        return $this->get_payment_data(
+            $this->normalize_payment_data($this->request->input('paymentData'))
         );
     }
 
