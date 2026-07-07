@@ -15,9 +15,80 @@ class ApplepayProcessor extends AbstractPaymentProcessor
         // checkout method (classic + Blocks) posts it as a JSON string. Accept both.
         $paymentData = $this->normalize_payment_data($this->request->input('paymentData'));
 
+        return array_merge(
+            [
+                'customerCardName' => $this->get_customer_name($paymentData),
+                'paymentData' => $this->get_payment_data($paymentData),
+            ],
+            $this->getBillingData(),
+            $this->getShippingData()
+        );
+    }
+
+    /**
+     * Billing recipient data, sent as BillingCustomer service parameters.
+     *
+     * @return array<mixed>
+     */
+    protected function getBillingData(): array
+    {
+        $streetParts = $this->order_details->get_billing_address_components();
+
         return [
-            'customerCardName' => $this->get_customer_name($paymentData),
-            'paymentData' => $this->get_payment_data($paymentData),
+            'billing' => [
+                'recipient' => [
+                    'category' => 'Person',
+                    'firstName' => $this->getAddress('billing', 'first_name'),
+                    'lastName' => $this->getAddress('billing', 'last_name'),
+                ],
+                'address' => [
+                    'street' => $streetParts->get_street(),
+                    'houseNumber' => $streetParts->get_house_number(),
+                    'houseNumberAdditional' => $streetParts->get_number_additional(),
+                    'zipcode' => $this->getAddress('billing', 'postcode'),
+                    'city' => $this->getAddress('billing', 'city'),
+                    'state' => $this->getAddress('billing', 'state'),
+                    'country' => $this->getAddress('billing', 'country'),
+                ],
+                'phone' => [
+                    'mobile' => $this->order_details->get_billing_phone(),
+                ],
+                'email' => $this->getAddress('billing', 'email'),
+            ],
+        ];
+    }
+
+    /**
+     * Shipping recipient data, sent as ShippingCustomer service parameters.
+     * Falls back to billing values for fields the order has no shipping data for.
+     *
+     * @return array<mixed>
+     */
+    protected function getShippingData(): array
+    {
+        $streetParts = $this->order_details->get_shipping_address_components();
+
+        return [
+            'shipping' => [
+                'recipient' => [
+                    'category' => 'Person',
+                    'firstName' => $this->getAddress('shipping', 'first_name'),
+                    'lastName' => $this->getAddress('shipping', 'last_name'),
+                ],
+                'address' => [
+                    'street' => $streetParts->get_street(),
+                    'houseNumber' => $streetParts->get_house_number(),
+                    'houseNumberAdditional' => $streetParts->get_number_additional(),
+                    'zipcode' => $this->getAddress('shipping', 'postcode'),
+                    'city' => $this->getAddress('shipping', 'city'),
+                    'state' => $this->getAddress('shipping', 'state'),
+                    'country' => $this->getAddress('shipping', 'country'),
+                ],
+                'phone' => [
+                    'mobile' => $this->order_details->get_shipping_phone(),
+                ],
+                'email' => $this->getAddress('shipping', 'email'),
+            ],
         ];
     }
 

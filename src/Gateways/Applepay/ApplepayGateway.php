@@ -495,9 +495,12 @@ class ApplepayGateway extends AbstractPaymentGateway
         return [
             'first_name' => $address['givenName'],
             'last_name' => $address['familyName'],
-            'email' => $address['emailAddress'],
-            'address_1' => $address['addressLines'][0],
+            'email' => $address['emailAddress'] ?? '',
+            'phone' => $address['phoneNumber'] ?? '',
+            'address_1' => $address['addressLines'][0] ?? '',
+            'address_2' => $address['addressLines'][1] ?? '',
             'city' => $address['locality'],
+            'state' => $address['administrativeArea'] ?? '',
             'postcode' => $address['postalCode'],
             'country' => $address['countryCode'],
         ];
