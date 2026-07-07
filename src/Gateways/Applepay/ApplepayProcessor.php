@@ -9,6 +9,72 @@ class ApplepayProcessor extends AbstractPaymentProcessor
     protected $data;
 
     /** {@inheritDoc} */
+    public function getBody(): array
+    {
+        $body = parent::getBody();
+
+        $shippingParameters = $this->getShippingAdditionalParameters();
+        if (! empty($shippingParameters)) {
+            $existing = (isset($body['additionalParameters']) && is_array($body['additionalParameters']))
+                ? $body['additionalParameters']
+                : [];
+            $body['additionalParameters'] = array_merge($existing, $shippingParameters);
+        }
+
+        return $body;
+    }
+
+    /**
+     * Build the shipping details as additionalParameters so the chosen
+     * shipping method, cost and destination are carried into the Buckaroo
+     * transaction. Apple Pay is a card/wallet "pay" service that has no
+     * dedicated shipping block (unlike pay-later services), so
+     * additionalParameters is the service-agnostic channel for this data.
+     *
+     * @return array<string, string>
+     */
+    protected function getShippingAdditionalParameters(): array
+    {
+        $order = $this->get_order();
+
+        $parameters = [
+            'shipping_method' => $order->get_shipping_method(),
+            'shipping_cost' => number_format(
+                (float) $order->get_shipping_total() + (float) $order->get_shipping_tax(),
+                2,
+                '.',
+                ''
+            ),
+            'shipping_name' => trim(
+                $this->getAddress('shipping', 'first_name') . ' ' . $this->getAddress('shipping', 'last_name')
+            ),
+            'shipping_street' => trim(
+                $this->getAddress('shipping', 'address_1') . ' ' . $this->getAddress('shipping', 'address_2')
+            ),
+            'shipping_zipcode' => $this->getAddress('shipping', 'postcode'),
+            'shipping_city' => $this->getAddress('shipping', 'city'),
+            'shipping_country' => $this->getAddress('shipping', 'country'),
+        ];
+
+        $filtered = [];
+        foreach ($parameters as $key => $value) {
+            if (! is_scalar($value)) {
+                continue;
+            }
+
+            $value = trim((string) $value);
+            if ($value === '') {
+                continue;
+            }
+
+            // Keep values within Buckaroo's additionalParameter length limit.
+            $filtered[$key] = mb_substr($value, 0, 128);
+        }
+
+        return $filtered;
+    }
+
+    /** {@inheritDoc} */
     protected function getMethodBody(): array
     {
         return [
