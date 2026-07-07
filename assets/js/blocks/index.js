@@ -15,9 +15,6 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
     const methodName = convertUnderScoreToDash(gateway.paymentMethodId);
 
     useEffect(() => {
-        // Only methods that actually carry a payment fee need the server-side
-        // recalculation. Skipping it for fee-less methods avoids a full
-        // WordPress bootstrap on every payment method switch.
         if (!gateway.hasFee) {
             return;
         }
@@ -30,9 +27,6 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
                 method: gateway.paymentMethodId,
             },
         });
-
-        // Abort the in-flight request when the selection changes again so
-        // rapid switching does not pile up redundant requests.
         return () => request.abort();
     }, [gateway.paymentMethodId, gateway.hasFee]);
 
@@ -230,7 +224,9 @@ const createOptions = (wc, gateway) => ({
     label: <BuckarooLabel imagePath={gateway.image_path} title={decodeHtmlEntities(gateway.title)} />,
     paymentMethodId: gateway.paymentMethodId,
     edit: <div />,
-    canMakePayment: () => true,
+    canMakePayment: () =>
+        (typeof window !== 'undefined' && window.location && window.location.pathname.indexOf('/wp-admin/') !== -1) ||
+        gateway.available !== false,
     ariaLabel: gateway.title,
     content: <BuckarooComponent gateway={gateway} wc={wc} />,
 });
