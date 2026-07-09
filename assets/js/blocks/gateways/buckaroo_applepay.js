@@ -65,18 +65,18 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
                     tokenRef.current = JSON.stringify(payment);
                     showError('');
 
-                    // Hand the token to the parent BuckarooComponent, whose own
-                    // onPaymentSetup observer merges this state into
-                    // paymentMethodData — so the token reaches the server even
-                    // when that observer runs (and short-circuits) first.
+
                     if (typeof onStateChangeRef.current === 'function') {
                         onStateChangeRef.current({ paymentData: tokenRef.current });
                     }
 
-                    const button = getPlaceOrderButton();
-                    if (button) {
-                        button.click();
-                    }
+
+                    setTimeout(() => {
+                        const button = getPlaceOrderButton();
+                        if (button) {
+                            button.click();
+                        }
+                    }, 0);
                 },
             });
             instance.rebuild();
@@ -144,8 +144,16 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
         return () => document.removeEventListener('click', handler, true);
     }, []);
 
-    // Provide the authorised token to the server during order placement (used
-    // when this observer happens to run before the parent's generic one).
+    // Provide the authorised token to the server during order placement.
+    //
+    // Registered with priority 5: Blocks aborts the payment-setup event at the
+    // FIRST observer that returns a response, and the parent BuckarooComponent
+    // registers a generic observer (default priority 10) whose response is
+    // built from React state — which may not contain the token yet when the
+    // order is placed synchronously after authorisation. This observer reads
+    // the token from a ref, so running it first is always correct. (The
+    // parent's extra fields — isblocks, billing_company, billing address —
+    // are not used by the Apple Pay server flow.)
     useEffect(() => {
         if (!eventRegistration || !eventRegistration.onPaymentSetup) {
             return undefined;
@@ -167,7 +175,7 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
                     },
                 },
             };
-        });
+        }, 5);
 
         return () => unsubscribe();
     }, [eventRegistration, emitResponse]);
