@@ -11,12 +11,23 @@ class ApplepayProcessor extends AbstractPaymentProcessor
     /** {@inheritDoc} */
     protected function getMethodBody(): array
     {
-        // Express posts the Apple payment object as a nested array; the standard
-        // checkout method (classic + Blocks) posts it as a JSON string. Accept both.
-        $paymentData = $this->normalize_payment_data($this->request->input('paymentData'));
+
+        $raw = $this->request->input('paymentData');
+        if ($raw === null || $raw === '') {
+            $raw = $this->request->input('paymentdata');
+        }
+
+        $paymentData = $this->normalize_payment_data($raw);
+
+        $customerCardName = $this->get_customer_name($paymentData);
+        if ($customerCardName === '') {
+            $customerCardName = trim(
+                $this->getAddress('billing', 'first_name') . ' ' . $this->getAddress('billing', 'last_name')
+            );
+        }
 
         return [
-            'customerCardName' => $this->get_customer_name($paymentData),
+            'customerCardName' => $customerCardName,
             'paymentData' => $this->get_payment_data($paymentData),
         ];
     }
