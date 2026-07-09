@@ -8,7 +8,6 @@ import { __ } from '@wordpress/i18n';
  * The customer selects Apple Pay and clicks the normal "Place Order" button;
  * that click opens the Apple Pay sheet (authorise only). Billing and shipping
  * come from the WooCommerce checkout form, not from Apple Pay.
- *
  */
 
 const PLACE_ORDER_SELECTOR =
@@ -32,7 +31,6 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
         }
     };
 
-    // Create the (button-less) Apple Pay instance if it does not exist yet.
     const ensureInstance = () => {
         if (applepayRef.current) {
             return applepayRef.current;
@@ -47,15 +45,12 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
                 renderButton: false,
                 containerSelector: '.applepay-blocks-checkout-method',
                 onAuthorized: payment => {
-                    // Authorised: keep the token and let Place Order proceed.
                     tokenRef.current = JSON.stringify(payment);
                     showError('');
-
 
                     if (typeof onStateChangeRef.current === 'function') {
                         onStateChangeRef.current({ paymentData: tokenRef.current });
                     }
-
 
                     setTimeout(() => {
                         const button = getPlaceOrderButton();
@@ -101,7 +96,6 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
                 return;
             }
 
-            // Already authorised -> let WooCommerce place the order.
             if (tokenRef.current) {
                 return;
             }
