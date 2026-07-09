@@ -125,57 +125,7 @@ export default class ApplePay {
                 return;
             }
 
-            const cart_items = this.getItems();
-            const shipping_methods = this.isOnCheckout ? [] : this.woocommerce.getShippingMethods(this.country_code);
-            const first_shipping_item = this.getFirstShippingItem(shipping_methods);
-
-            const all_items = first_shipping_item !== null ? [].concat(cart_items, first_shipping_item) : cart_items;
-
-            const total_to_pay = this.sumTotalAmount(all_items);
-
-            const total_item = {
-                label: 'Totaal',
-                amount: total_to_pay,
-                type: 'final',
-            };
-
-            if (shipping_methods.length > 0) {
-                this.selected_shipping_method = shipping_methods[0].identifier;
-                this.selected_shipping_amount = shipping_methods[0].amount;
-            }
-            this.total_price = total_to_pay;
-
-            // Express gathers full contact data from the Apple sheet; the
-            // checkout method only authorises and uses the WooCommerce form.
-            const requiredContactFields = this.isOnCheckout ? [] : ['name', 'email', 'postalAddress', 'phone'];
-            const shippingMethodsCallback = this.isOnCheckout ? null : this.processShippingMethodsCallback.bind(this);
-            const changeContactCallback = this.isOnCheckout ? null : this.processChangeContactInfoCallback.bind(this);
-
-            const applepay_options = new BuckarooSdk.ApplePay.ApplePayOptions(
-                this.store_info.store_name,
-                this.store_info.country_code,
-                this.store_info.currency_code,
-                this.store_info.culture_code,
-                this.store_info.merchant_id,
-                all_items,
-                total_item,
-                'shipping',
-                shipping_methods,
-                this.processApplepayCallback.bind(this),
-                shippingMethodsCallback,
-                changeContactCallback,
-                requiredContactFields,
-                requiredContactFields
-            );
-
-            // The SDK needs a button selector; for the standard method (no
-            // button) we pass the container itself — beginPayment() does not
-            // require the element, it is triggered programmatically.
-            const buttonSelector = this.renderButton
-                ? `${this.containerSelector} apple-pay-button`
-                : this.containerSelector;
-
-            this.payment = new BuckarooSdk.ApplePay.ApplePayPayment(buttonSelector, applepay_options);
+            this.setupPayment();
 
             if (this.renderButton) {
                 this.injectApplePayButton();
@@ -188,6 +138,94 @@ export default class ApplePay {
     }
 
     /**
+     * Build (or rebuild) the Buckaroo ApplePayPayment session from the current
+     * cart state. Extracted from init() so the standard checkout method can
+     * refresh the totals right before opening the sheet.
+     */
+    setupPayment() {
+        const cart_items = this.getItems();
+        let shipping_methods = [];
+        let all_items = cart_items;
+        let total_to_pay;
+
+        if (this.isOnCheckout) {
+            // The sheet only authorises; addresses come from the WooCommerce
+            // form. The authorised amount MUST equal the amountDebit later sent
+            // to Buckaroo (the order grand total) — Buckaroo validates the
+            // amount inside the Apple token and rejects the transaction on a
+            // mismatch. So take the authoritative grand total (incl. chosen
+            // shipping, payment fee, coupons, taxes) from WooCommerce instead
+            // of summing line items.
+            const cart_total = this.woocommerce.getCartTotal();
+
+            if (cart_total && cart_total.shipping > 0) {
+                all_items = [].concat(cart_items, {
+                    type: 'final',
+                    label: convert.maxCharacters(cart_total.shipping_label || 'Shipping', 25),
+                    amount: convert.toDecimal(cart_total.shipping),
+                    qty: 1,
+                });
+            }
+
+            total_to_pay =
+                cart_total && typeof cart_total.total === 'number' && cart_total.total > 0
+                    ? convert.toDecimal(cart_total.total)
+                    : this.sumTotalAmount(all_items);
+        } else {
+            shipping_methods = this.woocommerce.getShippingMethods(this.country_code);
+            const first_shipping_item = this.getFirstShippingItem(shipping_methods);
+
+            all_items = first_shipping_item !== null ? [].concat(cart_items, first_shipping_item) : cart_items;
+            total_to_pay = this.sumTotalAmount(all_items);
+
+            if (shipping_methods.length > 0) {
+                this.selected_shipping_method = shipping_methods[0].identifier;
+                this.selected_shipping_amount = shipping_methods[0].amount;
+            }
+        }
+
+        this.total_price = total_to_pay;
+
+        const total_item = {
+            label: 'Totaal',
+            amount: total_to_pay,
+            type: 'final',
+        };
+
+        // Express gathers full contact data from the Apple sheet; the
+        // checkout method only authorises and uses the WooCommerce form.
+        const requiredContactFields = this.isOnCheckout ? [] : ['name', 'email', 'postalAddress', 'phone'];
+        const shippingMethodsCallback = this.isOnCheckout ? null : this.processShippingMethodsCallback.bind(this);
+        const changeContactCallback = this.isOnCheckout ? null : this.processChangeContactInfoCallback.bind(this);
+
+        const applepay_options = new BuckarooSdk.ApplePay.ApplePayOptions(
+            this.store_info.store_name,
+            this.store_info.country_code,
+            this.store_info.currency_code,
+            this.store_info.culture_code,
+            this.store_info.merchant_id,
+            all_items,
+            total_item,
+            'shipping',
+            shipping_methods,
+            this.processApplepayCallback.bind(this),
+            shippingMethodsCallback,
+            changeContactCallback,
+            requiredContactFields,
+            requiredContactFields
+        );
+
+        // The SDK needs a button selector; for the standard method (no
+        // button) we pass the container itself — beginPayment() does not
+        // require the element, it is triggered programmatically.
+        const buttonSelector = this.renderButton
+            ? `${this.containerSelector} apple-pay-button`
+            : this.containerSelector;
+
+        this.payment = new BuckarooSdk.ApplePay.ApplePayPayment(buttonSelector, applepay_options);
+    }
+
+    /**
      * Programmatically open the Apple Pay sheet. Used by the standard checkout
      * method, which triggers payment from the normal "Place Order" action
      * (within the click user-gesture) instead of from a dedicated button.
@@ -196,7 +234,23 @@ export default class ApplePay {
      * @returns {boolean} whether a session could be started
      */
     triggerPayment(event) {
-        if (this.payment && typeof this.payment.beginPayment === 'function') {
+        if (!this.payment) {
+            return false;
+        }
+
+        // Totals can drift between mount and Place Order (shipping method or
+        // address changed, coupon applied). Rebuild the session with fresh
+        // totals; the fetches are synchronous, so the ApplePaySession still
+        // starts within the click user-gesture Apple requires.
+        if (this.isOnCheckout) {
+            try {
+                this.setupPayment();
+            } catch (e) {
+                // keep the existing session if the refresh fails
+            }
+        }
+
+        if (typeof this.payment.beginPayment === 'function') {
             this.payment.beginPayment(event || new Event('click'));
             return true;
         }

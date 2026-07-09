@@ -10,79 +10,142 @@ import { __ } from '@wordpress/i18n';
  * come from the WooCommerce checkout form, not from Apple Pay.
  *
  * Flow:
- *   1. On mount, build a checkout-mode Apple Pay instance (no button).
- *   2. Intercept the Place Order button click (capture phase = still a user
- *      gesture, required by Safari) and open the Apple Pay sheet.
+ *   1. On mount, build a checkout-mode Apple Pay instance (no button). The
+ *      applepay bundle has no script-dependency link to this bundle (that
+ *      coupling breaks Blocks hydration), so window.BuckarooApplePay may not
+ *      exist yet on mount — creation is lazy and retried.
+ *   2. Intercept the Place Order click (document capture phase = still a user
+ *      gesture, required by Apple) and open the Apple Pay sheet.
  *   3. On authorisation, keep the token and let Place Order proceed.
- *   4. onPaymentSetup hands the token to the server, which charges it against
- *      the order built from the checkout-form addresses.
+ *   4. The token is supplied to the server BOTH via the parent
+ *      BuckarooComponent's onStateChange state (merged into paymentMethodData
+ *      by its own onPaymentSetup observer) and via this component's
+ *      onPaymentSetup. Blocks aborts the payment-setup event at the first
+ *      observer that returns a response, so the token must survive either
+ *      registration order.
  */
-function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, setErrorMessage }) {
+
+const PLACE_ORDER_SELECTOR =
+    '.wc-block-components-checkout-place-order-button, ' +
+    '.wc-block-checkout__actions button[type="submit"], ' +
+    '.wc-block-checkout__actions_row button[type="submit"]';
+
+function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, setErrorMessage, onStateChange }) {
     const tokenRef = useRef(null);
     const applepayRef = useRef(null);
+    const onStateChangeRef = useRef(onStateChange);
+    onStateChangeRef.current = onStateChange;
+    const setErrorMessageRef = useRef(setErrorMessage);
+    setErrorMessageRef.current = setErrorMessage;
 
-    const getPlaceOrderButton = () =>
-        document.querySelector('.wc-block-components-checkout-place-order-button') ||
-        document.querySelector('button.wc-block-components-button[type="submit"]');
+    const getPlaceOrderButton = () => document.querySelector(PLACE_ORDER_SELECTOR);
 
-    // Build the (button-less) Apple Pay instance for this method.
-    useEffect(() => {
+    const showError = message => {
+        if (typeof setErrorMessageRef.current === 'function') {
+            setErrorMessageRef.current(message);
+        }
+    };
+
+    // Create the (button-less) Apple Pay instance if it does not exist yet.
+    const ensureInstance = () => {
+        if (applepayRef.current) {
+            return applepayRef.current;
+        }
         if (!window.BuckarooApplePay || typeof window.BuckarooApplePay.create !== 'function') {
-            return undefined;
+            return null;
         }
 
         try {
-            applepayRef.current = window.BuckarooApplePay.create({
+            const instance = window.BuckarooApplePay.create({
                 isOnCheckout: true,
                 renderButton: false,
                 containerSelector: '.applepay-blocks-checkout-method',
                 onAuthorized: payment => {
                     // Authorised: keep the token and let Place Order proceed.
                     tokenRef.current = JSON.stringify(payment);
+                    showError('');
+
+                    // Hand the token to the parent BuckarooComponent, whose own
+                    // onPaymentSetup observer merges this state into
+                    // paymentMethodData — so the token reaches the server even
+                    // when that observer runs (and short-circuits) first.
+                    if (typeof onStateChangeRef.current === 'function') {
+                        onStateChangeRef.current({ paymentData: tokenRef.current });
+                    }
+
                     const button = getPlaceOrderButton();
                     if (button) {
                         button.click();
                     }
                 },
             });
-            applepayRef.current.rebuild();
-            applepayRef.current.init();
+            instance.rebuild();
+            instance.init();
+            applepayRef.current = instance;
+            return instance;
         } catch (e) {
-            // Apple Pay unavailable in this context; method stays inert.
+            return null;
+        }
+    };
+
+    // Build the instance on mount; retry briefly while the applepay bundle
+    // finishes loading (script order between the bundles is not guaranteed).
+    useEffect(() => {
+        if (ensureInstance()) {
+            return undefined;
         }
 
+        const timer = setInterval(() => {
+            if (ensureInstance()) {
+                clearInterval(timer);
+            }
+        }, 250);
+        const stop = setTimeout(() => clearInterval(timer), 10000);
+
         return () => {
+            clearInterval(timer);
+            clearTimeout(stop);
             applepayRef.current = null;
         };
     }, []);
 
     // Intercept Place Order: open the Apple Pay sheet within the click gesture.
-    // While this method's content is mounted it is the active payment method, so
-    // the listener is only live for Apple Pay.
+    // Capture-phase listener on the document, so a re-rendered/replaced button
+    // is still caught. While this content is mounted, Apple Pay is the active
+    // payment method, so the listener is only live for Apple Pay.
     useEffect(() => {
-        const button = getPlaceOrderButton();
-        if (!button) {
-            return undefined;
-        }
-
         const handler = event => {
+            const target = event.target;
+            const button = target && typeof target.closest === 'function' ? target.closest(PLACE_ORDER_SELECTOR) : null;
+            if (!button) {
+                return;
+            }
+
             // Already authorised -> let WooCommerce place the order.
             if (tokenRef.current) {
                 return;
             }
-            if (!applepayRef.current) {
-                return;
-            }
+
             event.preventDefault();
-            event.stopImmediatePropagation();
-            applepayRef.current.triggerPayment(event);
+            event.stopPropagation();
+
+            const instance = ensureInstance();
+            if (!instance || instance.triggerPayment(event) !== true) {
+                showError(
+                    __(
+                        'Apple Pay is not available in this browser or context. Please choose another payment method.',
+                        'wc-buckaroo-bpe-gateway'
+                    )
+                );
+            }
         };
 
-        button.addEventListener('click', handler, true);
-        return () => button.removeEventListener('click', handler, true);
+        document.addEventListener('click', handler, true);
+        return () => document.removeEventListener('click', handler, true);
     }, []);
 
-    // Provide the authorised token to the server during order placement.
+    // Provide the authorised token to the server during order placement (used
+    // when this observer happens to run before the parent's generic one).
     useEffect(() => {
         if (!eventRegistration || !eventRegistration.onPaymentSetup) {
             return undefined;

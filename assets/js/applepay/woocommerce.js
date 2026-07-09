@@ -98,6 +98,32 @@ export default class Woocommerce {
         return methods;
     }
 
+    /**
+     * Grand total of the current cart (incl. chosen shipping, payment fee,
+     * coupons and taxes). Used by the standard checkout method so the amount
+     * authorised in the Apple Pay sheet always equals the amountDebit that is
+     * sent to Buckaroo (Buckaroo rejects the transaction on a mismatch).
+     *
+     * @returns {{total: number, shipping: number, shipping_label: string}|null}
+     */
+    getCartTotal() {
+        let totals = null;
+        jQuery
+            .ajax({
+                url: this.url,
+                data: {
+                    'wc-api': `${this.api_namespace}-get-cart-total`,
+                },
+                async: false,
+                dataType: 'json',
+            })
+            .done(response => {
+                totals = response;
+            });
+
+        return totals;
+    }
+
     getStoreInformation() {
         let information = [];
         jQuery
