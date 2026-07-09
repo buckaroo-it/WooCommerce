@@ -46,6 +46,7 @@ class ApplepayGateway extends AbstractPaymentGateway
         add_action("{$namespace}-get-items-from-cart", [ApplepayController::class, 'getItemsFromCart']);
         add_action("{$namespace}-get-shipping-methods", [ApplepayController::class, 'getShippingMethods']);
         add_action("{$namespace}-get-shop-information", [ApplepayController::class, 'getShopInformation']);
+        add_action("{$namespace}-get-cart-total", [ApplepayController::class, 'getCartTotal']);
         add_action("{$namespace}-create-transaction", [$this, 'createTransaction']);
     }
 
