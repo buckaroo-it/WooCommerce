@@ -9,20 +9,6 @@ import { __ } from '@wordpress/i18n';
  * that click opens the Apple Pay sheet (authorise only). Billing and shipping
  * come from the WooCommerce checkout form, not from Apple Pay.
  *
- * Flow:
- *   1. On mount, build a checkout-mode Apple Pay instance (no button). The
- *      applepay bundle has no script-dependency link to this bundle (that
- *      coupling breaks Blocks hydration), so window.BuckarooApplePay may not
- *      exist yet on mount — creation is lazy and retried.
- *   2. Intercept the Place Order click (document capture phase = still a user
- *      gesture, required by Apple) and open the Apple Pay sheet.
- *   3. On authorisation, keep the token and let Place Order proceed.
- *   4. The token is supplied to the server BOTH via the parent
- *      BuckarooComponent's onStateChange state (merged into paymentMethodData
- *      by its own onPaymentSetup observer) and via this component's
- *      onPaymentSetup. Blocks aborts the payment-setup event at the first
- *      observer that returns a response, so the token must survive either
- *      registration order.
  */
 
 const PLACE_ORDER_SELECTOR =
@@ -88,8 +74,6 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
         }
     };
 
-    // Build the instance on mount; retry briefly while the applepay bundle
-    // finishes loading (script order between the bundles is not guaranteed).
     useEffect(() => {
         if (ensureInstance()) {
             return undefined;
@@ -109,10 +93,6 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
         };
     }, []);
 
-    // Intercept Place Order: open the Apple Pay sheet within the click gesture.
-    // Capture-phase listener on the document, so a re-rendered/replaced button
-    // is still caught. While this content is mounted, Apple Pay is the active
-    // payment method, so the listener is only live for Apple Pay.
     useEffect(() => {
         const handler = event => {
             const target = event.target;
@@ -144,16 +124,6 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
         return () => document.removeEventListener('click', handler, true);
     }, []);
 
-    // Provide the authorised token to the server during order placement.
-    //
-    // Registered with priority 5: Blocks aborts the payment-setup event at the
-    // FIRST observer that returns a response, and the parent BuckarooComponent
-    // registers a generic observer (default priority 10) whose response is
-    // built from React state — which may not contain the token yet when the
-    // order is placed synchronously after authorisation. This observer reads
-    // the token from a ref, so running it first is always correct. (The
-    // parent's extra fields — isblocks, billing_company, billing address —
-    // are not used by the Apple Pay server flow.)
     useEffect(() => {
         if (!eventRegistration || !eventRegistration.onPaymentSetup) {
             return undefined;
