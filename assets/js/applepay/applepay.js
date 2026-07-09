@@ -149,13 +149,6 @@ export default class ApplePay {
         let total_to_pay;
 
         if (this.isOnCheckout) {
-            // The sheet only authorises; addresses come from the WooCommerce
-            // form. The authorised amount MUST equal the amountDebit later sent
-            // to Buckaroo (the order grand total) — Buckaroo validates the
-            // amount inside the Apple token and rejects the transaction on a
-            // mismatch. So take the authoritative grand total (incl. chosen
-            // shipping, payment fee, coupons, taxes) from WooCommerce instead
-            // of summing line items.
             const cart_total = this.woocommerce.getCartTotal();
 
             if (cart_total && cart_total.shipping > 0) {
@@ -215,9 +208,6 @@ export default class ApplePay {
             requiredContactFields
         );
 
-        // The SDK needs a button selector; for the standard method (no
-        // button) we pass the container itself — beginPayment() does not
-        // require the element, it is triggered programmatically.
         const buttonSelector = this.renderButton
             ? `${this.containerSelector} apple-pay-button`
             : this.containerSelector;
@@ -238,10 +228,6 @@ export default class ApplePay {
             return false;
         }
 
-        // Totals can drift between mount and Place Order (shipping method or
-        // address changed, coupon applied). Rebuild the session with fresh
-        // totals; the fetches are synchronous, so the ApplePaySession still
-        // starts within the click user-gesture Apple requires.
         if (this.isOnCheckout) {
             try {
                 this.setupPayment();
