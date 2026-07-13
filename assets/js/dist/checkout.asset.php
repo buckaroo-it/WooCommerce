@@ -1,1 +1,1 @@
-<?php return array('dependencies' => array(), 'version' => 'co20260713tokenfix01');
+<?php return array('dependencies' => array(), 'version' => 'baadfea76847b51fa4ca');
