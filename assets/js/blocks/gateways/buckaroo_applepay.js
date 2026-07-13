@@ -1,21 +1,19 @@
 import React, { useEffect, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 
-/**
- * Apple Pay as a standard (selectable) Blocks checkout payment method.
- *
- * No Apple Pay button is rendered here (that is only for Express Checkout).
- * The customer selects Apple Pay and clicks the normal "Place Order" button;
- * that click opens the Apple Pay sheet (authorise only). Billing and shipping
- * come from the WooCommerce checkout form, not from Apple Pay.
- */
-
 const PLACE_ORDER_SELECTOR =
     '.wc-block-components-checkout-place-order-button, ' +
     '.wc-block-checkout__actions button[type="submit"], ' +
     '.wc-block-checkout__actions_row button[type="submit"]';
 
-function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, setErrorMessage, onStateChange }) {
+function BuckarooApplepayCheckout({
+    gateway,
+    eventRegistration,
+    emitResponse,
+    setErrorMessage,
+    onStateChange,
+    billing,
+}) {
     const tokenRef = useRef(null);
     const applepayRef = useRef(null);
     const onStateChangeRef = useRef(onStateChange);
@@ -123,6 +121,8 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
             return undefined;
         }
 
+        // Priority 20: must run AFTER the generic BuckarooComponent observer
+        // (priority 10) because Blocks keeps only the last success response.
         const unsubscribe = eventRegistration.onPaymentSetup(() => {
             if (!tokenRef.current) {
                 return {
@@ -136,13 +136,18 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
                 meta: {
                     paymentMethodData: {
                         paymentData: tokenRef.current,
+                        isblocks: '1',
+                        billing_company: (billing && billing.company) || '',
+                        billing_country: (billing && billing.country) || '',
+                        billing_address_1: (billing && billing.address_1) || '',
+                        billing_address_2: (billing && billing.address_2) || '',
                     },
                 },
             };
-        }, 5);
+        }, 20);
 
         return () => unsubscribe();
-    }, [eventRegistration, emitResponse]);
+    }, [eventRegistration, emitResponse, billing]);
 
     return (
         <div className="payment_box payment_method_buckaroo buckaroo-applepay-checkout-method applepay-blocks-checkout-method" />

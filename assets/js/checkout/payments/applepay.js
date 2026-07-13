@@ -1,11 +1,3 @@
-/**
- * Apple Pay as a standard payment method on the classic (shortcode) checkout.
- *
- * The Apple Pay sheet only authorises payment; billing and shipping are taken
- * from the WooCommerce checkout form. On authorisation the encrypted token is
- * written to the hidden `paymentData` field and the checkout form is submitted
- * normally, so WooCommerce processes the order with the entered addresses.
- */
 class BuckarooApplePayCheckout {
     constructor() {
         this.instance = null;
@@ -21,18 +13,24 @@ class BuckarooApplePayCheckout {
         return jQuery('.applepay-checkout-button-container').length > 0;
     }
 
+    syncTokenField() {
+        jQuery('.buckaroo-applepay-payment-data').val(this.token || '');
+    }
+
     init() {
         const self = this;
 
-        // (Re)build the Apple Pay button whenever the checkout fragment refreshes
-        // (WooCommerce re-renders the payment box on every `updated_checkout`).
-        jQuery(document.body).on('updated_checkout', () => self.maybeBuild());
+        jQuery(document.body).on('updated_checkout', () => {
+            self.maybeBuild();
+            if (self.token) {
+                self.syncTokenField();
+            }
+        });
         this.maybeBuild();
 
-        // Require an authorised token before the order is placed. The place-order
-        // click is a user gesture, so opening the Apple Pay sheet from here is allowed.
         jQuery('form.checkout').on('checkout_place_order_buckaroo_applepay', event => {
             if (self.token) {
+                self.syncTokenField();
                 return true;
             }
             self.beginPayment(event);
@@ -53,12 +51,11 @@ class BuckarooApplePayCheckout {
         try {
             this.instance = window.BuckarooApplePay.create({
                 isOnCheckout: true,
-                // No button: the standard method is triggered from "Place Order".
                 renderButton: false,
                 containerSelector: '.applepay-checkout-button-container',
                 onAuthorized: payment => {
                     self.token = JSON.stringify(payment);
-                    jQuery('.buckaroo-applepay-payment-data').val(self.token);
+                    self.syncTokenField();
                     jQuery('form.checkout').submit();
                 },
             });

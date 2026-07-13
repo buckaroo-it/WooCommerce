@@ -2,23 +2,61 @@ import * as convert from './helpers/convert.js';
 import Woocommerce from './woocommerce.js';
 import Buckaroo from './buckaroo.js';
 
-/**
- * Apple Pay integration.
- *
- * Detection and the button now come from Apple's official SDK
- * (apple-pay-sdk.js): the <apple-pay-button> web component renders in every
- * browser and Apple provides the cross-device QR-code handoff on non-Apple
- * devices. The Buckaroo SDK (BuckarooSdk.ApplePay) is still used to create the
- * ApplePaySession and to perform merchant validation.
- *
- * The class supports two modes:
- *   - Express (default): the Apple sheet gathers shipping/billing/contact and
- *     the order is created from that data (product/cart/top-of-checkout button).
- *   - Checkout (isOnCheckout = true): the Apple sheet only authorises payment.
- *     Shipping methods/callbacks are omitted and required contact fields are
- *     minimal, so the WooCommerce checkout form remains the source of truth for
- *     addresses. On authorisation `onAuthorized(payment)` is invoked.
- */
+export function toPlainObject(value, depth = 0) {
+    if (value === null || value === undefined || typeof value !== 'object' || depth > 8) {
+        return value;
+    }
+    if (Array.isArray(value)) {
+        return value.map(item => toPlainObject(item, depth + 1));
+    }
+
+    const plain = {};
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
+    for (const key in value) {
+        try {
+            const item = value[key];
+            if (typeof item !== 'function') {
+                plain[key] = toPlainObject(item, depth + 1);
+            }
+        } catch (e) {
+            // ignore
+        }
+    }
+    return plain;
+}
+
+export function normalizeApplePayPayment(payment) {
+    if (!payment || typeof payment !== 'object') {
+        return null;
+    }
+
+    const normalized = toPlainObject(payment);
+
+    try {
+        if ((!normalized.token || Object.keys(normalized.token).length === 0) && payment.token) {
+            normalized.token = toPlainObject(payment.token);
+        }
+        if (
+            normalized.token &&
+            (!normalized.token.paymentData || Object.keys(normalized.token.paymentData).length === 0) &&
+            payment.token &&
+            payment.token.paymentData
+        ) {
+            normalized.token.paymentData = toPlainObject(payment.token.paymentData);
+        }
+        if (!normalized.billingContact && payment.billingContact) {
+            normalized.billingContact = toPlainObject(payment.billingContact);
+        }
+        if (!normalized.shippingContact && payment.shippingContact) {
+            normalized.shippingContact = toPlainObject(payment.shippingContact);
+        }
+    } catch (e) {
+        // ignore
+    }
+
+    return normalized;
+}
+
 export default class ApplePay {
     constructor(options = {}) {
         this.buckaroo = new Buckaroo();
@@ -28,41 +66,20 @@ export default class ApplePay {
         this.selected_shipping_amount = null;
         this.total_price = null;
         this.country_code = this.store_info.country_code;
-
-        // Checkout-method behaviour (Part 2). Defaults preserve express behaviour.
         this.isOnCheckout = options.isOnCheckout === true;
         this.onAuthorized = typeof options.onAuthorized === 'function' ? options.onAuthorized : null;
         this.buttonStyle = options.buttonStyle || 'black';
         this.containerSelector = options.containerSelector || '.applepay-button-container';
-
-        // Express renders the <apple-pay-button> web component. The standard
-        // checkout method renders NO button — it is triggered from the normal
-        // "Place Order" action and only authorises the payment.
         this.renderButton = options.renderButton !== false;
         this.onReady = typeof options.onReady === 'function' ? options.onReady : null;
-        // Apple's <apple-pay-button> reads `locale` when other attributes change;
-        // a null/missing locale makes it call ''.trim() on undefined and throw.
-        // Always provide a valid locale string.
         this.locale = options.locale || (typeof navigator !== 'undefined' && navigator.language) || 'en-US';
         this.supported = false;
         this.payment = null;
     }
 
-    /**
-     * Detect Apple Pay support using Apple's official API.
-     *
-     * applePayCapabilities() works across browsers (and underpins the QR
-     * handoff); canMakePayments() is the fallback for older WebKit.
-     *
-     * @returns {Promise<boolean>}
-     */
     checkSupport() {
         const merchantId = this.store_info.merchant_id;
 
-        // Apple Pay requires a secure context (HTTPS, no mixed content). Calling
-        // the session/capabilities APIs on an insecure document throws
-        // InvalidAccessError, so bail out gracefully (hide Apple Pay) instead of
-        // letting an uncaught rejection break checkout rendering.
         if (typeof window.ApplePaySession === 'undefined' || window.isSecureContext === false) {
             return Promise.resolve(false);
         }
@@ -93,23 +110,16 @@ export default class ApplePay {
         container.find('apple-pay-button').remove();
         container.find('div').remove();
 
-        // Only the express button renders the web component. The standard
-        // checkout method has no button (driven by "Place Order").
         if (!this.renderButton) {
             return;
         }
 
-        // Build via createElement and set attributes in a safe order. Apple's
-        // <apple-pay-button> re-reads `locale` when `type` changes, so `locale`
-        // must be a valid string and set BEFORE `type` (otherwise it calls
-        // .trim() on null and throws "t.trim is not a function").
         const button = document.createElement('apple-pay-button');
         button.setAttribute('locale', this.locale);
         button.setAttribute('buttonstyle', this.buttonStyle);
         button.setAttribute('type', 'plain');
         button.style.width = '100%';
 
-        // Rendered visible; init() removes it only if Apple Pay is unsupported.
         container.append(button);
     }
 
@@ -137,11 +147,6 @@ export default class ApplePay {
         });
     }
 
-    /**
-     * Build (or rebuild) the Buckaroo ApplePayPayment session from the current
-     * cart state. Extracted from init() so the standard checkout method can
-     * refresh the totals right before opening the sheet.
-     */
     setupPayment() {
         const cart_items = this.getItems();
         let shipping_methods = [];
@@ -185,8 +190,6 @@ export default class ApplePay {
             type: 'final',
         };
 
-        // Express gathers full contact data from the Apple sheet; the
-        // checkout method only authorises and uses the WooCommerce form.
         const requiredContactFields = this.isOnCheckout ? [] : ['name', 'email', 'postalAddress', 'phone'];
         const shippingMethodsCallback = this.isOnCheckout ? null : this.processShippingMethodsCallback.bind(this);
         const changeContactCallback = this.isOnCheckout ? null : this.processChangeContactInfoCallback.bind(this);
@@ -215,14 +218,6 @@ export default class ApplePay {
         this.payment = new BuckarooSdk.ApplePay.ApplePayPayment(buttonSelector, applepay_options);
     }
 
-    /**
-     * Programmatically open the Apple Pay sheet. Used by the standard checkout
-     * method, which triggers payment from the normal "Place Order" action
-     * (within the click user-gesture) instead of from a dedicated button.
-     *
-     * @param {Event} event
-     * @returns {boolean} whether a session could be started
-     */
     triggerPayment(event) {
         if (!this.payment) {
             return false;
@@ -243,11 +238,6 @@ export default class ApplePay {
         return false;
     }
 
-    /**
-     * Wire Apple's <apple-pay-button> web component to the Buckaroo SDK session.
-     * We do not call showPayButton() (which draws the legacy styled button);
-     * the official web component is the button.
-     */
     injectApplePayButton() {
         const button = jQuery(this.containerSelector).find('apple-pay-button')[0];
         if (!button || !this.payment) {
@@ -329,24 +319,38 @@ export default class ApplePay {
     }
 
     processApplepayCallback(payment) {
+        const normalized = normalizeApplePayPayment(payment);
+        const hasToken =
+            !!normalized &&
+            !!normalized.token &&
+            typeof normalized.token === 'object' &&
+            Object.keys(normalized.token).length > 0;
+
+        if (!hasToken) {
+            this.woocommerce.displayErrorMessage(
+                'Your payment could not be processed: the Apple Pay token was not received. Please try again.'
+            );
+            return Promise.resolve({
+                status: ApplePaySession.STATUS_FAILURE,
+                errors: [],
+            });
+        }
+
         const authorization_result = {
             status: ApplePaySession.STATUS_SUCCESS,
             errors: [],
         };
 
-        // Checkout method: hand the authorised token back to the caller (Blocks
-        // or classic checkout) which places the order through WooCommerce using
-        // the checkout-form addresses. Do NOT create an order from Apple data.
         if (this.isOnCheckout) {
             if (this.onAuthorized) {
-                this.onAuthorized(payment);
+                this.onAuthorized(normalized);
             }
             return Promise.resolve(authorization_result);
         }
 
         if (authorization_result.status === ApplePaySession.STATUS_SUCCESS) {
             this.buckaroo.createTransaction(
-                payment,
+                normalized,
                 this.total_price,
                 this.selected_shipping_method,
                 this.woocommerce.getItems(this.country_code)

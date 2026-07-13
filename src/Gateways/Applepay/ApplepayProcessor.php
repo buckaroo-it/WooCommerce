@@ -11,7 +11,6 @@ class ApplepayProcessor extends AbstractPaymentProcessor
     /** {@inheritDoc} */
     protected function getMethodBody(): array
     {
-
         $raw = $this->request->input('paymentData');
         if ($raw === null || $raw === '') {
             $raw = $this->request->input('paymentdata');
@@ -33,10 +32,7 @@ class ApplepayProcessor extends AbstractPaymentProcessor
     }
 
     /**
-     * Normalise the Apple Pay payment payload to an array.
-     *
      * @param  mixed  $data
-     * @return array
      */
     private function normalize_payment_data($data): array
     {
@@ -69,10 +65,14 @@ class ApplepayProcessor extends AbstractPaymentProcessor
      */
     private function get_payment_data($data): string
     {
-        if (! isset($data['token']) || empty($data['token'])) {
-            return '';
+        if (isset($data['token']) && ! empty($data['token'])) {
+            return base64_encode(json_encode($data['token']));
         }
 
-        return base64_encode(json_encode($data['token']));
+        if (isset($data['paymentData']) && ! empty($data['paymentData'])) {
+            return base64_encode(json_encode($data));
+        }
+
+        return '';
     }
 }
