@@ -19,6 +19,94 @@ import Buckaroo from './buckaroo.js';
  *     minimal, so the WooCommerce checkout form remains the source of truth for
  *     addresses. On authorisation `onAuthorized(payment)` is invoked.
  */
+/**
+ * Temporary diagnostic logging for the Apple Pay checkout investigation.
+ * Logs every lifecycle stage so the exact point where payment data is lost
+ * can be identified on-device. Remove once the checkout flow is verified.
+ */
+export function bkApplePayLog(stage, details) {
+    try {
+        // eslint-disable-next-line no-console
+        console.log(`[Buckaroo ApplePay][${stage}]`, details);
+    } catch (e) {
+        // logging must never break the payment flow
+    }
+}
+
+/**
+ * Deep-copy a value into a guaranteed-plain JS object.
+ *
+ * On Safari/WebKit the object handed to `onpaymentauthorized` (and the values
+ * nested inside it) can be platform objects whose attributes live as accessor
+ * properties on the prototype. Those are NOT "own" properties, so
+ * `JSON.stringify()` on them yields `{}` — silently discarding the Apple Pay
+ * token. (jQuery's form encoding walks `for...in`, which DOES see inherited
+ * accessors — which is why the express product/cart flows were unaffected and
+ * only the stringify-based checkout flows lost the token on Apple devices.
+ * The cross-device/QR flow delivers a plain JSON object, so it worked in every
+ * browser.)
+ *
+ * `for...in` sees both own and inherited enumerable properties, covering plain
+ * objects (QR flow) and platform objects (native Safari) alike.
+ */
+export function toPlainObject(value, depth = 0) {
+    if (value === null || value === undefined || typeof value !== 'object' || depth > 8) {
+        return value;
+    }
+    if (Array.isArray(value)) {
+        return value.map(item => toPlainObject(item, depth + 1));
+    }
+
+    const plain = {};
+    // eslint-disable-next-line no-restricted-syntax, guard-for-in
+    for (const key in value) {
+        try {
+            const item = value[key];
+            if (typeof item !== 'function') {
+                plain[key] = toPlainObject(item, depth + 1);
+            }
+        } catch (e) {
+            // ignore unreadable accessors
+        }
+    }
+    return plain;
+}
+
+/**
+ * Normalise the ApplePayPayment handed back on authorisation into a plain,
+ * JSON-serialisable `{ token, billingContact, shippingContact }` structure.
+ *
+ * The known keys are read via DIRECT property access first (which also works
+ * for non-enumerable accessors), then deep-copied via toPlainObject.
+ */
+export function normalizeApplePayPayment(payment) {
+    if (!payment || typeof payment !== 'object') {
+        return null;
+    }
+
+    const normalized = toPlainObject(payment);
+
+    // Direct reads for the known shape, in case enumeration missed anything.
+    try {
+        if ((!normalized.token || Object.keys(normalized.token).length === 0) && payment.token) {
+            normalized.token = toPlainObject(payment.token);
+        }
+        if (normalized.token && (!normalized.token.paymentData || Object.keys(normalized.token.paymentData).length === 0) && payment.token && payment.token.paymentData) {
+            normalized.token.paymentData = toPlainObject(payment.token.paymentData);
+        }
+        if (!normalized.billingContact && payment.billingContact) {
+            normalized.billingContact = toPlainObject(payment.billingContact);
+        }
+        if (!normalized.shippingContact && payment.shippingContact) {
+            normalized.shippingContact = toPlainObject(payment.shippingContact);
+        }
+    } catch (e) {
+        bkApplePayLog('normalize:error', e && e.message);
+    }
+
+    return normalized;
+}
+
 export default class ApplePay {
     constructor(options = {}) {
         this.buckaroo = new Buckaroo();
@@ -212,6 +300,14 @@ export default class ApplePay {
             ? `${this.containerSelector} apple-pay-button`
             : this.containerSelector;
 
+        // Stage: session (re)built.
+        bkApplePayLog('setupPayment', {
+            mode: this.isOnCheckout ? 'checkout' : 'express',
+            selector: buttonSelector,
+            total: total_to_pay,
+            items: all_items.length,
+        });
+
         this.payment = new BuckarooSdk.ApplePay.ApplePayPayment(buttonSelector, applepay_options);
     }
 
@@ -225,6 +321,7 @@ export default class ApplePay {
      */
     triggerPayment(event) {
         if (!this.payment) {
+            bkApplePayLog('triggerPayment', 'No payment session available');
             return false;
         }
 
@@ -232,14 +329,17 @@ export default class ApplePay {
             try {
                 this.setupPayment();
             } catch (e) {
+                bkApplePayLog('triggerPayment:refresh-failed', e && e.message);
                 // keep the existing session if the refresh fails
             }
         }
 
         if (typeof this.payment.beginPayment === 'function') {
+            bkApplePayLog('triggerPayment', 'Opening Apple Pay sheet (beginPayment)');
             this.payment.beginPayment(event || new Event('click'));
             return true;
         }
+        bkApplePayLog('triggerPayment', 'beginPayment is not a function on the SDK payment object');
         return false;
     }
 
@@ -329,6 +429,63 @@ export default class ApplePay {
     }
 
     processApplepayCallback(payment) {
+        // Stage: raw payment as delivered by the Buckaroo SDK / ApplePaySession.
+        bkApplePayLog('authorized:raw', {
+            mode: this.isOnCheckout ? 'checkout' : 'express',
+            paymentType: typeof payment,
+            ownKeys: payment && typeof payment === 'object' ? Object.keys(payment) : null,
+            hasTokenProp: !!(payment && payment.token),
+            rawStringify: (() => {
+                try {
+                    const s = JSON.stringify(payment);
+                    return s && s.length > 200 ? `${s.slice(0, 200)}... (${s.length} chars)` : s;
+                } catch (e) {
+                    return `unstringifiable: ${e && e.message}`;
+                }
+            })(),
+        });
+
+        // Normalise to a plain object BEFORE any serialisation. On native
+        // Safari the payment/token can be platform objects whose properties
+        // are prototype accessors: JSON.stringify() then yields '{}' and the
+        // Buckaroo API would receive an empty paymentData/token.
+        const normalized = normalizeApplePayPayment(payment);
+        const hasToken =
+            !!normalized &&
+            !!normalized.token &&
+            typeof normalized.token === 'object' &&
+            Object.keys(normalized.token).length > 0;
+
+        // Stage: normalized payment about to be handed to the order flow.
+        bkApplePayLog('authorized:normalized', {
+            hasToken,
+            tokenKeys: hasToken ? Object.keys(normalized.token) : null,
+            paymentDataKeys:
+                hasToken && normalized.token.paymentData && typeof normalized.token.paymentData === 'object'
+                    ? Object.keys(normalized.token.paymentData)
+                    : null,
+            serializedLength: (() => {
+                try {
+                    return JSON.stringify(normalized).length;
+                } catch (e) {
+                    return -1;
+                }
+            })(),
+        });
+
+        if (!hasToken) {
+            // Never let an empty token continue: fail the sheet instead of
+            // sending an empty paymentData to the Buckaroo API.
+            bkApplePayLog('authorized:empty-token', 'Aborting: normalized payment has no token');
+            this.woocommerce.displayErrorMessage(
+                'Your payment could not be processed: the Apple Pay token was not received. Please try again.'
+            );
+            return Promise.resolve({
+                status: ApplePaySession.STATUS_FAILURE,
+                errors: [],
+            });
+        }
+
         const authorization_result = {
             status: ApplePaySession.STATUS_SUCCESS,
             errors: [],
@@ -339,14 +496,16 @@ export default class ApplePay {
         // the checkout-form addresses. Do NOT create an order from Apple data.
         if (this.isOnCheckout) {
             if (this.onAuthorized) {
-                this.onAuthorized(payment);
+                bkApplePayLog('checkout:onAuthorized', 'Handing normalized token to checkout handler');
+                this.onAuthorized(normalized);
             }
             return Promise.resolve(authorization_result);
         }
 
         if (authorization_result.status === ApplePaySession.STATUS_SUCCESS) {
+            bkApplePayLog('express:createTransaction', 'Sending normalized payment to create-transaction');
             this.buckaroo.createTransaction(
-                payment,
+                normalized,
                 this.total_price,
                 this.selected_shipping_method,
                 this.woocommerce.getItems(this.country_code)

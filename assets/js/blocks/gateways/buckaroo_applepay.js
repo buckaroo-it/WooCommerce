@@ -15,6 +15,17 @@ const PLACE_ORDER_SELECTOR =
     '.wc-block-checkout__actions button[type="submit"], ' +
     '.wc-block-checkout__actions_row button[type="submit"]';
 
+// Temporary diagnostic logging (see applepay bundle) to trace the token
+// through the Blocks checkout while the empty-paymentData issue is verified.
+function bkLog(stage, details) {
+    try {
+        // eslint-disable-next-line no-console
+        console.log(`[Buckaroo ApplePay][blocks:${stage}]`, details);
+    } catch (e) {
+        // never break checkout because of logging
+    }
+}
+
 function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, setErrorMessage, onStateChange }) {
     const tokenRef = useRef(null);
     const applepayRef = useRef(null);
@@ -45,7 +56,14 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
                 renderButton: false,
                 containerSelector: '.applepay-blocks-checkout-method',
                 onAuthorized: payment => {
+                    // `payment` is already normalised to a plain object by the
+                    // applepay bundle (normalizeApplePayPayment), so stringify
+                    // is safe here on every device.
                     tokenRef.current = JSON.stringify(payment);
+                    bkLog('onAuthorized', {
+                        tokenLength: tokenRef.current.length,
+                        hasToken: !!(payment && payment.token),
+                    });
                     showError('');
 
                     if (typeof onStateChangeRef.current === 'function') {
@@ -54,6 +72,7 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
 
                     setTimeout(() => {
                         const button = getPlaceOrderButton();
+                        bkLog('onAuthorized', button ? 'Clicking Place Order' : 'Place Order button not found');
                         if (button) {
                             button.click();
                         }
@@ -124,6 +143,10 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
         }
 
         const unsubscribe = eventRegistration.onPaymentSetup(() => {
+            bkLog('onPaymentSetup', {
+                hasToken: !!tokenRef.current,
+                tokenLength: tokenRef.current ? tokenRef.current.length : 0,
+            });
             if (!tokenRef.current) {
                 return {
                     type: emitResponse.responseTypes.ERROR,
