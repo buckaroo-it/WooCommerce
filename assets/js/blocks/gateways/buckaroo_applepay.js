@@ -26,7 +26,7 @@ function bkLog(stage, details) {
     }
 }
 
-function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, setErrorMessage, onStateChange }) {
+function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, setErrorMessage, onStateChange, billing }) {
     const tokenRef = useRef(null);
     const applepayRef = useRef(null);
     const onStateChangeRef = useRef(onStateChange);
@@ -142,6 +142,14 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
             return undefined;
         }
 
+        // IMPORTANT: priority 20 — this observer must run AFTER the generic
+        // BuckarooComponent onPaymentSetup observer (default priority 10).
+        // WooCommerce Blocks keeps only the LAST success response's
+        // paymentMethodData ("the last observer response always wins"), so
+        // when this ran first (old priority 5) the generic response REPLACED
+        // it and the Apple Pay token never reached the server — the Buckaroo
+        // API then received an empty PaymentData. The generic fields are
+        // merged here so nothing is lost by winning.
         const unsubscribe = eventRegistration.onPaymentSetup(() => {
             bkLog('onPaymentSetup', {
                 hasToken: !!tokenRef.current,
@@ -159,13 +167,18 @@ function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, se
                 meta: {
                     paymentMethodData: {
                         paymentData: tokenRef.current,
+                        isblocks: '1',
+                        billing_company: (billing && billing.company) || '',
+                        billing_country: (billing && billing.country) || '',
+                        billing_address_1: (billing && billing.address_1) || '',
+                        billing_address_2: (billing && billing.address_2) || '',
                     },
                 },
             };
-        }, 5);
+        }, 20);
 
         return () => unsubscribe();
-    }, [eventRegistration, emitResponse]);
+    }, [eventRegistration, emitResponse, billing]);
 
     return (
         <div className="payment_box payment_method_buckaroo buckaroo-applepay-checkout-method applepay-blocks-checkout-method" />
