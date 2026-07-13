@@ -36,7 +36,12 @@ export function normalizeApplePayPayment(payment) {
         if ((!normalized.token || Object.keys(normalized.token).length === 0) && payment.token) {
             normalized.token = toPlainObject(payment.token);
         }
-        if (normalized.token && (!normalized.token.paymentData || Object.keys(normalized.token.paymentData).length === 0) && payment.token && payment.token.paymentData) {
+        if (
+            normalized.token &&
+            (!normalized.token.paymentData || Object.keys(normalized.token.paymentData).length === 0) &&
+            payment.token &&
+            payment.token.paymentData
+        ) {
             normalized.token.paymentData = toPlainObject(payment.token.paymentData);
         }
         if (!normalized.billingContact && payment.billingContact) {

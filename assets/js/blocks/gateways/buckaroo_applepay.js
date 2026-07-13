@@ -6,7 +6,14 @@ const PLACE_ORDER_SELECTOR =
     '.wc-block-checkout__actions button[type="submit"], ' +
     '.wc-block-checkout__actions_row button[type="submit"]';
 
-function BuckarooApplepayCheckout({ gateway, eventRegistration, emitResponse, setErrorMessage, onStateChange, billing }) {
+function BuckarooApplepayCheckout({
+    gateway,
+    eventRegistration,
+    emitResponse,
+    setErrorMessage,
+    onStateChange,
+    billing,
+}) {
     const tokenRef = useRef(null);
     const applepayRef = useRef(null);
     const onStateChangeRef = useRef(onStateChange);
