@@ -469,3 +469,103 @@ label.bk-in3-logo img {
     max-height: 40px !important;
     overflow: hidden !important;
 }
+
+/* -------------------------------------------------------------------------
+ * BNPL birthdate datepicker (classic checkout)
+ *
+ * WordPress core registers the jquery-ui-datepicker script but ships no
+ * widget CSS. These rules style the calendar that the Buckaroo BNPL methods
+ * (Riverty, Riverty Old, Billink, In3) attach to their birthdate field so it
+ * is visible and interactive. Scope is limited to the datepicker widget so it
+ * cannot leak into the surrounding theme.
+ * ------------------------------------------------------------------------- */
+.ui-datepicker {
+    width: 18em;
+    padding: 0.2em 0.2em 0;
+    background: #fff;
+    border: 1px solid #c5c5c5;
+    border-radius: 4px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    display: none;
+    z-index: 9999 !important;
+}
+.ui-datepicker .ui-datepicker-header {
+    position: relative;
+    padding: 0.4em 0;
+    background: #f6f6f6;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-weight: 600;
+}
+.ui-datepicker .ui-datepicker-title {
+    margin: 0 2.3em;
+    line-height: 1.8em;
+    text-align: center;
+}
+.ui-datepicker .ui-datepicker-title select {
+    display: inline-block;
+    width: auto;
+    margin: 1px 2px;
+    font-size: 0.9em;
+}
+.ui-datepicker .ui-datepicker-prev,
+.ui-datepicker .ui-datepicker-next {
+    position: absolute;
+    top: 0.3em;
+    width: 1.8em;
+    height: 1.8em;
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.8em;
+    color: #555;
+    user-select: none;
+}
+.ui-datepicker .ui-datepicker-prev {
+    left: 0.3em;
+}
+.ui-datepicker .ui-datepicker-next {
+    right: 0.3em;
+}
+.ui-datepicker .ui-datepicker-prev span,
+.ui-datepicker .ui-datepicker-next span {
+    display: none;
+}
+.ui-datepicker .ui-datepicker-prev:before {
+    content: '\2039';
+}
+.ui-datepicker .ui-datepicker-next:before {
+    content: '\203A';
+}
+.ui-datepicker table {
+    width: 100%;
+    margin: 0.4em 0 0;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+.ui-datepicker th {
+    padding: 0.4em 0.2em;
+    text-align: center;
+    font-weight: 600;
+    border: 0;
+}
+.ui-datepicker td {
+    padding: 1px;
+    border: 0;
+}
+.ui-datepicker td a,
+.ui-datepicker td span {
+    display: block;
+    padding: 0.35em;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    border-radius: 3px;
+}
+.ui-datepicker td a:hover {
+    background: #e6f0ff;
+}
+.ui-datepicker td a.ui-state-active,
+.ui-datepicker td a.ui-state-highlight {
+    background: #0073aa;
+    color: #fff;
+}

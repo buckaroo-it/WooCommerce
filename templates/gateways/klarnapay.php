@@ -24,7 +24,8 @@ $country = $this->getScalarCheckoutField('billing_country');
 
 <fieldset>
     <?php
-    $this->getPaymentTemplate('partial_gender_field');
+    // Gender selection removed from checkout to reduce friction; the gateway
+    // always sends "Unknown" for the mandatory Klarna gender/salutation parameter.
     ?>
 
     <p class="form-row validate-required">
@@ -52,5 +53,4 @@ $country = $this->getScalarCheckoutField('billing_country');
     <p class="required" style="float:right;">*
         <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
     </p>
-    <?php $this->getPaymentTemplate('financial_warning'); ?>
 </fieldset>

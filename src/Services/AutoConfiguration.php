@@ -25,6 +25,12 @@ class AutoConfiguration
      */
     public function handleAjaxRequest()
     {
+        if (! current_user_can('manage_woocommerce')) {
+            wp_die(esc_html__('You are not allowed to perform this action.', 'wc-buckaroo-bpe-gateway'), '', ['response' => 403]);
+        }
+
+        check_ajax_referer('buckaroo_admin_ajax', 'security');
+
         try {
             $activeServices = $this->getActiveSubscriptions();
 

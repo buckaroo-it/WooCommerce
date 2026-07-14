@@ -15,7 +15,7 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         $body = array_merge_recursive(
             [
                 'operatingCountry' => $this->getOperatingCountry(),
-                'gender' => $this->getGender(),
+                'gender' => 1
             ],
             $this->getBilling(),
             $this->getShipping(),
@@ -69,18 +69,6 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         }
 
         return is_string($country) ? strtoupper($country) : '';
-    }
-
-    private function getGender(): int
-    {
-        $value = $this->request->input($this->gateway->getKlarnaSelector() . '-gender');
-
-        if (is_numeric($value) && (int) $value > 0) {
-            return (int) $value;
-        }
-
-        // Default to male (1) if no value submitted; Klarna requires a positive integer.
-        return 1;
     }
 
     public function getAction(): string

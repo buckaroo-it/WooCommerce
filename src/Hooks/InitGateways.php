@@ -126,12 +126,10 @@ class InitGateways
                 }
                 if ($gateway_id === 'buckaroo_afterpaynew') {
                     $payment_method['customer_type'] = $gateway->customer_type;
-                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
                 }
                 if ($gateway_id === 'buckaroo_afterpay') {
                     $payment_method['b2b'] = $gateway->b2b;
                     $payment_method['type'] = (new AfterpayOldGateway())->type;
-                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
                 }
                 if (str_starts_with($gateway_id, 'buckaroo_creditcard')) {
                     $payment_method['creditCardIssuers'] = $gateway->getCardsList();
@@ -145,6 +143,11 @@ class InitGateways
                         [
                             'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE',
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
+                            'buttonStyle' => $gateway->get_option('button_style', 'black'),
+                            // Whether Apple Pay is also listed as a standard,
+                            // selectable checkout payment method (Part 2).
+                            'showAsPaymentMethod' => method_exists($gateway, 'isCheckoutMethodEnabled')
+                                && $gateway->isCheckoutMethodEnabled(),
                         ]
                     );
                 }
@@ -169,16 +172,6 @@ class InitGateways
                         ]
                     );
                 }
-                if ($gateway_id === 'buckaroo_klarnakp' || $gateway_id === 'buckaroo_klarnapay') {
-                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
-                }
-                if ($gateway_id === 'buckaroo_in3') {
-                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
-                }
-                if ($gateway_id === 'buckaroo_billink') {
-                    $payment_method['financialWarning'] = $gateway->get_option('financial_warning');
-                }
-
                 $payment_methods[] = $payment_method;
             }
         }

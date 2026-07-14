@@ -130,13 +130,6 @@ class KlarnaKpGateway extends KlarnaGateway
         return parent::process_capture($order_id);
     }
 
-    /** {@inheritDoc} */
-    public function init_form_fields()
-    {
-        parent::init_form_fields();
-        $this->add_financial_warning_field();
-    }
-
     public function handleHooks()
     {
         new KlarnaCancelReservation();

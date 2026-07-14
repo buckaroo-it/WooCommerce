@@ -46,6 +46,7 @@ class ApplepayGateway extends AbstractPaymentGateway
         add_action("{$namespace}-get-items-from-cart", [ApplepayController::class, 'getItemsFromCart']);
         add_action("{$namespace}-get-shipping-methods", [ApplepayController::class, 'getShippingMethods']);
         add_action("{$namespace}-get-shop-information", [ApplepayController::class, 'getShopInformation']);
+        add_action("{$namespace}-get-cart-total", [ApplepayController::class, 'getCartTotal']);
         add_action("{$namespace}-create-transaction", [$this, 'createTransaction']);
     }
 
@@ -353,10 +354,7 @@ class ApplepayGateway extends AbstractPaymentGateway
 
     private static function createOrderShippingLine($order, array $wc_methods, $selected_method_id)
     {
-        if (
-            empty($selected_method_id)
-            || preg_match('/free/', $selected_method_id)
-        ) {
+        if (empty($selected_method_id)) {
             return;
         }
 
@@ -566,7 +564,41 @@ class ApplepayGateway extends AbstractPaymentGateway
             ],
             'default' => 'TRUE',
         ];
+
+        $this->form_fields['checkout_method'] = [
+            'title' => __('Apple Pay as checkout payment method', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'select',
+            'description' => __('In addition to the Express Checkout button, list Apple Pay as a selectable payment method in the checkout. The Apple Pay sheet only authorises the payment; billing and shipping are taken from the checkout form.', 'wc-buckaroo-bpe-gateway'),
+            'options' => [
+                'TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'),
+                'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway'),
+            ],
+            'default' => 'TRUE',
+        ];
+
+        $this->form_fields['button_style'] = [
+            'title' => __('Button style', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'select',
+            'description' => __('Style of the Apple Pay button shown in the checkout.', 'wc-buckaroo-bpe-gateway'),
+            'options' => [
+                'black' => __('Black', 'wc-buckaroo-bpe-gateway'),
+                'white' => __('White', 'wc-buckaroo-bpe-gateway'),
+                'white-outline' => __('White with outline', 'wc-buckaroo-bpe-gateway'),
+            ],
+            'default' => 'black',
+        ];
         $this->set_guid_after_usemaster();
+    }
+
+    /**
+     * Whether Apple Pay should be listed as a standard, selectable checkout
+     * payment method (in addition to the Express Checkout button).
+     *
+     * @return bool
+     */
+    public function isCheckoutMethodEnabled(): bool
+    {
+        return $this->get_option('checkout_method', 'TRUE') === 'TRUE';
     }
 
     /**

@@ -35,6 +35,7 @@ buckarooAdmin = {
                     action: 'buckaroo_test_credentials',
                     website_key,
                     secret_key,
+                    security: typeof buckarooAdminAjax !== 'undefined' ? buckarooAdminAjax.nonce : '',
                 },
                 function (response) {
                     alert(response);
@@ -53,10 +54,17 @@ buckarooAdmin = {
                     'Warning! This action will automatically enable payment methods in LIVE mode based on your active Buckaroo subscriptions. This will overwrite your current payment method settings. Are you sure you want to proceed?'
                 )
             ) {
-                jQuery.post(ajaxurl, { action: 'buckaroo_auto_configure' }, function (response) {
-                    alert(response);
-                    location.reload();
-                });
+                jQuery.post(
+                    ajaxurl,
+                    {
+                        action: 'buckaroo_auto_configure',
+                        security: typeof buckarooAdminAjax !== 'undefined' ? buckarooAdminAjax.nonce : '',
+                    },
+                    function (response) {
+                        alert(response);
+                        location.reload();
+                    }
+                );
             }
         });
     },
