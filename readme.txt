@@ -4,7 +4,7 @@ Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 5.3.18
 Tested up to: 7.0
-Stable tag: 4.8.2
+Stable tag: 4.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,27 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
+= 4.9.0 =
+Improvements & New Features
+BTI-777 Apple Pay is now visible across all web browsers and is also displayed as a separate checkout option alongside the Apple Pay buttons.
+BTI-1036 Removed the financial warning setting for BNPL methods, as this warning is already displayed on the redirect page.
+BTI-1037 Removed the optional gender field for Billink to reduce the number of consumer checkout steps.
+BTI-1038 Removed the optional gender field for Klarna to reduce the number of consumer checkout steps.
+BTI-1059 Added sandbox environment support for PayPal Express transactions.
+BTI-899 Product image URLs are now sent in Riverty requests so they can be displayed on Riverty invoices and in the Riverty app.
+Fixed block checkout compatibility issues with multi-currency setups.
+Updated the salutation payload for Klarna.
+Updated payment method logos.
+
+Bug Fixes
+BTI-1079 Resolved an issue with the date picker in combination with the WooCommerce legacy checkout for all BNPL methods.
+BTI-770 Resolved an issue where Apple Pay was not displayed in the WooCommerce order details.
+BTI-1111 Resolved an issue caused by a hardcoded wp-admin URL for AJAX/admin paths.
+BTI-747 Resolved an issue where PayPal orders were not always moved to Processing status after a successful PUSH notification.
+
+Security updates:
+BTI-1129 Resolved an issue with AJAX action.
+
 = 4.8.2 =
 Improvements
 BTI-1124 Fixed an issue where orders using Klarna (MoR) could not be placed through the WooCommerce legacy checkout when the address was in the Netherlands.
