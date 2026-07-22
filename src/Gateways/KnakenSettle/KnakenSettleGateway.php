@@ -12,6 +12,7 @@ class KnakenSettleGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_knaken';
         $this->title = 'goSettle';
+        $this->method_description = 'Crypto payment method accepting digital assets such as Bitcoin, Ethereum and USDC.';
         $this->has_fields = false;
         $this->method_title = 'Buckaroo goSettle';
         $this->setIcon('svg/goSettle.svg');

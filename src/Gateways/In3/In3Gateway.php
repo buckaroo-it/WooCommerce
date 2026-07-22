@@ -25,7 +25,7 @@ class In3Gateway extends AbstractPaymentGateway
         $this->id = 'buckaroo_in3';
         $this->has_fields = false;
         $this->method_title = 'Buckaroo In3';
-
+        $this->method_description = 'Interest-free payment in three instalments over 60 days, settled via iDEAL.';
         $this->title = 'In3';
 
         $this->setCountry();

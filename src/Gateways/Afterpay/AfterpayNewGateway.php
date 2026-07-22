@@ -45,6 +45,7 @@ class AfterpayNewGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_afterpaynew';
         $this->title = 'Riverty';
+        $this->method_description = 'European pay-after-delivery within 30 days.';
         $this->has_fields = false;
         $this->method_title = 'Buckaroo Riverty';
         $this->setIcon('svg/afterpay.svg');

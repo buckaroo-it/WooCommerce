@@ -975,9 +975,12 @@ msgid "The \"%s\" payment method is currently enabled"
 msgstr "Die Zahlungsmethode \"%s\" ist derzeit aktiviert"
 
 #: src/Gateways/Applepay/ApplepayGateway.php:474
-#: src/Gateways/Googlepay/GooglepayGateway.php:493
 msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
 msgstr "Die Buckaroo GUID, die in Buckaroo Plaza > Mein Buckaroo > Allgemein zu finden ist."
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:493
+msgid "The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza →  Services -> Google Pay."
+msgstr "Die Gateway-Händler-ID von Buckaroo finden Sie im Buckaroo Plaza → Services → Google Pay."
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:140
 msgid "The expiration date for the paylink."
@@ -1362,3 +1365,92 @@ msgstr "Google Merchant ID"
 #: src/Gateways/Googlepay/GooglepayGateway.php:499
 msgid "Your Google Merchant ID from the Google Pay Business Console (e.g. BCR2DN4T...)."
 msgstr "Ihre Google Merchant ID aus der Google Pay Business Console (z.B. BCR2DN4T...)."
+
+#: src/Gateways/Alipay/AlipayGateway.php
+msgid "One of the world's largest mobile wallets, widely used by shoppers in China."
+msgstr "Eine der größten mobilen Wallets weltweit, weit verbreitet bei Verbrauchern in China."
+
+#: src/Gateways/Applepay/ApplepayGateway.php
+msgid "Apple's mobile wallet for quick, secure payments via Face ID or Touch ID on Apple devices."
+msgstr "Die mobile Wallet von Apple für schnelle, sichere Zahlungen per Face ID oder Touch ID auf Apple-Geräten."
+
+#: src/Gateways/Bancontact/BancontactGateway.php
+msgid "Belgium's most popular payment method, linked directly to the shopper's own bank."
+msgstr "Die beliebteste Zahlungsmethode Belgiens, direkt mit der eigenen Bank des Kunden verbunden."
+
+#: src/Gateways/Transfer/TransferGateway.php
+msgid "Manual bank transfer, with payment instructions provided to the customer after checkout."
+msgstr "Manuelle Banküberweisung, bei der der Kunde nach dem Checkout die Zahlungsdaten erhält."
+
+#: src/Gateways/Belfius/BelfiusGateway.php
+msgid "Direct, guaranteed bank payments for customers of Belfius, a major Belgian bank."
+msgstr "Direkte, garantierte Bankzahlungen für Kunden von Belfius, einer großen belgischen Bank."
+
+#: src/Gateways/Billink/BillinkGateway.php
+msgid "Dutch pay-after-delivery by invoice with a 14-day term, for private and business customers."
+msgstr "Niederländischer Rechnungskauf mit einer Zahlungsfrist von 14 Tagen, für Privat- und Geschäftskunden."
+
+#: src/Gateways/Bizum/BizumGateway.php
+msgid "Spain's mobile payment method, with instant bank-to-bank transfers via phone number."
+msgstr "Die mobile Zahlungsmethode Spaniens mit sofortigen Bank-zu-Bank-Überweisungen per Telefonnummer."
+
+#: src/Gateways/Googlepay/GooglepayGateway.php
+msgid "Google's wallet, using the cards saved to a shopper's Google Account."
+msgstr "Die Wallet von Google, mit den im Google-Konto des Kunden gespeicherten Karten."
+
+#: src/Gateways/Crypto/CryptoGateway.php
+msgid "Crypto payment method accepting digital assets such as Bitcoin, Ethereum and USDC."
+msgstr "Krypto-Zahlungsmethode, die digitale Währungen wie Bitcoin, Ethereum und USDC akzeptiert."
+
+#: src/Gateways/Ideal/IdealGateway.php
+msgid "The Netherlands' most-used online payment method, via the shopper's own bank, now co-branded with Wero."
+msgstr "Die meistgenutzte Online-Zahlungsmethode der Niederlande, über die eigene Bank des Kunden, jetzt mit Co-Branding von Wero."
+
+#: src/Gateways/In3/In3Gateway.php
+msgid "Interest-free payment in three instalments over 60 days, settled via iDEAL."
+msgstr "Zinsfreie Zahlung in drei Raten über 60 Tage, abgewickelt über iDEAL."
+
+#: src/Gateways/Kbc/KbcGateway.php
+msgid "Direct bank payments for customers of KBC/CBC in Belgium."
+msgstr "Direkte Bankzahlungen für Kunden von KBC/CBC in Belgien."
+
+#: src/Gateways/Klarna/KlarnaGateway.php
+msgid "Klarna pay-later and instalment options, with Klarna acting as Merchant of Record."
+msgstr "Zahlungsaufschub und Ratenzahlung mit Klarna, wobei Klarna als Merchant of Record fungiert."
+
+#: src/Gateways/Klarna/KlarnaPayGateway.php
+msgid "Klarna pay-after-delivery, authorized at checkout and captured on shipment."
+msgstr "Kauf auf Rechnung mit Klarna, autorisiert beim Checkout und eingezogen bei Versand."
+
+#: src/Gateways/Paypal/PaypalGateway.php
+msgid "Global digital wallet with card and balance payments, plus Buyer Protection."
+msgstr "Weltweite digitale Wallet mit Zahlungen per Karte oder Guthaben, inklusive Käuferschutz."
+
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php
+msgid "Buckaroo service for sending customers a payment request by email with a secure pay link."
+msgstr "Buckaroo-Dienst, um Kunden per E-Mail eine Zahlungsaufforderung mit sicherem Zahlungslink zu senden."
+
+#: src/Gateways/Przelewy24/Przelewy24Gateway.php
+msgid "Poland's leading online payment platform, connecting 165+ local banks and methods."
+msgstr "Die führende Online-Zahlungsplattform Polens, mit über 165 lokalen Banken und Methoden."
+
+#: src/Gateways/Afterpay/AfterpayNewGateway.php
+msgid "European pay-after-delivery within 30 days."
+msgstr "Europäischer Rechnungskauf innerhalb von 30 Tagen."
+
+#: src/Gateways/Afterpay/AfterpayOldGateway.php
+msgid "Riverty via the older API integration, for merchants not yet migrated."
+msgstr "Riverty über die ältere API-Integration, für noch nicht migrierte Händler."
+
+#: src/Gateways/SepaDirectDebit/SepaDirectDebitGateway.php
+msgid "One-off collection from the customer's bank account via a SEPA mandate."
+msgstr "Einmaliger Einzug vom Bankkonto des Kunden per SEPA-Mandat."
+
+#: src/Gateways/Swish/SwishGateway.php
+msgid "Sweden's most popular mobile payment app, with instant app-approved payments."
+msgstr "Die beliebteste mobile Bezahl-App Schwedens, mit sofortigen, in der App bestätigten Zahlungen."
+
+#: src/Admin/GeneralSettings.php
+msgid "Give every payment the attention it deserves, with 40+ methods in one plugin."
+msgstr "Schenken Sie jeder Zahlung die Aufmerksamkeit, die sie verdient, mit über 40 Zahlungsmethoden in einem Plugin."
+

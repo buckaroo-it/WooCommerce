@@ -15,6 +15,7 @@ class Przelewy24Gateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_przelewy24';
         $this->title = 'Przelewy24';
+        $this->method_description = "Poland's leading online payment platform, connecting 165+ local banks and methods.";
         $this->has_fields = false;
         $this->method_title = 'Buckaroo Przelewy24';
         $this->setIcon('svg/przelewy24.svg');

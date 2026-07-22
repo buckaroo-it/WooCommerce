@@ -21,6 +21,7 @@ class KlarnaKpGateway extends KlarnaGateway
     {
         $this->id = 'buckaroo_klarnakp';
         $this->title = 'Klarna: Pay later';
+        $this->method_description = 'Klarna pay-after-delivery, authorized at checkout and captured on shipment.';
         $this->method_title = 'Buckaroo Klarna Pay later (authorize/capture)';
         $this->has_fields = true;
         $this->type = 'klarnakp';

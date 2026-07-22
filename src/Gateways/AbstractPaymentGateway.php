@@ -54,6 +54,8 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
     public bool $capturable = false;
 
+    public $method_description = '';
+
     public function __construct()
     {
         // Load the form fields
@@ -137,7 +139,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
                 'default' => 'test',
             ],
             'title' => [
-                'title' => __('Front-end label', 'wc-buckaroo-bpe-gateway'),
+                'title' => __('Title', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'text',
                 'description' => __(
                     'Determines how the payment method is named in the checkout.',
@@ -206,6 +208,16 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
                 $options['description'],
             );
             $this->settings = array_replace($this->settings, $options);
+        }
+
+        // If description was previously saved as method_description, clear it
+        // so the form field falls back to "Pay with X"
+        if (
+            !empty($this->method_description) &&
+            isset($this->settings['description']) &&
+            $this->settings['description'] === $this->method_description
+        ) {
+            unset($this->settings['description']);
         }
     }
 
@@ -371,12 +383,102 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
     public function generate_buckaroo_notice_html($key, $data)
     {
-        // Add Warning, if currency set in Buckaroo is unsupported
-        if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && ! $this->checkCurrencySupported() && is_admin()) {
-            $message = esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')';
-
-            return printf('<div class="error notice"><p>%s</p></div>', $message);
+        if (! isset($_GET['section']) || $this->id !== sanitize_text_field($_GET['section']) || ! is_admin()) {
+            return;
         }
+
+        $method_title  = $this->get_method_title() ?: $this->get_title();
+        $display_title = str_replace('Buckaroo ', '', $method_title);
+        $currencies    = $this->getSupportedCurrencies();
+        $countries     = $this->getSupportedCountries();
+        $is_enabled    = $this->enabled === 'yes';
+        $mode          = strtolower((string) $this->get_option('mode', 'test'));
+
+        if ($is_enabled) {
+            if ($mode === 'live') {
+                $status_class = 'bk-status--live';
+                $status_label = __('Active', 'wc-buckaroo-bpe-gateway');
+            } else {
+                $status_class = 'bk-status--test';
+                $status_label = __('Test', 'wc-buckaroo-bpe-gateway');
+            }
+        } else {
+            $status_class = 'bk-status--disabled';
+            $status_label = __('Inactive', 'wc-buckaroo-bpe-gateway');
+        }
+
+        $description = $this->method_description !== ''
+            ? __($this->method_description, 'wc-buckaroo-bpe-gateway')
+            : $this->getPaymentDescription();
+
+        echo '<div class="bk-gateway-summary-card">';
+
+        echo '<div class="bk-gateway-summary-card__icon">';
+        if (! empty($this->icon)) {
+            echo '<img src="' . esc_url($this->icon) . '" alt="' . esc_attr($display_title) . '" />';
+        } else {
+            echo '<span class="bk-gateway-summary-card__icon-placeholder">' . esc_html(strtoupper(substr($display_title, 0, 2))) . '</span>';
+        }
+        echo '</div>';
+
+        echo '<div class="bk-gateway-summary-card__info">';
+        echo '<div class="bk-gateway-summary-card__title">' . esc_html($display_title) . '</div>';
+        echo '<div class="bk-gateway-summary-card__desc">' . esc_html($description) . '</div>';
+        $european_countries = ['AT','BE','BG','CH','CY','CZ','DE','DK','EE','ES','FI','FR','GB','GR','HR','HU','IE','IS','IT','LI','LT','LU','LV','MT','NL','NO','PL','PT','RO','SE','SI','SK'];
+
+        if (empty($countries)) {
+            $country_label = 'Global';
+        } elseif (count($countries) >= 5 && count(array_diff($countries, $european_countries)) === 0) {
+            $country_label = 'Europe';
+        } else {
+            $country_label = implode(' · ', $countries);
+        }
+
+        $currency_label = count($currencies) >= 6 ? 'Multi-currency' : implode(' · ', $currencies);
+
+        echo '<div class="bk-gateway-summary-card__tags">';
+        echo '<span class="bk-tag">' . esc_html($country_label) . '</span>';
+        echo '<span class="bk-tag">' . esc_html($currency_label) . '</span>';
+        echo '</div>';
+        echo '</div>';
+
+        echo '<div class="bk-gateway-summary-card__status">';
+        echo '<span class="bk-status-pill ' . esc_attr($status_class) . '"><span class="bk-status-pill-dot"></span>' . esc_html($status_label) . '</span>';
+        echo '</div>';
+
+        echo '</div>';
+
+        if (! $this->checkCurrencySupported()) {
+            $message = esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')';
+            printf('<div class="error notice"><p>%s</p></div>', $message);
+        }
+
+        ?>
+        <script>
+        (function () {
+            // Override the WooCommerce back link on gateway settings pages to use browser history
+            document.addEventListener('DOMContentLoaded', function () {
+                // WooCommerce renders a back link above the page title (e.g. "< Buckaroo Billink")
+                // It typically links to ?page=wc-settings&tab=checkout without a section
+                var allLinks = document.querySelectorAll('#wpbody-content a, .woocommerce-layout__header-back-link, .woocommerce-navigation-back-button');
+                allLinks.forEach(function (el) {
+                    var href = el.getAttribute('href') || '';
+                    // Target links that go back to the generic WooCommerce checkout/payment tab
+                    if (
+                        href.indexOf('tab=checkout') !== -1 && href.indexOf('section=') === -1 ||
+                        el.classList.contains('woocommerce-layout__header-back-link') ||
+                        el.classList.contains('woocommerce-navigation-back-button')
+                    ) {
+                        el.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            history.back();
+                        });
+                    }
+                });
+            });
+        })();
+        </script>
+        <?php
     }
 
     /**

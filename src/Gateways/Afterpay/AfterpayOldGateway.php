@@ -34,6 +34,7 @@ class AfterpayOldGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_afterpay';
         $this->title = 'Riverty';
+        $this->method_description = 'Riverty via the older API integration, for merchants not yet migrated.';
         $this->has_fields = false;
         $this->method_title = 'Buckaroo Riverty (Old)';
         $this->setIcon('svg/afterpay.svg');

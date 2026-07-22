@@ -10,6 +10,7 @@ class BizumGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_bizum';
         $this->title = 'Bizum';
+        $this->method_description = "Spain's mobile payment method, with instant bank-to-bank transfers via phone number.";
         $this->has_fields = false;
         $this->method_title = 'Buckaroo Bizum';
         $this->setIcon('svg/bizum.svg');

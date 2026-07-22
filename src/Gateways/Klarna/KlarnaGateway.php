@@ -20,6 +20,7 @@ class KlarnaGateway extends AbstractPaymentGateway
     {
         $this->has_fields = true;
         $this->type = 'klarna';
+        $this->method_description = 'Klarna pay-later and instalment options, with Klarna acting as Merchant of Record.';
         $this->setIcon('svg/klarna.svg');
         $this->setCountry();
 

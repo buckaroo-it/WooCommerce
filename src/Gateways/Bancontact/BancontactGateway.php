@@ -12,6 +12,7 @@ class BancontactGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_bancontactmrcash';
         $this->title = 'Bancontact';
+        $this->method_description = "Belgium's most popular payment method, linked directly to the shopper's own bank.";
         $this->has_fields = false;
         $this->method_title = 'Buckaroo Bancontact';
         $this->setIcon('svg/bancontact.svg');

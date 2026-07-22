@@ -102,15 +102,9 @@ class PaymentMethodSettings extends AbstractPaymentGateway
             'default' => 'off',
         ];
         $this->form_fields['culture'] = [
-            'title' => __('Language', 'wc-buckaroo-bpe-gateway'),
+            'title' => __('Payment page language', 'wc-buckaroo-bpe-gateway'),
             'type' => 'select',
-            'description' => __(
-                "The chosen language (culture) for the Buckaroo payment engine <br>page.
-When this is set to “Dynamic language” the plugin will <br>automatically determine the language based on the
-language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>
-English will be used as a fallback language for unknown language types.",
-                'wc-buckaroo-bpe-gateway'
-            ),
+            'description' => __('Select the Buckaroo payment page language. “Dynamic language” uses the customer’s browser language, with English as fallback.', 'wc-buckaroo-bpe-gateway'),
             'options' => [
                 'dynamic' => 'Dynamic language (based on the web browser language)',
                 'en-US' => 'English',

@@ -17,6 +17,7 @@ class KlarnaPayGateway extends KlarnaGateway
     {
         $this->id = 'buckaroo_klarnapay';
         $this->title = 'Klarna';
+        $this->method_description = 'Klarna pay-later and instalment options, with Klarna acting as Merchant of Record.';
         $this->method_title = 'Klarna (MoR)';
 
         parent::__construct();
