@@ -15,6 +15,12 @@ use Buckaroo\Woocommerce\Services\Helper;
 
 class InitGateways
 {
+
+    /**
+     * Buckaroo error added.
+     */
+    protected bool $error_notice_added = false;
+
     public function __construct()
     {
         add_action('enqueue_block_assets', [$this, 'initGatewaysOnCheckout']);
@@ -79,8 +85,13 @@ class InitGateways
             return;
         }
 
+        if ($this->error_notice_added) {
+            return;
+        }
+
         if ($error = base64_decode($_GET['bck_err'])) {
             wc_add_notice(esc_html__(sanitize_text_field($error), 'wc-buckaroo-bpe-gateway'), 'error');
+            $this->error_notice_added = true;
         }
     }
 
