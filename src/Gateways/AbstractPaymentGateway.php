@@ -209,16 +209,6 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             );
             $this->settings = array_replace($this->settings, $options);
         }
-
-        // If description was previously saved as method_description, clear it
-        // so the form field falls back to "Pay with X"
-        if (
-            !empty($this->method_description) &&
-            isset($this->settings['description']) &&
-            $this->settings['description'] === $this->method_description
-        ) {
-            unset($this->settings['description']);
-        }
     }
 
     /** {@inheritDoc} */
@@ -408,7 +398,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         }
 
         $description = $this->method_description !== ''
-            ? __($this->method_description, 'wc-buckaroo-bpe-gateway')
+            ? $this->method_description
             : $this->getPaymentDescription();
 
         echo '<div class="bk-gateway-summary-card">';
@@ -456,14 +446,10 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         ?>
         <script>
         (function () {
-            // Override the WooCommerce back link on gateway settings pages to use browser history
             document.addEventListener('DOMContentLoaded', function () {
-                // WooCommerce renders a back link above the page title (e.g. "< Buckaroo Billink")
-                // It typically links to ?page=wc-settings&tab=checkout without a section
                 var allLinks = document.querySelectorAll('#wpbody-content a, .woocommerce-layout__header-back-link, .woocommerce-navigation-back-button');
                 allLinks.forEach(function (el) {
                     var href = el.getAttribute('href') || '';
-                    // Target links that go back to the generic WooCommerce checkout/payment tab
                     if (
                         href.indexOf('tab=checkout') !== -1 && href.indexOf('section=') === -1 ||
                         el.classList.contains('woocommerce-layout__header-back-link') ||

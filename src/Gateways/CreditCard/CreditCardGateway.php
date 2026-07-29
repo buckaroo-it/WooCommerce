@@ -74,6 +74,7 @@ class CreditCardGateway extends AbstractPaymentGateway
 
         $this->addRefundSupport();
         add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
+        add_action('admin_footer', [$this, 'admin_inline_script_hosted_fields_toggle']);
 
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
             $this->registerControllers();
@@ -85,6 +86,52 @@ class CreditCardGateway extends AbstractPaymentGateway
         $namespace = 'woocommerce_api_wc_gateway_buckaroo_creditcard';
 
         add_action("{$namespace}-hosted-fields-token", [HostedFieldsController::class, 'getToken']);
+    }
+
+    /**
+     * Output JS to toggle hosted-fields rows based on the selected payment method.
+     * Hooked into admin_footer when the creditcard settings page is active.
+     *
+     * @return void
+     */
+    public function admin_inline_script_hosted_fields_toggle()
+    {
+        if (
+            ! isset($_GET['section']) ||
+            $this->id !== sanitize_text_field($_GET['section']) ||
+            ! is_admin()
+        ) {
+            return;
+        }
+        $select_id = esc_js($this->get_field_key('creditcardmethod'));
+        $id_field   = esc_js($this->get_field_key('hosted_fields_client_id'));
+        $sec_field  = esc_js($this->get_field_key('hosted_fields_client_secret'));
+        ?>
+<script>
+(function () {
+    function bkToggleHostedFieldsRows() {
+        var select = document.getElementById('<?php echo $select_id; ?>');
+        if (!select) return;
+        var isHostedFields = select.value === 'encrypt';
+        var idRow = document.getElementById('<?php echo $id_field; ?>');
+        var secRow = document.getElementById('<?php echo $sec_field; ?>');
+        [idRow, secRow].forEach(function (el) {
+            if (!el) return;
+            var row = el.closest('tr');
+            if (row) row.style.display = isHostedFields ? '' : 'none';
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        bkToggleHostedFieldsRows();
+        var select = document.getElementById('<?php echo $select_id; ?>');
+        if (select) {
+            select.addEventListener('change', bkToggleHostedFieldsRows);
+        }
+    });
+})();
+</script>
+        <?php
     }
 
     /**
@@ -314,6 +361,22 @@ class CreditCardGateway extends AbstractPaymentGateway
         }
 
         return $value;
+    }
+
+    /**
+     * Allow hosted_fields_client_id to be empty when redirect mode is selected.
+     */
+    public function validate_hosted_fields_client_id_field($key, $value)
+    {
+        return parent::validate_password_field($key, $value);
+    }
+
+    /**
+     * Allow hosted_fields_client_secret to be empty when redirect mode is selected.
+     */
+    public function validate_hosted_fields_client_secret_field($key, $value)
+    {
+        return parent::validate_password_field($key, $value);
     }
 
     /**  {@inheritDoc} */

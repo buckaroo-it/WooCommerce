@@ -12,7 +12,7 @@ class KbcGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_kbc';
         $this->title = 'KBC';
-        $this->method_description = 'Direct bank payments for customers of KBC/CBC in Belgium.';
+        $this->method_description = __('Direct bank payments for customers of KBC/CBC in Belgium.', 'wc-buckaroo-bpe-gateway');
         $this->has_fields = false;
         $this->method_title = 'Buckaroo KBC';
         $this->setIcon('svg/kbc.svg');

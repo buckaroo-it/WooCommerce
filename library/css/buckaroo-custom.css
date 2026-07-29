@@ -1,4 +1,4 @@
-﻿.wc_payment_method.payment_method_ {
+.wc_payment_method.payment_method_ {
     display: none;
 }
 
@@ -65,7 +65,7 @@ input[type='text'].validated {
     width: 100%;
     height: 100%;
     text-align: center;
-    content: "î€š";
+    content: "";
     color: #ccc;
 } */
 
@@ -133,59 +133,6 @@ table.woocommerce_order_items tbody tr:first-child td {
     width: 100%;
 }
 
-.buckaroo-payment-list {
-    background-color: #fff;
-    padding: 15px;
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    height: 500px;
-}
-
-.buckaroo-payment-list li {
-    flex: 0 0 auto;
-    width: 33.333%;
-    display: flex;
-    align-items: center;
-}
-
-.buckaroo-payment-list-icon {
-    max-height: 35px;
-    width: auto;
-    margin-right: 10px;
-}
-
-.buckaroo-payment-status {
-    margin: 0 3px;
-}
-
-.buckaroo-payment-enabled-live {
-    color: #198754;
-}
-
-.buckaroo-payment-enabled-test {
-    color: #ffc107;
-}
-
-.buckaroo-payment-disabled {
-    color: #dc3545;
-}
-
-@media (max-width: 1024px) {
-    .buckaroo-payment-list {
-        height: 700px;
-    }
-
-    .buckaroo-payment-list li {
-        width: 50%;
-    }
-}
-
-@media (max-width: 768px) {
-    .buckaroo-payment-list li {
-        width: 100%;
-    }
-}
 
 label[for^='payment_method_buckaroo_'] img {
     max-height: 25px;
@@ -610,7 +557,6 @@ label.bk-in3-logo img {
     align-items: center;
     gap: 6px;
     flex-shrink: 0;
-    margin-left: auto;
 }
 .buckaroo-payment-card-settings {
     display: flex;
@@ -636,7 +582,7 @@ label.bk-in3-logo img {
     height: 15px;
 }
 
-/* Payment Methods list page — full-width single-column cards */
+/* Payment Methods list page - full-width single-column cards */
 .buckaroo-gateway-list {
     display: flex;
     flex-direction: column;
@@ -647,14 +593,6 @@ label.bk-in3-logo img {
     border-radius: 10px;
     width: 100%;
     box-sizing: border-box;
-}
-
-/* Payment Methods full-width list */
-.buckaroo-gateway-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin: 16px 0;
 }
 .buckaroo-gateway-list__header {
     display: flex;
@@ -773,8 +711,6 @@ label.bk-in3-logo img {
     flex-shrink: 0;
     margin-left: auto;
 }
-
-/* Intro hero (General Settings header) */
 .bk-intro-hero {
     text-align: center;
     padding: 32px 24px 28px;
@@ -791,21 +727,6 @@ label.bk-in3-logo img {
     height: 36px;
     width: auto;
     display: inline-block;
-}
-.bk-intro-hero__title {
-    font-size: 2em;
-    font-weight: 900;
-    color: #1a2340;
-    letter-spacing: 0.05em;
-    margin: 0 0 6px;
-    line-height: 1;
-}
-.bk-intro-hero__tagline {
-    font-size: 13px;
-    letter-spacing: 0.18em;
-    text-transform: lowercase;
-    color: #555;
-    margin: 0 0 14px;
 }
 .bk-intro-hero__desc {
     font-size: 13px;
@@ -829,59 +750,31 @@ label.bk-in3-logo img {
     font-size: 14px;
     font-weight: 700;
     text-decoration: none;
-    transition: opacity 0.15s, filter 0.15s;
-    border: none;
+    transition: background 0.15s, color 0.15s, opacity 0.15s;
     cursor: pointer;
 }
-.bk-hero-btn:hover { opacity: 0.88; text-decoration: none; }
+.bk-hero-btn:hover { text-decoration: none; }
 .bk-hero-btn--docs {
     background: #c8f135;
     color: #1a2340;
+    border: 2px solid #c8f135;
+}
+.bk-hero-btn--docs:hover {
+    background: #1a2340;
+    color: #c8f135;
+    border: 2px solid #c8f135;
+    opacity: 1;
 }
 .bk-hero-btn--contact {
     background: #1a2340;
     color: #fff;
+    border: 2px solid #1a2340;
 }
-
-/* Intro section */
-.bk-intro-section {
-    text-align: center;
-    padding: 20px 0 16px;
+.bk-hero-btn--contact:hover {
+    background: transparent;
+    color: #1a2340;
+    opacity: 1;
 }
-.bk-intro-section__logo {
-    margin-bottom: 12px;
-}
-.bk-intro-section__logo-img {
-    height: 32px;
-    width: auto;
-    display: inline-block;
-}
-.bk-intro-section__links {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    margin-bottom: 10px;
-    font-size: 13px;
-}
-.bk-intro-section__links a {
-    color: #2271b1;
-    text-decoration: none;
-    font-weight: 600;
-}
-.bk-intro-section__links a:hover { text-decoration: underline; }
-.bk-intro-section__sep {
-    color: #ccc;
-    user-select: none;
-}
-.bk-intro-section__desc {
-    margin: 0 auto;
-    font-size: 13px;
-    color: #555;
-    line-height: 1.6;
-    max-width: 680px;
-}
-.bk-intro-section__desc a { color: #2271b1; }
 
 /* API Credentials section */
 .bk-creds-card {
@@ -897,21 +790,9 @@ label.bk-in3-logo img {
     align-items: center;
     gap: 6px;
 }
-.bk-creds-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-}
-.bk-creds-action-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-}
-.bk-creds-action-group .description {
-    max-width: 520px;
-    margin: 0;
+.bk-creds-inline-btn {
+    white-space: nowrap;
+    position: relative;
 }
 .bk-key-btn {
     display: inline-flex;
@@ -930,7 +811,7 @@ label.bk-in3-logo img {
 .bk-key-btn:active { opacity: 0.8; }
 .bk-key-btn--toggle:hover { background: #e8e9ea; color: #1a1a2e; }
 
-/* General Options section */
+/* API Credentials section */
 .bk-general-options-card {
     margin: 0;
     padding: 0;
@@ -943,3 +824,44 @@ label.bk-in3-logo img {
     width: 100%;
     margin: 0;
 }
+
+.buckaroo-payment-card-icon-placeholder {
+    width: 64px;
+    height: 44px;
+    border-radius: 8px;
+    background: #1a2340;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+    flex-shrink: 0;
+}
+
+.bk-cc-icons {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+.bk-cc-icon {
+    height: 14px;
+    width: auto;
+    border-radius: 2px;
+    opacity: 0.85;
+}
+body.woocommerce_page_wc-settings .form-table td textarea,
+body.woocommerce_page_wc-settings .form-table td textarea.wide-input,
+body.woocommerce_page_wc-settings .form-table td textarea.large-text,
+body.woocommerce_page_wc-settings .form-table td textarea.input-text {
+    width: 29em !important;
+    max-width: 29em !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+

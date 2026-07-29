@@ -21,7 +21,7 @@ class TransferGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_transfer';
         $this->title = 'Bank Transfer';
-        $this->method_description = 'Manual bank transfer, with payment instructions provided to the customer after checkout.';
+        $this->method_description = __('Manual bank transfer, with payment instructions provided to the customer after checkout.', 'wc-buckaroo-bpe-gateway');
         $this->has_fields = false;
         $this->method_title = 'Buckaroo Bank Transfer';
         $this->setIcon('svg/sepa-credittransfer.svg');

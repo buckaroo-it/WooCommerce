@@ -1,11 +1,11 @@
 <?php
 
 /*
-Plugin Name: WC Buckaroo BPE Gateway
+Plugin Name: Buckaroo Payments for WooCommerce
 Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
-Description: Buckaroo payment system plugin for WooCommerce.
+Description: Accept 40+ payment methods in WooCommerce, including Wero, Klarna, credit cards, Apple Pay and PayPal. Quick to install and easy to use.
 Version: 4.7.3
 Text Domain: wc-buckaroo-bpe-gateway
 Domain Path: /languages

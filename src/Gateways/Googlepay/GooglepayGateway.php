@@ -23,7 +23,7 @@ class GooglepayGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_googlepay';
         $this->title = 'Google Pay';
-        $this->method_description = "Google's wallet, using the cards saved to a shopper's Google Account.";
+        $this->method_description = __("Google's wallet, using the cards saved to a shopper's Google Account.", 'wc-buckaroo-bpe-gateway');
         $this->has_fields = true;
         $this->method_title = 'Buckaroo Google Pay';
         $this->CustomerCardName = '';

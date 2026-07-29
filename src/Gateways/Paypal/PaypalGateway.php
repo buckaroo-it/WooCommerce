@@ -46,7 +46,7 @@ class PaypalGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_paypal';
         $this->title = 'PayPal';
-        $this->method_description = 'Global digital wallet with card and balance payments, plus Buyer Protection.';
+        $this->method_description = __('Global digital wallet with card and balance payments, plus Buyer Protection.', 'wc-buckaroo-bpe-gateway');
         $this->has_fields = false;
         $this->method_title = 'Buckaroo PayPal';
         $this->setIcon('svg/paypal.svg');

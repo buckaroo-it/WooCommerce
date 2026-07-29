@@ -26,7 +26,7 @@ class ApplepayGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_applepay';
         $this->title = 'Apple Pay';
-        $this->method_description = "Apple's mobile wallet for quick, secure payments via Face ID or Touch ID on Apple devices.";
+        $this->method_description = __("Apple's mobile wallet for quick, secure payments via Face ID or Touch ID on Apple devices.", 'wc-buckaroo-bpe-gateway');
         $this->has_fields = true;
         $this->method_title = 'Buckaroo Apple Pay';
         $this->CustomerCardName = '';

@@ -140,19 +140,17 @@ class PaymentMethodSettings extends AbstractPaymentGateway
         ];
 
         $this->form_fields['transactiondescription'] = [
-            'title' => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'textarea',
-            'description' => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
-            'desc_tip' => __('Transaction description can be filled with static text and tags like: {order_number}, {shop_name} and {product_name} for first product found.'),
-            'default' => '',
+            'title'    => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
+            'type'     => 'textarea',
+            'desc_tip' => __('Available tags: {order_number}, {shop_name}, {product_name} (first product).', 'wc-buckaroo-bpe-gateway'),
+            'default'  => '',
         ];
 
         $this->form_fields['refund_description'] = [
-            'title' => __('Refund description', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'textarea',
-            'description' => __('Refund description', 'wc-buckaroo-bpe-gateway'),
-            'desc_tip' => __('Refund description can be filled with static text and tags like: {order_number}, {shop_name} and {product_name} for first product found.'),
-            'default' => '',
+            'title'    => __('Refund description', 'wc-buckaroo-bpe-gateway'),
+            'type'     => 'textarea',
+            'desc_tip' => __('Available tags: {order_number}, {shop_name}, {product_name} (first product).', 'wc-buckaroo-bpe-gateway'),
+            'default'  => '',
         ];
 
         $this->apply_filter_or_error('append_subscription_configurationCode_in_setting_field', $this);

@@ -27,7 +27,7 @@ class BillinkGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_billink';
         $this->title = 'Billink';
-        $this->method_description = 'Dutch pay-after-delivery by invoice with a 14-day term, for private and business customers.';
+        $this->method_description = __('Dutch pay-after-delivery by invoice with a 14-day term, for private and business customers.', 'wc-buckaroo-bpe-gateway');
         $this->has_fields = true;
         $this->method_title = 'Buckaroo Billink';
         $this->setIcon('svg/billink.svg');

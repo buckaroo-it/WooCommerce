@@ -14,7 +14,7 @@ class IdealGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_ideal';
         $this->title = 'iDEAL | Wero';
-        $this->method_description = "The Netherlands' most-used online payment method, via the shopper's own bank, now co-branded with Wero.";
+        $this->method_description = __("The Netherlands' most-used online payment method, via the shopper's own bank, now co-branded with Wero.", 'wc-buckaroo-bpe-gateway');
         $this->has_fields = true;
         $this->method_title = 'Buckaroo iDEAL | Wero';
         $this->setIcon('svg/ideal-wero.svg');
