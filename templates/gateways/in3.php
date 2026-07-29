@@ -29,7 +29,6 @@ $customer_phone = $this->getScalarCheckoutField('billing_phone');
         ?>
         <?php
     }
-    $this->getPaymentTemplate('financial_warning');
     ?>
 
     <?php if (strlen(trim($customer_phone)) === 0) { ?>

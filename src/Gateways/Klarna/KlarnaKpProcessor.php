@@ -6,6 +6,7 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
+use BuckarooDeps\Buckaroo\Resources\Constants\Gender;
 
 class KlarnaKpProcessor extends AbstractPaymentProcessor
 {
@@ -30,6 +31,9 @@ class KlarnaKpProcessor extends AbstractPaymentProcessor
 
         return array_merge_recursive(
             $reservation_number ? ['reservationNumber' => $reservation_number] : [],
+            // Gender selection was removed from checkout; Klarna requires the
+            // gender/salutation parameter, so always send "Unknown".
+            ['gender' => Gender::UNKNOWN],
             $this->getBillingData(),
             $this->getShippingData(),
             ['articles' => $this->getArticles()]

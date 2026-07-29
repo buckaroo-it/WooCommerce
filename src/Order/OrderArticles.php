@@ -56,13 +56,63 @@ class OrderArticles
             )
         );
 
-        $productDiff = $this->get_product_with_differences($products, $this->order_details->get_total('edit'));
+        $total_order_amount = $this->order_details->get_total('edit');
+
+        if ($this->absorb_difference_into_fee($products, $total_order_amount)) {
+            return $products;
+        }
+
+        $productDiff = $this->get_product_with_differences($products, $total_order_amount);
 
         if (is_array($productDiff)) {
             $products[] = $productDiff;
         }
 
         return $products;
+    }
+
+    /**
+     * When a Buckaroo fee article is present, absorb any difference between
+     * the order total and the summed article prices into the fee line itself
+     * instead of emitting a separate `rounding_errors` article.
+     *
+     * This keeps the article list clean (no extra rounding line) and makes the
+     * fee reflect the amount actually charged, e.g. a fee whose gross unit
+     * price carries VAT that the order total does not account for.
+     *
+     * Only applies when the fee has a single unit, so the per-unit gross price
+     * stays exact; otherwise the caller falls back to the rounding article.
+     *
+     * @param  array  $products  Passed by reference so the fee line can be adjusted in place.
+     * @return bool True when the difference was absorbed (or there was none).
+     */
+    protected function absorb_difference_into_fee(array &$products, float $total_order_amount): bool
+    {
+        $feeIndex = null;
+        foreach ($products as $index => $product) {
+            if (isset($product['identifier']) && $product['identifier'] === 'BuckarooFee') {
+                $feeIndex = $index;
+                break;
+            }
+        }
+
+        if ($feeIndex === null) {
+            return false;
+        }
+
+        if (! isset($products[$feeIndex]['quantity']) || (int) $products[$feeIndex]['quantity'] !== 1) {
+            return false;
+        }
+
+        $diffAmount = Helper::roundAmount($total_order_amount - $this->sum_products_amount($products));
+
+        if (abs($diffAmount) < 0.01) {
+            return true;
+        }
+
+        $products[$feeIndex]['price'] = Helper::roundAmount($products[$feeIndex]['price'] + $diffAmount);
+
+        return true;
     }
 
     /**
@@ -77,6 +127,12 @@ class OrderArticles
             'quantity' => $item->get_quantity(),
             'vatPercentage' => $item->get_vat(),
         ];
+
+        if ($this->is_buckaroo_payment_fee_item($item)) {
+            $product['identifier'] = 'BuckarooFee';
+            $product['description'] = 'Buckaroo Fee';
+            $product['vatPercentage'] = $this->resolve_buckaroo_fee_vat_percentage($item);
+        }
 
         if ($this->gateway->id === 'buckaroo_afterpaynew' || $this->gateway->id === 'buckaroo_klarnapay') {
             $product = array_merge($product, $this->get_afterpay_data($item));
@@ -95,15 +151,47 @@ class OrderArticles
     }
 
     /**
+     * Detect the Buckaroo-managed Payment fee order item.
+     *
+     * Both `OrderActions::add_fee_to_cart` and
+     * `AbstractPaymentProcessor::ensureBuckarooFeeItem` create the fee with
+     * the same localized name, so we match against that.
+     */
+    private function is_buckaroo_payment_fee_item(OrderItem $item): bool
+    {
+        if ($item->get_type() !== 'fee') {
+            return false;
+        }
+
+        return $item->get_title() === __('Payment fee', 'wc-buckaroo-bpe-gateway');
+    }
+
+    /**
+     * Resolve the value Buckaroo expects in `VatPercentage` for the fee
+     * article. The fee uses the same real VAT rate as the other articles,
+     * resolved from the configured `feetax` tax class for the order's tax
+     * location (i.e. based on country / WooCommerce tax configuration), e.g.
+     * 21%.
+     *
+     * Returns 0.0 when the fee tax class resolves to no applicable rate.
+     */
+    private function resolve_buckaroo_fee_vat_percentage(OrderItem $item): float
+    {
+        return $this->gateway->getPaymentFeeVatPercentage($this->order_details->get_order());
+    }
+
+    /**
      * Get custom afterpay attributes
      */
     private function get_afterpay_data(OrderItem $item): array
     {
         $data = [];
         if ($item->get_type() === 'line_item') {
-            $img = $this->get_product_image($item->get_order_item()->get_product());
-            if (! empty($img)) {
-                $data['imgUrl'] = $img;
+            if ($this->gateway->id === 'buckaroo_afterpaynew') {
+                $img = $this->get_product_image($item->get_order_item()->get_product());
+                if (! empty($img)) {
+                    $data['imageUrl'] = $img;
+                }
             }
             $data['url'] = get_permalink($item->get_id());
         }
@@ -113,27 +201,95 @@ class OrderArticles
 
     public function get_product_image($product)
     {
-        if ($this->gateway->get_option('sendimageinfo')) {
+        $src = '';
+
+        // Prefer a bounded WooCommerce image size so the width stays within
+        // Riverty's 100-1280px requirement instead of the (often oversized)
+        // original upload.
+        $image_id = $product->get_image_id();
+        if ($image_id) {
+            $src = wp_get_attachment_image_url($image_id, 'woocommerce_single');
+        }
+
+        if (! $src) {
             $src = get_the_post_thumbnail_url($product->get_id());
-            if (! $src) {
-                $imgTag = $product->get_image();
-                $doc = new DOMDocument();
-                $doc->loadHTML($imgTag);
-                $xpath = new DOMXPath($doc);
-                $src = $xpath->evaluate('string(//img/@src)');
-            }
+        }
 
-            if (strpos($src, '?') !== false) {
-                $src = substr($src, 0, strpos($src, '?'));
-            }
+        if (! $src) {
+            $imgTag = $product->get_image();
+            $doc = new DOMDocument();
+            $doc->loadHTML($imgTag);
+            $xpath = new DOMXPath($doc);
+            $src = $xpath->evaluate('string(//img/@src)');
+        }
 
-            if ($srcInfo = @getimagesize($src)) {
-                if (! empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg'])) {
-                    if (! empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280)) {
-                        return $src;
-                    }
-                }
+        if (! is_string($src) || $src === '') {
+            return;
+        }
+
+        if (strpos($src, '?') !== false) {
+            $src = substr($src, 0, strpos($src, '?'));
+        }
+
+        // Best-effort validation: when the image can be read server-side, enforce
+        // Riverty's format and width constraints. When it cannot be read (e.g. the
+        // shop server cannot reach its own media URL, common on staging), still
+        // send the URL so Riverty can fetch and render the thumbnail itself.
+        $srcInfo = $this->safe_remote_getimagesize($src);
+        if (is_array($srcInfo)) {
+            $mimeAllowed = ! empty($srcInfo['mime']) && in_array($srcInfo['mime'], ['image/png', 'image/jpeg', 'image/gif', 'image/webp']);
+            $widthAllowed = ! empty($srcInfo[0]) && ($srcInfo[0] >= 100) && ($srcInfo[0] <= 1280);
+
+            if (! $mimeAllowed || ! $widthAllowed) {
+                return;
             }
+        }
+
+        return $src;
+    }
+
+    /**
+     * Wrap getimagesize() so a slow/unreachable remote image cannot block the
+     * checkout request. PHP's default_socket_timeout (often 60s) would otherwise
+     * be applied per call, multiplied by the number of items in the cart, which
+     * is what used to make Riverty/Afterpay checkout hang indefinitely.
+     *
+     * @param  string  $src
+     * @return array|false
+     */
+    protected function safe_remote_getimagesize(string $src)
+    {
+        $isRemote = (bool) preg_match('#^https?://#i', $src);
+
+        if (! $isRemote) {
+            return @getimagesize($src);
+        }
+
+        $previousSocketTimeout = ini_set('default_socket_timeout', '3');
+        $previousDefaultOptions = stream_context_get_options(stream_context_get_default());
+
+        stream_context_set_default([
+            'http' => [
+                'timeout' => 3,
+                'follow_location' => 1,
+                'ignore_errors' => true,
+            ],
+            'https' => [
+                'timeout' => 3,
+                'follow_location' => 1,
+                'ignore_errors' => true,
+            ],
+        ]);
+
+        try {
+            return @getimagesize($src);
+        } catch (\Throwable $e) {
+            return false;
+        } finally {
+            if ($previousSocketTimeout !== false) {
+                ini_set('default_socket_timeout', $previousSocketTimeout);
+            }
+            stream_context_set_default(is_array($previousDefaultOptions) ? $previousDefaultOptions : []);
         }
     }
 

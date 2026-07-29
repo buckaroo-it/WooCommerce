@@ -73,7 +73,6 @@ defined('ABSPATH') || exit;
 </fieldset>
 <fieldset id="buckaroo_billink_b2c">
     <?php
-    $this->getPaymentTemplate('partial_gender_field');
     $this->getPaymentTemplate('partial_birth_field');
     ?>
 
@@ -104,4 +103,3 @@ defined('ABSPATH') || exit;
     value="1" />
     <?php
 }
-$this->getPaymentTemplate('financial_warning');

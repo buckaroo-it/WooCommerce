@@ -15,6 +15,15 @@ const BuckarooInitPaypalExpress = function () {
         if (buckaroo_paypal_express.merchant_id === null) {
             alert(buckaroo_paypal_express.i18n.merchant_id_required);
         }
+
+        var isTestMode = !!buckaroo_paypal_express.is_test;
+
+        // Signal the environment to the SDK; it then selects the matching
+        // (sandbox/live) PayPal client id internally.
+        if (BuckarooSdk && BuckarooSdk.Base && typeof BuckarooSdk.Base.setTestMode === 'function') {
+            BuckarooSdk.Base.setTestMode(isTestMode);
+        }
+
         let buckaroo_paypal_express_class = new BuckarooPaypalExpress(
             BuckarooSdk.PayPal,
             buckaroo_paypal_express.page,
@@ -22,6 +31,7 @@ const BuckarooInitPaypalExpress = function () {
                 buckarooWebsiteKey: buckaroo_paypal_express.websiteKey,
                 currency: buckaroo_paypal_express.currency,
                 paypalMerchantId: buckaroo_paypal_express.merchant_id,
+                isTestMode: isTestMode,
             },
             buckaroo_paypal_express.ajaxurl
         );

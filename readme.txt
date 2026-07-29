@@ -3,8 +3,8 @@ Contributors: buckaroosupport
 Author: Buckaroo
 Tags: WooCommerce, payments, Buckaroo
 Requires at least: 5.3.18
-Tested up to: 6.9
-Stable tag: 4.7.2
+Tested up to: 7.0
+Stable tag: 4.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,26 +28,27 @@ Payment method support list by Buckaroo WooCommerce payments plugin
 8. Cards (American Express, Visa, MasterCard, VPAY, Visa Electron, Maestro, Carte Bleue, Carte Bancaire, Dankort, Nexi, PostePay)
 9. EPS
 10. Giftcards
-11. goSettle
-12. iDEAL | Wero
-13. In3
-14. KBC
-15. Klarna
-16. MB Way
-17. Multibanco
-18. PayByBank
-19. Payconiq
-20. PayPal
-21. PayPerEmail
-22. Przelewy24
-23. Riverty
-24. SEPA Credit Transfer (Bank transfer)
-25. SEPA Direct Debit
-26. Swish
-27. Trustly
-28. Twint
-29. WeChat Pay
-30. Wero (BE, DE, FR)
+11. Google Pay
+12. goSettle
+13. iDEAL | Wero
+14. In3
+15. KBC
+16. Klarna
+17. MB Way
+18. Multibanco
+19. PayByBank
+20. Payconiq
+21. PayPal
+22. PayPerEmail
+23. Przelewy24
+24. Riverty
+25. SEPA Credit Transfer (Bank transfer)
+26. SEPA Direct Debit
+27. Swish
+28. Trustly
+29. Twint
+30. WeChat Pay
+31. Wero (BE, DE, FR)
 
 == Release notes ==
 For detailed release notes, please visit our [GitHub repository](https://github.com/buckaroo-it/WooCommerce).
@@ -79,6 +80,48 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
+= 4.9.0 =
+Improvements & New Features
+BTI-777 Apple Pay is now visible across all web browsers and is also displayed as a separate checkout option alongside the Apple Pay buttons.
+BTI-1036 Removed the financial warning setting for BNPL methods, as this warning is already displayed on the redirect page.
+BTI-1037 Removed the optional gender field for Billink to reduce the number of consumer checkout steps.
+BTI-1038 Removed the optional gender field for Klarna to reduce the number of consumer checkout steps.
+BTI-1059 Added sandbox environment support for PayPal Express transactions.
+BTI-899 Product image URLs are now sent in Riverty requests so they can be displayed on Riverty invoices and in the Riverty app.
+Fixed block checkout compatibility issues with multi-currency setups.
+Updated the salutation payload for Klarna.
+Updated payment method logos.
+
+Bug Fixes
+BTI-1079 Resolved an issue with the date picker in combination with the WooCommerce legacy checkout for all BNPL methods.
+BTI-770 Resolved an issue where Apple Pay was not displayed in the WooCommerce order details.
+BTI-1111 Resolved an issue caused by a hardcoded wp-admin URL for AJAX/admin paths.
+BTI-747 Resolved an issue where PayPal orders were not always moved to Processing status after a successful PUSH notification.
+
+Security updates:
+BTI-1129 Resolved an issue with AJAX action.
+
+= 4.8.2 =
+Improvements
+BTI-1124 Fixed an issue where orders using Klarna (MoR) could not be placed through the WooCommerce legacy checkout when the address was in the Netherlands.
+
+= 4.8.1 =
+Maintenance release: corrected version metadata; includes all 4.8.0 features
+
+= 4.8.0 =
+Improvements & New Features
+BTI-902 Add support for WooCommerce 10.7.0 en WordPress 7.0
+BTI-685 Added support for WooCommerce 10.5.0, 10.5.1, 10.5.2, and 10.5.3.
+BTI-603 Added Google Pay as a payment method.
+BTI-577 Added Klarna (MoR) as a payment method.
+BTI-638 Removed the API version setting for the In3 payment method and enforced the V3 API.
+BTI-629 Prevented Express payment method scripts from loading on product pages when Express methods are disabled.
+BTI-717 Fixed an issue where stock was not updated when a pending refund was processed later.
+BTI-665 Fixed an issue where bank transfer payment instructions were always displayed in English despite different culture codes being sent.
+BTI-708 Fixed an issue where the iDEAL | Wero frontend label translation was not saved and remained in English.
+BTI-509 Fixed an Riverty tax issue regarding the percentage of payment fee’s.
+BTI-1035 Avoid duplicate Riverty phone number field when WooCommerce billing phone is already provided.
+
 = 4.7.2 =
 Bug Fixes
 BTI-4 Fixed Apple Pay order creation with bundle / discount-rule plugins: line subtotals, taxes, and shipping cost now read from the customer's existing cart so the order matches what was authorized in the wallet sheet.
@@ -88,7 +131,6 @@ Bug Fixes
 BTI-4 Fixed Apple Pay incorrect order amount when used with third-party discount plugins (e.g. Woo Discount Rules "Buy X Get Y").
 
 = 4.7.0 =
-Changelog:
 Improvements & New Features
 BP-5249 Added support for WordPress 6.9 and WooCommerce 10.4.2 / 10.4.3.
 BTI-102 Updated the payment method name &  logo from “iDEAL” to the co-branding “iDEAL | Wero”.

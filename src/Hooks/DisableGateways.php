@@ -55,8 +55,18 @@ class DisableGateways
             }
         }
 
+        // Apple Pay is an Express Checkout button by default. When the merchant
+        // enables "Apple Pay as checkout payment method" it should additionally
+        // remain a selectable gateway in the checkout; otherwise it is removed
+        // here (its only frontend is the express button).
         if (isset($available_gateways['buckaroo_applepay'])) {
-            unset($available_gateways['buckaroo_applepay']);
+            $applepayGateway = $available_gateways['buckaroo_applepay'];
+            $showAsCheckoutMethod = method_exists($applepayGateway, 'isCheckoutMethodEnabled')
+                && $applepayGateway->isCheckoutMethodEnabled();
+
+            if (! $showAsCheckoutMethod) {
+                unset($available_gateways['buckaroo_applepay']);
+            }
         }
         if (isset($available_gateways['buckaroo_googlepay'])) {
             unset($available_gateways['buckaroo_googlepay']);

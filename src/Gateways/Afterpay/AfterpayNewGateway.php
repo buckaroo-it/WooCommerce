@@ -33,8 +33,6 @@ class AfterpayNewGateway extends AbstractPaymentGateway
 
     public $country;
 
-    public $sendimageinfo;
-
     public $afterpaynewpayauthorize;
 
     public $customer_type;
@@ -147,7 +145,6 @@ class AfterpayNewGateway extends AbstractPaymentGateway
     public function init_form_fields()
     {
         parent::init_form_fields();
-        $this->add_financial_warning_field();
         $this->form_fields['afterpaynewpayauthorize'] = [
             'title' => __('Riverty Pay or Capture', 'wc-buckaroo-bpe-gateway'),
             'type' => 'select',
@@ -159,17 +156,6 @@ class AfterpayNewGateway extends AbstractPaymentGateway
             'default' => 'pay',
         ];
 
-        $this->form_fields['sendimageinfo'] = [
-            'title' => __('Send image info', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'select',
-            'description' => __('Image info will be sent to BPE gateway inside ImageUrl parameter', 'wc-buckaroo-bpe-gateway'),
-            'options' => [
-                '0' => 'No',
-                '1' => 'Yes',
-            ],
-            'default' => 'pay',
-            'desc_tip' => 'Product images are only shown when they are available in JPG or PNG format',
-        ];
         $this->form_fields['customer_type'] = [
             'title' => __('Riverty customer type', 'wc-buckaroo-bpe-gateway'),
             'type' => 'select',
@@ -235,7 +221,6 @@ class AfterpayNewGateway extends AbstractPaymentGateway
     {
         parent::setProperties();
         $this->afterpaynewpayauthorize = $this->get_option('afterpaynewpayauthorize');
-        $this->sendimageinfo = $this->get_option('sendimageinfo');
         $this->vattype = $this->get_option('vattype');
         $this->type = 'afterpay';
         $this->customer_type = $this->get_option('customer_type', self::CUSTOMER_TYPE_BOTH);

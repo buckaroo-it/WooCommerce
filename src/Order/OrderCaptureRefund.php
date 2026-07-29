@@ -35,6 +35,22 @@ class OrderCaptureRefund
      */
     public function refund_capture()
     {
+        if (! check_ajax_referer('order-item', 'security', false)) {
+            wp_send_json(
+                [
+                    'error' => __('Invalid security token. Please reload the page and try again.', 'wc-buckaroo-bpe-gateway'),
+                ]
+            );
+        }
+
+        if (! current_user_can('edit_shop_orders')) {
+            wp_send_json(
+                [
+                    'error' => __('You are not allowed to refund this order.', 'wc-buckaroo-bpe-gateway'),
+                ]
+            );
+        }
+
         $request = new Request();
         if ($request->input('order_id') === null) {
             wp_send_json(
