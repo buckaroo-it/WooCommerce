@@ -474,7 +474,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         echo '<div class="bk-gateway-summary-card__info">';
         echo '<div class="bk-gateway-summary-card__title">' . esc_html($display_title) . '</div>';
         echo '<div class="bk-gateway-summary-card__desc">' . esc_html($description) . '</div>';
-        $european_countries = ['AT','BE','BG','CH','CY','CZ','DE','DK','EE','ES','FI','FR','GB','GR','HR','HU','IE','IS','IT','LI','LT','LU','LV','MT','NL','NO','PL','PT','RO','SE','SI','SK'];
+        $european_countries = ['AT', 'BE', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GB', 'GR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LI', 'LT', 'LU', 'LV', 'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'];
 
         if (empty($countries)) {
             $country_label = 'Global';

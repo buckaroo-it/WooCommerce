@@ -238,7 +238,7 @@ class GeneralSettings extends WC_Settings_Page
         $fields = [];
 
         foreach ($fieldKeys as $id) {
-            if (!isset($this->gateway->form_fields[$id])) {
+            if (! isset($this->gateway->form_fields[$id])) {
                 continue;
             }
 
@@ -291,7 +291,7 @@ class GeneralSettings extends WC_Settings_Page
 
             $currencies = $gateway->getSupportedCurrencies();
             $countries  = $gateway->getSupportedCountries();
-            $european_countries = ['AT','BE','BG','CH','CY','CZ','DE','DK','EE','ES','FI','FR','GB','GR','HR','HU','IE','IS','IT','LI','LT','LU','LV','MT','NL','NO','PL','PT','RO','SE','SI','SK'];
+            $european_countries = ['AT', 'BE', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GB', 'GR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LI', 'LT', 'LU', 'LV', 'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'];
 
             if (empty($countries)) {
                 $country_html = '<span class="bk-meta-countries">Global</span>';
@@ -328,7 +328,7 @@ class GeneralSettings extends WC_Settings_Page
             ?>
 <div class="buckaroo-payment-card buckaroo-gateway-list__card" data-gateway_id="<?php echo esc_attr($gateway->id); ?>">
     <div class="buckaroo-payment-card-icon">
-        <?php if (!empty($gateway->icon)): ?>
+        <?php if (! empty($gateway->icon)): ?>
             <img src="<?php echo esc_url($gateway->icon); ?>" alt="<?php echo esc_attr($display_title); ?>">
         <?php else: ?>
             <span class="buckaroo-payment-card-icon-placeholder"><?php echo esc_html(strtoupper(substr($display_title, 0, 2))); ?></span>
@@ -571,7 +571,11 @@ class GeneralSettings extends WC_Settings_Page
                         id="<?php echo esc_attr($this->gateway->get_field_key('test_credentials')); ?>"
                         class="button button-primary bk-creds-inline-btn"
                         title="<?php esc_attr_e('Click here to verify store key & secret key.', 'wc-buckaroo-bpe-gateway'); ?>"
-                        <?php foreach ((array)($test_btn_field['custom_attributes'] ?? []) as $attr => $val) { echo esc_attr($attr) . '="' . esc_attr($val) . '" '; } ?>>
+                        <?php
+                        foreach ((array) ($test_btn_field['custom_attributes'] ?? []) as $attr => $val) {
+                            echo esc_attr($attr) . '="' . esc_attr($val) . '" ';
+                        }
+                        ?>
                         <?php echo esc_html($test_btn_field['value'] ?? __('Test credentials', 'wc-buckaroo-bpe-gateway')); ?>
                     </button>
                     <?php endif; ?>
@@ -601,7 +605,11 @@ class GeneralSettings extends WC_Settings_Page
                         id="<?php echo esc_attr($this->gateway->get_field_key('auto_configure')); ?>"
                         class="button bk-creds-inline-btn"
                         title="<?php esc_attr_e('Automatically configure the Buckaroo plugin based on your active subscriptions. When you use this option, the plugin will connect to your Buckaroo account, check which payment methods are active, and enable them in Live mode. You will be asked to confirm before changes are applied.', 'wc-buckaroo-bpe-gateway'); ?>"
-                        <?php foreach ((array)($auto_btn_field['custom_attributes'] ?? []) as $attr => $val) { echo esc_attr($attr) . '="' . esc_attr($val) . '" '; } ?>>
+                        <?php
+                        foreach ((array) ($auto_btn_field['custom_attributes'] ?? []) as $attr => $val) {
+                            echo esc_attr($attr) . '="' . esc_attr($val) . '" ';
+                        }
+                        ?>
                         <?php echo esc_html($auto_btn_field['value'] ?? __('Auto-configure', 'wc-buckaroo-bpe-gateway')); ?>
                     </button>
                     <?php endif; ?>
@@ -657,7 +665,7 @@ class GeneralSettings extends WC_Settings_Page
             ?>
 <div class="buckaroo-payment-card">
     <div class="buckaroo-payment-card-icon">
-            <?php if (!empty($gateway->icon)): ?>
+            <?php if (! empty($gateway->icon)): ?>
         <img src="<?php echo esc_url($gateway->icon); ?>" alt="<?php echo esc_attr($display_title); ?>">
             <?php else: ?>
         <span class="buckaroo-payment-card-icon-placeholder"><?php echo esc_html(strtoupper(substr($display_title, 0, 2))); ?></span>
@@ -668,10 +676,9 @@ class GeneralSettings extends WC_Settings_Page
         <?php
             $currencies = $gateway->getSupportedCurrencies();
             $countries  = $gateway->getSupportedCountries();
+            $parts      = [];
 
-            $parts = [];
-
-            $european_countries = ['AT','BE','BG','CH','CY','CZ','DE','DK','EE','ES','FI','FR','GB','GR','HR','HU','IE','IS','IT','LI','LT','LU','LV','MT','NL','NO','PL','PT','RO','SE','SI','SK'];
+            $european_countries = ['AT', 'BE', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GB', 'GR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LI', 'LT', 'LU', 'LV', 'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'];
 
             if (empty($countries)) {
                 $parts[] = '<span class="bk-meta-countries">Global</span>';
@@ -685,7 +692,7 @@ class GeneralSettings extends WC_Settings_Page
                 $cc_icons = '';
                 if ($gateway->id === 'buckaroo_creditcard') {
                     $cc_icons_url = plugin_dir_url(BK_PLUGIN_FILE) . 'library/buckaroo_images/creditcards/';
-                    $cc_icons = '<span class="bk-cc-icons">'
+                    $cc_icons     = '<span class="bk-cc-icons">'
                         . '<img src="' . esc_url($cc_icons_url . 'visa.svg') . '" alt="Visa" class="bk-cc-icon">'
                         . '<img src="' . esc_url($cc_icons_url . 'mastercard.svg') . '" alt="Mastercard" class="bk-cc-icon">'
                         . '<img src="' . esc_url($cc_icons_url . 'amex.svg') . '" alt="Amex" class="bk-cc-icon">'
@@ -694,10 +701,10 @@ class GeneralSettings extends WC_Settings_Page
                 $parts[] = '<span class="bk-meta-currencies">Multi-currency ' . $cc_icons . '</span>';
             } else {
                 $currency_text = implode('<span class="bk-meta-sep"> &middot; </span>', array_map('esc_html', $currencies));
-                $gc_icons = '';
+                $gc_icons      = '';
                 if ($gateway->id === 'buckaroo_giftcard') {
                     $gc_icons_url = plugin_dir_url(BK_PLUGIN_FILE) . 'library/buckaroo_images/giftcards/';
-                    $gc_icons = '<span class="bk-cc-icons">'
+                    $gc_icons     = '<span class="bk-cc-icons">'
                         . '<img src="' . esc_url($gc_icons_url . 'VVVgiftcard.svg') . '" alt="VVV Cadeaukaart" class="bk-cc-icon">'
                         . '<img src="' . esc_url($gc_icons_url . 'fashioncheque.svg') . '" alt="Fashioncheque" class="bk-cc-icon">'
                         . '<img src="' . esc_url($gc_icons_url . 'yourgift.svg') . '" alt="Yourgift" class="bk-cc-icon">'
@@ -706,7 +713,7 @@ class GeneralSettings extends WC_Settings_Page
                 $parts[] = '<span class="bk-meta-currencies">' . $currency_text . ' ' . $gc_icons . '</span>';
             }
         ?>
-        <div class="buckaroo-payment-card-subtitle"><?php echo !empty($parts) ? wp_kses_post(implode('<span class="bk-meta-divider"> | </span>', $parts)) : '&nbsp;'; ?></div>
+        <div class="buckaroo-payment-card-subtitle"><?php echo ! empty($parts) ? wp_kses_post(implode('<span class="bk-meta-divider"> | </span>', $parts)) : '&nbsp;'; ?></div>
     </div>
     <div class="buckaroo-payment-card-actions">
         <span class="bk-status-pill <?php echo esc_attr($status_class); ?>">
