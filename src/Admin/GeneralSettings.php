@@ -328,11 +328,11 @@ class GeneralSettings extends WC_Settings_Page
             ?>
 <div class="buckaroo-payment-card buckaroo-gateway-list__card" data-gateway_id="<?php echo esc_attr($gateway->id); ?>">
     <div class="buckaroo-payment-card-icon">
-        <?php if (! empty($gateway->icon)): ?>
+            <?php if (! empty($gateway->icon)) : ?>
             <img src="<?php echo esc_url($gateway->icon); ?>" alt="<?php echo esc_attr($display_title); ?>">
-        <?php else: ?>
+            <?php else : ?>
             <span class="buckaroo-payment-card-icon-placeholder"><?php echo esc_html(strtoupper(substr($display_title, 0, 2))); ?></span>
-        <?php endif; ?>
+            <?php endif; ?>
     </div>
     <div class="buckaroo-payment-card-info">
         <div class="buckaroo-payment-card-title"><?php echo esc_html($display_title); ?></div>
@@ -566,7 +566,7 @@ class GeneralSettings extends WC_Settings_Page
                         <svg class="bk-eye-show" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         <svg class="bk-eye-hide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                     </button>
-                    <?php if ($test_btn_field): ?>
+                    <?php if ($test_btn_field) : ?>
                     <button type="button"
                         id="<?php echo esc_attr($this->gateway->get_field_key('test_credentials')); ?>"
                         class="button button-primary bk-creds-inline-btn"
@@ -600,7 +600,7 @@ class GeneralSettings extends WC_Settings_Page
                         <svg class="bk-eye-show" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         <svg class="bk-eye-hide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                     </button>
-                    <?php if ($auto_btn_field && ($auto_btn_field['type'] ?? '') === 'button'): ?>
+                    <?php if ($auto_btn_field && ($auto_btn_field['type'] ?? '') === 'button') : ?>
                     <button type="button"
                         id="<?php echo esc_attr($this->gateway->get_field_key('auto_configure')); ?>"
                         class="button bk-creds-inline-btn"
@@ -665,15 +665,15 @@ class GeneralSettings extends WC_Settings_Page
             ?>
 <div class="buckaroo-payment-card">
     <div class="buckaroo-payment-card-icon">
-            <?php if (! empty($gateway->icon)): ?>
+            <?php if (! empty($gateway->icon)) : ?>
         <img src="<?php echo esc_url($gateway->icon); ?>" alt="<?php echo esc_attr($display_title); ?>">
-            <?php else: ?>
+            <?php else : ?>
         <span class="buckaroo-payment-card-icon-placeholder"><?php echo esc_html(strtoupper(substr($display_title, 0, 2))); ?></span>
             <?php endif; ?>
     </div>
     <div class="buckaroo-payment-card-info">
         <div class="buckaroo-payment-card-title"><?php echo esc_html($display_title); ?></div>
-        <?php
+            <?php
             $currencies = $gateway->getSupportedCurrencies();
             $countries  = $gateway->getSupportedCountries();
             $parts      = [];
@@ -712,7 +712,7 @@ class GeneralSettings extends WC_Settings_Page
                 }
                 $parts[] = '<span class="bk-meta-currencies">' . $currency_text . ' ' . $gc_icons . '</span>';
             }
-        ?>
+            ?>
         <div class="buckaroo-payment-card-subtitle"><?php echo ! empty($parts) ? wp_kses_post(implode('<span class="bk-meta-divider"> | </span>', $parts)) : '&nbsp;'; ?></div>
     </div>
     <div class="buckaroo-payment-card-actions">

@@ -133,7 +133,6 @@ table.woocommerce_order_items tbody tr:first-child td {
     width: 100%;
 }
 
-
 label[for^='payment_method_buckaroo_'] img {
     max-height: 25px;
     width: 32px;
@@ -443,7 +442,7 @@ label.bk-in3-logo img {
     border-radius: 10px;
     padding: 10px 16px;
     gap: 14px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     break-inside: avoid;
     margin-bottom: 10px;
 }
@@ -496,7 +495,6 @@ label.bk-in3-logo img {
     margin: 0 3px;
     font-weight: 300;
 }
-
 
 .bk-status-pill {
     display: inline-flex;
@@ -569,7 +567,10 @@ label.bk-in3-logo img {
     border: 1px solid #dcdcde;
     color: #555;
     text-decoration: none;
-    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    transition:
+        background 0.15s,
+        border-color 0.15s,
+        color 0.15s;
     flex-shrink: 0;
 }
 .buckaroo-payment-card-settings:hover {
@@ -606,7 +607,9 @@ label.bk-in3-logo img {
     border-bottom: 1px solid #e0e0e0;
     margin-bottom: 4px;
 }
-.buckaroo-gateway-list__header-method { flex: 1; }
+.buckaroo-gateway-list__header-method {
+    flex: 1;
+}
 .buckaroo-gateway-list__header-enabled {
     width: 80px;
     text-align: center;
@@ -641,7 +644,7 @@ label.bk-in3-logo img {
     border-radius: 10px;
     padding: 16px 20px;
     gap: 14px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     margin-bottom: 20px;
 }
 .bk-gateway-summary-card__icon {
@@ -718,7 +721,7 @@ label.bk-in3-logo img {
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 .bk-intro-hero__logo {
     margin-bottom: 14px;
@@ -750,10 +753,15 @@ label.bk-in3-logo img {
     font-size: 14px;
     font-weight: 700;
     text-decoration: none;
-    transition: background 0.15s, color 0.15s, opacity 0.15s;
+    transition:
+        background 0.15s,
+        color 0.15s,
+        opacity 0.15s;
     cursor: pointer;
 }
-.bk-hero-btn:hover { text-decoration: none; }
+.bk-hero-btn:hover {
+    text-decoration: none;
+}
 .bk-hero-btn--docs {
     background: #c8f135;
     color: #1a2340;
@@ -808,8 +816,13 @@ label.bk-in3-logo img {
     transition: background 0.1s;
     color: #555;
 }
-.bk-key-btn:active { opacity: 0.8; }
-.bk-key-btn--toggle:hover { background: #e8e9ea; color: #1a1a2e; }
+.bk-key-btn:active {
+    opacity: 0.8;
+}
+.bk-key-btn--toggle:hover {
+    background: #e8e9ea;
+    color: #1a1a2e;
+}
 
 /* General Options section */
 .bk-general-options-card {
@@ -863,7 +876,6 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
     min-width: 0 !important;
     box-sizing: border-box !important;
 }
-
 
 /* -------------------------------------------------------------------------
  * BNPL birthdate datepicker (classic checkout)
@@ -964,4 +976,3 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
     background: #0073aa;
     color: #fff;
 }
-
