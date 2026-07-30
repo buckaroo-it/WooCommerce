@@ -566,18 +566,19 @@ class GeneralSettings extends WC_Settings_Page
                         <svg class="bk-eye-show" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         <svg class="bk-eye-hide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                     </button>
-                    <?php if ($test_btn_field) : ?>
+                    <?php
+                    if ($test_btn_field) :
+                        $test_custom_attrs = '';
+                        foreach ((array) ($test_btn_field['custom_attributes'] ?? []) as $attr => $val) {
+                            $test_custom_attrs .= esc_attr($attr) . '="' . esc_attr($val) . '" ';
+                        }
+                    ?>
                     <button type="button"
                         id="<?php echo esc_attr($this->gateway->get_field_key('test_credentials')); ?>"
                         class="button button-primary bk-creds-inline-btn"
                         title="<?php esc_attr_e('Click here to verify store key & secret key.', 'wc-buckaroo-bpe-gateway'); ?>"
-                        <?php
-                        foreach ((array) ($test_btn_field['custom_attributes'] ?? []) as $attr => $val) {
-                            echo esc_attr($attr) . '="' . esc_attr($val) . '" ';
-                        }
-                        ?>
-                        <?php echo esc_html($test_btn_field['value'] ?? __('Test credentials', 'wc-buckaroo-bpe-gateway')); ?>
-                    </button>
+                        <?php echo $test_custom_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                    ><?php echo esc_html($test_btn_field['value'] ?? __('Test credentials', 'wc-buckaroo-bpe-gateway')); ?></button>
                     <?php endif; ?>
                 </div>
             </td>
@@ -600,18 +601,19 @@ class GeneralSettings extends WC_Settings_Page
                         <svg class="bk-eye-show" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         <svg class="bk-eye-hide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                     </button>
-                    <?php if ($auto_btn_field && ($auto_btn_field['type'] ?? '') === 'button') : ?>
+                    <?php
+                    if ($auto_btn_field && ($auto_btn_field['type'] ?? '') === 'button') :
+                        $auto_custom_attrs = '';
+                        foreach ((array) ($auto_btn_field['custom_attributes'] ?? []) as $attr => $val) {
+                            $auto_custom_attrs .= esc_attr($attr) . '="' . esc_attr($val) . '" ';
+                        }
+                    ?>
                     <button type="button"
                         id="<?php echo esc_attr($this->gateway->get_field_key('auto_configure')); ?>"
                         class="button bk-creds-inline-btn"
                         title="<?php esc_attr_e('Automatically configure the Buckaroo plugin based on your active subscriptions. When you use this option, the plugin will connect to your Buckaroo account, check which payment methods are active, and enable them in Live mode. You will be asked to confirm before changes are applied.', 'wc-buckaroo-bpe-gateway'); ?>"
-                        <?php
-                        foreach ((array) ($auto_btn_field['custom_attributes'] ?? []) as $attr => $val) {
-                            echo esc_attr($attr) . '="' . esc_attr($val) . '" ';
-                        }
-                        ?>
-                        <?php echo esc_html($auto_btn_field['value'] ?? __('Auto-configure', 'wc-buckaroo-bpe-gateway')); ?>
-                    </button>
+                        <?php echo $auto_custom_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                    ><?php echo esc_html($auto_btn_field['value'] ?? __('Auto-configure', 'wc-buckaroo-bpe-gateway')); ?></button>
                     <?php endif; ?>
                 </div>
             </td>
