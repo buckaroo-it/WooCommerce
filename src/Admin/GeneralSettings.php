@@ -572,12 +572,12 @@ class GeneralSettings extends WC_Settings_Page
                         foreach ((array) ($test_btn_field['custom_attributes'] ?? []) as $attr => $val) {
                             $test_custom_attrs .= esc_attr($attr) . '="' . esc_attr($val) . '" ';
                         }
-                    ?>
+                        ?>
                     <button type="button"
                         id="<?php echo esc_attr($this->gateway->get_field_key('test_credentials')); ?>"
                         class="button button-primary bk-creds-inline-btn"
                         title="<?php esc_attr_e('Click here to verify store key & secret key.', 'wc-buckaroo-bpe-gateway'); ?>"
-                        <?php echo $test_custom_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                        <?php echo $test_custom_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- values are pre-escaped with esc_attr() ?>
                     ><?php echo esc_html($test_btn_field['value'] ?? __('Test credentials', 'wc-buckaroo-bpe-gateway')); ?></button>
                     <?php endif; ?>
                 </div>
@@ -607,7 +607,7 @@ class GeneralSettings extends WC_Settings_Page
                         foreach ((array) ($auto_btn_field['custom_attributes'] ?? []) as $attr => $val) {
                             $auto_custom_attrs .= esc_attr($attr) . '="' . esc_attr($val) . '" ';
                         }
-                    ?>
+                        ?>
                     <button type="button"
                         id="<?php echo esc_attr($this->gateway->get_field_key('auto_configure')); ?>"
                         class="button bk-creds-inline-btn"
