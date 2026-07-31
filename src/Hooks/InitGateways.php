@@ -59,7 +59,6 @@ class InitGateways
 
     public function idinCheckout(): void
     {
-        $this->displayBuckarooErrors();
         if (IdinProcessor::isIdin(IdinProcessor::getCartProductIds())) {
             include plugin_dir_path(BK_PLUGIN_FILE) . 'templates/idin/checkout.php';
         }
