@@ -54,7 +54,6 @@ class PayPerEmailGateway extends AbstractPaymentGateway
         parent::__construct();
     }
 
-    /** The payment link is sent by e-mail; the customer is not sent away. */
     public function redirectsToPaymentPage()
     {
         return false;

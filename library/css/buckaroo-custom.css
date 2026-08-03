@@ -573,8 +573,7 @@ label.bk-in3-logo img {
 /** redirect notice shown under redirect-based payment methods **/
 .buckaroo-redirect-notice {
     display: flex;
-    /* flex-start, not center: the text wraps to several lines on narrow
-       viewports and the icon should stay next to the first line. */
+    /* keeps the icon on the first line when the text wraps */
     align-items: flex-start;
     gap: 8px;
     color: #646970;

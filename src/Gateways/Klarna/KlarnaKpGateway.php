@@ -32,7 +32,6 @@ class KlarnaKpGateway extends KlarnaGateway
         $this->addRefundSupport();
     }
 
-    /** Klarna KP reserves inline; the customer is not sent away. */
     public function redirectsToPaymentPage()
     {
         return false;

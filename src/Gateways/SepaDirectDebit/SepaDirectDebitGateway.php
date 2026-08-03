@@ -20,7 +20,6 @@ class SepaDirectDebitGateway extends AbstractPaymentGateway
         $this->addRefundSupport();
     }
 
-    /** The IBAN is collected in the checkout; the customer is not sent away. */
     public function redirectsToPaymentPage()
     {
         return false;

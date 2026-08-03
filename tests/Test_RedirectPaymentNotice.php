@@ -40,11 +40,10 @@ use Buckaroo\Woocommerce\Gateways\Wero\WeroGateway;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Test the checkout redirect notice (BTI-1179)
+ * Test the checkout redirect notice
  *
- * Gateways are built with newInstanceWithoutConstructor() because
- * redirectsToPaymentPage() does not depend on constructor state, and the real
- * constructors register WooCommerce hooks.
+ * Gateways are built without their constructor: the flag does not depend on
+ * constructor state, and the real constructors register WooCommerce hooks.
  */
 class Test_RedirectPaymentNotice extends TestCase
 {
@@ -140,8 +139,7 @@ class Test_RedirectPaymentNotice extends TestCase
     }
 
     /**
-     * The notice is a <span>, not an inline <svg>: the classic checkout renders
-     * it through wp_kses_post(), which strips <svg>.
+     * The classic checkout renders the notice through wp_kses_post().
      */
     public function test_notice_survives_kses()
     {
@@ -154,9 +152,6 @@ class Test_RedirectPaymentNotice extends TestCase
         $this->assertSame($notice, wp_kses_post($notice));
     }
 
-    /**
-     * Card details are entered inline only with the encrypt method over https.
-     */
     public function test_credit_card_redirects_unless_inline_encryption_over_https()
     {
         $cases = [
@@ -184,8 +179,7 @@ class Test_RedirectPaymentNotice extends TestCase
     }
 
     /**
-     * The per-card gateways must follow the credit card setting, not the
-     * redirect-by-default of the base class.
+     * The per-card gateways must not fall back to the redirect-by-default.
      */
     public function test_single_card_gateways_inherit_the_credit_card_rule()
     {
@@ -199,10 +193,6 @@ class Test_RedirectPaymentNotice extends TestCase
     }
 
     /**
-     * The stock "Pay with X" text is what the notice replaces, so it must not be
-     * mistaken for merchant-written copy — WooCommerce stores that default as
-     * soon as the settings page is saved once.
-     *
      * @dataProvider stockDescriptions
      */
     public function test_stock_description_is_replaced_by_the_notice(
@@ -228,9 +218,7 @@ class Test_RedirectPaymentNotice extends TestCase
     }
 
     /**
-     * A configured payment fee appends a suffix to $this->title, while the
-     * description default was stored before the suffix existed. The stock text
-     * must still be recognised.
+     * A payment fee suffixes $this->title, but not the stored default.
      */
     public function test_stock_description_is_recognised_when_a_payment_fee_is_configured()
     {
@@ -244,9 +232,6 @@ class Test_RedirectPaymentNotice extends TestCase
     }
 
     /**
-     * A merchant who wrote their own description keeps it; the notice is shown
-     * as well, so no configured copy disappears from the checkout.
-     *
      * @dataProvider customDescriptions
      */
     public function test_custom_description_is_kept(string $storedDescription)
@@ -268,8 +253,6 @@ class Test_RedirectPaymentNotice extends TestCase
             'marketing copy' => ['The fastest way to pay — no account needed!'],
             'html' => ['<strong>iDEAL</strong> is free of charge'],
             'similar but not the template' => ['Pay quickly with iDEAL'],
-            // The stock text is matched exactly, so a description that merely
-            // starts like it is still the merchant's own.
             'starts like the stock text' => ['Pay with iDEAL, no extra fees'],
             'stock text plus a sentence' => ['Pay with iDEAL | Wero. Fast and secure.'],
             'regex metacharacters' => ['Pay with iDEAL (a.*b) [x]'],

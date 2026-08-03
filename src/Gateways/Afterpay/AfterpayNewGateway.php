@@ -50,7 +50,6 @@ class AfterpayNewGateway extends AbstractPaymentGateway
         $this->addRefundSupport();
     }
 
-    /** Riverty authorises inline; the customer is not sent away. */
     public function redirectsToPaymentPage()
     {
         return false;

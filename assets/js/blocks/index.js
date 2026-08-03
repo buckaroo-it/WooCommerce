@@ -115,9 +115,7 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
         return <div>Loading...</div>;
     }
 
-    // Both come from PHP already escaped and translated. redirectNotice is empty
-    // unless the method sends the customer to an external payment page, and
-    // description is blank when the notice replaces the stock "Pay with X" text.
+    // Both arrive from PHP, escaped and translated, and either can be empty.
     const subtext = `${gateway.description || ''}${gateway.redirectNotice || ''}`;
 
     return (

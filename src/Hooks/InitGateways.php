@@ -109,12 +109,8 @@ class InitGateways
                 $payment_method = [
                     'paymentMethodId' => $gateway_id,
                     'title' => $gateway->get_title(),
-                    // Blank for redirect-based methods still carrying the stock
-                    // "Pay with X" text, which the redirect notice replaces.
                     'description' => $gateway->shouldShowPaymentDescription() ? $gateway->description : '',
-                    // Already translated server-side, so the Blocks bundle needs no
-                    // JS translation catalogue for it. Empty for methods that
-                    // complete inside the checkout.
+                    // Translated here, so the Blocks bundle needs no JS catalogue for it.
                     'redirectNotice' => $gateway->getRedirectNoticeHtml(),
                     'image_path' => $gateway->getIcon(),
                     'buckarooImagesUrl' => plugin_dir_url(BK_PLUGIN_FILE) . 'library/buckaroo_images/',

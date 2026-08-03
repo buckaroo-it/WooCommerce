@@ -190,14 +190,9 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     }
 
     /**
-     * Whether paying with this method sends the customer to an external page
-     * (Buckaroo's hosted page, their bank, or the scheme's own environment) to
-     * complete the payment.
+     * Whether the customer is sent to an external page to complete the payment.
      *
-     * Whether a redirect actually happens is only known at runtime from the
-     * Buckaroo response, so the checkout needs this static declaration to be
-     * able to inform the customer up front. Most Buckaroo methods redirect; the
-     * ones that collect everything inside the checkout override this.
+     * Overridden by the methods that collect everything inside the checkout.
      *
      * @return bool
      */
@@ -207,12 +202,10 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     }
 
     /**
-     * Checkout subtext telling the customer they will leave the shop to finish
-     * paying. Empty for methods that complete inside the checkout.
+     * Checkout subtext for methods that send the customer away, empty otherwise.
      *
-     * Rendered as a <span> with a CSS-attached icon rather than an inline <svg>,
-     * because the classic checkout passes this through wp_kses_post(), which
-     * strips <svg>.
+     * A <span> with a CSS-attached icon, not an inline <svg>: the classic
+     * checkout renders this through wp_kses_post(), which strips <svg>.
      *
      * @return string
      */
@@ -231,20 +224,14 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     }
 
     /**
-     * Whether the merchant replaced the stock "Pay with X" text with their own
-     * description.
+     * Whether the merchant replaced the stock "Pay with X" text with their own.
      *
-     * WooCommerce writes a field's default into the option the first time the
-     * settings page is saved, so a filled-in description does not mean the
-     * merchant typed it. The stored text is therefore compared against the
-     * stock "Pay with <label>" text.
-     *
-     * The comparison is exact rather than a "Pay with *" match, so a merchant
-     * description that happens to start the same way (e.g. "Pay with iDEAL, no
-     * extra fees") is still recognised as their own. Two labels are tried
-     * because $this->title carries the payment-fee suffix while the stored
-     * default was generated before that suffix was appended, and two templates
-     * because the stored default keeps the locale it was saved under.
+     * WooCommerce stores a field's default on the first settings save, so a
+     * filled-in description does not mean the merchant typed it. Matching is
+     * exact so "Pay with iDEAL, no extra fees" still counts as theirs. Two
+     * labels because $this->title carries the payment-fee suffix and the stored
+     * default does not; two templates because the default keeps the locale it
+     * was saved under.
      *
      * @return bool
      */
@@ -277,10 +264,8 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     /**
      * Whether the checkout still shows the configured description.
      *
-     * For redirect-based methods the redirect notice takes the place of the
-     * stock "Pay with X" text (BTI-1179). Merchant-written descriptions are
-     * kept and the notice is shown underneath, so no configured copy silently
-     * disappears from the checkout.
+     * The redirect notice replaces the stock "Pay with X" text, but never a
+     * description the merchant wrote themselves.
      *
      * @return bool
      */

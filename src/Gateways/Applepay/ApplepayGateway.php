@@ -38,7 +38,6 @@ class ApplepayGateway extends AbstractPaymentGateway
         }
     }
 
-    /** Apple Pay is confirmed in an in-page payment sheet, without a redirect. */
     public function redirectsToPaymentPage()
     {
         return false;

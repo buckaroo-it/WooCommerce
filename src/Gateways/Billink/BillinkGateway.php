@@ -34,7 +34,6 @@ class BillinkGateway extends AbstractPaymentGateway
         $this->addRefundSupport();
     }
 
-    /** Invoice details are collected in the checkout; the customer is not sent away. */
     public function redirectsToPaymentPage()
     {
         return false;

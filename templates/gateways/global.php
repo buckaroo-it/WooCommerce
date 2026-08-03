@@ -28,6 +28,5 @@ if ($this->shouldShowPaymentDescription() && strlen($this->description)) {
     );
 }
 
-// Empty unless the method sends the customer to an external payment page. Not
-// run through wpautop(): the notice is a single element, styled as a block.
+// Empty for methods that keep the customer in the checkout.
 echo wp_kses_post($this->getRedirectNoticeHtml());
