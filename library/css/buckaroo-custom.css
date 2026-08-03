@@ -410,31 +410,22 @@ label.bk-in3-logo img {
 /* -------------------------------------------------------------------------
  * Express payment buttons (Apple Pay, Google Pay, PayPal)
  *
- * The three wallets size themselves by different rules: Apple Pay defaults to
- * 30px, Google Pay enforces a 40px floor of its own, and PayPal picks 35, 45 or
- * 55px from the width of its container. 40px is the only height all three can
- * render natively, so every button gets an identical 40px box and each SDK is
- * asked to fill it at its own proportions -- Apple Pay through its custom
- * property below, Google Pay through buttonSizeMode "fill", PayPal through the
- * style.height forced in paypal_express.js. Nothing is cropped or rescaled.
- *
- * Product, cart and classic checkout have no express row of their own, so the
- * buttons are stacked here. The block checkout keeps WooCommerce's own express
- * row, where the buttons sit side by side and share the width of the box.
+ * 40px is the only height all three render natively: Apple Pay defaults to 30px,
+ * Google Pay refuses to go under 40px, PayPal picks 35/45/55px from its container
+ * width. Each SDK fills a 40px box its own way -- Apple Pay via the custom
+ * property below, Google Pay via buttonSizeMode "fill", PayPal via the
+ * style.height forced in paypal_express.js.
  * ------------------------------------------------------------------------- */
 .buckaroo-express-payments {
     width: 100%;
     display: grid !important;
     grid-template-columns: 1fr !important;
-    /* Left aligned, so the buttons line up with the add-to-cart button and the
-       rest of the page rather than floating in the middle of the column. */
     justify-items: start !important;
     gap: 12px !important;
     margin: 15px 0 !important;
 }
 
-/* Only the stacked layout needs a cap. In the block checkout the buttons divide
-   the row between them, so each one fills its own track. */
+/* Only the stacked layout needs a cap; the block row shares its width instead. */
 .buckaroo-express-payments > * {
     max-width: 400px !important;
 }
@@ -444,11 +435,8 @@ label.bk-in3-logo img {
     display: none !important;
 }
 
-/* On the cart the buttons sit in the totals box directly under Proceed to
-   checkout, so they take the full width of that box to match it, and the theme's
-   larger gap under that button is closed up to the same 12px the buttons use
-   between themselves. Both are scoped to the totals box, and the sibling test
-   means a cart with no express buttons keeps the theme's own spacing. */
+/* Cart: match the width of Proceed to checkout above it and keep the same 12px
+   gap. The sibling test leaves carts without express buttons on theme spacing. */
 .cart_totals .buckaroo-express-payments > * {
     max-width: none !important;
 }
@@ -465,19 +453,9 @@ label.bk-in3-logo img {
     margin-bottom: 0 !important;
 }
 
-/* -------------------------------------------------------------------------
- * Block checkout express row
- *
- * WooCommerce lays the row out as a grid of repeat(auto-fit, minmax(150px, 1fr))
- * columns, which fits as many columns as the width allows no matter how many
- * buttons there are. Three buttons in a mid-width box then give two on the first
- * line and a third stranded on the second, filling only part of it.
- *
- * A wrapping flex row solves that on its own: the buttons share the line they
- * land on, so three across become three equal thirds, two become halves, one
- * takes the full width, and a button pushed onto its own line grows to fill it.
- * Growing but not shrinking is what makes it wrap instead of squeezing the logos.
- * ------------------------------------------------------------------------- */
+/* Block checkout row. WooCommerce uses auto-fit columns, which strand a third
+   button part-width at some widths. Flex items that grow but never shrink wrap
+   instead of squeezing, and the buttons on each line share it. */
 .wc-block-components-express-payment__event-buttons {
     display: flex !important;
     flex-wrap: wrap !important;
@@ -498,18 +476,14 @@ label.bk-in3-logo img {
     min-height: 40px !important;
     max-height: 40px !important;
     margin: 0 !important;
-    /* Anchors the focus ring overlay further down. */
+    /* Anchors the focus ring overlay; 4px matches the radius all three draw. */
     position: relative;
-    /* Matches the radius all three wallets draw, so the focus ring follows the
-       same corners. */
     border-radius: 4px;
-    /* Guard only: with the heights above nothing overflows, but a wallet SDK
-       that ignores them must not push into the next button. */
+    /* Guard: a wallet that ignores the heights must not overlap the next button. */
     overflow: hidden !important;
     cursor: pointer;
 }
 
-/* The wallet containers fill whatever slot the layout gives them. */
 .applepay-button-container,
 .googlepay-button-container,
 .buckaroo-paypal-express {
@@ -523,47 +497,28 @@ label.bk-in3-logo img {
     width: 100% !important;
 }
 
-/* Google's button does not reliably size itself to the element it is given, so
-   every box between our container and the button it draws is forced onto our box.
-   Left alone the signed-in build renders wider than its slot (240px in a 223px
-   one), and the overflow guard on the container then clips its right edge, which
-   reads as the wordmark sitting off centre. */
+/* Google does not size its button to the element it is handed: the signed-in build
+   renders wider than its slot and gets clipped, so every box down to the button is
+   forced onto ours. min-width overrides Google's own floor. */
 .googlepay-button-container > *,
 .googlepay-button-container .gpay-card-info-container-fill,
 .googlepay-button-container button.gpay-card-info-container,
 .googlepay-button-container button.gpay-button {
     width: 100% !important;
     height: 100% !important;
-    /* The signed-in build carries a min-width of its own, which outranks the
-       width above and is what keeps it wider than its slot. */
     min-width: 0 !important;
     max-width: 100% !important;
 }
 
-/* -------------------------------------------------------------------------
- * Google Pay's signed-in button
- *
- * Google ships two builds and which one a shopper gets depends on their Google
- * session, so both have to be handled and only one can be seen at a time.
- *
- * Signed out the wordmark is a background image on the button and Google places
- * it correctly. Signed in the button is a wrapper holding an iframe and the real
- * button, both positioned absolutely at left: 30px -- the wrapper's own side
- * padding -- yet sized to the wrapper's full width, so they hang 30px past its
- * right edge. The wrapper centres its content inside that shifted box, which puts
- * the wordmark 30px right of the button's middle. Google does this on its own; it
- * is not a side effect of anything set here. Pinning the two children back onto
- * the wrapper is the only way to recover the centre.
- *
- * That build also caps the wordmark at 42.5% of the button, 17px against the 20px
- * Apple Pay draws. 55% brings it to 22px, which after the clear space the asset
- * carries lands on the same 20px of visible wordmark. Its padding has to go too,
- * or the 22px box has no content height for the image to size against.
- *
- * Every rule here is scoped to .gpay-card-info-container. Both builds contain a
- * .gpay-button-fill, and unscoped these would strip the padding the signed-out
- * build sizes its own wordmark from.
- * ------------------------------------------------------------------------- */
+/* Google ships two builds, picked by the shopper's Google session. The signed-in
+   one positions its iframe and button at left: 30px, its own side padding, while
+   sizing them to the full wrapper width, so they hang past the right edge and the
+   wordmark lands off centre. It also caps the wordmark at 42.5% (17px) where Apple
+   Pay draws 20px; 55% matches it, and the padding has to go or the box has no
+   content height to size against.
+
+   Scoped to .gpay-card-info-container: the signed-out build shares
+   .gpay-button-fill and sizes its wordmark from the padding these rules drop. */
 .googlepay-button-container .gpay-card-info-container > .gpay-card-info-iframe,
 .googlepay-button-container .gpay-card-info-container > .gpay-button-fill {
     top: 0 !important;
@@ -577,25 +532,11 @@ label.bk-in3-logo img {
     padding: 0 !important;
 }
 
-/* -------------------------------------------------------------------------
- * Express button hover, press and focus
- *
- * Out of the box the three wallets react differently: Apple Pay has no hover
- * state at all, Google Pay swaps its black fill for grey, and PayPal tints its
- * yellow a few percent darker. Opacity is used instead of a colour change
- * because it is the one treatment that reads the same on a black button and a
- * yellow one -- brightness() cannot shade pure black.
- *
- * The states sit on the container so they cover Apple Pay and Google Pay alike,
- * and Google Pay's own hover and press colours are pinned back to its base fill
- * below so it does not shade twice.
- *
- * PayPal is the exception and cannot be brought in line. It renders in a
- * cross-origin iframe that fills its container, and the pointer entering that
- * iframe produces neither :hover nor any mouse event in this document, so hover
- * and press stay whatever PayPal draws inside (a few percent darker). Keyboard
- * focus is the one state that does surface, through :focus-within below.
- * ------------------------------------------------------------------------- */
+/* Hover and press use opacity, not colour -- brightness() cannot shade pure black.
+   Google Pay's own grey hover is pinned back to its base fill below so it does not
+   shade twice. PayPal is out of reach: the pointer entering its cross-origin iframe
+   fires neither :hover nor any mouse event here, so it keeps its own tint. Only
+   focus reaches all three. */
 .applepay-button-container,
 .googlepay-button-container {
     transition: opacity 0.15s ease-in-out;
@@ -611,10 +552,8 @@ label.bk-in3-logo img {
     opacity: 0.8;
 }
 
-/* The ring is an overlay rather than an outline. It has to sit inside the box,
-   because the Blocks button list and its items both clip overflow, and it has to
-   stack above the button, because PayPal's iframe and Apple Pay's shadow root
-   both paint over an inset outline on the container. */
+/* An overlay, not an outline: the block row clips overflow, and PayPal's iframe
+   and Apple Pay's shadow root both paint over an inset outline. */
 .applepay-button-container:focus-within::after,
 .googlepay-button-container:focus-within::after,
 .buckaroo-paypal-express:focus-within::after {
@@ -624,7 +563,7 @@ label.bk-in3-logo img {
     border: 2px solid #2271b1;
     border-radius: 4px;
     pointer-events: none;
-    /* Clear of the z-index 100 PayPal puts on its iframe. */
+    /* Above the z-index 100 PayPal puts on its iframe. */
     z-index: 1000;
 }
 

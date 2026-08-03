@@ -5,21 +5,15 @@ jQuery(document).ready(function () {
     }
 });
 
-/**
- * Height shared by every Buckaroo express button. Kept in sync with
- * library/css/buckaroo-custom.css, which sizes the Apple Pay and Google Pay
- * buttons to the same value.
- */
+/** Kept in sync with the express button height in buckaroo-custom.css. */
 const BUCKAROO_EXPRESS_BUTTON_HEIGHT = 40;
 
 /**
- * Add the shared express button height to a paypal.Buttons() call.
+ * Force PayPal to the shared express button height.
  *
- * Left alone, PayPal derives its height from the container width in fixed steps
- * (35px below 300px wide, 45px up to 500px, 55px above) and so can never match
- * the other express buttons. It does honour an explicit style.height at any
- * width, but the Buckaroo SDK builds its paypal.Buttons() options internally and
- * forwards no style, so wrap the factory to add one.
+ * Left alone it steps its height off the container width (35/45/55px) and can
+ * never match the other buttons. It does honour an explicit style.height, but the
+ * SDK builds its paypal.Buttons() options internally and forwards no style.
  */
 const buckarooWrapPaypalButtons = function (namespace) {
     try {
@@ -51,19 +45,16 @@ const buckarooWrapPaypalButtons = function (namespace) {
 };
 
 /**
- * Run an SDK initiate() with the PayPal button factory wrapped.
+ * Run an SDK initiate() with the button factory wrapped.
  *
- * The wrapper has to be in place between PayPal defining window.paypal and the
- * SDK rendering from it, and the SDK renders from a load listener on the script
- * element it injects. PayPal replaces window.paypal with its own property
- * descriptor, so an accessor installed up front is discarded, and script load
- * events do not reach a capture listener on window. What is left is the element
- * itself: shadow document.createElement for the synchronous part of initiate()
- * so our load listener is registered on the injected script before the SDK adds
- * its own, and listeners for the same event run in registration order.
+ * The wrapper must land between PayPal defining window.paypal and the SDK
+ * rendering from a load listener on the script it injects. Two simpler hooks do
+ * not work: PayPal redefines window.paypal, discarding any accessor put there
+ * first, and script load events never reach a capture listener on window. So
+ * shadow document.createElement for the synchronous part of initiate() and get a
+ * load listener onto that script before the SDK's, which then runs first.
  *
- * Every failure path leaves PayPal untouched: it then keeps its own auto height,
- * which the CSS still contains.
+ * Any failure leaves PayPal on its own height, which the CSS still contains.
  */
 const buckarooInitiateWithPaypalHeight = function (initiate) {
     const createElement = document.createElement;
@@ -83,8 +74,7 @@ const buckarooInitiateWithPaypalHeight = function (initiate) {
             return element;
         };
 
-        // A later initiate() reuses the namespace PayPal already defined, and no
-        // script load follows to trigger the listener above.
+        // A later initiate() reuses the existing namespace, with no script load.
         if (window.paypal) {
             buckarooWrapPaypalButtons(window.paypal);
         }
