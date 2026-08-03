@@ -29,6 +29,12 @@ class TransferGateway extends AbstractPaymentGateway
         $this->addRefundSupport();
     }
 
+    /** Transfer instructions are shown on the thank-you page, not on a redirect. */
+    public function redirectsToPaymentPage()
+    {
+        return false;
+    }
+
     /**
      * Print thank you description to the screen.
      *

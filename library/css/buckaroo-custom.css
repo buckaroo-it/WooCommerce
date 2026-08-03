@@ -569,3 +569,23 @@ label.bk-in3-logo img {
     background: #0073aa;
     color: #fff;
 }
+
+/** redirect notice shown under redirect-based payment methods **/
+.buckaroo-redirect-notice {
+    display: flex;
+    /* flex-start, not center: the text wraps to several lines on narrow
+       viewports and the icon should stay next to the first line. */
+    align-items: flex-start;
+    gap: 8px;
+    color: #646970;
+}
+
+.buckaroo-redirect-notice::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    background: no-repeat center / contain
+        url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 5H5.5C4.67157 5 4 5.67157 4 6.5V14C4 14.8284 4.67157 15.5 5.5 15.5H13C13.8284 15.5 14.5 14.8284 14.5 14V12.5' stroke='%23808992' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M10 5H15V10' stroke='%23808992' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M15 5L8.5 11.5' stroke='%23808992' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+}

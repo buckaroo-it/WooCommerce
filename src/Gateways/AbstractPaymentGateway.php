@@ -189,6 +189,106 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         return $desc;
     }
 
+    /**
+     * Whether paying with this method sends the customer to an external page
+     * (Buckaroo's hosted page, their bank, or the scheme's own environment) to
+     * complete the payment.
+     *
+     * Whether a redirect actually happens is only known at runtime from the
+     * Buckaroo response, so the checkout needs this static declaration to be
+     * able to inform the customer up front. Most Buckaroo methods redirect; the
+     * ones that collect everything inside the checkout override this.
+     *
+     * @return bool
+     */
+    public function redirectsToPaymentPage()
+    {
+        return true;
+    }
+
+    /**
+     * Checkout subtext telling the customer they will leave the shop to finish
+     * paying. Empty for methods that complete inside the checkout.
+     *
+     * Rendered as a <span> with a CSS-attached icon rather than an inline <svg>,
+     * because the classic checkout passes this through wp_kses_post(), which
+     * strips <svg>.
+     *
+     * @return string
+     */
+    public function getRedirectNoticeHtml()
+    {
+        if (! $this->redirectsToPaymentPage()) {
+            return '';
+        }
+
+        return '<span class="buckaroo-redirect-notice">'
+            . esc_html__(
+                'After submission, you will be redirected to securely complete your payment.',
+                'wc-buckaroo-bpe-gateway'
+            )
+            . '</span>';
+    }
+
+    /**
+     * Whether the merchant replaced the stock "Pay with X" text with their own
+     * description.
+     *
+     * WooCommerce writes a field's default into the option the first time the
+     * settings page is saved, so a filled-in description does not mean the
+     * merchant typed it. The stored text is therefore compared against the
+     * stock "Pay with <label>" text.
+     *
+     * The comparison is exact rather than a "Pay with *" match, so a merchant
+     * description that happens to start the same way (e.g. "Pay with iDEAL, no
+     * extra fees") is still recognised as their own. Two labels are tried
+     * because $this->title carries the payment-fee suffix while the stored
+     * default was generated before that suffix was appended, and two templates
+     * because the stored default keeps the locale it was saved under.
+     *
+     * @return bool
+     */
+    protected function hasCustomPaymentDescription()
+    {
+        $description = trim((string) $this->get_option('description', ''));
+
+        if ($description === '') {
+            return false;
+        }
+
+        $labels = array_unique(array_filter([
+            (string) ($this->title ?? ''),
+            (string) $this->get_option('title', ''),
+        ], 'strlen'));
+
+        $templates = array_unique([__('Pay with %s', 'wc-buckaroo-bpe-gateway'), 'Pay with %s']);
+
+        foreach ($templates as $template) {
+            foreach ($labels as $label) {
+                if ($description === sprintf($template, $label)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Whether the checkout still shows the configured description.
+     *
+     * For redirect-based methods the redirect notice takes the place of the
+     * stock "Pay with X" text (BTI-1179). Merchant-written descriptions are
+     * kept and the notice is shown underneath, so no configured copy silently
+     * disappears from the checkout.
+     *
+     * @return bool
+     */
+    public function shouldShowPaymentDescription()
+    {
+        return ! $this->redirectsToPaymentPage() || $this->hasCustomPaymentDescription();
+    }
+
     public function init_settings()
     {
         parent::init_settings();

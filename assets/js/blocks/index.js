@@ -115,14 +115,14 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
         return <div>Loading...</div>;
     }
 
+    // Both come from PHP already escaped and translated. redirectNotice is empty
+    // unless the method sends the customer to an external payment page, and
+    // description is blank when the notice replaces the stock "Pay with X" text.
+    const subtext = `${gateway.description || ''}${gateway.redirectNotice || ''}`;
+
     return (
         <div className="container">
-            {gateway.description && (
-                <div
-                    className="buckaroo-payment-description"
-                    dangerouslySetInnerHTML={{ __html: gateway.description }}
-                />
-            )}
+            {subtext && <div className="buckaroo-payment-description" dangerouslySetInnerHTML={{ __html: subtext }} />}
             {errorMessage && errorMessage?.length && <div className="woocommerce-error">{errorMessage}</div>}
             <PaymentComponent gateway={gateway} title={decodeHtmlEntities(gateway.title)} />
         </div>

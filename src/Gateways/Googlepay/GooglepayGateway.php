@@ -35,6 +35,12 @@ class GooglepayGateway extends AbstractPaymentGateway
         }
     }
 
+    /** Google Pay is confirmed in an in-page payment sheet, without a redirect. */
+    public function redirectsToPaymentPage()
+    {
+        return false;
+    }
+
     private function registerControllers()
     {
         $namespace = 'woocommerce_api_wc_gateway_buckaroo_googlepay';

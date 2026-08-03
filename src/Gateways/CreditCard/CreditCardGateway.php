@@ -156,6 +156,18 @@ class CreditCardGateway extends AbstractPaymentGateway
     }
 
     /**
+     * Card details are entered inline only when the merchant chose the encrypt
+     * method and the checkout is served over https; every other combination
+     * sends the customer to Buckaroo. Mirrors the branch in validate_fields().
+     *
+     * @return bool
+     */
+    public function redirectsToPaymentPage()
+    {
+        return $this->get_option('creditcardmethod', 'redirect') !== 'encrypt' || ! $this->isSecure();
+    }
+
+    /**
      * Process payment
      *
      * @param  int  $order_id

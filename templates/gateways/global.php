@@ -22,8 +22,12 @@ if ($this->mode == 'test') {
     <p> <?php esc_html_e('TEST MODE', 'wc-buckaroo-bpe-gateway'); ?></p>
     <?php
 }
-if (strlen($this->description)) {
+if ($this->shouldShowPaymentDescription() && strlen($this->description)) {
     echo wp_kses_post(
         wpautop(wptexturize($this->description)),
     );
 }
+
+// Empty unless the method sends the customer to an external payment page. Not
+// run through wpautop(): the notice is a single element, styled as a block.
+echo wp_kses_post($this->getRedirectNoticeHtml());
