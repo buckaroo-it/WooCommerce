@@ -98,6 +98,24 @@ export default class Woocommerce {
         return methods;
     }
 
+    getCartTotal() {
+        let totals = null;
+        jQuery
+            .ajax({
+                url: this.url,
+                data: {
+                    'wc-api': `${this.api_namespace}-get-cart-total`,
+                },
+                async: false,
+                dataType: 'json',
+            })
+            .done(response => {
+                totals = response;
+            });
+
+        return totals;
+    }
+
     getStoreInformation() {
         let information = [];
         jQuery

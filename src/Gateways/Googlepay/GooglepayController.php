@@ -239,6 +239,36 @@ class GooglepayController
         return $items;
     }
 
+    public static function getCartTotal()
+    {
+        global $woocommerce;
+
+        $cart = $woocommerce->cart;
+
+        self::calculate_fee($cart);
+
+        $shipping_total = (float) $cart->get_shipping_total() + (float) $cart->get_shipping_tax();
+
+        $shipping_label = __('Shipping', 'wc-buckaroo-bpe-gateway');
+        $packages = WC()->shipping() ? WC()->shipping()->get_packages() : [];
+        $chosen_methods = WC()->session ? (array) WC()->session->get('chosen_shipping_methods') : [];
+        foreach ($packages as $index => $package) {
+            $rate_id = $chosen_methods[$index] ?? '';
+            if ($rate_id && isset($package['rates'][$rate_id])) {
+                $shipping_label = $package['rates'][$rate_id]->get_label();
+                break;
+            }
+        }
+
+        wp_send_json(
+            [
+                'total' => round((float) $cart->get_total('edit'), 2),
+                'shipping' => round($shipping_total, 2),
+                'shipping_label' => $shipping_label,
+            ]
+        );
+    }
+
     public static function getShippingMethods()
     {
         $wcGooglepayMethods = function () {
