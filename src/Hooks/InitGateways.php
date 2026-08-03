@@ -160,6 +160,10 @@ class InitGateways
                             'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE',
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
                             'buttonStyle' => $gateway->get_option('button_style', 'black'),
+                            // Whether Google Pay is also listed as a standard,
+                            // selectable checkout payment method.
+                            'showAsPaymentMethod' => method_exists($gateway, 'isCheckoutMethodEnabled')
+                                && $gateway->isCheckoutMethodEnabled(),
                         ]
                     );
                 }

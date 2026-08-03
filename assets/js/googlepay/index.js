@@ -15,6 +15,17 @@ const BuckarooListenToGooglePayChange = function (googlepay) {
     };
 };
 
+/**
+ * Expose the Google Pay integration so the Blocks and classic checkout bundles
+ * can create a checkout-mode (authorise-only) instance without re-bundling the
+ * Buckaroo SDK. Used by the standard Google Pay payment method.
+ */
+window.BuckarooGooglePay = {
+    create(options) {
+        return new GooglePay(options);
+    },
+};
+
 window.BuckarooInitGooglePay = function () {
     if (typeof jQuery === 'undefined') {
         console.error('Cannot initialize GooglePay missing jquery');

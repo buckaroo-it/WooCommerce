@@ -5,6 +5,86 @@ jQuery(document).ready(function () {
     }
 });
 
+/** Kept in sync with the express button height in buckaroo-custom.css. */
+const BUCKAROO_EXPRESS_BUTTON_HEIGHT = 40;
+
+/**
+ * Force PayPal to the shared express button height.
+ *
+ * Left alone it steps its height off the container width (35/45/55px) and can
+ * never match the other buttons. It does honour an explicit style.height, but the
+ * SDK builds its paypal.Buttons() options internally and forwards no style.
+ */
+const buckarooWrapPaypalButtons = function (namespace) {
+    try {
+        const original = namespace.Buttons;
+
+        if (typeof original !== 'function' || original.buckarooHeightPatched === true) {
+            return;
+        }
+
+        const patched = function (options) {
+            return original(
+                Object.assign({}, options, {
+                    style: Object.assign({}, options && options.style, {
+                        height: BUCKAROO_EXPRESS_BUTTON_HEIGHT,
+                    }),
+                })
+            );
+        };
+
+        Object.keys(original).forEach(key => {
+            patched[key] = original[key];
+        });
+        patched.buckarooHeightPatched = true;
+
+        namespace.Buttons = patched;
+    } catch (e) {
+        // PayPal keeps its own height.
+    }
+};
+
+/**
+ * Run an SDK initiate() with the button factory wrapped.
+ *
+ * The wrapper must land between PayPal defining window.paypal and the SDK
+ * rendering from a load listener on the script it injects. Two simpler hooks do
+ * not work: PayPal redefines window.paypal, discarding any accessor put there
+ * first, and script load events never reach a capture listener on window. So
+ * shadow document.createElement for the synchronous part of initiate() and get a
+ * load listener onto that script before the SDK's, which then runs first.
+ *
+ * Any failure leaves PayPal on its own height, which the CSS still contains.
+ */
+const buckarooInitiateWithPaypalHeight = function (initiate) {
+    const createElement = document.createElement;
+
+    try {
+        document.createElement = function (tagName) {
+            const element = createElement.apply(document, arguments);
+
+            if (String(tagName).toLowerCase() === 'script') {
+                element.addEventListener('load', function () {
+                    if (window.paypal) {
+                        buckarooWrapPaypalButtons(window.paypal);
+                    }
+                });
+            }
+
+            return element;
+        };
+
+        // A later initiate() reuses the existing namespace, with no script load.
+        if (window.paypal) {
+            buckarooWrapPaypalButtons(window.paypal);
+        }
+
+        initiate();
+    } finally {
+        document.createElement = createElement;
+    }
+};
+
 const BuckarooInitPaypalExpress = function () {
     if (jQuery === undefined) {
         console.error('Cannot initialize PaypalExpress missing jquery');
@@ -130,8 +210,14 @@ class BuckarooPaypalExpress {
      * Init class
      */
     init() {
-        this.sdk.initiate(this.options);
+        this.initiate();
         this.listen();
+    }
+    /**
+     * Render the button at the shared express height.
+     */
+    initiate() {
+        buckarooInitiateWithPaypalHeight(() => this.sdk.initiate(this.options));
     }
     /**
      * listen to any change in the cart and get total
@@ -151,7 +237,7 @@ class BuckarooPaypalExpress {
         jQuery(document.body).on('wc_fragments_refreshed updated_shipping_method', () => {
             this.get_cart_total();
             if (jQuery('.buckaroo-paypal-express').length) {
-                this.sdk.initiate(this.options);
+                this.initiate();
             }
         });
     }

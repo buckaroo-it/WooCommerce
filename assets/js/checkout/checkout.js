@@ -1,13 +1,16 @@
 import BuckarooPayByBank from './payments/paybybank';
 import BuckarooApplePayCheckout from './payments/applepay';
+import BuckarooGooglePayCheckout from './payments/googlepay';
 
 class BuckarooCheckout {
     listen() {
         const paybyBank = new BuckarooPayByBank();
         const applePay = new BuckarooApplePayCheckout();
+        const googlePay = new BuckarooGooglePayCheckout();
         const self = this;
         paybyBank.init();
         applePay.init();
+        googlePay.init();
         jQuery('body').on('change', 'input[name="payment_method"]', () => {
             jQuery('body').trigger('update_checkout');
         });
