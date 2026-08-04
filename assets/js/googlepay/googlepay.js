@@ -101,12 +101,6 @@ export default class GooglePay {
             gatewayMerchantId: this.store_info.merchant_id,
             shippingAddressRequired: !this.isOnCheckout,
             shippingOptionRequired: hasShipping,
-            emailRequired: !this.isOnCheckout,
-            billingAddressRequired: !this.isOnCheckout,
-            billingAddressParameters: {
-                format: 'FULL',
-                phoneNumberRequired: true,
-            },
             onGooglePayLoadError: error => {
                 console.error('Error loading GooglePay:', error);
             },
@@ -126,6 +120,52 @@ export default class GooglePay {
         }
 
         this.payment = new BuckarooSdk.GooglePay.GooglePayPayment(options);
+
+        // Only the Express Checkout button has to collect the shopper's details
+        // from the Google Pay sheet; in checkout mode they come from the form.
+        if (!this.isOnCheckout) {
+            this.requireContactDetails(this.payment);
+        }
+    }
+
+    /**
+     * Make the Google Pay sheet return the shopper's email and billing address.
+     *
+     * The Buckaroo SDK assembles the payment data request itself and carries over
+     * the shipping options only, so passing emailRequired or billingAddressRequired
+     * as an SDK option has no effect: the sheet never asks for them and the express
+     * order is created without a billing address and without an email address.
+     * Wrapping the request builder puts both back where Google expects them —
+     * the billing flags belong to the card payment method, not the request root.
+     *
+     * @param {object} payment the SDK payment instance to wrap.
+     */
+    requireContactDetails(payment) {
+        if (!payment || typeof payment.getBaseRequest !== 'function') {
+            return;
+        }
+
+        const buildRequest = payment.getBaseRequest.bind(payment);
+
+        payment.getBaseRequest = () => {
+            const request = buildRequest();
+
+            return {
+                ...request,
+                emailRequired: true,
+                allowedPaymentMethods: (request.allowedPaymentMethods || []).map(method => ({
+                    ...method,
+                    parameters: {
+                        ...method.parameters,
+                        billingAddressRequired: true,
+                        billingAddressParameters: {
+                            format: 'FULL',
+                            phoneNumberRequired: true,
+                        },
+                    },
+                })),
+            };
+        };
     }
 
     /**
@@ -239,8 +279,14 @@ export default class GooglePay {
 
     processGooglepayCallback(paymentData) {
         const email = paymentData.email || '';
-        const billingAddress = paymentData.paymentMethodData.info?.billingAddress || {};
-        const shippingAddress = paymentData.shippingAddress || billingAddress;
+        const googleBilling = paymentData.paymentMethodData.info?.billingAddress || {};
+        const googleShipping = paymentData.shippingAddress || {};
+
+        // Google returns only the addresses the sheet was told to collect, so use
+        // whichever one came back for both. Without this the order can end up
+        // without a billing address, which breaks bookkeeping integrations.
+        const billingAddress = Object.keys(googleBilling).length > 0 ? googleBilling : googleShipping;
+        const shippingAddress = Object.keys(googleShipping).length > 0 ? googleShipping : googleBilling;
 
         const payment = {
             token: paymentData.paymentMethodData.tokenizationData.token,
@@ -269,7 +315,8 @@ export default class GooglePay {
     }
 
     mapGoogleContact(address, email) {
-        const lines = [address.address1 || '', address.address2 || ''].filter(Boolean);
+        // A FULL format Google address splits the street over three lines.
+        const lines = [address.address1 || '', address.address2 || '', address.address3 || ''].filter(Boolean);
         return {
             givenName: address.name ? address.name.split(' ')[0] : '',
             familyName: address.name ? address.name.split(' ').slice(1).join(' ') : '',
@@ -277,6 +324,7 @@ export default class GooglePay {
             phoneNumber: address.phoneNumber || '',
             addressLines: lines.length > 0 ? lines : [''],
             locality: address.locality || '',
+            administrativeArea: address.administrativeArea || '',
             postalCode: address.postalCode || '',
             countryCode: address.countryCode || '',
         };
