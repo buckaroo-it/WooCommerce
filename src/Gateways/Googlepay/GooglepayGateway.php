@@ -405,14 +405,26 @@ class GooglepayGateway extends AbstractPaymentGateway
         return $fake_cart_result;
     }
 
+    /**
+     * Map a Google Pay contact onto the WooCommerce address keys.
+     *
+     * set_address() skips keys without a matching setter, so 'email' is a no-op
+     * on the shipping address and 'phone' only applies where WooCommerce
+     * supports it.
+     */
     private static function orderAddresses($address)
     {
+        $lines = array_values(array_filter((array) ($address['addressLines'] ?? [])));
+
         return [
             'first_name' => $address['givenName'],
             'last_name' => $address['familyName'],
             'email' => $address['emailAddress'] ?? '',
-            'address_1' => $address['addressLines'][0] ?? '',
+            'phone' => $address['phoneNumber'] ?? '',
+            'address_1' => $lines[0] ?? '',
+            'address_2' => implode(', ', array_slice($lines, 1)),
             'city' => $address['locality'],
+            'state' => $address['administrativeArea'] ?? '',
             'postcode' => $address['postalCode'],
             'country' => $address['countryCode'],
         ];

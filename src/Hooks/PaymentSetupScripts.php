@@ -157,7 +157,7 @@ class PaymentSetupScripts
             'buckaroo_google_pay',
             $pluginDir . 'assets/js/dist/googlepay.js',
             ['jquery', 'buckaroo_sdk'],
-            Plugin::VERSION,
+            $this->bundleVersion('googlepay'),
             true
         );
 
