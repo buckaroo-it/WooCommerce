@@ -109,7 +109,9 @@ class InitGateways
                 $payment_method = [
                     'paymentMethodId' => $gateway_id,
                     'title' => $gateway->get_title(),
-                    'description' => $gateway->description,
+                    'description' => $gateway->shouldShowPaymentDescription() ? $gateway->description : '',
+                    // Translated here, so the Blocks bundle needs no JS catalogue for it.
+                    'redirectNotice' => $gateway->getRedirectNoticeHtml(),
                     'image_path' => $gateway->getIcon(),
                     'buckarooImagesUrl' => plugin_dir_url(BK_PLUGIN_FILE) . 'library/buckaroo_images/',
                     'genders' => Helper::getAllGendersForPaymentMethods(),

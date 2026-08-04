@@ -41,6 +41,11 @@ class AfterpayOldGateway extends AbstractPaymentGateway
         $this->addRefundSupport();
     }
 
+    public function redirectsToPaymentPage()
+    {
+        return false;
+    }
+
     public function getServiceCode(?AbstractProcessor $processor = null)
     {
         return 'afterpaydigiaccept';

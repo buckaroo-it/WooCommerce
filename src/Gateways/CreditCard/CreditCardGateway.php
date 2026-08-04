@@ -156,6 +156,17 @@ class CreditCardGateway extends AbstractPaymentGateway
     }
 
     /**
+     * Inline card entry needs the encrypt method over https, as in
+     * validate_fields(). Anything else goes to Buckaroo.
+     *
+     * @return bool
+     */
+    public function redirectsToPaymentPage()
+    {
+        return $this->get_option('creditcardmethod', 'redirect') !== 'encrypt' || ! $this->isSecure();
+    }
+
+    /**
      * Process payment
      *
      * @param  int  $order_id

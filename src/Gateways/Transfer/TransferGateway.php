@@ -29,6 +29,11 @@ class TransferGateway extends AbstractPaymentGateway
         $this->addRefundSupport();
     }
 
+    public function redirectsToPaymentPage()
+    {
+        return false;
+    }
+
     /**
      * Print thank you description to the screen.
      *

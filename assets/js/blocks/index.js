@@ -115,14 +115,12 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
         return <div>Loading...</div>;
     }
 
+    // Both arrive from PHP, escaped and translated, and either can be empty.
+    const subtext = `${gateway.description || ''}${gateway.redirectNotice || ''}`;
+
     return (
         <div className="container">
-            {gateway.description && (
-                <div
-                    className="buckaroo-payment-description"
-                    dangerouslySetInnerHTML={{ __html: gateway.description }}
-                />
-            )}
+            {subtext && <div className="buckaroo-payment-description" dangerouslySetInnerHTML={{ __html: subtext }} />}
             {errorMessage && errorMessage?.length && <div className="woocommerce-error">{errorMessage}</div>}
             <PaymentComponent gateway={gateway} title={decodeHtmlEntities(gateway.title)} />
         </div>

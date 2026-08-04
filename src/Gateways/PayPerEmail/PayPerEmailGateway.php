@@ -54,6 +54,11 @@ class PayPerEmailGateway extends AbstractPaymentGateway
         parent::__construct();
     }
 
+    public function redirectsToPaymentPage()
+    {
+        return false;
+    }
+
     /**
      * Validate payment fields on the frontend.
      *
