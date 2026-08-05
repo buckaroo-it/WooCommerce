@@ -187,10 +187,37 @@ table.woocommerce_order_items tbody tr:first-child td {
     }
 }
 
-label[for^='payment_method_buckaroo_'] img {
+/* Classic checkout: icon flush right, vertically centred.
+   `#payment ul.payment_methods` scoping is needed to beat core's
+   `margin: -2px 0 0 .5em` on payment icons. */
+#payment ul.payment_methods li.wc_payment_method[class*='payment_method_buckaroo'] {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#payment ul.payment_methods li.wc_payment_method[class*='payment_method_buckaroo'] > label {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    /* a flex row has no line box, so `line-height` no longer sets the row
+       height; without this the row shrinks to the icon and icons touch */
+    padding: 4px 0;
+}
+
+#payment ul.payment_methods li.wc_payment_method[class*='payment_method_buckaroo'] > .payment_box {
+    flex: 0 0 100%;
+}
+
+#payment ul.payment_methods li.wc_payment_method[class*='payment_method_buckaroo'] > label img {
+    flex: 0 0 auto;
     max-height: 25px;
     width: 32px;
-    float: right;
+    height: auto;
+    float: none;
+    margin: 0;
 }
 
 /* paybybank */
@@ -313,13 +340,20 @@ label.bk-in3-logo img {
     height: auto;
 }
 
+/* Blocks checkout label row: title left, icon right, vertically centred. */
 .buckaroo_method_block {
-    width: 94%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
 }
 
 .buckaroo_method_block_img {
-    float: right;
+    flex: 0 0 auto;
+    max-height: 25px;
     width: 32px;
+    height: auto;
 }
 
 /** end in3 logo input **/
