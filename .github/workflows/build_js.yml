@@ -1,0 +1,45 @@
+name: Build JS dist
+on:
+    pull_request:
+        branches: [ develop ]
+
+permissions:
+    contents: write
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+                with:
+                    repository: ${{ github.event.pull_request.head.repo.full_name }}
+                    ref: ${{ github.head_ref }}
+
+            -   name: Set up Node
+                uses: actions/setup-node@v4
+                with:
+                    node-version-file: .nvmrc
+                    cache: 'npm'
+                    cache-dependency-path: assets/js/package-lock.json
+
+            -   name: Build
+                working-directory: assets/js
+                run: |
+                    npm ci
+                    npm run build
+
+            -   name: Fail if dist is stale (fork PRs cannot be pushed to)
+                if: github.event.pull_request.head.repo.full_name != github.repository
+                run: |
+                    if [ -n "$(git status --porcelain assets/js/dist)" ]; then
+                        git --no-pager diff --stat assets/js/dist
+                        echo "::error::assets/js/dist is out of date. Run 'npm run build' in assets/js and commit the result."
+                        exit 1
+                    fi
+
+            -   name: Commit rebuilt dist
+                if: github.event.pull_request.head.repo.full_name == github.repository
+                uses: stefanzweifel/git-auto-commit-action@v7
+                with:
+                    file_pattern: assets/js/dist
+                    commit_message: 'chore: rebuild JS dist'
