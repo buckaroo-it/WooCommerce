@@ -94,17 +94,15 @@ class BuckarooCheckout {
     }
 
     /**
-     * toggle between bilink payment types
+     * Show the billink company fields only when a company is filled in. B2C
+     * needs no fields of its own, so there is nothing to show in that case.
      *
      * @param {string} val Company field value
      */
     bilink_toggle(val) {
         const billinkB2b = jQuery('#buckaroo_billink_b2b');
-        const billinkB2c = jQuery('#buckaroo_billink_b2c');
-        if (billinkB2b.length && billinkB2c.length) {
-            const toggleState = jQuery.trim(val).length > 0;
-            billinkB2b.toggle(toggleState);
-            billinkB2c.toggle(!toggleState);
+        if (billinkB2b.length) {
+            billinkB2b.toggle(jQuery.trim(val).length > 0);
         }
     }
 
