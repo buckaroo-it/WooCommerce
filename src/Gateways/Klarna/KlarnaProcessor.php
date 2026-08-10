@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 
 class KlarnaProcessor extends AbstractPaymentProcessor
@@ -23,7 +24,7 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         );
 
         if ($this->isReserved()) {
-            $dataRequestKey = get_post_meta($this->get_order()->get_id(), self::DATA_REQUEST_META_KEY, true);
+            $dataRequestKey = OrderMeta::get($this->get_order(), self::DATA_REQUEST_META_KEY);
 
             if (is_string($dataRequestKey) && strlen($dataRequestKey) > 0) {
                 // Klarna's `klarna` service identifies a reservation by a service-level
@@ -81,17 +82,18 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         $dataRequestKey = $responseParser->getDataRequest();
 
         if (is_string($dataRequestKey) && strlen($dataRequestKey) > 0) {
-            update_post_meta($this->get_order()->get_id(), self::DATA_REQUEST_META_KEY, $dataRequestKey);
+            $order = $this->get_order();
+            OrderMeta::update($order, self::DATA_REQUEST_META_KEY, $dataRequestKey);
 
             if ($this->isResponseReserved($responseParser)) {
-                update_post_meta($this->get_order()->get_id(), 'buckaroo_is_reserved', 'yes');
+                OrderMeta::update($order, 'buckaroo_is_reserved', 'yes');
             }
         }
     }
 
     private function isReserved(): bool
     {
-        return get_post_meta($this->get_order()->get_id(), 'buckaroo_is_reserved', true) === 'yes';
+        return OrderMeta::get($this->get_order(), 'buckaroo_is_reserved') === 'yes';
     }
 
     private function isResponseReserved(ResponseParser $responseParser): bool

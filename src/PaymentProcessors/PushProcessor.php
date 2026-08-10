@@ -5,6 +5,8 @@ namespace Buckaroo\Woocommerce\PaymentProcessors;
 use Buckaroo\Woocommerce\Constraints\BuckarooTransactionStatus;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaProcessor;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressUpdateOrderAddresses;
+use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateOrderMetaToHpos;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
@@ -121,7 +123,7 @@ class PushProcessor
 
                     $orderAmount = Helper::roundAmount($order->get_total());
                     $paidAmount = Helper::roundAmount($responseParser->getAmount());
-                    $settlementState = $this->calculateSettlementState($order_id, $responseParser, $paidAmount);
+                    $settlementState = $this->calculateSettlementState($order, $responseParser, $paidAmount);
                     $totalPaid = $settlementState['totalPaid'];
                     $isNewPayment = $settlementState['isNewPayment'];
 
@@ -140,9 +142,9 @@ class PushProcessor
                         $order->add_order_note($message);
                     }
 
-                    add_post_meta($order_id, '_payment_method_transaction', $payment_methodname, true);
-                    $this->updateSettlementMeta($order_id, $responseParser, $paidAmount);
-                    add_post_meta($order_id, '_pushallowed', 'ok', true);
+                    OrderMeta::add($order, '_payment_method_transaction', $payment_methodname, true);
+                    $this->updateSettlementMeta($order, $responseParser, $paidAmount);
+                    OrderMeta::add($order, '_pushallowed', 'ok', true);
 
                     break;
                 default:
@@ -180,10 +182,10 @@ class PushProcessor
         return ! empty($transactions) ? explode(',', $transactions) : '';
     }
 
-    protected function calculateSettlementState($order_id, ResponseParser $responseParser, $paidAmount)
+    protected function calculateSettlementState($order, ResponseParser $responseParser, $paidAmount)
     {
         $currentKey = $this->getTransactionKey($responseParser);
-        $settlements = get_post_meta($order_id, 'buckaroo_settlement', true);
+        $settlements = OrderMeta::get($order, 'buckaroo_settlement');
         if (!is_array($settlements)) {
             $settlements = [];
         }
@@ -197,17 +199,17 @@ class PushProcessor
         ];
     }
 
-    protected function updateSettlementMeta($order_id, ResponseParser $responseParser, $paidAmount)
+    protected function updateSettlementMeta($order, ResponseParser $responseParser, $paidAmount)
     {
         $currentKey = $this->getTransactionKey($responseParser);
-        $settlements = get_post_meta($order_id, 'buckaroo_settlement', true);
+        $settlements = OrderMeta::get($order, 'buckaroo_settlement');
         if (!is_array($settlements)) {
             $settlements = [];
         }
 
         $settlements[$currentKey] = (float) $paidAmount;
 
-        update_post_meta($order_id, 'buckaroo_settlement', $settlements);
+        OrderMeta::update($order, 'buckaroo_settlement', $settlements);
     }
 
     protected function isOrderFullyPaid($order)
@@ -311,6 +313,9 @@ class PushProcessor
                 exit();
             }
 
+            // Locks below are read from order meta; copy first so a replay is seen.
+            MigrateOrderMetaToHpos::ensureOrderMigrated($order);
+
             if ($responseParser->getRefundParentKey() !== null) {
                 RefundAction::initiateExternalServiceRefund($order_id, $responseParser);
             }
@@ -346,7 +351,7 @@ class PushProcessor
                         )
                     );
                 }
-                add_post_meta($order_id, '_pushallowed', 'ok', true);
+                OrderMeta::add($order, '_pushallowed', 'ok', true);
 
                 return;
             }

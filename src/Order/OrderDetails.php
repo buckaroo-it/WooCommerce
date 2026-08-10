@@ -300,17 +300,17 @@ class OrderDetails
 
     public function update_meta(string $key, $value)
     {
-        return update_post_meta($this->order->get_id(), $key, $value);
+        return OrderMeta::update($this->order, $key, $value);
     }
 
     public function add_meta(string $key, $value, $unique = false)
     {
-        return add_post_meta($this->order->get_id(), $key, $value, $unique);
+        return OrderMeta::add($this->order, $key, $value, (bool) $unique);
     }
 
     public function get_meta(string $key, $single = false)
     {
-        return get_post_meta($this->order->get_id(), $key, $single);
+        return OrderMeta::get($this->order, $key, (bool) $single);
     }
 
     /**

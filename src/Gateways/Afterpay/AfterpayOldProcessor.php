@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Order\OrderDetails;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
@@ -13,7 +14,7 @@ class AfterpayOldProcessor extends AbstractPaymentProcessor
     public function getAction(): string
     {
         if ($this->isAuthorization()) {
-            if (get_post_meta($this->get_order()->get_id(), '_wc_order_authorized', true) == 'yes') {
+            if (OrderMeta::get($this->get_order(), '_wc_order_authorized') == 'yes') {
                 return 'capture';
             }
 
