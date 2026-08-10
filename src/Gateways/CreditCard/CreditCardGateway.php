@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\CreditCard;
 
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\Services\Helper;
 use WC_Order;
 
@@ -177,7 +178,7 @@ class CreditCardGateway extends AbstractPaymentGateway
         $processedPayment = parent::process_payment($order_id);
 
         if (isset($processedPayment['result']) && $processedPayment['result'] == 'success' && $this->creditcardpayauthorize == 'authorize') {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes');
+            OrderMeta::update($order_id, '_wc_order_authorized', 'yes');
             $this->set_order_capture($order_id, 'Creditcard', $this->request->input($this->id . '-creditcard-issuer'));
         }
 
@@ -344,6 +345,6 @@ class CreditCardGateway extends AbstractPaymentGateway
             return false;
         }
 
-        return $this->creditcardpayauthorize == 'authorize' && get_post_meta($order->get_id(), '_wc_order_authorized', true) == 'yes';
+        return $this->creditcardpayauthorize == 'authorize' && OrderMeta::get($order, '_wc_order_authorized') == 'yes';
     }
 }

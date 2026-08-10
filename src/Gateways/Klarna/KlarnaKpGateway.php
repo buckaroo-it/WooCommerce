@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CancelReservationAction;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
@@ -42,10 +43,9 @@ class KlarnaKpGateway extends KlarnaGateway
         $processor = $this->newPaymentProcessorInstance($order);
         $payment = new BuckarooClient($this->getMode());
 
-        $reservation_number = get_post_meta(
-            $order->get_id(),
-            '_buckaroo_klarnakp_reservation_number',
-            true
+        $reservation_number = OrderMeta::get(
+            $order,
+            '_buckaroo_klarnakp_reservation_number'
         );
 
         if (! is_string($reservation_number) || strlen($reservation_number) === 0) {
@@ -76,7 +76,7 @@ class KlarnaKpGateway extends KlarnaGateway
         $processedPayment = parent::process_payment($order_id);
 
         if (isset($processedPayment['result']) && $processedPayment['result'] == 'success') {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes');
+            OrderMeta::update($order_id, '_wc_order_authorized', 'yes');
             $this->setOrderCapture($order_id, 'KlarnaKp');
         }
 
@@ -93,7 +93,7 @@ class KlarnaKpGateway extends KlarnaGateway
      */
     protected function setOrderCapture($order_id, $paymentName, $paymentType = null)
     {
-        update_post_meta($order_id, '_wc_order_selected_payment_method', $paymentName);
+        OrderMeta::update($order_id, '_wc_order_selected_payment_method', $paymentName);
         $this->setOrderIssuer($order_id, $paymentType);
     }
 
@@ -109,7 +109,7 @@ class KlarnaKpGateway extends KlarnaGateway
         if (is_null($paymentType)) {
             $paymentType = $this->type;
         }
-        update_post_meta($order_id, '_wc_order_payment_issuer', $paymentType);
+        OrderMeta::update($order_id, '_wc_order_payment_issuer', $paymentType);
     }
 
     /**
@@ -122,10 +122,9 @@ class KlarnaKpGateway extends KlarnaGateway
      */
     public function process_capture($order_id)
     {
-        $reservation_number = get_post_meta(
+        $reservation_number = OrderMeta::get(
             $order_id,
-            '_buckaroo_klarnakp_reservation_number',
-            true
+            '_buckaroo_klarnakp_reservation_number'
         );
 
         if (! is_string($reservation_number) || strlen($reservation_number) === 0) {

@@ -7,6 +7,8 @@ use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
+use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateOrderMetaToHpos;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
@@ -700,6 +702,10 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         }
 
         $order = Helper::findOrder($order_id);
+
+        // _wc_order_captures drives how much is still capturable.
+        MigrateOrderMetaToHpos::ensureOrderMigrated($order);
+
         $processor = $this->newPaymentProcessorInstance($order);
         $payment = new BuckarooClient($this->getMode());
 
@@ -863,8 +869,8 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     protected function set_order_capture($order_id, $paymentName, $paymentType = null)
     {
-        update_post_meta($order_id, '_wc_order_selected_payment_method', $paymentName);
-        update_post_meta($order_id, '_wc_order_payment_issuer', $paymentType);
+        OrderMeta::update($order_id, '_wc_order_selected_payment_method', $paymentName);
+        OrderMeta::update($order_id, '_wc_order_payment_issuer', $paymentType);
     }
 
     public function getMode()

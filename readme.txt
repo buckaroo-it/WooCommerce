@@ -80,6 +80,14 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
+= 4.9.1 =
+Improvements
+BTI-1245 Added support for WooCommerce 11.0.
+BTI-1245 Order data is now stored through the WooCommerce order API, so the plugin works with High-Performance Order Storage. Existing orders are updated automatically in the background after the update.
+
+Bug Fixes
+BTI-1245 Resolved an issue where a new order could not be started after a failed payment on shops using High-Performance Order Storage.
+
 = 4.9.0 =
 Improvements & New Features
 BTI-777 Apple Pay is now visible across all web browsers and is also displayed as a separate checkout option alongside the Apple Pay buttons.

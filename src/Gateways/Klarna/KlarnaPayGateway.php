@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CancelReservationAction;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\ExtendReservationAction;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
@@ -64,7 +65,7 @@ class KlarnaPayGateway extends KlarnaGateway
         $processedPayment = parent::process_payment($order_id);
 
         if (isset($processedPayment['result']) && $processedPayment['result'] === 'success') {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes');
+            OrderMeta::update($order_id, '_wc_order_authorized', 'yes');
             // Must match the registry key ('klarnapay') so the capture AJAX
             // handler can resolve the gateway via PaymentGatewayRegistry::newGatewayInstance().
             $this->set_order_capture($order_id, 'KlarnaPay', $this->type);
@@ -81,7 +82,7 @@ class KlarnaPayGateway extends KlarnaGateway
      */
     public function process_capture($order_id)
     {
-        $dataRequestKey = get_post_meta($order_id, KlarnaProcessor::DATA_REQUEST_META_KEY, true);
+        $dataRequestKey = OrderMeta::get($order_id, KlarnaProcessor::DATA_REQUEST_META_KEY);
 
         if (! is_string($dataRequestKey) || strlen($dataRequestKey) === 0) {
             return $this->create_capture_error(__('Cannot perform capture, Klarna Data Request key not found', 'wc-buckaroo-bpe-gateway'));
@@ -101,7 +102,7 @@ class KlarnaPayGateway extends KlarnaGateway
         $processor = $this->newPaymentProcessorInstance($order);
         $payment = new BuckarooClient($this->getMode());
 
-        $dataRequestKey = get_post_meta($order->get_id(), KlarnaProcessor::DATA_REQUEST_META_KEY, true);
+        $dataRequestKey = OrderMeta::get($order, KlarnaProcessor::DATA_REQUEST_META_KEY);
 
         if (! is_string($dataRequestKey) || strlen($dataRequestKey) === 0) {
             return $this->create_capture_error(__('Cannot cancel reservation, Klarna Data Request key not found', 'wc-buckaroo-bpe-gateway'));
@@ -132,7 +133,7 @@ class KlarnaPayGateway extends KlarnaGateway
         $processor = $this->newPaymentProcessorInstance($order);
         $payment = new BuckarooClient($this->getMode());
 
-        $dataRequestKey = get_post_meta($order->get_id(), KlarnaProcessor::DATA_REQUEST_META_KEY, true);
+        $dataRequestKey = OrderMeta::get($order, KlarnaProcessor::DATA_REQUEST_META_KEY);
 
         if (! is_string($dataRequestKey) || strlen($dataRequestKey) === 0) {
             return $this->create_capture_error(__('Cannot extend reservation, Klarna Data Request key not found', 'wc-buckaroo-bpe-gateway'));

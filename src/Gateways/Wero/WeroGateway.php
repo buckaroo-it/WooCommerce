@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Wero;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\Services\Helper;
 use WC_Order;
 
@@ -58,7 +59,7 @@ class WeroGateway extends AbstractPaymentGateway
             $processedPayment['result'] === 'success' &&
             $this->weropayauthorize === 'authorize'
         ) {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes');
+            OrderMeta::update($order_id, '_wc_order_authorized', 'yes');
             $this->set_order_capture($order_id, 'Wero');
         }
 
@@ -99,6 +100,6 @@ class WeroGateway extends AbstractPaymentGateway
         }
 
         return $this->weropayauthorize === 'authorize' &&
-            get_post_meta($order->get_id(), '_wc_order_authorized', true) === 'yes';
+            OrderMeta::get($order, '_wc_order_authorized') === 'yes';
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\PaymentProcessors\Actions;
 
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\Services\Logger;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use WP_Error;
@@ -18,17 +19,17 @@ class CaptureAction
         if ($response && $response->isSuccess()) {
             // SET the flags
             // check if order has already been captured
-            if (get_post_meta($order->get_id(), '_wc_order_is_captured', true)) {
+            if (OrderMeta::get($order, '_wc_order_is_captured')) {
                 // Order already captured
                 // Add the other values of the capture so we have the full value captured
-                $previousCaptures = (float) get_post_meta($order->get_id(), '_wc_order_amount_captured', true);
+                $previousCaptures = (float) OrderMeta::get($order, '_wc_order_amount_captured');
                 $total = $previousCaptures + (float) $capture_amount;
-                update_post_meta($order->get_id(), '_wc_order_amount_captured', $total);
+                OrderMeta::update($order, '_wc_order_amount_captured', $total);
             } else {
                 // Order not captured yet
                 // Set first amout_captured and is_captured flag
-                update_post_meta($order->get_id(), '_wc_order_is_captured', true);
-                update_post_meta($order->get_id(), '_wc_order_amount_captured', $capture_amount);
+                OrderMeta::update($order, '_wc_order_is_captured', true);
+                OrderMeta::update($order, '_wc_order_amount_captured', $capture_amount);
             }
 
             $str = '';
@@ -40,8 +41,8 @@ class CaptureAction
             }
 
             // Set the flag that contains all the items and taxes that have been captured
-            add_post_meta(
-                $order->get_id(),
+            OrderMeta::add(
+                $order,
                 '_wc_order_captures',
                 [
                     'currency' => $currency,
@@ -54,8 +55,8 @@ class CaptureAction
                 ]
             );
 
-            add_post_meta($order->get_id(), '_capturebuckaroo' . $response->getTransactionKey(), 'ok', true);
-            update_post_meta($order->get_id(), '_pushallowed', 'ok');
+            OrderMeta::add($order, '_capturebuckaroo' . $response->getTransactionKey(), 'ok', true);
+            OrderMeta::update($order, '_pushallowed', 'ok');
 
             $order->add_order_note(
                 sprintf(
@@ -73,7 +74,7 @@ class CaptureAction
                         'products' => $products,
                     ]
                 );
-                add_post_meta($order->get_id(), 'buckaroo_capture', $capture_data, false);
+                OrderMeta::add($order, 'buckaroo_capture', $capture_data, false);
             }
             wp_send_json_success($response->toArray());
         }
@@ -88,7 +89,7 @@ class CaptureAction
                     $order->get_transaction_id()
                 )
             );
-            update_post_meta($order->get_id(), '_pushallowed', 'ok');
+            OrderMeta::update($order, '_pushallowed', 'ok');
 
             return new WP_Error('error_capture', __('Capture failed: ') . $response->getSomeError());
         } else {
@@ -98,7 +99,7 @@ class CaptureAction
                     $order->get_transaction_id()
                 )
             );
-            update_post_meta($order->get_id(), '_pushallowed', 'ok');
+            OrderMeta::update($order, '_pushallowed', 'ok');
 
             return false;
         }

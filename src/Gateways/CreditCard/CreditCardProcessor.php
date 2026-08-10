@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\CreditCard;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 
 class CreditCardProcessor extends AbstractPaymentProcessor
 {
@@ -10,7 +11,7 @@ class CreditCardProcessor extends AbstractPaymentProcessor
     public function getAction(): string
     {
         if ($this->isAuthorization()) {
-            if (get_post_meta($this->get_order()->get_id(), '_wc_order_authorized', true) == 'yes') {
+            if (OrderMeta::get($this->get_order(), '_wc_order_authorized') == 'yes') {
                 return 'capture';
             }
 
@@ -39,12 +40,12 @@ class CreditCardProcessor extends AbstractPaymentProcessor
     protected function getMethodBody(): array
     {
         $body = [
-            'name' => strtolower($this->request->input($this->gateway->id . '-creditcard-issuer')) ?: get_post_meta($this->get_order()->get_id(), '_payment_method_transaction', true),
+            'name' => strtolower($this->request->input($this->gateway->id . '-creditcard-issuer')) ?: OrderMeta::get($this->get_order(), '_payment_method_transaction'),
         ];
 
         if ($this->isEncripted()) {
-            $encryptedData = $this->request->input($this->gateway->id . '-encrypted-data') ?: get_post_meta($this->get_order()->get_id(), '_payload_encrypted_card_data', true);
-            add_post_meta($this->get_order()->get_id(), '_payload_encrypted_card_data', $encryptedData, true);
+            $encryptedData = $this->request->input($this->gateway->id . '-encrypted-data') ?: OrderMeta::get($this->get_order(), '_payload_encrypted_card_data');
+            OrderMeta::add($this->get_order(), '_payload_encrypted_card_data', $encryptedData, true);
 
             $body['sessionId'] = $encryptedData;
         }

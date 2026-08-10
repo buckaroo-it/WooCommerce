@@ -6,7 +6,9 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: Buckaroo payment system plugin for WooCommerce.
-Version: 4.9.0
+Version: 4.9.1
+WC requires at least: 5.0
+WC tested up to: 11.0.0
 Text Domain: wc-buckaroo-bpe-gateway
 Domain Path: /languages
 License: GPLv2 or later
@@ -35,6 +37,9 @@ add_action(
  * block "incompatibleExtensions" data), which is what triggers the Site Editor
  * notice suggesting merchants switch back to the Classic Checkout. The Buckaroo
  * gateways fully support the block checkout, so this declaration is correct.
+ *
+ * Order meta goes through Buckaroo\Woocommerce\Order\OrderMeta and older data is
+ * copied across by MigrateOrderMetaToHpos, so `custom_order_tables` is declared too.
  */
 add_action(
     'before_woocommerce_init',
@@ -42,6 +47,11 @@ add_action(
         if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
             \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
                 'cart_checkout_blocks',
+                BK_PLUGIN_FILE,
+                true
+            );
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+                'custom_order_tables',
                 BK_PLUGIN_FILE,
                 true
             );

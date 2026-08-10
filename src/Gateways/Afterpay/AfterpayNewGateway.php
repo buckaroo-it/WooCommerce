@@ -5,6 +5,7 @@ namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Order\OrderDetails;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Traits\HasDateValidation;
 use WC_Order;
@@ -134,7 +135,7 @@ class AfterpayNewGateway extends AbstractPaymentGateway
         $processedPayment = parent::process_payment($order_id);
 
         if (isset($processedPayment['result']) && $processedPayment['result'] == 'success' && $this->afterpaynewpayauthorize == 'authorize') {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes');
+            OrderMeta::update($order_id, '_wc_order_authorized', 'yes');
             $this->set_order_capture($order_id, 'AfterpayNew');
         }
 
@@ -236,6 +237,6 @@ class AfterpayNewGateway extends AbstractPaymentGateway
             return false;
         }
 
-        return $this->afterpaynewpayauthorize == 'authorize' && get_post_meta($order->get_id(), '_wc_order_authorized', true) == 'yes';
+        return $this->afterpaynewpayauthorize == 'authorize' && OrderMeta::get($order, '_wc_order_authorized') == 'yes';
     }
 }
