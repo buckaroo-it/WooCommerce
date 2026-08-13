@@ -38,11 +38,6 @@ class ApplepayGateway extends AbstractPaymentGateway
         }
     }
 
-    public function redirectsToPaymentPage()
-    {
-        return false;
-    }
-
     private function registerControllers()
     {
         $namespace = 'woocommerce_api_wc_gateway_buckaroo_applepay';

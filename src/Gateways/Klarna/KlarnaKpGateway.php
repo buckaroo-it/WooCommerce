@@ -33,11 +33,6 @@ class KlarnaKpGateway extends KlarnaGateway
         $this->addRefundSupport();
     }
 
-    public function redirectsToPaymentPage()
-    {
-        return false;
-    }
-
     public function cancel_reservation(WC_Order $order)
     {
         $processor = $this->newPaymentProcessorInstance($order);
