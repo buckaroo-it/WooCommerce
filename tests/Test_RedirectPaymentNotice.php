@@ -80,6 +80,11 @@ class Test_RedirectPaymentNotice extends TestCase
             'Knaken Settle' => [KnakenSettleGateway::class],
             'In3' => [In3Gateway::class],
             'Klarna Pay' => [KlarnaPayGateway::class],
+            'Klarna KP' => [KlarnaKpGateway::class],
+            'Riverty' => [AfterpayNewGateway::class],
+            'Riverty Old' => [AfterpayOldGateway::class],
+            'Apple Pay' => [ApplepayGateway::class],
+            'Google Pay' => [GooglepayGateway::class],
             // Billink One is a checkout hosted by Billink.
             'Billink' => [BillinkGateway::class],
         ];
@@ -96,11 +101,6 @@ class Test_RedirectPaymentNotice extends TestCase
             'SEPA Direct Debit' => [SepaDirectDebitGateway::class],
             'Bank Transfer' => [TransferGateway::class],
             'PayPerEmail' => [PayPerEmailGateway::class],
-            'Riverty' => [AfterpayNewGateway::class],
-            'Afterpay' => [AfterpayOldGateway::class],
-            'Klarna KP' => [KlarnaKpGateway::class],
-            'Apple Pay' => [ApplepayGateway::class],
-            'Google Pay' => [GooglepayGateway::class],
         ];
     }
 
