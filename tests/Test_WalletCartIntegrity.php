@@ -967,6 +967,10 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
     {
         $session_data = new ReflectionProperty(WC_Session::class, '_data');
         $session_dirty = new ReflectionProperty(WC_Session::class, '_dirty');
+        if (PHP_VERSION_ID < 80100) {
+            $session_data->setAccessible(true);
+            $session_dirty->setAccessible(true);
+        }
 
         return [
             'cart_object' => WC()->cart,

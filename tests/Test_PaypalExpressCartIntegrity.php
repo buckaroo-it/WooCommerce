@@ -737,6 +737,9 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
     private function captureLiveState(): array
     {
         $session_data = new ReflectionProperty(WC_Session::class, '_data');
+        if (PHP_VERSION_ID < 80100) {
+            $session_data->setAccessible(true);
+        }
 
         return [
             'cart_object' => WC()->cart,
