@@ -135,7 +135,16 @@ export default class ApplePay {
                 return;
             }
 
-            this.setupPayment();
+            try {
+                this.setupPayment();
+            } catch (error) {
+                this.woocommerce.displayErrorMessage(error.message || 'Unable to initialize Apple Pay.');
+                jQuery(this.containerSelector).find('apple-pay-button').remove();
+                if (this.onReady) {
+                    this.onReady(false);
+                }
+                return;
+            }
 
             if (this.renderButton) {
                 this.injectApplePayButton();
@@ -227,7 +236,7 @@ export default class ApplePay {
             try {
                 this.setupPayment();
             } catch (e) {
-                // keep the existing session if the refresh fails
+                return false;
             }
         }
 

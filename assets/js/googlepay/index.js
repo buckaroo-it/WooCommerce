@@ -63,6 +63,9 @@ jQuery(() => {
             jQuery('.cart .quantity input').change(() => {
                 rebuildAndInit();
             });
+        } else {
+            googlepay.rebuild();
+            googlepay.initForIncompleteProduct();
         }
 
         jQuery('.variations_form').on('show_variation', () => {
@@ -74,6 +77,7 @@ jQuery(() => {
 
         jQuery('.variations_form').on('hide_variation', () => {
             googlepay.rebuild();
+            googlepay.initForIncompleteProduct();
         });
 
         jQuery(document.body).on('wc_fragments_refreshed', () => {

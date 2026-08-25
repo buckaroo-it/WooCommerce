@@ -2,7 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Googlepay;
 
-use Exception;
+use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
+use Throwable;
 use WC_Coupon;
 
 class GooglepayController
@@ -29,154 +30,33 @@ class GooglepayController
 
     public static function getItemsFromDetailPage()
     {
-        $items = self::createTemporaryCart(
-            function () {
-                global $woocommerce;
-
-                $cart = $woocommerce->cart;
-
-                return self::getCartItemsForGooglePay($cart);
-            }
-        );
+        try {
+            $items = ExpressProductCart::calculate(
+                $_GET,
+                'buckaroo_googlepay',
+                function ($cart) {
+                    return self::getCartItemsForGooglePay($cart);
+                }
+            );
+        } catch (Throwable $exception) {
+            self::sendCalculationFailure();
+        }
 
         wp_send_json(array_values($items));
     }
 
-    /**
-     * Some methods need to have a temporary cart if a user is on the product detail page
-     * We empty the cart and put the current shown product + quantity in the cart and reapply the coupons
-     * to determine the discounts, free shipping and other rules based on that cart
-     *
-     * @return array
-     */
-    private static function createTemporaryCart($callback)
-    {
-        if (! (isset($_GET['product_id']) && is_numeric($_GET['product_id']))) {
-            throw new Exception('Invalid product_id');
-        }
-
-        if (isset($_GET['variation_id']) && ! is_numeric($_GET['variation_id'])) {
-            throw new Exception('Invalid variation_id');
-        }
-
-        if (! (isset($_GET['quantity']) && is_numeric($_GET['quantity']) && $_GET['quantity'] > 0)) {
-            throw new Exception('Invalid quantity');
-        }
-
-        global $woocommerce;
-
-        /** @var WC_Cart */
-        $cart = $woocommerce->cart;
-
-        $current_shown_product = [
-            'product_id' => absint($_GET['product_id']),
-            'variation_id' => absint($_GET['variation_id']),
-            'quantity' => (int) $_GET['quantity'],
-        ];
-
-        $original_cart_products = array_map(
-            function ($product) {
-                return [
-                    'product_id' => $product['product_id'],
-                    'variation_id' => $product['variation_id'],
-                    'quantity' => $product['quantity'],
-                ];
-            },
-            $cart->get_cart_contents()
-        );
-
-        $original_applied_coupons = array_map(
-            function ($coupon) {
-                return [
-                    'coupon_id' => $coupon->get_id(),
-                    'code' => $coupon->get_code(),
-                ];
-            },
-            $cart->get_coupons()
-        );
-
-        $cart->empty_cart();
-
-        if ($current_shown_product['product_id'] != $current_shown_product['variation_id']) {
-            $cart->add_to_cart(
-                $current_shown_product['product_id'],
-                $current_shown_product['quantity'],
-                $current_shown_product['variation_id']
-            );
-        } else {
-            $cart->add_to_cart(
-                $current_shown_product['product_id'],
-                $current_shown_product['quantity'],
-            );
-        }
-
-        foreach ($original_applied_coupons as $original_applied_coupon) {
-            $cart->apply_coupon($original_applied_coupon['code']);
-        }
-
-        do_action('woocommerce_before_calculate_totals', $cart);
-
-        self::calculate_fee($cart);
-
-        $cart->calculate_totals();
-
-        do_action('woocommerce_after_calculate_totals', $cart);
-
-        $temporary_cart_result = call_user_func($callback);
-
-        // restore previous cart
-        $cart->empty_cart();
-
-        foreach ($original_cart_products as $original_product) {
-            $cart->add_to_cart(
-                $original_product['product_id'],
-                $original_product['quantity'],
-                $original_product['variation_id']
-            );
-        }
-
-        foreach ($original_applied_coupons as $original_applied_coupon) {
-            $cart->apply_coupon($original_applied_coupon['code']);
-        }
-
-        wc_clear_notices();
-
-        return $temporary_cart_result;
-    }
-
-    public static function calculate_fee($cart)
-    {
-        WC()->session->set('chosen_payment_method', 'buckaroo_googlepay');
-        $cart->calculate_totals();
-
-        $feed_settings = self::get_extra_feed_settings();
-        do_action(
-            'buckaroo_cart_calculate_fees',
-            $cart,
-            $feed_settings['extrachargeamount'],
-            $feed_settings['feetax']
-        );
-    }
-
-    private static function get_extra_feed_settings()
-    {
-        $settings = get_option('woocommerce_buckaroo_googlepay_settings');
-
-        return [
-            'extrachargeamount' => isset($settings['extrachargeamount']) ? $settings['extrachargeamount'] : 0,
-            'feetax' => isset($settings['feetax']) ? $settings['feetax'] : '',
-        ];
-    }
-
     public static function getItemsFromCart()
     {
-        global $woocommerce;
-
-        $cart = $woocommerce->cart;
-
-        self::calculate_fee($cart);
-
-        $items = self::getCartItemsForGooglePay($cart);
+        try {
+            $items = ExpressProductCart::calculateCurrent(
+                'buckaroo_googlepay',
+                static function ($cart) {
+                    return self::getCartItemsForGooglePay($cart);
+                }
+            );
+        } catch (Throwable $exception) {
+            self::sendCalculationFailure();
+        }
 
         wp_send_json(array_values($items));
     }
@@ -197,7 +77,7 @@ class GooglepayController
                 'name' => $product->get_name(),
                 'price' => $line_total,
                 'quantity' => $quantity,
-                'attributes' => [],
+                'attributes' => $cart_item['variation'] ?? [],
             ];
         }
 
@@ -241,63 +121,44 @@ class GooglepayController
 
     public static function getCartTotal()
     {
-        global $woocommerce;
-
-        $cart = $woocommerce->cart;
-
-        self::calculate_fee($cart);
-
-        $shipping_total = (float) $cart->get_shipping_total() + (float) $cart->get_shipping_tax();
-
-        $shipping_label = __('Shipping', 'wc-buckaroo-bpe-gateway');
-        $packages = WC()->shipping() ? WC()->shipping()->get_packages() : [];
-        $chosen_methods = WC()->session ? (array) WC()->session->get('chosen_shipping_methods') : [];
-        foreach ($packages as $index => $package) {
-            $rate_id = $chosen_methods[$index] ?? '';
-            if ($rate_id && isset($package['rates'][$rate_id])) {
-                $shipping_label = $package['rates'][$rate_id]->get_label();
-                break;
-            }
+        try {
+            $totals = ExpressProductCart::calculateCurrent(
+                'buckaroo_googlepay',
+                static function ($cart) {
+                    return self::getCartTotals($cart);
+                }
+            );
+        } catch (Throwable $exception) {
+            self::sendCalculationFailure();
         }
 
-        wp_send_json(
-            [
-                'total' => round((float) $cart->get_total('edit'), 2),
-                'shipping' => round($shipping_total, 2),
-                'shipping_label' => $shipping_label,
-            ]
-        );
+        wp_send_json($totals);
     }
 
     public static function getShippingMethods()
     {
-        $wcGooglepayMethods = function () {
-            global $woocommerce;
+        $wcGooglepayMethods = static function () {
+            $packages = WC()->shipping()->get_packages();
 
-            $cart = $woocommerce->cart;
-
-            $country_code = '';
-            if (isset($_GET['country_code']) && is_string($_GET['country_code'])) {
-                $country_code = strtoupper(sanitize_text_field($_GET['country_code']));
-            }
-
-            $customer = $woocommerce->customer;
-            $customer->set_shipping_country($country_code);
-
-            $packages = $woocommerce->cart->get_shipping_packages();
-
-            return $woocommerce->shipping
-                ->calculate_shipping_for_package(current($packages))['rates'];
+            return $packages ? (current($packages)['rates'] ?? []) : [];
         };
 
-        if (isset($_GET['product_id']) && is_numeric($_GET['product_id'])) {
-            $wc_methods = self::createTemporaryCart(
-                function () use ($wcGooglepayMethods) {
-                    return $wcGooglepayMethods();
-                }
-            );
-        } else {
-            $wc_methods = $wcGooglepayMethods();
+        try {
+            if (isset($_GET['product_id']) && is_numeric($_GET['product_id'])) {
+                $wc_methods = ExpressProductCart::calculate(
+                    $_GET,
+                    'buckaroo_googlepay',
+                    $wcGooglepayMethods
+                );
+            } else {
+                $wc_methods = ExpressProductCart::calculateCurrent(
+                    'buckaroo_googlepay',
+                    $wcGooglepayMethods,
+                    ['country' => $_GET['country_code'] ?? '']
+                );
+            }
+        } catch (Throwable $exception) {
+            self::sendCalculationFailure();
         }
 
         $shipping_methods = array_map(
@@ -313,5 +174,37 @@ class GooglepayController
         );
 
         wp_send_json(array_values($shipping_methods));
+    }
+
+    private static function getCartTotals($cart): array
+    {
+        $shipping_total = (float) $cart->get_shipping_total() + (float) $cart->get_shipping_tax();
+        $shipping_label = __('Shipping', 'wc-buckaroo-bpe-gateway');
+        $packages = WC()->shipping() ? WC()->shipping()->get_packages() : [];
+        $chosen_methods = WC()->session ? (array) WC()->session->get('chosen_shipping_methods') : [];
+        foreach ($packages as $index => $package) {
+            $rate_id = $chosen_methods[$index] ?? '';
+            if ($rate_id && isset($package['rates'][$rate_id])) {
+                $shipping_label = $package['rates'][$rate_id]->get_label();
+                break;
+            }
+        }
+
+        return [
+            'total' => round((float) $cart->get_total('edit'), 2),
+            'shipping' => round($shipping_total, 2),
+            'shipping_label' => $shipping_label,
+        ];
+    }
+
+    private static function sendCalculationFailure()
+    {
+        wp_send_json(
+            [
+                'status' => 'fail',
+                'message' => __('Unable to calculate Google Pay cart.', 'wc-buckaroo-bpe-gateway'),
+            ],
+            400
+        );
     }
 }

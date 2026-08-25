@@ -16,6 +16,9 @@ export default class GooglePay {
         this.containerSelector = options.containerSelector || '.googlepay-button-container';
         this.buttonElementId = options.buttonElementId || 'googlepay-button-element';
         this.payment = null;
+        this.googlePayScriptLoading = false;
+        this.selectionRequired = false;
+        this.selectionGuardBound = false;
     }
 
     rebuild() {
@@ -38,9 +41,16 @@ export default class GooglePay {
     }
 
     init() {
-        this.setupPayment();
+        try {
+            this.setupPayment();
+        } catch (error) {
+            this.woocommerce.displayErrorMessage(error.message || 'Unable to initialize Google Pay.');
+            return false;
+        }
 
-        this.payment.initiate();
+        this.initiatePayment();
+
+        return true;
     }
 
     setupPayment() {
@@ -71,18 +81,70 @@ export default class GooglePay {
             this.selected_shipping_amount = shipping_methods[0].amount;
         }
         this.total_price = total_to_pay;
+        this.selectionRequired = false;
+        jQuery('.buckaroo-googlepay-error').remove();
+        this.createPayment(total_to_pay, shipping_methods);
+    }
 
-        const environment = this.store_info.mode === 'live' ? 'PRODUCTION' : 'TEST';
-        const buttonStyle = this.store_info.button_style || 'black';
-        const hasShipping = shipping_methods && shipping_methods.length > 0;
+    initForIncompleteProduct() {
+        this.total_price = 0;
+        this.selectionRequired = true;
+        this.bindSelectionGuard();
+        this.createPayment('0.00', []);
+        this.initiatePayment();
 
+        return true;
+    }
+
+    createPayment(totalPrice, shippingMethods) {
+        const options = this.createPaymentOptions(totalPrice, shippingMethods);
+        const payment = new BuckarooSdk.GooglePay.GooglePayPayment(options);
+
+        this.payment = payment;
+
+        // Only the Express Checkout button has to collect the shopper's details
+        // from the Google Pay sheet; in checkout mode they come from the form.
+        if (!this.isOnCheckout) {
+            this.requireContactDetails(this.payment);
+        }
+    }
+
+    initiatePayment() {
+        if (window.google?.payments?.api && typeof this.payment.onGooglePayLoaded === 'function') {
+            this.payment.onGooglePayLoaded();
+            return;
+        }
+
+        if (this.googlePayScriptLoading) {
+            return;
+        }
+
+        this.googlePayScriptLoading = true;
+        const loaderPayment = this.payment;
+        const onGooglePayLoaded = loaderPayment.onGooglePayLoaded.bind(loaderPayment);
+        loaderPayment.onGooglePayLoaded = () => {
+            this.googlePayScriptLoading = false;
+            if (this.payment === loaderPayment) {
+                onGooglePayLoaded();
+            } else {
+                this.payment.onGooglePayLoaded();
+            }
+        };
+        loaderPayment.initiate();
+    }
+
+    createPaymentOptions(totalPrice, shippingMethods) {
+        const hasShipping = shippingMethods && shippingMethods.length > 0;
         const shippingOptions = hasShipping
-            ? shipping_methods.map(method => ({
+            ? shippingMethods.map(method => ({
                   id: method.identifier,
                   label: method.label,
                   description: '',
               }))
             : [];
+
+        const environment = this.store_info.mode === 'live' ? 'PRODUCTION' : 'TEST';
+        const buttonStyle = this.store_info.button_style || 'black';
 
         const options = {
             environment: environment,
@@ -92,7 +154,7 @@ export default class GooglePay {
             buttonContainerId: this.buttonElementId,
             buttonLocale: this.store_info.locale || 'en',
             totalPriceStatus: this.isOnCheckout ? 'FINAL' : 'ESTIMATED',
-            totalPrice: String(total_to_pay),
+            totalPrice: String(totalPrice),
             currencyCode: this.store_info.currency_code,
             countryCode: this.store_info.country_code,
             merchantName: this.store_info.store_name,
@@ -114,18 +176,44 @@ export default class GooglePay {
                 shippingOptions: shippingOptions,
                 defaultSelectedOptionId: shippingOptions[0].id,
             };
+        }
+
+        if (options.shippingAddressRequired || options.shippingOptionRequired) {
             options.onPaymentDataChanged = intermediatePaymentData => {
                 return this.onPaymentDataChanged(intermediatePaymentData);
             };
         }
 
-        this.payment = new BuckarooSdk.GooglePay.GooglePayPayment(options);
+        return options;
+    }
 
-        // Only the Express Checkout button has to collect the shopper's details
-        // from the Google Pay sheet; in checkout mode they come from the form.
-        if (!this.isOnCheckout) {
-            this.requireContactDetails(this.payment);
+    bindSelectionGuard() {
+        if (this.selectionGuardBound) {
+            return;
         }
+
+        const container = document.querySelector(this.containerSelector);
+        if (!container) {
+            return;
+        }
+
+        container.addEventListener(
+            'click',
+            event => {
+                if (!this.selectionRequired || !event.target.closest('button')) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                const message =
+                    window.wc_add_to_cart_variation_params?.i18n_make_a_selection_text ||
+                    'Please choose product options before using Google Pay.';
+                this.woocommerce.displayErrorMessage(message);
+            },
+            true
+        );
+        this.selectionGuardBound = true;
     }
 
     /**
@@ -181,7 +269,7 @@ export default class GooglePay {
         try {
             this.setupPayment();
         } catch (e) {
-            // keep the existing session if the refresh fails
+            return false;
         }
 
         if (!this.payment || typeof this.payment.onGooglePaymentButtonClicked !== 'function') {

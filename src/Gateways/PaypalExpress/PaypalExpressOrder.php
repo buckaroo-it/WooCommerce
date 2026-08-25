@@ -3,8 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 
 use WC_Order;
-use WC_Order_Item_Fee;
-use stdClass;
+use Throwable;
 
 /**
  * PayPal express order class
@@ -25,65 +24,51 @@ class PaypalExpressOrder
     /**
      * Create order from cart and send it to buckaroo
      *
-     * @return WC_Order $order
+     * @param string $paypal_order_id Approved PayPal order id.
+     * @return array
+     *
+     * @throws PaypalExpressException When WooCommerce cannot create the order.
      */
     public function create_and_send($paypal_order_id)
     {
         $payment_method_id = 'buckaroo_paypal';
 
         $customer = WC()->customer;
-        $order_id = WC()->checkout()->create_order([]);
-
-        $order = new WC_Order($order_id);
-
         $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+        if (! isset($available_gateways[$payment_method_id])) {
+            throw new PaypalExpressException('PayPal payment method is unavailable');
+        }
         $payment_method = $available_gateways[$payment_method_id];
+        $order = null;
 
-        $order->set_payment_method($payment_method);
-        $order->set_address($customer->get_billing());
-        $order->set_address($customer->get_shipping(), 'shipping');
+        try {
+            $order_id = WC()->checkout()->create_order(['payment_method' => $payment_method_id]);
+            if (is_wp_error($order_id)) {
+                throw new PaypalExpressException($order_id->get_error_message());
+            }
 
-        $order = $this->set_fee_on_order(
-            $order,
-            WC()->session->get('buckaroo_paypal_fee')
-        );
+            $order = new WC_Order($order_id);
 
-        $order->save();
+            $order->set_payment_method($payment_method);
+            $order->set_address($customer->get_billing());
+            $order->set_address($customer->get_shipping(), 'shipping');
 
-        if (method_exists($payment_method, 'set_express_order_id')) {
-            $payment_method->set_express_order_id($paypal_order_id);
+            $order->save();
+
+            if (method_exists($payment_method, 'set_express_order_id')) {
+                $payment_method->set_express_order_id($paypal_order_id);
+            }
+
+            return $payment_method->process_payment($order_id);
+        } catch (Throwable $th) {
+            if ($order instanceof WC_Order) {
+                $order->update_status(
+                    'failed',
+                    __('PayPal Express payment processing failed.', 'wc-buckaroo-bpe-gateway')
+                );
+            }
+
+            throw $th;
         }
-
-        return $payment_method->process_payment($order_id);
-    }
-
-    /**
-     * Set fees on order
-     *
-     * @param  Wc_Order  $order
-     * @param  stdClass | null  $fee
-     * @return Wc_Order $order
-     */
-    protected function set_fee_on_order($order, $fee)
-    {
-        if ($fee === null) {
-            return $order;
-        }
-        // Get a new instance of the WC_Order_Item_Fee Object
-        $item_fee = new WC_Order_Item_Fee();
-
-        $item_fee->set_name($fee->name);
-        $item_fee->set_amount($fee->amount);
-        $item_fee->set_tax_class($fee->tax_class);
-        $item_fee->set_tax_status($fee->taxable);
-        $item_fee->set_total($fee->total);
-
-        // Calculating Fee taxes
-        $item_fee->calculate_taxes($order->get_address('shipping'));
-
-        // Add Fee item to the order
-        $order->add_item($item_fee);
-
-        return $order;
     }
 }
