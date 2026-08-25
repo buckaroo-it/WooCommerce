@@ -156,8 +156,9 @@ export default class Woocommerce {
     }
 
     displayErrorMessage(message) {
+        jQuery('.buckaroo-googlepay-error').remove();
         const content = `
-      <div class="woocommerce-error" role="alert">
+      <div class="woocommerce-error buckaroo-googlepay-error" role="alert">
         ${message}
       </div>
     `;
