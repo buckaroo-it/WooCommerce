@@ -3,9 +3,9 @@
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
+use Buckaroo\Woocommerce\Order\CaptureAllocation;
 use Buckaroo\Woocommerce\Order\OrderMeta;
-use Buckaroo\Woocommerce\PaymentProcessors\Actions\CancelReservationAction;
-use Buckaroo\Woocommerce\PaymentProcessors\Actions\ExtendReservationAction;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use WC_Order;
@@ -26,6 +26,18 @@ class KlarnaPayGateway extends KlarnaGateway
     public function getServiceCode(?AbstractProcessor $processor = null)
     {
         return 'klarna';
+    }
+
+    public function init_form_fields()
+    {
+        parent::init_form_fields();
+
+        $this->form_fields['automatic_capture'] = [
+            'title' => __('Automatic capture', 'wc-buckaroo-bpe-gateway'),
+            'label' => __('Automatic capture when order is completed', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'checkbox',
+            'default' => 'no',
+        ];
     }
 
     /**
@@ -89,6 +101,33 @@ class KlarnaPayGateway extends KlarnaGateway
         }
 
         return parent::process_capture($order_id);
+    }
+
+    public function capture(
+        WC_Order $order,
+        $amount,
+        CaptureAllocation $allocation,
+        ?BuckarooClient $buckarooClient = null,
+        ?int $attemptNumber = null
+    ): CaptureResult {
+        return $this->executeCapture($order, $amount, $allocation, $buckarooClient, $attemptNumber);
+    }
+
+    protected function executeCapture(
+        WC_Order $order,
+        $amount,
+        CaptureAllocation $allocation,
+        ?BuckarooClient $buckarooClient = null,
+        ?int $attemptNumber = null
+    ): CaptureResult {
+        return (new KlarnaCaptureAction(
+            $this->newPaymentProcessorInstance($order),
+            $order,
+            $amount,
+            $allocation,
+            $buckarooClient,
+            $attemptNumber
+        ))->process();
     }
 
     /**

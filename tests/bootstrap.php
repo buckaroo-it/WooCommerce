@@ -20,7 +20,13 @@ require_once $_tests_dir.'/includes/functions.php';
 function _manually_load_plugin()
 {
     require dirname(__DIR__).'/index.php';
-    require dirname(dirname(__DIR__)).'/woocommerce/woocommerce.php';
+
+    $woocommercePlugin = dirname(dirname(__DIR__)).'/woocommerce/woocommerce.php';
+    if (! file_exists($woocommercePlugin)) {
+        $woocommercePlugin = dirname(__DIR__, 5).'/woocommerce/woocommerce.php';
+    }
+
+    require $woocommercePlugin;
 }
 tests_add_filter('muplugins_loaded', '_manually_load_plugin');
 
@@ -29,3 +35,4 @@ require $_tests_dir.'/includes/bootstrap.php';
 
 // Shared test helpers, loaded after WooCommerce so they can reference its classes.
 require_once __DIR__.'/Support/HposStorage.php';
+require_once __DIR__.'/Support/InMemoryBuckarooClient.php';
