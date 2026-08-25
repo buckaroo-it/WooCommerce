@@ -10,8 +10,6 @@ class KlarnaProcessor extends AbstractPaymentProcessor
 {
     public const DATA_REQUEST_META_KEY = '_buckaroo_klarna_data_request_key';
 
-    public const RESERVED_AMOUNT_META_KEY = '_buckaroo_klarna_reserved_amount';
-
     /** {@inheritDoc} */
     protected function getMethodBody(): array
     {
@@ -89,11 +87,6 @@ class KlarnaProcessor extends AbstractPaymentProcessor
 
             if ($this->isResponseReserved($responseParser)) {
                 OrderMeta::update($order, 'buckaroo_is_reserved', 'yes');
-                OrderMeta::update(
-                    $order,
-                    self::RESERVED_AMOUNT_META_KEY,
-                    number_format($responseParser->getAmount() ?? $order->get_total('edit'), 2, '.', '')
-                );
             }
         }
     }
