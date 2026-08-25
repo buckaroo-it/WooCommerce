@@ -6,7 +6,7 @@ use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaFulfillmentActions;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaProcessor;
 use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateOrderMetaToHpos;
-use Buckaroo\Woocommerce\Order\KlarnaCaptureAttempt;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaCaptureAttempt;
 use Buckaroo\Woocommerce\Order\CaptureAllocation;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use PHPUnit\Framework\TestCase;

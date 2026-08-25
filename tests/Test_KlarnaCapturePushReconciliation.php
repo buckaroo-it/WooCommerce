@@ -5,10 +5,10 @@ declare(strict_types=1);
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaFulfillmentActions;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaProcessor;
-use Buckaroo\Woocommerce\Order\KlarnaCaptureAttempt;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaCaptureAttempt;
 use Buckaroo\Woocommerce\Order\CaptureAllocation;
 use Buckaroo\Woocommerce\Order\OrderMeta;
-use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPushProcessor;
 use Buckaroo\Woocommerce\ResponseParser\FormDataParser;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
@@ -75,10 +75,10 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
             'brq_transaction_method' => 'klarna',
             'brq_ordernumber' => (string) $order->get_id(),
         ]);
-        $processor = new PushProcessor();
+        $processor = new KlarnaPushProcessor();
 
-        $this->assertTrue($processor->reconcileKlarnaCapturePush(wc_get_order($order->get_id()), $push));
-        $this->assertTrue($processor->reconcileKlarnaCapturePush(wc_get_order($order->get_id()), $push));
+        $this->assertTrue($processor->reconcileCapture(wc_get_order($order->get_id()), $push));
+        $this->assertTrue($processor->reconcileCapture(wc_get_order($order->get_id()), $push));
 
         $storedOrder = wc_get_order($order->get_id());
         $attempt = KlarnaCaptureAttempt::find($storedOrder, 1);
@@ -114,7 +114,12 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
             'brq_transactions' => 'PAY-PENDING',
             'brq_transaction_method' => 'klarna',
         ]);
-        $this->assertTrue((new PushProcessor())->reconcileKlarnaCapturePush(wc_get_order($order->get_id()), $pendingPush));
+        $this->assertTrue(apply_filters(
+            'buckaroo_push_handled',
+            false,
+            wc_get_order($order->get_id()),
+            $pendingPush
+        ));
         $this->assertSame(
             'pending',
             KlarnaCaptureAttempt::find(wc_get_order($order->get_id()), 1)['state']
@@ -129,11 +134,43 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
             'brq_transactions' => 'PAY-PENDING',
             'brq_transaction_method' => 'klarna',
         ]);
-        $this->assertTrue((new PushProcessor())->reconcileKlarnaCapturePush(wc_get_order($order->get_id()), $push));
+        $this->assertTrue(KlarnaPushProcessor::reconcileCapture(wc_get_order($order->get_id()), $push));
 
         $resolved = KlarnaCaptureAttempt::find(wc_get_order($order->get_id()), 1);
         $this->assertSame('succeeded', $resolved['state']);
         $this->assertCount(1, OrderMeta::get(wc_get_order($order->get_id()), '_wc_order_captures', false));
+    }
+
+    public function test_klarna_reservation_push_state_is_owned_by_the_klarna_push_processor(): void
+    {
+        $order = $this->createReservedOrder();
+        $order->delete_meta_data('buckaroo_is_reserved');
+        $order->delete_meta_data(KlarnaProcessor::DATA_REQUEST_META_KEY);
+        $order->delete_meta_data(KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
+        $order->save();
+        $push = new FormDataParser([
+            'brq_action' => 'Reserve',
+            'brq_statuscode' => '190',
+            'brq_amount' => '25.00',
+            'brq_currency' => 'EUR',
+            'brq_transactions' => 'RESERVE-PUSH',
+            'brq_transaction_method' => 'klarna',
+            'brq_datarequest' => 'DATA-REQUEST-FROM-PUSH',
+        ]);
+
+        new KlarnaFulfillmentActions();
+        $context = apply_filters('buckaroo_push_reservation', null, $order, $push);
+
+        $storedOrder = wc_get_order($order->get_id());
+        $this->assertSame('DATA-REQUEST-FROM-PUSH', $context['transaction']);
+        $this->assertFalse($context['completed_order']);
+        $this->assertSame('yes', $storedOrder->get_meta('buckaroo_is_reserved'));
+        $this->assertSame(
+            'DATA-REQUEST-FROM-PUSH',
+            $storedOrder->get_meta(KlarnaProcessor::DATA_REQUEST_META_KEY)
+        );
+        $this->assertSame('25.00', $storedOrder->get_meta(KlarnaProcessor::RESERVED_AMOUNT_META_KEY));
+        $this->assertSame('on-hold', $storedOrder->get_status());
     }
 
     public function test_successful_pay_reconciliation_marks_a_manual_on_hold_capture_as_paid(): void
@@ -162,7 +199,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
             'brq_transaction_method' => 'klarna',
         ]);
 
-        $this->assertTrue((new PushProcessor())->reconcileKlarnaCapturePush(
+        $this->assertTrue(KlarnaPushProcessor::reconcileCapture(
             wc_get_order($order->get_id()),
             $push
         ));
@@ -183,7 +220,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
             [$item->get_id() => 25.00],
             [$item->get_id() => []]
         );
-        $processor = new PushProcessor();
+        $processor = new KlarnaPushProcessor();
 
         $firstAttempt = KlarnaCaptureAttempt::startManual($order, $allocation);
         KlarnaCaptureAttempt::updateUnlessSucceeded(
@@ -191,7 +228,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
             (int) $firstAttempt['attempt_number'],
             ['state' => 'pending', 'transaction_key' => 'PAY-PARTIAL-ONE']
         );
-        $this->assertTrue($processor->reconcileKlarnaCapturePush(
+        $this->assertTrue($processor->reconcileCapture(
             wc_get_order($order->get_id()),
             $this->payPush($order, 'PAY-PARTIAL-ONE', 25.00)
         ));
@@ -210,7 +247,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
             (int) $secondAttempt['attempt_number'],
             ['state' => 'pending', 'transaction_key' => 'PAY-PARTIAL-TWO']
         );
-        $this->assertTrue($processor->reconcileKlarnaCapturePush(
+        $this->assertTrue($processor->reconcileCapture(
             wc_get_order($order->get_id()),
             $this->payPush($order, 'PAY-PARTIAL-TWO', 25.00)
         ));
@@ -322,7 +359,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         ));
 
         try {
-            $this->assertTrue((new PushProcessor())->reconcileKlarnaCapturePush(
+            $this->assertTrue(KlarnaPushProcessor::reconcileCapture(
                 wc_get_order($order->get_id()),
                 $this->payPush($order, 'PAY-RECORD-TIMEOUT', 25.00)
             ));
@@ -365,7 +402,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         new KlarnaFulfillmentActions($buckarooClient);
         $order->update_status('completed');
         do_action(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK, $order->get_id(), 1);
-        $processor = new PushProcessor();
+        $processor = new KlarnaPushProcessor();
 
         $failedPay = new FormDataParser([
             'brq_action' => 'Pay',
@@ -399,14 +436,14 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
             'brq_transaction_method' => 'klarna',
         ]);
 
-        $this->assertTrue($processor->reconcileKlarnaCapturePush(wc_get_order($order->get_id()), $pendingPay));
+        $this->assertTrue($processor->reconcileCapture(wc_get_order($order->get_id()), $pendingPay));
         $this->assertSame(
             'succeeded',
             KlarnaCaptureAttempt::find(wc_get_order($order->get_id()), 1)['state']
         );
-        $this->assertTrue($processor->reconcileKlarnaCapturePush(wc_get_order($order->get_id()), $failedPay));
-        $this->assertFalse($processor->reconcileKlarnaCapturePush(wc_get_order($order->get_id()), $reserve));
-        $this->assertFalse($processor->reconcileKlarnaCapturePush(wc_get_order($order->get_id()), $cancel));
+        $this->assertTrue($processor->reconcileCapture(wc_get_order($order->get_id()), $failedPay));
+        $this->assertFalse($processor->reconcileCapture(wc_get_order($order->get_id()), $reserve));
+        $this->assertFalse($processor->reconcileCapture(wc_get_order($order->get_id()), $cancel));
 
         $storedOrder = wc_get_order($order->get_id());
         $this->assertSame('succeeded', KlarnaCaptureAttempt::find($storedOrder, 1)['state']);
@@ -431,7 +468,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
             'brq_transaction_method' => 'klarna',
         ]);
 
-        $this->assertFalse((new PushProcessor())->reconcileKlarnaCapturePush(
+        $this->assertFalse(KlarnaPushProcessor::reconcileCapture(
             wc_get_order($order->get_id()),
             $push
         ));
@@ -453,7 +490,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         ]);
         $client = new InterleavingBuckarooClient(
             function () use ($order, $push): void {
-                (new PushProcessor())->reconcileKlarnaCapturePush(wc_get_order($order->get_id()), $push);
+                KlarnaPushProcessor::reconcileCapture(wc_get_order($order->get_id()), $push);
             },
             $this->transactionResponse(490, 'PAY-INTERLEAVED', 'Late response failure')
         );

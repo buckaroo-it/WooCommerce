@@ -1,7 +1,10 @@
 <?php
 
-namespace Buckaroo\Woocommerce\Order;
+namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
+use Buckaroo\Woocommerce\Order\CaptureAllocation;
+use Buckaroo\Woocommerce\Order\OrderMeta;
+use Buckaroo\Woocommerce\Services\NamedLock;
 use WC_Order;
 
 class KlarnaCaptureAttempt
@@ -66,7 +69,7 @@ class KlarnaCaptureAttempt
         $fingerprint = $allocation->fingerprint();
         $claimKey = self::claimKey($order, $fingerprint);
 
-        if (! self::acquireLock('attempt_ledger', $order, 'all', self::LOCK_WAIT_SECONDS)) {
+        if (! NamedLock::acquire('attempt_ledger', $order, 'all', self::LOCK_WAIT_SECONDS)) {
             return null;
         }
 
@@ -105,13 +108,13 @@ class KlarnaCaptureAttempt
 
             return $attempt;
         } finally {
-            self::releaseLock('attempt_ledger', $order, 'all');
+            NamedLock::release('attempt_ledger', $order, 'all');
         }
     }
 
     public static function claim(WC_Order $order, int $attemptNumber): ?array
     {
-        if (! self::acquireLock('attempt_ledger', $order, 'all', self::LOCK_WAIT_SECONDS)) {
+        if (! NamedLock::acquire('attempt_ledger', $order, 'all', self::LOCK_WAIT_SECONDS)) {
             return null;
         }
 
@@ -143,7 +146,7 @@ class KlarnaCaptureAttempt
 
             return null;
         } finally {
-            self::releaseLock('attempt_ledger', $order, 'all');
+            NamedLock::release('attempt_ledger', $order, 'all');
         }
     }
 
@@ -215,7 +218,7 @@ class KlarnaCaptureAttempt
         ?string $expectedState = null,
         ?int $updatedBefore = null
     ): ?array {
-        if (! self::acquireLock('attempt_ledger', $order, 'all', self::LOCK_WAIT_SECONDS)) {
+        if (! NamedLock::acquire('attempt_ledger', $order, 'all', self::LOCK_WAIT_SECONDS)) {
             return null;
         }
 
@@ -250,7 +253,7 @@ class KlarnaCaptureAttempt
 
             return null;
         } finally {
-            self::releaseLock('attempt_ledger', $order, 'all');
+            NamedLock::release('attempt_ledger', $order, 'all');
         }
     }
 
@@ -305,7 +308,7 @@ class KlarnaCaptureAttempt
     public static function retry(WC_Order $order, CaptureAllocation $allocation): ?array
     {
         $lockKey = 'order';
-        if (! self::acquireLock('capture_retry', $order, $lockKey, self::LOCK_WAIT_SECONDS)) {
+        if (! NamedLock::acquire('capture_retry', $order, $lockKey, self::LOCK_WAIT_SECONDS)) {
             return null;
         }
 
@@ -324,26 +327,8 @@ class KlarnaCaptureAttempt
 
             return self::start($order, $allocation, 'queued', 'automatic', true);
         } finally {
-            self::releaseLock('capture_retry', $order, $lockKey);
+            NamedLock::release('capture_retry', $order, $lockKey);
         }
-    }
-
-    public static function acquireLock(string $purpose, WC_Order $order, string $key, int $waitSeconds = 0): bool
-    {
-        global $wpdb;
-
-        $lockName = self::lockName($purpose, $order, $key);
-
-        return (int) $wpdb->get_var(
-            $wpdb->prepare('SELECT GET_LOCK(%s, %d)', $lockName, max(0, $waitSeconds))
-        ) === 1;
-    }
-
-    public static function releaseLock(string $purpose, WC_Order $order, string $key): void
-    {
-        global $wpdb;
-
-        $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', self::lockName($purpose, $order, $key)));
     }
 
     public static function recordAttention(WC_Order $order, array $attempt): void
@@ -516,11 +501,6 @@ class KlarnaCaptureAttempt
     private static function workerClaimKey(WC_Order $order, int $attemptNumber): string
     {
         return '_buckaroo_klarna_capture_worker_' . $order->get_id() . '_' . $attemptNumber;
-    }
-
-    private static function lockName(string $purpose, WC_Order $order, string $key): string
-    {
-        return 'buckaroo_' . $purpose . '_' . substr(hash('sha256', $order->get_id() . ':' . $key), 0, 40);
     }
 
     private static function acquireNotificationsLock(): bool

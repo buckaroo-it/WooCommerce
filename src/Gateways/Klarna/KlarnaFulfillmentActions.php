@@ -4,7 +4,6 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateOrderMetaToHpos;
 use Buckaroo\Woocommerce\Order\CaptureAllocation;
-use Buckaroo\Woocommerce\Order\KlarnaCaptureAttempt;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use WC_Order;
@@ -31,6 +30,9 @@ class KlarnaFulfillmentActions
     {
         $this->buckarooClient = $buckarooClient;
         add_filter('woocommerce_order_actions', [$this, 'add_fulfillment_actions'], 10, 2);
+        add_filter('buckaroo_push_handled', [KlarnaPushProcessor::class, 'handle'], 10, 3);
+        add_filter('buckaroo_push_reservation', [KlarnaPushProcessor::class, 'handleReservation'], 10, 3);
+        add_action('admin_notices', [self::class, 'handle_admin_notices']);
 
         add_action('woocommerce_order_action_buckaroo_klarnapay_cancel_reservation', [$this, 'handle_cancel_reservation'], 10, 1);
         add_action('woocommerce_order_action_buckaroo_klarnapay_retry_capture', [$this, 'handle_retry_capture'], 10, 1);
@@ -471,6 +473,34 @@ class KlarnaFulfillmentActions
             if ($failed !== null) {
                 KlarnaCaptureAttempt::recordAttention($order, $failed);
             }
+        }
+    }
+
+    public static function handle_admin_notices(): void
+    {
+        if (! current_user_can('edit_shop_orders')) {
+            return;
+        }
+
+        foreach (KlarnaCaptureAttempt::notifications() as $notification) {
+            $order = wc_get_order($notification['order_id']);
+            if (! $order) {
+                continue;
+            }
+
+            $type = $notification['state'] === 'failed' ? 'error' : 'warning';
+            $message = $notification['state'] === 'failed'
+                ? __('Klarna capture failed', 'wc-buckaroo-bpe-gateway')
+                : __('Klarna capture outcome is unknown', 'wc-buckaroo-bpe-gateway');
+            printf(
+                '<div class="notice notice-%1$s"><p>%2$s: %3$s. <a href="%4$s">%5$s #%6$d</a></p></div>',
+                esc_attr($type),
+                esc_html($message),
+                esc_html($notification['error']),
+                esc_url($order->get_edit_order_url()),
+                esc_html__('Review order', 'wc-buckaroo-bpe-gateway'),
+                (int) $order->get_id()
+            );
         }
     }
 

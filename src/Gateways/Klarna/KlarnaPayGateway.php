@@ -5,9 +5,7 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Order\CaptureAllocation;
 use Buckaroo\Woocommerce\Order\OrderMeta;
-use Buckaroo\Woocommerce\PaymentProcessors\Actions\CancelReservationAction;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
-use Buckaroo\Woocommerce\PaymentProcessors\Actions\ExtendReservationAction;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use WC_Order;
@@ -113,6 +111,23 @@ class KlarnaPayGateway extends KlarnaGateway
         ?int $attemptNumber = null
     ): CaptureResult {
         return $this->executeCapture($order, $amount, $allocation, $buckarooClient, $attemptNumber);
+    }
+
+    protected function executeCapture(
+        WC_Order $order,
+        $amount,
+        CaptureAllocation $allocation,
+        ?BuckarooClient $buckarooClient = null,
+        ?int $attemptNumber = null
+    ): CaptureResult {
+        return (new KlarnaCaptureAction(
+            $this->newPaymentProcessorInstance($order),
+            $order,
+            $amount,
+            $allocation,
+            $buckarooClient,
+            $attemptNumber
+        ))->process();
     }
 
     /**

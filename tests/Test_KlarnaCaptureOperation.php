@@ -7,9 +7,9 @@ use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaProcessor;
 use Buckaroo\Woocommerce\Gateways\Wero\WeroGateway;
 use Buckaroo\Woocommerce\Order\CaptureAllocation;
-use Buckaroo\Woocommerce\Order\KlarnaCaptureAttempt;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaCaptureAttempt;
 use Buckaroo\Woocommerce\Order\OrderMeta;
-use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
+use Buckaroo\Woocommerce\Order\CaptureRecorder;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
@@ -206,6 +206,25 @@ class Test_KlarnaCaptureOperation extends TestCase
         $captures = OrderMeta::get(wc_get_order($order->get_id()), '_wc_order_captures', false);
         $this->assertCount(1, $captures);
         $this->assertSame('WERO-CAPTURE', $captures[0]['transaction_id']);
+    }
+
+    public function test_generic_capture_and_push_modules_do_not_contain_klarna_orchestration(): void
+    {
+        $genericFiles = [
+            'src/Gateways/AbstractPaymentGateway.php',
+            'src/Hooks/AdminHooks.php',
+            'src/PaymentProcessors/Actions/CaptureAction.php',
+            'src/PaymentProcessors/PushProcessor.php',
+        ];
+
+        foreach ($genericFiles as $genericFile) {
+            $contents = file_get_contents(dirname(__DIR__) . '/' . $genericFile);
+            $this->assertStringNotContainsString('Klarna', $contents, $genericFile);
+            $this->assertStringNotContainsString('klarna', $contents, $genericFile);
+        }
+
+        $this->assertFileDoesNotExist(dirname(__DIR__) . '/src/Order/KlarnaCaptureAttempt.php');
+        $this->assertFileExists(dirname(__DIR__) . '/src/Gateways/Klarna/KlarnaCaptureAttempt.php');
     }
 
     public function test_manual_capture_uses_the_same_remaining_allocation_as_automatic_capture(): void
@@ -416,8 +435,8 @@ class Test_KlarnaCaptureOperation extends TestCase
             [$item->get_id() => []]
         );
 
-        CaptureAction::recordSuccessfulCapture($firstOrder, 10.00, 'EUR', $allocation, 'PAY-FIRST');
-        CaptureAction::recordSuccessfulCapture($staleOrder, 10.00, 'EUR', $allocation, 'PAY-SECOND');
+        CaptureRecorder::record($firstOrder, 10.00, 'EUR', $allocation, 'PAY-FIRST');
+        CaptureRecorder::record($staleOrder, 10.00, 'EUR', $allocation, 'PAY-SECOND');
 
         $storedOrder = wc_get_order($order->get_id());
         $this->assertSame('20', (string) OrderMeta::get($storedOrder, '_wc_order_amount_captured'));
@@ -436,8 +455,8 @@ class Test_KlarnaCaptureOperation extends TestCase
             [$item->get_id() => []]
         );
 
-        CaptureAction::recordSuccessfulCapture($pushOrder, 10.00, 'EUR', $allocation, 'PAY-INTERLEAVED');
-        CaptureAction::recordSuccessfulCapture($staleWorkerOrder, 10.00, 'EUR', $allocation, 'PAY-INTERLEAVED');
+        CaptureRecorder::record($pushOrder, 10.00, 'EUR', $allocation, 'PAY-INTERLEAVED');
+        CaptureRecorder::record($staleWorkerOrder, 10.00, 'EUR', $allocation, 'PAY-INTERLEAVED');
 
         $storedOrder = wc_get_order($order->get_id());
         $captures = OrderMeta::get($storedOrder, '_wc_order_captures', false);

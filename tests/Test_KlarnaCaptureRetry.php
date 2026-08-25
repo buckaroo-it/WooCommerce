@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaFulfillmentActions;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaProcessor;
-use Buckaroo\Woocommerce\Hooks\AdminHooks;
-use Buckaroo\Woocommerce\Order\KlarnaCaptureAttempt;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaCaptureAttempt;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
@@ -30,7 +29,9 @@ class Test_KlarnaCaptureRetry extends TestCase
         as_unschedule_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
         as_unschedule_all_actions(KlarnaFulfillmentActions::RECOVER_CAPTURE_HOOK);
         remove_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
-        wp_set_current_user($this->createUser('administrator'));
+        $managerId = $this->createUser('administrator');
+        get_user_by('id', $managerId)->add_cap('edit_shop_orders');
+        wp_set_current_user($managerId);
     }
 
     protected function tearDown(): void
@@ -82,7 +83,7 @@ class Test_KlarnaCaptureRetry extends TestCase
         $this->assertArrayHasKey('buckaroo_klarnapay_retry_capture', $availableActions);
 
         ob_start();
-        (new AdminHooks())->handleNotices();
+        KlarnaFulfillmentActions::handle_admin_notices();
         $notice = (string) ob_get_clean();
         $this->assertStringContainsString((string) $order->get_id(), $notice);
         $this->assertStringContainsString('Capture declined', $notice);
@@ -158,7 +159,7 @@ class Test_KlarnaCaptureRetry extends TestCase
         $this->assertCount(1, KlarnaCaptureAttempt::all(wc_get_order($order->get_id())));
 
         ob_start();
-        (new AdminHooks())->handleNotices();
+        KlarnaFulfillmentActions::handle_admin_notices();
         $notice = (string) ob_get_clean();
         $this->assertStringContainsString('outcome is unknown', $notice);
         $this->assertStringContainsString('Connection lost', $notice);
