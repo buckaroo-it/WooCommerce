@@ -38,9 +38,16 @@ export default class GooglePay {
     }
 
     init() {
-        this.setupPayment();
+        try {
+            this.setupPayment();
+        } catch (error) {
+            this.woocommerce.displayErrorMessage(error.message || 'Unable to initialize Google Pay.');
+            return false;
+        }
 
         this.payment.initiate();
+
+        return true;
     }
 
     setupPayment() {
@@ -114,6 +121,9 @@ export default class GooglePay {
                 shippingOptions: shippingOptions,
                 defaultSelectedOptionId: shippingOptions[0].id,
             };
+        }
+
+        if (options.shippingAddressRequired || options.shippingOptionRequired) {
             options.onPaymentDataChanged = intermediatePaymentData => {
                 return this.onPaymentDataChanged(intermediatePaymentData);
             };
@@ -181,7 +191,7 @@ export default class GooglePay {
         try {
             this.setupPayment();
         } catch (e) {
-            // keep the existing session if the refresh fails
+            return false;
         }
 
         if (!this.payment || typeof this.payment.onGooglePaymentButtonClicked !== 'function') {

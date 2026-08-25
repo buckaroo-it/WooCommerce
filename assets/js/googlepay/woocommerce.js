@@ -1,4 +1,5 @@
 import * as convert from './helpers/convert.js';
+import { getExpressProductParams, getExpressRequestError } from '../express/product.js';
 
 export default class Woocommerce {
     constructor() {
@@ -15,13 +16,12 @@ export default class Woocommerce {
 
             const send_data = {
                 'wc-api': `${this.api_namespace}-get-items-from-detail-page`,
-                product_id: current_shown_product.product_id,
-                variation_id: current_shown_product.variation_id,
-                quantity: jQuery('.cart .quantity input').val() || 1,
+                ...current_shown_product,
                 country_code,
             };
 
             let all_items = [];
+            let request_error = null;
             jQuery
                 .ajax({
                     url: this.url,
@@ -38,10 +38,15 @@ export default class Woocommerce {
                         type: item.type,
                         attributes: item.attributes,
                     }));
+                })
+                .fail(response => {
+                    request_error = getExpressRequestError(response, 'Unable to calculate Google Pay cart.');
                 });
+            if (request_error) throw new Error(request_error);
             return all_items;
         }
         let cart_items = [];
+        let request_error = null;
         jQuery
             .ajax({
                 url: this.url,
@@ -60,7 +65,11 @@ export default class Woocommerce {
                     type: item.type,
                     attributes: item.attributes,
                 }));
+            })
+            .fail(response => {
+                request_error = getExpressRequestError(response, 'Unable to load the WooCommerce cart.');
             });
+        if (request_error) throw new Error(request_error);
         return cart_items;
     }
 
@@ -69,11 +78,7 @@ export default class Woocommerce {
             if (jQuery('.googlepay-button-container').hasClass('is-detail-page')) {
                 const current_shown_product = this.getCurrentShownProduct();
 
-                return {
-                    product_id: current_shown_product.product_id,
-                    variation_id: current_shown_product.variation_id,
-                    quantity: jQuery('.cart .quantity input').val() || 1,
-                };
+                return current_shown_product;
             }
             return {};
         })();
@@ -84,6 +89,7 @@ export default class Woocommerce {
         };
 
         let methods;
+        let request_error = null;
         jQuery
             .ajax({
                 url: this.url,
@@ -93,13 +99,19 @@ export default class Woocommerce {
             })
             .done(response => {
                 methods = response;
+            })
+            .fail(response => {
+                request_error = getExpressRequestError(response, 'Unable to calculate Google Pay shipping.');
             });
+
+        if (request_error) throw new Error(request_error);
 
         return methods;
     }
 
     getCartTotal() {
         let totals = null;
+        let request_error = null;
         jQuery
             .ajax({
                 url: this.url,
@@ -111,7 +123,12 @@ export default class Woocommerce {
             })
             .done(response => {
                 totals = response;
+            })
+            .fail(response => {
+                request_error = getExpressRequestError(response, 'Unable to calculate Google Pay cart.');
             });
+
+        if (request_error) throw new Error(request_error);
 
         return totals;
     }
@@ -135,23 +152,7 @@ export default class Woocommerce {
     }
 
     getCurrentShownProduct() {
-        const product_id = jQuery('[name="add-to-cart"]').val();
-
-        const variation_id = (() => {
-            if (
-                jQuery('[name="variation_id"]')[0] &&
-                jQuery('[name="variation_id"]').val() != 0 &&
-                jQuery('[name="variation_id"]')[0] != ''
-            ) {
-                return jQuery('[name="variation_id"]').val();
-            }
-            return product_id;
-        })();
-
-        return {
-            product_id,
-            variation_id,
-        };
+        return getExpressProductParams(jQuery);
     }
 
     displayErrorMessage(message) {

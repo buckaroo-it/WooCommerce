@@ -3,7 +3,6 @@
 namespace Buckaroo\Woocommerce\Gateways\Paypal;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressCart;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressOrder;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressShipping;
@@ -162,8 +161,7 @@ class PaypalGateway extends AbstractPaymentGateway
     {
         new PaypalExpressController(
             new PaypalExpressShipping(),
-            new PaypalExpressOrder(),
-            new PaypalExpressCart()
+            new PaypalExpressOrder()
         );
     }
 }
