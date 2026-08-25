@@ -7,9 +7,10 @@ use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
-use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateOrderMetaToHpos;
+use Buckaroo\Woocommerce\Order\CaptureAllocation;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
@@ -702,29 +703,45 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         }
 
         $order = Helper::findOrder($order_id);
-
-        // _wc_order_captures drives how much is still capturable.
-        MigrateOrderMetaToHpos::ensureOrderMigrated($order);
-
-        $processor = $this->newPaymentProcessorInstance($order);
-        $payment = new BuckarooClient($this->getMode());
-
-        $capturePayload = [
-            'amountDebit' => $capture_amount,
-            'originalTransactionKey' => $order->get_transaction_id(),
-        ];
-
-        if ($this instanceof KlarnaKpGateway || $this instanceof KlarnaPayGateway) {
-            unset($capturePayload['originalTransactionKey']);
+        if (! $order instanceof WC_Order) {
+            return $this->create_capture_error(__('A valid order number is required'));
         }
 
-        $res = $payment->process($processor, $capturePayload);
-
-        return (new CaptureAction())->handle(
-            $res,
-            $order,
-            $this->currency,
+        $allocation = CaptureAllocation::fromJson(
+            $this->request->input('line_item_qtys'),
+            $this->request->input('line_item_totals'),
+            $this->request->input('line_item_tax_totals')
         );
+
+        $result = $this->capture($order, $capture_amount, $allocation);
+        if (in_array($result->getStatus(), [CaptureResult::FAILED, CaptureResult::UNKNOWN], true)) {
+            $order->add_order_note(
+                sprintf(
+                    __('Capture failed for transaction ID: %1$s %2$s', 'wc-buckaroo-bpe-gateway'),
+                    $order->get_transaction_id(),
+                    $result->getMessage()
+                )
+            );
+        }
+
+        return $result->toAjaxResponse();
+    }
+
+    public function capture(
+        WC_Order $order,
+        $amount,
+        CaptureAllocation $allocation,
+        ?BuckarooClient $buckarooClient = null,
+        ?int $attemptNumber = null
+    ): CaptureResult {
+        return (new CaptureAction(
+            $this->newPaymentProcessorInstance($order),
+            $order,
+            $amount,
+            $allocation,
+            $buckarooClient,
+            $attemptNumber
+        ))->process();
     }
 
     /**

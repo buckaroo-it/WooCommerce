@@ -4,9 +4,16 @@ namespace Buckaroo\Woocommerce\PaymentProcessors;
 
 use Buckaroo\Woocommerce\Constraints\BuckarooTransactionStatus;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaProcessor;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressUpdateOrderAddresses;
 use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateOrderMetaToHpos;
 use Buckaroo\Woocommerce\Order\OrderMeta;
+use Buckaroo\Woocommerce\Order\CaptureAllocation;
+use Buckaroo\Woocommerce\Order\KlarnaCaptureAttempt;
+use Buckaroo\Woocommerce\Order\OrderArticles;
+use Buckaroo\Woocommerce\Order\OrderDetails;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
@@ -87,9 +94,13 @@ class PushProcessor
                         );
                         $order->add_meta_data('buckaroo_is_reserved', 'yes', true);
                         $order->update_meta_data('_wc_order_authorized', 'yes');
+                        $order->update_meta_data(
+                            KlarnaProcessor::RESERVED_AMOUNT_META_KEY,
+                            number_format($responseParser->getAmount() ?? $order->get_total('edit'), 2, '.', '')
+                        );
 
-                        // Persist the Data Request key from the push so that the later capture
-                        // (Pay action) can send it as `originalTransactionKey`. Without this,
+                        // Persist the Data Request key from the push so the later Pay action can
+                        // send it as Klarna's service-level DataRequestKey parameter.
                         $dataRequestKey = $responseParser->getDataRequest();
                         if (is_string($dataRequestKey) && strlen($dataRequestKey) > 0) {
                             $order->update_meta_data(KlarnaProcessor::DATA_REQUEST_META_KEY, $dataRequestKey);
@@ -212,6 +223,149 @@ class PushProcessor
         OrderMeta::update($order, 'buckaroo_settlement', $settlements);
     }
 
+    public function reconcileKlarnaCapturePush(WC_Order $order, ResponseParser $responseParser): bool
+    {
+        if (
+            $order->get_payment_method() !== 'buckaroo_klarnapay' ||
+            strcasecmp((string) $responseParser->getActionCode(), 'Pay') !== 0 ||
+            strcasecmp((string) $responseParser->getPaymentMethod(), 'klarna') !== 0 ||
+            strcasecmp((string) $responseParser->getCurrency(), $order->get_currency()) !== 0
+        ) {
+            return false;
+        }
+
+        $transactionKey = (string) $responseParser->getTransactionKey();
+        $attempt = $this->findKlarnaCaptureAttempt($order, $responseParser, $transactionKey);
+        if ($attempt === null) {
+            return false;
+        }
+
+        $attemptNumber = (int) $attempt['attempt_number'];
+        if ($attempt['state'] === CaptureResult::SUCCEEDED && ! $responseParser->isSuccess()) {
+            return true;
+        }
+
+        if (
+            $responseParser->isPendingProcessing() ||
+            $responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD
+        ) {
+            KlarnaCaptureAttempt::updateUnlessSucceeded(
+                $order,
+                $attemptNumber,
+                [
+                    'state' => CaptureResult::PENDING,
+                    'transaction_key' => $transactionKey ?: null,
+                ]
+            );
+
+            return true;
+        }
+
+        if ($responseParser->isSuccess()) {
+            $storedAllocation = $attempt['allocation'];
+            $allocation = CaptureAllocation::fromArrays(
+                $storedAllocation['line_item_qtys'],
+                $storedAllocation['line_item_totals'],
+                $storedAllocation['line_item_tax_totals']
+            );
+            $amount = (float) $attempt['amount'];
+            $gateway = new KlarnaPayGateway();
+            $products = (new OrderArticles(new OrderDetails($order), $gateway))
+                ->get_products_for_capture($allocation, $amount);
+
+            $captureResult = CaptureAction::recordSuccessfulCapture(
+                $order,
+                $amount,
+                $attempt['currency'],
+                $allocation,
+                $transactionKey,
+                $responseParser->get(),
+                $products
+            );
+            if (! $captureResult->isSuccess()) {
+                return true;
+            }
+
+            KlarnaCaptureAttempt::updateUnlessSucceeded(
+                $order,
+                $attemptNumber,
+                [
+                    'state' => CaptureResult::SUCCEEDED,
+                    'transaction_key' => $transactionKey,
+                    'last_error' => '',
+                ]
+            );
+            $order->payment_complete($transactionKey);
+            $order->save();
+            $this->updateSettlementMeta($order, $responseParser, $amount);
+            OrderMeta::add($order, '_payment_method_transaction', 'klarna', true);
+            OrderMeta::add($order, '_pushallowed', 'ok', true);
+            KlarnaCaptureAttempt::clearAttention($order);
+
+            return true;
+        }
+
+        $failedAttempt = KlarnaCaptureAttempt::updateUnlessSucceeded(
+            $order,
+            $attemptNumber,
+            [
+                'state' => CaptureResult::FAILED,
+                'transaction_key' => $transactionKey ?: null,
+                'last_error' => sanitize_text_field($responseParser->getSubCodeMessage() ?: __('Capture failed', 'wc-buckaroo-bpe-gateway')),
+            ]
+        );
+        if ($failedAttempt !== null) {
+            KlarnaCaptureAttempt::recordAttention($order, $failedAttempt);
+        }
+
+        return true;
+    }
+
+    private function findKlarnaCaptureAttempt(
+        WC_Order $order,
+        ResponseParser $responseParser,
+        string $transactionKey
+    ): ?array {
+        $attempts = array_reverse(KlarnaCaptureAttempt::all($order));
+        foreach ($attempts as $attempt) {
+            if ($transactionKey !== '' && ($attempt['transaction_key'] ?? null) === $transactionKey) {
+                return $attempt;
+            }
+        }
+
+        if ($transactionKey === '') {
+            return null;
+        }
+
+        $pushAmount = $responseParser->getAmount();
+        if ($pushAmount === null) {
+            return null;
+        }
+
+        $reconcilableStates = [
+            CaptureResult::IN_PROGRESS,
+            CaptureResult::PENDING,
+            CaptureResult::UNKNOWN,
+            CaptureResult::FAILED,
+        ];
+        $matches = [];
+        foreach ($attempts as $attempt) {
+            if (
+                ! in_array($attempt['state'], $reconcilableStates, true) ||
+                ! empty($attempt['transaction_key']) ||
+                strcasecmp((string) ($attempt['currency'] ?? ''), (string) $responseParser->getCurrency()) !== 0
+            ) {
+                continue;
+            }
+
+            if (abs((float) $attempt['amount'] - $pushAmount) < 0.01) {
+                $matches[] = $attempt;
+            }
+        }
+
+        return count($matches) === 1 ? $matches[0] : null;
+    }
+
     protected function isOrderFullyPaid($order)
     {
         return !empty($order->get_date_paid());
@@ -318,6 +472,10 @@ class PushProcessor
 
             if ($responseParser->getRefundParentKey() !== null) {
                 RefundAction::initiateExternalServiceRefund($order_id, $responseParser);
+            }
+
+            if ($this->reconcileKlarnaCapturePush($order, $responseParser)) {
+                return;
             }
 
             Logger::log('Order status: ' . $order->get_status());

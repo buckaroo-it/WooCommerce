@@ -28,6 +28,18 @@ class KlarnaPayGateway extends KlarnaGateway
         return 'klarna';
     }
 
+    public function init_form_fields()
+    {
+        parent::init_form_fields();
+
+        $this->form_fields['automatic_capture'] = [
+            'title' => __('Automatic capture', 'wc-buckaroo-bpe-gateway'),
+            'label' => __('Automatic capture when order is completed', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'checkbox',
+            'default' => 'no',
+        ];
+    }
+
     /**
      * Payment form on checkout page
      *

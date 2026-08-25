@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Hooks;
 
 use Buckaroo\Woocommerce\Admin\GeneralSettings;
 use Buckaroo\Woocommerce\Admin\PaymentMethodSettings;
+use Buckaroo\Woocommerce\Order\KlarnaCaptureAttempt;
 
 class AdminHooks
 {
@@ -112,6 +113,38 @@ class AdminHooks
                 'Buckaroo BPE requires WooCommerce to be installed and active',
                 'wc-buckaroo-bpe-gateway'
             ) . '</p></div>';
+        }
+
+        if (! current_user_can('edit_shop_orders')) {
+            return;
+        }
+
+        $notifications = KlarnaCaptureAttempt::notifications();
+        $activeNotifications = $notifications;
+        foreach ($notifications as $orderId => $notification) {
+            $order = wc_get_order($notification['order_id']);
+            if (! $order) {
+                unset($activeNotifications[$orderId]);
+                continue;
+            }
+
+            $type = $notification['state'] === 'failed' ? 'error' : 'warning';
+            $message = $notification['state'] === 'failed'
+                ? __('Klarna capture failed', 'wc-buckaroo-bpe-gateway')
+                : __('Klarna capture outcome is unknown', 'wc-buckaroo-bpe-gateway');
+            printf(
+                '<div class="notice notice-%1$s"><p>%2$s: %3$s. <a href="%4$s">%5$s #%6$d</a></p></div>',
+                esc_attr($type),
+                esc_html($message),
+                esc_html($notification['error']),
+                esc_url($order->get_edit_order_url()),
+                esc_html__('Review order', 'wc-buckaroo-bpe-gateway'),
+                (int) $order->get_id()
+            );
+        }
+
+        if (count($activeNotifications) !== count($notifications)) {
+            update_option(KlarnaCaptureAttempt::NOTIFICATIONS_OPTION, $activeNotifications, false);
         }
     }
 }
