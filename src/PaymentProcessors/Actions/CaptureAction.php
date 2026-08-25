@@ -2,112 +2,106 @@
 
 namespace Buckaroo\Woocommerce\PaymentProcessors\Actions;
 
-use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
-use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateOrderMetaToHpos;
-use Buckaroo\Woocommerce\Order\CaptureAllocation;
-use Buckaroo\Woocommerce\Order\CaptureRecorder;
 use Buckaroo\Woocommerce\Order\OrderMeta;
-use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Logger;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
-use Throwable;
-use WC_Order;
+use WP_Error;
 
 class CaptureAction
 {
-    protected AbstractProcessor $paymentProcessor;
-
-    protected BuckarooClient $buckarooClient;
-
-    private WC_Order $order;
-
-    private float $captureAmount;
-
-    private CaptureAllocation $allocation;
-
-    private array $payload;
-
-    public function __construct(
-        AbstractProcessor $paymentProcessor,
-        WC_Order $order,
-        $captureAmount,
-        CaptureAllocation $allocation,
-        array $payload,
-        ?BuckarooClient $buckarooClient = null
-    ) {
-        $this->paymentProcessor = $paymentProcessor;
-        $this->order = $order;
-        $this->captureAmount = (float) $captureAmount;
-        $this->allocation = $allocation;
-        $this->payload = $payload;
-        $this->buckarooClient = $buckarooClient ?? new BuckarooClient($paymentProcessor->gateway->getMode());
-    }
-
-    public function process(): CaptureResult
+    public function handle(TransactionResponse $response, $order, $currency, $products = null)
     {
-        $gateway = $this->paymentProcessor->gateway;
-
-        if (! $gateway->capturable || ! $gateway->canShowCaptureForm($this->order)) {
-            return CaptureResult::failed(__('This order cannot be captured', 'wc-buckaroo-bpe-gateway'));
+        if (! isset($_POST['capture_amount']) || ! is_scalar($_POST['capture_amount'])) {
+            return false;
         }
 
-        if ($this->captureAmount <= 0) {
-            return CaptureResult::failed(__('A valid capture amount is required', 'wc-buckaroo-bpe-gateway'));
-        }
+        $capture_amount = sanitize_text_field($_POST['capture_amount']);
+        if ($response && $response->isSuccess()) {
+            // SET the flags
+            // check if order has already been captured
+            if (OrderMeta::get($order, '_wc_order_is_captured')) {
+                // Order already captured
+                // Add the other values of the capture so we have the full value captured
+                $previousCaptures = (float) OrderMeta::get($order, '_wc_order_amount_captured');
+                $total = $previousCaptures + (float) $capture_amount;
+                OrderMeta::update($order, '_wc_order_amount_captured', $total);
+            } else {
+                // Order not captured yet
+                // Set first amout_captured and is_captured flag
+                OrderMeta::update($order, '_wc_order_is_captured', true);
+                OrderMeta::update($order, '_wc_order_amount_captured', $capture_amount);
+            }
 
-        if (abs($this->allocation->getAmount() - $this->captureAmount) >= 0.01) {
-            return CaptureResult::failed(__('Capture amount does not match the selected order items.', 'wc-buckaroo-bpe-gateway'));
-        }
+            $str = '';
+            $characters = range('0', '9');
+            $max = count($characters) - 1;
+            for ($i = 0; $i < 2; $i++) {
+                $rand = mt_rand(0, $max);
+                $str .= $characters[$rand];
+            }
 
-        MigrateOrderMetaToHpos::ensureOrderMigrated($this->order);
-        $this->order->read_meta_data(true);
-
-        $available = CaptureAllocation::remainingForOrder($this->order);
-        if (! $this->allocation->isWithin($available)) {
-            return CaptureResult::failed(__('The selected amount is no longer available to capture.', 'wc-buckaroo-bpe-gateway'));
-        }
-
-        $response = null;
-        try {
-            $response = $this->buckarooClient->process($this->paymentProcessor, $this->payload);
-
-            return $this->finalize($response);
-        } catch (Throwable $exception) {
-            $transactionKey = $response instanceof TransactionResponse
-                ? $response->getTransactionKey()
-                : null;
-
-            return CaptureResult::unknown($exception->getMessage(), $transactionKey);
-        }
-    }
-
-    private function finalize(TransactionResponse $response): CaptureResult
-    {
-        if ($response->isSuccess()) {
-            return CaptureRecorder::record(
-                $this->order,
-                $this->captureAmount,
-                $this->order->get_currency(),
-                $this->allocation,
-                $response->getTransactionKey(),
-                $response->toArray()
+            // Set the flag that contains all the items and taxes that have been captured
+            OrderMeta::add(
+                $order,
+                '_wc_order_captures',
+                [
+                    'currency' => $currency,
+                    'id' => $order->get_id() . $str,
+                    'amount' => $capture_amount,
+                    'line_item_qtys' => isset($_POST['line_item_qtys']) ? sanitize_text_field(wp_unslash($_POST['line_item_qtys']), true) : '',
+                    'line_item_totals' => isset($_POST['line_item_totals']) ? sanitize_text_field(wp_unslash($_POST['line_item_totals']), true) : '',
+                    'line_item_tax_totals' => isset($_POST['line_item_tax_totals']) ? sanitize_text_field(wp_unslash($_POST['line_item_tax_totals']), true) : '',
+                    'transaction_id' => $response->getTransactionKey(),
+                ]
             );
+
+            OrderMeta::add($order, '_capturebuckaroo' . $response->getTransactionKey(), 'ok', true);
+            OrderMeta::update($order, '_pushallowed', 'ok');
+
+            $order->add_order_note(
+                sprintf(
+                    __('Captured %1$s - Capture transaction ID: %2$s', 'wc-buckaroo-bpe-gateway'),
+                    $capture_amount . ' ' . $currency,
+                    $response->getTransactionKey()
+                )
+            );
+
+            // Store the transaction_key together with captured products, we need this for refunding
+            if ($products != null) {
+                $capture_data = json_encode(
+                    [
+                        'OriginalTransactionKey' => $response->getTransactionKey(),
+                        'products' => $products,
+                    ]
+                );
+                OrderMeta::add($order, 'buckaroo_capture', $capture_data, false);
+            }
+            wp_send_json_success($response->toArray());
         }
+        if (! empty($response->hasSomeError())) {
+            Logger::log(__METHOD__, $response->getSomeError());
+            $order->add_order_note(
+                sprintf(
+                    __(
+                        'Capture failed for transaction ID: %s ' . "\n" . $response->getSomeError(),
+                        'wc-buckaroo-bpe-gateway'
+                    ),
+                    $order->get_transaction_id()
+                )
+            );
+            OrderMeta::update($order, '_pushallowed', 'ok');
 
-        $error = $response->getSomeError();
-        if (! empty($error)) {
-            $error = is_scalar($error) ? (string) $error : wp_json_encode($error);
-            Logger::log(__METHOD__, $error);
-            OrderMeta::update($this->order, '_pushallowed', 'ok');
+            return new WP_Error('error_capture', __('Capture failed: ') . $response->getSomeError());
+        } else {
+            $order->add_order_note(
+                sprintf(
+                    __('Capture failed for transaction ID: %s', 'wc-buckaroo-bpe-gateway'),
+                    $order->get_transaction_id()
+                )
+            );
+            OrderMeta::update($order, '_pushallowed', 'ok');
 
-            return CaptureResult::failed(__('Capture failed: ') . $error, $response->getTransactionKey());
+            return false;
         }
-
-        OrderMeta::update($this->order, '_pushallowed', 'ok');
-
-        return CaptureResult::failed(
-            __('Capture failed', 'wc-buckaroo-bpe-gateway'),
-            $response->getTransactionKey()
-        );
     }
 }
