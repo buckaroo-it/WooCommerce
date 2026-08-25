@@ -713,7 +713,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             $this->request->input('line_item_tax_totals')
         );
 
-        $result = $this->capture($order, $capture_amount, $allocation);
+        $result = $this->executeCapture($order, $capture_amount, $allocation);
         if (in_array($result->getStatus(), [CaptureResult::FAILED, CaptureResult::UNKNOWN], true)) {
             $order->add_order_note(
                 sprintf(
@@ -727,7 +727,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         return $result->toAjaxResponse();
     }
 
-    public function capture(
+    protected function executeCapture(
         WC_Order $order,
         $amount,
         CaptureAllocation $allocation,

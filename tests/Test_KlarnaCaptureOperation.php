@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaProcessor;
+use Buckaroo\Woocommerce\Gateways\Wero\WeroGateway;
 use Buckaroo\Woocommerce\Order\CaptureAllocation;
 use Buckaroo\Woocommerce\Order\KlarnaCaptureAttempt;
 use Buckaroo\Woocommerce\Order\OrderMeta;
@@ -42,6 +44,7 @@ class Test_KlarnaCaptureOperation extends TestCase
         }
 
         delete_option('woocommerce_buckaroo_mastersettings_settings');
+        delete_option('woocommerce_buckaroo_wero_settings');
         $this->deleteCreatedOrders();
         $this->disableHpos();
         parent::tearDown();
@@ -75,7 +78,7 @@ class Test_KlarnaCaptureOperation extends TestCase
         $this->assertSame(2, $buckarooClient->payload['articles'][0]['quantity']);
         $this->assertSame(12.50, $buckarooClient->payload['articles'][0]['price']);
 
-        $captures = OrderMeta::get($order, '_wc_order_captures', false);
+        $captures = OrderMeta::get(wc_get_order($order->get_id()), '_wc_order_captures', false);
         $this->assertCount(1, $captures);
         $this->assertSame('25.00', $captures[0]['amount']);
         $this->assertSame('EUR', $captures[0]['currency']);
@@ -151,6 +154,58 @@ class Test_KlarnaCaptureOperation extends TestCase
         $this->assertTrue($response['success']);
         $this->assertSame(['Key' => 'PAY-AJAX'], $response['data']);
         $this->assertSame('15.00', $buckarooClient->payload['amountDebit']);
+    }
+
+    public function test_pending_capture_for_an_unrelated_gateway_is_not_reported_as_successful(): void
+    {
+        $order = $this->createReservedOrder(15.00, 1);
+        $item = current($order->get_items('line_item'));
+        $order->set_payment_method('buckaroo_klarnakp');
+        $order->update_meta_data('_buckaroo_klarnakp_reservation_number', 'KP-RESERVATION');
+        $order->save();
+        $gateway = new TestableKlarnaKpGateway(
+            new InMemoryBuckarooClient($this->pendingResponse('KP-PENDING'))
+        );
+        $_POST = [
+            'capture_amount' => '15.00',
+            'line_item_qtys' => wp_json_encode([$item->get_id() => 1]),
+            'line_item_totals' => wp_json_encode([$item->get_id() => 15.00]),
+            'line_item_tax_totals' => wp_json_encode([$item->get_id() => []]),
+        ];
+
+        $response = $gateway->process_capture($order->get_id());
+
+        $this->assertArrayNotHasKey('success', $response);
+        $this->assertArrayHasKey('errors', $response);
+        $this->assertSame([], OrderMeta::get($order, '_wc_order_captures', false));
+    }
+
+    public function test_successful_capture_for_an_unrelated_gateway_preserves_its_payload_and_ledger(): void
+    {
+        update_option('woocommerce_buckaroo_wero_settings', ['weropayauthorize' => 'authorize']);
+        $order = $this->createReservedOrder(15.00, 1);
+        $item = current($order->get_items('line_item'));
+        $order->set_payment_method('buckaroo_wero');
+        $order->update_meta_data('_wc_order_authorized', 'yes');
+        $order->save();
+        $client = new InMemoryBuckarooClient($this->successfulResponse('WERO-CAPTURE'));
+        $gateway = new TestableWeroGateway($client);
+        $_POST = [
+            'capture_amount' => '15.00',
+            'line_item_qtys' => wp_json_encode([$item->get_id() => 1]),
+            'line_item_totals' => wp_json_encode([$item->get_id() => 15.00]),
+            'line_item_tax_totals' => wp_json_encode([$item->get_id() => []]),
+        ];
+
+        $response = $gateway->process_capture($order->get_id());
+
+        $this->assertTrue($response['success']);
+        $this->assertSame('15.00', $client->payload['amountDebit']);
+        $this->assertSame('RESERVE-123', $client->payload['originalTransactionKey']);
+        $this->assertArrayNotHasKey('articles', $client->payload);
+        $captures = OrderMeta::get(wc_get_order($order->get_id()), '_wc_order_captures', false);
+        $this->assertCount(1, $captures);
+        $this->assertSame('WERO-CAPTURE', $captures[0]['transaction_id']);
     }
 
     public function test_manual_capture_uses_the_same_remaining_allocation_as_automatic_capture(): void
@@ -321,6 +376,34 @@ class Test_KlarnaCaptureOperation extends TestCase
         $this->assertSame('PAY-FAILED-KNOWN', $attempt['transaction_key']);
     }
 
+    public function test_definite_manual_failure_releases_the_allocation_for_a_manual_retry(): void
+    {
+        $order = $this->createReservedOrder(25.00, 1);
+        $item = current($order->get_items('line_item'));
+        $allocation = CaptureAllocation::fromArrays(
+            [$item->get_id() => 1],
+            [$item->get_id() => 25.00],
+            [$item->get_id() => []]
+        );
+        $gateway = new KlarnaPayGateway();
+        $failedClient = new InMemoryBuckarooClient($this->failedResponse('PAY-MANUAL-FAILED'));
+        $successfulClient = new InMemoryBuckarooClient($this->successfulResponse('PAY-MANUAL-RETRY'));
+
+        $failed = $gateway->capture($order, 25.00, $allocation, $failedClient);
+        $retried = $gateway->capture(
+            wc_get_order($order->get_id()),
+            25.00,
+            $allocation,
+            $successfulClient
+        );
+
+        $this->assertSame('failed', $failed->getStatus());
+        $this->assertTrue($retried->isSuccess());
+        $this->assertSame(1, $failedClient->sendCount);
+        $this->assertSame(1, $successfulClient->sendCount);
+        $this->assertCount(2, KlarnaCaptureAttempt::all(wc_get_order($order->get_id())));
+    }
+
     public function test_successful_captures_with_different_keys_refresh_the_order_before_updating_the_aggregate(): void
     {
         $order = $this->createReservedOrder(10.00, 2);
@@ -442,13 +525,57 @@ class TestableKlarnaPayGateway extends KlarnaPayGateway
         parent::__construct();
     }
 
-    public function capture(
+    protected function executeCapture(
         WC_Order $order,
         $amount,
         CaptureAllocation $allocation,
         ?BuckarooClient $buckarooClient = null,
         ?int $attemptNumber = null
     ): CaptureResult {
-        return parent::capture($order, $amount, $allocation, $this->captureClient);
+        return parent::executeCapture($order, $amount, $allocation, $this->captureClient);
+    }
+}
+
+class TestableKlarnaKpGateway extends KlarnaKpGateway
+{
+    /** @var BuckarooClient */
+    private $captureClient;
+
+    public function __construct(BuckarooClient $captureClient)
+    {
+        $this->captureClient = $captureClient;
+        parent::__construct();
+    }
+
+    protected function executeCapture(
+        WC_Order $order,
+        $amount,
+        CaptureAllocation $allocation,
+        ?BuckarooClient $buckarooClient = null,
+        ?int $attemptNumber = null
+    ): CaptureResult {
+        return parent::executeCapture($order, $amount, $allocation, $this->captureClient);
+    }
+}
+
+class TestableWeroGateway extends WeroGateway
+{
+    /** @var BuckarooClient */
+    private $captureClient;
+
+    public function __construct(BuckarooClient $captureClient)
+    {
+        $this->captureClient = $captureClient;
+        parent::__construct();
+    }
+
+    protected function executeCapture(
+        WC_Order $order,
+        $amount,
+        CaptureAllocation $allocation,
+        ?BuckarooClient $buckarooClient = null,
+        ?int $attemptNumber = null
+    ): CaptureResult {
+        return parent::executeCapture($order, $amount, $allocation, $this->captureClient);
     }
 }

@@ -16,11 +16,14 @@ use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Logger;
 use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
+use RuntimeException;
 use Throwable;
 use WC_Order;
 
 class CaptureAction
 {
+    private const RECORD_LOCK_WAIT_SECONDS = 5;
+
     protected AbstractProcessor $paymentProcessor;
 
     protected BuckarooClient $buckarooClient;
@@ -88,72 +91,70 @@ class CaptureAction
             return $result;
         }
 
-        $maximumAmount = null;
-        if ($gateway instanceof KlarnaPayGateway) {
-            $reservedAmount = OrderMeta::get($this->order, KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
-            if (is_numeric($reservedAmount)) {
-                $maximumAmount = (float) $reservedAmount;
-            }
-        }
-
-        $available = CaptureAllocation::remainingForOrder($this->order, $maximumAmount);
-        if (! $this->allocation->isWithin($available)) {
-            if ($usesKlarnaLock) {
-                KlarnaCaptureAttempt::releaseLock('capture_send', $this->order, $sendLockKey);
+        try {
+            $maximumAmount = null;
+            if ($gateway instanceof KlarnaPayGateway) {
+                $reservedAmount = OrderMeta::get($this->order, KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
+                if (is_numeric($reservedAmount)) {
+                    $maximumAmount = (float) $reservedAmount;
+                }
             }
 
-            $result = CaptureResult::failed(__('The selected amount is no longer available to capture.', 'wc-buckaroo-bpe-gateway'));
-            $this->recordAttemptResult($result);
-
-            return $result;
-        }
-
-        if ($gateway instanceof KlarnaPayGateway) {
-            $dataRequestKey = OrderMeta::get($this->order, KlarnaProcessor::DATA_REQUEST_META_KEY);
-            if (! is_string($dataRequestKey) || trim($dataRequestKey) === '') {
-                KlarnaCaptureAttempt::releaseLock('capture_send', $this->order, $sendLockKey);
-
-                $result = CaptureResult::failed(__('Cannot perform capture, Klarna Data Request key not found', 'wc-buckaroo-bpe-gateway'));
+            $available = CaptureAllocation::remainingForOrder($this->order, $maximumAmount);
+            if (! $this->allocation->isWithin($available)) {
+                $result = CaptureResult::failed(__('The selected amount is no longer available to capture.', 'wc-buckaroo-bpe-gateway'));
                 $this->recordAttemptResult($result);
 
                 return $result;
             }
-        }
 
-        $payload = [
-            'amountDebit' => number_format($this->captureAmount, 2, '.', ''),
-        ];
+            if ($gateway instanceof KlarnaPayGateway) {
+                $dataRequestKey = OrderMeta::get($this->order, KlarnaProcessor::DATA_REQUEST_META_KEY);
+                if (! is_string($dataRequestKey) || trim($dataRequestKey) === '') {
+                    $result = CaptureResult::failed(__('Cannot perform capture, Klarna Data Request key not found', 'wc-buckaroo-bpe-gateway'));
+                    $this->recordAttemptResult($result);
 
-        $articles = [];
-        if ($gateway instanceof KlarnaPayGateway) {
-            $articles = (new OrderArticles(new OrderDetails($this->order), $gateway))
-                ->get_products_for_capture($this->allocation, $this->captureAmount);
-            $payload['articles'] = $articles;
-        }
+                    return $result;
+                }
+            }
 
-        if (! ($gateway instanceof KlarnaKpGateway) && ! ($gateway instanceof KlarnaPayGateway)) {
-            $payload['originalTransactionKey'] = $this->order->get_transaction_id();
-        }
+            $payload = [
+                'amountDebit' => number_format($this->captureAmount, 2, '.', ''),
+            ];
 
-        try {
-            $response = $this->buckarooClient->process($this->paymentProcessor, $payload);
-        } catch (Throwable $exception) {
-            $result = CaptureResult::unknown($exception->getMessage());
+            $articles = [];
+            if ($gateway instanceof KlarnaPayGateway) {
+                $articles = (new OrderArticles(new OrderDetails($this->order), $gateway))
+                    ->get_products_for_capture($this->allocation, $this->captureAmount);
+                $payload['articles'] = $articles;
+            }
+
+            if (! ($gateway instanceof KlarnaKpGateway) && ! ($gateway instanceof KlarnaPayGateway)) {
+                $payload['originalTransactionKey'] = $this->order->get_transaction_id();
+            }
+
+            $response = null;
+            try {
+                $response = $this->buckarooClient->process($this->paymentProcessor, $payload);
+                $result = $this->finalize($response, $articles);
+            } catch (Throwable $exception) {
+                $transactionKey = $response instanceof TransactionResponse
+                    ? $response->getTransactionKey()
+                    : null;
+                $result = CaptureResult::unknown($exception->getMessage(), $transactionKey);
+                $this->recordAttemptResult($result);
+
+                return $result;
+            }
+
             $this->recordAttemptResult($result);
+
+            return $result;
+        } finally {
             if ($usesKlarnaLock) {
                 KlarnaCaptureAttempt::releaseLock('capture_send', $this->order, $sendLockKey);
             }
-
-            return $result;
         }
-
-        $result = $this->finalize($response, $articles);
-        $this->recordAttemptResult($result);
-        if ($usesKlarnaLock) {
-            KlarnaCaptureAttempt::releaseLock('capture_send', $this->order, $sendLockKey);
-        }
-
-        return $result;
     }
 
     public function finalize(TransactionResponse $response, array $products = []): CaptureResult
@@ -176,8 +177,11 @@ class CaptureAction
         }
 
         if (
-            $response->isPendingProcessing() ||
-            $response->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD
+            $this->paymentProcessor->gateway instanceof KlarnaPayGateway &&
+            (
+                $response->isPendingProcessing() ||
+                $response->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD
+            )
         ) {
             return CaptureResult::pending($response->toArray(), $response->getTransactionKey());
         }
@@ -205,7 +209,7 @@ class CaptureAction
             return;
         }
 
-        KlarnaCaptureAttempt::updateUnlessSucceeded(
+        $attempt = KlarnaCaptureAttempt::updateUnlessSucceeded(
             $this->order,
             $this->attemptNumber,
             [
@@ -216,6 +220,14 @@ class CaptureAction
                     : sanitize_text_field($result->getMessage()),
             ]
         );
+        if (($attempt['source'] ?? '') !== 'automatic') {
+            return;
+        }
+        if (in_array($attempt['state'], [CaptureResult::FAILED, CaptureResult::UNKNOWN], true)) {
+            KlarnaCaptureAttempt::recordAttention($this->order, $attempt);
+        } elseif ($attempt['state'] === CaptureResult::SUCCEEDED) {
+            KlarnaCaptureAttempt::clearAttention($this->order);
+        }
     }
 
     public static function recordSuccessfulCapture(
@@ -228,76 +240,128 @@ class CaptureAction
         array $products = []
     ): CaptureResult {
         $lockKey = 'order';
-        if (! KlarnaCaptureAttempt::acquireLock('capture_record', $order, $lockKey)) {
-            return CaptureResult::pending($responseData, $transactionKey);
+        if (
+            ! KlarnaCaptureAttempt::acquireLock(
+                'capture_record',
+                $order,
+                $lockKey,
+                self::RECORD_LOCK_WAIT_SECONDS
+            )
+        ) {
+            return CaptureResult::unknown(
+                __('Capture succeeded but could not be recorded locally; reconciliation is required.', 'wc-buckaroo-bpe-gateway'),
+                $transactionKey
+            );
         }
-
-        $order->read_meta_data(true);
-
-        if (OrderMeta::get($order, '_capturebuckaroo' . $transactionKey)) {
-            KlarnaCaptureAttempt::releaseLock('capture_record', $order, $lockKey);
-
-            return CaptureResult::succeeded($responseData, $transactionKey);
-        }
-
-        global $wpdb;
-        $wpdb->query('START TRANSACTION');
 
         try {
-            $captureAmount = number_format((float) $captureAmount, 2, '.', '');
-            if (OrderMeta::get($order, '_wc_order_is_captured')) {
-                $previousCaptures = (float) OrderMeta::get($order, '_wc_order_amount_captured');
-                OrderMeta::update($order, '_wc_order_amount_captured', $previousCaptures + (float) $captureAmount);
-            } else {
-                OrderMeta::update($order, '_wc_order_is_captured', true);
-                OrderMeta::update($order, '_wc_order_amount_captured', $captureAmount);
+            $order->read_meta_data(true);
+            if (OrderMeta::get($order, '_capturebuckaroo' . $transactionKey)) {
+                return CaptureResult::succeeded($responseData, $transactionKey);
             }
 
-            $ledger = $allocation->toLedger();
-            OrderMeta::add(
-                $order,
-                '_wc_order_captures',
-                [
-                'currency' => $currency,
-                'id' => $order->get_id() . substr(hash('sha256', $transactionKey), 0, 8),
-                'amount' => $captureAmount,
-                'line_item_qtys' => $ledger['line_item_qtys'],
-                'line_item_totals' => $ledger['line_item_totals'],
-                'line_item_tax_totals' => $ledger['line_item_tax_totals'],
-                'transaction_id' => $transactionKey,
-                ]
-            );
+            global $wpdb;
+            if ($wpdb->query('START TRANSACTION') === false) {
+                throw new RuntimeException(__('Could not start the local capture transaction.', 'wc-buckaroo-bpe-gateway'));
+            }
 
-            OrderMeta::add($order, '_capturebuckaroo' . $transactionKey, 'ok', true);
-            OrderMeta::update($order, '_pushallowed', 'ok');
-            $order->add_order_note(
-                sprintf(
-                    __('Captured %1$s - Capture transaction ID: %2$s', 'wc-buckaroo-bpe-gateway'),
-                    $captureAmount . ' ' . $currency,
-                    $transactionKey
-                )
-            );
+            try {
+                $captureAmount = number_format((float) $captureAmount, 2, '.', '');
+                $capturedTotal = (float) $captureAmount;
+                $wasCaptured = (bool) OrderMeta::get($order, '_wc_order_is_captured');
+                if ($wasCaptured) {
+                    $capturedTotal += (float) OrderMeta::get($order, '_wc_order_amount_captured');
+                }
 
-            if (! empty($products)) {
-                OrderMeta::add(
-                    $order,
-                    'buckaroo_capture',
-                    wp_json_encode([
-                    'OriginalTransactionKey' => $transactionKey,
-                    'products' => $products,
-                    ]),
-                    false
+                $ledger = $allocation->toLedger();
+                $order->update_meta_data('_wc_order_is_captured', true);
+                $order->update_meta_data(
+                    '_wc_order_amount_captured',
+                    $wasCaptured ? $capturedTotal : $captureAmount
                 );
+                $order->add_meta_data('_wc_order_captures', [
+                    'currency' => $currency,
+                    'id' => $order->get_id() . substr(hash('sha256', $transactionKey), 0, 8),
+                    'amount' => $captureAmount,
+                    'line_item_qtys' => $ledger['line_item_qtys'],
+                    'line_item_totals' => $ledger['line_item_totals'],
+                    'line_item_tax_totals' => $ledger['line_item_tax_totals'],
+                    'transaction_id' => $transactionKey,
+                ]);
+                $order->add_meta_data('_capturebuckaroo' . $transactionKey, 'ok', true);
+                $order->update_meta_data('_pushallowed', 'ok');
+
+                if (! empty($products)) {
+                    $order->add_meta_data('buckaroo_capture', wp_json_encode([
+                        'OriginalTransactionKey' => $transactionKey,
+                        'products' => $products,
+                    ]));
+                }
+
+                $wpdb->last_error = '';
+                $order->save_meta_data();
+                $order->read_meta_data(true);
+
+                $recordedCapture = false;
+                foreach (OrderMeta::get($order, '_wc_order_captures', false) as $capture) {
+                    if (
+                        is_array($capture) &&
+                        ($capture['transaction_id'] ?? '') === $transactionKey &&
+                        ($capture['currency'] ?? '') === $currency &&
+                        abs((float) ($capture['amount'] ?? 0) - (float) $captureAmount) < 0.01 &&
+                        ($capture['line_item_qtys'] ?? '') === $ledger['line_item_qtys'] &&
+                        ($capture['line_item_totals'] ?? '') === $ledger['line_item_totals'] &&
+                        ($capture['line_item_tax_totals'] ?? '') === $ledger['line_item_tax_totals']
+                    ) {
+                        $recordedCapture = true;
+                        break;
+                    }
+                }
+                $productsRecorded = empty($products);
+                foreach (OrderMeta::get($order, 'buckaroo_capture', false) as $captureProducts) {
+                    $captureProducts = is_string($captureProducts)
+                        ? json_decode($captureProducts, true)
+                        : null;
+                    if (($captureProducts['OriginalTransactionKey'] ?? '') === $transactionKey) {
+                        $productsRecorded = true;
+                        break;
+                    }
+                }
+                if (
+                    $wpdb->last_error !== '' ||
+                    ! OrderMeta::get($order, '_capturebuckaroo' . $transactionKey) ||
+                    ! OrderMeta::get($order, '_wc_order_is_captured') ||
+                    OrderMeta::get($order, '_pushallowed') !== 'ok' ||
+                    abs((float) OrderMeta::get($order, '_wc_order_amount_captured') - $capturedTotal) >= 0.01 ||
+                    ! $recordedCapture ||
+                    ! $productsRecorded
+                ) {
+                    throw new RuntimeException(__('Could not verify the local capture record.', 'wc-buckaroo-bpe-gateway'));
+                }
+
+                $noteId = $order->add_order_note(
+                    sprintf(
+                        __('Captured %1$s - Capture transaction ID: %2$s', 'wc-buckaroo-bpe-gateway'),
+                        $captureAmount . ' ' . $currency,
+                        $transactionKey
+                    )
+                );
+                if (! $noteId || $wpdb->last_error !== '') {
+                    throw new RuntimeException(__('Could not record the capture order note.', 'wc-buckaroo-bpe-gateway'));
+                }
+
+                if ($wpdb->query('COMMIT') === false) {
+                    throw new RuntimeException(__('Could not commit the local capture record.', 'wc-buckaroo-bpe-gateway'));
+                }
+            } catch (Throwable $exception) {
+                $wpdb->query('ROLLBACK');
+                $order->read_meta_data(true);
+                throw $exception;
             }
 
-            $wpdb->query('COMMIT');
-        } catch (Throwable $exception) {
-            $wpdb->query('ROLLBACK');
-            throw $exception;
+            return CaptureResult::succeeded($responseData, $transactionKey);
         } finally {
             KlarnaCaptureAttempt::releaseLock('capture_record', $order, $lockKey);
         }
-
-        return CaptureResult::succeeded($responseData, $transactionKey);
     }
 }

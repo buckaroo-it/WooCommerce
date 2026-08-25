@@ -6,15 +6,21 @@ use WC_Order;
 
 class KlarnaCaptureAttempt
 {
+    public const IN_PROGRESS = 'in_progress';
+
+    public const SKIPPED = 'skipped';
+
     public const STALE_AFTER = 900;
 
     public const META_KEY = '_buckaroo_klarna_capture_attempts';
 
-    public const ACTIVE_ATTENTION_META_KEY = '_buckaroo_klarna_capture_attention';
-
     public const NOTIFICATIONS_OPTION = 'buckaroo_klarna_capture_notifications';
 
     private const BLOCKING_STATES = ['queued', 'in_progress', 'pending', 'unknown'];
+
+    private const LOCK_WAIT_SECONDS = 5;
+
+    private const NOTIFICATIONS_LOCK = 'buckaroo_klarna_capture_notifications';
 
     public static function all(WC_Order $order): array
     {
@@ -26,28 +32,71 @@ class KlarnaCaptureAttempt
 
     public static function queue(WC_Order $order, CaptureAllocation $allocation): ?array
     {
+        return self::start($order, $allocation, 'queued', 'automatic');
+    }
+
+    public static function startManual(WC_Order $order, CaptureAllocation $allocation): ?array
+    {
+        return self::start($order, $allocation, self::IN_PROGRESS, 'manual', true);
+    }
+
+    public static function hasRelatedAttempt(WC_Order $order, CaptureAllocation $allocation): bool
+    {
+        $attempts = self::all($order);
+        $fingerprint = $allocation->fingerprint();
+        foreach ($attempts as $attempt) {
+            if (($attempt['state'] ?? '') === 'failed') {
+                return true;
+            }
+        }
+        if (self::hasFingerprintAttempt($attempts, $fingerprint)) {
+            return true;
+        }
+
+        return self::hasOverlappingAttempt($attempts, $allocation);
+    }
+
+    private static function start(
+        WC_Order $order,
+        CaptureAllocation $allocation,
+        string $state,
+        string $source,
+        bool $allowFailed = false
+    ): ?array {
         $fingerprint = $allocation->fingerprint();
         $claimKey = self::claimKey($order, $fingerprint);
 
-        if (! self::acquireLock('attempt_ledger', $order, 'all')) {
+        if (! self::acquireLock('attempt_ledger', $order, 'all', self::LOCK_WAIT_SECONDS)) {
             return null;
         }
 
         try {
             $attempts = self::all($order);
-            if (
-                self::hasOverlappingAttempt($attempts, $allocation) ||
-                ! add_option($claimKey, ['state' => 'queued'], '', 'no')
-            ) {
+            if (! $allowFailed) {
+                foreach ($attempts as $attempt) {
+                    if (($attempt['state'] ?? '') === 'failed') {
+                        return null;
+                    }
+                }
+            }
+            if (self::hasOverlappingAttempt($attempts, $allocation)) {
                 return null;
+            }
+            if (! add_option($claimKey, ['state' => $state], '', 'no')) {
+                if (self::hasFingerprintAttempt($attempts, $fingerprint)) {
+                    return null;
+                }
+                delete_option($claimKey);
+                if (! add_option($claimKey, ['state' => $state], '', 'no')) {
+                    return null;
+                }
             }
 
             $attemptNumber = count($attempts) + 1;
-            update_option($claimKey, ['state' => 'queued', 'attempt_number' => $attemptNumber], false);
+            update_option($claimKey, ['state' => $state, 'attempt_number' => $attemptNumber], false);
 
-            $attempt = self::newAttempt($order, $allocation, $attemptNumber, 'queued', 'automatic');
+            $attempt = self::newAttempt($order, $allocation, $attemptNumber, $state, $source);
             $attempts[] = $attempt;
-
             if (! OrderMeta::update($order, self::META_KEY, $attempts)) {
                 delete_option($claimKey);
 
@@ -60,95 +109,9 @@ class KlarnaCaptureAttempt
         }
     }
 
-    public static function startManual(WC_Order $order, CaptureAllocation $allocation): ?array
-    {
-        $fingerprint = $allocation->fingerprint();
-
-        if (! self::acquireLock('attempt_ledger', $order, 'all')) {
-            return null;
-        }
-
-        try {
-            $attempts = self::all($order);
-            if (
-                self::hasOverlappingAttempt($attempts, $allocation) ||
-                ! add_option(
-                    self::claimKey($order, $fingerprint),
-                    ['state' => 'in_progress'],
-                    '',
-                    'no'
-                )
-            ) {
-                return null;
-            }
-
-            $attemptNumber = count($attempts) + 1;
-            update_option(
-                self::claimKey($order, $fingerprint),
-                ['state' => 'in_progress', 'attempt_number' => $attemptNumber],
-                false
-            );
-
-            $attempt = self::newAttempt($order, $allocation, $attemptNumber, 'in_progress', 'manual');
-            $attempts[] = $attempt;
-            if (! OrderMeta::update($order, self::META_KEY, $attempts)) {
-                self::releaseClaim($order, $fingerprint);
-
-                return null;
-            }
-
-            return $attempt;
-        } finally {
-            self::releaseLock('attempt_ledger', $order, 'all');
-        }
-    }
-
-    public static function recordSkipped(WC_Order $order, CaptureAllocation $allocation, string $reason): array
-    {
-        $fingerprint = $allocation->fingerprint();
-        if (! self::acquireLock('attempt_ledger', $order, 'all')) {
-            return [];
-        }
-
-        try {
-            $attempts = self::all($order);
-            foreach ($attempts as $attempt) {
-                if (
-                    ($attempt['state'] ?? '') === 'skipped' &&
-                    ($attempt['allocation_fingerprint'] ?? '') === $fingerprint &&
-                    ($attempt['last_error'] ?? '') === $reason
-                ) {
-                    return $attempt;
-                }
-            }
-
-            $attemptNumber = count($attempts) + 1;
-            $claimed = add_option(
-                self::claimKey($order, $fingerprint),
-                ['state' => 'skipped', 'attempt_number' => $attemptNumber],
-                '',
-                'no'
-            );
-            if (! $claimed) {
-                return [];
-            }
-
-            $attempt = self::newAttempt($order, $allocation, $attemptNumber, 'skipped', 'automatic');
-            $attempt['last_error'] = $reason;
-            $attempts[] = $attempt;
-            OrderMeta::update($order, self::META_KEY, $attempts);
-            $order->add_order_note($reason);
-            self::releaseClaim($order, $fingerprint);
-
-            return $attempt;
-        } finally {
-            self::releaseLock('attempt_ledger', $order, 'all');
-        }
-    }
-
     public static function claim(WC_Order $order, int $attemptNumber): ?array
     {
-        if (! self::acquireLock('attempt_ledger', $order, 'all')) {
+        if (! self::acquireLock('attempt_ledger', $order, 'all', self::LOCK_WAIT_SECONDS)) {
             return null;
         }
 
@@ -186,35 +149,41 @@ class KlarnaCaptureAttempt
 
     public static function recoverStale(WC_Order $order, int $attemptNumber): ?array
     {
-        $attempt = self::find($order, $attemptNumber);
-        if ($attempt === null || ($attempt['state'] ?? '') !== 'in_progress') {
-            return null;
-        }
-
-        $updatedAt = strtotime((string) ($attempt['updated_at'] ?? ''));
-        if ($updatedAt === false || $updatedAt > time() - self::STALE_AFTER) {
-            return null;
-        }
-
-        $recovered = self::updateUnlessSucceeded(
+        $recovered = self::mutateAttempt(
             $order,
             $attemptNumber,
             [
                 'state' => 'unknown',
                 'last_error' => __('The capture worker stopped before recording an outcome; reconciliation is required.', 'wc-buckaroo-bpe-gateway'),
-            ]
+            ],
+            true,
+            self::IN_PROGRESS,
+            time() - self::STALE_AFTER
         );
+        if ($recovered === null) {
+            return null;
+        }
+
         self::releaseWorkerClaim($order, $attemptNumber);
-        if ($recovered !== null && ($recovered['state'] ?? '') === 'unknown') {
+        if (($recovered['state'] ?? '') === 'unknown') {
             self::recordAttention($order, $recovered);
         }
 
         return $recovered;
     }
 
-    public static function update(WC_Order $order, int $attemptNumber, array $changes): ?array
+    public static function failQueued(WC_Order $order, int $attemptNumber, string $message): ?array
     {
-        return self::mutateAttempt($order, $attemptNumber, $changes, false);
+        return self::mutateAttempt(
+            $order,
+            $attemptNumber,
+            [
+                'state' => 'failed',
+                'last_error' => $message,
+            ],
+            true,
+            'queued'
+        );
     }
 
     public static function updateUnlessSucceeded(WC_Order $order, int $attemptNumber, array $changes): ?array
@@ -225,7 +194,10 @@ class KlarnaCaptureAttempt
         }
 
         $state = $updated['state'] ?? '';
-        if (in_array($state, ['succeeded', 'skipped'], true)) {
+        if (
+            in_array($state, ['succeeded', 'skipped'], true) ||
+            ($state === 'failed' && ($updated['source'] ?? '') === 'manual')
+        ) {
             self::releaseClaim($order, (string) $updated['allocation_fingerprint']);
         }
         if (in_array($state, ['succeeded', 'failed', 'skipped', 'pending', 'unknown'], true)) {
@@ -239,9 +211,11 @@ class KlarnaCaptureAttempt
         WC_Order $order,
         int $attemptNumber,
         array $changes,
-        bool $preserveSuccess
+        bool $preserveSuccess,
+        ?string $expectedState = null,
+        ?int $updatedBefore = null
     ): ?array {
-        if (! self::acquireLock('attempt_ledger', $order, 'all')) {
+        if (! self::acquireLock('attempt_ledger', $order, 'all', self::LOCK_WAIT_SECONDS)) {
             return null;
         }
 
@@ -250,6 +224,15 @@ class KlarnaCaptureAttempt
             foreach ($attempts as $index => $attempt) {
                 if ((int) ($attempt['attempt_number'] ?? 0) !== $attemptNumber) {
                     continue;
+                }
+                if ($expectedState !== null && ($attempt['state'] ?? '') !== $expectedState) {
+                    return null;
+                }
+                if ($updatedBefore !== null) {
+                    $updatedAt = strtotime((string) ($attempt['updated_at'] ?? ''));
+                    if ($updatedAt === false || $updatedAt > $updatedBefore) {
+                        return null;
+                    }
                 }
                 if (
                     $preserveSuccess &&
@@ -302,7 +285,11 @@ class KlarnaCaptureAttempt
     public static function canRetry(WC_Order $order): bool
     {
         $attempt = self::latest($order);
-        if ($attempt === null || $attempt['state'] !== 'failed') {
+        if (
+            $attempt === null ||
+            $attempt['state'] !== 'failed' ||
+            ($attempt['source'] ?? '') !== 'automatic'
+        ) {
             return false;
         }
 
@@ -317,30 +304,39 @@ class KlarnaCaptureAttempt
 
     public static function retry(WC_Order $order, CaptureAllocation $allocation): ?array
     {
-        $failedAttempt = self::latest($order);
-        if ($failedAttempt === null || $failedAttempt['state'] !== 'failed' || $allocation->getAmount() <= 0) {
+        $lockKey = 'order';
+        if (! self::acquireLock('capture_retry', $order, $lockKey, self::LOCK_WAIT_SECONDS)) {
             return null;
         }
 
-        $retryClaim = '_buckaroo_klarna_retry_' . $order->get_id() . '_' . $failedAttempt['attempt_number'];
-        if (! add_option($retryClaim, 'queued', '', 'no')) {
-            return null;
+        try {
+            $failedAttempt = self::latest($order);
+            if (
+                $failedAttempt === null ||
+                $failedAttempt['state'] !== 'failed' ||
+                ($failedAttempt['source'] ?? '') !== 'automatic' ||
+                $allocation->getAmount() <= 0
+            ) {
+                return null;
+            }
+
+            self::releaseClaim($order, $failedAttempt['allocation_fingerprint']);
+
+            return self::start($order, $allocation, 'queued', 'automatic', true);
+        } finally {
+            self::releaseLock('capture_retry', $order, $lockKey);
         }
-
-        self::releaseClaim($order, $failedAttempt['allocation_fingerprint']);
-        $attempt = self::queue($order, $allocation);
-        delete_option($retryClaim);
-
-        return $attempt;
     }
 
-    public static function acquireLock(string $purpose, WC_Order $order, string $key): bool
+    public static function acquireLock(string $purpose, WC_Order $order, string $key, int $waitSeconds = 0): bool
     {
         global $wpdb;
 
         $lockName = self::lockName($purpose, $order, $key);
 
-        return (int) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 0)', $lockName)) === 1;
+        return (int) $wpdb->get_var(
+            $wpdb->prepare('SELECT GET_LOCK(%s, %d)', $lockName, max(0, $waitSeconds))
+        ) === 1;
     }
 
     public static function releaseLock(string $purpose, WC_Order $order, string $key): void
@@ -356,76 +352,89 @@ class KlarnaCaptureAttempt
             return;
         }
 
-        $attention = [
-            'order_id' => $order->get_id(),
-            'attempt_number' => (int) $attempt['attempt_number'],
-            'state' => $attempt['state'],
-            'amount' => number_format((float) $attempt['amount'], 2, '.', ''),
-            'currency' => $attempt['currency'],
-            'error' => sanitize_text_field(wp_strip_all_tags((string) $attempt['last_error'])),
-            'updated_at' => gmdate('c'),
-        ];
-        $current = OrderMeta::get($order, self::ACTIVE_ATTENTION_META_KEY);
-        if (
-            is_array($current) &&
-            ($current['attempt_number'] ?? null) === $attention['attempt_number'] &&
-            ($current['state'] ?? null) === $attention['state'] &&
-            ($current['error'] ?? null) === $attention['error']
-        ) {
+        if (! self::acquireNotificationsLock()) {
             return;
         }
 
-        OrderMeta::update($order, self::ACTIVE_ATTENTION_META_KEY, $attention);
+        try {
+            $attention = [
+                'order_id' => $order->get_id(),
+                'attempt_number' => (int) $attempt['attempt_number'],
+                'state' => $attempt['state'],
+                'amount' => number_format((float) $attempt['amount'], 2, '.', ''),
+                'currency' => $attempt['currency'],
+                'error' => sanitize_text_field(wp_strip_all_tags((string) $attempt['last_error'])),
+                'updated_at' => gmdate('c'),
+            ];
+            $notifications = get_option(self::NOTIFICATIONS_OPTION, []);
+            if (! is_array($notifications)) {
+                $notifications = [];
+            }
+            $current = $notifications[$order->get_id()] ?? null;
+            if (
+                is_array($current) &&
+                ($current['attempt_number'] ?? null) === $attention['attempt_number'] &&
+                ($current['state'] ?? null) === $attention['state'] &&
+                ($current['error'] ?? null) === $attention['error']
+            ) {
+                return;
+            }
 
-        $notifications = get_option(self::NOTIFICATIONS_OPTION, []);
-        if (! is_array($notifications)) {
-            $notifications = [];
-        }
-        $notifications[$order->get_id()] = $attention;
-        if (count($notifications) > 100) {
-            uasort(
-                $notifications,
-                static function ($first, $second) {
-                    return strcmp((string) $first['updated_at'], (string) $second['updated_at']);
-                }
-            );
-            $notifications = array_slice($notifications, -100, null, true);
-        }
-        update_option(self::NOTIFICATIONS_OPTION, $notifications, false);
+            $notifications[$order->get_id()] = $attention;
+            if (count($notifications) > 100) {
+                uasort(
+                    $notifications,
+                    static function ($first, $second) {
+                        return strcmp((string) $first['updated_at'], (string) $second['updated_at']);
+                    }
+                );
+                $notifications = array_slice($notifications, -100, null, true);
+            }
+            update_option(self::NOTIFICATIONS_OPTION, $notifications, false);
 
-        if ($attention['state'] === 'failed') {
-            $order->add_order_note(
-                sprintf(
-                    __('Automatic Klarna capture of %1$s %2$s failed (attempt %3$d): %4$s', 'wc-buckaroo-bpe-gateway'),
-                    $attention['amount'],
-                    $attention['currency'],
-                    $attention['attempt_number'],
-                    $attention['error']
-                )
-            );
-        } else {
-            $order->add_order_note(
-                sprintf(
-                    __('Automatic Klarna capture outcome is unknown for %1$s %2$s (attempt %3$d): %4$s', 'wc-buckaroo-bpe-gateway'),
-                    $attention['amount'],
-                    $attention['currency'],
-                    $attention['attempt_number'],
-                    $attention['error']
-                )
-            );
+            if ($attention['state'] === 'failed') {
+                $order->add_order_note(
+                    sprintf(
+                        __('Automatic Klarna capture of %1$s %2$s failed (attempt %3$d): %4$s', 'wc-buckaroo-bpe-gateway'),
+                        $attention['amount'],
+                        $attention['currency'],
+                        $attention['attempt_number'],
+                        $attention['error']
+                    )
+                );
+            } else {
+                $order->add_order_note(
+                    sprintf(
+                        __('Automatic Klarna capture outcome is unknown for %1$s %2$s (attempt %3$d): %4$s', 'wc-buckaroo-bpe-gateway'),
+                        $attention['amount'],
+                        $attention['currency'],
+                        $attention['attempt_number'],
+                        $attention['error']
+                    )
+                );
+            }
+        } finally {
+            self::releaseNotificationsLock();
         }
     }
 
     public static function clearAttention(WC_Order $order): void
     {
-        OrderMeta::delete($order, self::ACTIVE_ATTENTION_META_KEY);
-        $notifications = get_option(self::NOTIFICATIONS_OPTION, []);
-        if (! is_array($notifications)) {
+        if (! self::acquireNotificationsLock()) {
             return;
         }
 
-        unset($notifications[$order->get_id()]);
-        update_option(self::NOTIFICATIONS_OPTION, $notifications, false);
+        try {
+            $notifications = get_option(self::NOTIFICATIONS_OPTION, []);
+            if (! is_array($notifications)) {
+                return;
+            }
+
+            unset($notifications[$order->get_id()]);
+            update_option(self::NOTIFICATIONS_OPTION, $notifications, false);
+        } finally {
+            self::releaseNotificationsLock();
+        }
     }
 
     public static function notifications(): array
@@ -458,6 +467,17 @@ class KlarnaCaptureAttempt
                 is_array($stored['line_item_tax_totals'] ?? null) ? $stored['line_item_tax_totals'] : []
             );
             if ($allocation->overlaps($existingAllocation)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static function hasFingerprintAttempt(array $attempts, string $fingerprint): bool
+    {
+        foreach ($attempts as $attempt) {
+            if (($attempt['allocation_fingerprint'] ?? '') === $fingerprint) {
                 return true;
             }
         }
@@ -501,5 +521,21 @@ class KlarnaCaptureAttempt
     private static function lockName(string $purpose, WC_Order $order, string $key): string
     {
         return 'buckaroo_' . $purpose . '_' . substr(hash('sha256', $order->get_id() . ':' . $key), 0, 40);
+    }
+
+    private static function acquireNotificationsLock(): bool
+    {
+        global $wpdb;
+
+        return (int) $wpdb->get_var(
+            $wpdb->prepare('SELECT GET_LOCK(%s, %d)', self::NOTIFICATIONS_LOCK, self::LOCK_WAIT_SECONDS)
+        ) === 1;
+    }
+
+    private static function releaseNotificationsLock(): void
+    {
+        global $wpdb;
+
+        $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', self::NOTIFICATIONS_LOCK));
     }
 }

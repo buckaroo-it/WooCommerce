@@ -172,6 +172,54 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         $this->assertSame('processing', $storedOrder->get_status());
     }
 
+    public function test_partial_manual_pay_push_marks_the_order_paid_only_after_the_remaining_capture(): void
+    {
+        $order = $this->createReservedOrder(2);
+        $order->set_status('on-hold');
+        $order->save();
+        $item = current($order->get_items('line_item'));
+        $allocation = CaptureAllocation::fromArrays(
+            [$item->get_id() => 1],
+            [$item->get_id() => 25.00],
+            [$item->get_id() => []]
+        );
+        $processor = new PushProcessor();
+
+        $firstAttempt = KlarnaCaptureAttempt::startManual($order, $allocation);
+        KlarnaCaptureAttempt::updateUnlessSucceeded(
+            $order,
+            (int) $firstAttempt['attempt_number'],
+            ['state' => 'pending', 'transaction_key' => 'PAY-PARTIAL-ONE']
+        );
+        $this->assertTrue($processor->reconcileKlarnaCapturePush(
+            wc_get_order($order->get_id()),
+            $this->payPush($order, 'PAY-PARTIAL-ONE', 25.00)
+        ));
+
+        $partiallyCapturedOrder = wc_get_order($order->get_id());
+        $this->assertFalse($partiallyCapturedOrder->is_paid());
+        $this->assertSame('on-hold', $partiallyCapturedOrder->get_status());
+        $this->assertSame(
+            '25.00',
+            number_format((float) OrderMeta::get($partiallyCapturedOrder, '_wc_order_amount_captured'), 2, '.', '')
+        );
+
+        $secondAttempt = KlarnaCaptureAttempt::startManual($partiallyCapturedOrder, $allocation);
+        KlarnaCaptureAttempt::updateUnlessSucceeded(
+            $partiallyCapturedOrder,
+            (int) $secondAttempt['attempt_number'],
+            ['state' => 'pending', 'transaction_key' => 'PAY-PARTIAL-TWO']
+        );
+        $this->assertTrue($processor->reconcileKlarnaCapturePush(
+            wc_get_order($order->get_id()),
+            $this->payPush($order, 'PAY-PARTIAL-TWO', 25.00)
+        ));
+
+        $fullyCapturedOrder = wc_get_order($order->get_id());
+        $this->assertTrue($fullyCapturedOrder->is_paid());
+        $this->assertSame('processing', $fullyCapturedOrder->get_status());
+    }
+
     public function test_claim_releases_its_worker_option_when_the_attempt_ledger_is_locked(): void
     {
         $order = $this->createReservedOrder();
@@ -199,13 +247,95 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         $this->assertSame('queued', KlarnaCaptureAttempt::find($storedOrder, 1)['state']);
         $this->assertTrue((bool) as_has_scheduled_action(
             KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK,
-            [$order->get_id(), 1],
+            [$order->get_id(), 1, 1],
             KlarnaFulfillmentActions::ACTION_GROUP
         ));
         $blocker->get_var($blocker->prepare('SELECT RELEASE_LOCK(%s)', $lockName));
 
         $claimed = KlarnaCaptureAttempt::claim($storedOrder, 1);
         $this->assertSame('in_progress', $claimed['state']);
+    }
+
+    public function test_worker_lock_contention_stops_after_the_bounded_retry_limit(): void
+    {
+        $order = $this->createReservedOrder();
+        $actions = new KlarnaFulfillmentActions();
+        $order->set_status('completed');
+        $order->save();
+        $actions->handle_completed_order($order->get_id());
+        $lockName = 'buckaroo_attempt_ledger_' . substr(
+            hash('sha256', $order->get_id() . ':all'),
+            0,
+            40
+        );
+        $blocker = new wpdb(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
+        $this->assertSame('1', (string) $blocker->get_var(
+            $blocker->prepare('SELECT GET_LOCK(%s, 0)', $lockName)
+        ));
+
+        try {
+            $actions->handle_automatic_capture($order->get_id(), 1, 3);
+        } finally {
+            $blocker->get_var($blocker->prepare('SELECT RELEASE_LOCK(%s)', $lockName));
+        }
+
+        $attempt = KlarnaCaptureAttempt::find(wc_get_order($order->get_id()), 1);
+        $this->assertSame('queued', $attempt['state']);
+        $this->assertArrayHasKey($order->get_id(), KlarnaCaptureAttempt::notifications());
+        $this->assertTrue((bool) as_has_scheduled_action(
+            KlarnaFulfillmentActions::RECOVER_CAPTURE_HOOK,
+            [$order->get_id(), 1],
+            KlarnaFulfillmentActions::ACTION_GROUP
+        ));
+
+        do_action(KlarnaFulfillmentActions::RECOVER_CAPTURE_HOOK, $order->get_id(), 1);
+
+        $this->assertSame(
+            'failed',
+            KlarnaCaptureAttempt::find(wc_get_order($order->get_id()), 1)['state']
+        );
+    }
+
+    public function test_success_push_records_reconciliation_attention_when_local_recording_times_out(): void
+    {
+        $order = $this->createReservedOrder();
+        $item = current($order->get_items('line_item'));
+        $allocation = CaptureAllocation::fromArrays(
+            [$item->get_id() => 1],
+            [$item->get_id() => 25.00],
+            [$item->get_id() => []]
+        );
+        $attempt = KlarnaCaptureAttempt::startManual($order, $allocation);
+        KlarnaCaptureAttempt::updateUnlessSucceeded(
+            $order,
+            (int) $attempt['attempt_number'],
+            ['state' => 'pending', 'transaction_key' => 'PAY-RECORD-TIMEOUT']
+        );
+        $lockName = 'buckaroo_capture_record_' . substr(
+            hash('sha256', $order->get_id() . ':order'),
+            0,
+            40
+        );
+        $blocker = new wpdb(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
+        $this->assertSame('1', (string) $blocker->get_var(
+            $blocker->prepare('SELECT GET_LOCK(%s, 0)', $lockName)
+        ));
+
+        try {
+            $this->assertTrue((new PushProcessor())->reconcileKlarnaCapturePush(
+                wc_get_order($order->get_id()),
+                $this->payPush($order, 'PAY-RECORD-TIMEOUT', 25.00)
+            ));
+        } finally {
+            $blocker->get_var($blocker->prepare('SELECT RELEASE_LOCK(%s)', $lockName));
+        }
+
+        $storedOrder = wc_get_order($order->get_id());
+        $storedAttempt = KlarnaCaptureAttempt::find($storedOrder, (int) $attempt['attempt_number']);
+        $this->assertSame('unknown', $storedAttempt['state']);
+        $this->assertSame('PAY-RECORD-TIMEOUT', $storedAttempt['transaction_key']);
+        $this->assertArrayHasKey($order->get_id(), KlarnaCaptureAttempt::notifications());
+        $this->assertSame([], OrderMeta::get($storedOrder, '_wc_order_captures', false));
     }
 
     public function test_a_definite_rejection_is_failed_with_its_error_and_keeps_completed(): void
@@ -392,7 +522,20 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         return $response;
     }
 
-    private function createReservedOrder(): WC_Order
+    private function payPush(WC_Order $order, string $transactionKey, float $amount): FormDataParser
+    {
+        return new FormDataParser([
+            'brq_action' => 'Pay',
+            'brq_statuscode' => '190',
+            'brq_amount' => number_format($amount, 2, '.', ''),
+            'brq_currency' => 'EUR',
+            'brq_transactions' => $transactionKey,
+            'brq_transaction_method' => 'klarna',
+            'brq_ordernumber' => (string) $order->get_id(),
+        ]);
+    }
+
+    private function createReservedOrder(int $quantity = 1): WC_Order
     {
         $product = new WC_Product_Simple();
         $product->set_name('Push reconciliation product');
@@ -402,13 +545,16 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         $this->productIds[] = $product->get_id();
 
         $order = $this->createOrder();
-        $order->add_product($product, 1);
+        $order->add_product($product, $quantity);
         $order->set_payment_method('buckaroo_klarnapay');
         $order->set_currency('EUR');
         $order->calculate_totals();
         $order->update_meta_data('buckaroo_is_reserved', 'yes');
         $order->update_meta_data(KlarnaProcessor::DATA_REQUEST_META_KEY, 'DATA-REQUEST-PUSH');
-        $order->update_meta_data(KlarnaProcessor::RESERVED_AMOUNT_META_KEY, '25.00');
+        $order->update_meta_data(
+            KlarnaProcessor::RESERVED_AMOUNT_META_KEY,
+            number_format(25.00 * $quantity, 2, '.', '')
+        );
         $order->save();
 
         return wc_get_order($order->get_id());

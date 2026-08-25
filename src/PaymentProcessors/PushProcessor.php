@@ -283,6 +283,19 @@ class PushProcessor
                 $products
             );
             if (! $captureResult->isSuccess()) {
+                $recordingAttempt = KlarnaCaptureAttempt::updateUnlessSucceeded(
+                    $order,
+                    $attemptNumber,
+                    [
+                        'state' => $captureResult->getStatus(),
+                        'transaction_key' => $transactionKey,
+                        'last_error' => sanitize_text_field($captureResult->getMessage()),
+                    ]
+                );
+                if ($recordingAttempt !== null) {
+                    KlarnaCaptureAttempt::recordAttention($order, $recordingAttempt);
+                }
+
                 return true;
             }
 
@@ -295,7 +308,14 @@ class PushProcessor
                     'last_error' => '',
                 ]
             );
-            $order->payment_complete($transactionKey);
+            $reservedAmount = OrderMeta::get($order, KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
+            $captureTarget = is_numeric($reservedAmount)
+                ? (float) $reservedAmount
+                : (float) $order->get_total('edit');
+            $capturedAmount = (float) OrderMeta::get($order, '_wc_order_amount_captured');
+            if (Helper::roundAmount($capturedAmount) >= Helper::roundAmount($captureTarget)) {
+                $order->payment_complete($transactionKey);
+            }
             $order->save();
             $this->updateSettlementMeta($order, $responseParser, $amount);
             OrderMeta::add($order, '_payment_method_transaction', 'klarna', true);
@@ -343,7 +363,7 @@ class PushProcessor
         }
 
         $reconcilableStates = [
-            CaptureResult::IN_PROGRESS,
+            KlarnaCaptureAttempt::IN_PROGRESS,
             CaptureResult::PENDING,
             CaptureResult::UNKNOWN,
             CaptureResult::FAILED,

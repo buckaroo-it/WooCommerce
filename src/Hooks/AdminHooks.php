@@ -120,11 +120,9 @@ class AdminHooks
         }
 
         $notifications = KlarnaCaptureAttempt::notifications();
-        $activeNotifications = $notifications;
-        foreach ($notifications as $orderId => $notification) {
+        foreach ($notifications as $notification) {
             $order = wc_get_order($notification['order_id']);
             if (! $order) {
-                unset($activeNotifications[$orderId]);
                 continue;
             }
 
@@ -141,10 +139,6 @@ class AdminHooks
                 esc_html__('Review order', 'wc-buckaroo-bpe-gateway'),
                 (int) $order->get_id()
             );
-        }
-
-        if (count($activeNotifications) !== count($notifications)) {
-            update_option(KlarnaCaptureAttempt::NOTIFICATIONS_OPTION, $activeNotifications, false);
         }
     }
 }

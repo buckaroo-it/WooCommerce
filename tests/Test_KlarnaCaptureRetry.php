@@ -127,7 +127,6 @@ class Test_KlarnaCaptureRetry extends TestCase
         $attempts = KlarnaCaptureAttempt::all($storedOrder);
         $this->assertSame('succeeded', $attempts[1]['state']);
         $this->assertSame(1, $successfulClient->sendCount);
-        $this->assertSame('', OrderMeta::get($storedOrder, KlarnaCaptureAttempt::ACTIVE_ATTENTION_META_KEY));
         $this->assertArrayNotHasKey($order->get_id(), KlarnaCaptureAttempt::notifications());
         $this->assertArrayNotHasKey(
             'buckaroo_klarnapay_retry_capture',

@@ -8,13 +8,9 @@ class CaptureResult
 
     public const PENDING = 'pending';
 
-    public const IN_PROGRESS = 'in_progress';
-
     public const FAILED = 'failed';
 
     public const UNKNOWN = 'unknown';
-
-    public const SKIPPED = 'skipped';
 
     private string $status;
 
@@ -47,9 +43,9 @@ class CaptureResult
         return new self(self::FAILED, $message, [], $transactionKey);
     }
 
-    public static function unknown(string $message): self
+    public static function unknown(string $message, ?string $transactionKey = null): self
     {
-        return new self(self::UNKNOWN, $message);
+        return new self(self::UNKNOWN, $message, [], $transactionKey);
     }
 
     public function isSuccess(): bool
@@ -70,11 +66,6 @@ class CaptureResult
     public function getTransactionKey(): ?string
     {
         return $this->transactionKey;
-    }
-
-    public function getResponseData(): array
-    {
-        return $this->responseData;
     }
 
     public function toAjaxResponse(): array

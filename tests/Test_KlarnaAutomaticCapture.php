@@ -26,6 +26,7 @@ class Test_KlarnaAutomaticCapture extends TestCase
         update_option('woocommerce_buckaroo_mastersettings_settings', ['culture' => 'en-US']);
         as_unschedule_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
         as_unschedule_all_actions(KlarnaFulfillmentActions::RECOVER_CAPTURE_HOOK);
+        as_unschedule_all_actions(KlarnaFulfillmentActions::QUEUE_CAPTURE_HOOK);
         remove_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
     }
 
@@ -33,6 +34,7 @@ class Test_KlarnaAutomaticCapture extends TestCase
     {
         as_unschedule_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
         as_unschedule_all_actions(KlarnaFulfillmentActions::RECOVER_CAPTURE_HOOK);
+        as_unschedule_all_actions(KlarnaFulfillmentActions::QUEUE_CAPTURE_HOOK);
         remove_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
 
         foreach ($this->productIds as $productId) {
@@ -191,6 +193,103 @@ class Test_KlarnaAutomaticCapture extends TestCase
         $this->assertCount(1, $actions);
     }
 
+    public function test_completed_transition_requeues_after_attempt_ledger_lock_contention(): void
+    {
+        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'no']);
+        $order = $this->createReservedOrder();
+        $order->set_status('completed');
+        $order->save();
+        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'yes']);
+        $actions = new KlarnaFulfillmentActions();
+        $lockName = 'buckaroo_attempt_ledger_' . substr(
+            hash('sha256', $order->get_id() . ':all'),
+            0,
+            40
+        );
+        $blocker = new wpdb(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
+        $this->assertSame('1', (string) $blocker->get_var(
+            $blocker->prepare('SELECT GET_LOCK(%s, 0)', $lockName)
+        ));
+
+        try {
+            $actions->handle_completed_order($order->get_id());
+        } finally {
+            $blocker->get_var($blocker->prepare('SELECT RELEASE_LOCK(%s)', $lockName));
+        }
+
+        $queueHook = KlarnaFulfillmentActions::QUEUE_CAPTURE_HOOK;
+        $this->assertTrue((bool) as_has_scheduled_action(
+            $queueHook,
+            [$order->get_id(), 1],
+            KlarnaFulfillmentActions::ACTION_GROUP
+        ));
+
+        do_action($queueHook, $order->get_id(), 1);
+
+        $this->assertCount(1, KlarnaCaptureAttempt::all(wc_get_order($order->get_id())));
+        $this->assertTrue((bool) as_has_scheduled_action(
+            KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK,
+            [$order->get_id(), 1],
+            KlarnaFulfillmentActions::ACTION_GROUP
+        ));
+    }
+
+    public function test_completed_transition_heals_an_orphaned_allocation_claim(): void
+    {
+        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'no']);
+        $order = $this->createReservedOrder();
+        $order->set_status('completed');
+        $order->save();
+        $allocation = CaptureAllocation::remainingForOrder($order, 25.00);
+        $claimKey = '_buckaroo_klarna_capture_' . $order->get_id() . '_' . substr(
+            $allocation->fingerprint(),
+            0,
+            32
+        );
+        add_option($claimKey, ['state' => 'queued'], '', 'no');
+        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'yes']);
+
+        (new KlarnaFulfillmentActions())->handle_completed_order($order->get_id());
+
+        $attempts = KlarnaCaptureAttempt::all(wc_get_order($order->get_id()));
+        $this->assertCount(1, $attempts);
+        $this->assertSame('queued', $attempts[0]['state']);
+        $this->assertSame(1, get_option($claimKey)['attempt_number']);
+        $this->assertTrue((bool) as_has_scheduled_action(
+            KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK,
+            [$order->get_id(), 1],
+            KlarnaFulfillmentActions::ACTION_GROUP
+        ));
+    }
+
+    public function test_attempt_ledger_contention_exhaustion_creates_admin_attention(): void
+    {
+        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'no']);
+        $order = $this->createReservedOrder();
+        $order->set_status('completed');
+        $order->save();
+        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'yes']);
+        $actions = new KlarnaFulfillmentActions();
+        $lockName = 'buckaroo_attempt_ledger_' . substr(
+            hash('sha256', $order->get_id() . ':all'),
+            0,
+            40
+        );
+        $blocker = new wpdb(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
+        $this->assertSame('1', (string) $blocker->get_var(
+            $blocker->prepare('SELECT GET_LOCK(%s, 0)', $lockName)
+        ));
+
+        try {
+            $actions->handle_completed_order($order->get_id(), 3);
+        } finally {
+            $blocker->get_var($blocker->prepare('SELECT RELEASE_LOCK(%s)', $lockName));
+        }
+
+        $this->assertArrayHasKey($order->get_id(), KlarnaCaptureAttempt::notifications());
+        $this->assertSame([], KlarnaCaptureAttempt::all(wc_get_order($order->get_id())));
+    }
+
     public function test_worker_skips_when_the_order_is_no_longer_eligible(): void
     {
         update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'yes']);
@@ -232,7 +331,7 @@ class Test_KlarnaAutomaticCapture extends TestCase
         }
     }
 
-    public function test_zero_remaining_capture_is_recorded_once_as_a_durable_no_op(): void
+    public function test_zero_remaining_capture_is_a_no_op(): void
     {
         update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'yes']);
         $order = $this->createReservedOrder();
@@ -245,17 +344,8 @@ class Test_KlarnaAutomaticCapture extends TestCase
         $actions->handle_completed_order($order->get_id());
         $actions->handle_completed_order($order->get_id());
 
-        $attempts = KlarnaCaptureAttempt::all(wc_get_order($order->get_id()));
-        $this->assertCount(1, $attempts);
-        $this->assertSame('skipped', $attempts[0]['state']);
-        $this->assertStringContainsString('no remaining amount', strtolower($attempts[0]['last_error']));
-        $notes = array_filter(
-            wc_get_order_notes(['order_id' => $order->get_id()]),
-            static function ($note): bool {
-                return strpos(strtolower($note->content), 'no remaining amount') !== false;
-            }
-        );
-        $this->assertCount(1, $notes);
+        $this->assertSame([], KlarnaCaptureAttempt::all(wc_get_order($order->get_id())));
+        $this->assertFalse((bool) as_has_scheduled_action(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK));
     }
 
     public function test_completed_transition_migrates_legacy_capture_rows_before_calculating_remaining(): void
@@ -285,16 +375,14 @@ class Test_KlarnaAutomaticCapture extends TestCase
 
     public function test_failed_enqueue_records_attention_and_allows_a_safe_retry(): void
     {
-        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'yes']);
-        add_filter('buckaroo_klarna_enqueue_capture', '__return_false');
+        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'no']);
         $order = $this->createReservedOrder();
         $actions = new FailingEnqueueKlarnaFulfillmentActions();
         $order->set_status('completed');
         $order->save();
+        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'yes']);
 
         $actions->handle_completed_order($order->get_id());
-        remove_filter('buckaroo_klarna_enqueue_capture', '__return_false');
-
         $storedOrder = wc_get_order($order->get_id());
         $attempt = KlarnaCaptureAttempt::latest($storedOrder);
         $this->assertSame('failed', $attempt['state']);
@@ -322,9 +410,7 @@ class Test_KlarnaAutomaticCapture extends TestCase
 
         $order->update_status('completed');
 
-        $attempts = KlarnaCaptureAttempt::all(wc_get_order($order->get_id()));
-        $this->assertCount(1, $attempts);
-        $this->assertSame('skipped', $attempts[0]['state']);
+        $this->assertSame([], KlarnaCaptureAttempt::all(wc_get_order($order->get_id())));
         $this->assertFalse((bool) as_has_scheduled_action(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK));
     }
 

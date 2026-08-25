@@ -15,9 +15,17 @@ class KlarnaFulfillmentActions
 
     public const RECOVER_CAPTURE_HOOK = 'buckaroo_klarnapay_recover_capture';
 
+    public const QUEUE_CAPTURE_HOOK = 'buckaroo_klarnapay_queue_capture';
+
     public const ACTION_GROUP = 'buckaroo-klarna-capture';
 
+    private const MAX_QUEUE_ATTEMPTS = 3;
+
+    private const MAX_CAPTURE_RESCHEDULE_ATTEMPTS = 3;
+
     private ?BuckarooClient $buckarooClient;
+
+    private ?KlarnaPayGateway $gateway = null;
 
     public function __construct(?BuckarooClient $buckarooClient = null)
     {
@@ -27,18 +35,23 @@ class KlarnaFulfillmentActions
         add_action('woocommerce_order_action_buckaroo_klarnapay_cancel_reservation', [$this, 'handle_cancel_reservation'], 10, 1);
         add_action('woocommerce_order_action_buckaroo_klarnapay_retry_capture', [$this, 'handle_retry_capture'], 10, 1);
         add_action('woocommerce_order_status_completed', [$this, 'handle_completed_order'], 10, 1);
-        add_action(self::AUTOMATIC_CAPTURE_HOOK, [$this, 'handle_automatic_capture'], 10, 2);
+        add_action(self::QUEUE_CAPTURE_HOOK, [$this, 'handle_completed_order'], 10, 2);
+        add_action(self::AUTOMATIC_CAPTURE_HOOK, [$this, 'handle_automatic_capture'], 10, 3);
         add_action(self::RECOVER_CAPTURE_HOOK, [$this, 'handle_recover_capture'], 10, 2);
     }
 
-    public function handle_completed_order($orderId): void
+    public function handle_completed_order($orderId, $queueAttempt = 0): void
     {
         $order = wc_get_order($orderId);
-        if (! $order instanceof WC_Order || $order->get_payment_method() !== 'buckaroo_klarnapay') {
+        if (
+            ! $order instanceof WC_Order ||
+            $order->get_status() !== 'completed' ||
+            $order->get_payment_method() !== 'buckaroo_klarnapay'
+        ) {
             return;
         }
 
-        $gateway = new KlarnaPayGateway();
+        $gateway = $this->gateway();
         if ($gateway->get_option('automatic_capture', 'no') !== 'yes') {
             return;
         }
@@ -61,9 +74,7 @@ class KlarnaFulfillmentActions
 
         $reservedAmount = $order->get_meta(KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
         if (! is_numeric($reservedAmount)) {
-            KlarnaCaptureAttempt::recordSkipped(
-                $order,
-                CaptureAllocation::forOrder($order),
+            $order->add_order_note(
                 __('Automatic Klarna capture was skipped because the reserved amount is unknown.', 'wc-buckaroo-bpe-gateway')
             );
 
@@ -75,17 +86,15 @@ class KlarnaFulfillmentActions
             (float) $reservedAmount
         );
         if ($allocation->getAmount() <= 0) {
-            KlarnaCaptureAttempt::recordSkipped(
-                $order,
-                $allocation,
-                __('Automatic Klarna capture was skipped because there is no remaining amount to capture.', 'wc-buckaroo-bpe-gateway')
-            );
-
             return;
         }
 
         $attempt = KlarnaCaptureAttempt::queue($order, $allocation);
         if ($attempt === null) {
+            if (! KlarnaCaptureAttempt::hasRelatedAttempt($order, $allocation)) {
+                $this->scheduleQueueRetry($order, $allocation, (int) $queueAttempt);
+            }
+
             return;
         }
 
@@ -104,7 +113,7 @@ class KlarnaFulfillmentActions
         }
     }
 
-    public function handle_automatic_capture($orderId, $attemptNumber): void
+    public function handle_automatic_capture($orderId, $attemptNumber, $rescheduleAttempt = 0): void
     {
         $order = wc_get_order($orderId);
         if (! $order instanceof WC_Order) {
@@ -115,7 +124,7 @@ class KlarnaFulfillmentActions
         if ($attempt === null) {
             $queuedAttempt = KlarnaCaptureAttempt::find($order, (int) $attemptNumber);
             if (($queuedAttempt['state'] ?? '') === 'queued') {
-                $this->rescheduleCapture($order, $queuedAttempt);
+                $this->rescheduleCapture($order, $queuedAttempt, (int) $rescheduleAttempt);
             }
 
             return;
@@ -143,11 +152,11 @@ class KlarnaFulfillmentActions
                 $order,
                 (int) $attemptNumber,
                 [
-                    'state' => CaptureResult::SKIPPED,
+                    'state' => KlarnaCaptureAttempt::SKIPPED,
                     'last_error' => $skipReason,
                 ]
             );
-            if ($skipped !== null && ($skipped['state'] ?? '') === CaptureResult::SKIPPED) {
+            if ($skipped !== null && ($skipped['state'] ?? '') === KlarnaCaptureAttempt::SKIPPED) {
                 $order->add_order_note($skipReason);
             }
 
@@ -160,48 +169,36 @@ class KlarnaFulfillmentActions
             $storedAllocation['line_item_totals'],
             $storedAllocation['line_item_tax_totals']
         );
-        $result = (new KlarnaPayGateway())->capture(
+        $this->gateway()->capture(
             $order,
             $attempt['amount'],
             $allocation,
             $this->buckarooClient,
             (int) $attemptNumber
         );
-
-        $updatedAttempt = KlarnaCaptureAttempt::updateUnlessSucceeded(
-            $order,
-            (int) $attemptNumber,
-            [
-                'state' => $result->getStatus(),
-                'transaction_key' => $result->getTransactionKey(),
-                'last_error' => $result->getStatus() === CaptureResult::SUCCEEDED
-                    ? ''
-                    : sanitize_text_field($result->getMessage()),
-            ]
-        );
-
-        if ($updatedAttempt !== null && in_array($updatedAttempt['state'], [CaptureResult::FAILED, CaptureResult::UNKNOWN], true)) {
-            KlarnaCaptureAttempt::recordAttention($order, $updatedAttempt);
-        } elseif ($updatedAttempt !== null && $updatedAttempt['state'] === CaptureResult::SUCCEEDED) {
-            KlarnaCaptureAttempt::clearAttention($order);
-        }
     }
 
     public function handle_recover_capture($orderId, $attemptNumber): void
     {
         $order = wc_get_order($orderId);
         if ($order instanceof WC_Order) {
-            KlarnaCaptureAttempt::recoverStale($order, (int) $attemptNumber);
+            if (KlarnaCaptureAttempt::recoverStale($order, (int) $attemptNumber) !== null) {
+                return;
+            }
+
+            $failed = KlarnaCaptureAttempt::failQueued(
+                $order,
+                (int) $attemptNumber,
+                __('Automatic Klarna capture stopped after repeated worker lock contention.', 'wc-buckaroo-bpe-gateway')
+            );
+            if ($failed !== null) {
+                KlarnaCaptureAttempt::recordAttention($order, $failed);
+            }
         }
     }
 
     protected function enqueueCapture(WC_Order $order, array $attempt)
     {
-        $pre = apply_filters('buckaroo_klarna_enqueue_capture', null, $order, $attempt);
-        if ($pre !== null) {
-            return $pre;
-        }
-
         if (! function_exists('as_enqueue_async_action')) {
             return false;
         }
@@ -277,8 +274,67 @@ class KlarnaFulfillmentActions
         );
     }
 
-    private function rescheduleCapture(WC_Order $order, array $attempt): void
+    private function scheduleQueueRetry(
+        WC_Order $order,
+        CaptureAllocation $allocation,
+        int $queueAttempt
+    ): void {
+        $nextAttempt = $queueAttempt + 1;
+        if ($nextAttempt > self::MAX_QUEUE_ATTEMPTS || ! function_exists('as_schedule_single_action')) {
+            KlarnaCaptureAttempt::recordAttention(
+                $order,
+                [
+                    'attempt_number' => 0,
+                    'state' => CaptureResult::UNKNOWN,
+                    'amount' => $allocation->getAmount(),
+                    'currency' => $order->get_currency(),
+                    'last_error' => __('Automatic Klarna capture could not create a durable attempt.', 'wc-buckaroo-bpe-gateway'),
+                ]
+            );
+
+            return;
+        }
+
+        $args = [$order->get_id(), $nextAttempt];
+        $actionId = as_schedule_single_action(
+            time() + 5,
+            self::QUEUE_CAPTURE_HOOK,
+            $args,
+            self::ACTION_GROUP,
+            true
+        );
+        if (
+            ! $actionId &&
+            (! function_exists('as_has_scheduled_action') || ! as_has_scheduled_action(
+                self::QUEUE_CAPTURE_HOOK,
+                $args,
+                self::ACTION_GROUP
+            ))
+        ) {
+            $order->add_order_note(
+                __('Automatic Klarna capture could not retry durable attempt creation.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
+    }
+
+    private function rescheduleCapture(WC_Order $order, array $attempt, int $rescheduleAttempt): void
     {
+        $nextAttempt = $rescheduleAttempt + 1;
+        if ($nextAttempt > self::MAX_CAPTURE_RESCHEDULE_ATTEMPTS) {
+            if ($this->scheduleRecovery($order, $attempt)) {
+                KlarnaCaptureAttempt::recordAttention(
+                    $order,
+                    array_merge($attempt, [
+                        'state' => CaptureResult::UNKNOWN,
+                        'last_error' => __('Automatic Klarna capture is waiting for final lock recovery.', 'wc-buckaroo-bpe-gateway'),
+                    ])
+                );
+            } else {
+                $this->failReschedule($order, $attempt);
+            }
+
+            return;
+        }
         if (! function_exists('as_schedule_single_action')) {
             return;
         }
@@ -286,7 +342,7 @@ class KlarnaFulfillmentActions
         $actionId = as_schedule_single_action(
             time() + 5,
             self::AUTOMATIC_CAPTURE_HOOK,
-            [$order->get_id(), $attempt['attempt_number']],
+            [$order->get_id(), $attempt['attempt_number'], $nextAttempt],
             self::ACTION_GROUP,
             false
         );
@@ -294,6 +350,11 @@ class KlarnaFulfillmentActions
             return;
         }
 
+        $this->failReschedule($order, $attempt);
+    }
+
+    private function failReschedule(WC_Order $order, array $attempt): void
+    {
         $failed = KlarnaCaptureAttempt::updateUnlessSucceeded(
             $order,
             (int) $attempt['attempt_number'],
@@ -304,6 +365,14 @@ class KlarnaFulfillmentActions
         );
         if ($failed !== null) {
             KlarnaCaptureAttempt::recordAttention($order, $failed);
+        } else {
+            KlarnaCaptureAttempt::recordAttention(
+                $order,
+                array_merge($attempt, [
+                    'state' => CaptureResult::UNKNOWN,
+                    'last_error' => __('Automatic Klarna capture could not recover from lock contention.', 'wc-buckaroo-bpe-gateway'),
+                ])
+            );
         }
     }
 
@@ -324,7 +393,7 @@ class KlarnaFulfillmentActions
             return __('Automatic Klarna capture was skipped because the Data Request key is missing.', 'wc-buckaroo-bpe-gateway');
         }
 
-        if ((new KlarnaPayGateway())->get_option('automatic_capture', 'no') !== 'yes') {
+        if ($this->gateway()->get_option('automatic_capture', 'no') !== 'yes') {
             return __('Automatic Klarna capture was skipped because automatic capture is disabled.', 'wc-buckaroo-bpe-gateway');
         }
 
@@ -413,10 +482,21 @@ class KlarnaFulfillmentActions
      */
     public function handle_cancel_reservation(WC_Order $order)
     {
-        $gateway = new KlarnaPayGateway();
+        $gateway = $this->gateway();
         $gateway->cancel_reservation($order);
 
         wp_safe_redirect(admin_url("post.php?post={$order->get_id()}&action=edit"));
         exit;
+    }
+
+    private function gateway(): KlarnaPayGateway
+    {
+        if ($this->gateway === null) {
+            $this->gateway = new KlarnaPayGateway();
+        } else {
+            $this->gateway->init_settings();
+        }
+
+        return $this->gateway;
     }
 }
