@@ -2,6 +2,8 @@
 
 namespace Buckaroo\Woocommerce\PaymentProcessors\Actions;
 
+use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
+
 class CaptureResult
 {
     public const SUCCEEDED = 'succeeded';
@@ -11,6 +13,17 @@ class CaptureResult
     public const FAILED = 'failed';
 
     public const UNKNOWN = 'unknown';
+
+    /**
+     * Buckaroo status codes that are not final yet; the outcome arrives by push.
+     */
+    private const PENDING_STATUS_CODES = [
+        ResponseStatus::BUCKAROO_STATUSCODE_WAITING_ON_USER_INPUT,
+        ResponseStatus::BUCKAROO_STATUSCODE_PENDING_PROCESSING,
+        ResponseStatus::BUCKAROO_STATUSCODE_WAITING_ON_CONSUMER,
+        ResponseStatus::BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD,
+        ResponseStatus::BUCKAROO_STATUSCODE_PENDING_APPROVAL,
+    ];
 
     private string $status;
 
@@ -46,6 +59,16 @@ class CaptureResult
     public static function unknown(string $message, ?string $transactionKey = null): self
     {
         return new self(self::UNKNOWN, $message, [], $transactionKey);
+    }
+
+    public static function isPendingStatusCode($statusCode): bool
+    {
+        return is_numeric($statusCode) && in_array((string) (int) $statusCode, self::PENDING_STATUS_CODES, true);
+    }
+
+    public static function isSuccessStatusCode($statusCode): bool
+    {
+        return is_numeric($statusCode) && (int) $statusCode === (int) ResponseStatus::BUCKAROO_STATUSCODE_SUCCESS;
     }
 
     public function isSuccess(): bool

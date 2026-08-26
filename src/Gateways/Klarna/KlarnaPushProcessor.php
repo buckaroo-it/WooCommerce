@@ -10,7 +10,6 @@ use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\NamedLock;
-use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use RuntimeException;
 use WC_Order;
 
@@ -123,13 +122,16 @@ class KlarnaPushProcessor
         }
 
         $attemptNumber = (int) $attempt['attempt_number'];
-        if ($attempt['state'] === CaptureResult::SUCCEEDED && ! $responseParser->isSuccess()) {
+        if (
+            $attempt['state'] === CaptureResult::SUCCEEDED &&
+            ! CaptureResult::isSuccessStatusCode($responseParser->getStatusCode())
+        ) {
             return true;
         }
 
         if (
             $responseParser->isPendingProcessing() ||
-            $responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD
+            CaptureResult::isPendingStatusCode($responseParser->getStatusCode())
         ) {
             KlarnaCaptureAttempt::updateUnlessSucceeded(
                 $order,
@@ -143,7 +145,7 @@ class KlarnaPushProcessor
             return true;
         }
 
-        if ($responseParser->isSuccess()) {
+        if (CaptureResult::isSuccessStatusCode($responseParser->getStatusCode())) {
             return self::reconcileSuccessfulCapture($order, $responseParser, $attempt, $transactionKey);
         }
 
@@ -235,6 +237,7 @@ class KlarnaPushProcessor
                 );
             }
             KlarnaCaptureAttempt::recordAttention($order, $recordingAttempt);
+            KlarnaFulfillmentActions::scheduleStatusCheck($order, $recordingAttempt);
 
             return true;
         }

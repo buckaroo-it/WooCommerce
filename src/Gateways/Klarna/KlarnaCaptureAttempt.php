@@ -21,6 +21,8 @@ class KlarnaCaptureAttempt
 
     private const BLOCKING_STATES = ['queued', 'in_progress', 'pending', 'unknown'];
 
+    private const CHECKABLE_STATES = ['unknown', 'pending'];
+
     private const LOCK_WAIT_SECONDS = 5;
 
     private const NOTIFICATIONS_LOCK = 'buckaroo_klarna_capture_notifications';
@@ -303,6 +305,73 @@ class KlarnaCaptureAttempt
         );
 
         return $remaining->getAmount() > 0;
+    }
+
+    public static function isCheckable(array $attempt): bool
+    {
+        return in_array($attempt['state'] ?? '', self::CHECKABLE_STATES, true);
+    }
+
+    /**
+     * Attempts whose outcome is still unknown or pending, oldest first.
+     */
+    public static function checkable(WC_Order $order): array
+    {
+        return array_values(array_filter(self::all($order), [self::class, 'isCheckable']));
+    }
+
+    public static function canCheckStatus(WC_Order $order): bool
+    {
+        return self::checkable($order) !== [];
+    }
+
+    /**
+     * Mark an attempt failed only while it is still unknown/pending and has no
+     * transaction key, so a push that landed in between is never overwritten.
+     */
+    public static function failUnconfirmed(WC_Order $order, int $attemptNumber, string $message): ?array
+    {
+        if (! NamedLock::acquire('attempt_ledger', $order, 'all', self::LOCK_WAIT_SECONDS)) {
+            return null;
+        }
+
+        $failed = null;
+        try {
+            $attempts = self::all($order);
+            foreach ($attempts as $index => $attempt) {
+                if ((int) ($attempt['attempt_number'] ?? 0) !== $attemptNumber) {
+                    continue;
+                }
+                if (
+                    ! self::isCheckable($attempt) ||
+                    trim((string) ($attempt['transaction_key'] ?? '')) !== ''
+                ) {
+                    return null;
+                }
+
+                $attempts[$index] = array_merge($attempt, [
+                    'state' => 'failed',
+                    'last_error' => $message,
+                    'updated_at' => gmdate('c'),
+                ]);
+                OrderMeta::update($order, self::META_KEY, $attempts);
+                $failed = $attempts[$index];
+                break;
+            }
+        } finally {
+            NamedLock::release('attempt_ledger', $order, 'all');
+        }
+
+        if ($failed === null) {
+            return null;
+        }
+
+        if (($failed['source'] ?? '') === 'manual') {
+            self::releaseClaim($order, (string) $failed['allocation_fingerprint']);
+        }
+        self::releaseWorkerClaim($order, $attemptNumber);
+
+        return $failed;
     }
 
     public static function retry(WC_Order $order, CaptureAllocation $allocation): ?array

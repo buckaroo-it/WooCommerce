@@ -28,6 +28,7 @@ class Test_KlarnaCaptureRetry extends TestCase
         update_option('woocommerce_buckaroo_mastersettings_settings', ['culture' => 'en-US']);
         as_unschedule_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
         as_unschedule_all_actions(KlarnaFulfillmentActions::RECOVER_CAPTURE_HOOK);
+        as_unschedule_all_actions(KlarnaFulfillmentActions::CHECK_CAPTURE_HOOK);
         remove_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
         $managerId = $this->createUser('administrator');
         get_user_by('id', $managerId)->add_cap('edit_shop_orders');
@@ -38,6 +39,7 @@ class Test_KlarnaCaptureRetry extends TestCase
     {
         as_unschedule_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
         as_unschedule_all_actions(KlarnaFulfillmentActions::RECOVER_CAPTURE_HOOK);
+        as_unschedule_all_actions(KlarnaFulfillmentActions::CHECK_CAPTURE_HOOK);
         remove_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
         delete_option('woocommerce_buckaroo_klarnapay_settings');
         delete_option('woocommerce_buckaroo_mastersettings_settings');

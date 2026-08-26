@@ -12,7 +12,6 @@ use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Services\NamedLock;
-use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use Throwable;
 use WC_Order;
@@ -141,10 +140,7 @@ class KlarnaCaptureAction
             );
         }
 
-        if (
-            $response->isPendingProcessing() ||
-            $response->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD
-        ) {
+        if (CaptureResult::isPendingStatusCode($response->getStatusCode())) {
             return CaptureResult::pending($response->toArray(), $response->getTransactionKey());
         }
 

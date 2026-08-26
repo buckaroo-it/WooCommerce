@@ -29,6 +29,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         update_option('woocommerce_buckaroo_mastersettings_settings', ['culture' => 'en-US']);
         as_unschedule_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
         as_unschedule_all_actions(KlarnaFulfillmentActions::RECOVER_CAPTURE_HOOK);
+        as_unschedule_all_actions(KlarnaFulfillmentActions::CHECK_CAPTURE_HOOK);
         remove_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
     }
 
@@ -36,6 +37,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
     {
         as_unschedule_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
         as_unschedule_all_actions(KlarnaFulfillmentActions::RECOVER_CAPTURE_HOOK);
+        as_unschedule_all_actions(KlarnaFulfillmentActions::CHECK_CAPTURE_HOOK);
         remove_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
         delete_option('woocommerce_buckaroo_klarnapay_settings');
         delete_option('woocommerce_buckaroo_mastersettings_settings');
@@ -139,6 +141,36 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         $resolved = KlarnaCaptureAttempt::find(wc_get_order($order->get_id()), 1);
         $this->assertSame('succeeded', $resolved['state']);
         $this->assertCount(1, OrderMeta::get(wc_get_order($order->get_id()), '_wc_order_captures', false));
+    }
+
+    public function test_a_pending_pay_push_without_a_sub_code_does_not_record_a_capture(): void
+    {
+        $order = $this->createReservedOrder();
+        $actions = new KlarnaFulfillmentActions();
+        $order->set_status('completed');
+        $order->save();
+        $actions->handle_completed_order($order->get_id());
+        KlarnaCaptureAttempt::claim($order, 1);
+
+        foreach (['790', '791', '792', '794'] as $statusCode) {
+            $this->assertTrue(KlarnaPushProcessor::reconcileCapture(
+                wc_get_order($order->get_id()),
+                new FormDataParser([
+                    'brq_action' => 'Pay',
+                    'brq_statuscode' => $statusCode,
+                    'brq_amount' => '25.00',
+                    'brq_currency' => 'EUR',
+                    'brq_transactions' => 'PAY-NOT-FINAL',
+                    'brq_transaction_method' => 'klarna',
+                ])
+            ));
+            $this->assertSame(
+                'pending',
+                KlarnaCaptureAttempt::find(wc_get_order($order->get_id()), 1)['state'],
+                'Status ' . $statusCode . ' must stay pending'
+            );
+            $this->assertSame([], OrderMeta::get(wc_get_order($order->get_id()), '_wc_order_captures', false));
+        }
     }
 
     public function test_klarna_reservation_push_state_is_owned_by_the_klarna_push_processor(): void
@@ -373,6 +405,11 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         $this->assertSame('PAY-RECORD-TIMEOUT', $storedAttempt['transaction_key']);
         $this->assertArrayHasKey($order->get_id(), KlarnaCaptureAttempt::notifications());
         $this->assertSame([], OrderMeta::get($storedOrder, '_wc_order_captures', false));
+        $this->assertTrue((bool) as_has_scheduled_action(
+            KlarnaFulfillmentActions::CHECK_CAPTURE_HOOK,
+            [$order->get_id(), (int) $attempt['attempt_number'], 0],
+            KlarnaFulfillmentActions::ACTION_GROUP
+        ));
     }
 
     public function test_a_definite_rejection_is_failed_with_its_error_and_keeps_completed(): void
@@ -715,6 +752,11 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         $recovered = KlarnaCaptureAttempt::find(wc_get_order($order->get_id()), 1);
         $this->assertSame('unknown', $recovered['state']);
         $this->assertArrayHasKey($order->get_id(), KlarnaCaptureAttempt::notifications());
+        $this->assertTrue((bool) as_has_scheduled_action(
+            KlarnaFulfillmentActions::CHECK_CAPTURE_HOOK,
+            [$order->get_id(), 1, 0],
+            KlarnaFulfillmentActions::ACTION_GROUP
+        ));
         $notes = array_filter(
             wc_get_order_notes(['order_id' => $order->get_id()]),
             static function ($note): bool {

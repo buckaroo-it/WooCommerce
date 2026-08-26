@@ -26,6 +26,7 @@ class Test_KlarnaAutomaticCapture extends TestCase
         update_option('woocommerce_buckaroo_mastersettings_settings', ['culture' => 'en-US']);
         as_unschedule_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
         as_unschedule_all_actions(KlarnaFulfillmentActions::RECOVER_CAPTURE_HOOK);
+        as_unschedule_all_actions(KlarnaFulfillmentActions::CHECK_CAPTURE_HOOK);
         as_unschedule_all_actions(KlarnaFulfillmentActions::QUEUE_CAPTURE_HOOK);
         remove_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
     }
@@ -34,6 +35,7 @@ class Test_KlarnaAutomaticCapture extends TestCase
     {
         as_unschedule_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
         as_unschedule_all_actions(KlarnaFulfillmentActions::RECOVER_CAPTURE_HOOK);
+        as_unschedule_all_actions(KlarnaFulfillmentActions::CHECK_CAPTURE_HOOK);
         as_unschedule_all_actions(KlarnaFulfillmentActions::QUEUE_CAPTURE_HOOK);
         remove_all_actions(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK);
 

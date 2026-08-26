@@ -36,6 +36,7 @@ class KlarnaPayGateway extends KlarnaGateway
             'title' => __('Automatic capture', 'wc-buckaroo-bpe-gateway'),
             'label' => __('Automatic capture when order is completed', 'wc-buckaroo-bpe-gateway'),
             'type' => 'checkbox',
+            'description' => __('Captures the remaining reserved amount at Klarna when the order status changes to Completed. The result is confirmed by the Buckaroo push. A failed capture adds an order note and an admin notice and can be retried from the order actions.', 'wc-buckaroo-bpe-gateway'),
             'default' => 'no',
         ];
     }
@@ -120,7 +121,7 @@ class KlarnaPayGateway extends KlarnaGateway
         ?BuckarooClient $buckarooClient = null,
         ?int $attemptNumber = null
     ): CaptureResult {
-        return (new KlarnaCaptureAction(
+        $result = (new KlarnaCaptureAction(
             $this->newPaymentProcessorInstance($order),
             $order,
             $amount,
@@ -128,6 +129,12 @@ class KlarnaPayGateway extends KlarnaGateway
             $buckarooClient,
             $attemptNumber
         ))->process();
+
+        if ($result->getStatus() === CaptureResult::UNKNOWN) {
+            KlarnaFulfillmentActions::scheduleStatusCheck($order);
+        }
+
+        return $result;
     }
 
     /**

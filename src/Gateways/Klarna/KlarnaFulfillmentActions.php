@@ -16,11 +16,23 @@ class KlarnaFulfillmentActions
 
     public const QUEUE_CAPTURE_HOOK = 'buckaroo_klarnapay_queue_capture';
 
+    public const CHECK_CAPTURE_HOOK = 'buckaroo_klarnapay_check_capture';
+
     public const ACTION_GROUP = 'buckaroo-klarna-capture';
 
     private const MAX_QUEUE_ATTEMPTS = 3;
 
     private const MAX_CAPTURE_RESCHEDULE_ATTEMPTS = 3;
+
+    private const STATUS_CHECK_DELAY = 300;
+
+    private const MAX_STATUS_CHECKS = 3;
+
+    /**
+     * Seconds after the push grace period before the first no-key status check
+     * runs, so the check never fires a moment before the grace period ends.
+     */
+    private const GRACE_PERIOD_SLACK = 60;
 
     private ?BuckarooClient $buckarooClient;
 
@@ -36,10 +48,12 @@ class KlarnaFulfillmentActions
 
         add_action('woocommerce_order_action_buckaroo_klarnapay_cancel_reservation', [$this, 'handle_cancel_reservation'], 10, 1);
         add_action('woocommerce_order_action_buckaroo_klarnapay_retry_capture', [$this, 'handle_retry_capture'], 10, 1);
+        add_action('woocommerce_order_action_buckaroo_klarnapay_check_capture', [$this, 'handle_check_capture'], 10, 1);
         add_action('woocommerce_order_status_completed', [$this, 'handle_completed_order'], 10, 1);
         add_action(self::QUEUE_CAPTURE_HOOK, [$this, 'handle_completed_order'], 10, 2);
         add_action(self::AUTOMATIC_CAPTURE_HOOK, [$this, 'handle_automatic_capture'], 10, 3);
         add_action(self::RECOVER_CAPTURE_HOOK, [$this, 'handle_recover_capture'], 10, 2);
+        add_action(self::CHECK_CAPTURE_HOOK, [$this, 'handle_scheduled_check_capture'], 10, 3);
     }
 
     public function handle_completed_order($orderId, $queueAttempt = 0): void
@@ -184,7 +198,10 @@ class KlarnaFulfillmentActions
     {
         $order = wc_get_order($orderId);
         if ($order instanceof WC_Order) {
-            if (KlarnaCaptureAttempt::recoverStale($order, (int) $attemptNumber) !== null) {
+            $recovered = KlarnaCaptureAttempt::recoverStale($order, (int) $attemptNumber);
+            if ($recovered !== null) {
+                self::scheduleStatusCheck($order, $recovered);
+
                 return;
             }
 
@@ -197,6 +214,84 @@ class KlarnaFulfillmentActions
                 KlarnaCaptureAttempt::recordAttention($order, $failed);
             }
         }
+    }
+
+    public function handle_check_capture(WC_Order $order): void
+    {
+        if (! current_user_can('edit_shop_orders')) {
+            return;
+        }
+
+        (new KlarnaCaptureStatusCheck($this->buckarooClient))->run($order);
+    }
+
+    public function handle_scheduled_check_capture($orderId, $attemptNumber = 0, $checkAttempt = 0): void
+    {
+        $order = wc_get_order($orderId);
+        if (! $order instanceof WC_Order || (int) $attemptNumber <= 0) {
+            return;
+        }
+
+        $attempt = (new KlarnaCaptureStatusCheck($this->buckarooClient))->run($order, (int) $attemptNumber);
+        if ($attempt !== null && KlarnaCaptureAttempt::isCheckable($attempt)) {
+            self::scheduleStatusCheck($order, $attempt, (int) $checkAttempt + 1);
+        }
+    }
+
+    /**
+     * Schedule a bounded status check for attempts whose outcome is unknown or
+     * pending. Without an explicit attempt, every unknown attempt is scheduled.
+     *
+     * The first check of an attempt without a transaction key waits for the push
+     * grace period; every other check runs shortly after.
+     */
+    public static function scheduleStatusCheck(WC_Order $order, ?array $attempt = null, int $checkAttempt = 0): bool
+    {
+        if ($attempt === null) {
+            $scheduled = false;
+            foreach (KlarnaCaptureAttempt::checkable($order) as $candidate) {
+                if (($candidate['state'] ?? '') === CaptureResult::UNKNOWN) {
+                    $scheduled = self::scheduleStatusCheck($order, $candidate, $checkAttempt) || $scheduled;
+                }
+            }
+
+            return $scheduled;
+        }
+
+        if (
+            ! KlarnaCaptureAttempt::isCheckable($attempt) ||
+            $checkAttempt >= self::MAX_STATUS_CHECKS ||
+            ! function_exists('as_schedule_single_action')
+        ) {
+            return false;
+        }
+
+        $delay = $checkAttempt === 0 && trim((string) ($attempt['transaction_key'] ?? '')) === ''
+            ? KlarnaCaptureStatusCheck::NO_KEY_GRACE_PERIOD + self::GRACE_PERIOD_SLACK
+            : self::STATUS_CHECK_DELAY;
+        $args = [$order->get_id(), (int) $attempt['attempt_number'], $checkAttempt];
+        $actionId = as_schedule_single_action(
+            time() + $delay,
+            self::CHECK_CAPTURE_HOOK,
+            $args,
+            self::ACTION_GROUP,
+            true
+        );
+        if (
+            $actionId ||
+            (function_exists('as_has_scheduled_action') && as_has_scheduled_action(self::CHECK_CAPTURE_HOOK, $args, self::ACTION_GROUP))
+        ) {
+            return true;
+        }
+
+        $order->add_order_note(
+            sprintf(
+                __('Automatic Klarna capture status check for attempt %d could not be scheduled. Use the "Klarna: Check capture status" order action.', 'wc-buckaroo-bpe-gateway'),
+                (int) $attempt['attempt_number']
+            )
+        );
+
+        return false;
     }
 
     protected function enqueueCapture(WC_Order $order, array $attempt)
@@ -431,6 +526,10 @@ class KlarnaFulfillmentActions
 
         if (current_user_can('edit_shop_orders') && KlarnaCaptureAttempt::canRetry($order)) {
             $actions['buckaroo_klarnapay_retry_capture'] = esc_html__('Klarna: Retry capture', 'wc-buckaroo-bpe-gateway');
+        }
+
+        if (current_user_can('edit_shop_orders') && KlarnaCaptureAttempt::canCheckStatus($order)) {
+            $actions['buckaroo_klarnapay_check_capture'] = esc_html__('Klarna: Check capture status', 'wc-buckaroo-bpe-gateway');
         }
 
         return $actions;
