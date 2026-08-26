@@ -9,11 +9,17 @@ use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\Services\Helper;
+use Buckaroo\Woocommerce\Services\NamedLock;
 use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
+use RuntimeException;
 use WC_Order;
 
 class KlarnaPushProcessor
 {
+    private const PAY_TRANSACTION_TYPE = 'C339';
+
+    private const SETTLEMENT_LOCK_WAIT_SECONDS = 5;
+
     public static function handle($handled, WC_Order $order, ResponseParser $responseParser): bool
     {
         if ($handled) {
@@ -103,7 +109,7 @@ class KlarnaPushProcessor
     {
         if (
             $order->get_payment_method() !== 'buckaroo_klarnapay' ||
-            strcasecmp((string) $responseParser->getActionCode(), 'Pay') !== 0 ||
+            ! self::isPay($responseParser) ||
             strcasecmp((string) $responseParser->getPaymentMethod(), 'klarna') !== 0 ||
             strcasecmp((string) $responseParser->getCurrency(), $order->get_currency()) !== 0
         ) {
@@ -159,12 +165,40 @@ class KlarnaPushProcessor
         return true;
     }
 
+    private static function isPay(ResponseParser $responseParser): bool
+    {
+        $action = $responseParser->getActionCode();
+        if (is_string($action) && trim($action) !== '') {
+            return strcasecmp($action, 'Pay') === 0;
+        }
+
+        return strcasecmp(
+            (string) $responseParser->getTransactionType(),
+            self::PAY_TRANSACTION_TYPE
+        ) === 0;
+    }
+
     private static function reconcileSuccessfulCapture(
         WC_Order $order,
         ResponseParser $responseParser,
         array $attempt,
         string $transactionKey
     ): bool {
+        $attemptNumber = (int) $attempt['attempt_number'];
+        $preparedAttempt = KlarnaCaptureAttempt::updateUnlessSucceeded(
+            $order,
+            $attemptNumber,
+            [
+                'state' => KlarnaCaptureAttempt::IN_PROGRESS,
+                'transaction_key' => $transactionKey,
+            ]
+        );
+        if ($preparedAttempt === null) {
+            throw new RuntimeException(
+                __('Klarna capture success could not be prepared for local reconciliation.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
+        $attempt = $preparedAttempt;
         $storedAllocation = $attempt['allocation'];
         $allocation = CaptureAllocation::fromArrays(
             $storedAllocation['line_item_qtys'],
@@ -195,22 +229,30 @@ class KlarnaPushProcessor
                     'last_error' => sanitize_text_field($captureResult->getMessage()),
                 ]
             );
-            if ($recordingAttempt !== null) {
-                KlarnaCaptureAttempt::recordAttention($order, $recordingAttempt);
+            if ($recordingAttempt === null) {
+                throw new RuntimeException(
+                    __('Klarna capture recording failure could not be persisted for retry.', 'wc-buckaroo-bpe-gateway')
+                );
             }
+            KlarnaCaptureAttempt::recordAttention($order, $recordingAttempt);
 
             return true;
         }
 
-        KlarnaCaptureAttempt::updateUnlessSucceeded(
+        $updatedAttempt = KlarnaCaptureAttempt::updateUnlessSucceeded(
             $order,
-            (int) $attempt['attempt_number'],
+            $attemptNumber,
             [
                 'state' => CaptureResult::SUCCEEDED,
                 'transaction_key' => $transactionKey,
                 'last_error' => '',
             ]
         );
+        if ($updatedAttempt === null) {
+            throw new RuntimeException(
+                __('Klarna capture success could not be finalized in the attempt ledger.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
         $reservedAmount = OrderMeta::get($order, KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
         $captureTarget = is_numeric($reservedAmount)
             ? (float) $reservedAmount
@@ -244,7 +286,8 @@ class KlarnaPushProcessor
             return null;
         }
 
-        $matches = [];
+        $activeMatches = [];
+        $failedMatches = [];
         foreach ($attempts as $attempt) {
             if (
                 ! in_array(
@@ -264,11 +307,19 @@ class KlarnaPushProcessor
             }
 
             if (abs((float) $attempt['amount'] - $responseParser->getAmount()) < 0.01) {
-                $matches[] = $attempt;
+                if ($attempt['state'] === CaptureResult::FAILED) {
+                    $failedMatches[] = $attempt;
+                } else {
+                    $activeMatches[] = $attempt;
+                }
             }
         }
 
-        return count($matches) === 1 ? $matches[0] : null;
+        if (count($activeMatches) > 0) {
+            return count($activeMatches) === 1 ? $activeMatches[0] : null;
+        }
+
+        return count($failedMatches) === 1 ? $failedMatches[0] : null;
     }
 
     private static function updateSettlementMeta(
@@ -276,14 +327,26 @@ class KlarnaPushProcessor
         ResponseParser $responseParser,
         float $paidAmount
     ): void {
-        $transactionKey = $responseParser->getRelatedTransactionPartialPayment()
-            ?? $responseParser->getTransactionKey();
-        $settlements = OrderMeta::get($order, 'buckaroo_settlement');
-        if (! is_array($settlements)) {
-            $settlements = [];
+        $lockKey = 'order';
+        if (! NamedLock::acquire('settlement', $order, $lockKey, self::SETTLEMENT_LOCK_WAIT_SECONDS)) {
+            throw new RuntimeException(
+                __('Klarna capture settlement could not be recorded locally.', 'wc-buckaroo-bpe-gateway')
+            );
         }
 
-        $settlements[$transactionKey] = $paidAmount;
-        OrderMeta::update($order, 'buckaroo_settlement', $settlements);
+        try {
+            $order->read_meta_data(true);
+            $transactionKey = $responseParser->getRelatedTransactionPartialPayment()
+                ?? $responseParser->getTransactionKey();
+            $settlements = OrderMeta::get($order, 'buckaroo_settlement');
+            if (! is_array($settlements)) {
+                $settlements = [];
+            }
+
+            $settlements[$transactionKey] = $paidAmount;
+            OrderMeta::update($order, 'buckaroo_settlement', $settlements);
+        } finally {
+            NamedLock::release('settlement', $order, $lockKey);
+        }
     }
 }
