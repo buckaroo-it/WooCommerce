@@ -3,7 +3,6 @@
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Order\OrderMeta;
-use Buckaroo\Woocommerce\PaymentProcessors\Actions\CancelReservationAction;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use Exception;
@@ -127,6 +126,13 @@ class KlarnaKpGateway extends KlarnaGateway
         }
 
         return parent::process_capture($order_id);
+    }
+
+    protected function getCapturePayload(WC_Order $order, $amount): array
+    {
+        return [
+            'amountDebit' => number_format((float) $amount, 2, '.', ''),
+        ];
     }
 
     public function handleHooks()
