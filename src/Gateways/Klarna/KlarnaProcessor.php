@@ -5,12 +5,18 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
+use Buckaroo\Woocommerce\Services\CultureCodeResolver;
 
 class KlarnaProcessor extends AbstractPaymentProcessor
 {
     public const DATA_REQUEST_META_KEY = '_buckaroo_klarna_data_request_key';
 
     public const RESERVED_AMOUNT_META_KEY = '_buckaroo_klarna_reserved_amount';
+
+    public function determineCulture(): string
+    {
+        return (new CultureCodeResolver())->resolve($this->getOperatingCountry(), get_locale());
+    }
 
     /** {@inheritDoc} */
     protected function getMethodBody(): array
