@@ -88,6 +88,45 @@ class Test_KlarnaCaptureOperation extends TestCase
         $this->assertSame(json_encode([$item->get_id() => []]), $captures[0]['line_item_tax_totals']);
     }
 
+    /**
+     * @dataProvider billingCountryCultureProvider
+     */
+    public function test_capture_uses_the_billing_country_culture(
+        string $country,
+        string $culture,
+        string $transactionKey
+    ): void {
+        $order = $this->createReservedOrder(12.50, 1);
+        $order->set_billing_country($country);
+        $order->save();
+        $item = current($order->get_items('line_item'));
+        $buckarooClient = new InMemoryBuckarooClient($this->successfulResponse($transactionKey));
+
+        $result = (new KlarnaPayGateway())->capture(
+            $order,
+            12.50,
+            CaptureAllocation::fromArrays(
+                [$item->get_id() => 1],
+                [$item->get_id() => 12.50],
+                [$item->get_id() => []]
+            ),
+            $buckarooClient
+        );
+
+        $masterSettings = get_option('woocommerce_buckaroo_mastersettings_settings');
+        $this->assertTrue($result->isSuccess());
+        $this->assertSame('en-US', $masterSettings['culture']);
+        $this->assertSame($culture, $buckarooClient->payload['culture']);
+    }
+
+    public static function billingCountryCultureProvider(): array
+    {
+        return [
+            'Belgian billing address' => ['BE', 'nl-BE', 'PAY-BE'],
+            'Dutch billing address' => ['NL', 'nl-NL', 'PAY-NL'],
+        ];
+    }
+
     public function test_capture_without_a_data_request_key_fails_before_transport(): void
     {
         $order = $this->createReservedOrder(12.50, 1);
