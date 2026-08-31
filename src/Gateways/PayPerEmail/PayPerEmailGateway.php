@@ -268,8 +268,8 @@ class PayPerEmailGateway extends AbstractPaymentGateway
         add_action(
             'woocommerce_order_action_buckaroo_send_admin_payperemail',
             function ($order) {
-                $response = $this->process_payment($order->get_id());
-                wp_redirect($response);
+                // WooCommerce's order-save request returns to the order screen on its own.
+                $this->process_payment($order->get_id());
             }
         );
 
@@ -288,8 +288,8 @@ class PayPerEmailGateway extends AbstractPaymentGateway
             'woocommerce_order_action_buckaroo_create_paylink',
             function ($order) {
                 $this->usePayPerLink = true;
-                $response = $this->process_payment($order->get_id());
-                wp_redirect($response);
+                // WooCommerce's order-save request returns to the order screen on its own.
+                $this->process_payment($order->get_id());
             }
         );
 
