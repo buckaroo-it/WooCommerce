@@ -72,6 +72,16 @@ class PaymentSetupScripts
             true
         );
 
+        wp_enqueue_script(
+            'buckaroo_admin_settings',
+            $pluginDir . 'library/js/admin-settings.js',
+            [],
+            Plugin::VERSION,
+            true
+        );
+
+        wp_localize_script('buckaroo_admin_settings', 'buckarooAdminSettings', ['hostedFields' => $this->hostedFieldsIds()]);
+
         wp_localize_script(
             'buckaroo_admin_utils_js',
             'buckarooAdminAjax',
@@ -79,6 +89,22 @@ class PaymentSetupScripts
                 'nonce' => wp_create_nonce('buckaroo_admin_ajax'),
             ]
         );
+    }
+
+    /**
+     * Field ids the hosted-fields rows are keyed by, mirroring the gateway's own
+     * plugin_id . id . '_' . key naming so the enqueue does not depend on
+     * WooCommerce having registered the gateway yet.
+     */
+    private function hostedFieldsIds(): array
+    {
+        $prefix = 'woocommerce_' . CreditCardGateway::GATEWAY_ID . '_';
+
+        return [
+            'select' => $prefix . 'creditcardmethod',
+            'clientId' => $prefix . 'hosted_fields_client_id',
+            'clientSecret' => $prefix . 'hosted_fields_client_secret',
+        ];
     }
 
     public function initFrontendScripts()

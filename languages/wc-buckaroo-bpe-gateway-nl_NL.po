@@ -776,9 +776,29 @@ msgstr "Riverty klanttype"
 msgid "Riverty Pay or Capture"
 msgstr "Riverty Betalen of Capturen"
 
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Global"
+msgstr "Wereldwijd"
+
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Europe"
+msgstr "Europa"
+
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Multi-currency"
+msgstr "Meerdere valuta's"
+
+#: src/Admin/GeneralSettings.php
+msgid "Website key"
+msgstr "Website key"
+
+#: src/Admin/GeneralSettings.php
+msgid "%s is required. Payments will fail until it is filled in."
+msgstr "%s is verplicht. Betalingen mislukken totdat dit is ingevuld."
+
 #: src/Admin/PaymentMethodSettings.php:57
 msgid "Secret key"
-msgstr "Geheime Sleutel"
+msgstr "Secret key"
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:106
 #: src/Gateways/CreditCard/CreditCardGateway.php:118
@@ -1009,12 +1029,12 @@ msgid "This controls the description which the user sees during checkout."
 msgstr "Dit controleert de beschrijving die de gebruiker ziet tijdens het afrekenen."
 
 #: src/Admin/PaymentMethodSettings.php:59
-msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> (Settings -> API Key -> Secret key)."
-msgstr "Dit is je Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> (Instellingen -> API-sleutel -> Secret keys)."
+msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> (Settings -> API Keys -> Secret key)."
+msgstr "Dit is je Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> (Instellingen -> API-sleutels -> Secret keys)."
 
 #: src/Admin/PaymentMethodSettings.php:50
-msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> (Settings -> API Key -> Store keys)."
-msgstr "Dit is je Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> (Instellingen -> API-sleutel -> Store keys)."
+msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> (Settings -> API Keys -> Store keys)."
+msgstr "Dit is je Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> (Instellingen -> API-sleutels -> Store keys)."
 
 #: src/Gateways/AbstractPaymentGateway.php:371
 msgid "This payment method is not supported for the selected currency "
@@ -1068,6 +1088,10 @@ msgstr "Verificatie is mislukt"
 #: templates/idin/checkout.php:50
 msgid "Verify your age via iDIN"
 msgstr "Verifieer je leeftijd via iDIN"
+
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Back to Buckaroo settings"
+msgstr "Terug naar Buckaroo-instellingen"
 
 #: src/Gateways/AbstractPaymentGateway.php:108
 msgid "Warning"
@@ -1418,7 +1442,7 @@ msgstr "Renteloos betalen in drie termijnen over 60 dagen, afgerekend via iDEAL.
 msgid "Direct bank payments for customers of KBC/CBC in Belgium."
 msgstr "Directe bankbetalingen voor klanten van KBC/CBC in België."
 
-#: src/Gateways/Klarna/KlarnaGateway.php
+#: src/Gateways/Klarna/KlarnaPayGateway.php
 msgid "Klarna pay-later and instalment options, with Klarna acting as Merchant of Record."
 msgstr "Achteraf betalen en in termijnen betalen met Klarna, waarbij Klarna optreedt als Merchant of Record."
 
