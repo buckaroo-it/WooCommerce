@@ -3,9 +3,9 @@
 namespace Buckaroo\Woocommerce\Gateways\Googlepay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
-use Exception;
 use Throwable;
 use WC_Order;
 use WC_Order_Item_Fee;
@@ -44,6 +44,7 @@ class GooglepayGateway extends AbstractPaymentGateway
         add_action("{$namespace}-get-items-from-cart", [GooglepayController::class, 'getItemsFromCart']);
         add_action("{$namespace}-get-shipping-methods", [GooglepayController::class, 'getShippingMethods']);
         add_action("{$namespace}-get-shop-information", [GooglepayController::class, 'getShopInformation']);
+        add_action("{$namespace}-get-cart-total", [GooglepayController::class, 'getCartTotal']);
         add_action("{$namespace}-create-transaction", [$this, 'createTransaction']);
     }
 
@@ -168,21 +169,31 @@ class GooglepayGateway extends AbstractPaymentGateway
 
         $order = wc_create_order();
 
-        $wc_methods = self::createFakeCart(
-            $items,
-            function () {
-                $packages = WC()->cart->get_shipping_packages();
-
-                return WC()
-                    ->shipping
-                    ->calculate_shipping_for_package(current($packages))['rates'];
-            }
-        );
-
         try {
-            $cart = self::recreateCartFromItems($items);
+            $wc_methods = ExpressProductCart::calculateItems(
+                $items,
+                'buckaroo_googlepay',
+                function ($cart) use ($order) {
+                    self::createOrderFromCart($order, $cart);
+                    $packages = WC()->shipping()->get_packages();
 
-            self::createOrderFromCart($order, $cart);
+                    return $packages ? (current($packages)['rates'] ?? []) : [];
+                },
+                [
+                    'billing' => [
+                        'country' => $billing_addresses['countryCode'] ?? '',
+                        'state' => $billing_addresses['administrativeArea'] ?? '',
+                        'postcode' => $billing_addresses['postalCode'] ?? '',
+                        'city' => $billing_addresses['locality'] ?? '',
+                    ],
+                    'shipping' => [
+                        'country' => $shipping_addresses['countryCode'] ?? '',
+                        'state' => $shipping_addresses['administrativeArea'] ?? '',
+                        'postcode' => $shipping_addresses['postalCode'] ?? '',
+                        'city' => $shipping_addresses['locality'] ?? '',
+                    ],
+                ]
+            );
 
             $order->set_address(self::orderAddresses($billing_addresses), 'billing');
             $order->set_address(self::orderAddresses($shipping_addresses), 'shipping');
@@ -220,7 +231,9 @@ class GooglepayGateway extends AbstractPaymentGateway
 
             $order->calculate_totals();
             $order->update_status('pending payment', 'Order created using Google Pay', true);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
+            $order->delete(true);
+
             return false;
         }
 
@@ -234,79 +247,16 @@ class GooglepayGateway extends AbstractPaymentGateway
         ];
     }
 
-    private static function recreateCartFromItems($items)
-    {
-        $cart = WC()->cart;
-        $cart->empty_cart(false);
-
-        $products = array_filter($items, function ($item) {
-            if (!isset($item['type']) || $item['type'] !== 'product') {
-                return false;
-            }
-
-            if (isset($item['id']) && isset($item['price']) && floatval($item['price']) == 0) {
-                $product = wc_get_product($item['id']);
-                if ($product && floatval($product->get_price()) > 0) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-
-        foreach ($products as $product_item) {
-            if (isset($product_item['id']) && isset($product_item['quantity'])) {
-                $product = wc_get_product($product_item['id']);
-                if ($product) {
-                    if ($product->is_type('variation')) {
-                        $cart->add_to_cart($product->get_parent_id(), $product_item['quantity'], $product_item['id']);
-                    } else {
-                        $cart->add_to_cart($product_item['id'], $product_item['quantity']);
-                    }
-                }
-            }
-        }
-
-        $coupons = array_filter($items, function ($item) {
-            return isset($item['type']) && $item['type'] === 'coupon';
-        });
-
-        foreach ($coupons as $coupon_item) {
-            if (isset($coupon_item['name']) && is_string($coupon_item['name'])) {
-                preg_match('/coupon\:\s(.*)/i', $coupon_item['name'], $matches);
-                if (! empty($matches[1])) {
-                    $cart->apply_coupon($matches[1]);
-                }
-            }
-        }
-
-        WC()->session->set('chosen_payment_method', 'buckaroo_googlepay');
-
-        $cart->calculate_totals();
-
-        return $cart;
-    }
-
     /**
      * Create order from cart using WooCommerce native methods
      */
     private static function createOrderFromCart($order, $cart)
     {
-        foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
-            $product = $cart_item['data'];
-            $quantity = $cart_item['quantity'];
-
-            $item = new WC_Order_Item_Product();
-            $item->set_props([
-                'product' => $product,
-                'quantity' => $quantity,
-                'subtotal' => $cart_item['line_subtotal'],
-                'total' => $cart_item['line_total'],
-                'subtotal_tax' => $cart_item['line_subtotal_tax'],
-                'total_tax' => $cart_item['line_tax'],
-            ]);
-            $item->set_product($product);
-            $order->add_item($item);
+        $checkout = WC()->checkout();
+        if (is_callable([$checkout, 'create_order_line_items'])) {
+            $checkout->create_order_line_items($order, $cart);
+        } else {
+            self::createOrderLineItems($order, $cart);
         }
 
         foreach ($cart->get_applied_coupons() as $coupon_code) {
@@ -327,87 +277,48 @@ class GooglepayGateway extends AbstractPaymentGateway
         }
     }
 
-    private static function createFakeCart($items, $callback)
+    private static function createOrderLineItems($order, $cart)
     {
-        global $woocommerce;
-        $cart = $woocommerce->cart;
+        foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+            $product = $cart_item['data'];
+            $quantity = $cart_item['quantity'];
 
-        $original_cart_products = array_map(
-            function ($product) {
-                return [
-                    'product_id' => $product['product_id'],
-                    'variation_id' => $product['variation_id'],
-                    'quantity' => $product['quantity'],
-                ];
-            },
-            $cart->get_cart_contents()
-        );
-
-        $original_applied_coupons = array_map(
-            function ($coupon) {
-                return [
-                    'coupon_id' => $coupon->get_id(),
-                    'code' => $coupon->get_code(),
-                ];
-            },
-            $cart->get_coupons()
-        );
-
-        $cart->empty_cart();
-
-        foreach ($items as $item) {
-            if (
-                count(
-                    array_diff(
-                        ['id', 'quantity'],
-                        array_keys($item)
-                    )
-                ) === 0
-            ) {
-                $cart->add_to_cart(
-                    $item['id'],
-                    $item['quantity'],
-                );
-            }
+            $item = new WC_Order_Item_Product();
+            $item->set_product($product);
+            $item->set_props([
+                'product' => $product,
+                'quantity' => $quantity,
+                'subtotal' => $cart_item['line_subtotal'],
+                'total' => $cart_item['line_total'],
+                'subtotal_tax' => $cart_item['line_subtotal_tax'],
+                'total_tax' => $cart_item['line_tax'],
+                'variation' => $cart_item['variation'],
+            ]);
+            do_action('woocommerce_checkout_create_order_line_item', $item, $cart_item_key, $cart_item, $order);
+            $order->add_item($item);
         }
-
-        foreach ($original_applied_coupons as $original_applied_coupon) {
-            $cart->apply_coupon($original_applied_coupon['code']);
-        }
-
-        do_action('woocommerce_before_calculate_totals', $cart);
-        $cart->calculate_totals();
-        do_action('woocommerce_after_calculate_totals', $cart);
-
-        $fake_cart_result = call_user_func($callback);
-
-        $cart->empty_cart();
-
-        foreach ($original_cart_products as $original_product) {
-            $cart->add_to_cart(
-                $original_product['product_id'],
-                $original_product['quantity'],
-                $original_product['variation_id']
-            );
-        }
-
-        foreach ($original_applied_coupons as $original_applied_coupon) {
-            $cart->apply_coupon($original_applied_coupon['code']);
-        }
-
-        wc_clear_notices();
-
-        return $fake_cart_result;
     }
 
+    /**
+     * Map a Google Pay contact onto the WooCommerce address keys.
+     *
+     * set_address() skips keys without a matching setter, so 'email' is a no-op
+     * on the shipping address and 'phone' only applies where WooCommerce
+     * supports it.
+     */
     private static function orderAddresses($address)
     {
+        $lines = array_values(array_filter((array) ($address['addressLines'] ?? [])));
+
         return [
             'first_name' => $address['givenName'],
             'last_name' => $address['familyName'],
             'email' => $address['emailAddress'] ?? '',
-            'address_1' => $address['addressLines'][0] ?? '',
+            'phone' => $address['phoneNumber'] ?? '',
+            'address_1' => $lines[0] ?? '',
+            'address_2' => implode(', ', array_slice($lines, 1)),
             'city' => $address['locality'],
+            'state' => $address['administrativeArea'] ?? '',
             'postcode' => $address['postalCode'],
             'country' => $address['countryCode'],
         ];
@@ -474,6 +385,17 @@ class GooglepayGateway extends AbstractPaymentGateway
             'default' => 'TRUE',
         ];
 
+        $this->form_fields['checkout_method'] = [
+            'title' => __('Google Pay as checkout payment method', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'select',
+            'description' => __('In addition to the Express Checkout button, list Google Pay as a selectable payment method in the checkout. The Google Pay sheet only authorises the payment; billing and shipping are taken from the checkout form.', 'wc-buckaroo-bpe-gateway'),
+            'options' => [
+                'TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'),
+                'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway'),
+            ],
+            'default' => 'TRUE',
+        ];
+
         $this->form_fields['button_style'] = [
             'title' => __('Button style', 'wc-buckaroo-bpe-gateway'),
             'type' => 'select',
@@ -486,6 +408,17 @@ class GooglepayGateway extends AbstractPaymentGateway
         ];
 
         $this->set_guid_after_usemaster();
+    }
+
+    /**
+     * Whether Google Pay should be listed as a standard, selectable checkout
+     * payment method (in addition to the Express Checkout button).
+     *
+     * @return bool
+     */
+    public function isCheckoutMethodEnabled(): bool
+    {
+        return $this->get_option('checkout_method', 'TRUE') === 'TRUE';
     }
 
     /**

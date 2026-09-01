@@ -11,6 +11,16 @@ use PHPUnit\Framework\TestCase;
  */
 class Test_Helper extends TestCase
 {
+    use HposStorage;
+
+    protected function tearDown(): void
+    {
+        WC()->session->order_awaiting_payment = null;
+        $this->deleteCreatedOrders();
+        $this->disableHpos();
+        parent::tearDown();
+    }
+
     /**
      * Test handleUnsuccessfulPayment method with cancelled status
      */
@@ -223,5 +233,73 @@ class Test_Helper extends TestCase
         // This will return false if the provider is invalid
         $result = Helper::checkCreditCardProvider('invalid_provider');
         $this->assertFalse($result);
+    }
+
+    /**
+     * resetOrder used to read the status with get_post_status(), which returns
+     * "draft" for the shop_order_placehold row under HPOS, so the branch never ran.
+     */
+    public function test_reset_order_cancels_a_failed_order_on_an_hpos_store()
+    {
+        $this->enableHpos();
+
+        $order = $this->createOrder();
+        $order->set_status('failed');
+        $order->save();
+
+        WC()->session->order_awaiting_payment = $order->get_id();
+
+        Helper::resetOrder();
+
+        $cancelled = wc_get_order($order->get_id());
+        $this->assertSame('cancelled', $cancelled->get_status());
+        $this->assertNotSame('', $cancelled->get_cart_hash(), 'The cart hash should have been rebuilt');
+    }
+
+    public function test_reset_order_leaves_an_order_in_any_other_status_alone()
+    {
+        $this->enableHpos();
+
+        foreach (['pending', 'on-hold', 'processing', 'completed'] as $status) {
+            $order = $this->createOrder();
+            $order->set_status($status);
+            $order->save();
+
+            WC()->session->order_awaiting_payment = $order->get_id();
+
+            Helper::resetOrder();
+
+            $this->assertSame(
+                $status,
+                wc_get_order($order->get_id())->get_status(),
+                "Order in status {$status} should not have been touched"
+            );
+        }
+    }
+
+    public function test_reset_order_cancels_an_already_cancelled_order()
+    {
+        $this->enableHpos();
+
+        $order = $this->createOrder();
+        $order->set_status('cancelled');
+        $order->save();
+
+        WC()->session->order_awaiting_payment = $order->get_id();
+
+        Helper::resetOrder();
+
+        $this->assertSame('cancelled', wc_get_order($order->get_id())->get_status());
+    }
+
+    public function test_reset_order_handles_a_session_order_that_no_longer_exists()
+    {
+        $this->enableHpos();
+
+        WC()->session->order_awaiting_payment = 999999999;
+
+        Helper::resetOrder();
+
+        $this->assertFalse(wc_get_order(999999999));
     }
 }

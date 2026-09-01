@@ -3,12 +3,9 @@
 namespace Buckaroo\Woocommerce\Gateways\Billink;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
-use Buckaroo\Woocommerce\Traits\HasDateValidation;
 
 class BillinkGateway extends AbstractPaymentGateway
 {
-    use HasDateValidation;
-
     protected array $supportedCountries = ['NL', 'BE'];
 
     public const PAYMENT_CLASS = BillinkProcessor::class;
@@ -44,21 +41,13 @@ class BillinkGateway extends AbstractPaymentGateway
      */
     public function validate_fields()
     {
-        if ($this->request->input('billing_company')) {
-            if ($this->request->input('buckaroo-billink-company-coc-registration') === null) {
-                wc_add_notice(__('Please enter correct COC (KvK) number', 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-        } else {
-            if (
-                ! $this->validateDate($this->request->input('buckaroo-billink-birthdate'), 'd-m-Y')
-            ) {
-                wc_add_notice(__('Please enter correct birth date', 'wc-buckaroo-bpe-gateway'), 'error');
-            }
+        if (
+            $this->request->input('billing_company') &&
+            $this->request->input('buckaroo-billink-company-coc-registration') === null
+        ) {
+            wc_add_notice(__('Please enter correct COC (KvK) number', 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
-        if (! $this->request->input('buckaroo-billink-accept')) {
-            wc_add_notice(__('Please accept license agreements', 'wc-buckaroo-bpe-gateway'), 'error');
-        }
         parent::validate_fields();
     }
 

@@ -23,6 +23,11 @@ class SepaDirectDebitGateway extends AbstractPaymentGateway
         $this->addRefundSupport();
     }
 
+    public function redirectsToPaymentPage()
+    {
+        return false;
+    }
+
     /**
      * Validate frontend fields.
      *

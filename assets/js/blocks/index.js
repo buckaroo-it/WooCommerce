@@ -115,14 +115,12 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
         return <div>Loading...</div>;
     }
 
+    // Both arrive from PHP, escaped and translated, and either can be empty.
+    const subtext = `${gateway.description || ''}${gateway.redirectNotice || ''}`;
+
     return (
         <div className="container">
-            {gateway.description && (
-                <div
-                    className="buckaroo-payment-description"
-                    dangerouslySetInnerHTML={{ __html: gateway.description }}
-                />
-            )}
+            {subtext && <div className="buckaroo-payment-description" dangerouslySetInnerHTML={{ __html: subtext }} />}
             {errorMessage && errorMessage?.length && <div className="woocommerce-error">{errorMessage}</div>}
             <PaymentComponent gateway={gateway} title={decodeHtmlEntities(gateway.title)} />
         </div>
@@ -141,10 +139,12 @@ const registerBuckarooPaymentMethods = () => {
     const buckarooGateways = getEnabledBuckarooPaymentMethods();
     const { registerPaymentMethod } = window.wc.wcBlocksRegistry;
     buckarooGateways.forEach(gateway => {
-        // Apple Pay is registered as a standard, selectable payment method only
-        // when the merchant enabled it as a checkout method (Part 2). Its Express
-        // Checkout button is registered separately below.
-        if (gateway.paymentMethodId === 'buckaroo_applepay' && !gateway.showAsPaymentMethod) {
+        // Apple Pay and Google Pay are registered as standard, selectable payment
+        // methods only when the merchant enabled the wallet as a checkout method.
+        // Their Express Checkout buttons are registered separately below.
+        const isWallet =
+            gateway.paymentMethodId === 'buckaroo_applepay' || gateway.paymentMethodId === 'buckaroo_googlepay';
+        if (isWallet && !gateway.showAsPaymentMethod) {
             return;
         }
         registerPaymentMethod(createOptions(window.wc, gateway));

@@ -157,7 +157,7 @@ class PaymentSetupScripts
             'buckaroo_google_pay',
             $pluginDir . 'assets/js/dist/googlepay.js',
             ['jquery', 'buckaroo_sdk'],
-            Plugin::VERSION,
+            $this->bundleVersion('googlepay'),
             true
         );
 
@@ -178,10 +178,10 @@ class PaymentSetupScripts
         );
 
         if ($isCheckout) {
-            $checkoutDeps = ['jquery', 'jquery-ui-datepicker'];
+            // The classic-checkout wallet methods rely on window.BuckarooApplePay /
+            // window.BuckarooGooglePay exposed by the wallet bundles.
+            $checkoutDeps = ['jquery', 'jquery-ui-datepicker', 'buckaroo_google_pay'];
             if ($applePayEnabled) {
-                // The classic-checkout Apple Pay method relies on window.BuckarooApplePay
-                // exposed by the applepay bundle.
                 $checkoutDeps[] = 'buckaroo_apple_pay';
             }
             wp_enqueue_script(

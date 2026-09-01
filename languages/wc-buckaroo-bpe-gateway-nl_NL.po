@@ -54,6 +54,10 @@ msgstr "Accepteer gebruiksvoorwaarden"
 msgid "According to iDIN you are under 18 years old"
 msgstr "Volgens iDIN ben je jonger dan 18 jaar"
 
+#: src/Gateways/AbstractPaymentGateway.php:227
+msgid "After submission, you will be redirected to securely complete your payment."
+msgstr "Na het plaatsen van je bestelling word je veilig doorgestuurd om je betaling af te ronden."
+
 #: templates/idin/checkout.php:6
 #: templates/idin/checkout.php:24
 msgid "Age verification"

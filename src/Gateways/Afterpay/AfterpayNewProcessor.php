@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 
@@ -12,7 +13,7 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
     public function getAction(): string
     {
         if ($this->isAuthorization()) {
-            if (get_post_meta($this->get_order()->get_id(), '_wc_order_authorized', true) == 'yes') {
+            if (OrderMeta::get($this->get_order(), '_wc_order_authorized') == 'yes') {
                 return 'capture';
             }
 
@@ -151,7 +152,7 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
     protected function getBirthDate(string $country_code, string $type = 'billing'): array
     {
         if (in_array($country_code, ['NL', 'BE']) && ($birthDate = $this->getFormatedDate())) {
-            add_post_meta($this->get_order()->get_id(), '_payload_birthday', $birthDate, true);
+            OrderMeta::add($this->get_order(), '_payload_birthday', $birthDate, true);
 
             return [
                 $type => [
@@ -170,7 +171,7 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
      */
     private function getFormatedDate(): ?string
     {
-        $dateString = $this->request->input('buckaroo-afterpaynew-birthdate') ?: get_post_meta($this->get_order()->get_id(), '_payload_birthday', true);
+        $dateString = $this->request->input('buckaroo-afterpaynew-birthdate') ?: OrderMeta::get($this->get_order(), '_payload_birthday');
         if (! is_scalar($dateString)) {
             return null;
         }

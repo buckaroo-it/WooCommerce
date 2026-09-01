@@ -3,11 +3,12 @@
 namespace Buckaroo\Woocommerce\Gateways;
 
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
-use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
-use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
+use Buckaroo\Woocommerce\Order\CaptureAllocation;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
@@ -192,6 +193,91 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         }
 
         return $desc;
+    }
+
+    /**
+     * Whether the customer is sent to an external page to complete the payment.
+     *
+     * Overridden by the methods that collect everything inside the checkout.
+     *
+     * @return bool
+     */
+    public function redirectsToPaymentPage()
+    {
+        return true;
+    }
+
+    /**
+     * Checkout subtext for methods that send the customer away, empty otherwise.
+     *
+     * A <span> with a CSS-attached icon, not an inline <svg>: the classic
+     * checkout renders this through wp_kses_post(), which strips <svg>.
+     *
+     * @return string
+     */
+    public function getRedirectNoticeHtml()
+    {
+        if (! $this->redirectsToPaymentPage()) {
+            return '';
+        }
+
+        return '<span class="buckaroo-redirect-notice">'
+            . esc_html__(
+                'After submission, you will be redirected to securely complete your payment.',
+                'wc-buckaroo-bpe-gateway'
+            )
+            . '</span>';
+    }
+
+    /**
+     * Whether the merchant replaced the stock "Pay with X" text with their own.
+     *
+     * WooCommerce stores a field's default on the first settings save, so a
+     * filled-in description does not mean the merchant typed it. Matching is
+     * exact so "Pay with iDEAL, no extra fees" still counts as theirs. Two
+     * labels because $this->title carries the payment-fee suffix and the stored
+     * default does not; two templates because the default keeps the locale it
+     * was saved under.
+     *
+     * @return bool
+     */
+    protected function hasCustomPaymentDescription()
+    {
+        $description = trim((string) $this->get_option('description', ''));
+
+        if ($description === '') {
+            return false;
+        }
+
+        $labels = array_unique(array_filter([
+            (string) ($this->title ?? ''),
+            (string) $this->get_option('title', ''),
+        ], 'strlen'));
+
+        $templates = array_unique([__('Pay with %s', 'wc-buckaroo-bpe-gateway'), 'Pay with %s']);
+
+        foreach ($templates as $template) {
+            foreach ($labels as $label) {
+                if ($description === sprintf($template, $label)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Whether the checkout still shows the configured description.
+     *
+     * The redirect notice replaces the stock "Pay with X" text, but never a
+     * description the merchant wrote themselves.
+     *
+     * @return bool
+     */
+    public function shouldShowPaymentDescription()
+    {
+        return ! $this->redirectsToPaymentPage() || $this->hasCustomPaymentDescription();
     }
 
     public function init_settings()
@@ -706,25 +792,52 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         }
 
         $order = Helper::findOrder($order_id);
-        $processor = $this->newPaymentProcessorInstance($order);
-        $payment = new BuckarooClient($this->getMode());
-
-        $capturePayload = [
-            'amountDebit' => $capture_amount,
-            'originalTransactionKey' => $order->get_transaction_id(),
-        ];
-
-        if ($this instanceof KlarnaKpGateway || $this instanceof KlarnaPayGateway) {
-            unset($capturePayload['originalTransactionKey']);
+        if (! $order instanceof WC_Order) {
+            return $this->create_capture_error(__('A valid order number is required'));
         }
 
-        $res = $payment->process($processor, $capturePayload);
-
-        return (new CaptureAction())->handle(
-            $res,
-            $order,
-            $this->currency,
+        $allocation = CaptureAllocation::fromJson(
+            $this->request->input('line_item_qtys'),
+            $this->request->input('line_item_totals'),
+            $this->request->input('line_item_tax_totals')
         );
+
+        $result = $this->executeCapture($order, $capture_amount, $allocation);
+        if (in_array($result->getStatus(), [CaptureResult::FAILED, CaptureResult::UNKNOWN], true)) {
+            $order->add_order_note(
+                sprintf(
+                    __('Capture failed for transaction ID: %1$s %2$s', 'wc-buckaroo-bpe-gateway'),
+                    $order->get_transaction_id(),
+                    $result->getMessage()
+                )
+            );
+        }
+
+        return $result->toAjaxResponse();
+    }
+
+    protected function executeCapture(
+        WC_Order $order,
+        $amount,
+        CaptureAllocation $allocation,
+        ?BuckarooClient $buckarooClient = null
+    ): CaptureResult {
+        return (new CaptureAction(
+            $this->newPaymentProcessorInstance($order),
+            $order,
+            $amount,
+            $allocation,
+            $this->getCapturePayload($order, $amount),
+            $buckarooClient
+        ))->process();
+    }
+
+    protected function getCapturePayload(WC_Order $order, $amount): array
+    {
+        return [
+            'amountDebit' => number_format((float) $amount, 2, '.', ''),
+            'originalTransactionKey' => $order->get_transaction_id(),
+        ];
     }
 
     /**
@@ -869,8 +982,8 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     protected function set_order_capture($order_id, $paymentName, $paymentType = null)
     {
-        update_post_meta($order_id, '_wc_order_selected_payment_method', $paymentName);
-        update_post_meta($order_id, '_wc_order_payment_issuer', $paymentType);
+        OrderMeta::update($order_id, '_wc_order_selected_payment_method', $paymentName);
+        OrderMeta::update($order_id, '_wc_order_payment_issuer', $paymentType);
     }
 
     public function getMode()

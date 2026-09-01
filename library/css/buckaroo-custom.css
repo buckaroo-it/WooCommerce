@@ -133,10 +133,37 @@ table.woocommerce_order_items tbody tr:first-child td {
     width: 100%;
 }
 
-label[for^='payment_method_buckaroo_'] img {
+/* Classic checkout: icon flush right, vertically centred.
+   `#payment ul.payment_methods` scoping is needed to beat core's
+   `margin: -2px 0 0 .5em` on payment icons. */
+#payment ul.payment_methods li.wc_payment_method[class*='payment_method_buckaroo'] {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#payment ul.payment_methods li.wc_payment_method[class*='payment_method_buckaroo'] > label {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    /* a flex row has no line box, so `line-height` no longer sets the row
+       height; without this the row shrinks to the icon and icons touch */
+    padding: 4px 0;
+}
+
+#payment ul.payment_methods li.wc_payment_method[class*='payment_method_buckaroo'] > .payment_box {
+    flex: 0 0 100%;
+}
+
+#payment ul.payment_methods li.wc_payment_method[class*='payment_method_buckaroo'] > label img {
+    flex: 0 0 auto;
     max-height: 25px;
     width: 32px;
-    float: right;
+    height: auto;
+    float: none;
+    margin: 0;
 }
 
 /* paybybank */
@@ -259,13 +286,20 @@ label.bk-in3-logo img {
     height: auto;
 }
 
+/* Blocks checkout label row: title left, icon right, vertically centred. */
 .buckaroo_method_block {
-    width: 94%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
 }
 
 .buckaroo_method_block_img {
-    float: right;
+    flex: 0 0 auto;
+    max-height: 25px;
     width: 32px;
+    height: auto;
 }
 
 /** end in3 logo input **/
@@ -353,12 +387,27 @@ label.bk-in3-logo img {
     padding: 3px;
 }
 
-.buckaroo-express-payments,
-.wc-block-components-express-payment {
+/* -------------------------------------------------------------------------
+ * Express payment buttons (Apple Pay, Google Pay, PayPal)
+ *
+ * 40px is the only height all three render natively: Apple Pay defaults to 30px,
+ * Google Pay refuses to go under 40px, PayPal picks 35/45/55px from its container
+ * width. Each SDK fills a 40px box its own way -- Apple Pay via the custom
+ * property below, Google Pay via buttonSizeMode "fill", PayPal via the
+ * style.height forced in paypal_express.js.
+ * ------------------------------------------------------------------------- */
+.buckaroo-express-payments {
     width: 100%;
     display: grid !important;
+    grid-template-columns: 1fr !important;
+    justify-items: start !important;
     gap: 12px !important;
     margin: 15px 0 !important;
+}
+
+/* Only the stacked layout needs a cap; the block row shares its width instead. */
+.buckaroo-express-payments > * {
+    max-width: 400px !important;
 }
 
 .buckaroo-express-payments:empty,
@@ -366,54 +415,151 @@ label.bk-in3-logo img {
     display: none !important;
 }
 
+/* Cart: match the width of Proceed to checkout above it and keep the same 12px
+   gap. The sibling test leaves carts without express buttons on theme spacing. */
+.cart_totals .buckaroo-express-payments > * {
+    max-width: none !important;
+}
+
+.cart_totals .buckaroo-express-payments {
+    margin-top: 12px !important;
+}
+
+.cart_totals .wc-proceed-to-checkout:has(+ .buckaroo-express-payments) {
+    padding-bottom: 0 !important;
+}
+
+.cart_totals .wc-proceed-to-checkout:has(+ .buckaroo-express-payments) > * {
+    margin-bottom: 0 !important;
+}
+
+/* Block checkout row. WooCommerce uses auto-fit columns, which strand a third
+   button part-width at some widths. Flex items that grow but never shrink wrap
+   instead of squeezing, and the buttons on each line share it. */
+.wc-block-components-express-payment__event-buttons {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+}
+
+.wc-block-components-express-payment__event-buttons > li {
+    flex: 1 0 170px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+
 .applepay-button-container,
 .googlepay-button-container,
-.buckaroo-paypal-express {
-    flex: 1 !important;
+.buckaroo-paypal-express,
+.wc-block-components-express-payment__event-buttons > li {
     height: 40px !important;
     min-height: 40px !important;
     max-height: 40px !important;
-    min-width: 200px !important;
-    max-width: 400px !important;
-    width: 100% !important;
+    margin: 0 !important;
+    /* Anchors the focus ring overlay; 4px matches the radius all three draw. */
+    position: relative;
+    border-radius: 4px;
+    /* Guard: a wallet that ignores the heights must not overlap the next button. */
     overflow: hidden !important;
     cursor: pointer;
 }
 
-.applepay-button-container .apple-pay-button,
-.googlepay-button-container > *,
-.buckaroo-paypal-express > * {
-    height: 40px !important;
-    max-height: 40px !important;
+.applepay-button-container,
+.googlepay-button-container,
+.buckaroo-paypal-express {
     width: 100% !important;
-    min-width: 100% !important;
-    overflow: hidden !important;
 }
 
-.googlepay-button-container button,
-.googlepay-button-container button:focus,
-.googlepay-button-container button:active {
-    height: 40px !important;
-    max-height: 40px !important;
-    padding: 8px 0 !important;
-    margin: 0 !important;
-    border: 0 none transparent !important;
-    border-style: none !important;
+.applepay-button-container apple-pay-button {
+    --apple-pay-button-height: 40px;
+    --apple-pay-button-border-radius: 4px;
+    display: block;
+    width: 100% !important;
+}
+
+/* Google does not size its button to the element it is handed: the signed-in build
+   renders wider than its slot and gets clipped, so every box down to the button is
+   forced onto ours. min-width overrides Google's own floor. */
+.googlepay-button-container > *,
+.googlepay-button-container .gpay-card-info-container-fill,
+.googlepay-button-container button.gpay-card-info-container,
+.googlepay-button-container button.gpay-button {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+
+/* Google ships two builds, picked by the shopper's Google session. The signed-in
+   one positions its iframe and button at left: 30px, its own side padding, while
+   sizing them to the full wrapper width, so they hang past the right edge and the
+   wordmark lands off centre. It also caps the wordmark at 42.5% (17px) where Apple
+   Pay draws 20px; 55% matches it, and the padding has to go or the box has no
+   content height to size against.
+
+   Scoped to .gpay-card-info-container: the signed-out build shares
+   .gpay-button-fill and sizes its wordmark from the padding these rules drop. */
+.googlepay-button-container .gpay-card-info-container > .gpay-card-info-iframe,
+.googlepay-button-container .gpay-card-info-container > .gpay-button-fill {
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.googlepay-button-container .gpay-card-info-container .gpay-button-fill > .gpay-button {
+    height: 55% !important;
+    padding: 0 !important;
+}
+
+/* Hover and press use opacity, not colour -- brightness() cannot shade pure black.
+   Google Pay's own grey hover is pinned back to its base fill below so it does not
+   shade twice. PayPal is out of reach: the pointer entering its cross-origin iframe
+   fires neither :hover nor any mouse event here, so it keeps its own tint. Only
+   focus reaches all three. */
+.applepay-button-container,
+.googlepay-button-container {
+    transition: opacity 0.15s ease-in-out;
+}
+
+.applepay-button-container:hover,
+.googlepay-button-container:hover {
+    opacity: 0.9;
+}
+
+.applepay-button-container:active,
+.googlepay-button-container:active {
+    opacity: 0.8;
+}
+
+/* An overlay, not an outline: the block row clips overflow, and PayPal's iframe
+   and Apple Pay's shadow root both paint over an inset outline. */
+.applepay-button-container:focus-within::after,
+.googlepay-button-container:focus-within::after,
+.buckaroo-paypal-express:focus-within::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid #2271b1;
+    border-radius: 4px;
+    pointer-events: none;
+    /* Above the z-index 100 PayPal puts on its iframe. */
+    z-index: 1000;
+}
+
+.googlepay-button-container button.gpay-button.black.hover,
+.googlepay-button-container button.gpay-button.black.active {
+    background-color: #000 !important;
+}
+
+.googlepay-button-container button.gpay-button.white.hover,
+.googlepay-button-container button.gpay-button.white.active {
+    background-color: #fff !important;
+}
+
+.googlepay-button-container button.gpay-button.focus {
     box-shadow: none !important;
     outline: none !important;
-    line-height: 0 !important;
-    font-size: 0 !important;
-    box-sizing: border-box !important;
-    background-size: contain !important;
-    background-origin: content-box !important;
-    background-position: center !important;
-    background-repeat: no-repeat !important;
-}
-
-.googlepay-button-container iframe {
-    height: 40px !important;
-    max-height: 40px !important;
-    overflow: hidden !important;
 }
 
 /* Payment method card list */
@@ -975,4 +1121,23 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
 .ui-datepicker td a.ui-state-highlight {
     background: #0073aa;
     color: #fff;
+}
+
+/** redirect notice shown under redirect-based payment methods **/
+.buckaroo-redirect-notice {
+    display: flex;
+    /* keeps the icon on the first line when the text wraps */
+    align-items: flex-start;
+    gap: 8px;
+    color: #646970;
+}
+
+.buckaroo-redirect-notice::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    background: no-repeat center / contain
+        url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 5H5.5C4.67157 5 4 5.67157 4 6.5V14C4 14.8284 4.67157 15.5 5.5 15.5H13C13.8284 15.5 14.5 14.8284 14.5 14V12.5' stroke='%23808992' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M10 5H15V10' stroke='%23808992' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M15 5L8.5 11.5' stroke='%23808992' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
 }

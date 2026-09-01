@@ -59,7 +59,6 @@ class InitGateways
 
     public function idinCheckout(): void
     {
-        $this->displayBuckarooErrors();
         if (IdinProcessor::isIdin(IdinProcessor::getCartProductIds())) {
             include plugin_dir_path(BK_PLUGIN_FILE) . 'templates/idin/checkout.php';
         }
@@ -110,7 +109,9 @@ class InitGateways
                 $payment_method = [
                     'paymentMethodId' => $gateway_id,
                     'title' => $gateway->get_title(),
-                    'description' => $gateway->description,
+                    'description' => $gateway->shouldShowPaymentDescription() ? $gateway->description : '',
+                    // Translated here, so the Blocks bundle needs no JS catalogue for it.
+                    'redirectNotice' => $gateway->getRedirectNoticeHtml(),
                     'image_path' => $gateway->getIcon(),
                     'buckarooImagesUrl' => plugin_dir_url(BK_PLUGIN_FILE) . 'library/buckaroo_images/',
                     'genders' => Helper::getAllGendersForPaymentMethods(),
@@ -159,6 +160,10 @@ class InitGateways
                             'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE',
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
                             'buttonStyle' => $gateway->get_option('button_style', 'black'),
+                            // Whether Google Pay is also listed as a standard,
+                            // selectable checkout payment method.
+                            'showAsPaymentMethod' => method_exists($gateway, 'isCheckoutMethodEnabled')
+                                && $gateway->isCheckoutMethodEnabled(),
                         ]
                     );
                 }
