@@ -47,6 +47,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_payperemail';
         $this->title = 'PayPerEmail';
+        $this->method_description = __('Buckaroo service for sending customers a payment request by email with a secure pay link.', 'wc-buckaroo-bpe-gateway');
         $this->has_fields = true;
         $this->method_title = 'Buckaroo PayPerEmail';
         $this->setIcon('svg/payperemail.svg');

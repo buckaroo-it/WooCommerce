@@ -7,6 +7,7 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 class TwintGateway extends AbstractPaymentGateway
 {
     protected array $supportedCurrencies = ['CHF'];
+    protected array $supportedCountries = ['CH'];
 
     public function __construct()
     {

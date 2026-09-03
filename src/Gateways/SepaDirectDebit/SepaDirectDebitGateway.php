@@ -8,10 +8,13 @@ class SepaDirectDebitGateway extends AbstractPaymentGateway
 {
     public const PAYMENT_CLASS = SepaDirectDebitProcessor::class;
 
+    protected array $supportedCountries = ['AT', 'BE', 'DE', 'ES', 'FR', 'GB', 'IT', 'NL', 'PT', 'LU'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_sepadirectdebit';
         $this->title = 'SEPA Direct Debit';
+        $this->method_description = __("One-off collection from the customer's bank account via a SEPA mandate.", 'wc-buckaroo-bpe-gateway');
         $this->has_fields = false;
         $this->method_title = 'Buckaroo SEPA Direct Debit';
         $this->setIcon('svg/sepa-directdebit.svg');

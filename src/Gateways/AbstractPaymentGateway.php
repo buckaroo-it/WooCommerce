@@ -28,6 +28,10 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 {
     public const PAYMENT_CLASS = null;
 
+    /** ISO 3166-1 alpha-2 codes counted as European by getCountryLabel(). */
+    private const EUROPEAN_COUNTRIES = ['AT', 'BE', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GB', 'GR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LI', 'LT', 'LU', 'LV', 'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'];
+
+
     public const REFUND_CLASS = null;
 
     public $notify_url;
@@ -49,6 +53,9 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     protected Request $request;
 
     protected array $supportedCurrencies = ['EUR'];
+
+    /** ISO 3166-1 alpha-2 country codes. Empty = worldwide / no restriction. */
+    protected array $supportedCountries = [];
 
     public bool $capturable = false;
 
@@ -135,7 +142,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
                 'default' => 'test',
             ],
             'title' => [
-                'title' => __('Front-end label', 'wc-buckaroo-bpe-gateway'),
+                'title' => __('Title', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'text',
                 'description' => __(
                     'Determines how the payment method is named in the checkout.',
@@ -290,6 +297,52 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             );
             $this->settings = array_replace($this->settings, $options);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * WooCommerce aims its back arrow at WooCommerce > Payments and echoes the method
+     * description above the form, which the summary card already shows.
+     */
+    public function admin_options()
+    {
+        add_filter('woocommerce_gateway_method_description', '__return_empty_string');
+        ob_start();
+        parent::admin_options();
+        $html = ob_get_clean();
+        remove_filter('woocommerce_gateway_method_description', '__return_empty_string');
+
+        echo $this->replaceBackHeader($html);
+    }
+
+    /**
+     * Swaps the back arrow for one returning to the Buckaroo menu these pages open from.
+     * Core's output is returned untouched when the header is absent, so an upstream markup
+     * change costs the redirect and nothing else.
+     */
+    private function replaceBackHeader(string $html): string
+    {
+        if (! function_exists('wc_back_header')) {
+            return $html;
+        }
+
+        ob_start();
+        wc_back_header(
+            $this->get_method_title(),
+            __('Back to Buckaroo settings', 'wc-buckaroo-bpe-gateway'),
+            admin_url('admin.php?page=wc-settings&tab=buckaroo_settings')
+        );
+        $header = ob_get_clean();
+
+        return preg_replace_callback(
+            '#<h2 class="wc-admin-header">.*?</h2>#s',
+            static function () use ($header) {
+                return $header;
+            },
+            $html,
+            1
+        ) ?? $html;
     }
 
     /** {@inheritDoc} */
@@ -514,11 +567,66 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
     public function generate_buckaroo_notice_html($key, $data)
     {
-        // Add Warning, if currency set in Buckaroo is unsupported
-        if (isset($_GET['section']) && $this->id == sanitize_text_field($_GET['section']) && ! $this->checkCurrencySupported() && is_admin()) {
-            $message = esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')';
+        if (! isset($_GET['section']) || $this->id !== sanitize_text_field($_GET['section']) || ! is_admin()) {
+            return;
+        }
 
-            return printf('<div class="error notice"><p>%s</p></div>', $message);
+        $method_title  = $this->get_method_title() ?: $this->get_title();
+        $display_title = str_replace('Buckaroo ', '', $method_title);
+        $currencies    = $this->getSupportedCurrencies();
+        $countries     = $this->getSupportedCountries();
+        $is_enabled    = $this->enabled === 'yes';
+        $mode          = strtolower((string) $this->get_option('mode', 'test'));
+
+        if ($is_enabled) {
+            if ($mode === 'live') {
+                $status_class = 'bk-status--live';
+                $status_label = __('Active', 'wc-buckaroo-bpe-gateway');
+            } else {
+                $status_class = 'bk-status--test';
+                $status_label = __('Test', 'wc-buckaroo-bpe-gateway');
+            }
+        } else {
+            $status_class = 'bk-status--disabled';
+            $status_label = __('Inactive', 'wc-buckaroo-bpe-gateway');
+        }
+
+        // Not get_method_description(): the fallback path blanks it while rendering.
+        $description = $this->method_description;
+
+        echo '<div class="bk-gateway-summary-card">';
+
+        echo '<div class="bk-gateway-summary-card__icon">';
+        if (! empty($this->icon)) {
+            echo '<img src="' . esc_url($this->icon) . '" alt="' . esc_attr($display_title) . '" />';
+        } else {
+            echo '<span class="bk-gateway-summary-card__icon-placeholder">' . esc_html(strtoupper(substr($display_title, 0, 2))) . '</span>';
+        }
+        echo '</div>';
+
+        echo '<div class="bk-gateway-summary-card__info">';
+        echo '<div class="bk-gateway-summary-card__title">' . esc_html($display_title) . '</div>';
+        if ($description !== '') {
+            echo '<div class="bk-gateway-summary-card__desc">' . esc_html($description) . '</div>';
+        }
+        $country_label  = $this->getCountryLabel() ?? implode(' · ', $countries);
+        $currency_label = $this->getCurrencyLabel() ?? implode(' · ', $currencies);
+
+        echo '<div class="bk-gateway-summary-card__tags">';
+        echo '<span class="bk-tag">' . esc_html($country_label) . '</span>';
+        echo '<span class="bk-tag">' . esc_html($currency_label) . '</span>';
+        echo '</div>';
+        echo '</div>';
+
+        echo '<div class="bk-gateway-summary-card__status">';
+        echo '<span class="bk-status-pill ' . esc_attr($status_class) . '"><span class="bk-status-pill-dot"></span>' . esc_html($status_label) . '</span>';
+        echo '</div>';
+
+        echo '</div>';
+
+        if (! $this->checkCurrencySupported()) {
+            $message = esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')';
+            printf('<div class="error notice"><p>%s</p></div>', $message);
         }
     }
 
@@ -1001,6 +1109,43 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function checkCurrencySupported(): bool
     {
         return (bool) in_array(get_woocommerce_currency(), $this->supportedCurrencies);
+    }
+
+    public function getSupportedCurrencies(): array
+    {
+        return $this->supportedCurrencies;
+    }
+
+    public function getSupportedCountries(): array
+    {
+        return $this->supportedCountries;
+    }
+
+    /**
+     * Summary label for the countries this method covers, or null when the codes
+     * themselves should be listed. Callers supply their own markup.
+     */
+    public function getCountryLabel(): ?string
+    {
+        $countries = $this->getSupportedCountries();
+
+        if (empty($countries)) {
+            return __('Global', 'wc-buckaroo-bpe-gateway');
+        }
+
+        if (count($countries) >= 5 && count(array_diff($countries, self::EUROPEAN_COUNTRIES)) === 0) {
+            return __('Europe', 'wc-buckaroo-bpe-gateway');
+        }
+
+        return null;
+    }
+
+    /** As getCountryLabel(), for currencies. */
+    public function getCurrencyLabel(): ?string
+    {
+        return count($this->getSupportedCurrencies()) >= 6
+            ? __('Multi-currency', 'wc-buckaroo-bpe-gateway')
+            : null;
     }
 
     public function canShowCaptureForm($order): bool

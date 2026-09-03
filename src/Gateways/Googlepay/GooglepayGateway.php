@@ -23,6 +23,7 @@ class GooglepayGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_googlepay';
         $this->title = 'Google Pay';
+        $this->method_description = __("Google's wallet, using the cards saved to a shopper's Google Account.", 'wc-buckaroo-bpe-gateway');
         $this->has_fields = true;
         $this->method_title = 'Buckaroo Google Pay';
         $this->CustomerCardName = '';
@@ -432,9 +433,9 @@ class GooglepayGateway extends AbstractPaymentGateway
             $new_form_fields[$k] = $value;
             if ($k === 'mode') {
                 $new_form_fields['merchant_guid'] = [
-                    'title' => __('GUID', 'wc-buckaroo-bpe-gateway'),
+                    'title' => __('Gateway Merchant ID', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'text',
-                    'description' => __('The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General.', 'wc-buckaroo-bpe-gateway'),
+                    'description' => __('The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza →  Services -> Google Pay.', 'wc-buckaroo-bpe-gateway'),
                     'default' => '0',
                 ];
                 $new_form_fields['google_merchant_id'] = [

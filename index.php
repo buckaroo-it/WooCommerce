@@ -1,11 +1,11 @@
 <?php
 
 /*
-Plugin Name: WC Buckaroo BPE Gateway
+Plugin Name: Buckaroo Payments for WooCommerce
 Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
-Description: Buckaroo payment system plugin for WooCommerce.
+Description: WooCommerce payment gateway for iDEAL, Bancontact, Klarna, PayPal, credit cards and more, powered by Buckaroo.
 Version: 4.9.1
 WC requires at least: 5.0
 WC tested up to: 11.0.0

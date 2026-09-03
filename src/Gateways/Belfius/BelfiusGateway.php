@@ -6,10 +6,13 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class BelfiusGateway extends AbstractPaymentGateway
 {
+    protected array $supportedCountries = ['BE'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_belfius';
         $this->title = 'Belfius';
+        $this->method_description = __('Direct, guaranteed bank payments for customers of Belfius, a major Belgian bank.', 'wc-buckaroo-bpe-gateway');
         $this->has_fields = false;
         $this->method_title = 'Buckaroo Belfius';
         $this->setIcon('svg/belfius.svg');

@@ -18,6 +18,8 @@ class AfterpayNewGateway extends AbstractPaymentGateway
 
     public const REFUND_CLASS = AfterpayNewRefundProcessor::class;
 
+    protected array $supportedCountries = ['NL', 'BE', 'DE'];
+
     public const CUSTOMER_TYPE_B2C = 'b2c';
 
     public const CUSTOMER_TYPE_B2B = 'b2b';
@@ -42,6 +44,7 @@ class AfterpayNewGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_afterpaynew';
         $this->title = 'Riverty';
+        $this->method_description = __('European pay-after-delivery within 30 days.', 'wc-buckaroo-bpe-gateway');
         $this->has_fields = false;
         $this->method_title = 'Buckaroo Riverty';
         $this->setIcon('svg/afterpay.svg');

@@ -6,6 +6,8 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class EpsGateway extends AbstractPaymentGateway
 {
+    protected array $supportedCountries = ['AT'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_eps';

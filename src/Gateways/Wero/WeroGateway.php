@@ -31,6 +31,7 @@ class WeroGateway extends AbstractPaymentGateway
      * @var array<string>
      */
     protected array $supportedCurrencies = ['EUR'];
+    protected array $supportedCountries = ['FR', 'DE', 'BE'];
 
     public function __construct()
     {

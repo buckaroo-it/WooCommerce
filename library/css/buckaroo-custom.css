@@ -133,60 +133,6 @@ table.woocommerce_order_items tbody tr:first-child td {
     width: 100%;
 }
 
-.buckaroo-payment-list {
-    background-color: #fff;
-    padding: 15px;
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    height: 500px;
-}
-
-.buckaroo-payment-list li {
-    flex: 0 0 auto;
-    width: 33.333%;
-    display: flex;
-    align-items: center;
-}
-
-.buckaroo-payment-list-icon {
-    max-height: 35px;
-    width: auto;
-    margin-right: 10px;
-}
-
-.buckaroo-payment-status {
-    margin: 0 3px;
-}
-
-.buckaroo-payment-enabled-live {
-    color: #198754;
-}
-
-.buckaroo-payment-enabled-test {
-    color: #ffc107;
-}
-
-.buckaroo-payment-disabled {
-    color: #dc3545;
-}
-
-@media (max-width: 1024px) {
-    .buckaroo-payment-list {
-        height: 700px;
-    }
-
-    .buckaroo-payment-list li {
-        width: 50%;
-    }
-}
-
-@media (max-width: 768px) {
-    .buckaroo-payment-list li {
-        width: 100%;
-    }
-}
-
 /* Classic checkout: icon flush right, vertically centred.
    `#payment ul.payment_methods` scoping is needed to beat core's
    `margin: -2px 0 0 .5em` on payment icons. */
@@ -614,6 +560,467 @@ label.bk-in3-logo img {
 .googlepay-button-container button.gpay-button.focus {
     box-shadow: none !important;
     outline: none !important;
+}
+
+/* Payment method card list */
+.buckaroo-payment-cards {
+    column-count: 3;
+    column-gap: 10px;
+    margin: 16px 0;
+}
+
+@media (max-width: 1024px) {
+    .buckaroo-payment-cards {
+        column-count: 2;
+    }
+}
+
+@media (max-width: 640px) {
+    .buckaroo-payment-cards {
+        column-count: 1;
+    }
+}
+.buckaroo-payment-card {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 10px 16px;
+    gap: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    break-inside: avoid;
+    margin-bottom: 10px;
+}
+.buckaroo-payment-card-icon {
+    width: 64px;
+    height: 44px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    box-sizing: border-box;
+}
+.buckaroo-payment-card-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 0;
+}
+.buckaroo-payment-card-info {
+    flex: 1;
+    min-width: 0;
+}
+.buckaroo-payment-card-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1a1a2e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.buckaroo-payment-card-subtitle {
+    font-size: 12px;
+    color: #888;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.bk-meta-sep {
+    color: #ccc;
+    font-weight: 300;
+}
+.bk-meta-divider {
+    color: #d0d0d0;
+    margin: 0 3px;
+    font-weight: 300;
+}
+
+.bk-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    border: none;
+    box-sizing: border-box;
+    cursor: default;
+    pointer-events: none;
+    user-select: none;
+}
+
+.bk-status-pill-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.bk-status-pill.bk-status--live {
+    background: #c6f0d4;
+    color: #0f5c28;
+    font-weight: 700;
+}
+.bk-status-pill.bk-status--live .bk-status-pill-dot {
+    background: #1a8c3c;
+}
+
+.bk-status-pill.bk-status--test {
+    background: #fde9b0;
+    color: #7a5500;
+    font-weight: 600;
+}
+.bk-status-pill.bk-status--test .bk-status-pill-dot {
+    background: #c47d00;
+}
+
+.bk-status-pill.bk-status--disabled {
+    background: #ebebeb;
+    color: #888;
+    font-weight: 500;
+}
+.bk-status-pill.bk-status--disabled .bk-status-pill-dot {
+    background: transparent;
+    border: 1.5px solid #999;
+    width: 7px;
+    height: 7px;
+}
+.buckaroo-payment-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+.buckaroo-payment-card-settings {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    color: #555;
+    text-decoration: none;
+    transition:
+        background 0.15s,
+        border-color 0.15s,
+        color 0.15s;
+    flex-shrink: 0;
+}
+.buckaroo-payment-card-settings:hover {
+    background: #e8e9ea;
+    border-color: #b5b5b5;
+    color: #1a1a2e;
+}
+.buckaroo-payment-card-settings svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* Payment Methods list page - full-width single-column cards */
+.buckaroo-gateway-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0;
+}
+.buckaroo-gateway-list__card {
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.buckaroo-gateway-list__header {
+    display: flex;
+    align-items: center;
+    padding: 0 16px 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #646970;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 4px;
+}
+.buckaroo-gateway-list__header-method {
+    flex: 1;
+}
+.buckaroo-gateway-list__header-enabled {
+    width: 80px;
+    text-align: center;
+    flex-shrink: 0;
+}
+.buckaroo-gateway-list__header-actions {
+    width: 40px;
+    flex-shrink: 0;
+}
+.buckaroo-gateway-list .buckaroo-payment-card {
+    break-inside: auto;
+    margin-bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+.buckaroo-gateway-list .buckaroo-payment-card-actions {
+    align-items: center;
+    gap: 10px;
+}
+.buckaroo-gateway-list .wc-payment-gateway-method-toggle-enabled {
+    display: inline-flex;
+    width: 80px;
+    justify-content: center;
+}
+
+/* Gateway settings page summary card */
+.bk-gateway-summary-card {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 16px 20px;
+    gap: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+}
+.bk-gateway-summary-card__icon {
+    width: 80px;
+    height: 56px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    box-sizing: border-box;
+}
+.bk-gateway-summary-card__icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.bk-gateway-summary-card__icon-placeholder {
+    width: 80px;
+    height: 56px;
+    border-radius: 8px;
+    background: #1a2340;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+    flex-shrink: 0;
+}
+.bk-gateway-summary-card__info {
+    flex: 1;
+    min-width: 0;
+}
+.bk-gateway-summary-card__title {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+}
+.bk-gateway-summary-card__desc {
+    font-size: 13px;
+    color: #646970;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+.bk-gateway-summary-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.bk-tag {
+    display: inline-block;
+    background: #f0f0f0;
+    color: #555;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid #dcdcde;
+}
+.bk-gateway-summary-card__status {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+.bk-intro-hero {
+    text-align: center;
+    padding: 32px 24px 28px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.bk-intro-hero__logo {
+    margin-bottom: 14px;
+}
+.bk-intro-hero__logo-img {
+    height: 36px;
+    width: auto;
+    display: inline-block;
+}
+.bk-intro-hero__desc {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto 20px;
+}
+.bk-intro-hero__actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.bk-hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+        background 0.15s,
+        color 0.15s,
+        opacity 0.15s;
+    cursor: pointer;
+}
+.bk-hero-btn:hover {
+    text-decoration: none;
+}
+.bk-hero-btn--docs {
+    background: #c8f135;
+    color: #1a2340;
+    border: 2px solid #c8f135;
+}
+.bk-hero-btn--docs:hover {
+    background: #1a2340;
+    color: #c8f135;
+    border: 2px solid #c8f135;
+    opacity: 1;
+}
+.bk-hero-btn--contact {
+    background: #1a2340;
+    color: #fff;
+    border: 2px solid #1a2340;
+}
+.bk-hero-btn--contact:hover {
+    background: transparent;
+    color: #1a2340;
+    opacity: 1;
+}
+
+/* API Credentials section */
+.bk-creds-card {
+    margin: 0;
+    padding: 0;
+}
+.bk-creds-table {
+    width: 100%;
+    margin: 0 !important;
+}
+.bk-creds-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.bk-creds-inline-btn {
+    white-space: nowrap;
+    position: relative;
+}
+.bk-key-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    align-self: stretch;
+    border: 1px solid #dcdcde;
+    border-radius: 3px;
+    background: #f6f7f7;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.1s;
+    color: #555;
+}
+.bk-key-btn:active {
+    opacity: 0.8;
+}
+.bk-key-btn--toggle:hover {
+    background: #e8e9ea;
+    color: #1a1a2e;
+}
+
+/* General Options section */
+.bk-general-options-card {
+    margin: 0;
+    padding: 0;
+}
+.bk-general-options-card h3:empty,
+.bk-general-options-card h3 {
+    display: none;
+}
+.bk-general-options-card .form-table {
+    width: 100%;
+    margin: 0;
+}
+
+.buckaroo-payment-card-icon-placeholder {
+    width: 64px;
+    height: 44px;
+    border-radius: 8px;
+    background: #1a2340;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+    flex-shrink: 0;
+}
+
+.bk-cc-icons {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+.bk-cc-icon {
+    height: 14px;
+    width: auto;
+    border-radius: 2px;
+    opacity: 0.85;
+}
+body.woocommerce_page_wc-settings .form-table td textarea,
+body.woocommerce_page_wc-settings .form-table td textarea.wide-input,
+body.woocommerce_page_wc-settings .form-table td textarea.large-text,
+body.woocommerce_page_wc-settings .form-table td textarea.input-text {
+    width: 29em !important;
+    max-width: 29em !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
 }
 
 /* -------------------------------------------------------------------------

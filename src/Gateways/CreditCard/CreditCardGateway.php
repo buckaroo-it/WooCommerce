@@ -10,6 +10,8 @@ use WC_Order;
 
 class CreditCardGateway extends AbstractPaymentGateway
 {
+    public const GATEWAY_ID = 'buckaroo_creditcard';
+
     public const PAYMENT_CLASS = CreditCardProcessor::class;
 
     public const REFUND_CLASS = CreditCardRefundProcessor::class;
@@ -88,6 +90,7 @@ class CreditCardGateway extends AbstractPaymentGateway
         add_action("{$namespace}-hosted-fields-token", [HostedFieldsController::class, 'getToken']);
     }
 
+
     /**
      * Validate fields
      *
@@ -132,7 +135,7 @@ class CreditCardGateway extends AbstractPaymentGateway
      */
     public function setParameters()
     {
-        $this->id = 'buckaroo_creditcard';
+        $this->id = self::GATEWAY_ID;
         $this->title = 'Credit and debit card';
         $this->method_title = 'Buckaroo Credit and debit card';
     }
