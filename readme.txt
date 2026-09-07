@@ -29,26 +29,25 @@ Payment method support list by Buckaroo WooCommerce payments plugin
 9. EPS
 10. Giftcards
 11. Google Pay
-12. goSettle
-13. iDEAL | Wero
-14. In3
-15. KBC
-16. Klarna
-17. MB Way
-18. Multibanco
-19. PayByBank
-20. Payconiq
-21. PayPal
-22. PayPerEmail
-23. Przelewy24
-24. Riverty
-25. SEPA Credit Transfer (Bank transfer)
-26. SEPA Direct Debit
-27. Swish
-28. Trustly
-29. Twint
-30. WeChat Pay
-31. Wero (BE, DE, FR)
+12. iDEAL | Wero
+13. In3
+14. KBC
+15. Klarna
+16. MB Way
+17. Multibanco
+18. PayByBank
+19. Payconiq
+20. PayPal
+21. PayPerEmail
+22. Przelewy24
+23. Riverty
+24. SEPA Credit Transfer (Bank transfer)
+25. SEPA Direct Debit
+26. Swish
+27. Trustly
+28. Twint
+29. WeChat Pay
+30. Wero (BE, DE, FR)
 
 == Release notes ==
 For detailed release notes, please visit our [GitHub repository](https://github.com/buckaroo-it/WooCommerce).

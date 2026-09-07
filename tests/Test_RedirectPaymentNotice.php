@@ -22,7 +22,6 @@ use Buckaroo\Woocommerce\Gateways\In3\In3Gateway;
 use Buckaroo\Woocommerce\Gateways\Kbc\KbcGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
-use Buckaroo\Woocommerce\Gateways\KnakenSettle\KnakenSettleGateway;
 use Buckaroo\Woocommerce\Gateways\MbWay\MbWayGateway;
 use Buckaroo\Woocommerce\Gateways\Multibanco\MultibancoGateway;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankGateway;
@@ -77,7 +76,6 @@ class Test_RedirectPaymentNotice extends TestCase
             'TWINT' => [TwintGateway::class],
             'PayByBank' => [PayByBankGateway::class],
             'Giftcards' => [GiftCardGateway::class],
-            'Knaken Settle' => [KnakenSettleGateway::class],
             'In3' => [In3Gateway::class],
             'Klarna Pay' => [KlarnaPayGateway::class],
             'Klarna KP' => [KlarnaKpGateway::class],
