@@ -369,6 +369,10 @@ msgstr ""
 msgid "Pay with %s"
 msgstr ""
 
+#: src/Gateways/AbstractPaymentGateway.php:227
+msgid "After submission, you will be redirected to securely complete your payment."
+msgstr ""
+
 #: src/Gateways/AbstractPaymentGateway.php:371
 msgid "This payment method is not supported for the selected currency "
 msgstr ""

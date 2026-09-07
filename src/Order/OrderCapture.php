@@ -132,7 +132,7 @@ class OrderCapture
      */
     protected function get_refunded_captures(int $order_id)
     {
-        $refunded_captures = get_post_meta($order_id, 'buckaroo_captures_refunded', true);
+        $refunded_captures = OrderMeta::get($order_id, 'buckaroo_captures_refunded');
         if (is_string($refunded_captures)) {
             $refunded_captures_decoded = json_decode($refunded_captures);
             if (is_array($refunded_captures_decoded)) {

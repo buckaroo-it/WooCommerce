@@ -47,7 +47,7 @@ class PaymentMethodSettings extends AbstractPaymentGateway
         $this->form_fields['merchantkey'] = [
             'title' => __('Store key', 'wc-buckaroo-bpe-gateway'),
             'type' => 'password',
-            'description' => __('This is your Buckaroo Payment Plaza <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank">store key</a> (Settings -> API Key -> Store keys).', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('This is your Buckaroo Payment Plaza <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank">store key</a> (Settings -> API Keys -> Store keys).', 'wc-buckaroo-bpe-gateway'),
             'default' => '',
             'custom_attributes' => [
                 'required' => 'required',
@@ -56,7 +56,7 @@ class PaymentMethodSettings extends AbstractPaymentGateway
         $this->form_fields['secretkey'] = [
             'title' => __('Secret key', 'wc-buckaroo-bpe-gateway'),
             'type' => 'password',
-            'description' => __('This is your Buckaroo Payment Plaza <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank">secret key</a> (Settings -> API Key -> Secret key).', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('This is your Buckaroo Payment Plaza <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank">secret key</a> (Settings -> API Keys -> Secret key).', 'wc-buckaroo-bpe-gateway'),
             'default' => '',
             'custom_attributes' => [
                 'required' => 'required',
@@ -102,15 +102,9 @@ class PaymentMethodSettings extends AbstractPaymentGateway
             'default' => 'off',
         ];
         $this->form_fields['culture'] = [
-            'title' => __('Language', 'wc-buckaroo-bpe-gateway'),
+            'title' => __('Payment page language', 'wc-buckaroo-bpe-gateway'),
             'type' => 'select',
-            'description' => __(
-                "The chosen language (culture) for the Buckaroo payment engine <br>page.
-When this is set to “Dynamic language” the plugin will <br>automatically determine the language based on the
-language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>
-English will be used as a fallback language for unknown language types.",
-                'wc-buckaroo-bpe-gateway'
-            ),
+            'description' => __('Select the Buckaroo payment page language. “Dynamic language” uses the customer’s browser language, with English as fallback.', 'wc-buckaroo-bpe-gateway'),
             'options' => [
                 'dynamic' => 'Dynamic language (based on the web browser language)',
                 'en-US' => 'English',
@@ -146,19 +140,17 @@ English will be used as a fallback language for unknown language types.",
         ];
 
         $this->form_fields['transactiondescription'] = [
-            'title' => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'textarea',
-            'description' => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
-            'desc_tip' => __('Transaction description can be filled with static text and tags like: {order_number}, {shop_name} and {product_name} for first product found.'),
-            'default' => '',
+            'title'    => __('Transaction description', 'wc-buckaroo-bpe-gateway'),
+            'type'     => 'textarea',
+            'desc_tip' => __('Available tags: {order_number}, {shop_name}, {product_name} (first product).', 'wc-buckaroo-bpe-gateway'),
+            'default'  => '',
         ];
 
         $this->form_fields['refund_description'] = [
-            'title' => __('Refund description', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'textarea',
-            'description' => __('Refund description', 'wc-buckaroo-bpe-gateway'),
-            'desc_tip' => __('Refund description can be filled with static text and tags like: {order_number}, {shop_name} and {product_name} for first product found.'),
-            'default' => '',
+            'title'    => __('Refund description', 'wc-buckaroo-bpe-gateway'),
+            'type'     => 'textarea',
+            'desc_tip' => __('Available tags: {order_number}, {shop_name}, {product_name} (first product).', 'wc-buckaroo-bpe-gateway'),
+            'default'  => '',
         ];
 
         $this->apply_filter_or_error('append_subscription_configurationCode_in_setting_field', $this);

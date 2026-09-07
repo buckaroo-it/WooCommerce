@@ -9,6 +9,7 @@ class TrustlyGateway extends AbstractPaymentGateway
     public const PAYMENT_CLASS = TrustlyProcessor::class;
 
     protected array $supportedCurrencies = ['EUR', 'SEK', 'NOK', 'DKK', 'GBP'];
+    protected array $supportedCountries = ['SE', 'NO', 'DK', 'FI', 'EE', 'LV', 'LT', 'DE', 'NL'];
 
     public function __construct()
     {

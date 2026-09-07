@@ -6,6 +6,8 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class PayconiqGateway extends AbstractPaymentGateway
 {
+    protected array $supportedCountries = ['BE', 'LU'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_payconiq';

@@ -13,6 +13,12 @@ class TestCredentials
 
     public function handle(): void
     {
+        if (! current_user_can('manage_woocommerce')) {
+            wp_die(esc_html__('You are not allowed to perform this action.', 'wc-buckaroo-bpe-gateway'), '', ['response' => 403]);
+        }
+
+        check_ajax_referer('buckaroo_admin_ajax', 'security');
+
         if (! isset($_POST['website_key']) || ! is_string($_POST['website_key'])) {
             wp_die(esc_html__('Credentials are incorrect', 'wc-buckaroo-bpe-gateway'));
         }

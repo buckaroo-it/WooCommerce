@@ -5,6 +5,7 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway;
 use Buckaroo\Woocommerce\Order\OrderDetails;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use BuckarooDeps\Buckaroo\Resources\Constants\Gender;
 
@@ -14,7 +15,7 @@ class KlarnaKpProcessor extends AbstractPaymentProcessor
 
     public function getAction(): string
     {
-        if (get_post_meta($this->get_order()->get_id(), '_buckaroo_klarnakp_reservation_number', true)) {
+        if (OrderMeta::get($this->get_order(), '_buckaroo_klarnakp_reservation_number')) {
             return 'pay';
         }
 
@@ -23,10 +24,9 @@ class KlarnaKpProcessor extends AbstractPaymentProcessor
 
     protected function getMethodBody(): array
     {
-        $reservation_number = get_post_meta(
-            $this->get_order()->get_id(),
-            '_buckaroo_klarnakp_reservation_number',
-            true
+        $reservation_number = OrderMeta::get(
+            $this->get_order(),
+            '_buckaroo_klarnakp_reservation_number'
         );
 
         return array_merge_recursive(
@@ -143,8 +143,8 @@ class KlarnaKpProcessor extends AbstractPaymentProcessor
 
     public function beforeReturnHandler(ResponseParser $responseParser, string $redirectUrl)
     {
-        update_post_meta(
-            $this->get_order()->get_id(),
+        OrderMeta::update(
+            $this->get_order(),
             '_buckaroo_klarnakp_reservation_number',
             $responseParser->getService('reservationNumber')
         );

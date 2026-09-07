@@ -5,6 +5,7 @@ namespace Buckaroo\Woocommerce\Hooks;
 use Buckaroo\Woocommerce\Core\PaymentGatewayRegistry;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Order\OrderCaptureRefund;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\Services\Helper;
 use WC_Cart;
 
@@ -31,9 +32,10 @@ class OrderActions
             return;
         }
 
-        $orderId = $isOrderInstance ? $post->get_id() : $post->ID;
+        // Under HPOS the admin passes the order itself, not a post.
+        $order = $isOrderInstance ? $post : $post->ID;
 
-        if (get_post_meta($orderId, '_buckaroo_order_in_test_mode', true) !== '1') {
+        if (OrderMeta::get($order, '_buckaroo_order_in_test_mode') !== '1') {
             return;
         }
 
@@ -45,6 +47,30 @@ class OrderActions
 
     public function handleOrderCapture(): void
     {
+        if (! check_ajax_referer('order-item', 'security', false)) {
+            wp_send_json(
+                [
+                    'errors' => [
+                        'error_capture' => [
+                            [esc_html__('Invalid security token. Please reload the page and try again.', 'wc-buckaroo-bpe-gateway')],
+                        ],
+                    ],
+                ]
+            );
+        }
+
+        if (! current_user_can('edit_shop_orders')) {
+            wp_send_json(
+                [
+                    'errors' => [
+                        'error_capture' => [
+                            [esc_html__('You are not allowed to capture this order.', 'wc-buckaroo-bpe-gateway')],
+                        ],
+                    ],
+                ]
+            );
+        }
+
         if (! isset($_POST['order_id'])) {
             wp_send_json(
                 [
@@ -100,7 +126,7 @@ class OrderActions
     {
         $registry = new PaymentGatewayRegistry();
 
-        $primary = get_post_meta($orderId, '_wc_order_selected_payment_method', true);
+        $primary = OrderMeta::get($orderId, '_wc_order_selected_payment_method');
         if (is_string($primary) && $primary !== '') {
             $gateway = $registry->newGatewayInstance($primary);
             if ($gateway instanceof AbstractPaymentGateway) {

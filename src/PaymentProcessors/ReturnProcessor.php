@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\PaymentProcessors;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
@@ -61,7 +62,7 @@ class ReturnProcessor
         $order->set_transaction_id($responseParser->getTransactionKey());
         $order->save();
 
-        update_post_meta($orderId, '_buckaroo_order_in_test_mode', $responseParser->isTest());
+        OrderMeta::update($order, '_buckaroo_order_in_test_mode', $responseParser->isTest());
 
         // Check if we need to redirect first (based on the response)
         if ($redirect = Helper::processCheckRedirectRequired($responseParser)) {

@@ -1,7 +1,9 @@
 import buckaroo_afterpay from './buckaroo_afterpay';
 import buckaroo_afterpaynew from './buckaroo_afterpaynew';
+import buckaroo_applepay from './buckaroo_applepay';
 import buckaroo_billink from './buckaroo_billink';
 import buckaroo_creditcard from './buckaroo_creditcard';
+import buckaroo_googlepay from './buckaroo_googlepay';
 import buckaroo_in3 from './buckaroo_in3';
 import buckaroo_klarnakp from './buckaroo_klarnakp';
 import buckaroo_klarnapay from './buckaroo_klarnapay';
@@ -13,8 +15,10 @@ import buckaroo_zakelijkoprekening from './buckaroo_zakelijkoprekening';
 export const paymentGatewaysTemplates = {
     buckaroo_afterpay,
     buckaroo_afterpaynew,
+    buckaroo_applepay,
     buckaroo_billink,
     buckaroo_creditcard,
+    buckaroo_googlepay,
     buckaroo_in3,
     buckaroo_klarnakp,
     buckaroo_klarnapay,

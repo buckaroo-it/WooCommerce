@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways;
 
 use Buckaroo\Woocommerce\Order\OrderDetails;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use WC_Order;
 
 class AbstractRefundProcessor extends AbstractProcessor
@@ -44,7 +45,7 @@ class AbstractRefundProcessor extends AbstractProcessor
     {
         $originalTransactionKey = (string) $this->getOrder()->get_transaction_id('edit');
 
-        $captures = get_post_meta($this->getOrder()->get_id(), '_wc_order_captures');
+        $captures = OrderMeta::get($this->getOrder(), '_wc_order_captures', false);
         if ($captures && !empty($captures)) {
             $lastCapture = end($captures);
             if (isset($lastCapture['transaction_id'])) {

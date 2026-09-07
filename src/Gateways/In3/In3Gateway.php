@@ -12,6 +12,8 @@ class In3Gateway extends AbstractPaymentGateway
 
     public const PAYMENT_CLASS = In3Processor::class;
 
+    protected array $supportedCountries = ['NL'];
+
     public $type;
 
     public $vattype;
@@ -23,7 +25,7 @@ class In3Gateway extends AbstractPaymentGateway
         $this->id = 'buckaroo_in3';
         $this->has_fields = false;
         $this->method_title = 'Buckaroo In3';
-
+        $this->method_description = __('Interest-free payment in three instalments over 60 days, settled via iDEAL.', 'wc-buckaroo-bpe-gateway');
         $this->title = 'In3';
 
         $this->setCountry();

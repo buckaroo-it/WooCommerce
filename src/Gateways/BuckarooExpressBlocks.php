@@ -3,10 +3,14 @@
 namespace Buckaroo\Woocommerce\Gateways;
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
-use Buckaroo\Woocommerce\Core\Plugin;
 
 /**
- * Buckaroo Express payment methods integration for WooCommerce Blocks
+ * Buckaroo Express payment methods integration for WooCommerce Blocks.
+ *
+ * This umbrella integration exposes the aggregated list of Buckaroo gateways to
+ * the shared `buckaroo-blocks` frontend script, which performs the client-side
+ * registration of both the regular and express payment methods. Per-gateway
+ * block compatibility is declared separately by {@see BuckarooBlocks}.
  */
 class BuckarooExpressBlocks extends AbstractPaymentMethodType
 {
@@ -36,18 +40,8 @@ class BuckarooExpressBlocks extends AbstractPaymentMethodType
      */
     public function get_payment_method_script_handles()
     {
-        wp_register_script(
-            'buckaroo-blocks',
-            plugins_url('/assets/js/dist/blocks.js', BK_PLUGIN_FILE),
-            ['wc-blocks-registry', 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-data', 'buckaroo_apple_pay', 'buckaroo_google_pay'],
-            Plugin::VERSION,
-            true
-        );
+        BuckarooBlocksScript::register();
 
-        if (function_exists('wp_set_script_translations')) {
-            wp_set_script_translations('buckaroo-blocks', 'wc-buckaroo-bpe-gateway', plugin_dir_path(BK_PLUGIN_FILE) . 'languages');
-        }
-
-        return ['buckaroo-blocks'];
+        return [BuckarooBlocksScript::HANDLE];
     }
 }

@@ -8,6 +8,8 @@ class PayByBankGateway extends AbstractPaymentGateway
 {
     public const PAYMENT_CLASS = PayByBankProcessor::class;
 
+    protected array $supportedCountries = ['NL', 'BE', 'DE', 'GB'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_paybybank';

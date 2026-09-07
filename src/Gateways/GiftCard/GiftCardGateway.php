@@ -8,6 +8,8 @@ class GiftCardGateway extends AbstractPaymentGateway
 {
     public const PAYMENT_CLASS = GiftCardProcessor::class;
 
+    protected array $supportedCountries = ['NL'];
+
     public $giftcards;
 
     public function __construct()

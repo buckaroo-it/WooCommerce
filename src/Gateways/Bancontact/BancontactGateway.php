@@ -6,10 +6,13 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class BancontactGateway extends AbstractPaymentGateway
 {
+    protected array $supportedCountries = ['BE'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_bancontactmrcash';
         $this->title = 'Bancontact';
+        $this->method_description = __("Belgium's most popular payment method, linked directly to the shopper's own bank.", 'wc-buckaroo-bpe-gateway');
         $this->has_fields = false;
         $this->method_title = 'Buckaroo Bancontact';
         $this->setIcon('svg/bancontact.svg');

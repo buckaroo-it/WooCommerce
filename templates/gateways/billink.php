@@ -52,42 +52,6 @@ defined('ABSPATH') || exit;
         autocomplete="off"
         value="" />
     </p>
-    
-    <p class="form-row form-row-wide validate-required">
-        <a
-        href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf"
-        target="_blank">
-            <?php esc_html_e('Accept terms of use', 'wc-buckaroo-bpe-gateway'); ?>:
-        </a>
-        <span class="required">*</span>
-        <input
-        id="buckaroo-billink-accept"
-        name="buckaroo-billink-accept"
-        type="checkbox"
-        value="ON" />
-    </p>
-
-    <p class="required" style="float:right;">
-        * <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
-    </p>
-</fieldset>
-<fieldset id="buckaroo_billink_b2c">
-    <?php
-    $this->getPaymentTemplate('partial_birth_field');
-    ?>
-
-    <p class="form-row form-row-wide validate-required">
-        <a
-        href="https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf"
-        target="_blank">
-            <?php esc_html_e('Accept terms of use', 'wc-buckaroo-bpe-gateway'); ?>:
-        </a><span class="required">*</span>
-        <input
-        id="buckaroo-billink-accept"
-        name="buckaroo-billink-accept"
-        type="checkbox"
-        value="ON" />
-    </p>
 
     <p class="required" style="float:right;">
         * <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>

@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use Throwable;
@@ -26,6 +27,7 @@ class ApplepayGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_applepay';
         $this->title = 'Apple Pay';
+        $this->method_description = __("Apple's mobile wallet for quick, secure payments via Face ID or Touch ID on Apple devices.", 'wc-buckaroo-bpe-gateway');
         $this->has_fields = true;
         $this->method_title = 'Buckaroo Apple Pay';
         $this->CustomerCardName = '';
@@ -46,6 +48,7 @@ class ApplepayGateway extends AbstractPaymentGateway
         add_action("{$namespace}-get-items-from-cart", [ApplepayController::class, 'getItemsFromCart']);
         add_action("{$namespace}-get-shipping-methods", [ApplepayController::class, 'getShippingMethods']);
         add_action("{$namespace}-get-shop-information", [ApplepayController::class, 'getShopInformation']);
+        add_action("{$namespace}-get-cart-total", [ApplepayController::class, 'getCartTotal']);
         add_action("{$namespace}-create-transaction", [$this, 'createTransaction']);
     }
 
@@ -161,21 +164,30 @@ class ApplepayGateway extends AbstractPaymentGateway
         $order = wc_create_order();
 
         try {
-            $useExistingCart = self::cartCoversWalletItems(WC()->cart, $items);
-            if ($useExistingCart) {
-                $wc_methods = self::getShippingRatesForCart(WC()->cart);
-                self::createOrderFromCart($order, WC()->cart, $wc_methods, $selected_method_id);
-            } else {
-                self::createFakeCart(
-                    $items,
-                    function ($cart) use ($order, $selected_method_id) {
-                        $wc_methods = self::getShippingRatesForCart($cart);
-                        self::createOrderFromCart($order, $cart, $wc_methods, $selected_method_id);
+            ExpressProductCart::calculateItems(
+                $items,
+                'buckaroo_applepay',
+                function ($cart) use ($order, $selected_method_id) {
+                    $wc_methods = self::getShippingRatesForCart();
+                    self::createOrderFromCart($order, $cart, $wc_methods, $selected_method_id);
 
-                        return $wc_methods;
-                    }
-                );
-            }
+                    return $wc_methods;
+                },
+                [
+                    'billing' => [
+                        'country' => $billing_addresses['countryCode'] ?? '',
+                        'state' => $billing_addresses['administrativeArea'] ?? '',
+                        'postcode' => $billing_addresses['postalCode'] ?? '',
+                        'city' => $billing_addresses['locality'] ?? '',
+                    ],
+                    'shipping' => [
+                        'country' => $shipping_addresses['countryCode'] ?? '',
+                        'state' => $shipping_addresses['administrativeArea'] ?? '',
+                        'postcode' => $shipping_addresses['postalCode'] ?? '',
+                        'city' => $shipping_addresses['locality'] ?? '',
+                    ],
+                ]
+            );
 
             $order->set_address(self::orderAddresses($billing_addresses), 'billing');
             $order->set_address(self::orderAddresses($shipping_addresses), 'shipping');
@@ -225,6 +237,7 @@ class ApplepayGateway extends AbstractPaymentGateway
             $order->update_status('pending payment', 'Order created using Apple pay', true);
         } catch (Throwable $e) {
             Logger::log(__METHOD__ . '|fail|', $e->getMessage());
+            $order->delete(true);
 
             return false;
         }
@@ -353,10 +366,7 @@ class ApplepayGateway extends AbstractPaymentGateway
 
     private static function createOrderShippingLine($order, array $wc_methods, $selected_method_id)
     {
-        if (
-            empty($selected_method_id)
-            || preg_match('/free/', $selected_method_id)
-        ) {
+        if (empty($selected_method_id)) {
             return;
         }
 
@@ -390,107 +400,11 @@ class ApplepayGateway extends AbstractPaymentGateway
         $order->add_item($shippingItem);
     }
 
-    private static function getShippingRatesForCart($cart): array
+    private static function getShippingRatesForCart(): array
     {
-        $packages = $cart->get_shipping_packages();
+        $packages = WC()->shipping()->get_packages();
 
-        return $packages
-            ? WC()->shipping->calculate_shipping_for_package(current($packages))['rates']
-            : [];
-    }
-
-    private static function cartCoversWalletItems($cart, array $items): bool
-    {
-        if ($cart->is_empty()) {
-            return false;
-        }
-
-        $cartFingerprint = [];
-        foreach ($cart->get_cart() as $cart_item) {
-            $id = (int) ($cart_item['variation_id'] ?: $cart_item['product_id']);
-            $cartFingerprint[] = $id . ':' . (int) $cart_item['quantity'];
-        }
-
-        $walletFingerprint = [];
-        foreach ($items as $item) {
-            if (($item['type'] ?? '') === 'product' && isset($item['id'], $item['quantity'])) {
-                $walletFingerprint[] = (int) $item['id'] . ':' . (int) $item['quantity'];
-            }
-        }
-
-        if (empty($walletFingerprint) || empty($cartFingerprint)) {
-            return false;
-        }
-
-        sort($cartFingerprint);
-        sort($walletFingerprint);
-
-        return $cartFingerprint === $walletFingerprint;
-    }
-
-    private static function createFakeCart($items, $callback)
-    {
-        global $woocommerce;
-        $cart = $woocommerce->cart;
-
-        $original_cart_contents = $cart->get_cart_contents();
-        $original_applied_coupons = $cart->get_applied_coupons();
-        $original_payment_method = WC()->session ? WC()->session->get('chosen_payment_method') : null;
-
-        try {
-            $cart->empty_cart(false);
-
-            foreach ($items as $item) {
-                if (($item['type'] ?? '') !== 'product' || ! isset($item['id'], $item['quantity'])) {
-                    continue;
-                }
-                self::addProductToCart($cart, $item['id'], $item['quantity']);
-            }
-
-            foreach ($original_applied_coupons as $coupon_code) {
-                $cart->apply_coupon($coupon_code);
-            }
-
-            if (WC()->session) {
-                WC()->session->set('chosen_payment_method', 'buckaroo_applepay');
-            }
-
-            do_action('woocommerce_before_calculate_totals', $cart);
-            $cart->calculate_totals();
-            do_action('woocommerce_after_calculate_totals', $cart);
-
-            return call_user_func($callback, $cart);
-        } finally {
-            $cart->empty_cart(false);
-            $cart->set_cart_contents($original_cart_contents);
-
-            foreach ($original_applied_coupons as $coupon_code) {
-                $cart->apply_coupon($coupon_code);
-            }
-
-            if (WC()->session) {
-                WC()->session->set('chosen_payment_method', $original_payment_method);
-            }
-
-            $cart->calculate_totals();
-            wc_clear_notices();
-        }
-    }
-
-    private static function addProductToCart($cart, $product_id, $quantity)
-    {
-        $product = wc_get_product($product_id);
-        if (! $product) {
-            return;
-        }
-
-        if ($product->is_type('variation')) {
-            $cart->add_to_cart($product->get_parent_id(), $quantity, $product_id);
-
-            return;
-        }
-
-        $cart->add_to_cart($product_id, $quantity);
+        return $packages ? (current($packages)['rates'] ?? []) : [];
     }
 
     private static function orderAddresses($address)
@@ -566,7 +480,41 @@ class ApplepayGateway extends AbstractPaymentGateway
             ],
             'default' => 'TRUE',
         ];
+
+        $this->form_fields['checkout_method'] = [
+            'title' => __('Apple Pay as checkout payment method', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'select',
+            'description' => __('In addition to the Express Checkout button, list Apple Pay as a selectable payment method in the checkout. The Apple Pay sheet only authorises the payment; billing and shipping are taken from the checkout form.', 'wc-buckaroo-bpe-gateway'),
+            'options' => [
+                'TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'),
+                'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway'),
+            ],
+            'default' => 'TRUE',
+        ];
+
+        $this->form_fields['button_style'] = [
+            'title' => __('Button style', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'select',
+            'description' => __('Style of the Apple Pay button shown in the checkout.', 'wc-buckaroo-bpe-gateway'),
+            'options' => [
+                'black' => __('Black', 'wc-buckaroo-bpe-gateway'),
+                'white' => __('White', 'wc-buckaroo-bpe-gateway'),
+                'white-outline' => __('White with outline', 'wc-buckaroo-bpe-gateway'),
+            ],
+            'default' => 'black',
+        ];
         $this->set_guid_after_usemaster();
+    }
+
+    /**
+     * Whether Apple Pay should be listed as a standard, selectable checkout
+     * payment method (in addition to the Express Checkout button).
+     *
+     * @return bool
+     */
+    public function isCheckoutMethodEnabled(): bool
+    {
+        return $this->get_option('checkout_method', 'TRUE') === 'TRUE';
     }
 
     /**

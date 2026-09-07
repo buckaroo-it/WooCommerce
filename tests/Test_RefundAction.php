@@ -2,12 +2,22 @@
 
 declare(strict_types=1);
 
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use PHPUnit\Framework\TestCase;
 
 class Test_RefundAction extends TestCase
 {
+    use HposStorage;
+
+    protected function tearDown(): void
+    {
+        $this->deleteCreatedOrders();
+        $this->disableHpos();
+        parent::tearDown();
+    }
+
     /**
      * @dataProvider pendingStatusCodeProvider
      */
@@ -43,15 +53,58 @@ class Test_RefundAction extends TestCase
 
     public function test_finalize_sets_refund_meta_for_pending_status()
     {
-        $orderId = $this->createTestOrderId();
-        $refundAction = $this->createRefundAction($orderId);
+        $this->enableHpos();
+
+        $order = $this->createOrder();
+        $refundAction = $this->createRefundAction($order);
         $transactionKey = 'PENDING_TX_KEY_793';
         $response = $this->createMockResponse(793, $transactionKey);
 
         $refundAction->finalize($response);
 
-        $meta = get_post_meta($orderId, '_refundbuckaroo' . $transactionKey, true);
-        $this->assertEquals('ok', $meta, 'Pending refund should set _refundbuckaroo meta to prevent duplicate on push');
+        $this->assertEquals(
+            'ok',
+            OrderMeta::get($order->get_id(), '_refundbuckaroo' . $transactionKey),
+            'Pending refund should set _refundbuckaroo meta to prevent duplicate on push'
+        );
+    }
+
+    /**
+     * _refundbuckaroo<key> is the idempotency lock that stops a replayed Buckaroo
+     * push from refunding twice. It is written with $unique = true, so a replay has
+     * to leave exactly one value behind.
+     */
+    public function test_finalize_replayed_twice_writes_the_refund_lock_only_once()
+    {
+        $this->enableHpos();
+
+        $order = $this->createOrder();
+        $refundAction = $this->createRefundAction($order);
+        $transactionKey = 'REPLAYED_TX_KEY';
+        $response = $this->createMockResponse(190, $transactionKey);
+
+        $refundAction->finalize($response);
+        $refundAction->finalize($response);
+
+        $this->assertSame(
+            ['ok'],
+            OrderMeta::get($order->get_id(), '_refundbuckaroo' . $transactionKey, false),
+            'A replayed refund must not add a second lock value'
+        );
+    }
+
+    public function test_finalize_locks_each_transaction_key_separately()
+    {
+        $this->enableHpos();
+
+        $order = $this->createOrder();
+        $refundAction = $this->createRefundAction($order);
+
+        $refundAction->finalize($this->createMockResponse(190, 'TX_ONE'));
+        $refundAction->finalize($this->createMockResponse(190, 'TX_TWO'));
+
+        $this->assertSame(['ok'], OrderMeta::get($order->get_id(), '_refundbuckarooTX_ONE', false));
+        $this->assertSame(['ok'], OrderMeta::get($order->get_id(), '_refundbuckarooTX_TWO', false));
     }
 
     public function test_finalize_adds_pending_order_note()
@@ -75,14 +128,20 @@ class Test_RefundAction extends TestCase
         ];
     }
 
-    private function createRefundAction(?int $orderId = null): RefundAction
+    /**
+     * @param  WC_Order|null  $order  A real order when the test asserts on order meta,
+     *                                otherwise a mock is enough
+     */
+    private function createRefundAction($order = null): RefundAction
     {
         $reflection = new \ReflectionClass(RefundAction::class);
         $refundAction = $reflection->newInstanceWithoutConstructor();
 
-        $order = $this->createMock(\WC_Order::class);
-        $order->method('get_id')->willReturn($orderId ?? 99999);
-        $order->method('get_transaction_id')->willReturn('ORIG_TX_KEY');
+        if ($order === null) {
+            $order = $this->createMock(\WC_Order::class);
+            $order->method('get_id')->willReturn(99999);
+            $order->method('get_transaction_id')->willReturn('ORIG_TX_KEY');
+        }
 
         $orderProp = $reflection->getProperty('order');
         $orderProp->setAccessible(true);
@@ -114,13 +173,5 @@ class Test_RefundAction extends TestCase
         $response->method('getSomeError')->willReturn('Test error');
 
         return $response;
-    }
-
-    private function createTestOrderId(): int
-    {
-        return wp_insert_post([
-            'post_type' => 'shop_order',
-            'post_status' => 'wc-processing',
-        ]);
     }
 }

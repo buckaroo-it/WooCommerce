@@ -20,7 +20,17 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-env', '@babel/preset-react'], // Add React preset for JSX
+                        // Force the classic JSX runtime so JSX compiles to
+                        // React.createElement (provided by the externalized
+                        // window.React). Babel 8 defaults to the automatic
+                        // runtime, which emits jsx/jsxDEV calls that fail at
+                        // runtime ("jsxDEV is not a function") because the
+                        // externalized React has no jsx-runtime. Every component
+                        // imports React explicitly, so classic is the correct fit.
+                        presets: [
+                            '@babel/preset-env',
+                            ['@babel/preset-react', { runtime: 'classic', development: false }],
+                        ],
                     },
                 },
             },

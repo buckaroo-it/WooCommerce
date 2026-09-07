@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Woocommerce\PaymentProcessors\Actions;
+namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 

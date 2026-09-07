@@ -3,58 +3,30 @@
 namespace Buckaroo\Woocommerce\Gateways\Googlepay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use Buckaroo\Woocommerce\Traits\HandlesWalletPaymentData;
 
 class GooglepayProcessor extends AbstractPaymentProcessor
 {
+    use HandlesWalletPaymentData;
+
     /** {@inheritDoc} */
     protected function getMethodBody(): array
     {
-        return [
-            'amountDebit' => number_format($this->request->input('amount'), 2, '.', ''),
-            'customerCardName' => $this->get_customer_name($this->request->input('paymentData')),
-            'paymentData' => $this->get_payment_data($this->request->input('paymentData')),
+        $paymentData = $this->getWalletPaymentData();
+
+        $body = [
+            'customerCardName' => $this->resolveWalletCustomerName($paymentData),
+            'paymentData' => $this->encodeWalletToken($paymentData['token'] ?? ''),
         ];
-    }
 
-    /**
-     * @param  mixed  $data
-     */
-    private function get_customer_name($data): string
-    {
-        $contacts = ['billingContact', 'shippingContact'];
-
-        foreach ($contacts as $contactKey) {
-            if (
-                isset($data[$contactKey]['givenName']) &&
-                isset($data[$contactKey]['familyName'])
-            ) {
-                $name = trim($data[$contactKey]['givenName'] . ' ' . $data[$contactKey]['familyName']);
-                if ($name !== '') {
-                    return $name;
-                }
-            }
+        // The Express Checkout button authorises a specific amount and posts it
+        // along. The standard checkout method does not: there the order total
+        // computed by AbstractPaymentProcessor is authoritative.
+        $amount = $this->request->input('amount');
+        if ($amount !== null && $amount !== '' && is_scalar($amount)) {
+            $body['amountDebit'] = number_format((float) $amount, 2, '.', '');
         }
 
-        return '';
-    }
-
-    /**
-     * @param  mixed  $data
-     */
-    private function get_payment_data($data): string
-    {
-        if (! isset($data['token']) || empty($data['token'])) {
-            return '';
-        }
-
-        $token = $data['token'];
-
-        if (is_array($token)) {
-            $token = json_encode($token);
-        } else {
-            $token = wp_unslash($token);
-        }
-
-        return base64_encode($token);
+        return $body;
     }
 }

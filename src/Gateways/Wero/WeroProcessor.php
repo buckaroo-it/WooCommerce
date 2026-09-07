@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Wero;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 
 class WeroProcessor extends AbstractPaymentProcessor
 {
@@ -15,7 +16,7 @@ class WeroProcessor extends AbstractPaymentProcessor
     {
         if ($this->isAuthorizationFlowEnabled()) {
             // If the order is already authorized, subsequent calls should capture.
-            if (get_post_meta($this->get_order()->get_id(), '_wc_order_authorized', true) === 'yes') {
+            if (OrderMeta::get($this->get_order(), '_wc_order_authorized') === 'yes') {
                 return 'capture';
             }
 

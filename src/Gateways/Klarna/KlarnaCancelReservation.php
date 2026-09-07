@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use WC_Order;
 
 /**
@@ -45,7 +46,7 @@ class KlarnaCancelReservation
 
         if (
             $order->get_payment_method() === 'buckaroo_klarnakp' &&
-            get_post_meta($order->get_id(), 'buckaroo_is_reserved', true) === 'yes'
+            OrderMeta::get($order, 'buckaroo_is_reserved') === 'yes'
         ) {
             $actions['buckaroo_klarnakp_cancel_reservation'] = esc_html__('Cancel reservation', 'woocommerce');
         }

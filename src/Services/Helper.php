@@ -86,13 +86,20 @@ class Helper
         if ($order_id) {
             $order = wc_get_order($order_id);
 
-            $status = get_post_status($order_id);
+            if (! self::isOrderInstance($order)) {
+                return;
+            }
 
-            if (($status == 'wc-failed' || $status == 'wc-cancelled') && wc_notice_count('error') == 0) {
-                // Add generated hash to order for WooCommerce versions later than 2.5
-                if (version_compare(WC()->version, '2.5', '>')) {
-                    $order->cart_hash = md5(json_encode(wc_clean(WC()->cart->get_cart_for_session())) . WC()->cart->total);
-                }
+            // get_post_status() returns the placeholder post's "draft" under HPOS, so
+            // this branch never ran there. get_status() is unprefixed.
+            $status = $order->get_status();
+
+            if (($status == 'failed' || $status == 'cancelled') && wc_notice_count('error') == 0) {
+                // $order->cart_hash only set a dynamic property, so it never reached
+                // the order (and is deprecated as of PHP 8.2).
+                $order->set_cart_hash(
+                    md5(json_encode(wc_clean(WC()->cart->get_cart_for_session())) . WC()->cart->total)
+                );
 
                 if (version_compare(WC()->version, '3.6', '>=')) {
                     Logger::log('Update status 7. Order status: cancelled');

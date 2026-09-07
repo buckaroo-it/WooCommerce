@@ -1,10 +1,16 @@
 import BuckarooPayByBank from './payments/paybybank';
+import BuckarooApplePayCheckout from './payments/applepay';
+import BuckarooGooglePayCheckout from './payments/googlepay';
 
 class BuckarooCheckout {
     listen() {
         const paybyBank = new BuckarooPayByBank();
+        const applePay = new BuckarooApplePayCheckout();
+        const googlePay = new BuckarooGooglePayCheckout();
         const self = this;
         paybyBank.init();
+        applePay.init();
+        googlePay.init();
         jQuery('body').on('change', 'input[name="payment_method"]', () => {
             jQuery('body').trigger('update_checkout');
         });
@@ -13,8 +19,12 @@ class BuckarooCheckout {
             self.afterpaynew();
             self.bilink();
             self.klarna();
+            self.initBirthdatePickers();
             paybyBank.onLoad();
         });
+        // Initialise on first load as well (payment box may already be present
+        // before the first `updated_checkout` fires).
+        self.initBirthdatePickers();
         /**
          * toggle between bilink payment types on company name change
          */
@@ -84,18 +94,58 @@ class BuckarooCheckout {
     }
 
     /**
-     * toggle between bilink payment types
+     * Show the billink company fields only when a company is filled in. B2C
+     * needs no fields of its own, so there is nothing to show in that case.
      *
      * @param {string} val Company field value
      */
     bilink_toggle(val) {
         const billinkB2b = jQuery('#buckaroo_billink_b2b');
-        const billinkB2c = jQuery('#buckaroo_billink_b2c');
-        if (billinkB2b.length && billinkB2c.length) {
-            const toggleState = jQuery.trim(val).length > 0;
-            billinkB2b.toggle(toggleState);
-            billinkB2c.toggle(!toggleState);
+        if (billinkB2b.length) {
+            billinkB2b.toggle(jQuery.trim(val).length > 0);
         }
+    }
+
+    /**
+     * Shared birthdate datepicker initialiser for every BNPL method in the
+     * classic (legacy) checkout.
+     *
+     */
+    initBirthdatePickers() {
+        // jquery-ui-datepicker is a WooCommerce/WordPress core dependency, but
+        // guard anyway so a missing dependency degrades to a plain text field
+        // (still typeable as DD-MM-YYYY) instead of throwing.
+        if (typeof jQuery.fn.datepicker !== 'function') {
+            return;
+        }
+
+        jQuery('input[id^="buckaroo-"][id$="-birthdate"]').each(function () {
+            const $field = jQuery(this);
+
+            // Re-initialise cleanly if a previous instance is still attached.
+            if ($field.hasClass('hasDatepicker')) {
+                try {
+                    $field.datepicker('destroy');
+                } catch (e) {
+                    // ignore – field will be re-initialised below
+                }
+            }
+
+            $field.datepicker({
+                dateFormat: 'dd-mm-yy', // jQuery UI 'yy' = 4-digit year => DD-MM-YYYY
+                changeMonth: true,
+                changeYear: true,
+                yearRange: '1900:+0',
+                minDate: new Date(1900, 0, 1),
+                maxDate: 0, // no future dates – birthdate must be in the past
+                defaultDate: '-18y', // open near a plausible adult birth year
+                onClose(selectedDate) {
+                    // Mirror the value back so WooCommerce validation / fragment
+                    // serialisation always sees the latest selection.
+                    jQuery(this).val(selectedDate).trigger('change');
+                },
+            });
+        });
     }
 
     /**

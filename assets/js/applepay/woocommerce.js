@@ -1,4 +1,5 @@
 import * as convert from './helpers/convert.js';
+import { getExpressProductParams, getExpressRequestError } from '../express/product.js';
 
 export default class Woocommerce {
     constructor() {
@@ -15,13 +16,12 @@ export default class Woocommerce {
 
             const send_data = {
                 'wc-api': `${this.api_namespace}-get-items-from-detail-page`,
-                product_id: current_shown_product.product_id,
-                variation_id: current_shown_product.variation_id,
-                quantity: jQuery('.cart .quantity input').val() || 1,
+                ...current_shown_product,
                 country_code,
             };
 
             let all_items = [];
+            let request_error = null;
             jQuery
                 .ajax({
                     url: this.url,
@@ -38,10 +38,15 @@ export default class Woocommerce {
                         type: item.type,
                         attributes: item.attributes,
                     }));
+                })
+                .fail(response => {
+                    request_error = getExpressRequestError(response, 'Unable to calculate Apple Pay cart.');
                 });
+            if (request_error) throw new Error(request_error);
             return all_items;
         }
         let cart_items = [];
+        let request_error = null;
         jQuery
             .ajax({
                 url: this.url,
@@ -60,7 +65,11 @@ export default class Woocommerce {
                     type: item.type,
                     attributes: item.attributes,
                 }));
+            })
+            .fail(response => {
+                request_error = getExpressRequestError(response, 'Unable to load the WooCommerce cart.');
             });
+        if (request_error) throw new Error(request_error);
         return cart_items;
     }
 
@@ -69,11 +78,7 @@ export default class Woocommerce {
             if (jQuery('.applepay-button-container').hasClass('is-detail-page')) {
                 const current_shown_product = this.getCurrentShownProduct();
 
-                return {
-                    product_id: current_shown_product.product_id,
-                    variation_id: current_shown_product.variation_id,
-                    quantity: jQuery('.cart .quantity input').val() || 1,
-                };
+                return current_shown_product;
             }
             return {};
         })();
@@ -84,6 +89,7 @@ export default class Woocommerce {
         };
 
         let methods;
+        let request_error = null;
         jQuery
             .ajax({
                 url: this.url,
@@ -93,9 +99,46 @@ export default class Woocommerce {
             })
             .done(response => {
                 methods = response;
+            })
+            .fail(response => {
+                request_error = getExpressRequestError(response, 'Unable to calculate Apple Pay shipping.');
             });
 
+        if (request_error) throw new Error(request_error);
+
         return methods;
+    }
+
+    /**
+     * Grand total of the current cart (incl. chosen shipping, payment fee,
+     * coupons and taxes). Used by the standard checkout method so the amount
+     * authorised in the Apple Pay sheet always equals the amountDebit that is
+     * sent to Buckaroo (Buckaroo rejects the transaction on a mismatch).
+     *
+     * @returns {{total: number, shipping: number, shipping_label: string}|null}
+     */
+    getCartTotal() {
+        let totals = null;
+        let request_error = null;
+        jQuery
+            .ajax({
+                url: this.url,
+                data: {
+                    'wc-api': `${this.api_namespace}-get-cart-total`,
+                },
+                async: false,
+                dataType: 'json',
+            })
+            .done(response => {
+                totals = response;
+            })
+            .fail(response => {
+                request_error = getExpressRequestError(response, 'Unable to calculate Apple Pay cart.');
+            });
+
+        if (request_error) throw new Error(request_error);
+
+        return totals;
     }
 
     getStoreInformation() {
@@ -117,23 +160,7 @@ export default class Woocommerce {
     }
 
     getCurrentShownProduct() {
-        const product_id = jQuery('[name="add-to-cart"]').val();
-
-        const variation_id = (() => {
-            if (
-                jQuery('[name="variation_id"]')[0] &&
-                jQuery('[name="variation_id"]').val() != 0 &&
-                jQuery('[name="variation_id"]')[0] != ''
-            ) {
-                return jQuery('[name="variation_id"]').val();
-            }
-            return product_id;
-        })();
-
-        return {
-            product_id,
-            variation_id,
-        };
+        return getExpressProductParams(jQuery);
     }
 
     displayErrorMessage(message) {

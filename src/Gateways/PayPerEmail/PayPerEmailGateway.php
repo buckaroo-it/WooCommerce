@@ -47,11 +47,17 @@ class PayPerEmailGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_payperemail';
         $this->title = 'PayPerEmail';
+        $this->method_description = __('Buckaroo service for sending customers a payment request by email with a secure pay link.', 'wc-buckaroo-bpe-gateway');
         $this->has_fields = true;
         $this->method_title = 'Buckaroo PayPerEmail';
         $this->setIcon('svg/payperemail.svg');
 
         parent::__construct();
+    }
+
+    public function redirectsToPaymentPage()
+    {
+        return false;
     }
 
     /**
@@ -263,8 +269,8 @@ class PayPerEmailGateway extends AbstractPaymentGateway
         add_action(
             'woocommerce_order_action_buckaroo_send_admin_payperemail',
             function ($order) {
-                $response = $this->process_payment($order->get_id());
-                wp_redirect($response);
+                // WooCommerce's order-save request returns to the order screen on its own.
+                $this->process_payment($order->get_id());
             }
         );
 
@@ -272,6 +278,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway
             'wp_ajax_buckaroo_send_admin_payperemail',
             function () {
                 $orderId = absint($_GET['order_id'] ?? 0);
+                $this->verifyAdminOrderActionRequest($orderId);
                 $this->process_payment($orderId);
                 wp_safe_redirect(wp_get_referer() ?: admin_url('edit.php?post_type=shop_order'));
                 exit;
@@ -282,8 +289,8 @@ class PayPerEmailGateway extends AbstractPaymentGateway
             'woocommerce_order_action_buckaroo_create_paylink',
             function ($order) {
                 $this->usePayPerLink = true;
-                $response = $this->process_payment($order->get_id());
-                wp_redirect($response);
+                // WooCommerce's order-save request returns to the order screen on its own.
+                $this->process_payment($order->get_id());
             }
         );
 
@@ -291,6 +298,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway
             'wp_ajax_buckaroo_create_paylink',
             function () {
                 $orderId = absint($_GET['order_id'] ?? 0);
+                $this->verifyAdminOrderActionRequest($orderId);
                 $this->usePayPerLink = true;
                 $this->process_payment($orderId);
 
@@ -298,5 +306,22 @@ class PayPerEmailGateway extends AbstractPaymentGateway
                 exit;
             }
         );
+    }
+
+    /**
+     * Verify the current user may run a PayPerEmail / PayLink action for the
+     * given order before processing the payment request.
+     */
+    private function verifyAdminOrderActionRequest(int $orderId): void
+    {
+        if (! current_user_can('edit_shop_order', $orderId) && ! current_user_can('edit_shop_orders')) {
+            wp_die(
+                esc_html__('You are not allowed to perform this action.', 'wc-buckaroo-bpe-gateway'),
+                '',
+                ['response' => 403]
+            );
+        }
+
+        check_admin_referer('buckaroo_send_payperemail_' . $orderId);
     }
 }

@@ -218,7 +218,7 @@ msgid "Store key"
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:50
-msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> (Settings -> API Key -> Store keys)."
+msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> (Settings -> API Keys -> Store keys)."
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:57
@@ -226,7 +226,7 @@ msgid "Secret key"
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:59
-msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> (Settings -> API Key -> Secret key)."
+msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> (Settings -> API Keys -> Secret key)."
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:66

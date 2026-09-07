@@ -152,4 +152,18 @@ class BuckarooClient
 
         return $this->method($serviceCode)->{$action}($requestData);
     }
+
+    /**
+     * Retrieve the current status of a transaction from Buckaroo.
+     *
+     * @throws Exception If the status request fails.
+     */
+    public function transactionStatus(string $transactionKey): TransactionResponse
+    {
+        if (! preg_match('/^[A-Za-z0-9]{1,64}$/', $transactionKey)) {
+            throw new InvalidArgumentException('Invalid Buckaroo transaction key.');
+        }
+
+        return $this->buckarooClient->transaction($transactionKey)->status();
+    }
 }
