@@ -5,6 +5,7 @@ namespace Buckaroo\Woocommerce\Gateways\ZakelijkOpRekening;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Gateways\ZakelijkOpRekening\Sdk\ZakelijkOpRekeningPaymentMethod;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
@@ -42,6 +43,8 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
      * @var array<string>
      */
     protected array $supportedCurrencies = ['EUR'];
+
+    protected array $supportedCountries = ['NL'];
 
     public function __construct()
     {
@@ -134,7 +137,7 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
             $result = (new ReturnProcessor($response->toArray(), false))->handle($this);
 
             if (isset($result['result']) && $result['result'] === 'success') {
-                update_post_meta($order_id, '_wc_order_authorized', 'yes');
+                OrderMeta::update($order_id, '_wc_order_authorized', 'yes');
                 $this->set_order_capture($order_id, 'ZakelijkOpRekening');
             }
 
@@ -215,7 +218,7 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
             return false;
         }
 
-        return get_post_meta($order->get_id(), '_wc_order_authorized', true) === 'yes';
+        return OrderMeta::get($order, '_wc_order_authorized') === 'yes';
     }
 
     /**
@@ -276,7 +279,8 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
     }
 
     /**
-     * A Dutch Chamber of Commerce (KvK) number is 8 digits.
+     * A Chamber of Commerce (KvK) number must contain at least one digit;
+     * Buckaroo validates the exact format.
      *
      * @param  mixed  $coc
      */
