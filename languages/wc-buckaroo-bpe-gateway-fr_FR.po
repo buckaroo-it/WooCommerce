@@ -998,6 +998,10 @@ msgstr "La méthode de paiement \"%s\" est actuellement activée"
 msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
 msgstr "Le GUID Buckaroo que vous pouvez trouver dans Buckaroo Plaza > Mon Buckaroo > Général."
 
+#: src/Gateways/Googlepay/GooglepayGateway.php:436
+msgid "Gateway Merchant ID"
+msgstr "ID marchand de la passerelle"
+
 #: src/Gateways/Googlepay/GooglepayGateway.php:438
 msgid "The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza -> Services -> Google Pay."
 msgstr "L’ID marchand de la passerelle Buckaroo se trouve dans Buckaroo Plaza -> Services -> Google Pay."
