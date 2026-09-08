@@ -47,7 +47,7 @@ class PaymentMethodSettings extends AbstractPaymentGateway
         $this->form_fields['merchantkey'] = [
             'title' => __('Store key', 'wc-buckaroo-bpe-gateway'),
             'type' => 'password',
-            'description' => __('This is your Buckaroo Payment Plaza <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank">store key</a> (Settings -> API Keys -> Store keys).', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Find this in Buckaroo Plaza under Settings → API Keys → <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">Store Key</a>.', 'wc-buckaroo-bpe-gateway'),
             'default' => '',
             'custom_attributes' => [
                 'required' => 'required',
@@ -56,7 +56,7 @@ class PaymentMethodSettings extends AbstractPaymentGateway
         $this->form_fields['secretkey'] = [
             'title' => __('Secret key', 'wc-buckaroo-bpe-gateway'),
             'type' => 'password',
-            'description' => __('This is your Buckaroo Payment Plaza <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank">secret key</a> (Settings -> API Keys -> Secret key).', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Find this in Buckaroo Plaza under Settings → API Keys → <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">Secret Key</a>.', 'wc-buckaroo-bpe-gateway'),
             'default' => '',
             'custom_attributes' => [
                 'required' => 'required',
@@ -65,17 +65,17 @@ class PaymentMethodSettings extends AbstractPaymentGateway
         $this->form_fields['test_credentials'] = [
             'title' => __('Test credentials', 'wc-buckaroo-bpe-gateway'),
             'type' => 'button',
-            'description' => __('Click here to verify store key & secret key.', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Check that the Store Key and Secret Key above are valid.', 'wc-buckaroo-bpe-gateway'),
             'custom_attributes' => [
-                'title' => __('Test', 'wc-buckaroo-bpe-gateway'),
+                'title' => __('Test credentials', 'wc-buckaroo-bpe-gateway'),
             ],
             'default' => '',
         ];
 
         $this->form_fields['auto_configure'] = [
-            'title' => __('Automatic payment method configuration', 'wc-buckaroo-bpe-gateway'),
+            'title' => __('Auto-configure', 'wc-buckaroo-bpe-gateway'),
             'type' => 'button',
-            'description' => __('Automatically configure the Buckaroo plugin based on your active subscriptions. When you use this option, the plugin will connect to your Buckaroo account, check which payment methods are active, and enable them in Live mode. You will be asked to confirm before changes are applied.', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('With the auto-configure button you can automatically configure all the payment methods based on your active Buckaroo Plaza subscriptions. Methods are enabled in live mode and will accept real payments.', 'wc-buckaroo-bpe-gateway'),
             'custom_attributes' => [
                 'title' => __('Auto-configure', 'wc-buckaroo-bpe-gateway'),
             ],
