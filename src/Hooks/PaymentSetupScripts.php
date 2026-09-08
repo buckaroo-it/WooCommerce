@@ -27,6 +27,7 @@ class PaymentSetupScripts
         add_action('plugins_loaded', [$this, 'handlePluginsLoaded'], 0);
         add_action('admin_enqueue_scripts', [$this, 'handleAdminAssets']);
         add_action('wp_enqueue_scripts', [$this, 'initFrontendScripts']);
+        add_action('enqueue_block_assets', [$this, 'handleBlockAssets']);
     }
 
     public function handlePluginsLoaded()
@@ -47,16 +48,39 @@ class PaymentSetupScripts
         delete_transient($transientKey);
     }
 
+    /**
+     * is_checkout() only recognises the configured checkout page and the classic
+     * shortcode, so a page rendering the Blocks checkout gets no styles from
+     * initFrontendScripts().
+     */
+    public function handleBlockAssets(): void
+    {
+        if (is_admin()) {
+            return;
+        }
+
+        if (! has_block('woocommerce/checkout')) {
+            return;
+        }
+
+        $this->enqueueBuckarooStyles();
+    }
+
+    private function enqueueBuckarooStyles(): void
+    {
+        wp_enqueue_style(
+            'buckaroo-custom-styles',
+            plugin_dir_url(BK_PLUGIN_FILE) . 'library/css/buckaroo-custom.css',
+            [],
+            Plugin::VERSION
+        );
+    }
+
     public function handleAdminAssets(): void
     {
         $pluginDir = plugin_dir_url(BK_PLUGIN_FILE);
 
-        wp_enqueue_style(
-            'buckaroo-custom-styles',
-            $pluginDir . 'library/css/buckaroo-custom.css',
-            [],
-            Plugin::VERSION
-        );
+        $this->enqueueBuckarooStyles();
         wp_enqueue_script(
             'creditcard_capture',
             $pluginDir . 'library/js/creditcard-capture-form.js',
@@ -129,12 +153,7 @@ class PaymentSetupScripts
 
         $pluginDir = plugin_dir_url(BK_PLUGIN_FILE);
 
-        wp_enqueue_style(
-            'buckaroo-custom-styles',
-            $pluginDir . 'library/css/buckaroo-custom.css',
-            [],
-            Plugin::VERSION
-        );
+        $this->enqueueBuckarooStyles();
 
         wp_enqueue_script(
             'buckaroo_sdk',

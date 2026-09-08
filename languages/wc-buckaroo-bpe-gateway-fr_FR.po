@@ -982,10 +982,6 @@ msgstr "Test"
 msgid "Test credentials"
 msgstr "Identifiants de test"
 
-#: templates/gateways/global.php:22
-msgid "TEST MODE"
-msgstr "MODE TEST"
-
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:328
 #, php-format
@@ -1481,4 +1477,8 @@ msgstr "L'application de paiement mobile la plus populaire de Suède, avec des p
 #: src/Admin/GeneralSettings.php
 msgid "Give every payment the attention it deserves, with 40+ methods in one plugin."
 msgstr "Accordez à chaque paiement l'attention qu'il mérite, avec plus de 40 méthodes de paiement dans un seul plugin."
+
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Test mode"
+msgstr "Mode test"
 
