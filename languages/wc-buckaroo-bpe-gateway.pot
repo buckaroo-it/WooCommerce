@@ -555,8 +555,11 @@ msgid "GUID"
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:474
-#: src/Gateways/Googlepay/GooglepayGateway.php:493
 msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:438
+msgid "The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza -> Services -> Google Pay."
 msgstr ""
 
 #: src/Gateways/Billink/BillinkGateway.php:46

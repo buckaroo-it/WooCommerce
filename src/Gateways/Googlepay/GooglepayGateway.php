@@ -435,7 +435,7 @@ class GooglepayGateway extends AbstractPaymentGateway
                 $new_form_fields['merchant_guid'] = [
                     'title' => __('Gateway Merchant ID', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'text',
-                    'description' => __('The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza →  Services -> Google Pay.', 'wc-buckaroo-bpe-gateway'),
+                    'description' => __('The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza -> Services -> Google Pay.', 'wc-buckaroo-bpe-gateway'),
                     'default' => '0',
                 ];
                 $new_form_fields['google_merchant_id'] = [
