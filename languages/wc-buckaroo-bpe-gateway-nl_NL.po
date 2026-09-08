@@ -1002,9 +1002,9 @@ msgstr "De \"%s\" betaalmethode is momenteel ingeschakeld"
 msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
 msgstr "De Buckaroo GUID die te vinden is in de Buckaroo Plaza > Mijn Buckaroo > Algemeen."
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:493
-msgid "The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza →  Services -> Google Pay."
-msgstr "The Buckaroo Gateway merchant ID dat kan worden gevonden in de Buckaroo Plaza → Services -> Google Pay."
+#: src/Gateways/Googlepay/GooglepayGateway.php:438
+msgid "The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza -> Services -> Google Pay."
+msgstr "De Buckaroo Gateway merchant ID die te vinden is in de Buckaroo Plaza -> Services -> Google Pay."
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:140
 msgid "The expiration date for the paylink."
