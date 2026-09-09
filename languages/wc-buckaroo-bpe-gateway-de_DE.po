@@ -1478,6 +1478,10 @@ msgstr "Einmaliger Einzug vom Bankkonto des Kunden per SEPA-Mandat."
 msgid "Sweden's most popular mobile payment app, with instant app-approved payments."
 msgstr "Die beliebteste mobile Bezahl-App Schwedens, mit sofortigen, in der App bestätigten Zahlungen."
 
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php
+msgid "Dutch pay-after-delivery by invoice from ABN AMRO, for business customers with a Chamber of Commerce registration."
+msgstr "Niederländische B2B-Zahlung nach Lieferung per Rechnung von ABN AMRO."
+
 #: src/Admin/GeneralSettings.php
 msgid "Give every payment the attention it deserves, with 40+ methods in one plugin."
 msgstr "Schenken Sie jeder Zahlung die Aufmerksamkeit, die sie verdient, mit über 40 Zahlungsmethoden in einem Plugin."
