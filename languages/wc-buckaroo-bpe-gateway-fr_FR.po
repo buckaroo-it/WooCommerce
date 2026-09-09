@@ -1474,6 +1474,10 @@ msgstr "Prélèvement unique sur le compte bancaire du client via un mandat SEPA
 msgid "Sweden's most popular mobile payment app, with instant app-approved payments."
 msgstr "L'application de paiement mobile la plus populaire de Suède, avec des paiements instantanés validés dans l'application."
 
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php
+msgid "Dutch pay-after-delivery by invoice from ABN AMRO, for business customers with a Chamber of Commerce registration."
+msgstr "Paiement B2B après livraison sur facture, proposé par ABN AMRO (Pays-Bas)."
+
 #: src/Admin/GeneralSettings.php
 msgid "Give every payment the attention it deserves, with 40+ methods in one plugin."
 msgstr "Accordez à chaque paiement l'attention qu'il mérite, avec plus de 40 méthodes de paiement dans un seul plugin."

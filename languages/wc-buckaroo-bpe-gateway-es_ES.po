@@ -1364,3 +1364,7 @@ msgstr "Su Google Merchant ID de la Google Pay Business Console (p. ej. BCR2DN4T
 msgid "This action will enable payment methods in LIVE mode based on your active Buckaroo subscriptions. This will overwrite your current payment method settings. Are you sure you want to proceed?"
 msgstr ""
 
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php
+msgid "Dutch pay-after-delivery by invoice from ABN AMRO, for business customers with a Chamber of Commerce registration."
+msgstr "Pago B2B tras la entrega mediante factura de ABN AMRO (Países Bajos)."
+

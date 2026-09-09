@@ -1474,6 +1474,10 @@ msgstr "Eenmalige incasso van de bankrekening van de klant via een SEPA-machtigi
 msgid "Sweden's most popular mobile payment app, with instant app-approved payments."
 msgstr "De populairste mobiele betaalapp van Zweden, met directe betalingen die in de app worden goedgekeurd."
 
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php
+msgid "Dutch pay-after-delivery by invoice from ABN AMRO, for business customers with a Chamber of Commerce registration."
+msgstr "Nederlandse betaalmethode van ABN AMRO waarmee zakelijke klanten achteraf op factuur betalen."
+
 #: src/Admin/GeneralSettings.php
 msgid "Give every payment the attention it deserves, with 40+ methods in one plugin."
 msgstr "Geef elke betaling de aandacht die het verdient, met 40+ betaalmethoden in één plugin."
