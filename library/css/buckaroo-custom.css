@@ -962,10 +962,6 @@ label.bk-in3-logo img {
     align-items: center;
     gap: 6px;
 }
-.bk-creds-inline-btn {
-    white-space: nowrap;
-    position: relative;
-}
 .bk-key-btn {
     display: inline-flex;
     align-items: center;

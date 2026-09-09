@@ -111,6 +111,7 @@ class PaymentSetupScripts
             'buckarooAdminAjax',
             [
                 'nonce' => wp_create_nonce('buckaroo_admin_ajax'),
+                'autoConfigureConfirm' => __('This action will enable payment methods in LIVE mode based on your active Buckaroo subscriptions. This will overwrite your current payment method settings. Are you sure you want to proceed?', 'wc-buckaroo-bpe-gateway'),
             ]
         );
     }

@@ -224,8 +224,8 @@ msgid "Chose the api version for this payment method."
 msgstr "Kies de API-versie voor deze betaalmethode."
 
 #: src/Admin/PaymentMethodSettings.php:68
-msgid "Click here to verify store key & secret key."
-msgstr "Klik hier om de store key en geheime sleutel te verifiëren."
+msgid "Check that the Store Key and Secret Key above are valid."
+msgstr "Controleer of de Store Key en Secret Key hierboven geldig zijn."
 
 #: templates/gateways/billink.php:28
 #: templates/gateways/partial_afterpay_b2b.php:38
@@ -789,10 +789,6 @@ msgid "Multi-currency"
 msgstr "Meerdere valuta's"
 
 #: src/Admin/GeneralSettings.php
-msgid "Website key"
-msgstr "Website key"
-
-#: src/Admin/GeneralSettings.php
 msgid "%s is required. Payments will fail until it is filled in."
 msgstr "%s is verplicht. Betalingen mislukken totdat dit is ingevuld."
 
@@ -998,9 +994,13 @@ msgstr "De \"%s\" betaalmethode is momenteel ingeschakeld"
 msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
 msgstr "De Buckaroo GUID die te vinden is in de Buckaroo Plaza > Mijn Buckaroo > Algemeen."
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:493
-msgid "The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza →  Services -> Google Pay."
-msgstr "The Buckaroo Gateway merchant ID dat kan worden gevonden in de Buckaroo Plaza → Services -> Google Pay."
+#: src/Gateways/Googlepay/GooglepayGateway.php:436
+msgid "Gateway Merchant ID"
+msgstr "Gateway Merchant ID"
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:438
+msgid "The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza -> Services -> Google Pay."
+msgstr "De Buckaroo Gateway merchant ID die te vinden is in de Buckaroo Plaza -> Services -> Google Pay."
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:140
 msgid "The expiration date for the paylink."
@@ -1025,12 +1025,12 @@ msgid "This controls the description which the user sees during checkout."
 msgstr "Dit controleert de beschrijving die de gebruiker ziet tijdens het afrekenen."
 
 #: src/Admin/PaymentMethodSettings.php:59
-msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> (Settings -> API Keys -> Secret key)."
-msgstr "Dit is je Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> (Instellingen -> API-sleutels -> Secret keys)."
+msgid "Find this in Buckaroo Plaza under Settings → API Keys → <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\" rel=\"noopener\">Secret Key</a>."
+msgstr "Vind deze in Buckaroo Plaza onder Instellingen → API Keys → <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\" rel=\"noopener\">Secret Key</a>."
 
 #: src/Admin/PaymentMethodSettings.php:50
-msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> (Settings -> API Keys -> Store keys)."
-msgstr "Dit is je Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> (Instellingen -> API-sleutels -> Store keys)."
+msgid "Find this in Buckaroo Plaza under Settings → API Keys → <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\" rel=\"noopener\">Store Key</a>."
+msgstr "Vind deze in Buckaroo Plaza onder Instellingen → API Keys → <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\" rel=\"noopener\">Store Key</a>."
 
 #: src/Gateways/AbstractPaymentGateway.php:371
 msgid "This payment method is not supported for the selected currency "
@@ -1154,13 +1154,9 @@ msgstr "Je moet minstens 18 jaar oud zijn om deze betaalmethode te gebruiken. Vo
 msgid "You must be at least 18+ to use this service. By paying on time, you avoid extra costs and ensure that you can use %s services again in the future. By continuing, you accept the Terms and Conditions and confirm that you have read the Privacy Statement and Cookie Statement."
 msgstr "Je moet minimaal 18 jaar oud zijn om deze dienst te gebruiken. Door op tijd te betalen, voorkom je extra kosten en zorg je ervoor dat je in de toekomst opnieuw gebruik kunt maken van de diensten van %s. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je het Privacybeleid en het Cookiebeleid hebt gelezen."
 
-#: src/Admin/PaymentMethodSettings.php:76
-msgid "Automatic payment method configuration"
-msgstr "Automatische configuratie betaalmethoden"
-
 #: src/Admin/PaymentMethodSettings.php:78
-msgid "Automatically configure the Buckaroo plugin based on your active subscriptions. When you use this option, the plugin will connect to your Buckaroo account, check which payment methods are active, and enable them in Live mode. You will be asked to confirm before changes are applied."
-msgstr "Stel de Buckaroo-plugin automatisch in op basis van je actieve abonnementen. De plugin maakt verbinding met je Buckaroo-account, controleert welke betaalmethoden actief zijn en schakelt deze direct in Live-modus in. Je ontvangt eerst een bevestigingsmelding voordat de wijzigingen worden toegepast."
+msgid "With the auto-configure button you can automatically configure all the payment methods based on your active Buckaroo Plaza subscriptions. Methods are enabled in live mode and will accept real payments."
+msgstr "Met de auto-configuratieknop configureer je automatisch alle betaalmethoden op basis van je actieve Buckaroo Plaza-abonnementen. Methoden worden in live modus geactiveerd en accepteren echte betalingen."
 
 #: src/Admin/PaymentMethodSettings.php:80
 #: src/Admin/PaymentMethodSettings.php:82
@@ -1474,6 +1470,10 @@ msgstr "Eenmalige incasso van de bankrekening van de klant via een SEPA-machtigi
 msgid "Sweden's most popular mobile payment app, with instant app-approved payments."
 msgstr "De populairste mobiele betaalapp van Zweden, met directe betalingen die in de app worden goedgekeurd."
 
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php
+msgid "Dutch pay-after-delivery by invoice from ABN AMRO, for business customers with a Chamber of Commerce registration."
+msgstr "Nederlandse betaalmethode van ABN AMRO waarmee zakelijke klanten achteraf op factuur betalen."
+
 #: src/Admin/GeneralSettings.php
 msgid "Give every payment the attention it deserves, with 40+ methods in one plugin."
 msgstr "Geef elke betaling de aandacht die het verdient, met 40+ betaalmethoden in één plugin."
@@ -1481,4 +1481,24 @@ msgstr "Geef elke betaling de aandacht die het verdient, met 40+ betaalmethoden 
 #: src/Gateways/AbstractPaymentGateway.php
 msgid "Test mode"
 msgstr "Testmodus"
+
+#: src/Hooks/PaymentSetupScripts.php
+msgid "This action will enable payment methods in LIVE mode based on your active Buckaroo subscriptions. This will overwrite your current payment method settings. Are you sure you want to proceed?"
+msgstr "Deze actie activeert betaalmethoden in LIVE modus op basis van je actieve Buckaroo-abonnementen. Hiermee worden je huidige instellingen voor betaalmethoden overschreven. Weet je zeker dat je wilt doorgaan?"
+
+#: src/Admin/GeneralSettings.php
+msgid "Enter your Store key"
+msgstr "Vul je Store key in"
+
+#: src/Admin/GeneralSettings.php
+msgid "Enter your Secret key"
+msgstr "Vul je Secret Key in"
+
+#: src/Admin/GeneralSettings.php
+msgid "Show / hide"
+msgstr "Weergeven / verbergen"
+
+#: src/Admin/GeneralSettings.php
+msgid "API credentials"
+msgstr "API-gegevens"
 

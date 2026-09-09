@@ -52,6 +52,7 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
         $this->has_fields = true;
         $this->method_title = 'Buckaroo Zakelijk op rekening';
         $this->title = 'Zakelijk op rekening';
+        $this->method_description = __('Dutch pay-after-delivery by invoice from ABN AMRO, for business customers with a Chamber of Commerce registration.', 'wc-buckaroo-bpe-gateway');
 
         $this->setCountry();
 
