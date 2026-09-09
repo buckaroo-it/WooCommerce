@@ -231,6 +231,40 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             . '</span>';
     }
 
+    public function isInTestMode(): bool
+    {
+        return $this->getMode() === 'test';
+    }
+
+    /**
+     * Badge text for a method in test mode, empty when it is live.
+     *
+     * Translated here rather than in JS so both checkouts share one string.
+     *
+     * @return string
+     */
+    public function getTestModeLabel(): string
+    {
+        return $this->isInTestMode() ? __('Test mode', 'wc-buckaroo-bpe-gateway') : '';
+    }
+
+    /**
+     * The same badge as markup, for the classic checkout where the filter can only
+     * return a string.
+     *
+     * @return string
+     */
+    public function getTestModeBadgeHtml(): string
+    {
+        $label = $this->getTestModeLabel();
+
+        if ($label === '') {
+            return '';
+        }
+
+        return '<span class="buckaroo-testmode-badge">' . esc_html($label) . '</span>';
+    }
+
     /**
      * Whether the merchant replaced the stock "Pay with X" text with their own.
      *

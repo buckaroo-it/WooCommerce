@@ -1143,10 +1143,6 @@ msgstr ""
 msgid "CVC:"
 msgstr ""
 
-#: templates/gateways/global.php:22
-msgid "TEST MODE"
-msgstr ""
-
 #: templates/gateways/klarnapay.php:28
 msgid "Payment method is not supported for country "
 msgstr ""

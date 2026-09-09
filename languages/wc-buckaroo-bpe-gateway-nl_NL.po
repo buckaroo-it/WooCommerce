@@ -978,10 +978,6 @@ msgstr "Test"
 msgid "Test credentials"
 msgstr "Testreferenties"
 
-#: templates/gateways/global.php:22
-msgid "TEST MODE"
-msgstr "TESTMODUS"
-
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:328
 #, php-format
@@ -1481,6 +1477,10 @@ msgstr "Nederlandse betaalmethode van ABN AMRO waarmee zakelijke klanten achtera
 #: src/Admin/GeneralSettings.php
 msgid "Give every payment the attention it deserves, with 40+ methods in one plugin."
 msgstr "Geef elke betaling de aandacht die het verdient, met 40+ betaalmethoden in één plugin."
+
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Test mode"
+msgstr "Testmodus"
 
 #: src/Hooks/PaymentSetupScripts.php
 msgid "This action will enable payment methods in LIVE mode based on your active Buckaroo subscriptions. This will overwrite your current payment method settings. Are you sure you want to proceed?"

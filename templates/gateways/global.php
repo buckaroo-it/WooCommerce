@@ -17,11 +17,6 @@
 
 defined('ABSPATH') || exit;
 
-if ($this->mode == 'test') {
-    ?>
-    <p> <?php esc_html_e('TEST MODE', 'wc-buckaroo-bpe-gateway'); ?></p>
-    <?php
-}
 if ($this->shouldShowPaymentDescription() && strlen($this->description)) {
     echo wp_kses_post(
         wpautop(wptexturize($this->description)),

@@ -166,6 +166,24 @@ table.woocommerce_order_items tbody tr:first-child td {
     margin: 0;
 }
 
+/* Test mode badge, in the settings status pill colours. margin-left keeps it
+   beside the icon in the space-between label rows. */
+.buckaroo-testmode-badge {
+    display: inline-block;
+    margin-left: auto;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: #fde9b0;
+    color: #7a5500;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.6;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
 /* paybybank */
 
 .bk-toggle-down {

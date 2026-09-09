@@ -245,7 +245,13 @@ const registerApplePay = async applepay => {
 
 const createOptions = (wc, gateway) => ({
     name: gateway.paymentMethodId,
-    label: <BuckarooLabel imagePath={gateway.image_path} title={decodeHtmlEntities(gateway.title)} />,
+    label: (
+        <BuckarooLabel
+            imagePath={gateway.image_path}
+            title={decodeHtmlEntities(gateway.title)}
+            testModeLabel={gateway.testModeLabel}
+        />
+    ),
     paymentMethodId: gateway.paymentMethodId,
     edit: <div />,
     canMakePayment: () =>
