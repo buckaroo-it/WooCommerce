@@ -73,6 +73,7 @@ class GeneralSettings extends WC_Settings_Page
                 $this->render_intro_card();
                 $this->render_payment_list();
                 $this->render_api_credentials_card_inner();
+                echo '<hr />';
                 echo '<div class="bk-general-options-card">';
                 echo '<h2>' . esc_html__('General Options', 'wc-buckaroo-bpe-gateway') . '</h2>';
                 echo '<p class="description">' . esc_html__('Configure transaction, fee and locale settings.', 'wc-buckaroo-bpe-gateway') . '</p>';
@@ -394,7 +395,7 @@ class GeneralSettings extends WC_Settings_Page
     private function validateApiCredentials(): void
     {
         $labels = [
-            'merchantkey' => __('Website key', 'wc-buckaroo-bpe-gateway'),
+            'merchantkey' => __('Store key', 'wc-buckaroo-bpe-gateway'),
             'secretkey' => __('Secret key', 'wc-buckaroo-bpe-gateway'),
         ];
 
@@ -544,7 +545,7 @@ class GeneralSettings extends WC_Settings_Page
 
         <tr>
             <th scope="row" class="titledesc">
-                <label for="<?php echo esc_attr($merchant_key_id); ?>"><?php esc_html_e('Website key', 'wc-buckaroo-bpe-gateway'); ?></label>
+                <label for="<?php echo esc_attr($merchant_key_id); ?>"><?php esc_html_e('Store key', 'wc-buckaroo-bpe-gateway'); ?></label>
             </th>
             <td class="forminp">
                 <div class="bk-creds-field">
@@ -553,21 +554,13 @@ class GeneralSettings extends WC_Settings_Page
                            name="<?php echo esc_attr($merchant_key_id); ?>"
                            value="<?php echo esc_attr($merchant_key); ?>"
                            class="input-text regular-input"
-                           placeholder="<?php esc_attr_e('Enter your website key', 'wc-buckaroo-bpe-gateway'); ?>"
+                           placeholder="<?php esc_attr_e('Enter your Store key', 'wc-buckaroo-bpe-gateway'); ?>"
                            autocomplete="off"
                            <?php echo $this->custom_attributes($merchant_field); ?>/>
                     <button type="button" class="bk-key-btn bk-key-btn--toggle" data-target="<?php echo esc_attr($merchant_key_id); ?>" title="<?php esc_attr_e('Show / hide', 'wc-buckaroo-bpe-gateway'); ?>">
                         <svg class="bk-eye-show" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         <svg class="bk-eye-hide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                     </button>
-                    <?php if ($test_btn_field) : ?>
-                    <button type="button"
-                        id="<?php echo esc_attr($this->gateway->get_field_key('test_credentials')); ?>"
-                        class="button button-primary bk-creds-inline-btn"
-                        title="<?php esc_attr_e('Click here to verify store key & secret key.', 'wc-buckaroo-bpe-gateway'); ?>"
-                        <?php echo $this->custom_attributes($test_btn_field); ?>
-                    ><?php echo esc_html($test_btn_field['value'] ?? __('Test credentials', 'wc-buckaroo-bpe-gateway')); ?></button>
-                    <?php endif; ?>
                 </div>
                 <?php if (! empty($merchant_field['description'])) : ?>
                 <p class="description"><?php echo wp_kses_post($merchant_field['description']); ?></p>
@@ -586,21 +579,13 @@ class GeneralSettings extends WC_Settings_Page
                            name="<?php echo esc_attr($secret_key_id); ?>"
                            value="<?php echo esc_attr($secret_key); ?>"
                            class="input-text regular-input"
-                           placeholder="<?php esc_attr_e('Enter your secret key', 'wc-buckaroo-bpe-gateway'); ?>"
+                           placeholder="<?php esc_attr_e('Enter your Secret key', 'wc-buckaroo-bpe-gateway'); ?>"
                            autocomplete="off"
                            <?php echo $this->custom_attributes($secret_field); ?>/>
                     <button type="button" class="bk-key-btn bk-key-btn--toggle" data-target="<?php echo esc_attr($secret_key_id); ?>" title="<?php esc_attr_e('Show / hide', 'wc-buckaroo-bpe-gateway'); ?>">
                         <svg class="bk-eye-show" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         <svg class="bk-eye-hide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                     </button>
-                    <?php if ($auto_btn_field && ($auto_btn_field['type'] ?? '') === 'button') : ?>
-                    <button type="button"
-                        id="<?php echo esc_attr($this->gateway->get_field_key('auto_configure')); ?>"
-                        class="button bk-creds-inline-btn"
-                        title="<?php esc_attr_e('Automatically configure the Buckaroo plugin based on your active subscriptions. When you use this option, the plugin will connect to your Buckaroo account, check which payment methods are active, and enable them in Live mode. You will be asked to confirm before changes are applied.', 'wc-buckaroo-bpe-gateway'); ?>"
-                        <?php echo $this->custom_attributes($auto_btn_field); ?>
-                    ><?php echo esc_html($auto_btn_field['value'] ?? __('Auto-configure', 'wc-buckaroo-bpe-gateway')); ?></button>
-                    <?php endif; ?>
                 </div>
                 <?php if (! empty($secret_field['description'])) : ?>
                 <p class="description"><?php echo wp_kses_post($secret_field['description']); ?></p>
@@ -609,6 +594,35 @@ class GeneralSettings extends WC_Settings_Page
         </tr>
 
     </tbody></table>
+
+        <?php if ($test_btn_field) : ?>
+            <?php if (! empty($test_btn_field['description'])) : ?>
+    <p class="description"><?php echo wp_kses_post($test_btn_field['description']); ?></p>
+            <?php endif; ?>
+    <p>
+        <button type="button"
+            id="<?php echo esc_attr($this->gateway->get_field_key('test_credentials')); ?>"
+            class="button button-primary"
+            <?php echo $this->custom_attributes($test_btn_field); ?>
+        ><?php echo esc_html($test_btn_field['title']); ?></button>
+    </p>
+        <?php endif; ?>
+
+        <?php if ($auto_btn_field) : ?>
+    <hr />
+
+    <h3><?php echo esc_html($auto_btn_field['title']); ?></h3>
+            <?php if (! empty($auto_btn_field['description'])) : ?>
+    <p class="description"><?php echo wp_kses_post($auto_btn_field['description']); ?></p>
+            <?php endif; ?>
+    <p>
+        <button type="button"
+            id="<?php echo esc_attr($this->gateway->get_field_key('auto_configure')); ?>"
+            class="button button-primary"
+            <?php echo $this->custom_attributes($auto_btn_field); ?>
+        ><?php echo esc_html($auto_btn_field['title']); ?></button>
+    </p>
+        <?php endif; ?>
 </div>
 
         <?php

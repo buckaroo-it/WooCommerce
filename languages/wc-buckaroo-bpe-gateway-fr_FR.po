@@ -224,8 +224,8 @@ msgid "Chose the api version for this payment method."
 msgstr "Choisissez la version API pour cette méthode de paiement."
 
 #: src/Admin/PaymentMethodSettings.php:68
-msgid "Click here to verify store key & secret key."
-msgstr "Cliquez ici pour vérifier la clé du site web et la clé secrète."
+msgid "Check that the Store Key and Secret Key above are valid."
+msgstr "Vérifiez que le Store Key et le Secret Key ci-dessus sont valides."
 
 #: templates/gateways/billink.php:28
 #: templates/gateways/partial_afterpay_b2b.php:38
@@ -789,10 +789,6 @@ msgid "Multi-currency"
 msgstr "Multidevise"
 
 #: src/Admin/GeneralSettings.php
-msgid "Website key"
-msgstr "Website key"
-
-#: src/Admin/GeneralSettings.php
 msgid "%s is required. Payments will fail until it is filled in."
 msgstr "%s est obligatoire. Les paiements échoueront jusqu'à ce que ce champ soit rempli."
 
@@ -1033,12 +1029,12 @@ msgid "This controls the description which the user sees during checkout."
 msgstr "Cela contrôle la description que l'utilisateur voit lors du passage en caisse."
 
 #: src/Admin/PaymentMethodSettings.php:59
-msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> (Settings -> API Keys -> Secret key)."
-msgstr "Voici votre <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> Buckaroo Payment Plaza (Paramètres -> Clés API -> Secret key)."
+msgid "Find this in Buckaroo Plaza under Settings → API Keys → <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\" rel=\"noopener\">Secret Key</a>."
+msgstr "À trouver dans Buckaroo Plaza sous Paramètres → API Keys → <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\" rel=\"noopener\">Secret Key</a>."
 
 #: src/Admin/PaymentMethodSettings.php:50
-msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> (Settings -> API Keys -> Store keys)."
-msgstr "Voici votre <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> Buckaroo Payment Plaza (Paramètres -> Clés API -> Store keys)."
+msgid "Find this in Buckaroo Plaza under Settings → API Keys → <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\" rel=\"noopener\">Store Key</a>."
+msgstr "À trouver dans Buckaroo Plaza sous Paramètres → API Keys → <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\" rel=\"noopener\">Store Key</a>."
 
 #: src/Gateways/AbstractPaymentGateway.php:371
 msgid "This payment method is not supported for the selected currency "
@@ -1162,13 +1158,9 @@ msgstr "Vous devez avoir au moins 18 ans pour utiliser cette méthode de paiemen
 msgid "You must be at least 18+ to use this service. By paying on time, you avoid extra costs and ensure that you can use %s services again in the future. By continuing, you accept the Terms and Conditions and confirm that you have read the Privacy Statement and Cookie Statement."
 msgstr "Vous devez avoir au moins 18 ans pour utiliser ce service. En payant à temps, vous évitez des frais supplémentaires et vous assurez de pouvoir utiliser les services de %s à l'avenir. En continuant, vous acceptez les Conditions Générales et confirmez avoir lu la Déclaration de Confidentialité et la Déclaration sur les Cookies."
 
-#: src/Admin/PaymentMethodSettings.php:76
-msgid "Automatic payment method configuration"
-msgstr "Configuration automatique des méthodes de paiement"
-
 #: src/Admin/PaymentMethodSettings.php:78
-msgid "Automatically configure the Buckaroo plugin based on your active subscriptions. When you use this option, the plugin will connect to your Buckaroo account, check which payment methods are active, and enable them in Live mode. You will be asked to confirm before changes are applied."
-msgstr "Configurer automatiquement le plugin Buckaroo en fonction de vos abonnements actifs. Lorsque vous utilisez cette option, le plugin se connecte à votre compte Buckaroo, vérifie quelles méthodes de paiement sont actives et les active en mode Live. Une confirmation vous sera demandée avant l'application des modifications."
+msgid "With the auto-configure button you can automatically configure all the payment methods based on your active Buckaroo Plaza subscriptions. Methods are enabled in live mode and will accept real payments."
+msgstr "Le bouton Auto-configure configure automatiquement tous les moyens de paiement selon vos abonnements Buckaroo Plaza actifs. Les moyens de paiement sont activés en mode live et accepteront de vrais paiements."
 
 #: src/Admin/PaymentMethodSettings.php:80
 #: src/Admin/PaymentMethodSettings.php:82
@@ -1485,4 +1477,24 @@ msgstr "L'application de paiement mobile la plus populaire de Suède, avec des p
 #: src/Admin/GeneralSettings.php
 msgid "Give every payment the attention it deserves, with 40+ methods in one plugin."
 msgstr "Accordez à chaque paiement l'attention qu'il mérite, avec plus de 40 méthodes de paiement dans un seul plugin."
+
+#: src/Hooks/PaymentSetupScripts.php
+msgid "This action will enable payment methods in LIVE mode based on your active Buckaroo subscriptions. This will overwrite your current payment method settings. Are you sure you want to proceed?"
+msgstr "Cette action active les moyens de paiement en mode LIVE selon vos abonnements Buckaroo actifs. Vos réglages actuels des moyens de paiement seront écrasés. Voulez-vous continuer ?"
+
+#: src/Admin/GeneralSettings.php
+msgid "Enter your Store key"
+msgstr "Saisissez votre Store key"
+
+#: src/Admin/GeneralSettings.php
+msgid "Enter your Secret key"
+msgstr "Saisissez votre Secret Key"
+
+#: src/Admin/GeneralSettings.php
+msgid "Show / hide"
+msgstr "Afficher / masquer"
+
+#: src/Admin/GeneralSettings.php
+msgid "API credentials"
+msgstr "Identifiants API"
 
