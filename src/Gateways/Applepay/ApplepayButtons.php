@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
+use Buckaroo\Woocommerce\Gateways\Express\ExpressPlacements;
 use Buckaroo\Woocommerce\Gateways\ExpressPaymentManager;
 
 class ApplepayButtons
@@ -31,13 +32,7 @@ class ApplepayButtons
 
     private function buttonIsEnabled($page)
     {
-        if ($settings = get_option('woocommerce_buckaroo_applepay_settings')) {
-            if (isset($settings["button_{$page}"])) {
-                return $settings["button_{$page}"] === 'TRUE' ? true : false;
-            }
-        }
-
-        return false;
+        return ExpressPlacements::enabledFor('buckaroo_applepay', $page);
     }
 
     private function paymentMethodIsEnabled()

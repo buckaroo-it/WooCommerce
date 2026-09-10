@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Hooks;
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressPlacements;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinController;
@@ -171,7 +172,7 @@ class InitGateways
                     $payment_method = array_merge(
                         $payment_method,
                         [
-                            'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE',
+                            'showInCheckout' => ExpressPlacements::enabledFor($gateway_id, 'checkout'),
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
                             'buttonStyle' => $gateway->get_option('button_style', 'black'),
                             // Whether Apple Pay is also listed as a standard,
@@ -186,7 +187,7 @@ class InitGateways
                     $payment_method = array_merge(
                         $payment_method,
                         [
-                            'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE',
+                            'showInCheckout' => $gateway->get_option('button_checkout', 'TRUE') === 'TRUE',
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
                             'buttonStyle' => $gateway->get_option('button_style', 'black'),
                             // Whether Google Pay is also listed as a standard,

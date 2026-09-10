@@ -19,6 +19,7 @@ class ApplepayController
                 'currency_code' => get_option('woocommerce_currency'),
                 'culture_code' => $country_code,
                 'merchant_id' => get_option('woocommerce_buckaroo_applepay_settings')['merchant_guid'],
+                'button_label' => get_option('woocommerce_buckaroo_applepay_settings')['button_label'] ?? 'plain',
             ]
         );
     }

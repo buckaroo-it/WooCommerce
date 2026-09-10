@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressSettings;
 use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
@@ -15,6 +16,8 @@ use WC_Order_Item_Shipping;
 
 class ApplepayGateway extends AbstractPaymentGateway
 {
+    use ExpressSettings;
+
     public const PAYMENT_CLASS = ApplepayProcessor::class;
 
     protected $paymentData;
@@ -234,7 +237,7 @@ class ApplepayGateway extends AbstractPaymentGateway
                 }
             }
 
-            $order->update_status('pending payment', 'Order created using Apple pay', true);
+            $order->update_status('pending payment', 'Order created using Apple Pay', true);
         } catch (Throwable $e) {
             Logger::log(__METHOD__ . '|fail|', $e->getMessage());
             $order->delete(true);
@@ -448,95 +451,72 @@ class ApplepayGateway extends AbstractPaymentGateway
         unset($this->form_fields['title']);
         unset($this->form_fields['description']);
 
-        $this->form_fields['button_product'] = [
-            'title' => __('Button on product page', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'select',
-            'description' => __('Show the Apple pay button on the product page', 'wc-buckaroo-bpe-gateway'),
-            'options' => [
-                'TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'),
-                'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway'),
-            ],
-            'default' => 'TRUE',
-        ];
+        $this->applyExpressSettings();
+    }
 
-        $this->form_fields['button_cart'] = [
-            'title' => __('Button on cart page', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'select',
-            'description' => __('Show the Apple pay button on the cart page', 'wc-buckaroo-bpe-gateway'),
-            'options' => [
-                'TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'),
-                'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway'),
+    /**
+     * Fields this method supports. Anything absent is not rendered.
+     */
+    protected function expressSettingsSpec(): array
+    {
+        return [
+            'credentials' => [
+                'merchant_guid' => [
+                    'title' => __('GUID', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'text',
+                    'description' => __('The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General.', 'wc-buckaroo-bpe-gateway'),
+                    'default' => '0',
+                ],
             ],
-            'default' => 'TRUE',
-        ];
-
-        $this->form_fields['button_checkout'] = [
-            'title' => __('Button on checkout page', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'select',
-            'description' => __('Show the Apple pay button on the checkout page', 'wc-buckaroo-bpe-gateway'),
-            'options' => [
-                'TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'),
-                'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway'),
+            'placements' => ['product', 'cart', 'checkout'],
+            'list_as_payment_method' => true,
+            'graphical' => [
+                'button_style' => [
+                    'title' => __('Button style', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'select',
+                    'description' => __('Colour of the express button as the customer sees it.', 'wc-buckaroo-bpe-gateway'),
+                    'options' => [
+                        'black' => __('Black', 'wc-buckaroo-bpe-gateway'),
+                        'white' => __('White', 'wc-buckaroo-bpe-gateway'),
+                        'white-outline' => __('White outline', 'wc-buckaroo-bpe-gateway'),
+                    ],
+                    'default' => 'black',
+                ],
+                'button_label' => [
+                    'title' => __('Button label', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'select',
+                    'description' => __('Wording Apple shows on the button, next to the Apple Pay mark.', 'wc-buckaroo-bpe-gateway'),
+                    'options' => [
+                        'plain' => __('Plain', 'wc-buckaroo-bpe-gateway'),
+                        'buy' => __('Buy', 'wc-buckaroo-bpe-gateway'),
+                        'check-out' => __('Check out', 'wc-buckaroo-bpe-gateway'),
+                        'order' => __('Order', 'wc-buckaroo-bpe-gateway'),
+                        'book' => __('Book', 'wc-buckaroo-bpe-gateway'),
+                        'subscribe' => __('Subscribe', 'wc-buckaroo-bpe-gateway'),
+                    ],
+                    // Plain is what the button rendered before this setting existed.
+                    'default' => 'plain',
+                ],
             ],
-            'default' => 'TRUE',
         ];
-
-        $this->form_fields['checkout_method'] = [
-            'title' => __('Apple Pay as checkout payment method', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'select',
-            'description' => __('In addition to the Express Checkout button, list Apple Pay as a selectable payment method in the checkout. The Apple Pay sheet only authorises the payment; billing and shipping are taken from the checkout form.', 'wc-buckaroo-bpe-gateway'),
-            'options' => [
-                'TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'),
-                'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway'),
-            ],
-            'default' => 'TRUE',
-        ];
-
-        $this->form_fields['button_style'] = [
-            'title' => __('Button style', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'select',
-            'description' => __('Style of the Apple Pay button shown in the checkout.', 'wc-buckaroo-bpe-gateway'),
-            'options' => [
-                'black' => __('Black', 'wc-buckaroo-bpe-gateway'),
-                'white' => __('White', 'wc-buckaroo-bpe-gateway'),
-                'white-outline' => __('White with outline', 'wc-buckaroo-bpe-gateway'),
-            ],
-            'default' => 'black',
-        ];
-        $this->set_guid_after_usemaster();
     }
 
     /**
      * Whether Apple Pay should be listed as a standard, selectable checkout
      * payment method (in addition to the Express Checkout button).
-     *
-     * @return bool
      */
+    /**
+     * Placements are stored under express_show_on, with the legacy
+     * button_{location} keys kept in sync for two releases.
+     */
+    protected function usesExpressStorageKeys(): bool
+    {
+        return true;
+    }
+
     public function isCheckoutMethodEnabled(): bool
     {
         return $this->get_option('checkout_method', 'TRUE') === 'TRUE';
-    }
-
-    /**
-     * Set merchand_guid after master settings checkbox
-     *
-     * @return void
-     */
-    protected function set_guid_after_usemaster()
-    {
-        $new_form_fields = [];
-        foreach ($this->form_fields as $k => $value) {
-            $new_form_fields[$k] = $value;
-            if ($k === 'mode') {
-                $new_form_fields['merchant_guid'] = [
-                    'title' => __('GUID', 'wc-buckaroo-bpe-gateway'),
-                    'type' => 'text',
-                    'description' => __('The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General.', 'wc-buckaroo-bpe-gateway'),
-                    'default' => '0',
-                ];
-            }
-        }
-        $this->form_fields = $new_form_fields;
     }
 
     public function handleHooks()

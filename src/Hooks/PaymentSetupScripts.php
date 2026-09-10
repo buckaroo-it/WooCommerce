@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
+use Buckaroo\Woocommerce\Gateways\Express\ExpressPlacements;
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
@@ -308,11 +309,11 @@ class PaymentSetupScripts
         }
 
         if ($isProduct) {
-            return ($settings['button_product'] ?? '') === 'TRUE';
+            return ExpressPlacements::enabledFor('buckaroo_applepay', 'product');
         }
 
         if ($isCart) {
-            return ($settings['button_cart'] ?? '') === 'TRUE';
+            return ExpressPlacements::enabledFor('buckaroo_applepay', 'cart');
         }
 
         return false;
