@@ -53,11 +53,7 @@ function ZakelijkOpRekening({ onStateChange, methodName, billing }) {
             )}
 
             {!hasPhone && (
-                <PhoneDropdown
-                    paymentMethod={methodName}
-                    formState={formState}
-                    handlePhoneChange={handlePhoneChange}
-                />
+                <PhoneDropdown paymentMethod={methodName} formState={formState} handlePhoneChange={handlePhoneChange} />
             )}
 
             <CoCField methodName={methodName} handleChange={handleChange} />
