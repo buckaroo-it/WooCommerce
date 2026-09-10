@@ -16,6 +16,7 @@
 defined('ABSPATH') || exit;
 
 $company = $this->getScalarCheckoutField('billing_company');
+$phone = $this->getScalarCheckoutField('billing_phone');
 ?>
 <fieldset id="buckaroo_zakelijkoprekening_b2b">
     <p class="form-row form-row-wide">
@@ -35,6 +36,22 @@ $company = $this->getScalarCheckoutField('billing_company');
             type="text"
             maxlength="250"
             autocomplete="organization"
+            value="" />
+    </p>
+    <?php } ?>
+
+    <?php if (strlen(trim($phone)) === 0) { ?>
+    <p class="form-row form-row-wide validate-required">
+        <label for="buckaroo-zakelijkoprekening-phone">
+            <?php esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway'); ?>
+            <span class="required">*</span>
+        </label>
+        <input
+            id="buckaroo-zakelijkoprekening-phone"
+            name="buckaroo-zakelijkoprekening-phone"
+            class="input-tel"
+            type="tel"
+            autocomplete="tel"
             value="" />
     </p>
     <?php } ?>

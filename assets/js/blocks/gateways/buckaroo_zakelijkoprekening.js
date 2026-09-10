@@ -2,16 +2,23 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
+import PhoneDropdown from '../partials/buckaroo_phone';
 
 function ZakelijkOpRekening({ onStateChange, methodName, billing }) {
     const initialState = {
         [`${methodName}-company`]: billing?.company || '',
         [`${methodName}-company-coc-registration`]: '',
+        [`${methodName}-phone`]: billing?.phone || '',
     };
 
-    const { handleChange } = useFormData(initialState, onStateChange);
+    const { handleChange, formState, updateFormState } = useFormData(initialState, onStateChange);
 
     const hasCompany = (billing?.company || '') !== '';
+    const hasPhone = (billing?.phone || '').trim() !== '';
+
+    const handlePhoneChange = value => {
+        updateFormState(`${methodName}-phone`, value);
+    };
 
     return (
         <div id="buckaroo_zakelijkoprekening_b2b">
@@ -43,6 +50,14 @@ function ZakelijkOpRekening({ onStateChange, methodName, billing }) {
                         onChange={handleChange}
                     />
                 </p>
+            )}
+
+            {!hasPhone && (
+                <PhoneDropdown
+                    paymentMethod={methodName}
+                    formState={formState}
+                    handlePhoneChange={handlePhoneChange}
+                />
             )}
 
             <CoCField methodName={methodName} handleChange={handleChange} />

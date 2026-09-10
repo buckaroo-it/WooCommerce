@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\ZakelijkOpRekening;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
+use Buckaroo\Woocommerce\Services\Helper;
 
 class ZakelijkOpRekeningProcessor extends AbstractPaymentProcessor
 {
@@ -35,16 +36,55 @@ class ZakelijkOpRekeningProcessor extends AbstractPaymentProcessor
     }
 
     /**
+     * In3 ABN invoices from GrossUnitPrice × qty (must equal AmountDebit) and
+     * checks VatAmount == VatPercentage × line net, with net = line gross − VatAmount.
+     *
+     * {@inheritDoc}
+     */
+    protected function getArticles(): array
+    {
+        $articles = [];
+
+        foreach (parent::getArticles() as $article) {
+            $unit_price = isset($article['price']) ? (float) $article['price'] : 0.0;
+            $quantity = isset($article['quantity']) ? (int) $article['quantity'] : 1;
+            if ($quantity < 1) {
+                $quantity = 1;
+            }
+
+            $line_gross = Helper::roundAmount($unit_price * $quantity);
+            if (abs($line_gross) < 0.01) {
+                continue;
+            }
+
+            $vat_percentage = isset($article['vatPercentage']) ? (float) $article['vatPercentage'] : 0.0;
+            $article['vatAmount'] = $this->inclusiveLineVat($line_gross, $vat_percentage);
+            $articles[] = $article;
+        }
+
+        return $articles;
+    }
+
+    /**
+     * Inclusive VAT for a gross line: gross × rate / (100 + rate).
+     */
+    private function inclusiveLineVat(float $line_gross, float $vat_percentage): float
+    {
+        if ($vat_percentage <= 0) {
+            return 0.0;
+        }
+
+        return Helper::roundAmount($line_gross * $vat_percentage / (100 + $vat_percentage));
+    }
+
+    /**
      * Get B2B billing data.
      *
      * @return array<mixed>
      */
     private function getBilling(): array
     {
-        $phone = $this->request->input(
-            'buckaroo-zakelijkoprekening-phone',
-            $this->getAddress('billing', 'phone')
-        );
+        $phone = $this->getPhone();
 
         $first_name = $this->getAddress('billing', 'first_name');
 
@@ -119,6 +159,21 @@ class ZakelijkOpRekeningProcessor extends AbstractPaymentProcessor
         }
 
         return $data;
+    }
+
+    /**
+     * Prefer the checkout method field when billing phone was empty.
+     */
+    private function getPhone(): string
+    {
+        $own = $this->request->input('buckaroo-zakelijkoprekening-phone');
+        if (is_string($own) && trim($own) !== '') {
+            return trim($own);
+        }
+
+        $phone = $this->getAddress('billing', 'phone');
+
+        return is_string($phone) ? trim($phone) : '';
     }
 
     /**
