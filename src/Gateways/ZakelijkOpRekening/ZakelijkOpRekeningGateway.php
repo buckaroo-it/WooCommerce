@@ -119,6 +119,16 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
             );
         }
 
+        if ($this->getCheckoutPhone() === '') {
+            wc_add_notice(
+                sprintf(
+                    __('Please fill in a phone number for %s. This is required in order to use this payment method.', 'wc-buckaroo-bpe-gateway'),
+                    $this->title
+                ),
+                'error'
+            );
+        }
+
         parent::validate_fields();
     }
 
@@ -273,6 +283,39 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
             $company = $customer->get_billing_company();
             if (is_string($company) && trim($company) !== '') {
                 return trim($company);
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Phone is required by In3 ABN but optional on the WooCommerce address.
+     * Prefer the method field (shown when billing phone is empty), then the
+     * posted billing phone, then the customer session.
+     */
+    private function getCheckoutPhone(): string
+    {
+        $own = $this->request->input('buckaroo-zakelijkoprekening-phone');
+        if (is_string($own) && trim($own) !== '') {
+            return trim($own);
+        }
+
+        $phone = $this->request->input('billing_phone');
+        if (is_string($phone) && trim($phone) !== '') {
+            return trim($phone);
+        }
+
+        $customer = (function_exists('WC') && WC()) ? WC()->customer : null;
+        if ($customer) {
+            $phone = $customer->get_billing_phone();
+            if (is_string($phone) && trim($phone) !== '') {
+                return trim($phone);
+            }
+
+            $phone = $customer->get_shipping_phone();
+            if (is_string($phone) && trim($phone) !== '') {
+                return trim($phone);
             }
         }
 
