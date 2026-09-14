@@ -3,12 +3,14 @@ import buckaroo_afterpaynew from './buckaroo_afterpaynew';
 import buckaroo_applepay from './buckaroo_applepay';
 import buckaroo_billink from './buckaroo_billink';
 import buckaroo_creditcard from './buckaroo_creditcard';
+import buckaroo_googlepay from './buckaroo_googlepay';
 import buckaroo_in3 from './buckaroo_in3';
 import buckaroo_klarnakp from './buckaroo_klarnakp';
 import buckaroo_klarnapay from './buckaroo_klarnapay';
 import buckaroo_paybybank from './buckaroo_paybybank';
 import buckaroo_payperemail from './buckaroo_payperemail';
 import buckaroo_sepadirectdebit from './buckaroo_sepadirectdebit';
+import buckaroo_zakelijkoprekening from './buckaroo_zakelijkoprekening';
 
 export const paymentGatewaysTemplates = {
     buckaroo_afterpay,
@@ -16,12 +18,14 @@ export const paymentGatewaysTemplates = {
     buckaroo_applepay,
     buckaroo_billink,
     buckaroo_creditcard,
+    buckaroo_googlepay,
     buckaroo_in3,
     buckaroo_klarnakp,
     buckaroo_klarnapay,
     buckaroo_paybybank,
     buckaroo_payperemail,
     buckaroo_sepadirectdebit,
+    buckaroo_zakelijkoprekening,
 };
 
 export const separateCreditCards = [

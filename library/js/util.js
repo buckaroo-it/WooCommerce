@@ -23,8 +23,6 @@ jQuery(document).ready(function () {
 buckarooAdmin = {
     testButton: function () {
         let buckarooTestButton = jQuery('[id$="test_credentials"]');
-        buckarooTestButton.addClass('button-primary');
-        buckarooTestButton.val(buckarooTestButton.attr('title'));
 
         buckarooTestButton.on('click', function () {
             let website_key = jQuery('[name^="woocommerce_buckaroo_"][name$="_merchantkey"]').val();
@@ -35,7 +33,7 @@ buckarooAdmin = {
                     action: 'buckaroo_test_credentials',
                     website_key,
                     secret_key,
-                    security: typeof buckarooAdminAjax !== 'undefined' ? buckarooAdminAjax.nonce : '',
+                    security: buckarooAdminAjax.nonce,
                 },
                 function (response) {
                     alert(response);
@@ -45,20 +43,14 @@ buckarooAdmin = {
     },
     autoConfigureButton: function () {
         let autoConfigButton = jQuery('[id$="auto_configure"]');
-        autoConfigButton.addClass('button-primary');
-        autoConfigButton.val(autoConfigButton.attr('title'));
 
         autoConfigButton.on('click', function () {
-            if (
-                confirm(
-                    'Warning! This action will automatically enable payment methods in LIVE mode based on your active Buckaroo subscriptions. This will overwrite your current payment method settings. Are you sure you want to proceed?'
-                )
-            ) {
+            if (confirm(buckarooAdminAjax.autoConfigureConfirm)) {
                 jQuery.post(
                     ajaxurl,
                     {
                         action: 'buckaroo_auto_configure',
-                        security: typeof buckarooAdminAjax !== 'undefined' ? buckarooAdminAjax.nonce : '',
+                        security: buckarooAdminAjax.nonce,
                     },
                     function (response) {
                         alert(response);

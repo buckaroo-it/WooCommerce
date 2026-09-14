@@ -74,7 +74,7 @@ class OrderCaptureRefund
         $successful_refund = false;
 
         if ($capture !== null && isset($capture['transaction_id'])) {
-            $paymentMethod = get_post_meta($order_id, '_wc_order_selected_payment_method', true);
+            $paymentMethod = OrderMeta::get($order_id, '_wc_order_selected_payment_method');
             $gateway = (new PaymentGatewayRegistry())->newGatewayInstance($paymentMethod);
             $successful_refund =
                 (new RefundAction(
@@ -113,7 +113,7 @@ class OrderCaptureRefund
      */
     protected function get_capture_transaction_by_id(int $order_id, string $id)
     {
-        $captures = get_post_meta($order_id, '_wc_order_captures');
+        $captures = OrderMeta::get($order_id, '_wc_order_captures', false);
         foreach ($captures as $capture) {
             if ($capture['id'] == $id) {
                 return $capture;
@@ -185,7 +185,7 @@ class OrderCaptureRefund
         $refunded_captures = $this->get_refunded_captures($order_id);
         array_push($refunded_captures, $capture_id);
 
-        return update_post_meta(
+        return OrderMeta::update(
             $order_id,
             'buckaroo_captures_refunded',
             json_encode($refunded_captures)
@@ -200,7 +200,7 @@ class OrderCaptureRefund
      */
     protected function get_refunded_captures(int $order_id)
     {
-        $refunded_captures = get_post_meta($order_id, 'buckaroo_captures_refunded', true);
+        $refunded_captures = OrderMeta::get($order_id, 'buckaroo_captures_refunded');
         if (is_string($refunded_captures)) {
             $refunded_captures_decoded = json_decode($refunded_captures);
             if (is_array($refunded_captures_decoded)) {

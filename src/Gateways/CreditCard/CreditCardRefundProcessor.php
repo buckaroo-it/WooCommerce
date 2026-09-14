@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\CreditCard;
 
 use Buckaroo\Woocommerce\Gateways\AbstractRefundProcessor;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 
 class CreditCardRefundProcessor extends AbstractRefundProcessor
 {
@@ -10,7 +11,7 @@ class CreditCardRefundProcessor extends AbstractRefundProcessor
     protected function getMethodBody(): array
     {
         return [
-            'name' => get_post_meta($this->getOrder()->get_id(), '_payment_method_transaction', true),
+            'name' => OrderMeta::get($this->getOrder(), '_payment_method_transaction'),
         ];
     }
 }

@@ -3,74 +3,38 @@
 namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
+use Buckaroo\Woocommerce\Traits\HandlesWalletPaymentData;
 
 class ApplepayProcessor extends AbstractPaymentProcessor
 {
+    use HandlesWalletPaymentData;
+
     protected $data;
 
     /** {@inheritDoc} */
     protected function getMethodBody(): array
     {
-        $raw = $this->request->input('paymentData');
-        if ($raw === null || $raw === '') {
-            $raw = $this->request->input('paymentdata');
-        }
-
-        $paymentData = $this->normalize_payment_data($raw);
-
-        $customerCardName = $this->get_customer_name($paymentData);
-        if ($customerCardName === '') {
-            $customerCardName = trim(
-                $this->getAddress('billing', 'first_name') . ' ' . $this->getAddress('billing', 'last_name')
-            );
-        }
+        $paymentData = $this->getWalletPaymentData();
 
         return [
-            'customerCardName' => $customerCardName,
+            'customerCardName' => $this->resolveWalletCustomerName($paymentData),
             'paymentData' => $this->get_payment_data($paymentData),
         ];
     }
 
     /**
-     * @param  mixed  $data
+     * Apple Pay sends the token as a structured object. Older Apple Pay JS
+     * versions send the payment payload without wrapping it in a token, in
+     * which case the whole payload is forwarded.
      */
-    private function normalize_payment_data($data): array
+    private function get_payment_data(array $data): string
     {
-        if (is_string($data)) {
-            $decoded = json_decode(wp_unslash($data), true);
-            $data = is_array($decoded) ? $decoded : [];
+        if (! empty($data['token'])) {
+            return $this->encodeWalletToken($data['token']);
         }
 
-        return is_array($data) ? $data : [];
-    }
-
-    /**
-     * @param  mixed  $data
-     */
-    private function get_customer_name($data): string
-    {
-        if (
-            isset($data['billingContact']) &&
-            isset($data['billingContact']['givenName']) &&
-            isset($data['billingContact']['familyName'])
-        ) {
-            return $data['billingContact']['givenName'] . ' ' . $data['billingContact']['familyName'];
-        }
-
-        return '';
-    }
-
-    /**
-     * @param  mixed  $data
-     */
-    private function get_payment_data($data): string
-    {
-        if (isset($data['token']) && ! empty($data['token'])) {
-            return base64_encode(json_encode($data['token']));
-        }
-
-        if (isset($data['paymentData']) && ! empty($data['paymentData'])) {
-            return base64_encode(json_encode($data));
+        if (! empty($data['paymentData'])) {
+            return $this->encodeWalletToken($data);
         }
 
         return '';

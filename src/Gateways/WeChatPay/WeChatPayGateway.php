@@ -6,6 +6,8 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 
 class WeChatPayGateway extends AbstractPaymentGateway
 {
+    protected array $supportedCountries = ['CN'];
+
     public function __construct()
     {
         $this->id = 'buckaroo_wechatpay';

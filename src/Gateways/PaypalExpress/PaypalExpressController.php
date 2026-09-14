@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 
 use Buckaroo\Woocommerce\Core\Plugin;
+use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
 use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Gateways\ExpressPaymentManager;
 use Throwable;
@@ -52,18 +53,10 @@ class PaypalExpressController
      */
     protected $shipping;
 
-    /**
-     * Handle storing and restoring cart for total calculation
-     *
-     * @var PaypalExpressCart
-     */
-    protected $cart;
-
-    public function __construct($shipping, $order, $cart)
+    public function __construct($shipping, $order)
     {
         $this->shipping = $shipping;
         $this->order = $order;
-        $this->cart = $cart;
 
         $this->get_settings();
 
@@ -118,6 +111,10 @@ class PaypalExpressController
                     'cancel_error_message' => __('You have canceled the payment request', 'wc-buckaroo-bpe-gateway'),
                     'cannot_create_payment' => __('Cannot create payment', 'wc-buckaroo-bpe-gateway'),
                     'merchant_id_required' => __('PayPal merchant id is required', 'wc-buckaroo-bpe-gateway'),
+                    'select_product_options' => __(
+                        'Please choose product options before using PayPal.',
+                        'wc-buckaroo-bpe-gateway'
+                    ),
                 ],
             ]
         );
@@ -195,14 +192,36 @@ class PaypalExpressController
     {
         check_ajax_referer('express-set-shipping', 'set_shipping_nonce');
         try {
+            $customer_context = $this->shipping->get_customer_context();
+            $product_request = null;
             if ($this->on_product_page()) {
-                $this->shipping->create_cart_for_product_page();
+                $product_request = $this->shipping->get_product_request();
+                $value = ExpressProductCart::calculate(
+                    array_merge($product_request, $customer_context),
+                    'buckaroo_paypal',
+                    function ($cart) {
+                        return $this->shipping->get_cart_total_breakdown($cart);
+                    }
+                );
+            } else {
+                $value = ExpressProductCart::calculateCurrent(
+                    'buckaroo_paypal',
+                    function ($cart) {
+                        return $this->shipping->get_cart_total_breakdown($cart);
+                    },
+                    $customer_context
+                );
             }
             wp_send_json(
                 [
                     'error' => false,
                     'data' => [
-                        'value' => $this->shipping->get_cart_total_breakdown(),
+                        'value' => $value,
+                        'quote_token' => $this->create_quote(
+                            $value['value'],
+                            $product_request,
+                            $customer_context
+                        ),
                     ],
                 ]
             );
@@ -233,22 +252,31 @@ class PaypalExpressController
     {
         check_ajax_referer('express-cart-totals', 'cart_total_nonce');
         try {
+            $product_request = null;
             if ($this->on_product_page()) {
-                $this->cart->store_current();
-                $this->shipping->create_cart_for_product_page();
-            }
-
-            $total = WC()->cart->get_total(false);
-
-            if ($this->on_product_page()) {
-                $this->cart->restore();
+                $product_request = $this->shipping->get_product_request();
+                $total = ExpressProductCart::calculate(
+                    $product_request,
+                    'buckaroo_paypal',
+                    static function ($cart) {
+                        return $cart->get_total(false);
+                    }
+                );
+            } else {
+                $total = ExpressProductCart::calculateCurrent(
+                    'buckaroo_paypal',
+                    static function ($cart) {
+                        return $cart->get_total(false);
+                    }
+                );
             }
 
             wp_send_json(
                 [
                     'error' => false,
                     'data' => [
-                        'total' => number_format($total, 2),
+                        'total' => number_format($total, 2, '.', ''),
+                        'quote_token' => $this->create_quote($total, $product_request, []),
                     ],
                 ]
             );
@@ -278,15 +306,45 @@ class PaypalExpressController
                     'message' => 'No paypal express order id provided',
                 ]
             );
+
+            return;
         }
         try {
-            $response = $this->order->create_and_send(sanitize_text_field($_POST['orderId']));
-            $this->display_any_notices();
+            $quote = $this->validated_quote();
+            $this->consume_quote();
+            $result = $this->shipping->with_cart_for_order(
+                $this->on_product_page(),
+                function ($cart) use ($quote) {
+                    $order_total = number_format((float) $cart->get_total(false), 2, '.', '');
+                    if (! hash_equals($quote['total'], $order_total)) {
+                        throw new PaypalExpressException('PayPal quote total has changed');
+                    }
+                    $response = $this->order->create_and_send(
+                        sanitize_text_field(wp_unslash($_POST['orderId']))
+                    );
+                    $error = $this->get_error_notices();
+                    if ($error !== null) {
+                        throw new PaypalExpressException($error);
+                    }
+                    if (! is_array($response) || empty($response['redirect'])) {
+                        throw new PaypalExpressException('Cannot create PayPal payment');
+                    }
+
+                    return $response;
+                }
+            );
 
             wp_send_json(
                 [
                     'error' => false,
-                    'data' => $response,
+                    'data' => $result,
+                ]
+            );
+        } catch (PaypalExpressException $th) {
+            wp_send_json(
+                [
+                    'error' => true,
+                    'message' => $th->getMessage(),
                 ]
             );
         } catch (Throwable $th) {
@@ -301,11 +359,130 @@ class PaypalExpressController
     }
 
     /**
-     * Display any error notices that we may have if the payment fails
+     * Create a signed snapshot of the cart state used for a PayPal quote.
+     *
+     * @param float|string $total Cart total.
+     * @param array|null $product_request Selected product details.
+     * @param array $customer_location Selected shipping location.
+     * @return string
+     */
+    private function create_quote($total, $product_request, array $customer_location): string
+    {
+        $payload = [
+            'expires' => time() + (10 * MINUTE_IN_SECONDS),
+            'jti' => bin2hex(random_bytes(16)),
+            'page' => $this->on_product_page() ? self::LOCATION_PRODUCT : $this->get_request_page(),
+            'product' => $product_request,
+            'cart_hash' => $product_request === null ? WC()->cart->get_cart_hash() : null,
+            'customer_location' => $customer_location,
+            'total' => number_format((float) $total, 2, '.', ''),
+        ];
+        $json = wp_json_encode($payload);
+        if (! is_string($json)) {
+            throw new PaypalExpressException('Cannot create PayPal quote');
+        }
+        $encoded = rtrim(strtr(base64_encode($json), '+/', '-_'), '=');
+        $signature = hash_hmac('sha256', $encoded, wp_salt('nonce'));
+
+        return $encoded . '.' . $signature;
+    }
+
+    /**
+     * Validate that the approved request still matches its signed quote.
+     *
+     * @return array
+     *
+     * @throws PaypalExpressException When the quote is invalid or stale.
+     */
+    private function validated_quote(): array
+    {
+        if (! isset($_POST['quote_token']) || ! is_string($_POST['quote_token'])) {
+            throw new PaypalExpressException('PayPal quote is required');
+        }
+        $token = sanitize_text_field(wp_unslash($_POST['quote_token']));
+        $parts = explode('.', $token, 2);
+        if (
+            count($parts) !== 2
+            || ! hash_equals(hash_hmac('sha256', $parts[0], wp_salt('nonce')), $parts[1])
+        ) {
+            throw new PaypalExpressException('PayPal quote is invalid');
+        }
+
+        $padding = (4 - (strlen($parts[0]) % 4)) % 4;
+        $json = base64_decode(strtr($parts[0], '-_', '+/') . str_repeat('=', $padding), true);
+        $quote = is_string($json) ? json_decode($json, true) : null;
+        if (! is_array($quote) || ! isset($quote['expires'], $quote['page'], $quote['total'])) {
+            throw new PaypalExpressException('PayPal quote is invalid');
+        }
+        if (! is_numeric($quote['expires']) || (int) $quote['expires'] < time()) {
+            throw new PaypalExpressException('PayPal quote has expired');
+        }
+
+        $product_request = $this->on_product_page() ? $this->shipping->get_product_request() : null;
+        $customer_location = isset($_POST['shipping_data']['shipping_address'])
+            ? $this->shipping->get_customer_context()
+            : [];
+        $expected = [
+            'page' => $this->on_product_page() ? self::LOCATION_PRODUCT : $this->get_request_page(),
+            'product' => $product_request,
+            'cart_hash' => $product_request === null ? WC()->cart->get_cart_hash() : null,
+            'customer_location' => $customer_location,
+        ];
+        foreach ($expected as $key => $value) {
+            if (! array_key_exists($key, $quote) || $quote[$key] !== $value) {
+                throw new PaypalExpressException('PayPal quote no longer matches the order');
+            }
+        }
+
+        return $quote;
+    }
+
+    /**
+     * Mark a signed quote as consumed before creating its WooCommerce order.
      *
      * @return void
+     *
+     * @throws PaypalExpressException When the quote was already consumed.
      */
-    protected function display_any_notices()
+    private function consume_quote(): void
+    {
+        $token = sanitize_text_field(wp_unslash($_POST['quote_token']));
+        $quote_hash = hash('sha256', $token);
+        $transient = 'buckaroo_paypal_express_quote_' . $quote_hash;
+        $value_option = '_transient_' . $transient;
+        $timeout_option = '_transient_timeout_' . $transient;
+        $timeout = (int) get_option($timeout_option, 0);
+        if ($timeout > 0 && $timeout < time()) {
+            delete_option($value_option);
+            delete_option($timeout_option);
+        }
+        if (! add_option($value_option, 1, '', false)) {
+            throw new PaypalExpressException('PayPal quote was already used');
+        }
+
+        add_option($timeout_option, time() + (10 * MINUTE_IN_SECONDS), '', false);
+    }
+
+    /**
+     * Get a supported non-product PayPal button location.
+     *
+     * @return string
+     */
+    private function get_request_page(): string
+    {
+        $page = isset($_POST['page']) ? sanitize_text_field(wp_unslash($_POST['page'])) : '';
+
+        return in_array($page, [self::LOCATION_CART, self::LOCATION_CHECKOUT], true)
+            ? $page
+            : self::LOCATION_CART;
+    }
+
+    /**
+     * Collect error notices raised while creating the isolated order.
+     *
+     * @return string|null
+     */
+    protected function get_error_notices()
     {
         $notices = wc_get_notices('error');
         wc_clear_notices();
@@ -327,14 +504,7 @@ class PaypalExpressController
             }
         }
 
-        if (count($messages)) {
-            wp_send_json(
-                [
-                    'error' => true,
-                    'message' => implode('</br>', $messages),
-                ]
-            );
-        }
+        return count($messages) ? implode('</br>', $messages) : null;
     }
 
     /**
@@ -344,7 +514,8 @@ class PaypalExpressController
      */
     protected function on_product_page()
     {
-        return isset($_POST['page']) && sanitize_text_field($_POST['page']) === self::LOCATION_PRODUCT;
+        return isset($_POST['page'])
+            && sanitize_text_field(wp_unslash($_POST['page'])) === self::LOCATION_PRODUCT;
     }
 
     /**

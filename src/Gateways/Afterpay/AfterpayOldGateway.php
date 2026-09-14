@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Traits\HasDateValidation;
 use WC_Order;
@@ -15,6 +16,8 @@ class AfterpayOldGateway extends AbstractPaymentGateway
     public const PAYMENT_CLASS = AfterpayOldProcessor::class;
 
     public const REFUND_CLASS = AbstractAfterpayRefundProcessor::class;
+
+    protected array $supportedCountries = ['NL', 'BE', 'DE'];
 
     public $type;
 
@@ -32,6 +35,7 @@ class AfterpayOldGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_afterpay';
         $this->title = 'Riverty';
+        $this->method_description = __('Riverty via the older API integration, for merchants not yet migrated.', 'wc-buckaroo-bpe-gateway');
         $this->has_fields = false;
         $this->method_title = 'Buckaroo Riverty (Old)';
         $this->setIcon('svg/afterpay.svg');
@@ -95,7 +99,7 @@ class AfterpayOldGateway extends AbstractPaymentGateway
         $processedPayment = parent::process_payment($order_id);
 
         if (isset($processedPayment['result']) && $processedPayment['result'] == 'success' && $this->afterpaypayauthorize == 'authorize') {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes');
+            OrderMeta::update($order_id, '_wc_order_authorized', 'yes');
             $this->set_order_capture($order_id, 'Afterpay');
         }
 
@@ -175,6 +179,6 @@ class AfterpayOldGateway extends AbstractPaymentGateway
             return false;
         }
 
-        return $this->afterpaypayauthorize == 'authorize' && get_post_meta($order->get_id(), '_wc_order_authorized', true) == 'yes';
+        return $this->afterpaypayauthorize == 'authorize' && OrderMeta::get($order, '_wc_order_authorized') == 'yes';
     }
 }

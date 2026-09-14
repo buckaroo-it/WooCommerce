@@ -5,10 +5,97 @@ jQuery(document).ready(function () {
     }
 });
 
+/** Kept in sync with the express button height in buckaroo-custom.css. */
+const BUCKAROO_EXPRESS_BUTTON_HEIGHT = 40;
+
+/**
+ * Force PayPal to the shared express button height.
+ *
+ * Left alone it steps its height off the container width (35/45/55px) and can
+ * never match the other buttons. It does honour an explicit style.height, but the
+ * SDK builds its paypal.Buttons() options internally and forwards no style.
+ */
+const buckarooWrapPaypalButtons = function (namespace) {
+    try {
+        const original = namespace.Buttons;
+
+        if (typeof original !== 'function' || original.buckarooHeightPatched === true) {
+            return;
+        }
+
+        const patched = function (options) {
+            return original(
+                Object.assign({}, options, {
+                    style: Object.assign({}, options && options.style, {
+                        height: BUCKAROO_EXPRESS_BUTTON_HEIGHT,
+                    }),
+                })
+            );
+        };
+
+        Object.keys(original).forEach(key => {
+            patched[key] = original[key];
+        });
+        patched.buckarooHeightPatched = true;
+
+        namespace.Buttons = patched;
+    } catch (e) {
+        // PayPal keeps its own height.
+    }
+};
+
+/**
+ * Run an SDK initiate() with the button factory wrapped.
+ *
+ * The wrapper must land between PayPal defining window.paypal and the SDK
+ * rendering from a load listener on the script it injects. Two simpler hooks do
+ * not work: PayPal redefines window.paypal, discarding any accessor put there
+ * first, and script load events never reach a capture listener on window. So
+ * shadow document.createElement for the synchronous part of initiate() and get a
+ * load listener onto that script before the SDK's, which then runs first.
+ *
+ * Any failure leaves PayPal on its own height, which the CSS still contains.
+ */
+const buckarooInitiateWithPaypalHeight = function (initiate) {
+    const createElement = document.createElement;
+
+    try {
+        document.createElement = function (tagName) {
+            const element = createElement.apply(document, arguments);
+
+            if (String(tagName).toLowerCase() === 'script') {
+                element.addEventListener('load', function () {
+                    if (window.paypal) {
+                        buckarooWrapPaypalButtons(window.paypal);
+                    }
+                });
+            }
+
+            return element;
+        };
+
+        // A later initiate() reuses the existing namespace, with no script load.
+        if (window.paypal) {
+            buckarooWrapPaypalButtons(window.paypal);
+        }
+
+        initiate();
+    } finally {
+        document.createElement = createElement;
+    }
+};
+
+let buckarooPaypalExpressInstance = null;
+
 const BuckarooInitPaypalExpress = function () {
     if (jQuery === undefined) {
         console.error('Cannot initialize PaypalExpress missing jquery');
         return;
+    }
+
+    if (buckarooPaypalExpressInstance !== null) {
+        buckarooPaypalExpressInstance.mount();
+        return buckarooPaypalExpressInstance;
     }
 
     if (buckaroo_paypal_express.websiteKey.length) {
@@ -24,7 +111,7 @@ const BuckarooInitPaypalExpress = function () {
             BuckarooSdk.Base.setTestMode(isTestMode);
         }
 
-        let buckaroo_paypal_express_class = new BuckarooPaypalExpress(
+        buckarooPaypalExpressInstance = new BuckarooPaypalExpress(
             BuckarooSdk.PayPal,
             buckaroo_paypal_express.page,
             {
@@ -35,8 +122,12 @@ const BuckarooInitPaypalExpress = function () {
             },
             buckaroo_paypal_express.ajaxurl
         );
-        buckaroo_paypal_express_class.init();
+        buckarooPaypalExpressInstance.init();
+
+        return buckarooPaypalExpressInstance;
     }
+
+    return null;
 };
 
 class BuckarooPaypalExpress {
@@ -47,6 +138,16 @@ class BuckarooPaypalExpress {
     sdk;
 
     result = null;
+
+    shippingData = null;
+
+    quoteToken = null;
+
+    totalRequestId = 0;
+
+    initialized = false;
+
+    containerElement = null;
 
     options = {
         containerSelector: '.buckaroo-paypal-express',
@@ -78,10 +179,17 @@ class BuckarooPaypalExpress {
      * Api events
      */
     onShippingChangeHandler(data, actions) {
+        const requestId = ++this.totalRequestId;
         let shipping = this.setShipping(data);
 
         return shipping.then(response => {
-            if (response.error === false) {
+            if (requestId !== this.totalRequestId) {
+                return actions.reject();
+            }
+
+            if (response.error === false && response.data && response.data.value && response.data.quote_token) {
+                this.shippingData = data;
+                this.quoteToken = response.data.quote_token;
                 this.options.amount = response.data.value.value;
                 return actions.order.patch([
                     {
@@ -90,9 +198,11 @@ class BuckarooPaypalExpress {
                         value: response.data.value,
                     },
                 ]);
-            } else {
-                actions.reject(response.message);
             }
+
+            this.shippingData = null;
+            this.quoteToken = null;
+            return actions.reject(response.message);
         });
     }
     createPaymentHandler(data) {
@@ -115,23 +225,83 @@ class BuckarooPaypalExpress {
         this.displayErrorMessage(reason);
     }
     onInitCallback() {
-        this.get_cart_total();
+        return this.get_cart_total();
     }
     onCancelCallback() {
+        this.shippingData = null;
+        this.quoteToken = null;
         this.displayErrorMessage(buckaroo_paypal_express.i18n.cancel_error_message);
     }
 
-    onClickCallback() {
+    onClickCallback(data, actions) {
         //reset any previous payment response;
         this.result = null;
+        this.shippingData = null;
+        this.quoteToken = null;
+
+        if (!this.hasValidProductSelection()) {
+            this.displayErrorMessage(buckaroo_paypal_express.i18n.select_product_options);
+            if (actions && typeof actions.reject === 'function') {
+                return actions.reject();
+            }
+
+            return false;
+        }
+
+        return this.get_cart_total().then(quoted => {
+            if (!quoted) {
+                this.displayErrorMessage(buckaroo_paypal_express.i18n.cannot_create_payment);
+                if (actions && typeof actions.reject === 'function') {
+                    return actions.reject();
+                }
+
+                return false;
+            }
+
+            if (actions && typeof actions.resolve === 'function') {
+                return actions.resolve();
+            }
+
+            return true;
+        });
     }
 
     /**
      * Init class
      */
     init() {
-        this.sdk.initiate(this.options);
+        if (this.initialized) {
+            return;
+        }
+
+        this.initialized = true;
+        this.containerElement = this.getContainerElement();
+        this.initiate();
         this.listen();
+    }
+    /**
+     * Render the button at the shared express height.
+     */
+    initiate() {
+        buckarooInitiateWithPaypalHeight(() => this.sdk.initiate(this.options));
+    }
+    /**
+     * Render into a replacement express container after a WooCommerce remount.
+     */
+    mount() {
+        const container = this.getContainerElement();
+        if (container === null || container === this.containerElement) {
+            return false;
+        }
+
+        this.containerElement = container;
+        this.initiate();
+        return true;
+    }
+    getContainerElement() {
+        const container = jQuery(this.options.containerSelector);
+
+        return container && typeof container.get === 'function' ? container.get(0) || null : null;
     }
     /**
      * listen to any change in the cart and get total
@@ -149,9 +319,8 @@ class BuckarooPaypalExpress {
             this.get_cart_total();
         });
         jQuery(document.body).on('wc_fragments_refreshed updated_shipping_method', () => {
-            this.get_cart_total();
-            if (jQuery('.buckaroo-paypal-express').length) {
-                this.sdk.initiate(this.options);
+            if (!this.mount()) {
+                this.get_cart_total();
             }
         });
     }
@@ -159,18 +328,66 @@ class BuckarooPaypalExpress {
      * Get cart total to output in paypal
      */
     get_cart_total() {
-        jQuery
+        if (this.shippingData !== null && this.quoteToken !== null) {
+            return Promise.resolve(true);
+        }
+
+        const requestId = ++this.totalRequestId;
+        if (!this.hasValidProductSelection()) {
+            return Promise.resolve(false);
+        }
+
+        return jQuery
             .post(this.url, {
                 action: 'buckaroo_paypal_express_get_cart_total',
                 order_data: this.getOrderData(),
                 page: this.page,
                 cart_total_nonce: buckaroo_paypal_express.cart_total_nonce,
             })
-            .then(response => {
-                if (response.data) {
+            .then(
+                response => {
+                    if (
+                        requestId !== this.totalRequestId ||
+                        response.error !== false ||
+                        !response.data ||
+                        response.data.total === undefined ||
+                        !response.data.quote_token
+                    ) {
+                        return false;
+                    }
+
                     this.options.amount = response.data.total;
-                }
-            });
+                    this.quoteToken = response.data.quote_token;
+                    return true;
+                },
+                () => false
+            );
+    }
+
+    hasValidProductSelection() {
+        if (this.page !== 'product') {
+            return true;
+        }
+
+        const orderData = this.getOrderData();
+        if (!Array.isArray(orderData)) {
+            return false;
+        }
+
+        const values = {};
+        orderData.forEach(field => {
+            if (field && typeof field.name === 'string') {
+                values[field.name] = field.value;
+            }
+        });
+
+        if ('variation_id' in values && (!values.variation_id || values.variation_id == 0)) {
+            return false;
+        }
+
+        return Object.keys(values)
+            .filter(name => name.indexOf('attribute_') === 0)
+            .every(name => values[name] !== undefined && values[name] !== null && values[name] !== '');
     }
 
     /**
@@ -184,6 +401,10 @@ class BuckarooPaypalExpress {
                 .post(this.url, {
                     action: 'buckaroo_paypal_express_order',
                     orderId,
+                    quote_token: this.quoteToken,
+                    order_data: this.getOrderData(),
+                    shipping_data: this.shippingData,
+                    page: this.page,
                     send_order_nonce: buckaroo_paypal_express.send_order_nonce,
                 })
                 .then(

@@ -10,6 +10,7 @@ use Throwable;
 use Buckaroo\Woocommerce\Install\Migration\Versions\DisableAutoloadForSettings;
 use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateIdealToIdealWero;
 use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateKlarnaPayLaterLabels;
+use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateOrderMetaToHpos;
 
 /**
  * Core class for handling migrations
@@ -50,6 +51,8 @@ class MigrationHandler
             10,
             2
         );
+        // Batched callback: must be registered on every request, not only on upgrade.
+        MigrateOrderMetaToHpos::registerBatchHandler();
     }
 
     /**
@@ -189,6 +192,7 @@ class MigrationHandler
             new DisableAutoloadForSettings(),
             new MigrateIdealToIdealWero(),
             new MigrateKlarnaPayLaterLabels(),
+            new MigrateOrderMetaToHpos(),
         ];
     }
 

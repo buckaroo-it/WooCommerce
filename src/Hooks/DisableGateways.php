@@ -55,21 +55,22 @@ class DisableGateways
             }
         }
 
-        // Apple Pay is an Express Checkout button by default. When the merchant
-        // enables "Apple Pay as checkout payment method" it should additionally
-        // remain a selectable gateway in the checkout; otherwise it is removed
-        // here (its only frontend is the express button).
-        if (isset($available_gateways['buckaroo_applepay'])) {
-            $applepayGateway = $available_gateways['buckaroo_applepay'];
-            $showAsCheckoutMethod = method_exists($applepayGateway, 'isCheckoutMethodEnabled')
-                && $applepayGateway->isCheckoutMethodEnabled();
+        // Apple Pay and Google Pay are Express Checkout buttons by default. When
+        // the merchant enables "<wallet> as checkout payment method" the wallet
+        // should additionally remain a selectable gateway in the checkout;
+        // otherwise it is removed here (its only frontend is the express button).
+        foreach (['buckaroo_applepay', 'buckaroo_googlepay'] as $walletId) {
+            if (! isset($available_gateways[$walletId])) {
+                continue;
+            }
+
+            $walletGateway = $available_gateways[$walletId];
+            $showAsCheckoutMethod = method_exists($walletGateway, 'isCheckoutMethodEnabled')
+                && $walletGateway->isCheckoutMethodEnabled();
 
             if (! $showAsCheckoutMethod) {
-                unset($available_gateways['buckaroo_applepay']);
+                unset($available_gateways[$walletId]);
             }
-        }
-        if (isset($available_gateways['buckaroo_googlepay'])) {
-            unset($available_gateways['buckaroo_googlepay']);
         }
         if (isset($available_gateways['buckaroo_payperemail']) && $available_gateways['buckaroo_payperemail']->frontendVisible === 'no') {
             unset($available_gateways['buckaroo_payperemail']);

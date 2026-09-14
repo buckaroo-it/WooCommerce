@@ -5,6 +5,7 @@ namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Order\OrderDetails;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Traits\HasDateValidation;
 use WC_Order;
@@ -16,6 +17,8 @@ class AfterpayNewGateway extends AbstractPaymentGateway
     public const PAYMENT_CLASS = AfterpayNewProcessor::class;
 
     public const REFUND_CLASS = AfterpayNewRefundProcessor::class;
+
+    protected array $supportedCountries = ['NL', 'BE', 'DE'];
 
     public const CUSTOMER_TYPE_B2C = 'b2c';
 
@@ -41,6 +44,7 @@ class AfterpayNewGateway extends AbstractPaymentGateway
     {
         $this->id = 'buckaroo_afterpaynew';
         $this->title = 'Riverty';
+        $this->method_description = __('European pay-after-delivery within 30 days.', 'wc-buckaroo-bpe-gateway');
         $this->has_fields = false;
         $this->method_title = 'Buckaroo Riverty';
         $this->setIcon('svg/afterpay.svg');
@@ -129,7 +133,7 @@ class AfterpayNewGateway extends AbstractPaymentGateway
         $processedPayment = parent::process_payment($order_id);
 
         if (isset($processedPayment['result']) && $processedPayment['result'] == 'success' && $this->afterpaynewpayauthorize == 'authorize') {
-            update_post_meta($order_id, '_wc_order_authorized', 'yes');
+            OrderMeta::update($order_id, '_wc_order_authorized', 'yes');
             $this->set_order_capture($order_id, 'AfterpayNew');
         }
 
@@ -231,6 +235,6 @@ class AfterpayNewGateway extends AbstractPaymentGateway
             return false;
         }
 
-        return $this->afterpaynewpayauthorize == 'authorize' && get_post_meta($order->get_id(), '_wc_order_authorized', true) == 'yes';
+        return $this->afterpaynewpayauthorize == 'authorize' && OrderMeta::get($order, '_wc_order_authorized') == 'yes';
     }
 }

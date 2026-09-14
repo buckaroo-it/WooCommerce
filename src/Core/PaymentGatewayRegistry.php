@@ -19,7 +19,6 @@ use Buckaroo\Woocommerce\Gateways\In3\In3Gateway;
 use Buckaroo\Woocommerce\Gateways\Kbc\KbcGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaKpGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
-use Buckaroo\Woocommerce\Gateways\KnakenSettle\KnakenSettleGateway;
 use Buckaroo\Woocommerce\Gateways\Bizum\BizumGateway;
 use Buckaroo\Woocommerce\Gateways\MbWay\MbWayGateway;
 use Buckaroo\Woocommerce\Gateways\Multibanco\MultibancoGateway;
@@ -35,6 +34,7 @@ use Buckaroo\Woocommerce\Gateways\Twint\TwintGateway;
 use Buckaroo\Woocommerce\Gateways\WeChatPay\WeChatPayGateway;
 use Buckaroo\Woocommerce\Gateways\Swish\SwishGateway;
 use Buckaroo\Woocommerce\Gateways\Wero\WeroGateway;
+use Buckaroo\Woocommerce\Gateways\ZakelijkOpRekening\ZakelijkOpRekeningGateway;
 use Buckaroo\Woocommerce\Order\OrderCapture;
 
 class PaymentGatewayRegistry
@@ -60,7 +60,6 @@ class PaymentGatewayRegistry
         'kbc' => ['gateway_class' => KbcGateway::class],
         'klarnakp' => ['gateway_class' => KlarnaKpGateway::class],
         'klarnapay' => ['gateway_class' => KlarnaPayGateway::class],
-        'knaken' => ['gateway_class' => KnakenSettleGateway::class],
         'mbway' => ['gateway_class' => MbWayGateway::class],
         'multibanco' => ['gateway_class' => MultibancoGateway::class],
         'przelewy24' => ['gateway_class' => Przelewy24Gateway::class],
@@ -76,6 +75,7 @@ class PaymentGatewayRegistry
         'alipay' => ['gateway_class' => AlipayGateway::class],
         'wechatpay' => ['gateway_class' => WeChatPayGateway::class],
         'wero' => ['gateway_class' => WeroGateway::class],
+        'zakelijkoprekening' => ['gateway_class' => ZakelijkOpRekeningGateway::class],
     ];
 
     /**

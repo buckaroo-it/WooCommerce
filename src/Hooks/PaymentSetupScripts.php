@@ -27,6 +27,7 @@ class PaymentSetupScripts
         add_action('plugins_loaded', [$this, 'handlePluginsLoaded'], 0);
         add_action('admin_enqueue_scripts', [$this, 'handleAdminAssets']);
         add_action('wp_enqueue_scripts', [$this, 'initFrontendScripts']);
+        add_action('enqueue_block_assets', [$this, 'handleBlockAssets']);
     }
 
     public function handlePluginsLoaded()
@@ -47,16 +48,39 @@ class PaymentSetupScripts
         delete_transient($transientKey);
     }
 
+    /**
+     * is_checkout() only recognises the configured checkout page and the classic
+     * shortcode, so a page rendering the Blocks checkout gets no styles from
+     * initFrontendScripts().
+     */
+    public function handleBlockAssets(): void
+    {
+        if (is_admin()) {
+            return;
+        }
+
+        if (! has_block('woocommerce/checkout')) {
+            return;
+        }
+
+        $this->enqueueBuckarooStyles();
+    }
+
+    private function enqueueBuckarooStyles(): void
+    {
+        wp_enqueue_style(
+            'buckaroo-custom-styles',
+            plugin_dir_url(BK_PLUGIN_FILE) . 'library/css/buckaroo-custom.css',
+            [],
+            Plugin::VERSION
+        );
+    }
+
     public function handleAdminAssets(): void
     {
         $pluginDir = plugin_dir_url(BK_PLUGIN_FILE);
 
-        wp_enqueue_style(
-            'buckaroo-custom-styles',
-            $pluginDir . 'library/css/buckaroo-custom.css',
-            [],
-            Plugin::VERSION
-        );
+        $this->enqueueBuckarooStyles();
         wp_enqueue_script(
             'creditcard_capture',
             $pluginDir . 'library/js/creditcard-capture-form.js',
@@ -72,13 +96,40 @@ class PaymentSetupScripts
             true
         );
 
+        wp_enqueue_script(
+            'buckaroo_admin_settings',
+            $pluginDir . 'library/js/admin-settings.js',
+            [],
+            Plugin::VERSION,
+            true
+        );
+
+        wp_localize_script('buckaroo_admin_settings', 'buckarooAdminSettings', ['hostedFields' => $this->hostedFieldsIds()]);
+
         wp_localize_script(
             'buckaroo_admin_utils_js',
             'buckarooAdminAjax',
             [
                 'nonce' => wp_create_nonce('buckaroo_admin_ajax'),
+                'autoConfigureConfirm' => __('This action will enable payment methods in LIVE mode based on your active Buckaroo subscriptions. This will overwrite your current payment method settings. Are you sure you want to proceed?', 'wc-buckaroo-bpe-gateway'),
             ]
         );
+    }
+
+    /**
+     * Field ids the hosted-fields rows are keyed by, mirroring the gateway's own
+     * plugin_id . id . '_' . key naming so the enqueue does not depend on
+     * WooCommerce having registered the gateway yet.
+     */
+    private function hostedFieldsIds(): array
+    {
+        $prefix = 'woocommerce_' . CreditCardGateway::GATEWAY_ID . '_';
+
+        return [
+            'select' => $prefix . 'creditcardmethod',
+            'clientId' => $prefix . 'hosted_fields_client_id',
+            'clientSecret' => $prefix . 'hosted_fields_client_secret',
+        ];
     }
 
     public function initFrontendScripts()
@@ -103,12 +154,7 @@ class PaymentSetupScripts
 
         $pluginDir = plugin_dir_url(BK_PLUGIN_FILE);
 
-        wp_enqueue_style(
-            'buckaroo-custom-styles',
-            $pluginDir . 'library/css/buckaroo-custom.css',
-            [],
-            Plugin::VERSION
-        );
+        $this->enqueueBuckarooStyles();
 
         wp_enqueue_script(
             'buckaroo_sdk',
@@ -157,7 +203,7 @@ class PaymentSetupScripts
             'buckaroo_google_pay',
             $pluginDir . 'assets/js/dist/googlepay.js',
             ['jquery', 'buckaroo_sdk'],
-            Plugin::VERSION,
+            $this->bundleVersion('googlepay'),
             true
         );
 
@@ -178,10 +224,10 @@ class PaymentSetupScripts
         );
 
         if ($isCheckout) {
-            $checkoutDeps = ['jquery', 'jquery-ui-datepicker'];
+            // The classic-checkout wallet methods rely on window.BuckarooApplePay /
+            // window.BuckarooGooglePay exposed by the wallet bundles.
+            $checkoutDeps = ['jquery', 'jquery-ui-datepicker', 'buckaroo_google_pay'];
             if ($applePayEnabled) {
-                // The classic-checkout Apple Pay method relies on window.BuckarooApplePay
-                // exposed by the applepay bundle.
                 $checkoutDeps[] = 'buckaroo_apple_pay';
             }
             wp_enqueue_script(

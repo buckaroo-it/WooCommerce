@@ -73,15 +73,17 @@ class BillinkProcessor extends AbstractPaymentProcessor
 
         return [
             'billing' => [
-                'recipient' => [
-                    'category' => $this->getCategory('billing'),
-                    'careOf' => $this->getCareOf('billing'),
-                    'initials' => $this->getInitials($first_name),
-                    'firstName' => $first_name,
-                    'lastName' => $this->getAddress('billing', 'last_name'),
-                    'birthDate' => $this->getBirthDate(),
-                    'title' => 'Unknown',
-                ],
+                'recipient' => array_merge(
+                    [
+                        'category' => $this->getCategory('billing'),
+                        'careOf' => $this->getCareOf('billing'),
+                        'initials' => $this->getInitials($first_name),
+                        'firstName' => $first_name,
+                        'lastName' => $this->getAddress('billing', 'last_name'),
+                        'title' => 'Unknown',
+                    ],
+                    $this->getBirthDate()
+                ),
                 'address' => [
                     'street' => $streetParts->get_street(),
                     'houseNumber' => $streetParts->get_house_number(),
@@ -137,22 +139,72 @@ class BillinkProcessor extends AbstractPaymentProcessor
     }
 
     /**
-     * Get birth date
+     * Meta keys a date of birth is commonly stored under. WooCommerce has no
+     * date of birth of its own, so this is whatever plugins put on the order or
+     * on the customer.
+     *
+     * @var string[]
+     */
+    private const BIRTH_DATE_META_KEYS = [
+        'billing_birthdate',
+        '_billing_birthdate',
+        'billing_date_of_birth',
+        '_billing_date_of_birth',
+        'billing_dob',
+        '_billing_dob',
+    ];
+
+    /**
+     * Birth date as a single-key array, so callers can merge it in and end up
+     * with no birthDate at all when we have none. Billink One asks the customer
+     * for it on its own page in that case.
+     *
+     * @return array<string, string>
+     */
+    private function getBirthDate(): array
+    {
+        $order = $this->get_order();
+
+        $birthDate = apply_filters(
+            'buckaroo_billink_birthdate',
+            $this->findBirthDate($order),
+            $order
+        );
+
+        if (! is_scalar($birthDate) || trim((string) $birthDate) === '') {
+            return [];
+        }
+
+        $timestamp = strtotime((string) $birthDate);
+        if ($timestamp === false) {
+            return [];
+        }
+
+        return ['birthDate' => date('d-m-Y', $timestamp)];
+    }
+
+    /**
+     * Look for a date of birth on the order first, then on the customer.
      *
      * @return null|string
      */
-    private function getBirthDate()
+    private function findBirthDate(\WC_Order $order)
     {
-        $dateString = $this->request->input('buckaroo-billink-birthdate');
-        if (! is_scalar($dateString)) {
-            return null;
-        }
-        $date = strtotime((string) $dateString);
-        if ($date === false) {
-            return null;
+        $customer_id = $order->get_customer_id();
+
+        foreach (self::BIRTH_DATE_META_KEYS as $key) {
+            $value = $order->get_meta($key, true);
+
+            if (! is_scalar($value) || trim((string) $value) === '') {
+                $value = $customer_id ? get_user_meta($customer_id, $key, true) : '';
+            }
+
+            if (is_scalar($value) && trim((string) $value) !== '') {
+                return (string) $value;
+            }
         }
 
-        return @date('d-m-Y', $date);
+        return null;
     }
 
     /**
@@ -166,14 +218,16 @@ class BillinkProcessor extends AbstractPaymentProcessor
 
         return [
             'shipping' => [
-                'recipient' => [
-                    'category' => $this->getCategory('shipping'),
-                    'careOf' => $this->getCareOf('shipping'),
-                    'initials' => $this->getInitials($first_name),
-                    'firstName' => $first_name,
-                    'lastName' => $this->getAddress('shipping', 'last_name'),
-                    'birthDate' => $this->getBirthDate(),
-                ],
+                'recipient' => array_merge(
+                    [
+                        'category' => $this->getCategory('shipping'),
+                        'careOf' => $this->getCareOf('shipping'),
+                        'initials' => $this->getInitials($first_name),
+                        'firstName' => $first_name,
+                        'lastName' => $this->getAddress('shipping', 'last_name'),
+                    ],
+                    $this->getBirthDate()
+                ),
                 'address' => [
                     'street' => $streetParts->get_street(),
                     'houseNumber' => $streetParts->get_house_number(),

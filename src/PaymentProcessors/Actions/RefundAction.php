@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\PaymentProcessors\Actions;
 
 use Buckaroo\Woocommerce\Gateways\AbstractRefundProcessor;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Logger;
@@ -32,12 +33,12 @@ class RefundAction
     public static function initiateExternalServiceRefund($order_id, ResponseParser $responseParser)
     {
         Logger::log('PUSH', 'Refund payment PUSH received ' . $responseParser->get('coreStatus'));
-        $allowedPush = get_post_meta($order_id, '_pushallowed', true);
+        $allowedPush = OrderMeta::get($order_id, '_pushallowed');
         Logger::log(__METHOD__ . '|10|', $allowedPush);
         if ($responseParser->isSuccess() && $allowedPush == 'ok') {
-            $tmp = get_post_meta($order_id, '_refundbuckaroo' . $responseParser->getTransactionKey(), true);
+            $tmp = OrderMeta::get($order_id, '_refundbuckaroo' . $responseParser->getTransactionKey());
             if (empty($tmp)) {
-                add_post_meta($order_id, '_refundbuckaroo' . $responseParser->getTransactionKey(), 'ok', true);
+                OrderMeta::add($order_id, '_refundbuckaroo' . $responseParser->getTransactionKey(), 'ok', true);
                 wc_create_refund(
                     [
                         'amount' => $responseParser->getAmountCredit(),
@@ -71,8 +72,8 @@ class RefundAction
                     $transactionResponse->getTransactionKey()
                 )
             );
-            add_post_meta(
-                $this->order->get_id(),
+            OrderMeta::add(
+                $this->order,
                 '_refundbuckaroo' . $transactionResponse->getTransactionKey(),
                 'ok',
                 true
@@ -89,8 +90,8 @@ class RefundAction
                     $transactionResponse->getTransactionKey()
                 )
             );
-            add_post_meta(
-                $this->order->get_id(),
+            OrderMeta::add(
+                $this->order,
                 '_refundbuckaroo' . $transactionResponse->getTransactionKey(),
                 'ok',
                 true

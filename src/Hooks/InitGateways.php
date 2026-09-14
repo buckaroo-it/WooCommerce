@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Hooks;
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
+use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinController;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
@@ -19,6 +20,7 @@ class InitGateways
     {
         add_action('enqueue_block_assets', [$this, 'initGatewaysOnCheckout']);
         add_action('woocommerce_api_wc_push_buckaroo', [$this, 'pushClassInit']);
+        add_filter('woocommerce_gateway_icon', [$this, 'prependTestModeBadge'], 10, 2);
 
         add_action('woocommerce_blocks_payment_method_type_registration', [$this, 'registerBuckarooExpressBlocks']);
 
@@ -33,6 +35,32 @@ class InitGateways
         add_action('woocommerce_api_wc_gateway_buckaroo_idin-identify', [$idinController, 'identify']);
         add_action('woocommerce_api_wc_gateway_buckaroo_idin-reset', [$idinController, 'reset']);
         add_action('woocommerce_api_wc_gateway_buckaroo_idin-return', [$idinController, 'returnHandler']);
+    }
+
+    /**
+     * Marks a Buckaroo method as test mode in the classic checkout.
+     *
+     * Hooked on the icon rather than the title: the title is reused as the icon's
+     * alt text, in order emails and in the admin.
+     *
+     * @param string $icon
+     * @param string $gatewayId
+     *
+     * @return string
+     */
+    public function prependTestModeBadge($icon, $gatewayId)
+    {
+        if (! is_checkout()) {
+            return $icon;
+        }
+
+        $gateway = WC()->payment_gateways()->payment_gateways()[$gatewayId] ?? null;
+
+        if (! $gateway instanceof AbstractPaymentGateway) {
+            return $icon;
+        }
+
+        return $gateway->getTestModeBadgeHtml() . $icon;
     }
 
     public function pushClassInit()
@@ -59,7 +87,6 @@ class InitGateways
 
     public function idinCheckout(): void
     {
-        $this->displayBuckarooErrors();
         if (IdinProcessor::isIdin(IdinProcessor::getCartProductIds())) {
             include plugin_dir_path(BK_PLUGIN_FILE) . 'templates/idin/checkout.php';
         }
@@ -110,13 +137,16 @@ class InitGateways
                 $payment_method = [
                     'paymentMethodId' => $gateway_id,
                     'title' => $gateway->get_title(),
-                    'description' => $gateway->description,
+                    'description' => $gateway->shouldShowPaymentDescription() ? $gateway->description : '',
+                    // Translated here, so the Blocks bundle needs no JS catalogue for it.
+                    'redirectNotice' => $gateway->getRedirectNoticeHtml(),
                     'image_path' => $gateway->getIcon(),
                     'buckarooImagesUrl' => plugin_dir_url(BK_PLUGIN_FILE) . 'library/buckaroo_images/',
                     'genders' => Helper::getAllGendersForPaymentMethods(),
                     'displayMode' => $gateway->get_option('displaymode'),
                     'hasFee' => $this->gatewayHasFee($gateway),
                     'available' => $gateway->isVisibleInCheckout(),
+                    'testModeLabel' => $gateway->getTestModeLabel(),
                 ];
 
                 if ($gateway_id === 'buckaroo_paybybank') {
@@ -159,6 +189,10 @@ class InitGateways
                             'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE',
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
                             'buttonStyle' => $gateway->get_option('button_style', 'black'),
+                            // Whether Google Pay is also listed as a standard,
+                            // selectable checkout payment method.
+                            'showAsPaymentMethod' => method_exists($gateway, 'isCheckoutMethodEnabled')
+                                && $gateway->isCheckoutMethodEnabled(),
                         ]
                     );
                 }

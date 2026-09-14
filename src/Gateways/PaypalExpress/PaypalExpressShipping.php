@@ -2,6 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 
+use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
+
 /**
  * PayPal express shipping class
  * php version 7.2
@@ -19,22 +21,101 @@ namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 class PaypalExpressShipping
 {
     /**
-     * Create new cart if button was pressed in product page
+     * Get the selected product and variation details from the request.
      *
-     * @return void
+     * @return array
      */
-    public function create_cart_for_product_page()
+    public function get_product_request(): array
     {
         $order_data = $this->get_order_data();
-        $cart = WC()->cart;
+        $attributes = [];
+        foreach ($order_data as $key => $value) {
+            if (strpos($key, 'attribute_') === 0) {
+                $attributes[$key] = $value;
+            }
+        }
+        ksort($attributes);
 
-        $cart->empty_cart();
+        return [
+            'product_id' => $this->get_required_value($order_data, 'add-to-cart'),
+            'variation_id' => $this->get_value($order_data, 'variation_id', 0),
+            'quantity' => $this->get_required_value($order_data, 'quantity'),
+            'attributes' => $attributes,
+        ];
+    }
 
-        $cart->add_to_cart(
-            $this->get_product_id($order_data),
-            $this->get_required_value($order_data, 'quantity')
+    /**
+     * Get the PayPal shipping location from the request.
+     *
+     * @return array
+     */
+    public function get_customer_location(): array
+    {
+        $address_data = $this->get_address_data();
+
+        return [
+            'country' => $this->get_required_value($address_data, 'country_code'),
+            'state' => $this->get_required_value($address_data, 'state'),
+            'postcode' => $this->get_required_value($address_data, 'postal_code'),
+            'city' => $this->get_required_value($address_data, 'city'),
+        ];
+    }
+
+    /**
+     * Keep the shopper's billing location while applying PayPal shipping.
+     *
+     * @return array
+     */
+    public function get_customer_context(): array
+    {
+        return [
+            'billing' => [
+                'country' => WC()->customer->get_billing_country(),
+                'state' => WC()->customer->get_billing_state(),
+                'postcode' => WC()->customer->get_billing_postcode(),
+                'city' => WC()->customer->get_billing_city(),
+            ],
+            'shipping' => $this->get_customer_location(),
+        ];
+    }
+
+    /**
+     * Run order creation against the isolated cart used for the approved quote.
+     *
+     * @param bool $product_page Whether the button is on a product page.
+     * @param callable $callback Order creation callback.
+     * @return mixed
+     */
+    public function with_cart_for_order(bool $product_page, callable $callback)
+    {
+        $customer_location = isset($_POST['shipping_data']['shipping_address'])
+            ? $this->get_customer_context()
+            : [];
+
+        if ($product_page) {
+            return ExpressProductCart::calculate(
+                array_merge($this->get_product_request(), $customer_location),
+                'buckaroo_paypal',
+                $callback
+            );
+        }
+
+        $order_result = ExpressProductCart::calculateCurrent(
+            'buckaroo_paypal',
+            static function ($cart) use ($callback): array {
+                return [
+                    'value' => call_user_func($callback, $cart),
+                    'cart_emptied' => $cart->is_empty(),
+                ];
+            },
+            $customer_location
         );
-        $this->apply_paypal_fee($cart);
+
+        if ($order_result['cart_emptied']) {
+            WC()->cart->empty_cart();
+        }
+
+        return $order_result['value'];
     }
 
     /**
@@ -43,22 +124,8 @@ class PaypalExpressShipping
      * @param  WC_Cart  $cart
      * @return array
      */
-    public function get_cart_total_breakdown()
+    public function get_cart_total_breakdown($cart)
     {
-        $address_data = $this->get_address_data();
-
-        WC()->customer->set_shipping_location(
-            $this->get_required_value($address_data, 'country_code'),
-            $this->get_required_value($address_data, 'state'),
-            $this->get_required_value($address_data, 'postal_code'),
-            $this->get_required_value($address_data, 'city')
-        );
-
-        $cart = WC()->cart;
-        $this->apply_paypal_fee($cart);
-
-        WC()->cart->calculate_shipping();
-
         $total = $cart->get_total(false);
         $tax_total = $cart->get_total_tax();
         $shipping = $cart->get_shipping_total();
@@ -93,61 +160,7 @@ class PaypalExpressShipping
      */
     public function number_format($value)
     {
-        return number_format($value, 2);
-    }
-
-    /**
-     * Apply payment fee on cart
-     *
-     * @return void
-     */
-    protected function apply_paypal_fee($cart)
-    {
-        WC()->session->set('chosen_payment_method', 'buckaroo_paypal');
-        $cart->calculate_totals();
-
-        do_action(
-            'buckaroo_cart_calculate_fees',
-            $cart,
-            $this->settings['extrachargeamount'] ?? 0,
-            $this->settings['feetax'] ?? ''
-        );
-
-        $this->store_fee_for_order($cart);
-    }
-
-    /**
-     * Store the fee result in session to use in order
-     *
-     * @param  WC_Cart  $cart
-     * @return void
-     */
-    protected function store_fee_for_order($cart)
-    {
-        $fee = null;
-
-        $fees = $cart->get_fees();
-        if (count($fees)) {
-            $fee = array_pop($fees);
-        }
-        WC()->session->set('buckaroo_paypal_fee', $fee);
-    }
-
-    /**
-     * Get product id for simple and variable product
-     *
-     * @param  array  $order_data
-     * @return void
-     */
-    protected function get_product_id($order_data)
-    {
-        $variation_id = $this->get_value($order_data, 'variation_id');
-
-        if (! empty($variation_id) || $variation_id != 0) {
-            return $variation_id;
-        }
-
-        return $this->get_required_value($order_data, 'add-to-cart');
+        return number_format($value, 2, '.', '');
     }
 
     /**
