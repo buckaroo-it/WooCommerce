@@ -36,7 +36,7 @@ Payment method support list by Buckaroo WooCommerce payments plugin
 16. MB Way
 17. Multibanco
 18. PayByBank
-19. Payconiq
+19. Zakelijk op rekening
 20. PayPal
 21. PayPerEmail
 22. Przelewy24
@@ -79,6 +79,35 @@ The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locale
 [Translate “Buckaroo Woocommerce Payments Plugin” into your language.](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/)
 
 == Changelog ==
+= 4.10.0 =
+Improvements & new features
+BTI-1245 Support for WordPress 7.1 and WooCommerce 11.0 and 11.1.0
+BTI-778 The plugin Administration has a refreshed design, and the menu and settings have been restructured so payment methods and their configuration are easier to find
+BTI-1158 Google Pay is now selectable as a regular (non-Express) payment method
+BTI-1042 New payment method: Zakelijk op rekening "ABN-AMRO"
+BTI-1113 Automatic capture on shipment creation for Klarna (MoR)
+BTI-1179 Redirect information text in the checkout for redirect-based payment methods
+BTI-1187 The iDIN logo is now the co-branded iDIN | itsme logo
+BTI-1341 GoSettle has been removed as a payment method (deprecated)
+BTI-1219 The WordPress.org plugin display name is now "Buckaroo Payments for WooCommerce"
+BTI-1210 "Klarna pay later (authorize/capture)" is now "Klarna (KP)", matching the Buckaroo subscription name
+BTI-1137 The Google Pay ID setting is no longer labelled as GUID
+BTI-1177 The optional Date of Birth field for Billink has been removed from the checkout payment selection
+BTI-1211 Hosted fields settings are only shown when hosted fields are enabled
+BTI-1510 Information subtext added for Zakelijk op rekening "ABN-AMRO"
+BTI-1221 The WordPress.org changelog has been trimmed to resolve the 5,000-word truncation warning
+BTI-1127 JS dist files are built automatically in CI for pull requests to develop
+BTI-1289 The README.md has been updated
+
+Bug fixes
+BTI-1167 Google Pay Express could create orders without a billing address and email address
+BTI-1229 A duplicate Buckaroo error notice appeared in the classic checkout (#521)
+BTI-1272 The cart could crash when Apple Pay was used
+BTI-1242 Belgian customers were sent culture code nl_NL instead of nl_BE for Klarna (MoR)
+BTI-1308 wp_redirect() was called with an array instead of a string in the admin PayPerEmail and PayLink actions
+BTI-1136 Payment method icons were misaligned in the legacy and blocks-based checkout
+
+
 = 4.9.1 =
 Improvements
 BTI-1245 Added support for WooCommerce 11.0.
