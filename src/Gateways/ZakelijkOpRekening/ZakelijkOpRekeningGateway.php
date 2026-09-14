@@ -4,9 +4,12 @@ namespace Buckaroo\Woocommerce\Gateways\ZakelijkOpRekening;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
+use Buckaroo\Woocommerce\Gateways\ZakelijkOpRekening\Sdk\ZakelijkOpRekeningClient;
 use Buckaroo\Woocommerce\Gateways\ZakelijkOpRekening\Sdk\ZakelijkOpRekeningPaymentMethod;
+use Buckaroo\Woocommerce\Order\CaptureAllocation;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureAction;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
@@ -168,40 +171,28 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Capture (part of) a previously authorized order.
-     *
-     * @param  int  $order_id
-     * @return array|array[]|false|\WP_Error
+     * Capture uses the same admin form and recording as other capturable
+     * methods. The Buckaroo call goes through ZakelijkOpRekeningClient so
+     * Capture is sent; the processor action is always authorize.
      */
-    public function process_capture($order_id)
-    {
-        if (! $this->capturable || ! $this->canShowCaptureForm($order_id)) {
-            return $this->create_capture_error(__('This order cannot be captured', 'wc-buckaroo-bpe-gateway'));
-        }
-
-        if ($order_id === null || ! is_numeric($order_id)) {
-            return $this->create_capture_error(__('A valid order number is required', 'wc-buckaroo-bpe-gateway'));
-        }
-
-        $capture_amount = $this->request->input('capture_amount');
-        if ($capture_amount === null || ! is_scalar($capture_amount)) {
-            return $this->create_capture_error(__('A valid capture amount is required', 'wc-buckaroo-bpe-gateway'));
-        }
-
-        $order = Helper::findOrder($order_id);
-        $processor = $this->newPaymentProcessorInstance($order);
-
-        $response = $this->runBuckarooAction($processor, 'capture', [
-            'amountDebit' => $capture_amount,
-            'originalTransactionKey' => $order->get_transaction_id(),
-        ]);
-
-        return (new CaptureAction())->handle($response, $order, $this->currency);
+    protected function executeCapture(
+        WC_Order $order,
+        $amount,
+        CaptureAllocation $allocation,
+        ?BuckarooClient $buckarooClient = null
+    ): CaptureResult {
+        return (new CaptureAction(
+            $this->newPaymentProcessorInstance($order),
+            $order,
+            $amount,
+            $allocation,
+            $this->getCapturePayload($order, $amount),
+            $buckarooClient ?? new ZakelijkOpRekeningClient($this->getMode())
+        ))->process();
     }
 
     /**
-     * Run an Authorize or Capture action through our In3-based payment method,
-     * leaving the bundled SDK (which lacks these methods for In3) untouched.
+     * Run an Authorize or Capture action through our In3-based payment method.
      *
      * @param  array<string, mixed>  $extra
      */
