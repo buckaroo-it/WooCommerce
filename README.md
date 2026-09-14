@@ -42,8 +42,8 @@ Card payments run through Hosted Fields, which keeps the card entry inside your 
 
 | Requirement | Supported versions |
 |---|---|
-| WordPress | 5.3.18 up to 7.0 |
-| WooCommerce | 5.0 up to 11.0.0 |
+| WordPress | 5.3.18 up to 7.1 |
+| WooCommerce | 5.0 up to 11.1.0 |
 | PHP | 8.0 or higher |
 
 You also need a Buckaroo account. Don't have one yet? [Request an account](https://www.buckaroo.nl/start).
