@@ -133,7 +133,7 @@ Data is sent to Buckaroo when a customer places an order with a Buckaroo payment
 
 Buckaroo also sends push messages back to your shop to report the status of a transaction.
 
-Service provided by Buckaroo B.V.: [terms and conditions](TODO-add-terms-url) and [privacy statement](TODO-add-privacy-url).
+Service provided by Buckaroo B.V.: [terms and conditions](https://www.buckaroo.eu/terms-and-conditions) and [privacy statement](https://www.buckaroo.eu/privacy-statement).
 
 == Contact ==
 
