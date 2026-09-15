@@ -23,6 +23,7 @@ class GooglepayController
                 'google_merchant_id' => $settings['google_merchant_id'] ?? '',
                 'mode' => $settings['mode'] ?? 'test',
                 'button_style' => $settings['button_style'] ?? 'black',
+                'button_label' => $settings['button_label'] ?? 'pay',
                 'locale' => substr(get_locale(), 0, 2),
             ]
         );

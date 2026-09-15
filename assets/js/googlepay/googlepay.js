@@ -149,7 +149,7 @@ export default class GooglePay {
         const options = {
             environment: environment,
             buttonColor: buttonStyle === 'white' ? 'white' : 'black',
-            buttonType: 'pay',
+            buttonType: this.store_info.button_label || 'pay',
             buttonSizeMode: 'fill',
             buttonContainerId: this.buttonElementId,
             buttonLocale: this.store_info.locale || 'en',

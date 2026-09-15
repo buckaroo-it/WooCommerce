@@ -482,6 +482,11 @@ class ApplepayGateway extends AbstractPaymentGateway
                     ],
                     'default' => 'black',
                 ],
+                'button_preview' => [
+                    'title' => __('Button preview', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'express_button_preview',
+                    'description' => __('How the express button looks with the choices above. Updates as you change them.', 'wc-buckaroo-bpe-gateway'),
+                ],
                 'button_label' => [
                     'title' => __('Button label', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'select',
@@ -505,6 +510,15 @@ class ApplepayGateway extends AbstractPaymentGateway
      * Whether Apple Pay should be listed as a standard, selectable checkout
      * payment method (in addition to the Express Checkout button).
      */
+    protected function expressPreviewConfig(): array
+    {
+        return [
+            'method' => 'applepay',
+            'fields' => ['color' => 'button_style', 'label' => 'button_label'],
+            'appleSdk' => 'https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js',
+        ];
+    }
+
     /**
      * Placements are stored under express_show_on, with the legacy
      * button_{location} keys kept in sync for two releases.

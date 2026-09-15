@@ -368,7 +368,7 @@ class GooglepayGateway extends AbstractPaymentGateway
                 'merchant_guid' => [
                     'title' => __('Gateway Merchant ID', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'text',
-                    'description' => __('The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza -> Services -> Google Pay.', 'wc-buckaroo-bpe-gateway'),
+                    'description' => __('The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza > Services > Google Pay.', 'wc-buckaroo-bpe-gateway'),
                     'default' => '0',
                 ],
                 'google_merchant_id' => [
@@ -391,7 +391,37 @@ class GooglepayGateway extends AbstractPaymentGateway
                     ],
                     'default' => 'black',
                 ],
+                'button_label' => [
+                    'title' => __('Button label', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'select',
+                    'description' => __('Wording Google shows on the button, next to the Google Pay mark.', 'wc-buckaroo-bpe-gateway'),
+                    'options' => [
+                        'pay' => __('Pay with', 'wc-buckaroo-bpe-gateway'),
+                        'buy' => __('Buy with', 'wc-buckaroo-bpe-gateway'),
+                        'checkout' => __('Checkout with', 'wc-buckaroo-bpe-gateway'),
+                        'order' => __('Order with', 'wc-buckaroo-bpe-gateway'),
+                        'book' => __('Book with', 'wc-buckaroo-bpe-gateway'),
+                        'subscribe' => __('Subscribe with', 'wc-buckaroo-bpe-gateway'),
+                        'plain' => __('Plain', 'wc-buckaroo-bpe-gateway'),
+                    ],
+                    // "Pay with" is what the button rendered before this setting
+                    // existed; Apple Pay defaults to Plain, so they differ on purpose.
+                    'default' => 'pay',
+                ],
+                'button_preview' => [
+                    'title' => __('Button preview', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'express_button_preview',
+                    'description' => __('How the express button looks with the choices above. Updates as you change them.', 'wc-buckaroo-bpe-gateway'),
+                ],
             ],
+        ];
+    }
+
+    protected function expressPreviewConfig(): array
+    {
+        return [
+            'method' => 'googlepay',
+            'fields' => ['color' => 'button_style', 'label' => 'button_label'],
         ];
     }
 

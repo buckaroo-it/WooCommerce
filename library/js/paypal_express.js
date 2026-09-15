@@ -9,11 +9,27 @@ jQuery(document).ready(function () {
 const BUCKAROO_EXPRESS_BUTTON_HEIGHT = 40;
 
 /**
- * Force PayPal to the shared express button height.
+ * Read the merchant's button style, falling back to PayPal's own defaults so an
+ * install that has never saved these settings renders exactly as before.
+ */
+const buckarooPaypalStyle = function () {
+    const config = typeof buckaroo_paypal_express !== 'undefined' ? buckaroo_paypal_express : {};
+
+    return {
+        height: BUCKAROO_EXPRESS_BUTTON_HEIGHT,
+        color: config.button_style || 'gold',
+        shape: config.button_shape || 'rect',
+    };
+};
+
+/**
+ * Apply the express button height and the merchant's colour and shape.
  *
- * Left alone it steps its height off the container width (35/45/55px) and can
- * never match the other buttons. It does honour an explicit style.height, but the
- * SDK builds its paypal.Buttons() options internally and forwards no style.
+ * Left alone PayPal steps its height off the container width (35/45/55px) and
+ * can never match the other buttons. It does honour an explicit style, but the
+ * SDK builds its paypal.Buttons() options internally and forwards none: it never
+ * reads options.style. Injecting here is the only way these settings reach the
+ * button.
  */
 const buckarooWrapPaypalButtons = function (namespace) {
     try {
@@ -26,9 +42,7 @@ const buckarooWrapPaypalButtons = function (namespace) {
         const patched = function (options) {
             return original(
                 Object.assign({}, options, {
-                    style: Object.assign({}, options && options.style, {
-                        height: BUCKAROO_EXPRESS_BUTTON_HEIGHT,
-                    }),
+                    style: Object.assign({}, options && options.style, buckarooPaypalStyle()),
                 })
             );
         };

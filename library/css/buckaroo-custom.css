@@ -1155,3 +1155,11 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
     background: no-repeat center / contain
         url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 5H5.5C4.67157 5 4 5.67157 4 6.5V14C4 14.8284 4.67157 15.5 5.5 15.5H13C13.8284 15.5 14.5 14.8284 14.5 14V12.5' stroke='%23808992' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M10 5H15V10' stroke='%23808992' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M15 5L8.5 11.5' stroke='%23808992' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
 }
+
+/* Express button preview on the settings screen.
+   PayPal sizes its button off the container width, so the preview is held to
+   the width of the form fields above it: a full-width settings cell would
+   render a button the customer never sees. */
+.buckaroo-express-preview {
+    max-width: 400px;
+}

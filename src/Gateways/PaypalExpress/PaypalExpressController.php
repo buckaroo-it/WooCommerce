@@ -107,6 +107,8 @@ class PaypalExpressController
                 'merchant_id' => $this->get_merchant_id(),
                 'is_test' => $this->is_test_mode(),
                 'page' => $this->determine_page(),
+                'button_style' => $this->get_setting_value('button_style') ?? 'gold',
+                'button_shape' => $this->get_setting_value('button_rounded') === 'TRUE' ? 'pill' : 'rect',
                 'i18n' => [
                     'cancel_error_message' => __('You have canceled the payment request', 'wc-buckaroo-bpe-gateway'),
                     'cannot_create_payment' => __('Cannot create payment', 'wc-buckaroo-bpe-gateway'),

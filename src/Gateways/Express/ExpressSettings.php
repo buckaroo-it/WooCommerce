@@ -2,6 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Express;
 
+use Buckaroo\Woocommerce\Core\Plugin;
+
 /**
  * Shared settings structure for the express payment methods.
  *
@@ -29,6 +31,12 @@ trait ExpressSettings
 
     /** Stored key for the standard express placement contract. */
     public const EXPRESS_SHOW_ON_KEY = 'express_show_on';
+
+    /** Shared express button height in pixels; see buckaroo-custom.css. */
+    public const EXPRESS_BUTTON_HEIGHT = 40;
+
+    /** Preview width, matching the width WooCommerce gives its settings fields. */
+    public const EXPRESS_PREVIEW_WIDTH = 400;
 
     abstract protected function expressSettingsSpec(): array;
 
@@ -264,5 +272,89 @@ trait ExpressSettings
         unset($settings[static::$expressPlacementsKey]);
 
         return $settings;
+    }
+
+    /**
+     * What this method needs to draw its preview button. A gateway without a
+     * preview returns an empty array and the field renders nothing.
+     *
+     * @return array
+     */
+    protected function expressPreviewConfig(): array
+    {
+        return [];
+    }
+
+    /**
+     * Render the "Button preview" field.
+     *
+     * WooCommerce looks for generate_{type}_html() on the gateway before its own
+     * field types, so declaring 'type' => 'express_button_preview' routes here.
+     *
+     * @param  string  $key
+     * @param  array  $data
+     * @return string
+     */
+    public function generate_express_button_preview_html($key, $data)
+    {
+        $preview = $this->expressPreviewConfig();
+
+        if ($preview === []) {
+            return '';
+        }
+
+        $data = wp_parse_args($data, ['title' => '', 'description' => '']);
+        $containerId = $this->get_field_key($key) . '_container';
+
+        $fields = [];
+        foreach ($preview['fields'] ?? [] as $name => $fieldKey) {
+            $fields[$name] = $this->get_field_key($fieldKey);
+        }
+
+        // Enqueued while the settings form renders; admin footer scripts are
+        // printed after this, so the handle is still in time.
+        wp_enqueue_script(
+            'buckaroo-express-button-preview',
+            plugin_dir_url(BK_PLUGIN_FILE) . 'library/js/express-button-preview.js',
+            [],
+            Plugin::VERSION,
+            true
+        );
+        wp_localize_script(
+            'buckaroo-express-button-preview',
+            'buckarooExpressPreview',
+            array_merge(
+                [
+                    'containerId' => $containerId,
+                    'fields' => $fields,
+                    // Kept in step with BUCKAROO_EXPRESS_BUTTON_HEIGHT in
+                    // paypal_express.js and --apple-pay-button-height in
+                    // buckaroo-custom.css.
+                    'height' => self::EXPRESS_BUTTON_HEIGHT,
+                    'previewWidth' => self::EXPRESS_PREVIEW_WIDTH,
+                    'locale' => str_replace('_', '-', get_locale()),
+                    'i18n' => [
+                        'unavailable' => __('The preview could not be loaded.', 'wc-buckaroo-bpe-gateway'),
+                        'appleOnly' => __('Apple Pay buttons only render in Safari on an Apple device, so no preview is shown here.', 'wc-buckaroo-bpe-gateway'),
+                    ],
+                ],
+                $preview
+            )
+        );
+
+        ob_start();
+        ?>
+    <tr valign="top">
+        <th scope="row" class="titledesc"><?php echo wp_kses_post($data['title']); ?></th>
+        <td class="forminp">
+            <div id="<?php echo esc_attr($containerId); ?>" class="buckaroo-express-preview"></div>
+            <?php if ($data['description'] !== '') : ?>
+            <p class="description"><?php echo wp_kses_post($data['description']); ?></p>
+            <?php endif; ?>
+        </td>
+    </tr>
+        <?php
+
+        return ob_get_clean();
     }
 }

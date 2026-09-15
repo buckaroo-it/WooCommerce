@@ -130,6 +130,38 @@ class PaypalGateway extends AbstractPaymentGateway
             ],
             'placements' => ['product', 'cart', 'checkout'],
             'list_as_payment_method' => false,
+            'graphical' => [
+                'button_style' => [
+                    'title' => __('Button style', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'select',
+                    'description' => __('Colour of the express button as the customer sees it.', 'wc-buckaroo-bpe-gateway'),
+                    'options' => [
+                        'gold' => __('Gold (standard)', 'wc-buckaroo-bpe-gateway'),
+                        'blue' => __('Blue', 'wc-buckaroo-bpe-gateway'),
+                        'silver' => __('Silver', 'wc-buckaroo-bpe-gateway'),
+                        'white' => __('White', 'wc-buckaroo-bpe-gateway'),
+                        'black' => __('Black', 'wc-buckaroo-bpe-gateway'),
+                    ],
+                    // Gold is PayPal's own default, which is what renders today.
+                    'default' => 'gold',
+                ],
+                'button_rounded' => [
+                    'title' => __('Rounded button shape', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'select',
+                    'description' => __('Show the express button with fully rounded corners.', 'wc-buckaroo-bpe-gateway'),
+                    'options' => [
+                        'FALSE' => __('No', 'wc-buckaroo-bpe-gateway'),
+                        'TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'),
+                    ],
+                    // rect is PayPal's own default.
+                    'default' => 'FALSE',
+                ],
+                'button_preview' => [
+                    'title' => __('Button preview', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'express_button_preview',
+                    'description' => __('How the express button looks with the choices above. Updates as you change them.', 'wc-buckaroo-bpe-gateway'),
+                ],
+            ],
             'behaviour' => [
                 'sellerprotection' => [
                     'title' => __('Seller protection', 'wc-buckaroo-bpe-gateway'),
@@ -195,6 +227,17 @@ class PaypalGateway extends AbstractPaymentGateway
      * from woocommerce_update_options_payment_gateways_{id}.
      */
     private static $sandboxWarningAdded = false;
+
+    protected function expressPreviewConfig(): array
+    {
+        return [
+            'method' => 'paypal',
+            'fields' => ['color' => 'button_style', 'shape' => 'button_rounded'],
+            // Public PayPal client id: the SDK will not load without one and it
+            // only draws the preview button.
+            'clientId' => 'AfHztAEfaf3f76tNy8j_Z86w5y-fGbqbBt04PXppVFtJatje79gVSB27DwBENnyFgfhFvKzgJbegNpHv',
+        ];
+    }
 
     /**
      * Warn when Test mode is selected without a sandbox merchant id.
