@@ -73,6 +73,12 @@ Email: [support@buckaroo.nl](mailto:support@buckaroo.nl)
 
 We’re committed to ensuring a smooth installation process and providing ongoing support for your WooCommerce integration with Buckaroo.
 
+== Screenshots ==
+1. Enable and manage the payment methods your customers expect, all from one screen.
+2. Apple Pay, Google Pay and PayPal Express appear on the product, cart and checkout pages, so customers can check out in a single tap.
+3. Buckaroo Hosted Fields keep customers on your checkout page while Buckaroo securely handles the card data.
+4. Add your API credentials and use auto-configure to enable all your active payment methods at once.
+
 == Contributors & Developers ==
 The “Buckaroo Woocommerce Payments Plugin” has been translated into 3 locales. Thank you to [the translators](https://translate.wordpress.org/projects/wp-plugins/wc-buckaroo-bpe-gateway/contributors/) for their contributions!
 
