@@ -133,6 +133,23 @@ table.woocommerce_order_items tbody tr:first-child td {
     width: 100%;
 }
 
+/* Base size, independent of checkout markup. The logo SVGs carry no width or
+   height, so an icon the rules below don't reach fills its container. */
+label[for^='payment_method_buckaroo_'] img {
+    max-height: 25px;
+    width: 32px;
+    height: auto;
+    float: right;
+    margin: 0;
+}
+
+/* Core's `margin: -2px 0 0 .5em` has higher specificity than the base rule, so
+   the `margin: 0` is repeated here. Matches a nested label too, not just a
+   direct child. */
+#payment ul.payment_methods li label[for^='payment_method_buckaroo_'] img {
+    margin: 0;
+}
+
 /* Classic checkout: icon flush right, vertically centred.
    `#payment ul.payment_methods` scoping is needed to beat core's
    `margin: -2px 0 0 .5em` on payment icons. */
