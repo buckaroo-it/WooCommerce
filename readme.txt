@@ -3,7 +3,7 @@ Contributors: buckaroosupport
 Tags: payment gateway, payments, ideal, klarna, checkout
 Requires at least: 5.3.18
 Tested up to: 7.1
-Stable tag: 4.10.0
+Stable tag: 4.10.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -119,11 +119,10 @@ The plugin ships with translations and you can [translate it into your own langu
 
 == Screenshots ==
 
-1. The Buckaroo payment methods in the WooCommerce checkout.
-2. Express payment buttons on the product page.
-3. The Buckaroo settings overview in the WordPress Administration.
-4. The configuration screen of a single payment method.
-5. Refunding an order from the WooCommerce order screen.
+1. Enable and manage the payment methods your customers expect, all from one screen.
+2. Apple Pay, Google Pay and PayPal Express appear on the product, cart and checkout pages, so customers can check out in a single tap.
+3. Buckaroo Hosted Fields keep customers on your checkout page while Buckaroo securely handles the card data.
+4. Add your API credentials and use auto-configure to enable all your active payment methods at once.
 
 == External services ==
 
@@ -143,6 +142,9 @@ Technical questions about the plugin: [support@buckaroo.nl](mailto:support@bucka
 
 == Upgrade Notice ==
 
+= 4.10.1 =
+Fixes payment method icons that were displayed oversized and overlapping in the checkout since version 4.10.0.
+
 = 4.10.0 =
 Refreshed plugin Administration with restructured settings, Google Pay as a regular payment method and automatic Klarna (MoR) capture on shipment. Includes fixes for Apple Pay, Google Pay Express and the classic checkout.
 
@@ -152,6 +154,18 @@ Adds support for High-Performance Order Storage. Existing orders are updated aut
 == Changelog ==
 
 For release notes of earlier versions, see the [releases on GitHub](https://github.com/buckaroo-it/WooCommerce/releases).
+
+= 4.10.1 =
+
+Improvements
+
+BTI-1218 The long and short description of the plugin have been rewritten for the plugin listing
+BTI-1220 The plugin screenshots on the plugin download page have been updated
+BTI-1473 A SECURITY.md file has been added to the repository
+
+Bug fixes
+
+BTI-1550 Payment method icons were displayed oversized and overlapping in the checkout since version 4.10.0
 
 = 4.10.0 =
 
