@@ -12,6 +12,18 @@ use WC_Order;
 
 class KlarnaPayGateway extends KlarnaGateway
 {
+    /**
+     * Klarna as Merchant of Record settles in the local currency of the
+     * shopper's market, so it is not limited to the EUR default that
+     * KlarnaGateway inherits from AbstractPaymentGateway. Klarna Pay later
+     * (KlarnaKpGateway) is EUR only and keeps the inherited default, which is
+     * why these live here and not on the shared KlarnaGateway base.
+     */
+    protected array $supportedCurrencies = ['EUR', 'CHF', 'DKK', 'GBP', 'NOK', 'PLN', 'SEK'];
+
+    /** As the base list, plus PL so Polish shoppers can pay in PLN. */
+    protected array $supportedCountries = ['DE', 'AT', 'SE', 'NO', 'FI', 'DK', 'NL', 'CH', 'GB', 'BE', 'PL'];
+
     public bool $capturable = true;
 
     public function __construct()
