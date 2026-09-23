@@ -3,7 +3,7 @@ Contributors: buckaroosupport
 Tags: payment gateway, payments, ideal, klarna, checkout
 Requires at least: 5.3.18
 Tested up to: 7.1
-Stable tag: 4.10.1
+Stable tag: 4.10.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -141,6 +141,10 @@ Questions about your account or subscriptions: [wecare@buckaroo.nl](mailto:wecar
 Technical questions about the plugin: [support@buckaroo.nl](mailto:support@buckaroo.nl).
 
 == Upgrade Notice ==
+
+= 4.10.2 =
+Update to use PHP SDK v1.24.5 for the plugin (latest)
+Update outdated payment method labels in PayPerEmail "Allowed methods" setting
 
 = 4.10.1 =
 Fixes payment method icons that were displayed oversized and overlapping in the checkout since version 4.10.0.
