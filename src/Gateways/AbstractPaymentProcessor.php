@@ -46,7 +46,11 @@ class AbstractPaymentProcessor extends AbstractProcessor
                 'order' => (string) $order->get_id(),
                 'invoice' => $this->get_invoice_number(),
                 'amountDebit' => number_format((float) $order->get_total('edit'), 2, '.', ''),
-                'currency' => get_woocommerce_currency(),
+                // The amount above comes from the order, so the currency has to
+                // as well. get_woocommerce_currency() is the store's active
+                // currency, which on a multi-currency store can differ from the
+                // one the order was placed in.
+                'currency' => $order->get_currency(),
                 'returnURL' => $this->get_return_url(),
                 'cancelURL' => $this->get_return_url(),
                 'pushURL' => $this->get_push_url(),
