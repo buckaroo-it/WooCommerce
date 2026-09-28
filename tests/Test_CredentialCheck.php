@@ -25,8 +25,11 @@ class Test_CredentialCheck extends TestCase
         $manager = wp_insert_user([
             'user_login' => 'credential-check-' . wp_generate_uuid4(),
             'user_pass' => 'test-only-password',
-            'role' => $authorized ? 'administrator' : 'subscriber',
+            'role' => 'subscriber',
         ]);
+        if ($authorized) {
+            get_user_by('id', $manager)->add_cap('manage_woocommerce');
+        }
         wp_set_current_user($manager);
         update_option($option, $configured ? ['merchantkey' => 'stored-store', 'secretkey' => 'stored-secret'] : []);
         $_POST = $submitted;
