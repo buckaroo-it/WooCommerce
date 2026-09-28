@@ -133,6 +133,14 @@ class GooglepayGateway extends AbstractPaymentGateway
             } else {
                 $this->error_response('Error while creation of WooCommerce order');
             }
+        } catch (\InvalidArgumentException $th) {
+            if (! empty($orderResult['data']['id'])) {
+                $order = wc_get_order($orderResult['data']['id']);
+                if ($order) {
+                    $order->update_status('failed', $th->getMessage());
+                }
+            }
+            $this->error_response($th->getMessage());
         } catch (Throwable $th) {
             $this->error_response($th->getMessage());
         }
@@ -231,6 +239,7 @@ class GooglepayGateway extends AbstractPaymentGateway
 
             $order->calculate_totals();
             $order->update_status('pending payment', 'Order created using Google Pay', true);
+            wc_update_coupon_usage_counts($order->get_id());
         } catch (Throwable $e) {
             $order->delete(true);
 
@@ -259,9 +268,7 @@ class GooglepayGateway extends AbstractPaymentGateway
             self::createOrderLineItems($order, $cart);
         }
 
-        foreach ($cart->get_applied_coupons() as $coupon_code) {
-            $order->apply_coupon($coupon_code);
-        }
+        $checkout->create_order_coupon_lines($order, $cart);
 
         foreach ($cart->get_fees() as $fee_key => $fee) {
             $item_fee = new WC_Order_Item_Fee();

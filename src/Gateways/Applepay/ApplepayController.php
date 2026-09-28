@@ -64,7 +64,8 @@ class ApplepayController
             $product = $cart_item['data'];
             $quantity = $cart_item['quantity'];
 
-            $line_total = $cart_item['line_total'] + $cart_item['line_tax'];
+            // Coupons are separate negative lines in the wallet breakdown.
+            $line_total = $cart_item['line_subtotal'] + $cart_item['line_subtotal_tax'];
 
             $items[] = [
                 'type' => 'product',
@@ -142,11 +143,7 @@ class ApplepayController
 
     public static function getShippingMethods()
     {
-        $wc_methods_callback = static function () {
-            $packages = WC()->shipping()->get_packages();
-
-            return $packages ? (current($packages)['rates'] ?? []) : [];
-        };
+        $wc_methods_callback = [ExpressProductCart::class, 'walletShippingRates'];
 
         try {
             if (isset($_GET['product_id']) && is_numeric($_GET['product_id'])) {

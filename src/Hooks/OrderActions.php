@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
+use Buckaroo\Woocommerce\Services\PaymentFee;
 use Buckaroo\Woocommerce\Core\PaymentGatewayRegistry;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Order\OrderCaptureRefund;
@@ -204,32 +205,12 @@ class OrderActions
      */
     public function add_fee_to_cart($cart, $gateway_extrachargeamount, $gateway_feetax)
     {
-        // no fee available
-        if (
-            ! is_scalar($gateway_extrachargeamount) ||
-            empty($gateway_extrachargeamount) ||
-            (float) $gateway_extrachargeamount === 0
-        ) {
+        $configuredFee = PaymentFee::parse($gateway_extrachargeamount);
+        if ($configuredFee === null || ! $configuredFee->hasFee()) {
             return;
         }
 
-        // not a valid value
-        if (! $this->is_extrachargeamount_valid($gateway_extrachargeamount)) {
-            return;
-        }
-
-        $subtotal = $cart->get_cart_contents_total();
-        $is_percentage = strpos($gateway_extrachargeamount, '%') !== false;
-        $extra_charge_amount = (float) str_replace('%', '', $gateway_extrachargeamount);
-
-        // percentage not 0
-        if ($extra_charge_amount === 0) {
-            return;
-        }
-
-        if ($is_percentage) {
-            $extra_charge_amount = round($subtotal * $extra_charge_amount / 100, 2);
-        }
+        $extra_charge_amount = $configuredFee->calculate((float) $cart->get_cart_contents_total());
 
         $feedName = __('Payment fee', 'wc-buckaroo-bpe-gateway');
         $feedId = sanitize_title($feedName);
@@ -256,7 +237,7 @@ class OrderActions
      */
     public function is_extrachargeamount_valid($value)
     {
-        return (bool) preg_match('/^\d+(?:\.\d+)?%?$/', $value);
+        return PaymentFee::parse($value) !== null;
     }
 
     /**

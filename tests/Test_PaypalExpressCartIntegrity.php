@@ -252,6 +252,7 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
 
     public function test_failed_paypal_order_restores_original_cart_customer_session_and_notices(): void
     {
+        update_option('woocommerce_buckaroo_paypal_settings', ['extrachargeamount' => '0.25 + 10%']);
         $product_id = $this->createSimpleProduct('Keep after failure', '15.00');
         $this->assertIsString(
             WC()->cart->add_to_cart(
@@ -426,13 +427,34 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
         $this->assertTrue(WC()->cart->is_empty());
     }
 
-    public function test_approved_paypal_cart_order_uses_the_quoted_address_total_and_fee_once(): void
+    /** @dataProvider paymentFees */
+    public function test_approved_paypal_cart_order_uses_the_quoted_address_total_and_fee_once(
+        string $rawFee, string $expectedTotal, int $feeCount, bool $productPage = false, bool $discounted = false, bool $taxed = false
+    ): void
     {
+        $rateId = null;
+        if ($taxed) {
+            update_option('woocommerce_calc_taxes', 'yes');
+            $rateId = WC_Tax::_insert_tax_rate([
+                'tax_rate_country' => 'NL', 'tax_rate' => '21.0000',
+                'tax_rate_name' => 'Fee VAT', 'tax_rate_priority' => 1,
+                'tax_rate_compound' => 0, 'tax_rate_shipping' => 0, 'tax_rate_class' => 'fee-tax',
+            ]);
+        }
         $product_id = $this->createSimpleProduct('Cart order product', '15.00');
         $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
         WC()->customer->set_billing_location('BE', '', '1000', 'Brussels');
         WC()->customer->set_shipping_location('BE', '', '1000', 'Brussels');
         WC()->session->set('chosen_payment_method', 'cod');
+        $coupon = null;
+        if ($discounted) {
+            $coupon = new WC_Coupon();
+            $coupon->set_code('paypal-fee-discount');
+            $coupon->set_discount_type('fixed_cart');
+            $coupon->set_amount(5);
+            $coupon->save();
+            WC()->cart->apply_coupon($coupon->get_code());
+        }
         $state_before = $this->captureLiveState();
 
         $gateway = new class extends WC_Payment_Gateway {
@@ -467,8 +489,8 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
             [
                 'enabled' => 'yes',
                 'express' => ['cart'],
-                'extrachargeamount' => '2.50',
-                'feetax' => '',
+                'extrachargeamount' => $rawFee,
+                'feetax' => $taxed ? 'fee-tax' : '',
             ]
         );
         $address_fee = static function ($cart): void {
@@ -478,7 +500,10 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
         };
         add_action('woocommerce_cart_calculate_fees', $address_fee, 20);
 
-        $this->setPaypalRequest([], 'express-set-shipping', 'set_shipping_nonce', 'cart');
+        $this->setPaypalRequest(
+            $productPage ? ['product_id' => (string) $product_id, 'add-to-cart' => (string) $product_id, 'quantity' => '1'] : [],
+            'express-set-shipping', 'set_shipping_nonce', $productPage ? 'product' : 'cart'
+        );
         $_POST['shipping_data'] = [
             'shipping_address' => [
                 'country_code' => 'NL',
@@ -492,6 +517,9 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
         try {
             $quote_response = $this->captureJsonResponse([$this->controller(), 'add_shipping']);
             $this->assertFalse($quote_response['error']);
+            $this->assertSame($expectedTotal, $quote_response['data']['value']['value']);
+            $repeat_quote = $this->captureJsonResponse([$this->controller(), 'add_shipping']);
+            $this->assertSame($expectedTotal, $repeat_quote['data']['value']['value']);
             $_POST['orderId'] = 'PAYPAL-ORDER';
             $_POST['quote_token'] = $quote_response['data']['quote_token'];
             $_POST['send_order_nonce'] = wp_create_nonce('express-send_order');
@@ -499,6 +527,7 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
             $response = $this->captureJsonResponse([$this->controller(), 'send_order']);
         } finally {
             remove_action('woocommerce_cart_calculate_fees', $address_fee, 20);
+            if ($rateId !== null) { WC_Tax::_delete_tax_rate($rateId); }
             WC()->payment_gateways->payment_gateways = $gateways_before;
             if ($settings_before === null) {
                 delete_option('woocommerce_buckaroo_paypal_settings');
@@ -515,11 +544,11 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
         $this->assertInstanceOf(WC_Order::class, $order);
         $this->assertSame('BE', $order->get_billing_country());
         $this->assertSame('NL', $order->get_shipping_country());
-        $this->assertSame('24.50', $order->get_total());
+$this->assertSame($expectedTotal, $order->get_total());
         $fees = $order->get_items('fee');
-        $this->assertCount(2, $fees);
+        $this->assertCount(1 + $feeCount, $fees);
         $this->assertCount(
-            1,
+            $feeCount,
             array_filter(
                 $fees,
                 static function ($fee): bool {
@@ -528,6 +557,23 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
             )
         );
         $this->assertSame($state_before, $this->captureLiveState());
+        if ($coupon) { $coupon->delete(true); }
+    }
+
+    public function paymentFees(): array
+    {
+        return [
+            'fixed' => ['2.50', '24.50', 1],
+            'percentage' => ['10%', '23.50', 1],
+            'combined cart' => ['0.25 + 10%', '23.75', 1],
+            'combined fee tax' => ['0.25 + 10%', '27.27', 1, false, false, true],
+            'combined product' => ['0.25 + 10%', '23.75', 1, true],
+            'discounted' => ['0.25 + 10%', '18.25', 1, false, true],
+            'zero fixed' => ['0 + 10%', '23.50', 1],
+            'zero percentage' => ['0.25 + 0%', '22.25', 1],
+            'disabled' => ['0', '22.00', 0],
+            'invalid' => ['invalid', '22.00', 0],
+        ];
     }
 
     public function test_paypal_processing_exception_marks_the_created_order_failed(): void

@@ -344,8 +344,8 @@ msgstr ""
 msgid "Payment fee"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:155
-msgid "Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.)"
+#: src/Gateways/AbstractPaymentGateway.php:166
+msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)"
 msgstr ""
 
 #: src/Gateways/AbstractPaymentGateway.php:159
@@ -1347,4 +1347,13 @@ msgstr ""
 #: assets/js/blocks/partials/buckaroo_phone.js:13
 #: assets/js/dist/blocks.js:2
 msgid "Phone Number:"
+msgstr ""
+
+
+#: src/Gateways/ExpressProductCart.php:27
+msgid "No shipping required"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayProcessor.php:34
+msgid "Google Pay amount has changed. Please refresh the page and approve the updated total."
 msgstr ""
