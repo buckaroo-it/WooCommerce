@@ -966,9 +966,9 @@ msgstr "Geben Sie den maximal zulässigen Bestellbetrag an, um die aktuelle Meth
 msgid "Specify minimum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
 msgstr "Geben Sie den minimal zulässigen Bestellbetrag an, um die aktuelle Methode anzuzeigen. Ein Wert von null oder leer bedeutet, dass keine Regel angewendet wird."
 
-#: src/Gateways/AbstractPaymentGateway.php:155
-msgid "Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.)"
-msgstr "Geben Sie einen festen Betrag (z.B. 1,50) oder einen Prozentsatz (z.B. 1%) an. Dezimalstellen müssen durch einen Punkt (.) getrennt sein."
+#: src/Gateways/AbstractPaymentGateway.php:166
+msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)"
+msgstr "Geben Sie einen festen Betrag (z. B. 1.50), einen Prozentsatz (z. B. 1%) oder beides (z. B. 0.25 + 1.5%) an. Kombinierte Gebühren werden auf Grundlage der Produktsumme nach Abzug von Rabatten berechnet, ohne Versandkosten und Steuern. Verwenden Sie einen Punkt (.) als Dezimaltrennzeichen."
 
 #: src/Admin/PaymentMethodSettings.php:48
 msgid "Store key"
@@ -1502,3 +1502,10 @@ msgstr "Anzeigen / verbergen"
 msgid "API credentials"
 msgstr "API-Zugangsdaten"
 
+#: src/Gateways/ExpressProductCart.php:27
+msgid "No shipping required"
+msgstr "Kein Versand erforderlich"
+
+#: src/Gateways/Googlepay/GooglepayProcessor.php:34
+msgid "Google Pay amount has changed. Please refresh the page and approve the updated total."
+msgstr "Der Google Pay-Betrag hat sich geändert. Laden Sie die Seite neu und bestätigen Sie den aktualisierten Gesamtbetrag."

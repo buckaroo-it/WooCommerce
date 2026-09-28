@@ -69,7 +69,8 @@ class GooglepayController
             $product = $cart_item['data'];
             $quantity = $cart_item['quantity'];
 
-            $line_total = $cart_item['line_total'] + $cart_item['line_tax'];
+            // Coupons are separate negative lines in the wallet breakdown.
+            $line_total = $cart_item['line_subtotal'] + $cart_item['line_subtotal_tax'];
 
             $items[] = [
                 'type' => 'product',
