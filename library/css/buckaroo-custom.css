@@ -974,33 +974,6 @@ label.bk-in3-logo img {
     width: 100%;
     margin: 0 !important;
 }
-.bk-creds-field {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.bk-key-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 6px;
-    align-self: stretch;
-    border: 1px solid #dcdcde;
-    border-radius: 3px;
-    background: #f6f7f7;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.1s;
-    color: #555;
-}
-.bk-key-btn:active {
-    opacity: 0.8;
-}
-.bk-key-btn--toggle:hover {
-    background: #e8e9ea;
-    color: #1a1a2e;
-}
-
 /* General Options section */
 .bk-general-options-card {
     margin: 0;

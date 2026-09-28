@@ -380,6 +380,32 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         ) ?? $html;
     }
 
+    /** Keep configured credentials when their fields are left blank. */
+    public function validate_password_field($key, $value)
+    {
+        $value = parent::validate_password_field($key, $value);
+
+        return $value === '' ? $this->get_option($key, '') : $value;
+    }
+
+    /** Render credentials without exposing their stored values. */
+    public function generate_password_html($key, $data)
+    {
+        $configured = $this->get_option($key, '') !== '';
+        $data['type'] = 'password';
+        $data['custom_attributes']['autocomplete'] = 'new-password';
+        if ($configured) {
+            $data['placeholder'] = __('Configured — leave blank to keep unchanged', 'wc-buckaroo-bpe-gateway');
+            unset($data['custom_attributes']['required']);
+        }
+
+        // Render with a separate settings copy so payment credentials stay available.
+        $renderer = clone $this;
+        $renderer->settings[$key] = '';
+
+        return $renderer->generate_text_html($key, $data);
+    }
+
     /** {@inheritDoc} */
     public function process_admin_options()
     {
