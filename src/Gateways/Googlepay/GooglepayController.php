@@ -137,11 +137,7 @@ class GooglepayController
 
     public static function getShippingMethods()
     {
-        $wcGooglepayMethods = static function () {
-            $packages = WC()->shipping()->get_packages();
-
-            return $packages ? (current($packages)['rates'] ?? []) : [];
-        };
+        $wcGooglepayMethods = [ExpressProductCart::class, 'walletShippingRates'];
 
         try {
             if (isset($_GET['product_id']) && is_numeric($_GET['product_id'])) {

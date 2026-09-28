@@ -142,11 +142,7 @@ class ApplepayController
 
     public static function getShippingMethods()
     {
-        $wc_methods_callback = static function () {
-            $packages = WC()->shipping()->get_packages();
-
-            return $packages ? (current($packages)['rates'] ?? []) : [];
-        };
+        $wc_methods_callback = [ExpressProductCart::class, 'walletShippingRates'];
 
         try {
             if (isset($_GET['product_id']) && is_numeric($_GET['product_id'])) {

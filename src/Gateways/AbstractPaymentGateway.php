@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways;
 
+use Buckaroo\Woocommerce\Services\PaymentFee;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
@@ -162,7 +163,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             'extrachargeamount' => [
                 'title' => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'text',
-                'description' => __('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
+                'description' => __('Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
                 'default' => '0',
             ],
             'minvalue' => [
@@ -414,30 +415,18 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     public function setTitle()
     {
-        $feeText = '';
-        $fee = $this->get_option('extrachargeamount', 0);
-        $is_percentage = strpos($fee, '%') !== false;
-        $fee = floatval(str_replace('%', '', $fee));
-
-        if ($fee != 0) {
-            if ($is_percentage) {
-                $fee = str_replace(
-                    '&nbsp;',
-                    '',
-                    wc_price(
-                        $fee,
-                        [
-                            'currency' => 'null',
-                        ]
-                    )
-                ) . '%';
-            } else {
-                $fee = wc_price($fee + $this->getPaymentFeeVat($fee));
+        $parts = [];
+        $fee = PaymentFee::parse($this->get_option('extrachargeamount', 0));
+        if ($fee !== null) {
+            if ($fee->fixed > 0) {
+                $parts[] = wc_price($fee->fixed + $this->getPaymentFeeVat($fee->fixed));
             }
-
-            $feeText = ' (+ ' . $fee . ')';
+            if ($fee->percentage > 0) {
+                $parts[] = str_replace('&nbsp;', '', wc_price($fee->percentage, ['currency' => 'null'])) . '%';
+            }
         }
 
+        $feeText = $parts ? ' (+ ' . implode(' + ', $parts) . ')' : '';
         $this->title = strip_tags($this->get_option('title', $this->title ?? '') . $feeText);
     }
 

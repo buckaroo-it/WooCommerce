@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways;
 
+use Buckaroo\Woocommerce\Services\PaymentFee;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Services\Logger;
@@ -108,17 +109,8 @@ class AbstractPaymentProcessor extends AbstractProcessor
      */
     protected function ensureBuckarooFeeItem(WC_Order $order): bool
     {
-        $rawAmount = $this->gateway->get_option('extrachargeamount', 0);
-        if (! is_scalar($rawAmount)) {
-            return false;
-        }
-
-        $rawAmount = trim((string) $rawAmount);
-        if ($rawAmount === '' || (float) $rawAmount === 0.0) {
-            return false;
-        }
-
-        if (! preg_match('/^\d+(?:\.\d+)?%?$/', $rawAmount)) {
+        $configuredFee = PaymentFee::parse($this->gateway->get_option('extrachargeamount', 0));
+        if ($configuredFee === null || ! $configuredFee->hasFee()) {
             return false;
         }
 
@@ -130,16 +122,17 @@ class AbstractPaymentProcessor extends AbstractProcessor
             }
         }
 
-        $isPercentage = strpos($rawAmount, '%') !== false;
-        $feeAmount = (float) str_replace('%', '', $rawAmount);
-        if ($feeAmount === 0.0) {
-            return false;
-        }
-
-        if ($isPercentage) {
+        // Combined fees use the cart's discounted product base. Keep the
+        // existing percentage-only order fallback base for stored settings.
+        if ($configuredFee->combined) {
+            $subtotal = 0.0;
+            foreach ($order->get_items('line_item') as $lineItem) {
+                $subtotal += (float) $lineItem->get_total();
+            }
+        } else {
             $subtotal = (float) $order->get_subtotal();
-            $feeAmount = round($subtotal * $feeAmount / 100, 2);
         }
+        $feeAmount = $configuredFee->calculate($subtotal);
 
         $feeTaxClass = $this->gateway->get_option('feetax', '');
         $feeTaxClass = is_scalar($feeTaxClass) ? (string) $feeTaxClass : '';

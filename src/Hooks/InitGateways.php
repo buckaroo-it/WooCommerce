@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
+use Buckaroo\Woocommerce\Services\PaymentFee;
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
@@ -223,19 +224,9 @@ class InitGateways
      */
     private function gatewayHasFee($gateway): bool
     {
-        $rawAmount = $gateway->get_option('extrachargeamount', 0);
+        $fee = PaymentFee::parse($gateway->get_option('extrachargeamount', 0));
 
-        if (! is_scalar($rawAmount)) {
-            return false;
-        }
-
-        $rawAmount = trim((string) $rawAmount);
-
-        if (! preg_match('/^\d+(?:\.\d+)?%?$/', $rawAmount)) {
-            return false;
-        }
-
-        return (float) str_replace('%', '', $rawAmount) !== 0.0;
+        return $fee !== null && $fee->hasFee();
     }
 
     /**

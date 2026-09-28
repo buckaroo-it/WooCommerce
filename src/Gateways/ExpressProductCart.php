@@ -5,9 +5,35 @@ namespace Buckaroo\Woocommerce\Gateways;
 use Exception;
 use UnexpectedValueException;
 use WC_Product_Attribute;
+use WC_Cart;
+use WC_Shipping_Rate;
 
 final class ExpressProductCart
 {
+    /** Wallets require a selection even when the cart needs no delivery. */
+    public static function walletShippingRates(WC_Cart $cart): array
+    {
+        $needsShipping = false;
+        foreach ($cart->get_cart() as $item) {
+            if ($item['data']->needs_shipping()) {
+                $needsShipping = true;
+                break;
+            }
+        }
+
+        if (! $cart->is_empty() && ! $needsShipping) {
+            return [new WC_Shipping_Rate(
+                'buckaroo_no_shipping',
+                __('No shipping required', 'wc-buckaroo-bpe-gateway'),
+                0
+            )];
+        }
+
+        $packages = WC()->shipping()->get_packages();
+
+        return $packages ? (current($packages)['rates'] ?? []) : [];
+    }
+
     public static function calculate(array $request, string $payment_method, callable $callback)
     {
         return self::withProducts(

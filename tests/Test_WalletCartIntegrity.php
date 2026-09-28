@@ -344,6 +344,8 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
         string $wallet_name
     ): void
     {
+        update_option('woocommerce_buckaroo_applepay_settings', ['extrachargeamount' => '0.25 + 10%']);
+        update_option('woocommerce_buckaroo_googlepay_settings', ['extrachargeamount' => '0.25 + 10%']);
         [$product_id, $variation_id] = $this->createWildcardVariationProduct();
         $variation = ['attribute_shoe-size' => '42'];
         $cart_item_key = WC()->cart->add_to_cart($product_id, 1, $variation_id, $variation);
@@ -428,23 +430,34 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
     }
 
     /**
-     * @dataProvider walletControllers
+     * @dataProvider walletFees
      */
     public function test_wallet_probe_includes_the_configured_express_payment_fee(
         string $controller,
-        string $wallet_name
+        string $wallet_name, string $raw, float $expected, bool $current = false, bool $discounted = false, bool $taxed = false
     ): void
     {
         [$product_id, $variation_id] = $this->createWildcardVariationProduct();
         $option_name = $wallet_name === 'Apple Pay'
             ? 'woocommerce_buckaroo_applepay_settings'
             : 'woocommerce_buckaroo_googlepay_settings';
+        update_option('woocommerce_calc_taxes', $taxed ? 'yes' : 'no');
+        $rateId = null;
+        if ($taxed) {
+            $rateId = WC_Tax::_insert_tax_rate([
+                'tax_rate_country' => 'NL', 'tax_rate' => '20.0000',
+                'tax_rate_name' => 'Fee VAT', 'tax_rate_priority' => 1,
+                'tax_rate_compound' => 0, 'tax_rate_shipping' => 0, 'tax_rate_class' => 'fee-tax',
+            ]);
+        }
+        WC()->customer->set_billing_country('NL');
+        WC()->customer->set_shipping_country('NL');
         $settings_before = get_option($option_name, null);
         update_option(
             $option_name,
             [
-                'extrachargeamount' => '2.50',
-                'feetax' => '',
+                'extrachargeamount' => $raw,
+                'feetax' => $taxed ? 'fee-tax' : '',
             ]
         );
 
@@ -455,9 +468,53 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
             'attributes' => ['attribute_shoe-size' => '42'],
         ];
 
+        if ($current) {
+            WC()->cart->add_to_cart($product_id, 1, $variation_id, ['attribute_shoe-size' => '42']);
+        }
+        $coupon = null;
+        if ($discounted) {
+            $coupon = new WC_Coupon();
+            $coupon->set_code('wallet-fee-discount-' . $variation_id);
+            $coupon->set_discount_type('fixed_cart');
+            $coupon->set_amount(5);
+            $coupon->save();
+            WC()->cart->apply_coupon($coupon->get_code());
+        }
+        $stateBefore = $this->captureLiveCheckoutState();
         try {
-            $items = $this->captureJsonResponse([$controller, 'getItemsFromDetailPage']);
+            $items = $this->captureJsonResponse([$controller, $current ? 'getItemsFromCart' : 'getItemsFromDetailPage']);
+            $this->assertSame($stateBefore, $this->captureLiveCheckoutState());
+            $repeat = $this->captureJsonResponse([$controller, $current ? 'getItemsFromCart' : 'getItemsFromDetailPage']);
+            $this->assertSame($items, $repeat);
+            $gatewayClass = $wallet_name === 'Apple Pay' ? ApplepayGateway::class : GooglepayGateway::class;
+            $address = [
+                'givenName' => 'Jane', 'familyName' => 'Doe', 'emailAddress' => 'jane@example.com',
+                'phoneNumber' => '+31612345678', 'addressLines' => ['Kerkstraat 42'],
+                'locality' => 'Amsterdam', 'administrativeArea' => 'NH',
+                'postalCode' => '1017GB', 'countryCode' => 'NL',
+            ];
+            $result = (new $gatewayClass())->createOrder($address, $address, $items, '');
+            $this->assertTrue($result['success']);
+            $this->order_ids[] = $result['data']['id'];
+            $order = wc_get_order($result['data']['id']);
+            $this->assertSame(($discounted ? 20.0 : ($taxed ? 30.0 : 25.0)) + $expected, (float) $order->get_total());
+            $this->assertCount($expected > 0 ? 1 : 0, $order->get_fees());
+            if ($taxed) {
+                $savedFees = array_values($order->get_fees());
+                $this->assertSame(2.75, (float) $savedFees[0]->get_total());
+                $this->assertSame(0.55, (float) $savedFees[0]->get_total_tax());
+            }
+            $this->assertSame($stateBefore, $this->captureLiveCheckoutState());
+            if ($discounted && $wallet_name === 'Google Pay') {
+                $this->assertSame(1, (new WC_Coupon($coupon->get_id()))->get_usage_count());
+                wc_update_coupon_usage_counts($order->get_id());
+                $this->assertSame(1, (new WC_Coupon($coupon->get_id()))->get_usage_count());
+                $order->update_status('cancelled');
+                $this->assertSame(0, (new WC_Coupon($coupon->get_id()))->get_usage_count());
+            }
         } finally {
+            if ($coupon) { $coupon->delete(true); }
+            if ($rateId !== null) { WC_Tax::_delete_tax_rate($rateId); }
             if ($settings_before === null) {
                 delete_option($option_name);
             } else {
@@ -468,8 +525,121 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
         $fees = array_values(array_filter($items, static function ($item) {
             return ($item['type'] ?? '') === 'fee';
         }));
-        $this->assertCount(1, $fees);
-        $this->assertSame(2.5, $fees[0]['price']);
+        $this->assertCount($expected > 0 ? 1 : 0, $fees);
+        if ($expected > 0) { $this->assertSame($expected, $fees[0]['price']); }
+    }
+
+    public function test_rejected_google_pay_amount_releases_coupon_usage(): void
+    {
+        update_option('woocommerce_buckaroo_mastersettings_settings', ['culture' => 'en-US']);
+        update_option('woocommerce_buckaroo_googlepay_settings', ['extrachargeamount' => '0.25 + 1.5%']);
+        $productId = $this->createSimpleProduct('Amount validation', '15.00');
+        WC()->cart->add_to_cart($productId);
+        $coupon = new WC_Coupon();
+        $coupon->set_code('google-amount-retry');
+        $coupon->set_discount_type('fixed_cart');
+        $coupon->set_amount(1);
+        $coupon->save();
+        WC()->cart->apply_coupon($coupon->get_code());
+        $gateway = new class extends GooglepayGateway {
+            public $attemptId;
+            public function process_payment($order_id)
+            {
+                $this->attemptId = $order_id;
+                $details = new \Buckaroo\Woocommerce\Order\OrderDetails(wc_get_order($order_id));
+                $processor = new \Buckaroo\Woocommerce\Gateways\Googlepay\GooglepayProcessor(
+                    $this, $details, new \Buckaroo\Woocommerce\Order\OrderArticles($details, $this)
+                );
+                return $processor->getBody();
+            }
+            public function error_response($message)
+            {
+                throw new RuntimeException($message);
+            }
+        };
+        $address = ['givenName' => 'Test', 'familyName' => 'Buyer', 'emailAddress' => 'test@example.com',
+            'addressLines' => ['Test 1'], 'locality' => 'Amsterdam', 'postalCode' => '1017GB', 'countryCode' => 'NL'];
+        $before = $_POST;
+        $_POST = ['amount' => '14.00', 'selected_shipping_method' => '',
+            'paymentData' => ['billingContact' => $address, 'shippingContact' => $address],
+            'items' => [['type' => 'product', 'id' => $productId, 'quantity' => 1]]];
+        try {
+            try {
+                $gateway->createTransaction();
+                $this->fail('A stale amount must be rejected');
+            } catch (RuntimeException $error) {
+                $this->assertStringContainsString('Google Pay amount', $error->getMessage());
+            }
+            $this->order_ids[] = $gateway->attemptId;
+            $this->assertSame('failed', wc_get_order($gateway->attemptId)->get_status());
+            $this->assertSame(0, (new WC_Coupon($coupon->get_id()))->get_usage_count());
+        } finally {
+            $_POST = $before;
+            $coupon->delete(true);
+        }
+    }
+
+    /** @dataProvider walletControllers */
+    public function test_virtual_wallet_product_has_a_zero_cost_shipping_selection(string $controller, string $wallet): void
+    {
+        $productId = $this->createSimpleProduct('Download', '15.00');
+        $product = wc_get_product($productId);
+        $product->set_virtual(true);
+        $product->save();
+        $_GET = ['product_id' => (string) $productId, 'quantity' => '1', 'country_code' => 'NL'];
+        $before = $this->captureLiveCheckoutState();
+        $methods = $this->captureJsonResponse([$controller, 'getShippingMethods']);
+        $this->assertCount(1, $methods);
+        $this->assertSame('buckaroo_no_shipping', $methods[0]['identifier']);
+        $this->assertSame(0.0, (float) $methods[0]['amount']);
+        $this->assertSame($before, $this->captureLiveCheckoutState());
+        WC()->cart->add_to_cart($productId);
+        $_GET = ['country_code' => 'NL'];
+        $this->assertSame($methods, $this->captureJsonResponse([$controller, 'getShippingMethods']));
+        $gatewayClass = $wallet === 'Apple Pay' ? ApplepayGateway::class : GooglepayGateway::class;
+        $address = ['givenName' => 'Test', 'familyName' => 'Buyer', 'emailAddress' => 'test@example.com',
+            'addressLines' => ['Test 1'], 'locality' => 'Amsterdam', 'postalCode' => '1017GB', 'countryCode' => 'NL'];
+        $result = (new $gatewayClass())->createOrder($address, $address,
+            [['type' => 'product', 'id' => $productId, 'quantity' => 1]], 'buckaroo_no_shipping');
+        $this->assertIsArray($result);
+        $this->assertTrue($result['success']);
+        $this->order_ids[] = $result['data']['id'];
+        $order = wc_get_order($result['data']['id']);
+        $this->assertSame('0', $order->get_shipping_total());
+        $this->assertCount(0, $order->get_items('shipping'));
+
+    }
+
+    /** @dataProvider walletControllers */
+    public function test_physical_wallet_product_without_rates_still_has_no_shipping_selection(string $controller, string $wallet): void
+    {
+        $productId = $this->createSimpleProduct('Physical product', '15.00');
+        $_GET = ['product_id' => (string) $productId, 'quantity' => '1', 'country_code' => 'NL'];
+        $noRates = static function ($packages) {
+            foreach ($packages as &$package) { $package['rates'] = []; }
+            return $packages;
+        };
+        add_filter('woocommerce_shipping_packages', $noRates, PHP_INT_MAX);
+        try {
+            $this->assertSame([], $this->captureJsonResponse([$controller, 'getShippingMethods']));
+        } finally {
+            remove_filter('woocommerce_shipping_packages', $noRates, PHP_INT_MAX);
+        }
+    }
+
+    public function walletFees(): array
+    {
+        $cases = [];
+        foreach ($this->walletControllers() as $wallet => $args) {
+            $cases[$wallet . ' discounted'] = array_merge($args, ['0.25 + 10%', 2.25, true, true]);
+            $cases[$wallet . ' taxed'] = array_merge($args, ['0.25 + 10%', 3.3, true, false, true]);
+            foreach ([['2.50', 2.5], ['10%', 2.5], ['0.25 + 10%', 2.75], ['0 + 10%', 2.5], ['0', 0.0], ['invalid', 0.0]] as $fee) {
+                foreach ([false, true] as $current) {
+                    $cases[$wallet . $fee[0] . ($current ? ' cart' : ' product')] = array_merge($args, $fee, [$current]);
+                }
+            }
+        }
+        return $cases;
     }
 
     /**
