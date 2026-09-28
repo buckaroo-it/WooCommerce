@@ -1359,5 +1359,5 @@ msgid "Google Pay amount has changed. Please refresh the page and approve the up
 msgstr ""
 
 #: src/Gateways/AbstractPaymentGateway.php
-msgid "Configured — leave blank to keep unchanged"
+msgid "Configured. Leave blank to keep unchanged"
 msgstr ""

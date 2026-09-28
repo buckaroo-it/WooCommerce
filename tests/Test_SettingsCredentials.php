@@ -84,7 +84,7 @@ class Test_SettingsCredentials extends TestCase
         $this->assertStringNotContainsString('stored-secret-fixture', $html);
         $this->assertStringNotContainsString('bk-key-btn', $html);
         $this->assertSame(2, substr_count($html, 'value=""'));
-        $this->assertSame(2, substr_count($html, 'placeholder="Configured — leave blank to keep unchanged"'));
+        $this->assertSame(2, substr_count($html, 'placeholder="Configured. Leave blank to keep unchanged"'));
         $this->assertStringNotContainsString('required="required"', $html);
         $this->assertSame('stored-secret-fixture', $gateway->get_option('secretkey'));
     }

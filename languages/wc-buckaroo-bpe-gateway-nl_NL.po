@@ -1507,5 +1507,5 @@ msgid "Google Pay amount has changed. Please refresh the page and approve the up
 msgstr "Het Google Pay-bedrag is gewijzigd. Vernieuw de pagina en keur het bijgewerkte totaal goed."
 
 #: src/Gateways/AbstractPaymentGateway.php
-msgid "Configured — leave blank to keep unchanged"
-msgstr "Ingesteld — laat leeg om ongewijzigd te behouden"
+msgid "Configured. Leave blank to keep unchanged"
+msgstr "Ingesteld. Laat leeg om ongewijzigd te behouden"

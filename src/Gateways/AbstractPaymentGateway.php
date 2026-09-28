@@ -395,7 +395,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         $data['type'] = 'password';
         $data['custom_attributes']['autocomplete'] = 'new-password';
         if ($configured) {
-            $data['placeholder'] = __('Configured — leave blank to keep unchanged', 'wc-buckaroo-bpe-gateway');
+            $data['placeholder'] = __('Configured. Leave blank to keep unchanged', 'wc-buckaroo-bpe-gateway');
             unset($data['custom_attributes']['required']);
         }
 
