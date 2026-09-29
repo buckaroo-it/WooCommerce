@@ -25,7 +25,6 @@ use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Gateways\MbWay\MbWayGateway;
 use Buckaroo\Woocommerce\Gateways\Multibanco\MultibancoGateway;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankGateway;
-use Buckaroo\Woocommerce\Gateways\Payconiq\PayconiqGateway;
 use Buckaroo\Woocommerce\Gateways\Paypal\PaypalGateway;
 use Buckaroo\Woocommerce\Gateways\PayPerEmail\PayPerEmailGateway;
 use Buckaroo\Woocommerce\Gateways\Przelewy24\Przelewy24Gateway;
@@ -67,7 +66,6 @@ class Test_RedirectPaymentNotice extends TestCase
             'Trustly' => [TrustlyGateway::class],
             'Alipay' => [AlipayGateway::class],
             'WeChat Pay' => [WeChatPayGateway::class],
-            'Payconiq' => [PayconiqGateway::class],
             'Bizum' => [BizumGateway::class],
             'Blik' => [BlikGateway::class],
             'MB WAY' => [MbWayGateway::class],

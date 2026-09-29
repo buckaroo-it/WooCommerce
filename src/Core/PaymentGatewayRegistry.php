@@ -23,7 +23,6 @@ use Buckaroo\Woocommerce\Gateways\Bizum\BizumGateway;
 use Buckaroo\Woocommerce\Gateways\MbWay\MbWayGateway;
 use Buckaroo\Woocommerce\Gateways\Multibanco\MultibancoGateway;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankGateway;
-use Buckaroo\Woocommerce\Gateways\Payconiq\PayconiqGateway;
 use Buckaroo\Woocommerce\Gateways\Paypal\PaypalGateway;
 use Buckaroo\Woocommerce\Gateways\PayPerEmail\PayPerEmailGateway;
 use Buckaroo\Woocommerce\Gateways\Przelewy24\Przelewy24Gateway;
@@ -64,7 +63,6 @@ class PaymentGatewayRegistry
         'multibanco' => ['gateway_class' => MultibancoGateway::class],
         'przelewy24' => ['gateway_class' => Przelewy24Gateway::class],
         'paybybank' => ['gateway_class' => PayByBankGateway::class],
-        'payconiq' => ['gateway_class' => PayconiqGateway::class],
         'paypal' => ['gateway_class' => PaypalGateway::class],
         'payperemail' => ['gateway_class' => PayPerEmailGateway::class],
         'sepadirectdebit' => ['gateway_class' => SepaDirectDebitGateway::class],
