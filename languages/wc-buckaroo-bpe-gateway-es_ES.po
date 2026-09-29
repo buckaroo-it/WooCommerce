@@ -1371,3 +1371,7 @@ msgstr "No se requiere envío"
 #: src/Gateways/Googlepay/GooglepayProcessor.php:34
 msgid "Google Pay amount has changed. Please refresh the page and approve the updated total."
 msgstr "El importe de Google Pay ha cambiado. Actualice la página y apruebe el nuevo total."
+
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Configured. Leave blank to keep unchanged"
+msgstr "Configurado. Dejar en blanco para conservar el valor"

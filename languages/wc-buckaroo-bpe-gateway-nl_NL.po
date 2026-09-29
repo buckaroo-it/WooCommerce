@@ -1486,17 +1486,13 @@ msgstr "Testmodus"
 msgid "This action will enable payment methods in LIVE mode based on your active Buckaroo subscriptions. This will overwrite your current payment method settings. Are you sure you want to proceed?"
 msgstr "Deze actie activeert betaalmethoden in LIVE modus op basis van je actieve Buckaroo-abonnementen. Hiermee worden je huidige instellingen voor betaalmethoden overschreven. Weet je zeker dat je wilt doorgaan?"
 
-#: src/Admin/GeneralSettings.php
+#: src/Admin/PaymentMethodSettings.php
 msgid "Enter your Store key"
 msgstr "Vul je Store key in"
 
-#: src/Admin/GeneralSettings.php
+#: src/Admin/PaymentMethodSettings.php
 msgid "Enter your Secret key"
 msgstr "Vul je Secret Key in"
-
-#: src/Admin/GeneralSettings.php
-msgid "Show / hide"
-msgstr "Weergeven / verbergen"
 
 #: src/Admin/GeneralSettings.php
 msgid "API credentials"
@@ -1509,3 +1505,7 @@ msgstr "Geen verzending nodig"
 #: src/Gateways/Googlepay/GooglepayProcessor.php:34
 msgid "Google Pay amount has changed. Please refresh the page and approve the updated total."
 msgstr "Het Google Pay-bedrag is gewijzigd. Vernieuw de pagina en keur het bijgewerkte totaal goed."
+
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Configured. Leave blank to keep unchanged"
+msgstr "Ingesteld. Laat leeg om ongewijzigd te behouden"

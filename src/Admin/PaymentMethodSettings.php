@@ -47,6 +47,7 @@ class PaymentMethodSettings extends AbstractPaymentGateway
         $this->form_fields['merchantkey'] = [
             'title' => __('Store key', 'wc-buckaroo-bpe-gateway'),
             'type' => 'password',
+            'placeholder' => __('Enter your Store key', 'wc-buckaroo-bpe-gateway'),
             'description' => __('Find this in Buckaroo Plaza under Settings → API Keys → <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">Store Key</a>.', 'wc-buckaroo-bpe-gateway'),
             'default' => '',
             'custom_attributes' => [
@@ -56,6 +57,7 @@ class PaymentMethodSettings extends AbstractPaymentGateway
         $this->form_fields['secretkey'] = [
             'title' => __('Secret key', 'wc-buckaroo-bpe-gateway'),
             'type' => 'password',
+            'placeholder' => __('Enter your Secret key', 'wc-buckaroo-bpe-gateway'),
             'description' => __('Find this in Buckaroo Plaza under Settings → API Keys → <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank" rel="noopener">Secret Key</a>.', 'wc-buckaroo-bpe-gateway'),
             'default' => '',
             'custom_attributes' => [
