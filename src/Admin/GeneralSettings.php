@@ -111,7 +111,8 @@ class GeneralSettings extends WC_Settings_Page
             'refund_description',
             'feetax',
             'paymentfeevat',
-            'culture'
+            'culture',
+            'show_redirect_notice'
         ];
 
         $settings = [
@@ -439,7 +440,8 @@ class GeneralSettings extends WC_Settings_Page
                     'refund_description',
                     'feetax',
                     'paymentfeevat',
-                    'culture'
+                    'culture',
+                    'show_redirect_notice'
                 ];
             case 'verification':
                 return ['useidin', 'idincategories'];

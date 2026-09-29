@@ -220,16 +220,21 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     public function getRedirectNoticeHtml()
     {
-        if (! $this->redirectsToPaymentPage()) {
+        if (! $this->redirectsToPaymentPage() || $this->get_option('show_redirect_notice', 'yes') !== 'yes') {
             return '';
         }
 
-        return '<span class="buckaroo-redirect-notice">'
-            . esc_html__(
-                'After submission, you will be redirected to securely complete your payment.',
-                'wc-buckaroo-bpe-gateway'
-            )
-            . '</span>';
+        $text = apply_filters(
+            'buckaroo_checkout_redirect_notice_text',
+            __('After submission, you will be redirected to securely complete your payment.', 'wc-buckaroo-bpe-gateway'),
+            $this
+        );
+
+        if (! is_string($text) || trim($text) === '') {
+            return '';
+        }
+
+        return '<span class="buckaroo-redirect-notice">' . esc_html($text) . '</span>';
     }
 
     public function isInTestMode(): bool

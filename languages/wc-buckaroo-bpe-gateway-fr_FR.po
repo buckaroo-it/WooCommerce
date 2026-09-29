@@ -1509,3 +1509,11 @@ msgstr "Le montant Google Pay a changé. Actualisez la page et approuvez le nouv
 #: src/Gateways/AbstractPaymentGateway.php
 msgid "Configured. Leave blank to keep unchanged"
 msgstr "Configuré. Laisser vide pour conserver la valeur"
+
+#: src/Admin/PaymentMethodSettings.php
+msgid "Show redirect notice on checkout"
+msgstr "Afficher le message de redirection lors du paiement"
+
+#: src/Admin/PaymentMethodSettings.php
+msgid "Show a notice when customers are redirected to complete payment."
+msgstr "Afficher un message lorsque les clients sont redirigés pour finaliser le paiement."

@@ -118,6 +118,13 @@ class PaymentMethodSettings extends AbstractPaymentGateway
             'id' => 'woocommerce_buckaroo_mastersettings_culture',
         ];
 
+        $this->form_fields['show_redirect_notice'] = [
+            'title' => __('Show redirect notice on checkout', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'checkbox',
+            'label' => __('Show a notice when customers are redirected to complete payment.', 'wc-buckaroo-bpe-gateway'),
+            'default' => 'yes',
+        ];
+
         $this->form_fields['debugmode'] = [
             'title' => __('Debug mode', 'wc-buckaroo-bpe-gateway'),
             'type' => 'select',

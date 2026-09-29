@@ -35,6 +35,7 @@ use Buckaroo\Woocommerce\Gateways\Trustly\TrustlyGateway;
 use Buckaroo\Woocommerce\Gateways\Twint\TwintGateway;
 use Buckaroo\Woocommerce\Gateways\WeChatPay\WeChatPayGateway;
 use Buckaroo\Woocommerce\Gateways\Wero\WeroGateway;
+use Buckaroo\Woocommerce\Hooks\InitGateways;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -147,6 +148,139 @@ class Test_RedirectPaymentNotice extends TestCase
         $notice = $this->makeGateway(IdealGateway::class)->getRedirectNoticeHtml();
 
         $this->assertSame($notice, wp_kses_post($notice));
+    }
+
+    public function test_merchant_can_disable_redirect_notice_globally(): void
+    {
+        $option = 'woocommerce_buckaroo_mastersettings_settings';
+        $original = get_option($option, null);
+
+        try {
+            update_option($option, array_merge((array) $original, ['show_redirect_notice' => 'no']));
+            $gateway = new IdealGateway();
+            $this->assertSame('', $gateway->getRedirectNoticeHtml());
+
+            ob_start();
+            $gateway->payment_fields();
+            $this->assertStringNotContainsString('buckaroo-redirect-notice', (string) ob_get_clean());
+
+            $gateway->enabled = 'yes';
+            $paymentGateways = WC()->payment_gateways();
+            $previousGateways = $paymentGateways->payment_gateways;
+            $paymentGateways->payment_gateways = [$gateway->id => $gateway];
+            try {
+                $blocksData = (new InitGateways())->initGatewaysOnCheckout();
+                $this->assertSame('', $blocksData[0]['redirectNotice']);
+            } finally {
+                $paymentGateways->payment_gateways = $previousGateways;
+            }
+        } finally {
+            if ($original === null) {
+                delete_option($option);
+            } else {
+                update_option($option, $original);
+            }
+        }
+    }
+
+    public function test_developer_can_replace_redirect_notice_text_safely(): void
+    {
+        $filter = static function () {
+            return '<script>unsafe</script>Pay securely';
+        };
+        add_filter('buckaroo_checkout_redirect_notice_text', $filter);
+
+        try {
+            $notice = $this->makeGateway(IdealGateway::class)->getRedirectNoticeHtml();
+            $this->assertStringContainsString('&lt;script&gt;unsafe&lt;/script&gt;Pay securely', $notice);
+            $this->assertStringNotContainsString('<script>', $notice);
+        } finally {
+            remove_filter('buckaroo_checkout_redirect_notice_text', $filter);
+        }
+    }
+
+    public function test_empty_filtered_text_removes_the_notice_element(): void
+    {
+        $filter = static function () {
+            return '';
+        };
+        add_filter('buckaroo_checkout_redirect_notice_text', $filter);
+
+        try {
+            $this->assertSame('', $this->makeGateway(IdealGateway::class)->getRedirectNoticeHtml());
+        } finally {
+            remove_filter('buckaroo_checkout_redirect_notice_text', $filter);
+        }
+    }
+
+    public function test_filter_receives_translated_text_and_gateway(): void
+    {
+        $gateway = $this->makeGateway(IdealGateway::class);
+        $received = [];
+        $filter = static function ($text, $filteredGateway) use (&$received) {
+            $received = [$text, $filteredGateway];
+            return $text;
+        };
+        add_filter('buckaroo_checkout_redirect_notice_text', $filter, 10, 2);
+
+        try {
+            $gateway->getRedirectNoticeHtml();
+            $this->assertSame(self::NOTICE_TEXT, $received[0]);
+            $this->assertSame($gateway, $received[1]);
+        } finally {
+            remove_filter('buckaroo_checkout_redirect_notice_text', $filter);
+        }
+    }
+
+    /** @dataProvider noticeTranslations */
+    public function test_notice_catalog_has_the_site_language(string $locale, string $translation): void
+    {
+        $domain = 'wc-buckaroo-bpe-gateway';
+        $catalog = dirname(__DIR__) . '/languages/' . $domain . '-' . $locale . '.mo';
+
+        $this->assertFileExists($catalog);
+        $messages = new MO();
+        $this->assertTrue($messages->import_from_file($catalog));
+        $this->assertSame($translation, $messages->translate(self::NOTICE_TEXT));
+    }
+
+    /**
+     * @dataProvider noticeTranslations
+     */
+    public function test_wordpress_renders_notice_in_site_language(string $locale, string $translation): void
+    {
+        $domain = 'wc-buckaroo-bpe-gateway';
+        $catalog = dirname(__DIR__) . '/languages/' . $domain . '-' . $locale . '.mo';
+        $originalLocale = determine_locale();
+        $siteLocale = static function () use ($locale) {
+            return $locale;
+        };
+
+        add_filter('pre_determine_locale', $siteLocale);
+
+        try {
+            $this->assertSame($locale, determine_locale());
+            $this->assertTrue(load_textdomain($domain, $catalog, $locale));
+            $this->assertStringContainsString(
+                $translation,
+                $this->makeGateway(IdealGateway::class)->getRedirectNoticeHtml()
+            );
+        } finally {
+            remove_filter('pre_determine_locale', $siteLocale);
+            WP_Translation_Controller::get_instance()->set_locale($originalLocale);
+        }
+    }
+
+    public function noticeTranslations(): array
+    {
+        return [
+            ['nl_NL', 'Na het plaatsen van je bestelling word je veilig doorgestuurd om je betaling af te ronden.'],
+            ['nl_BE', 'Na het plaatsen van je bestelling word je veilig doorgestuurd om je betaling af te ronden.'],
+            ['de_DE', 'Nach der Übermittlung werden Sie sicher weitergeleitet, um Ihre Zahlung abzuschließen.'],
+            ['de_AT', 'Nach der Übermittlung werden Sie sicher weitergeleitet, um Ihre Zahlung abzuschließen.'],
+            ['fr_FR', 'Après validation, vous serez redirigé en toute sécurité pour finaliser votre paiement.'],
+            ['fr_BE', 'Après validation, vous serez redirigé en toute sécurité pour finaliser votre paiement.'],
+        ];
     }
 
     public function test_credit_card_redirects_unless_inline_encryption_over_https()
