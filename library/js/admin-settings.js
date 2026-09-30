@@ -1,36 +1,12 @@
 /**
  * Behaviour for the Buckaroo admin settings screens.
  *
- * Both features are inert when their elements are absent, so this file is safe to
+ * This behaviour is inert when its elements are absent, so this file is safe to
  * enqueue on any admin page. Field ids come from wp_localize_script rather than
  * being echoed into the markup.
  */
 (function () {
     'use strict';
-
-    /** Show / hide the API credential values. */
-    function initKeyToggles() {
-        document.querySelectorAll('.bk-key-btn--toggle').forEach(function (button) {
-            button.addEventListener('click', function () {
-                var input = document.getElementById(button.dataset.target);
-                if (!input) {
-                    return;
-                }
-
-                var hidden = input.type === 'password';
-                input.type = hidden ? 'text' : 'password';
-
-                var show = button.querySelector('.bk-eye-show');
-                var hide = button.querySelector('.bk-eye-hide');
-                if (show) {
-                    show.style.display = hidden ? 'none' : '';
-                }
-                if (hide) {
-                    hide.style.display = hidden ? '' : 'none';
-                }
-            });
-        });
-    }
 
     /** Only reveal the hosted-fields credentials when that method is selected. */
     function initHostedFieldsRows() {
@@ -61,7 +37,6 @@
     }
 
     function init() {
-        initKeyToggles();
         initHostedFieldsRows();
     }
 

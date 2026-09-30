@@ -111,7 +111,8 @@ class GeneralSettings extends WC_Settings_Page
             'refund_description',
             'feetax',
             'paymentfeevat',
-            'culture'
+            'culture',
+            'show_redirect_notice'
         ];
 
         $settings = [
@@ -439,7 +440,8 @@ class GeneralSettings extends WC_Settings_Page
                     'refund_description',
                     'feetax',
                     'paymentfeevat',
-                    'culture'
+                    'culture',
+                    'show_redirect_notice'
                 ];
             case 'verification':
                 return ['useidin', 'idincategories'];
@@ -526,14 +528,7 @@ class GeneralSettings extends WC_Settings_Page
 
     public function render_api_credentials_card_inner()
     {
-        $merchant_key    = $this->gateway->get_option('merchantkey', '');
-        $secret_key      = $this->gateway->get_option('secretkey', '');
-        $merchant_key_id = $this->gateway->get_field_key('merchantkey');
-        $secret_key_id   = $this->gateway->get_field_key('secretkey');
-
         $this->gateway->init_form_fields();
-        $merchant_field = $this->gateway->form_fields['merchantkey'] ?? [];
-        $secret_field   = $this->gateway->form_fields['secretkey'] ?? [];
         $test_btn_field = $this->gateway->form_fields['test_credentials'] ?? null;
         $auto_btn_field = $this->gateway->form_fields['auto_configure'] ?? null;
         ?>
@@ -543,55 +538,9 @@ class GeneralSettings extends WC_Settings_Page
 
     <table class="form-table bk-creds-table"><tbody>
 
-        <tr>
-            <th scope="row" class="titledesc">
-                <label for="<?php echo esc_attr($merchant_key_id); ?>"><?php esc_html_e('Store key', 'wc-buckaroo-bpe-gateway'); ?></label>
-            </th>
-            <td class="forminp">
-                <div class="bk-creds-field">
-                    <input type="password"
-                           id="<?php echo esc_attr($merchant_key_id); ?>"
-                           name="<?php echo esc_attr($merchant_key_id); ?>"
-                           value="<?php echo esc_attr($merchant_key); ?>"
-                           class="input-text regular-input"
-                           placeholder="<?php esc_attr_e('Enter your Store key', 'wc-buckaroo-bpe-gateway'); ?>"
-                           autocomplete="off"
-                           <?php echo $this->custom_attributes($merchant_field); ?>/>
-                    <button type="button" class="bk-key-btn bk-key-btn--toggle" data-target="<?php echo esc_attr($merchant_key_id); ?>" title="<?php esc_attr_e('Show / hide', 'wc-buckaroo-bpe-gateway'); ?>">
-                        <svg class="bk-eye-show" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                        <svg class="bk-eye-hide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                    </button>
-                </div>
-                <?php if (! empty($merchant_field['description'])) : ?>
-                <p class="description"><?php echo wp_kses_post($merchant_field['description']); ?></p>
-                <?php endif; ?>
-            </td>
-        </tr>
-
-        <tr>
-            <th scope="row" class="titledesc">
-                <label for="<?php echo esc_attr($secret_key_id); ?>"><?php esc_html_e('Secret key', 'wc-buckaroo-bpe-gateway'); ?></label>
-            </th>
-            <td class="forminp">
-                <div class="bk-creds-field">
-                    <input type="password"
-                           id="<?php echo esc_attr($secret_key_id); ?>"
-                           name="<?php echo esc_attr($secret_key_id); ?>"
-                           value="<?php echo esc_attr($secret_key); ?>"
-                           class="input-text regular-input"
-                           placeholder="<?php esc_attr_e('Enter your Secret key', 'wc-buckaroo-bpe-gateway'); ?>"
-                           autocomplete="off"
-                           <?php echo $this->custom_attributes($secret_field); ?>/>
-                    <button type="button" class="bk-key-btn bk-key-btn--toggle" data-target="<?php echo esc_attr($secret_key_id); ?>" title="<?php esc_attr_e('Show / hide', 'wc-buckaroo-bpe-gateway'); ?>">
-                        <svg class="bk-eye-show" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                        <svg class="bk-eye-hide" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                    </button>
-                </div>
-                <?php if (! empty($secret_field['description'])) : ?>
-                <p class="description"><?php echo wp_kses_post($secret_field['description']); ?></p>
-                <?php endif; ?>
-            </td>
-        </tr>
+        <?php foreach (['merchantkey', 'secretkey'] as $key) : ?>
+            <?php echo $this->gateway->generate_password_html($key, $this->gateway->form_fields[$key]); ?>
+        <?php endforeach; ?>
 
     </tbody></table>
 

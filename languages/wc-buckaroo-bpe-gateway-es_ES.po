@@ -371,9 +371,9 @@ msgstr ""
 msgid "Payment fee"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:155
-msgid "Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.)"
-msgstr ""
+#: src/Gateways/AbstractPaymentGateway.php:166
+msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)"
+msgstr "Indique un importe fijo (p. ej. 1.50), un porcentaje (p. ej. 1%) o ambos (p. ej. 0.25 + 1.5%). Los cargos combinados se calculan sobre el total de los productos después de los descuentos, sin incluir gastos de envío ni impuestos. Use un punto (.) como separador decimal."
 
 #: src/Gateways/AbstractPaymentGateway.php:159
 msgid "Minimum order amount allowed"
@@ -1429,3 +1429,15 @@ msgstr "Disponible en PayPal → <a href=\"https://www.paypal.com/businessmanage
 
 msgid "Global digital wallet with card and balance payments, plus Buyer Protection."
 msgstr "Monedero digital global con pagos con tarjeta y saldo, además de la Protección del comprador."
+
+#: src/Gateways/ExpressProductCart.php:27
+msgid "No shipping required"
+msgstr "No se requiere envío"
+
+#: src/Gateways/Googlepay/GooglepayProcessor.php:34
+msgid "Google Pay amount has changed. Please refresh the page and approve the updated total."
+msgstr "El importe de Google Pay ha cambiado. Actualice la página y apruebe el nuevo total."
+
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Configured. Leave blank to keep unchanged"
+msgstr "Configurado. Dejar en blanco para conservar el valor"

@@ -911,9 +911,9 @@ msgstr "Spécifiez le montant maximum de commande autorisé pour afficher la mé
 msgid "Specify minimum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
 msgstr "Spécifiez le montant minimum de commande autorisé pour afficher la méthode actuelle. Une valeur zéro ou vide signifie qu'aucune règle ne sera appliquée."
 
-#: src/Gateways/AbstractPaymentGateway.php:155
-msgid "Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.)"
-msgstr "Spécifiez un montant fixe (par exemple 1,50) ou un pourcentage (par exemple 1%). Les décimales doivent être séparées par un point (.)"
+#: src/Gateways/AbstractPaymentGateway.php:166
+msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)"
+msgstr "Indiquez un montant fixe (par ex. 1.50), un pourcentage (par ex. 1%) ou les deux (par ex. 0.25 + 1.5%). Les frais combinés sont calculés sur le total des produits après remises, hors livraison et taxes. Utilisez un point (.) comme séparateur décimal."
 
 #: src/Admin/PaymentMethodSettings.php:48
 msgid "Store key"
@@ -1403,17 +1403,13 @@ msgstr "Mode test"
 msgid "This action will enable payment methods in LIVE mode based on your active Buckaroo subscriptions. This will overwrite your current payment method settings. Are you sure you want to proceed?"
 msgstr "Cette action active les moyens de paiement en mode LIVE selon vos abonnements Buckaroo actifs. Vos réglages actuels des moyens de paiement seront écrasés. Voulez-vous continuer ?"
 
-#: src/Admin/GeneralSettings.php
+#: src/Admin/PaymentMethodSettings.php
 msgid "Enter your Store key"
 msgstr "Saisissez votre Store key"
 
-#: src/Admin/GeneralSettings.php
+#: src/Admin/PaymentMethodSettings.php
 msgid "Enter your Secret key"
 msgstr "Saisissez votre Secret Key"
-
-#: src/Admin/GeneralSettings.php
-msgid "Show / hide"
-msgstr "Afficher / masquer"
 
 #: src/Admin/GeneralSettings.php
 msgid "API credentials"
@@ -1563,3 +1559,23 @@ msgstr "Votre Google Merchant ID, disponible dans la <a href=\"https://pay.googl
 
 msgid "Found in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>. Required for live payments."
 msgstr "Disponible dans PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Informations sur l'entreprise</a>. Requis pour les paiements live."
+
+#: src/Gateways/ExpressProductCart.php:27
+msgid "No shipping required"
+msgstr "Aucune livraison nécessaire"
+
+#: src/Gateways/Googlepay/GooglepayProcessor.php:34
+msgid "Google Pay amount has changed. Please refresh the page and approve the updated total."
+msgstr "Le montant Google Pay a changé. Actualisez la page et approuvez le nouveau total."
+
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Configured. Leave blank to keep unchanged"
+msgstr "Configuré. Laisser vide pour conserver la valeur"
+
+#: src/Admin/PaymentMethodSettings.php
+msgid "Show redirect notice on checkout"
+msgstr "Afficher le message de redirection lors du paiement"
+
+#: src/Admin/PaymentMethodSettings.php
+msgid "Show a notice when customers are redirected to complete payment."
+msgstr "Afficher un message lorsque les clients sont redirigés pour finaliser le paiement."

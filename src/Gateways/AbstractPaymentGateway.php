@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways;
 
+use Buckaroo\Woocommerce\Services\PaymentFee;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
@@ -162,7 +163,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             'extrachargeamount' => [
                 'title' => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'text',
-                'description' => __('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
+                'description' => __('Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
                 'default' => '0',
             ],
             'minvalue' => [
@@ -219,16 +220,21 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     public function getRedirectNoticeHtml()
     {
-        if (! $this->redirectsToPaymentPage()) {
+        if (! $this->redirectsToPaymentPage() || $this->get_option('show_redirect_notice', 'yes') !== 'yes') {
             return '';
         }
 
-        return '<span class="buckaroo-redirect-notice">'
-            . esc_html__(
-                'After submission, you will be redirected to securely complete your payment.',
-                'wc-buckaroo-bpe-gateway'
-            )
-            . '</span>';
+        $text = apply_filters(
+            'buckaroo_checkout_redirect_notice_text',
+            __('After submission, you will be redirected to securely complete your payment.', 'wc-buckaroo-bpe-gateway'),
+            $this
+        );
+
+        if (! is_string($text) || trim($text) === '') {
+            return '';
+        }
+
+        return '<span class="buckaroo-redirect-notice">' . esc_html($text) . '</span>';
     }
 
     public function isInTestMode(): bool
@@ -379,6 +385,32 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         ) ?? $html;
     }
 
+    /** Keep configured credentials when their fields are left blank. */
+    public function validate_password_field($key, $value)
+    {
+        $value = parent::validate_password_field($key, $value);
+
+        return $value === '' ? $this->get_option($key, '') : $value;
+    }
+
+    /** Render credentials without exposing their stored values. */
+    public function generate_password_html($key, $data)
+    {
+        $configured = $this->get_option($key, '') !== '';
+        $data['type'] = 'password';
+        $data['custom_attributes']['autocomplete'] = 'new-password';
+        if ($configured) {
+            $data['placeholder'] = __('Configured. Leave blank to keep unchanged', 'wc-buckaroo-bpe-gateway');
+            unset($data['custom_attributes']['required']);
+        }
+
+        // Render with a separate settings copy so payment credentials stay available.
+        $renderer = clone $this;
+        $renderer->settings[$key] = '';
+
+        return $renderer->generate_text_html($key, $data);
+    }
+
     /** {@inheritDoc} */
     public function process_admin_options()
     {
@@ -414,30 +446,18 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     public function setTitle()
     {
-        $feeText = '';
-        $fee = $this->get_option('extrachargeamount', 0);
-        $is_percentage = strpos($fee, '%') !== false;
-        $fee = floatval(str_replace('%', '', $fee));
-
-        if ($fee != 0) {
-            if ($is_percentage) {
-                $fee = str_replace(
-                    '&nbsp;',
-                    '',
-                    wc_price(
-                        $fee,
-                        [
-                            'currency' => 'null',
-                        ]
-                    )
-                ) . '%';
-            } else {
-                $fee = wc_price($fee + $this->getPaymentFeeVat($fee));
+        $parts = [];
+        $fee = PaymentFee::parse($this->get_option('extrachargeamount', 0));
+        if ($fee !== null) {
+            if ($fee->fixed > 0) {
+                $parts[] = wc_price($fee->fixed + $this->getPaymentFeeVat($fee->fixed));
             }
-
-            $feeText = ' (+ ' . $fee . ')';
+            if ($fee->percentage > 0) {
+                $parts[] = str_replace('&nbsp;', '', wc_price($fee->percentage, ['currency' => 'null'])) . '%';
+            }
         }
 
+        $feeText = $parts ? ' (+ ' . implode(' + ', $parts) . ')' : '';
         $this->title = strip_tags($this->get_option('title', $this->title ?? '') . $feeText);
     }
 

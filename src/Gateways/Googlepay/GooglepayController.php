@@ -70,7 +70,8 @@ class GooglepayController
             $product = $cart_item['data'];
             $quantity = $cart_item['quantity'];
 
-            $line_total = $cart_item['line_total'] + $cart_item['line_tax'];
+            // Coupons are separate negative lines in the wallet breakdown.
+            $line_total = $cart_item['line_subtotal'] + $cart_item['line_subtotal_tax'];
 
             $items[] = [
                 'type' => 'product',
@@ -138,11 +139,7 @@ class GooglepayController
 
     public static function getShippingMethods()
     {
-        $wcGooglepayMethods = static function () {
-            $packages = WC()->shipping()->get_packages();
-
-            return $packages ? (current($packages)['rates'] ?? []) : [];
-        };
+        $wcGooglepayMethods = [ExpressProductCart::class, 'walletShippingRates'];
 
         try {
             if (isset($_GET['product_id']) && is_numeric($_GET['product_id'])) {
