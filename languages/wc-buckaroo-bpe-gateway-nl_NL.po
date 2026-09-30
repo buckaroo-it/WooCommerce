@@ -1509,3 +1509,11 @@ msgstr "Het Google Pay-bedrag is gewijzigd. Vernieuw de pagina en keur het bijge
 #: src/Gateways/AbstractPaymentGateway.php
 msgid "Configured. Leave blank to keep unchanged"
 msgstr "Ingesteld. Laat leeg om ongewijzigd te behouden"
+
+#: src/Admin/PaymentMethodSettings.php
+msgid "Show redirect notice on checkout"
+msgstr "Doorverwijzingsmelding tonen bij afrekenen"
+
+#: src/Admin/PaymentMethodSettings.php
+msgid "Show a notice when customers are redirected to complete payment."
+msgstr "Toon een melding wanneer klanten worden doorgestuurd om de betaling af te ronden."

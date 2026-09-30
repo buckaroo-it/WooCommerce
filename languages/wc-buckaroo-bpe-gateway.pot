@@ -373,6 +373,14 @@ msgstr ""
 msgid "After submission, you will be redirected to securely complete your payment."
 msgstr ""
 
+#: src/Admin/PaymentMethodSettings.php:121
+msgid "Show redirect notice on checkout"
+msgstr ""
+
+#: src/Admin/PaymentMethodSettings.php:123
+msgid "Show a notice when customers are redirected to complete payment."
+msgstr ""
+
 #: src/Gateways/AbstractPaymentGateway.php:371
 msgid "This payment method is not supported for the selected currency "
 msgstr ""
