@@ -58,12 +58,28 @@
          */
         paypal: {
             src: function () {
-                return 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(config.clientId);
+                var url = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(config.clientId);
+
+                Object.keys(config.sdkParams || {}).forEach(function (name) {
+                    url += '&' + name + '=' + encodeURIComponent(config.sdkParams[name]);
+                });
+
+                return url;
             },
             ready: function () {
                 return window.paypal && typeof window.paypal.Buttons === 'function';
             },
             draw: function () {
+                // Re-rendering into a container that still holds a live zoid
+                // instance fails, so retire the previous one first.
+                if (this.instance && typeof this.instance.close === 'function') {
+                    try {
+                        this.instance.close();
+                    } catch (error) {
+                        // Already gone.
+                    }
+                }
+
                 var buttons = window.paypal.Buttons({
                     onInit: function (data, actions) {
                         actions.disable();
@@ -74,11 +90,14 @@
                         height: parseInt(config.height, 10),
                         color: valueOf('color', 'gold'),
                         shape: valueOf('shape', 'FALSE') === 'TRUE' ? 'pill' : 'rect',
+                        label: valueOf('type', 'paypal'),
                     },
                 });
 
                 // render() resolves asynchronously, so a rejection never reaches
                 // the caller's try/catch.
+                this.instance = buttons;
+
                 var rendered = buttons.render(container);
                 if (rendered && typeof rendered.catch === 'function') {
                     rendered.catch(unavailable);
@@ -103,7 +122,7 @@
                 container.appendChild(
                     client.createButton({
                         buttonColor: valueOf('color', 'black') === 'white' ? 'white' : 'black',
-                        buttonType: valueOf('label', 'pay'),
+                        buttonType: valueOf('type', 'pay'),
                         buttonSizeMode: 'fill',
                         onClick: function () {},
                     })
@@ -112,28 +131,60 @@
         },
 
         /**
-         * Apple's button is a web component that only upgrades in Safari on
-         * Apple hardware, so elsewhere the merchant is told why it is blank
-         * rather than shown an empty box.
+         * Apple's button is a web component, so the preview draws in any
+         * browser; only a real payment needs Safari on Apple hardware.
          */
         applepay: {
             src: function () {
                 return config.appleSdk;
             },
+            /**
+             * The button is a web component, so readiness means the element
+             * is registered. Checking ApplePaySession instead would skip the
+             * load in Safari and suppress the preview everywhere else.
+             */
             ready: function () {
-                return typeof window.ApplePaySession !== 'undefined';
+                return !!(window.customElements && window.customElements.get('apple-pay-button'));
             },
             draw: function () {
                 var button = document.createElement('apple-pay-button');
                 button.setAttribute('buttonstyle', valueOf('color', 'black'));
-                button.setAttribute('type', valueOf('label', 'plain'));
+                button.setAttribute('type', valueOf('type', 'plain'));
                 button.setAttribute('locale', config.locale);
                 button.style.width = '100%';
                 button.style.setProperty('--apple-pay-button-height', config.height + 'px');
                 container.appendChild(button);
-            },
-            unsupported: function () {
-                message(config.i18n.appleOnly);
+
+                // Once connected, the component flags itself hidden wherever
+                // Apple Pay cannot actually be used, via
+                //   :host([aria-hidden]), :host([hidden]) { display: none }
+                // in its shadow root. The drawn button underneath is correct,
+                // and this is a style preview rather than a payable button, so
+                // clear the flags. hidden is a boolean attribute, so it has to
+                // be removed: setting it to "false" still hides.
+                var flags = ['hidden', 'aria-hidden', 'disabled'];
+                var reveal = function () {
+                    flags.forEach(function (name) {
+                        button.removeAttribute(name);
+                    });
+                };
+
+                reveal();
+
+                // The flags are applied asynchronously, once the component has
+                // finished its availability check, so watch for them rather
+                // than guessing a delay. It sets them once and does not restore
+                // them after removal, so this settles rather than looping.
+                if (window.MutationObserver) {
+                    var observer = new window.MutationObserver(reveal);
+                    observer.observe(button, { attributes: true, attributeFilter: flags });
+
+                    // The check is long done by then; stop watching so a
+                    // settings page does not keep an observer alive forever.
+                    window.setTimeout(function () {
+                        observer.disconnect();
+                    }, 10000);
+                }
             },
         },
     };

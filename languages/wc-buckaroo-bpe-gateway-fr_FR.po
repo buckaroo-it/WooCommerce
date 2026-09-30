@@ -127,21 +127,6 @@ msgstr "Buckaroo envoie un email au client avec les procédures de paiement."
 msgid "Buckaroo Settings"
 msgstr "Paramètres Buckaroo"
 
-#: src/Gateways/Applepay/ApplepayGateway.php:437
-#: src/Gateways/Googlepay/GooglepayGateway.php:444
-msgid "Button on cart page"
-msgstr "Bouton sur la page du panier"
-
-#: src/Gateways/Applepay/ApplepayGateway.php:448
-#: src/Gateways/Googlepay/GooglepayGateway.php:455
-msgid "Button on checkout page"
-msgstr "Bouton sur la page de paiement"
-
-#: src/Gateways/Applepay/ApplepayGateway.php:426
-#: src/Gateways/Googlepay/GooglepayGateway.php:433
-msgid "Button on product page"
-msgstr "Bouton sur la page produit"
-
 #: src/Admin/PaymentMethodSettings.php:169
 msgid "By turning on this setting age verification with iDIN will be in use"
 msgstr "En activant ce paramètre, la vérification de l'âge avec iDIN sera utilisée"
@@ -310,10 +295,6 @@ msgstr "Description"
 msgid "Determines how the payment method is named in the checkout."
 msgstr "Détermine comment la méthode de paiement est nommée lors du passage en caisse."
 
-#: src/Gateways/Paypal/PaypalGateway.php:101
-msgid "Disabled"
-msgstr "Désactivé"
-
 #: src/Admin/GeneralSettings.php:489
 msgid "disabled"
 msgstr "désactivé"
@@ -348,10 +329,6 @@ msgstr "Activer la méthode de paiement %s"
 #: src/Gateways/Afterpay/AfterpayOldGateway.php:125
 msgid "Enable B2B option for Riverty"
 msgstr "Activer l'option B2B pour Riverty"
-
-#: src/Gateways/Paypal/PaypalGateway.php:113
-msgid "Enable PayPal express for the following pages."
-msgstr "Activer PayPal express pour les pages suivantes."
 
 #: src/Gateways/AbstractPaymentGateway.php:118
 msgid "Enable/Disable"
@@ -633,14 +610,6 @@ msgstr "La méthode de paiement n'est pas prise en charge pour le pays ("
 msgid "Payment unsuccessful. Please try again or choose another payment method."
 msgstr "Paiement non réussi. Veuillez réessayer ou choisir une autre méthode de paiement."
 
-#: src/Gateways/Paypal/PaypalGateway.php:111
-msgid "PayPal express"
-msgstr "PayPal express"
-
-#: src/Gateways/Paypal/PaypalGateway.php:106
-msgid "PayPal express merchant id"
-msgstr "ID marchand PayPal express"
-
 #: src/Gateways/PaypalExpress/PaypalExpressController.php:114
 msgid "PayPal merchant id is required"
 msgstr "L'ID marchand PayPal est requis"
@@ -856,10 +825,6 @@ msgstr "Sélectionnez votre carte de crédit :"
 msgid "Select your Gender"
 msgstr "Sélectionnez votre genre"
 
-#: src/Gateways/Paypal/PaypalGateway.php:96
-msgid "Seller Protection"
-msgstr "Protection du vendeur"
-
 #: src/Gateways/Transfer/TransferGateway.php:154
 msgid "Send email"
 msgstr "Envoyer un email"
@@ -867,10 +832,6 @@ msgstr "Envoyer un email"
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:160
 msgid "Send image info"
 msgstr "Envoyer les informations de l'image"
-
-#: src/Gateways/Paypal/PaypalGateway.php:98
-msgid "Sends customer address information to PayPal to enable PayPal seller protection."
-msgstr "Envoie les informations d'adresse du client à PayPal pour activer la protection du vendeur PayPal."
 
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:318
@@ -942,18 +903,6 @@ msgstr "Afficher PayPerEmail sur la page de paiement"
 msgid "Show separate in checkout"
 msgstr "Afficher séparément lors du paiement"
 
-#: src/Gateways/Applepay/ApplepayGateway.php:439
-msgid "Show the Apple pay button on the cart page"
-msgstr "Afficher le bouton Apple Pay sur la page du panier"
-
-#: src/Gateways/Applepay/ApplepayGateway.php:450
-msgid "Show the Apple pay button on the checkout page"
-msgstr "Afficher le bouton Apple Pay sur la page de paiement"
-
-#: src/Gateways/Applepay/ApplepayGateway.php:428
-msgid "Show the Apple pay button on the product page"
-msgstr "Afficher le bouton Apple Pay sur la page produit"
-
 #: src/Gateways/AbstractPaymentGateway.php:169
 msgid "Specify maximum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
 msgstr "Spécifiez le montant maximum de commande autorisé pour afficher la méthode actuelle. Une valeur zéro ou vide signifie qu'aucune règle ne sera appliquée."
@@ -991,16 +940,12 @@ msgid "The \"%s\" payment method is currently enabled"
 msgstr "La méthode de paiement \"%s\" est actuellement activée"
 
 #: src/Gateways/Applepay/ApplepayGateway.php:474
-msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
-msgstr "Le GUID Buckaroo que vous pouvez trouver dans Buckaroo Plaza > Mon Buckaroo > Général."
+msgid "Your Buckaroo GUID, found in Buckaroo Plaza → My Buckaroo → General."
+msgstr "Votre GUID Buckaroo, disponible dans Buckaroo Plaza → Mon Buckaroo → Général."
 
 #: src/Gateways/Googlepay/GooglepayGateway.php:436
 msgid "Gateway Merchant ID"
 msgstr "ID marchand de la passerelle"
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:438
-msgid "The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza -> Services -> Google Pay."
-msgstr "L’ID marchand de la passerelle Buckaroo se trouve dans Buckaroo Plaza -> Services -> Google Pay."
 
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:140
 msgid "The expiration date for the paylink."
@@ -1350,41 +1295,13 @@ msgid ""
 "English will be used as a fallback language for unknown language types."
 msgstr ""
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:435
-msgid "Show the Google Pay button on the product page"
-msgstr "Afficher le bouton Google Pay sur la page produit"
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:446
-msgid "Show the Google Pay button on the cart page"
-msgstr "Afficher le bouton Google Pay sur la page du panier"
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:457
-msgid "Show the Google Pay button on the checkout page"
-msgstr "Afficher le bouton Google Pay sur la page de paiement"
-
 #: src/Gateways/Googlepay/GooglepayGateway.php:466
 msgid "Button style"
 msgstr "Style du bouton"
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:468
-msgid "Select the Google Pay button style"
-msgstr "Sélectionnez le style du bouton Google Pay"
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:470
-msgid "Dark"
-msgstr "Sombre"
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:471
-msgid "Light"
-msgstr "Clair"
-
 #: src/Gateways/Googlepay/GooglepayGateway.php:497
 msgid "Google Merchant ID"
 msgstr "Google Merchant ID"
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:499
-msgid "Your Google Merchant ID from the Google Pay Business Console (e.g. BCR2DN4T...)."
-msgstr "Votre Google Merchant ID de la Google Pay Business Console (par ex. BCR2DN4T...)."
 
 #: src/Gateways/Alipay/AlipayGateway.php
 msgid "One of the world's largest mobile wallets, widely used by shoppers in China."
@@ -1502,3 +1419,147 @@ msgstr "Afficher / masquer"
 msgid "API credentials"
 msgstr "Identifiants API"
 
+
+msgid "Advanced settings"
+msgstr "Paramètres avancés"
+
+msgid "The wallet only authorises the payment. Billing and shipping come from the checkout form."
+msgstr "Le portefeuille autorise uniquement le paiement. La facturation et la livraison proviennent du formulaire de paiement."
+
+msgid "Black"
+msgstr "Noir"
+
+msgid "Blue"
+msgstr "Bleu"
+
+msgid "Book"
+msgstr "Réserver"
+
+msgid "Book with"
+msgstr "Réserver avec"
+
+msgid "Button preview"
+msgstr "Aperçu du bouton"
+
+msgid "Button type"
+msgstr "Type de bouton"
+
+msgid "Buy"
+msgstr "Acheter"
+
+msgid "Buy now"
+msgstr "Acheter maintenant"
+
+msgid "Buy with"
+msgstr "Acheter avec"
+
+msgid "Check out"
+msgstr "Régler"
+
+msgid "Checkout"
+msgstr "Régler"
+
+msgid "Checkout with"
+msgstr "Régler avec"
+
+msgid "Colour of the express button as the customer sees it."
+msgstr "Couleur du bouton express telle que le client la voit."
+
+msgid "Gold (standard)"
+msgstr "Or (standard)"
+
+msgid "Graphical settings"
+msgstr "Paramètres graphiques"
+
+msgid "Updates as you change the settings above."
+msgstr "Se met à jour à chaque modification des réglages ci-dessus."
+
+msgid "List as payment method in checkout"
+msgstr "Afficher comme moyen de paiement sur la page de paiement"
+
+msgid "Merchant ID"
+msgstr "Merchant ID"
+
+msgid "Method specific settings"
+msgstr "Paramètres spécifiques à la méthode"
+
+msgid "Order"
+msgstr "Commander"
+
+msgid "Order with"
+msgstr "Commander avec"
+
+msgid "Clear all to hide the express button everywhere."
+msgstr "Videz la sélection pour masquer le bouton express partout."
+
+msgid "Pay with"
+msgstr "Payer avec"
+
+msgid "Plain"
+msgstr "Logo seul"
+
+msgid "Rounded button shape"
+msgstr "Forme de bouton arrondie"
+
+msgid "Sandbox credentials"
+msgstr "Identifiants sandbox"
+
+msgid "Sandbox merchant ID"
+msgstr "Sandbox merchant ID"
+
+msgid "Sandbox merchant ID is required in Test mode. PayPal payments will fail until it is filled in."
+msgstr "Le Sandbox merchant ID est requis en mode test. Les paiements PayPal échoueront tant qu'il n'est pas renseigné."
+
+msgid "Seller protection"
+msgstr "Protection du vendeur"
+
+msgid "Sends the customer address to PayPal, needed for seller protection."
+msgstr "Envoie l'adresse du client à PayPal, nécessaire pour la protection du vendeur."
+
+msgid "Show the express button on"
+msgstr "Afficher le bouton express sur"
+
+msgid "Show the express button with fully rounded corners."
+msgstr "Affiche le bouton express avec des coins entièrement arrondis."
+
+msgid "Silver"
+msgstr "Argent"
+
+msgid "Subscribe"
+msgstr "S'abonner"
+
+msgid "Subscribe with"
+msgstr "S'abonner avec"
+
+msgid "Your Buckaroo Gateway merchant ID, found in Buckaroo Plaza → Services → <a href=\"https://plaza.buckaroo.nl/Configuration/GooglePay\" target=\"_blank\" rel=\"noopener\">Google Pay</a>."
+msgstr "Votre ID marchand de la passerelle Buckaroo, disponible dans Buckaroo Plaza → Services → <a href=\"https://plaza.buckaroo.nl/Configuration/GooglePay\" target=\"_blank\" rel=\"noopener\">Google Pay</a>."
+
+msgid "The preview could not be loaded."
+msgstr "L'aperçu n'a pas pu être chargé."
+
+msgid "Used in Test mode. Found in PayPal sandbox → <a href=\"https://www.sandbox.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>."
+msgstr "Utilisé en mode test. Disponible dans la sandbox PayPal → <a href=\"https://www.sandbox.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Informations sur l'entreprise</a>."
+
+msgid "Used only when Transaction mode is set to Test. The PayPal sandbox client ids are managed by the Buckaroo plugin."
+msgstr "Utilisé uniquement lorsque le mode de transaction est réglé sur Test. Les client ids sandbox de PayPal sont gérés par le plugin Buckaroo."
+
+msgid "White"
+msgstr "Blanc"
+
+msgid "White outline"
+msgstr "Blanc avec contour"
+
+msgid "Wording Apple shows on the button, next to the Apple Pay mark."
+msgstr "Texte qu'Apple affiche sur le bouton, à côté du logo Apple Pay."
+
+msgid "Wording Google shows on the button, next to the Google Pay mark."
+msgstr "Texte que Google affiche sur le bouton, à côté du logo Google Pay."
+
+msgid "Wording PayPal shows on the button, next to the PayPal mark."
+msgstr "Texte que PayPal affiche sur le bouton, à côté du logo PayPal."
+
+msgid "Your Google Merchant ID, found in the <a href=\"https://pay.google.com/business/console\" target=\"_blank\" rel=\"noopener\">Google Pay & Wallet Console</a> (e.g. BCR2DN4T...). Required for live payments."
+msgstr "Votre Google Merchant ID, disponible dans la <a href=\"https://pay.google.com/business/console\" target=\"_blank\" rel=\"noopener\">Google Pay & Wallet Console</a> (par ex. BCR2DN4T...). Requis pour les paiements live."
+
+msgid "Found in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>. Required for live payments."
+msgstr "Disponible dans PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Informations sur l'entreprise</a>. Requis pour les paiements live."

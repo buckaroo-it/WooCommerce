@@ -9,18 +9,14 @@ class ApplepayButtons
 {
     public function loadActions()
     {
+        if (! $this->paymentMethodIsEnabled()) {
+            return;
+        }
+
         $expressManager = ExpressPaymentManager::getInstance();
 
-        if ($this->paymentMethodIsEnabled()) {
-            if ($this->buttonIsEnabled('product')) {
-                $expressManager->registerExpressPayment('applepay', [$this, 'render_button'], 'product');
-            }
-            if ($this->buttonIsEnabled('cart')) {
-                $expressManager->registerExpressPayment('applepay', [$this, 'render_button'], 'cart');
-            }
-            if ($this->buttonIsEnabled('checkout')) {
-                $expressManager->registerExpressPayment('applepay', [$this, 'render_button'], 'checkout');
-            }
+        foreach (ExpressPlacements::forGateway('buckaroo_applepay') as $page) {
+            $expressManager->registerExpressPayment('applepay', [$this, 'render_button'], $page);
         }
     }
 
@@ -28,11 +24,6 @@ class ApplepayButtons
     {
         $isDetailPage = get_post_type() == 'product';
         echo "<div class='applepay-button-container" . ($isDetailPage ? ' is-detail-page' : null) . "'><div></div></div>";
-    }
-
-    private function buttonIsEnabled($page)
-    {
-        return ExpressPlacements::enabledFor('buckaroo_applepay', $page);
     }
 
     private function paymentMethodIsEnabled()

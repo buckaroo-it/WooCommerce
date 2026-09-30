@@ -368,13 +368,13 @@ class GooglepayGateway extends AbstractPaymentGateway
                 'merchant_guid' => [
                     'title' => __('Gateway Merchant ID', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'text',
-                    'description' => __('The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza > Services > Google Pay.', 'wc-buckaroo-bpe-gateway'),
+                    'description' => __('Your Buckaroo Gateway merchant ID, found in Buckaroo Plaza → Services → <a href="https://plaza.buckaroo.nl/Configuration/GooglePay" target="_blank" rel="noopener">Google Pay</a>.', 'wc-buckaroo-bpe-gateway'),
                     'default' => '0',
                 ],
                 'google_merchant_id' => [
                     'title' => __('Google Merchant ID', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'text',
-                    'description' => __('Your Google Merchant ID from the Google Pay Business Console (e.g. BCR2DN4T...). Required before live payments are accepted.', 'wc-buckaroo-bpe-gateway'),
+                    'description' => __('Your Google Merchant ID, found in the <a href="https://pay.google.com/business/console" target="_blank" rel="noopener">Google Pay & Wallet Console</a> (e.g. BCR2DN4T...). Required for live payments.', 'wc-buckaroo-bpe-gateway'),
                     'default' => '',
                 ],
             ],
@@ -391,27 +391,28 @@ class GooglepayGateway extends AbstractPaymentGateway
                     ],
                     'default' => 'black',
                 ],
-                'button_label' => [
-                    'title' => __('Button label', 'wc-buckaroo-bpe-gateway'),
+                'button_type' => [
+                    'title' => __('Button type', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'select',
                     'description' => __('Wording Google shows on the button, next to the Google Pay mark.', 'wc-buckaroo-bpe-gateway'),
                     'options' => [
+                        'plain' => __('Plain', 'wc-buckaroo-bpe-gateway'),
                         'pay' => __('Pay with', 'wc-buckaroo-bpe-gateway'),
                         'buy' => __('Buy with', 'wc-buckaroo-bpe-gateway'),
                         'checkout' => __('Checkout with', 'wc-buckaroo-bpe-gateway'),
                         'order' => __('Order with', 'wc-buckaroo-bpe-gateway'),
                         'book' => __('Book with', 'wc-buckaroo-bpe-gateway'),
                         'subscribe' => __('Subscribe with', 'wc-buckaroo-bpe-gateway'),
-                        'plain' => __('Plain', 'wc-buckaroo-bpe-gateway'),
                     ],
-                    // "Pay with" is what the button rendered before this setting
-                    // existed; Apple Pay defaults to Plain, so they differ on purpose.
+                    // Plain heads the list for consistency with the other
+                    // wallets, but "Pay with" is what rendered before this
+                    // setting existed, so it stays the default.
                     'default' => 'pay',
                 ],
                 'button_preview' => [
                     'title' => __('Button preview', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'express_button_preview',
-                    'description' => __('How the express button looks with the choices above. Updates as you change them.', 'wc-buckaroo-bpe-gateway'),
+                    'description' => __('Updates as you change the settings above.', 'wc-buckaroo-bpe-gateway'),
                 ],
             ],
         ];
@@ -421,7 +422,7 @@ class GooglepayGateway extends AbstractPaymentGateway
     {
         return [
             'method' => 'googlepay',
-            'fields' => ['color' => 'button_style', 'label' => 'button_label'],
+            'fields' => ['color' => 'button_style', 'type' => 'button_type'],
         ];
     }
 

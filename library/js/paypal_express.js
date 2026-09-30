@@ -19,6 +19,7 @@ const buckarooPaypalStyle = function () {
         height: BUCKAROO_EXPRESS_BUTTON_HEIGHT,
         color: config.button_style || 'gold',
         shape: config.button_shape || 'rect',
+        label: config.button_type || 'paypal',
     };
 };
 
@@ -35,7 +36,7 @@ const buckarooWrapPaypalButtons = function (namespace) {
     try {
         const original = namespace.Buttons;
 
-        if (typeof original !== 'function' || original.buckarooHeightPatched === true) {
+        if (typeof original !== 'function' || original.buckarooStylePatched === true) {
             return;
         }
 
@@ -50,7 +51,7 @@ const buckarooWrapPaypalButtons = function (namespace) {
         Object.keys(original).forEach(key => {
             patched[key] = original[key];
         });
-        patched.buckarooHeightPatched = true;
+        patched.buckarooStylePatched = true;
 
         namespace.Buttons = patched;
     } catch (e) {

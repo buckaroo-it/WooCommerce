@@ -68,8 +68,8 @@ export default class ApplePay {
         this.country_code = this.store_info.country_code;
         this.isOnCheckout = options.isOnCheckout === true;
         this.onAuthorized = typeof options.onAuthorized === 'function' ? options.onAuthorized : null;
-        this.buttonStyle = options.buttonStyle || 'black';
-        this.buttonLabel = options.buttonLabel || this.store_info.button_label || 'plain';
+        this.buttonStyle = options.buttonStyle || this.store_info.button_style || 'black';
+        this.buttonType = options.buttonType || this.store_info.button_type || 'plain';
         this.containerSelector = options.containerSelector || '.applepay-button-container';
         this.renderButton = options.renderButton !== false;
         this.onReady = typeof options.onReady === 'function' ? options.onReady : null;
@@ -118,7 +118,7 @@ export default class ApplePay {
         const button = document.createElement('apple-pay-button');
         button.setAttribute('locale', this.locale);
         button.setAttribute('buttonstyle', this.buttonStyle);
-        button.setAttribute('type', this.buttonLabel);
+        button.setAttribute('type', this.buttonType);
         button.style.width = '100%';
 
         container.append(button);

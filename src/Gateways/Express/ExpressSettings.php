@@ -29,9 +29,6 @@ trait ExpressSettings
      */
     protected static $expressPlacementsKey = 'button_pages';
 
-    /** Stored key for the standard express placement contract. */
-    public const EXPRESS_SHOW_ON_KEY = 'express_show_on';
-
     /** Shared express button height in pixels; see buckaroo-custom.css. */
     public const EXPRESS_BUTTON_HEIGHT = 40;
 
@@ -73,6 +70,11 @@ trait ExpressSettings
             'woocommerce_settings_api_sanitized_fields_' . $this->id,
             [$this, 'expandExpressPlacements']
         );
+
+        add_filter(
+            'woocommerce_settings_api_sanitized_fields_' . $this->id,
+            [$this, 'dropExpressPreviewValues']
+        );
     }
 
     /**
@@ -110,7 +112,7 @@ trait ExpressSettings
                 'title' => __('Show the express button on', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'multiselect',
                 'class' => 'wc-enhanced-select',
-                'description' => __('Pages where the customer sees the express button. Clear all to hide it everywhere.', 'wc-buckaroo-bpe-gateway'),
+                'description' => __('Clear all to hide the express button everywhere.', 'wc-buckaroo-bpe-gateway'),
                 'options' => $this->expressPlacementOptions($spec['placements']),
                 'default' => $this->expressPlacementsFromStorage(),
             ];
@@ -120,7 +122,7 @@ trait ExpressSettings
             $fields['checkout_method'] = [
                 'title' => __('List as payment method in checkout', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'select',
-                'description' => __('Also offer the method in the regular payment method list, next to the express button.', 'wc-buckaroo-bpe-gateway'),
+                'description' => __('The wallet only authorises the payment. Billing and shipping come from the checkout form.', 'wc-buckaroo-bpe-gateway'),
                 'options' => [
                     'TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'),
                     'FALSE' => __('No', 'wc-buckaroo-bpe-gateway'),
@@ -180,13 +182,12 @@ trait ExpressSettings
      */
     protected function readExpressPlacements(array $stored): array
     {
-        // array_key_exists, never empty(): WooCommerce stores an emptied
-        // multiselect as '' (validate_multiselect_field returns '' when nothing
-        // is posted), and that means "nothing selected", not "not migrated".
         if ($this->usesExpressStorageKeys()) {
             return ExpressPlacements::fromSettings($stored);
         }
 
+        // An absent key reads as shown, which is what the button_{location}
+        // fields defaulted to before the widget replaced them.
         $selected = [];
 
         foreach (static::$expressLocations as $location) {
@@ -275,6 +276,29 @@ trait ExpressSettings
     }
 
     /**
+     * Keep the preview out of stored settings. It renders no input, so nothing
+     * is posted for it, but WooCommerce saves every field that is not a title
+     * and would otherwise store an empty value on each save.
+     *
+     * @param  array  $settings
+     * @return array
+     */
+    public function dropExpressPreviewValues($settings)
+    {
+        if (! is_array($settings)) {
+            return $settings;
+        }
+
+        foreach ($this->form_fields as $key => $field) {
+            if (($field['type'] ?? '') === 'express_button_preview') {
+                unset($settings[$key]);
+            }
+        }
+
+        return $settings;
+    }
+
+    /**
      * What this method needs to draw its preview button. A gateway without a
      * preview returns an empty array and the field renders nothing.
      *
@@ -306,10 +330,14 @@ trait ExpressSettings
         $data = wp_parse_args($data, ['title' => '', 'description' => '']);
         $containerId = $this->get_field_key($key) . '_container';
 
+        // Resolve the declared setting keys to the ids WooCommerce renders for
+        // them. $preview is what reaches the script, so the raw keys would name
+        // elements the DOM does not have.
         $fields = [];
         foreach ($preview['fields'] ?? [] as $name => $fieldKey) {
             $fields[$name] = $this->get_field_key($fieldKey);
         }
+        $preview['fields'] = $fields;
 
         // Enqueued while the settings form renders; admin footer scripts are
         // printed after this, so the handle is still in time.
@@ -326,7 +354,6 @@ trait ExpressSettings
             array_merge(
                 [
                     'containerId' => $containerId,
-                    'fields' => $fields,
                     // Kept in step with BUCKAROO_EXPRESS_BUTTON_HEIGHT in
                     // paypal_express.js and --apple-pay-button-height in
                     // buckaroo-custom.css.
@@ -335,7 +362,6 @@ trait ExpressSettings
                     'locale' => str_replace('_', '-', get_locale()),
                     'i18n' => [
                         'unavailable' => __('The preview could not be loaded.', 'wc-buckaroo-bpe-gateway'),
-                        'appleOnly' => __('Apple Pay buttons only render in Safari on an Apple device, so no preview is shown here.', 'wc-buckaroo-bpe-gateway'),
                     ],
                 ],
                 $preview

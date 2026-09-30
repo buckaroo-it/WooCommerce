@@ -108,7 +108,8 @@ class PaypalExpressController
                 'is_test' => $this->is_test_mode(),
                 'page' => $this->determine_page(),
                 'button_style' => $this->get_setting_value('button_style') ?? 'gold',
-                'button_shape' => $this->get_setting_value('button_rounded') === 'TRUE' ? 'pill' : 'rect',
+                'button_shape' => self::buttonShape($this->get_setting_value('button_rounded')),
+                'button_type' => $this->get_setting_value('button_type') ?? 'paypal',
                 'i18n' => [
                     'cancel_error_message' => __('You have canceled the payment request', 'wc-buckaroo-bpe-gateway'),
                     'cannot_create_payment' => __('Cannot create payment', 'wc-buckaroo-bpe-gateway'),
@@ -583,6 +584,14 @@ class PaypalExpressController
         }
 
         return $this->get_setting_value('express_merchant_id');
+    }
+
+    /**
+     * Map the stored Yes/No onto PayPal's own shape vocabulary.
+     */
+    public static function buttonShape(?string $stored): string
+    {
+        return $stored === 'TRUE' ? 'pill' : 'rect';
     }
 
     /**

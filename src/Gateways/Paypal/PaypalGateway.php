@@ -14,6 +14,18 @@ class PaypalGateway extends AbstractPaymentGateway
 {
     use ExpressSettings;
 
+    /**
+     * Funding sources the storefront suppresses, mirrored so the preview
+     * draws the same buttons the customer gets.
+     *
+     * These duplicate the list BuckarooSdk.PayPal.initiate() builds into its
+     * own script URL, which the plugin cannot read. Test_PaypalFunding
+     * (@group external-http) compares the two against the live SDK.
+     */
+    public const PREVIEW_DISABLE_FUNDING = 'credit,card,bancontact,blik,eps,giropay,ideal,mercadopago,mybank,p24,sepa,sofort,venmo';
+
+    public const PREVIEW_ENABLE_FUNDING = 'paylater';
+
     public const PAYMENT_CLASS = PaypalProcessor::class;
 
     public $sellerprotection;
@@ -44,6 +56,15 @@ class PaypalGateway extends AbstractPaymentGateway
         'TWD',
         'USD',
     ];
+
+    /**
+     * Whether the sandbox warning has already been queued this request.
+     *
+     * WooCommerce runs a gateway's process_admin_options() twice when saving
+     * its own section: once from save_settings_for_current_section() and again
+     * from woocommerce_update_options_payment_gateways_{id}.
+     */
+    private static $sandboxWarningAdded = false;
 
     public function __construct()
     {
@@ -113,7 +134,7 @@ class PaypalGateway extends AbstractPaymentGateway
                 'express_merchant_id' => [
                     'title' => __('Merchant ID', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'text',
-                    'description' => __('Your PayPal merchant ID. Required before live payments are accepted.', 'wc-buckaroo-bpe-gateway'),
+                    'description' => __('Found in PayPal → <a href="https://www.paypal.com/businessmanage/account/aboutBusiness" target="_blank" rel="noopener">Business information</a>. Required for live payments.', 'wc-buckaroo-bpe-gateway'),
                 ],
             ],
             'secondary_credentials' => [
@@ -125,7 +146,7 @@ class PaypalGateway extends AbstractPaymentGateway
                 'express_sandbox_merchant_id' => [
                     'title' => __('Sandbox merchant ID', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'text',
-                    'description' => __('Used instead of the live merchant ID while in Test mode.', 'wc-buckaroo-bpe-gateway'),
+                    'description' => __('Used in Test mode. Found in PayPal sandbox → <a href="https://www.sandbox.paypal.com/businessmanage/account/aboutBusiness" target="_blank" rel="noopener">Business information</a>.', 'wc-buckaroo-bpe-gateway'),
                 ],
             ],
             'placements' => ['product', 'cart', 'checkout'],
@@ -145,13 +166,27 @@ class PaypalGateway extends AbstractPaymentGateway
                     // Gold is PayPal's own default, which is what renders today.
                     'default' => 'gold',
                 ],
+                'button_type' => [
+                    'title' => __('Button type', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'select',
+                    'description' => __('Wording PayPal shows on the button, next to the PayPal mark.', 'wc-buckaroo-bpe-gateway'),
+                    'options' => [
+                        'paypal' => __('Plain', 'wc-buckaroo-bpe-gateway'),
+                        'checkout' => __('Checkout', 'wc-buckaroo-bpe-gateway'),
+                        'buynow' => __('Buy now', 'wc-buckaroo-bpe-gateway'),
+                        'pay' => __('Pay with', 'wc-buckaroo-bpe-gateway'),
+                    ],
+                    // The mark on its own is PayPal's own default, which is what
+                    // renders today. PayPal localises the wording itself.
+                    'default' => 'paypal',
+                ],
                 'button_rounded' => [
                     'title' => __('Rounded button shape', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'select',
                     'description' => __('Show the express button with fully rounded corners.', 'wc-buckaroo-bpe-gateway'),
                     'options' => [
-                        'FALSE' => __('No', 'wc-buckaroo-bpe-gateway'),
                         'TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'),
+                        'FALSE' => __('No', 'wc-buckaroo-bpe-gateway'),
                     ],
                     // rect is PayPal's own default.
                     'default' => 'FALSE',
@@ -159,14 +194,14 @@ class PaypalGateway extends AbstractPaymentGateway
                 'button_preview' => [
                     'title' => __('Button preview', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'express_button_preview',
-                    'description' => __('How the express button looks with the choices above. Updates as you change them.', 'wc-buckaroo-bpe-gateway'),
+                    'description' => __('Updates as you change the settings above.', 'wc-buckaroo-bpe-gateway'),
                 ],
             ],
             'behaviour' => [
                 'sellerprotection' => [
                     'title' => __('Seller protection', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'select',
-                    'description' => __('Sends the customer address to PayPal, so eligible orders are covered by PayPal seller protection.', 'wc-buckaroo-bpe-gateway'),
+                    'description' => __('Sends the customer address to PayPal, needed for seller protection.', 'wc-buckaroo-bpe-gateway'),
                     'options' => [
                         'TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'),
                         'FALSE' => __('No', 'wc-buckaroo-bpe-gateway'),
@@ -219,23 +254,19 @@ class PaypalGateway extends AbstractPaymentGateway
         return $settings;
     }
 
-    /**
-     * Whether the sandbox warning has already been queued this request.
-     *
-     * WooCommerce runs a gateway's process_admin_options() twice when saving
-     * its own section: once from save_settings_for_current_section() and again
-     * from woocommerce_update_options_payment_gateways_{id}.
-     */
-    private static $sandboxWarningAdded = false;
-
     protected function expressPreviewConfig(): array
     {
         return [
             'method' => 'paypal',
-            'fields' => ['color' => 'button_style', 'shape' => 'button_rounded'],
-            // Public PayPal client id: the SDK will not load without one and it
-            // only draws the preview button.
-            'clientId' => 'AfHztAEfaf3f76tNy8j_Z86w5y-fGbqbBt04PXppVFtJatje79gVSB27DwBENnyFgfhFvKzgJbegNpHv',
+            'fields' => ['color' => 'button_style', 'shape' => 'button_rounded', 'type' => 'button_type'],
+            // Buckaroo's standard PayPal client id, as used by the Buckaroo SDK on the
+            // storefront. The SDK will not load without one; it only draws the preview.
+            'clientId' => 'ATv1oKfBmc76Zzl8rAMai_OwpXIp9CsDTMzEceayY7X2Sy8t6bQT2rm7DIC7LYbfkch9m9S3R3amkeyU',
+            'sdkParams' => [
+                'currency' => get_woocommerce_currency(),
+                'disable-funding' => self::PREVIEW_DISABLE_FUNDING,
+                'enable-funding' => self::PREVIEW_ENABLE_FUNDING,
+            ],
         ];
     }
 

@@ -464,7 +464,7 @@ class ApplepayGateway extends AbstractPaymentGateway
                 'merchant_guid' => [
                     'title' => __('GUID', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'text',
-                    'description' => __('The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General.', 'wc-buckaroo-bpe-gateway'),
+                    'description' => __('Your Buckaroo GUID, found in Buckaroo Plaza → My Buckaroo → General.', 'wc-buckaroo-bpe-gateway'),
                     'default' => '0',
                 ],
             ],
@@ -482,13 +482,8 @@ class ApplepayGateway extends AbstractPaymentGateway
                     ],
                     'default' => 'black',
                 ],
-                'button_preview' => [
-                    'title' => __('Button preview', 'wc-buckaroo-bpe-gateway'),
-                    'type' => 'express_button_preview',
-                    'description' => __('How the express button looks with the choices above. Updates as you change them.', 'wc-buckaroo-bpe-gateway'),
-                ],
-                'button_label' => [
-                    'title' => __('Button label', 'wc-buckaroo-bpe-gateway'),
+                'button_type' => [
+                    'title' => __('Button type', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'select',
                     'description' => __('Wording Apple shows on the button, next to the Apple Pay mark.', 'wc-buckaroo-bpe-gateway'),
                     'options' => [
@@ -502,20 +497,24 @@ class ApplepayGateway extends AbstractPaymentGateway
                     // Plain is what the button rendered before this setting existed.
                     'default' => 'plain',
                 ],
+                'button_preview' => [
+                    'title' => __('Button preview', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'express_button_preview',
+                    'description' => __('Updates as you change the settings above.', 'wc-buckaroo-bpe-gateway'),
+                ],
             ],
         ];
     }
 
-    /**
-     * Whether Apple Pay should be listed as a standard, selectable checkout
-     * payment method (in addition to the Express Checkout button).
-     */
     protected function expressPreviewConfig(): array
     {
         return [
             'method' => 'applepay',
-            'fields' => ['color' => 'button_style', 'label' => 'button_label'],
-            'appleSdk' => 'https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js',
+            'fields' => ['color' => 'button_style', 'type' => 'button_type'],
+            // The standalone web component, not the full Apple Pay SDK: it
+            // registers <apple-pay-button> in any browser, which is what a
+            // style preview needs.
+            'appleSdk' => 'https://applepay.cdn-apple.com/jsapi/v1.1.0/apple-pay-button.js',
         ];
     }
 
@@ -528,6 +527,10 @@ class ApplepayGateway extends AbstractPaymentGateway
         return true;
     }
 
+    /**
+     * Whether Apple Pay should be listed as a standard, selectable checkout
+     * payment method (in addition to the Express Checkout button).
+     */
     public function isCheckoutMethodEnabled(): bool
     {
         return $this->get_option('checkout_method', 'TRUE') === 'TRUE';

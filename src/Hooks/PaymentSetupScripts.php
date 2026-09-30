@@ -2,9 +2,9 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
-use Buckaroo\Woocommerce\Gateways\Express\ExpressPlacements;
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressPlacements;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use BuckarooDeps\Buckaroo\Resources\Constants\Endpoints;
