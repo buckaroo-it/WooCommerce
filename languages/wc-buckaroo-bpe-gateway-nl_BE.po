@@ -1250,16 +1250,20 @@ msgid "Buckaroo Hosted Fields Client ID"
 msgstr ""
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:244
-msgid "Enter your Buckaroo Hosted Fields Client ID, obtainable from the Buckaroo Plaza at -> Settings -> Token registration."
-msgstr ""
+#. translators: 1: opening link to Token registration, 2: closing link.
+#, php-format
+msgid "Enter your Hosted Fields Client ID. Create or look up your credentials in Buckaroo Plaza under Configuration > %1$sToken registration%2$s."
+msgstr "Voer uw Hosted Fields Client ID in. Maak uw inloggegevens aan of zoek ze op in Buckaroo Plaza onder Configuratie > %1$sTokenregistratie%2$s."
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:247
 msgid "Buckaroo Hosted Fields Client Secret"
 msgstr ""
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:249
-msgid "Enter your Buckaroo Hosted Fields Client Secret, obtainable from the Buckaroo Plaza at -> Settings -> Token registration."
-msgstr ""
+#. translators: 1: opening link to Token registration, 2: closing link.
+#, php-format
+msgid "Enter your Hosted Fields Client Secret. Create or look up your credentials in Buckaroo Plaza under Configuration > %1$sToken registration%2$s."
+msgstr "Voer uw Hosted Fields Client Secret in. Maak uw inloggegevens aan of zoek ze op in Buckaroo Plaza onder Configuratie > %1$sTokenregistratie%2$s."
 
 #: src/Gateways/CreditCard/HostedFieldsController.php:23
 msgid "Hosted fields client keys are not provided."
