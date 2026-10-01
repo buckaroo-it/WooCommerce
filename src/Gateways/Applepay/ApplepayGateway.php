@@ -17,6 +17,8 @@ class ApplepayGateway extends AbstractPaymentGateway
 {
     public const PAYMENT_CLASS = ApplepayProcessor::class;
 
+    protected const REQUIRED_CREDENTIALS = ['merchant_guid' => 'always'];
+
     protected $paymentData;
 
     protected $CustomerCardName;

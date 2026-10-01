@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-10-29T14:35:35+00:00\n"
-"PO-Revision-Date: 2025-12-03 00:00+0000\n"
+"PO-Revision-Date: 2026-10-01 09:46+0000\n"
 "Language: es_ES\n"
 "X-Generator: AI\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
@@ -1375,3 +1375,16 @@ msgstr "El importe de Google Pay ha cambiado. Actualice la página y apruebe el 
 #: src/Gateways/AbstractPaymentGateway.php
 msgid "Configured. Leave blank to keep unchanged"
 msgstr "Configurado. Dejar en blanco para conservar el valor"
+
+#: src/Gateways/AbstractPaymentGateway.php:425
+#, php-format
+msgid "%s is required to enable this payment method in the selected transaction mode."
+msgstr "Se requiere %s para activar este método de pago en el modo de transacción seleccionado."
+
+#: src/Gateways/AbstractPaymentGateway.php:682
+msgid "Not configured"
+msgstr "Sin configurar"
+
+#: src/Gateways/Paypal/PaypalGateway.php:115
+msgid "Used only when the Transaction mode above is set to \"Test\". The Buckaroo SDK manages the PayPal sandbox client IDs. The sandbox merchant ID is optional."
+msgstr "Se utiliza únicamente cuando el modo de transacción anterior está configurado en \"Test\". El SDK de Buckaroo gestiona los identificadores de cliente de PayPal Sandbox. El identificador de comercio de Sandbox es opcional."

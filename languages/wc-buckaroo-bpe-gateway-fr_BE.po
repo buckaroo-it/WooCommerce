@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-10-29T14:35:35+00:00\n"
-"PO-Revision-Date: 2025-04-04 10:35+0000\n"
+"PO-Revision-Date: 2026-10-01 09:46+0000\n"
 "Language: fr_BE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
@@ -1517,3 +1517,16 @@ msgstr "Afficher le message de redirection lors du paiement"
 #: src/Admin/PaymentMethodSettings.php
 msgid "Show a notice when customers are redirected to complete payment."
 msgstr "Afficher un message lorsque les clients sont redirigés pour finaliser le paiement."
+
+#: src/Gateways/AbstractPaymentGateway.php:425
+#, php-format
+msgid "%s is required to enable this payment method in the selected transaction mode."
+msgstr "%s est requis pour activer ce moyen de paiement dans le mode de transaction sélectionné."
+
+#: src/Gateways/AbstractPaymentGateway.php:682
+msgid "Not configured"
+msgstr "Non configuré"
+
+#: src/Gateways/Paypal/PaypalGateway.php:115
+msgid "Used only when the Transaction mode above is set to \"Test\". The Buckaroo SDK manages the PayPal sandbox client IDs. The sandbox merchant ID is optional."
+msgstr "Utilisé uniquement lorsque le mode de transaction ci-dessus est réglé sur \"Test\". Le SDK Buckaroo gère les identifiants client PayPal Sandbox. L'identifiant marchand Sandbox est facultatif."
