@@ -256,12 +256,28 @@ class CreditCardGateway extends AbstractPaymentGateway
         $this->form_fields['hosted_fields_client_id'] = [
             'title' => __('Buckaroo Hosted Fields Client ID', 'wc-buckaroo-bpe-gateway'),
             'type' => 'password',
-            'description' => __('Enter your Buckaroo Hosted Fields Client ID, obtainable from the Buckaroo Plaza at -> Settings -> Token registration.', 'wc-buckaroo-bpe-gateway'),
+            'description' => wp_kses(
+                sprintf(
+                    /* translators: 1: opening link to Token registration, 2: closing link. */
+                    __('Enter your Hosted Fields Client ID. Create or look up your credentials in Buckaroo Plaza under Configuration > %1$sToken registration%2$s.', 'wc-buckaroo-bpe-gateway'),
+                    sprintf('<a href="%s" target="_blank" rel="noopener noreferrer">', esc_url('https://plaza.buckaroo.nl/Configuration/TokenApi/Applications')),
+                    '</a>'
+                ),
+                ['a' => ['href' => [], 'target' => [], 'rel' => []]]
+            ),
         ];
         $this->form_fields['hosted_fields_client_secret'] = [
             'title' => __('Buckaroo Hosted Fields Client Secret', 'wc-buckaroo-bpe-gateway'),
             'type' => 'password',
-            'description' => __('Enter your Buckaroo Hosted Fields Client Secret, obtainable from the Buckaroo Plaza at -> Settings -> Token registration.', 'wc-buckaroo-bpe-gateway'),
+            'description' => wp_kses(
+                sprintf(
+                    /* translators: 1: opening link to Token registration, 2: closing link. */
+                    __('Enter your Hosted Fields Client Secret. Create or look up your credentials in Buckaroo Plaza under Configuration > %1$sToken registration%2$s.', 'wc-buckaroo-bpe-gateway'),
+                    sprintf('<a href="%s" target="_blank" rel="noopener noreferrer">', esc_url('https://plaza.buckaroo.nl/Configuration/TokenApi/Applications')),
+                    '</a>'
+                ),
+                ['a' => ['href' => [], 'target' => [], 'rel' => []]]
+            ),
         ];
         $this->form_fields['AllowedProvider'] = [
             'title' => __('Allowed provider', 'wc-buckaroo-bpe-gateway'),
