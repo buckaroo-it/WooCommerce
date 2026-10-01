@@ -44,7 +44,7 @@ class ApplepayButtons
     {
         if ($settings = get_option('woocommerce_buckaroo_applepay_settings')) {
             if (isset($settings['enabled'])) {
-                return $settings['enabled'] === 'yes' ? true : false;
+                return $settings['enabled'] === 'yes' && ApplepayGateway::hasRequiredCredentials($settings);
             }
         }
 

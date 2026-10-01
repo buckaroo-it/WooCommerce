@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
+use Buckaroo\Woocommerce\Gateways\Paypal\PaypalGateway;
 use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Gateways\ExpressPaymentManager;
 use Throwable;
@@ -128,6 +129,7 @@ class PaypalExpressController
     protected function is_active()
     {
         return $this->settings['enabled'] == 'yes' &&
+            PaypalGateway::hasRequiredCredentials($this->settings) &&
             ! (count($this->settings['express']) === 1 && in_array(self::LOCATION_NONE, $this->settings['express']));
     }
 
@@ -559,7 +561,7 @@ class PaypalExpressController
      */
     protected function is_test_mode()
     {
-        return isset($this->settings['mode']) && strtolower((string) $this->settings['mode']) === 'test';
+        return strtolower((string) ($this->settings['mode'] ?? 'test')) === 'test';
     }
 
     /**

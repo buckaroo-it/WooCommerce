@@ -29,6 +29,9 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 {
     public const PAYMENT_CLASS = null;
 
+    /** Required credential keys mapped to "always" or "live". */
+    protected const REQUIRED_CREDENTIALS = [];
+
     /** ISO 3166-1 alpha-2 codes counted as European by getCountryLabel(). */
     private const EUROPEAN_COUNTRIES = ['AT', 'BE', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GB', 'GR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LI', 'LT', 'LU', 'LV', 'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'];
 
@@ -416,11 +419,53 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     {
         parent::process_admin_options();
 
+        if ($this->get_option('enabled') === 'yes') {
+            foreach (static::getMissingRequiredCredentials($this->settings) as $key) {
+                $error = sprintf(
+                    __('%s is required to enable this payment method in the selected transaction mode.', 'wc-buckaroo-bpe-gateway'),
+                    $this->form_fields[$key]['title']
+                );
+                $this->add_error($error);
+                if (class_exists('WC_Admin_Settings')) {
+                    \WC_Admin_Settings::add_error($error);
+                }
+            }
+        }
+
         $optionKey = $this->plugin_id . $this->id . '_settings';
         $this->ensureOptionsNotAutoloaded([
             $optionKey,
             'woocommerce_buckaroo_mastersettings_settings',
         ]);
+    }
+
+    /** Check method-specific credentials for the selected transaction mode. */
+    public static function hasRequiredCredentials(array $settings): bool
+    {
+        return static::getMissingRequiredCredentials($settings) === [];
+    }
+
+    protected static function getMissingRequiredCredentials(array $settings): array
+    {
+        $missing = [];
+        $mode = strtolower((string) ($settings['mode'] ?? 'test'));
+        foreach (static::REQUIRED_CREDENTIALS as $key => $requiredIn) {
+            if ($requiredIn === 'live' && $mode === 'test') {
+                continue;
+            }
+
+            $value = $settings[$key] ?? '';
+            if (! is_scalar($value) || trim((string) $value) === '' || trim((string) $value) === '0') {
+                $missing[] = $key;
+            }
+        }
+
+        return $missing;
+    }
+
+    public function is_available()
+    {
+        return parent::is_available() && static::hasRequiredCredentials($this->settings);
     }
 
     /**
@@ -630,10 +675,13 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         $currencies    = $this->getSupportedCurrencies();
         $countries     = $this->getSupportedCountries();
         $is_enabled    = $this->enabled === 'yes';
-        $mode          = strtolower((string) $this->get_option('mode', 'test'));
+        $mode          = strtolower((string) $this->get_option('mode'));
 
-        if ($is_enabled) {
-            if ($mode === 'live') {
+        if (! static::hasRequiredCredentials($this->settings)) {
+            $status_class = 'bk-status--disabled';
+            $status_label = __('Not configured', 'wc-buckaroo-bpe-gateway');
+        } elseif ($is_enabled) {
+            if ($mode !== 'test') {
                 $status_class = 'bk-status--live';
                 $status_label = __('Active', 'wc-buckaroo-bpe-gateway');
             } else {
@@ -1209,6 +1257,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
     public function isVisibleInCheckout(): bool
     {
-        return $this->enabled == 'yes' && $this->checkCurrencySupported();
+        return $this->enabled == 'yes' && $this->checkCurrencySupported()
+            && static::hasRequiredCredentials($this->settings);
     }
 }

@@ -1373,3 +1373,16 @@ msgstr ""
 #: src/Gateways/AbstractPaymentGateway.php
 msgid "Configured. Leave blank to keep unchanged"
 msgstr ""
+
+#: src/Gateways/AbstractPaymentGateway.php:425
+#, php-format
+msgid "%s is required to enable this payment method in the selected transaction mode."
+msgstr ""
+
+#: src/Gateways/AbstractPaymentGateway.php:682
+msgid "Not configured"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:115
+msgid "Used only when the Transaction mode above is set to \"Test\". The Buckaroo SDK manages the PayPal sandbox client IDs. The sandbox merchant ID is optional."
+msgstr ""

@@ -12,6 +12,8 @@ class PaypalGateway extends AbstractPaymentGateway
 {
     public const PAYMENT_CLASS = PaypalProcessor::class;
 
+    protected const REQUIRED_CREDENTIALS = ['express_merchant_id' => 'live'];
+
     public $sellerprotection;
 
     protected $express_order_id = null;
@@ -110,7 +112,7 @@ class PaypalGateway extends AbstractPaymentGateway
         $this->form_fields['sandbox_credentials_title'] = [
             'title' => __('Sandbox credentials', 'wc-buckaroo-bpe-gateway'),
             'type' => 'title',
-            'description' => __('Used only when the Transaction mode above is set to "Test". The PayPal sandbox client ids are managed by the Buckaroo SDK, so only the sandbox merchant id is required here.', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Used only when the Transaction mode above is set to "Test". The Buckaroo SDK manages the PayPal sandbox client IDs. The sandbox merchant ID is optional.', 'wc-buckaroo-bpe-gateway'),
         ];
         $this->form_fields['express_sandbox_merchant_id'] = [
             'title' => __('Sandbox merchant id', 'wc-buckaroo-bpe-gateway'),

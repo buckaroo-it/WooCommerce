@@ -44,7 +44,7 @@ class GooglepayButtons
     {
         if ($settings = get_option('woocommerce_buckaroo_googlepay_settings')) {
             if (isset($settings['enabled'])) {
-                return $settings['enabled'] === 'yes' ? true : false;
+                return $settings['enabled'] === 'yes' && GooglepayGateway::hasRequiredCredentials($settings);
             }
         }
 
