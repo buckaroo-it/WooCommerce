@@ -12,6 +12,19 @@ jobs:
         steps:
             -   uses: actions/checkout@v4
 
+            -   name: Setup PHP 8.2 for Mozart
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.2'
+                    tools: composer:v2
+                    coverage: none
+
+            -   name: Install composer & compile
+                run: |
+                    composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+                    composer compose-dependencies
+                    composer dump-autoload -o
+
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
@@ -19,14 +32,5 @@ jobs:
                     tools: composer:v2
                     coverage: none
 
-            -   name: Install Mozart globally
-                run: composer global require --no-progress --no-interaction coenjacobs/mozart
-
-            -   name: Install composer & compile
-                run: |
-                    composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
-                    "$(composer global config home --quiet)/vendor/bin/mozart" compose
-                    composer dump-autoload -o
-
             -   name: Check PHP Compatibility
-                run: composer require --dev php-parallel-lint/php-parallel-lint && vendor/bin/parallel-lint . --exclude vendor
+                run: composer require --dev --no-scripts php-parallel-lint/php-parallel-lint && vendor/bin/parallel-lint . --exclude vendor --exclude tools
