@@ -27,10 +27,10 @@ trait ExpressSettings
     protected static $expressPlacementsKey = 'button_pages';
 
     /** Shared express button height in pixels; see buckaroo-custom.css. */
-    public const EXPRESS_BUTTON_HEIGHT = 40;
+    protected static $expressButtonHeight = 40;
 
     /** Preview width, matching the width WooCommerce gives its settings fields. */
-    public const EXPRESS_PREVIEW_WIDTH = 400;
+    protected static $expressPreviewWidth = 400;
 
     /** Fields this method supports. Anything absent is not rendered. */
     abstract protected function expressSettingsSpec(): array;
@@ -345,8 +345,8 @@ trait ExpressSettings
                 [
                     'containerId' => $containerId,
                     // Keep in sync with paypal_express.js and buckaroo-custom.css.
-                    'height' => self::EXPRESS_BUTTON_HEIGHT,
-                    'previewWidth' => self::EXPRESS_PREVIEW_WIDTH,
+                    'height' => static::$expressButtonHeight,
+                    'previewWidth' => static::$expressPreviewWidth,
                     'locale' => str_replace('_', '-', get_locale()),
                     'i18n' => [
                         'unavailable' => __('The preview could not be loaded.', 'wc-buckaroo-bpe-gateway'),
