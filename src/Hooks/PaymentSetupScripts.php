@@ -26,19 +26,31 @@ class PaymentSetupScripts
     public function __construct()
     {
         add_action('plugins_loaded', [$this, 'handlePluginsLoaded'], 0);
+        add_action('init', [$this, 'loadTranslations'], 0);
+        add_action('change_locale', [$this, 'loadTranslations']);
         add_action('admin_enqueue_scripts', [$this, 'handleAdminAssets']);
         add_action('wp_enqueue_scripts', [$this, 'initFrontendScripts']);
         add_action('enqueue_block_assets', [$this, 'handleBlockAssets']);
     }
 
-    public function handlePluginsLoaded()
+    public function loadTranslations(): void
     {
+        $domain = 'wc-buckaroo-bpe-gateway';
+        $locale = determine_locale();
+
         load_plugin_textdomain(
             'wc-buckaroo-bpe-gateway',
             false,
             dirname(plugin_basename(BK_PLUGIN_FILE)) . '/languages/'
         );
 
+        // Load installed translations first; bundled translations fill missing entries.
+        get_translations_for_domain($domain);
+        load_textdomain($domain, dirname(BK_PLUGIN_FILE) . '/languages/' . $domain . '-' . basename($locale) . '.mo', $locale);
+    }
+
+    public function handlePluginsLoaded()
+    {
         $transientKey = get_current_user_id() . '_buckaroo_require_woocommerce';
         if (! class_exists('WC_Order')) {
             set_transient($transientKey, true, HOUR_IN_SECONDS);

@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-10-29T14:35:35+00:00\n"
-"PO-Revision-Date: 2025-04-04 10:35+0000\n"
+"PO-Revision-Date: 2026-10-01 09:46+0000\n"
 "Language: de_DE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
@@ -1415,7 +1415,6 @@ msgstr "Secret Key eingeben"
 msgid "API credentials"
 msgstr "API-Zugangsdaten"
 
-
 msgid "Advanced settings"
 msgstr "Erweiterte Einstellungen"
 
@@ -1503,9 +1502,6 @@ msgstr "Sandbox-Zugangsdaten"
 msgid "Sandbox merchant ID"
 msgstr "Sandbox merchant ID"
 
-msgid "Sandbox merchant ID is required in Test mode. PayPal payments will fail until it is filled in."
-msgstr "Die Sandbox merchant ID ist im Testmodus erforderlich. PayPal-Zahlungen schlagen fehl, bis sie ausgefüllt ist."
-
 msgid "Seller protection"
 msgstr "Verkäuferschutz"
 
@@ -1536,8 +1532,8 @@ msgstr "Die Vorschau konnte nicht geladen werden."
 msgid "Used in Test mode. Found in PayPal sandbox → <a href=\"https://www.sandbox.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>."
 msgstr "Wird im Testmodus verwendet. Zu finden in PayPal-Sandbox → <a href=\"https://www.sandbox.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Unternehmensinformationen</a>."
 
-msgid "Used only when Transaction mode is set to Test. The PayPal sandbox client ids are managed by the Buckaroo plugin."
-msgstr "Wird nur verwendet, wenn der Transaktionsmodus auf Test steht. Die PayPal-Sandbox-Client-IDs werden vom Buckaroo-Plugin verwaltet."
+msgid "Used only when Transaction mode is set to Test. The PayPal sandbox client ids are managed by the Buckaroo plugin. The sandbox merchant ID is optional."
+msgstr "Wird nur verwendet, wenn der Transaktionsmodus auf Test steht. Die PayPal-Sandbox-Client-IDs werden vom Buckaroo-Plugin verwaltet. Die Sandbox-Merchant-ID ist optional."
 
 msgid "White"
 msgstr "Weiß"
@@ -1579,3 +1575,12 @@ msgstr "Weiterleitungshinweis beim Bezahlen anzeigen"
 #: src/Admin/PaymentMethodSettings.php
 msgid "Show a notice when customers are redirected to complete payment."
 msgstr "Zeige einen Hinweis, wenn Kunden zum Abschluss der Zahlung weitergeleitet werden."
+
+#: src/Gateways/AbstractPaymentGateway.php:425
+#, php-format
+msgid "%s is required to enable this payment method in the selected transaction mode."
+msgstr "%s ist erforderlich, um diese Zahlungsart im ausgewählten Transaktionsmodus zu aktivieren."
+
+#: src/Gateways/AbstractPaymentGateway.php:682
+msgid "Not configured"
+msgstr "Nicht konfiguriert"

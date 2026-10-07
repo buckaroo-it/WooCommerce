@@ -173,7 +173,8 @@ class InitGateways
                     $payment_method = array_merge(
                         $payment_method,
                         [
-                            'showInCheckout' => ExpressPlacements::enabledFor($gateway_id, 'checkout'),
+                            'showInCheckout' => ExpressPlacements::enabledFor($gateway_id, 'checkout')
+                                && $gateway::hasRequiredCredentials($gateway->settings),
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
                             'buttonStyle' => $gateway->get_option('button_style', 'black'),
                             // Whether Apple Pay is also listed as a standard,
@@ -188,7 +189,8 @@ class InitGateways
                     $payment_method = array_merge(
                         $payment_method,
                         [
-                            'showInCheckout' => ExpressPlacements::enabledFor($gateway_id, 'checkout'),
+                            'showInCheckout' => ExpressPlacements::enabledFor($gateway_id, 'checkout')
+                                && $gateway::hasRequiredCredentials($gateway->settings),
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
                             'buttonStyle' => $gateway->get_option('button_style', 'black'),
                             // Whether Google Pay is also listed as a standard,
@@ -204,7 +206,8 @@ class InitGateways
                     $payment_method = array_merge(
                         $payment_method,
                         [
-                            'showInCheckout' => is_array($expressPages) && in_array(PaypalExpressController::LOCATION_CHECKOUT, $expressPages),
+                            'showInCheckout' => is_array($expressPages) && in_array(PaypalExpressController::LOCATION_CHECKOUT, $expressPages)
+                                && $gateway::hasRequiredCredentials($gateway->settings),
                         ]
                     );
                 }

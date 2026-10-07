@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-10-29T14:35:35+00:00\n"
-"PO-Revision-Date: 2025-04-04 10:36+0000\n"
+"PO-Revision-Date: 2026-10-01 09:46+0000\n"
 "Language: nl_NL\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
@@ -1195,16 +1195,20 @@ msgid "Buckaroo Hosted Fields Client ID"
 msgstr ""
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:244
-msgid "Enter your Buckaroo Hosted Fields Client ID, obtainable from the Buckaroo Plaza at -> Settings -> Token registration."
-msgstr ""
+#. translators: 1: opening link to Token registration, 2: closing link.
+#, php-format
+msgid "Enter your Hosted Fields Client ID. Create or look up your credentials in Buckaroo Plaza under Configuration > %1$sToken registration%2$s."
+msgstr "Voer uw Hosted Fields Client ID in. Maak uw inloggegevens aan of zoek ze op in Buckaroo Plaza onder Configuratie > %1$sTokenregistratie%2$s."
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:247
 msgid "Buckaroo Hosted Fields Client Secret"
 msgstr ""
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:249
-msgid "Enter your Buckaroo Hosted Fields Client Secret, obtainable from the Buckaroo Plaza at -> Settings -> Token registration."
-msgstr ""
+#. translators: 1: opening link to Token registration, 2: closing link.
+#, php-format
+msgid "Enter your Hosted Fields Client Secret. Create or look up your credentials in Buckaroo Plaza under Configuration > %1$sToken registration%2$s."
+msgstr "Voer uw Hosted Fields Client Secret in. Maak uw inloggegevens aan of zoek ze op in Buckaroo Plaza onder Configuratie > %1$sTokenregistratie%2$s."
 
 #: src/Gateways/CreditCard/HostedFieldsController.php:23
 msgid "Hosted fields client keys are not provided."
@@ -1415,7 +1419,6 @@ msgstr "Vul je Secret Key in"
 msgid "API credentials"
 msgstr "API-gegevens"
 
-
 #. BTI-1479 standardised express settings
 msgid "Method specific settings"
 msgstr "Methodespecifieke instellingen"
@@ -1434,7 +1437,6 @@ msgstr "Maak de selectie leeg om de express-knop overal te verbergen."
 
 msgid "List as payment method in checkout"
 msgstr "Tonen als betaalmethode op de afrekenpagina"
-
 
 msgid "Colour of the express button as the customer sees it."
 msgstr "De kleur van de express-knop zoals de klant die ziet."
@@ -1547,8 +1549,8 @@ msgstr "Sandbox merchant ID"
 msgid "Used in Test mode. Found in PayPal sandbox → <a href=\"https://www.sandbox.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>."
 msgstr "Wordt gebruikt in de testmodus. Te vinden in PayPal-sandbox → <a href=\"https://www.sandbox.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Bedrijfsgegevens</a>."
 
-msgid "Used only when Transaction mode is set to Test. The PayPal sandbox client ids are managed by the Buckaroo plugin."
-msgstr "Wordt alleen gebruikt wanneer Transactiemodus op Test staat. De PayPal sandbox client-id's worden beheerd door de Buckaroo-plugin."
+msgid "Used only when Transaction mode is set to Test. The PayPal sandbox client ids are managed by the Buckaroo plugin. The sandbox merchant ID is optional."
+msgstr "Wordt alleen gebruikt wanneer Transactiemodus op Test staat. De PayPal sandbox client-id's worden beheerd door de Buckaroo-plugin. De sandbox merchant ID is optioneel."
 
 msgid "Your Buckaroo Gateway merchant ID, found in Buckaroo Plaza → Services → <a href=\"https://plaza.buckaroo.nl/Configuration/GooglePay\" target=\"_blank\" rel=\"noopener\">Google Pay</a>."
 msgstr "Uw Buckaroo Gateway merchant ID, te vinden in Buckaroo Plaza → Services → <a href=\"https://plaza.buckaroo.nl/Configuration/GooglePay\" target=\"_blank\" rel=\"noopener\">Google Pay</a>."
@@ -1558,9 +1560,6 @@ msgstr "Uw Google Merchant ID, te vinden in de <a href=\"https://pay.google.com/
 
 msgid "The wallet only authorises the payment. Billing and shipping come from the checkout form."
 msgstr "De wallet autoriseert alleen de betaling. Factuur- en verzendgegevens komen uit het afrekenformulier."
-
-msgid "Sandbox merchant ID is required in Test mode. PayPal payments will fail until it is filled in."
-msgstr "Sandbox merchant ID is vereist in de testmodus. PayPal-betalingen mislukken totdat deze is ingevuld."
 
 #: src/Gateways/ExpressProductCart.php:27
 msgid "No shipping required"
@@ -1581,3 +1580,12 @@ msgstr "Doorverwijzingsmelding tonen bij afrekenen"
 #: src/Admin/PaymentMethodSettings.php
 msgid "Show a notice when customers are redirected to complete payment."
 msgstr "Toon een melding wanneer klanten worden doorgestuurd om de betaling af te ronden."
+
+#: src/Gateways/AbstractPaymentGateway.php:425
+#, php-format
+msgid "%s is required to enable this payment method in the selected transaction mode."
+msgstr "%s is vereist om deze betaalmethode in de geselecteerde transactiemodus in te schakelen."
+
+#: src/Gateways/AbstractPaymentGateway.php:682
+msgid "Not configured"
+msgstr "Niet geconfigureerd"

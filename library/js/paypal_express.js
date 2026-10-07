@@ -114,11 +114,11 @@ const BuckarooInitPaypalExpress = function () {
     }
 
     if (buckaroo_paypal_express.websiteKey.length) {
-        if (buckaroo_paypal_express.merchant_id === null) {
+        var isTestMode = !!buckaroo_paypal_express.is_test;
+
+        if (!isTestMode && buckaroo_paypal_express.merchant_id === null) {
             alert(buckaroo_paypal_express.i18n.merchant_id_required);
         }
-
-        var isTestMode = !!buckaroo_paypal_express.is_test;
 
         // Signal the environment to the SDK; it then selects the matching
         // (sandbox/live) PayPal client id internally.

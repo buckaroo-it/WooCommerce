@@ -8,7 +8,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2024-10-29T14:35:35+00:00\n"
-"PO-Revision-Date: 2025-12-03 00:00+0000\n"
+"PO-Revision-Date: 2026-10-01 09:46+0000\n"
 "Language: es_ES\n"
 "X-Generator: AI\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
@@ -1282,7 +1282,6 @@ msgstr "Esta acción activará los métodos de pago en modo LIVE según sus susc
 msgid "Dutch pay-after-delivery by invoice from ABN AMRO, for business customers with a Chamber of Commerce registration."
 msgstr "Pago B2B tras la entrega mediante factura de ABN AMRO (Países Bajos)."
 
-
 msgid "Advanced settings"
 msgstr "Ajustes avanzados"
 
@@ -1370,9 +1369,6 @@ msgstr "Credenciales de sandbox"
 msgid "Sandbox merchant ID"
 msgstr "Sandbox merchant ID"
 
-msgid "Sandbox merchant ID is required in Test mode. PayPal payments will fail until it is filled in."
-msgstr "El Sandbox merchant ID es obligatorio en el modo de prueba. Los pagos con PayPal fallarán hasta que se complete."
-
 msgid "Seller protection"
 msgstr "Protección del vendedor"
 
@@ -1403,8 +1399,8 @@ msgstr "No se pudo cargar la vista previa."
 msgid "Used in Test mode. Found in PayPal sandbox → <a href=\"https://www.sandbox.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>."
 msgstr "Se utiliza en el modo de prueba. Disponible en el sandbox de PayPal → <a href=\"https://www.sandbox.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Información de la empresa</a>."
 
-msgid "Used only when Transaction mode is set to Test. The PayPal sandbox client ids are managed by the Buckaroo plugin."
-msgstr "Solo se utiliza cuando el modo de transacción está en Test. Los client IDs de sandbox de PayPal los gestiona el plugin de Buckaroo."
+msgid "Used only when Transaction mode is set to Test. The PayPal sandbox client ids are managed by the Buckaroo plugin. The sandbox merchant ID is optional."
+msgstr "Solo se utiliza cuando el modo de transacción está en Test. Los client IDs de sandbox de PayPal los gestiona el plugin de Buckaroo. El merchant ID de sandbox es opcional."
 
 msgid "White"
 msgstr "Blanco"
@@ -1441,3 +1437,12 @@ msgstr "El importe de Google Pay ha cambiado. Actualice la página y apruebe el 
 #: src/Gateways/AbstractPaymentGateway.php
 msgid "Configured. Leave blank to keep unchanged"
 msgstr "Configurado. Dejar en blanco para conservar el valor"
+
+#: src/Gateways/AbstractPaymentGateway.php:425
+#, php-format
+msgid "%s is required to enable this payment method in the selected transaction mode."
+msgstr "Se requiere %s para activar este método de pago en el modo de transacción seleccionado."
+
+#: src/Gateways/AbstractPaymentGateway.php:682
+msgid "Not configured"
+msgstr "Sin configurar"

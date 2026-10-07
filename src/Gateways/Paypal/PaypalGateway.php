@@ -7,7 +7,6 @@ use Buckaroo\Woocommerce\Gateways\Express\ExpressSettings;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressOrder;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressShipping;
-use WC_Admin_Settings;
 use WC_Order;
 
 class PaypalGateway extends AbstractPaymentGateway
@@ -27,6 +26,8 @@ class PaypalGateway extends AbstractPaymentGateway
     public const PREVIEW_ENABLE_FUNDING = 'paylater';
 
     public const PAYMENT_CLASS = PaypalProcessor::class;
+
+    protected const REQUIRED_CREDENTIALS = ['express_merchant_id' => 'live'];
 
     public $sellerprotection;
 
@@ -56,15 +57,6 @@ class PaypalGateway extends AbstractPaymentGateway
         'TWD',
         'USD',
     ];
-
-    /**
-     * Whether the sandbox warning has already been queued this request.
-     *
-     * WooCommerce runs a gateway's process_admin_options() twice when saving
-     * its own section: once from save_settings_for_current_section() and again
-     * from woocommerce_update_options_payment_gateways_{id}.
-     */
-    private static $sandboxWarningAdded = false;
 
     public function __construct()
     {
@@ -141,7 +133,7 @@ class PaypalGateway extends AbstractPaymentGateway
                 'sandbox_credentials_title' => [
                     'title' => __('Sandbox credentials', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'title',
-                    'description' => __('Used only when Transaction mode is set to Test. The PayPal sandbox client ids are managed by the Buckaroo plugin.', 'wc-buckaroo-bpe-gateway'),
+                    'description' => __('Used only when Transaction mode is set to Test. The PayPal sandbox client ids are managed by the Buckaroo plugin. The sandbox merchant ID is optional.', 'wc-buckaroo-bpe-gateway'),
                 ],
                 'express_sandbox_merchant_id' => [
                     'title' => __('Sandbox merchant ID', 'wc-buckaroo-bpe-gateway'),
@@ -268,35 +260,6 @@ class PaypalGateway extends AbstractPaymentGateway
                 'enable-funding' => self::PREVIEW_ENABLE_FUNDING,
             ],
         ];
-    }
-
-    /**
-     * Warn when Test mode is selected without a sandbox merchant id.
-     *
-     * Nothing calls display_errors() for payment gateways, so the notice goes
-     * through WC_Admin_Settings instead of $this->add_error().
-     */
-    public function process_admin_options()
-    {
-        parent::process_admin_options();
-
-        if (self::$sandboxWarningAdded) {
-            return;
-        }
-
-        if ($this->get_option('enabled') !== 'yes' || $this->get_option('mode') !== 'test') {
-            return;
-        }
-
-        if (trim((string) $this->get_option('express_sandbox_merchant_id')) === '') {
-            self::$sandboxWarningAdded = true;
-            WC_Admin_Settings::add_error(
-                __(
-                    'Sandbox merchant ID is required in Test mode. PayPal payments will fail until it is filled in.',
-                    'wc-buckaroo-bpe-gateway'
-                )
-            );
-        }
     }
 
     public function get_express_order_id()

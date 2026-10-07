@@ -18,6 +18,8 @@ class GooglepayGateway extends AbstractPaymentGateway
 
     public const PAYMENT_CLASS = GooglepayProcessor::class;
 
+    protected const REQUIRED_CREDENTIALS = ['merchant_guid' => 'always', 'google_merchant_id' => 'live'];
+
     protected $paymentData;
 
     protected $CustomerCardName;
