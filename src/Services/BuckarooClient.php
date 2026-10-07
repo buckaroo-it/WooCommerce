@@ -11,6 +11,7 @@ use BuckarooDeps\Buckaroo\Handlers\Reply\ReplyHandler;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use Exception;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * Class BuckarooClient
@@ -109,7 +110,7 @@ class BuckarooClient
             $replyHandler = new ReplyHandler($this->buckarooClient->client()->config(), $data, $authHeader ?? '', $url ?? '');
 
             return $replyHandler->validate()->isValid();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             Logger::log(__METHOD__ . '|1|', [$e->getMessage(), $data]);
 
             return false;

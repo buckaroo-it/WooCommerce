@@ -4,6 +4,25 @@ namespace Buckaroo\Woocommerce\ResponseParser;
 
 class FormDataParser extends ResponseParser
 {
+    /**
+     * Buckaroo reply field prefixes, as sent by Buckaroo.
+     */
+    private const FIELD_PREFIXES = ['brq', 'add', 'cust', 'BRQ', 'ADD', 'CUST'];
+
+    /**
+     * Keep only Buckaroo reply fields (brq_, add_, cust_).
+     */
+    protected function readableItems(array $items): array
+    {
+        return array_filter(
+            $items,
+            function ($key) {
+                return is_string($key) && in_array(explode('_', $key)[0], self::FIELD_PREFIXES, true);
+            },
+            ARRAY_FILTER_USE_KEY
+        );
+    }
+
     public function getAmountDebit(): ?float
     {
         return $this->formatAmount($this->get('brq_amount_debit'));

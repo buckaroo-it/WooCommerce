@@ -14,7 +14,15 @@ abstract class ResponseParser implements IResponseParser
     public function __construct(array $items = [])
     {
         $this->unformattedItems = $items;
-        $this->items = $this->normalizeItems($items);
+        $this->items = $this->normalizeItems($this->readableItems($items));
+    }
+
+    /**
+     * Items exposed through the getters.
+     */
+    protected function readableItems(array $items): array
+    {
+        return $items;
     }
 
     protected function normalizeItems(array $array): array

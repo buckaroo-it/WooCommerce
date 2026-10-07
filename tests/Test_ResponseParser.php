@@ -343,4 +343,59 @@ class Test_ResponseParser extends TestCase
 
         $this->assertEquals('MixedCaseValue', $result);
     }
+
+    /**
+     * Test form data parser reads lower and upper case Buckaroo fields
+     */
+    public function test_form_data_parser_reads_buckaroo_fields_in_both_cases()
+    {
+        $parser = new FormDataParser([
+            'brq_statuscode' => '190',
+            'BRQ_AMOUNT' => '10.00',
+            'ADD_real_order_id' => '42',
+            'add_custom' => 'x',
+        ]);
+
+        $this->assertSame('190', (string) $parser->getStatusCode());
+        $this->assertSame(10.0, $parser->getAmount());
+        $this->assertSame('42', $parser->getRealOrderId());
+        $this->assertSame('x', $parser->getAdditionalInformation('custom'));
+    }
+
+    /**
+     * Test form data parser ignores fields that are not Buckaroo reply fields
+     */
+    public function test_form_data_parser_ignores_non_buckaroo_fields()
+    {
+        $parser = new FormDataParser([
+            'brq_statuscode' => '490',
+            'brq_amount' => '10.00',
+            'add_real_order_id' => '42',
+            'Brq_statuscode' => '190',
+            'bRQ_amount' => '99.00',
+            'Add_real_order_id' => '43',
+            'other_field' => 'value',
+        ]);
+
+        $this->assertSame('490', (string) $parser->getStatusCode());
+        $this->assertSame(10.0, $parser->getAmount());
+        $this->assertSame('42', $parser->getRealOrderId());
+        $this->assertNull($parser->get('other_field'));
+    }
+
+    /**
+     * Test form data parser keeps the original data for validation
+     */
+    public function test_form_data_parser_keeps_original_data_unchanged()
+    {
+        $data = [
+            'brq_statuscode' => '190',
+            'Brq_amount' => '10.00',
+            'other_field' => 'value',
+        ];
+
+        $parser = new FormDataParser($data);
+
+        $this->assertSame($data, $parser->get(null, null, false));
+    }
 }
