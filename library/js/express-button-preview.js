@@ -1,9 +1,6 @@
 /**
- * Render a live express button on the settings screen so the merchant sees the
- * choices above it before saving.
- *
- * Each wallet draws its own button, so this branches on the method the gateway
- * declared. Nothing is payable here: the buttons are inert previews.
+ * Live express button preview on the gateway settings screen. The buttons are
+ * inert: nothing is payable here.
  */
 (function () {
     'use strict';
@@ -52,10 +49,6 @@
     }
 
     var renderers = {
-        /**
-         * PayPal draws through its own SDK, which needs a client id merely to
-         * load. Style keys match what paypal_express.js injects on the storefront.
-         */
         paypal: {
             src: function () {
                 var url = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(config.clientId);
@@ -70,8 +63,7 @@
                 return window.paypal && typeof window.paypal.Buttons === 'function';
             },
             draw: function () {
-                // Re-rendering into a container that still holds a live zoid
-                // instance fails, so retire the previous one first.
+                // Re-rendering over a live instance fails, so close it first.
                 if (this.instance && typeof this.instance.close === 'function') {
                     try {
                         this.instance.close();
@@ -85,8 +77,7 @@
                         actions.disable();
                     },
                     style: {
-                        // wp_localize_script stringifies every value and PayPal
-                        // rejects a style.height that is not a number.
+                        // wp_localize_script passes strings; PayPal needs a number.
                         height: parseInt(config.height, 10),
                         color: valueOf('color', 'gold'),
                         shape: valueOf('shape', 'FALSE') === 'TRUE' ? 'pill' : 'rect',
@@ -94,10 +85,9 @@
                     },
                 });
 
-                // render() resolves asynchronously, so a rejection never reaches
-                // the caller's try/catch.
                 this.instance = buttons;
 
+                // render() is asynchronous, so failures arrive through its promise.
                 var rendered = buttons.render(container);
                 if (rendered && typeof rendered.catch === 'function') {
                     rendered.catch(unavailable);
@@ -105,10 +95,6 @@
             },
         },
 
-        /**
-         * Google builds a button element through its PaymentsClient. TEST
-         * environment: the preview never talks to a real merchant account.
-         */
         googlepay: {
             src: function () {
                 return 'https://pay.google.com/gp/p/js/pay.js';
@@ -130,19 +116,11 @@
             },
         },
 
-        /**
-         * Apple's button is a web component, so the preview draws in any
-         * browser; only a real payment needs Safari on Apple hardware.
-         */
         applepay: {
             src: function () {
                 return config.appleSdk;
             },
-            /**
-             * The button is a web component, so readiness means the element
-             * is registered. Checking ApplePaySession instead would skip the
-             * load in Safari and suppress the preview everywhere else.
-             */
+            // Not ApplePaySession: the web component renders in any browser.
             ready: function () {
                 return !!(window.customElements && window.customElements.get('apple-pay-button'));
             },
@@ -155,13 +133,8 @@
                 button.style.setProperty('--apple-pay-button-height', config.height + 'px');
                 container.appendChild(button);
 
-                // Once connected, the component flags itself hidden wherever
-                // Apple Pay cannot actually be used, via
-                //   :host([aria-hidden]), :host([hidden]) { display: none }
-                // in its shadow root. The drawn button underneath is correct,
-                // and this is a style preview rather than a payable button, so
-                // clear the flags. hidden is a boolean attribute, so it has to
-                // be removed: setting it to "false" still hides.
+                // The component hides itself where Apple Pay is unavailable.
+                // This is only a style preview, so remove those flags.
                 var flags = ['hidden', 'aria-hidden', 'disabled'];
                 var reveal = function () {
                     flags.forEach(function (name) {
@@ -171,16 +144,11 @@
 
                 reveal();
 
-                // The flags are applied asynchronously, once the component has
-                // finished its availability check, so watch for them rather
-                // than guessing a delay. It sets them once and does not restore
-                // them after removal, so this settles rather than looping.
+                // The flags are set asynchronously, after its availability check.
                 if (window.MutationObserver) {
                     var observer = new window.MutationObserver(reveal);
                     observer.observe(button, { attributes: true, attributeFilter: flags });
 
-                    // The check is long done by then; stop watching so a
-                    // settings page does not keep an observer alive forever.
                     window.setTimeout(function () {
                         observer.disconnect();
                     }, 10000);
@@ -198,10 +166,7 @@
     function render() {
         container.textContent = '';
 
-        // Every wallet sizes its button from the container, and PayPal also
-        // picks its height from the container width. Set inline so a cached
-        // stylesheet or a more specific admin rule cannot widen the preview
-        // into something the customer never sees.
+        // Wallets size the button from the container; keep it at field width.
         container.style.maxWidth = parseInt(config.previewWidth, 10) + 'px';
 
         if (!renderer.ready()) {

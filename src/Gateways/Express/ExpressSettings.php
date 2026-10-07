@@ -10,9 +10,6 @@ use Buckaroo\Woocommerce\Core\Plugin;
  * A gateway declares what it supports in expressSettingsSpec() and this trait
  * assembles the sections in a fixed order. Sections without fields are not
  * rendered and unsupported fields are absent rather than disabled.
- *
- * Storage keys are unchanged: the placement widget is a single multiselect in
- * the UI, expanded back into the legacy button_{location} keys on save.
  */
 trait ExpressSettings
 {
@@ -25,7 +22,7 @@ trait ExpressSettings
 
     /**
      * Field key of the placement widget. Never stored: expandExpressPlacements()
-     * removes it and writes button_{location} instead.
+     * replaces it with the method's placement keys on save.
      */
     protected static $expressPlacementsKey = 'button_pages';
 
@@ -35,6 +32,7 @@ trait ExpressSettings
     /** Preview width, matching the width WooCommerce gives its settings fields. */
     public const EXPRESS_PREVIEW_WIDTH = 400;
 
+    /** Fields this method supports. Anything absent is not rendered. */
     abstract protected function expressSettingsSpec(): array;
 
     /**
@@ -158,11 +156,8 @@ trait ExpressSettings
     }
 
     /**
-     * Current placements, read from the legacy button_{location} keys.
-     *
-     * form_fields is built before init_settings() runs, so the stored option is
-     * read directly. \get_option() is the WordPress function, not the gateway
-     * method of the same name.
+     * Current placements. form_fields is built before init_settings() runs, so
+     * the stored option is read directly.
      */
     protected function expressPlacementsFromStorage(): array
     {
@@ -186,8 +181,7 @@ trait ExpressSettings
             return ExpressPlacements::fromSettings($stored);
         }
 
-        // An absent key reads as shown, which is what the button_{location}
-        // fields defaulted to before the widget replaced them.
+        // An absent key reads as shown, matching the old field defaults.
         $selected = [];
 
         foreach (static::$expressLocations as $location) {
@@ -330,17 +324,13 @@ trait ExpressSettings
         $data = wp_parse_args($data, ['title' => '', 'description' => '']);
         $containerId = $this->get_field_key($key) . '_container';
 
-        // Resolve the declared setting keys to the ids WooCommerce renders for
-        // them. $preview is what reaches the script, so the raw keys would name
-        // elements the DOM does not have.
+        // Map the setting keys to the field ids WooCommerce renders.
         $fields = [];
         foreach ($preview['fields'] ?? [] as $name => $fieldKey) {
             $fields[$name] = $this->get_field_key($fieldKey);
         }
         $preview['fields'] = $fields;
 
-        // Enqueued while the settings form renders; admin footer scripts are
-        // printed after this, so the handle is still in time.
         wp_enqueue_script(
             'buckaroo-express-button-preview',
             plugin_dir_url(BK_PLUGIN_FILE) . 'library/js/express-button-preview.js',
@@ -354,9 +344,7 @@ trait ExpressSettings
             array_merge(
                 [
                     'containerId' => $containerId,
-                    // Kept in step with BUCKAROO_EXPRESS_BUTTON_HEIGHT in
-                    // paypal_express.js and --apple-pay-button-height in
-                    // buckaroo-custom.css.
+                    // Keep in sync with paypal_express.js and buckaroo-custom.css.
                     'height' => self::EXPRESS_BUTTON_HEIGHT,
                     'previewWidth' => self::EXPRESS_PREVIEW_WIDTH,
                     'locale' => str_replace('_', '-', get_locale()),

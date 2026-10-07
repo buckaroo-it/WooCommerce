@@ -14,12 +14,8 @@ class PaypalGateway extends AbstractPaymentGateway
     use ExpressSettings;
 
     /**
-     * Funding sources the storefront suppresses, mirrored so the preview
-     * draws the same buttons the customer gets.
-     *
-     * These duplicate the list BuckarooSdk.PayPal.initiate() builds into its
-     * own script URL, which the plugin cannot read. Test_PaypalFunding
-     * (@group external-http) compares the two against the live SDK.
+     * Funding sources as the Buckaroo SDK sets them on the storefront, so the
+     * preview draws the same buttons the customer gets.
      */
     public const PREVIEW_DISABLE_FUNDING = 'credit,card,bancontact,blik,eps,giropay,ideal,mercadopago,mybank,p24,sepa,sofort,venmo';
 
@@ -113,11 +109,8 @@ class PaypalGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Fields this method supports. Anything absent is not rendered.
-     *
-     * PayPal is offered as a regular payment method too, so it keeps Title and
-     * Description and has no separate "list as payment method" switch: that is
-     * governed by Enable/Disable.
+     * PayPal is also a regular payment method, so it keeps Title and Description
+     * and has no "list as payment method" switch: Enable/Disable governs that.
      */
     protected function expressSettingsSpec(): array
     {
@@ -155,7 +148,6 @@ class PaypalGateway extends AbstractPaymentGateway
                         'white' => __('White', 'wc-buckaroo-bpe-gateway'),
                         'black' => __('Black', 'wc-buckaroo-bpe-gateway'),
                     ],
-                    // Gold is PayPal's own default, which is what renders today.
                     'default' => 'gold',
                 ],
                 'button_type' => [
@@ -168,8 +160,6 @@ class PaypalGateway extends AbstractPaymentGateway
                         'buynow' => __('Buy now', 'wc-buckaroo-bpe-gateway'),
                         'pay' => __('Pay with', 'wc-buckaroo-bpe-gateway'),
                     ],
-                    // The mark on its own is PayPal's own default, which is what
-                    // renders today. PayPal localises the wording itself.
                     'default' => 'paypal',
                 ],
                 'button_rounded' => [
@@ -180,7 +170,6 @@ class PaypalGateway extends AbstractPaymentGateway
                         'TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'),
                         'FALSE' => __('No', 'wc-buckaroo-bpe-gateway'),
                     ],
-                    // rect is PayPal's own default.
                     'default' => 'FALSE',
                 ],
                 'button_preview' => [
@@ -251,8 +240,7 @@ class PaypalGateway extends AbstractPaymentGateway
         return [
             'method' => 'paypal',
             'fields' => ['color' => 'button_style', 'shape' => 'button_rounded', 'type' => 'button_type'],
-            // Buckaroo's standard PayPal client id, as used by the Buckaroo SDK on the
-            // storefront. The SDK will not load without one; it only draws the preview.
+            // Buckaroo's standard PayPal client id; the SDK does not load without one.
             'clientId' => 'ATv1oKfBmc76Zzl8rAMai_OwpXIp9CsDTMzEceayY7X2Sy8t6bQT2rm7DIC7LYbfkch9m9S3R3amkeyU',
             'sdkParams' => [
                 'currency' => get_woocommerce_currency(),

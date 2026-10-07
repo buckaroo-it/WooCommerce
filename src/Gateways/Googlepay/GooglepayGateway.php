@@ -367,9 +367,6 @@ class GooglepayGateway extends AbstractPaymentGateway
         $this->applyExpressSettings();
     }
 
-    /**
-     * Fields this method supports. Anything absent is not rendered.
-     */
     protected function expressSettingsSpec(): array
     {
         return [
@@ -413,9 +410,7 @@ class GooglepayGateway extends AbstractPaymentGateway
                         'book' => __('Book with', 'wc-buckaroo-bpe-gateway'),
                         'subscribe' => __('Subscribe with', 'wc-buckaroo-bpe-gateway'),
                     ],
-                    // Plain heads the list for consistency with the other
-                    // wallets, but "Pay with" is what rendered before this
-                    // setting existed, so it stays the default.
+                    // Not Plain: existing shops keep the button they already show.
                     'default' => 'pay',
                 ],
                 'button_preview' => [

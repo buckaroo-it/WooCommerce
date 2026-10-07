@@ -456,9 +456,6 @@ class ApplepayGateway extends AbstractPaymentGateway
         $this->applyExpressSettings();
     }
 
-    /**
-     * Fields this method supports. Anything absent is not rendered.
-     */
     protected function expressSettingsSpec(): array
     {
         return [
@@ -496,7 +493,6 @@ class ApplepayGateway extends AbstractPaymentGateway
                         'book' => __('Book', 'wc-buckaroo-bpe-gateway'),
                         'subscribe' => __('Subscribe', 'wc-buckaroo-bpe-gateway'),
                     ],
-                    // Plain is what the button rendered before this setting existed.
                     'default' => 'plain',
                 ],
                 'button_preview' => [
@@ -513,16 +509,14 @@ class ApplepayGateway extends AbstractPaymentGateway
         return [
             'method' => 'applepay',
             'fields' => ['color' => 'button_style', 'type' => 'button_type'],
-            // The standalone web component, not the full Apple Pay SDK: it
-            // registers <apple-pay-button> in any browser, which is what a
-            // style preview needs.
+            // The standalone button component, which renders in any browser.
             'appleSdk' => 'https://applepay.cdn-apple.com/jsapi/v1.1.0/apple-pay-button.js',
         ];
     }
 
     /**
      * Placements are stored under express_show_on, with the legacy
-     * button_{location} keys kept in sync for two releases.
+     * button_{location} keys kept in sync.
      */
     protected function usesExpressStorageKeys(): bool
     {

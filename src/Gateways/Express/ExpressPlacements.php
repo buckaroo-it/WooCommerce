@@ -3,13 +3,8 @@
 namespace Buckaroo\Woocommerce\Gateways\Express;
 
 /**
- * Where an express button is shown, resolved from stored settings.
- *
- * Placements moved from three button_{location} keys to a single list under
- * express_show_on. The legacy keys stay readable so an install whose upgrade
- * routine never ran keeps rendering the button in the same places: migrations
- * only fire on upgrader_process_complete, never on an FTP, rsync or container
- * deploy.
+ * Where an express button is shown, resolved from stored settings: the
+ * express_show_on list when present, otherwise the button_{location} keys.
  */
 final class ExpressPlacements
 {
@@ -26,10 +21,8 @@ final class ExpressPlacements
      */
     public static function fromSettings(array $stored): array
     {
-        // array_key_exists, never empty(): WooCommerce stores an emptied
-        // multiselect as '' (validate_multiselect_field returns '' when
-        // nothing was posted). That means "nothing selected", so it must not
-        // fall through to the legacy keys, whose absent value reads as shown.
+        // WooCommerce stores an emptied multiselect as '', which means "nothing
+        // selected" and must not fall through to the legacy keys.
         if (array_key_exists(self::SHOW_ON_KEY, $stored)) {
             $selected = $stored[self::SHOW_ON_KEY];
 
@@ -57,9 +50,7 @@ final class ExpressPlacements
         $selected = self::onlyKnown($selected);
         $settings[self::SHOW_ON_KEY] = $selected;
 
-        // Dual-write for the two-release window. express_show_on is what reads
-        // resolve from, but any consumer still on the legacy keys - including
-        // third-party code - keeps seeing the current placements.
+        // Keep the legacy keys in sync for code that still reads them.
         foreach (self::LOCATIONS as $location) {
             $settings['button_' . $location] = in_array($location, $selected, true) ? 'TRUE' : 'FALSE';
         }
