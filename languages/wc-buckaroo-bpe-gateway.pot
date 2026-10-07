@@ -508,15 +508,6 @@ msgstr ""
 msgid "We are sorry to inform you that the request to pay afterwards with Riverty | AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty | AfterPay. Or you can visit the website of Riverty | AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order."
 msgstr ""
 
-#: src/Gateways/Applepay/ApplepayGateway.php:426
-#: src/Gateways/Googlepay/GooglepayGateway.php:433
-msgid "Button on product page"
-msgstr ""
-
-#: src/Gateways/Applepay/ApplepayGateway.php:428
-msgid "Show the Apple pay button on the product page"
-msgstr ""
-
 #: src/Gateways/Applepay/ApplepayGateway.php:430
 #: src/Gateways/Applepay/ApplepayGateway.php:441
 #: src/Gateways/Applepay/ApplepayGateway.php:452
@@ -539,39 +530,13 @@ msgstr ""
 msgid "Hide"
 msgstr ""
 
-#: src/Gateways/Applepay/ApplepayGateway.php:437
-#: src/Gateways/Googlepay/GooglepayGateway.php:444
-msgid "Button on cart page"
-msgstr ""
-
-#: src/Gateways/Applepay/ApplepayGateway.php:439
-msgid "Show the Apple pay button on the cart page"
-msgstr ""
-
-#: src/Gateways/Applepay/ApplepayGateway.php:448
-#: src/Gateways/Googlepay/GooglepayGateway.php:455
-msgid "Button on checkout page"
-msgstr ""
-
-#: src/Gateways/Applepay/ApplepayGateway.php:450
-msgid "Show the Apple pay button on the checkout page"
-msgstr ""
-
 #: src/Gateways/Applepay/ApplepayGateway.php:472
 #: src/Gateways/Googlepay/GooglepayGateway.php:491
 msgid "GUID"
 msgstr ""
 
-#: src/Gateways/Applepay/ApplepayGateway.php:474
-msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
-msgstr ""
-
 #: src/Gateways/Googlepay/GooglepayGateway.php:436
 msgid "Gateway Merchant ID"
-msgstr ""
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:438
-msgid "The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza -> Services -> Google Pay."
 msgstr ""
 
 #: src/Gateways/Billink/BillinkGateway.php:46
@@ -682,40 +647,12 @@ msgstr ""
 msgid "Card number or pin is incorrect for %s"
 msgstr ""
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:435
-msgid "Show the Google Pay button on the product page"
-msgstr ""
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:446
-msgid "Show the Google Pay button on the cart page"
-msgstr ""
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:457
-msgid "Show the Google Pay button on the checkout page"
-msgstr ""
-
 #: src/Gateways/Googlepay/GooglepayGateway.php:466
 msgid "Button style"
 msgstr ""
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:468
-msgid "Select the Google Pay button style"
-msgstr ""
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:470
-msgid "Dark"
-msgstr ""
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:471
-msgid "Light"
-msgstr ""
-
 #: src/Gateways/Googlepay/GooglepayGateway.php:497
 msgid "Google Merchant ID"
-msgstr ""
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:499
-msgid "Your Google Merchant ID from the Google Pay Business Console (e.g. BCR2DN4T...)."
 msgstr ""
 
 #: src/Gateways/Idin/IdinController.php:25
@@ -759,32 +696,8 @@ msgstr ""
 msgid "Bank selection display"
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:96
-msgid "Seller Protection"
-msgstr ""
-
-#: src/Gateways/Paypal/PaypalGateway.php:98
-msgid "Sends customer address information to PayPal to enable PayPal seller protection."
-msgstr ""
-
-#: src/Gateways/Paypal/PaypalGateway.php:101
-msgid "Disabled"
-msgstr ""
-
-#: src/Gateways/Paypal/PaypalGateway.php:106
-msgid "PayPal express merchant id"
-msgstr ""
-
 #: src/Gateways/Paypal/PaypalGateway.php:108
 msgid "PayPal merchant id required for paypal express"
-msgstr ""
-
-#: src/Gateways/Paypal/PaypalGateway.php:111
-msgid "PayPal express"
-msgstr ""
-
-#: src/Gateways/Paypal/PaypalGateway.php:113
-msgid "Enable PayPal express for the following pages."
 msgstr ""
 
 #: src/Gateways/Paypal/PaypalGateway.php:116
@@ -1361,7 +1274,6 @@ msgstr ""
 msgid "Phone Number:"
 msgstr ""
 
-
 #: src/Gateways/ExpressProductCart.php:27
 msgid "No shipping required"
 msgstr ""
@@ -1383,6 +1295,209 @@ msgstr ""
 msgid "Not configured"
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:115
-msgid "Used only when the Transaction mode above is set to \"Test\". The Buckaroo SDK manages the PayPal sandbox client IDs. The sandbox merchant ID is optional."
+#: src/Gateways/Applepay/ApplepayGateway.php:469
+msgid "Your Buckaroo GUID, found in Buckaroo Plaza → My Buckaroo → General."
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:479
+#: src/Gateways/Googlepay/GooglepayGateway.php:396
+#: src/Gateways/Paypal/PaypalGateway.php:150
+msgid "Colour of the express button as the customer sees it."
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:481
+#: src/Gateways/Googlepay/GooglepayGateway.php:398
+#: src/Gateways/Paypal/PaypalGateway.php:156
+msgid "Black"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:482
+#: src/Gateways/Googlepay/GooglepayGateway.php:399
+#: src/Gateways/Paypal/PaypalGateway.php:155
+msgid "White"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:483
+msgid "White outline"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:488
+#: src/Gateways/Googlepay/GooglepayGateway.php:404
+#: src/Gateways/Paypal/PaypalGateway.php:162
+msgid "Button type"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:490
+msgid "Wording Apple shows on the button, next to the Apple Pay mark."
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:492
+#: src/Gateways/Googlepay/GooglepayGateway.php:408
+#: src/Gateways/Paypal/PaypalGateway.php:166
+msgid "Plain"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:493
+msgid "Buy"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:494
+msgid "Check out"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:495
+msgid "Order"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:496
+msgid "Book"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:497
+msgid "Subscribe"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:503
+#: src/Gateways/Googlepay/GooglepayGateway.php:422
+#: src/Gateways/Paypal/PaypalGateway.php:187
+msgid "Button preview"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:505
+#: src/Gateways/Googlepay/GooglepayGateway.php:424
+#: src/Gateways/Paypal/PaypalGateway.php:189
+msgid "Updates as you change the settings above."
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:51
+msgid "Method specific settings"
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:57
+msgid "Graphical settings"
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:63
+msgid "Advanced settings"
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:112
+msgid "Show the express button on"
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:115
+msgid "Clear all to hide the express button everywhere."
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:123
+msgid "List as payment method in checkout"
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:125
+msgid "The wallet only authorises the payment. Billing and shipping come from the checkout form."
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:364
+msgid "The preview could not be loaded."
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:380
+msgid "Your Buckaroo Gateway merchant ID, found in Buckaroo Plaza → Services → <a href=\"https://plaza.buckaroo.nl/Configuration/GooglePay\" target=\"_blank\" rel=\"noopener\">Google Pay</a>."
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:386
+msgid "Your Google Merchant ID, found in the <a href=\"https://pay.google.com/business/console\" target=\"_blank\" rel=\"noopener\">Google Pay & Wallet Console</a> (e.g. BCR2DN4T...). Required for live payments."
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:406
+msgid "Wording Google shows on the button, next to the Google Pay mark."
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:409
+#: src/Gateways/Paypal/PaypalGateway.php:169
+msgid "Pay with"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:410
+msgid "Buy with"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:411
+msgid "Checkout with"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:412
+msgid "Order with"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:413
+msgid "Book with"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:414
+msgid "Subscribe with"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:127
+msgid "Merchant ID"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:129
+msgid "Found in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>. Required for live payments."
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:134
+msgid "Sandbox credentials"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:136
+msgid "Used only when Transaction mode is set to Test. The PayPal sandbox client ids are managed by the Buckaroo plugin. The sandbox merchant ID is optional."
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:139
+msgid "Sandbox merchant ID"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:141
+msgid "Used in Test mode. Found in PayPal sandbox → <a href=\"https://www.sandbox.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>."
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:152
+msgid "Gold (standard)"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:153
+msgid "Blue"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:154
+msgid "Silver"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:164
+msgid "Wording PayPal shows on the button, next to the PayPal mark."
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:167
+msgid "Checkout"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:168
+msgid "Buy now"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:176
+msgid "Rounded button shape"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:178
+msgid "Show the express button with fully rounded corners."
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:194
+msgid "Seller protection"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:196
+msgid "Sends the customer address to PayPal, needed for seller protection."
 msgstr ""
