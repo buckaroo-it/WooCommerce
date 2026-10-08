@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Googlepay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressSettings;
 use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
@@ -13,6 +14,8 @@ use WC_Order_Item_Product;
 
 class GooglepayGateway extends AbstractPaymentGateway
 {
+    use ExpressSettings;
+
     public const PAYMENT_CLASS = GooglepayProcessor::class;
 
     protected const REQUIRED_CREDENTIALS = ['merchant_guid' => 'always', 'google_merchant_id' => 'live'];
@@ -361,101 +364,79 @@ class GooglepayGateway extends AbstractPaymentGateway
         unset($this->form_fields['title']);
         unset($this->form_fields['description']);
 
-        $this->form_fields['button_product'] = [
-            'title' => __('Button on product page', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'select',
-            'description' => __('Show the Google Pay button on the product page', 'wc-buckaroo-bpe-gateway'),
-            'options' => [
-                'TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'),
-                'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway'),
-            ],
-            'default' => 'TRUE',
-        ];
+        $this->applyExpressSettings();
+    }
 
-        $this->form_fields['button_cart'] = [
-            'title' => __('Button on cart page', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'select',
-            'description' => __('Show the Google Pay button on the cart page', 'wc-buckaroo-bpe-gateway'),
-            'options' => [
-                'TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'),
-                'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway'),
+    protected function expressSettingsSpec(): array
+    {
+        return [
+            'credentials' => [
+                'merchant_guid' => [
+                    'title' => __('Gateway Merchant ID', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'text',
+                    'description' => __('Your Buckaroo Gateway merchant ID, found in Buckaroo Plaza → Services → <a href="https://plaza.buckaroo.nl/Configuration/GooglePay" target="_blank" rel="noopener">Google Pay</a>.', 'wc-buckaroo-bpe-gateway'),
+                    'default' => '0',
+                ],
+                'google_merchant_id' => [
+                    'title' => __('Google Merchant ID', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'text',
+                    'description' => __('Your Google Merchant ID, found in the <a href="https://pay.google.com/business/console" target="_blank" rel="noopener">Google Pay & Wallet Console</a> (e.g. BCR2DN4T...). Required for live payments.', 'wc-buckaroo-bpe-gateway'),
+                    'default' => '',
+                ],
             ],
-            'default' => 'TRUE',
-        ];
-
-        $this->form_fields['button_checkout'] = [
-            'title' => __('Button on checkout page', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'select',
-            'description' => __('Show the Google Pay button on the checkout page', 'wc-buckaroo-bpe-gateway'),
-            'options' => [
-                'TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'),
-                'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway'),
+            'placements' => ['product', 'cart', 'checkout'],
+            'list_as_payment_method' => true,
+            'graphical' => [
+                'button_style' => [
+                    'title' => __('Button style', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'select',
+                    'description' => __('Colour of the express button as the customer sees it.', 'wc-buckaroo-bpe-gateway'),
+                    'options' => [
+                        'black' => __('Black', 'wc-buckaroo-bpe-gateway'),
+                        'white' => __('White', 'wc-buckaroo-bpe-gateway'),
+                    ],
+                    'default' => 'black',
+                ],
+                'button_type' => [
+                    'title' => __('Button type', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'select',
+                    'description' => __('Wording Google shows on the button, next to the Google Pay mark.', 'wc-buckaroo-bpe-gateway'),
+                    'options' => [
+                        'plain' => __('Plain', 'wc-buckaroo-bpe-gateway'),
+                        'pay' => __('Pay with', 'wc-buckaroo-bpe-gateway'),
+                        'buy' => __('Buy with', 'wc-buckaroo-bpe-gateway'),
+                        'checkout' => __('Checkout with', 'wc-buckaroo-bpe-gateway'),
+                        'order' => __('Order with', 'wc-buckaroo-bpe-gateway'),
+                        'book' => __('Book with', 'wc-buckaroo-bpe-gateway'),
+                        'subscribe' => __('Subscribe with', 'wc-buckaroo-bpe-gateway'),
+                    ],
+                    // Not Plain: existing shops keep the button they already show.
+                    'default' => 'pay',
+                ],
+                'button_preview' => [
+                    'title' => __('Button preview', 'wc-buckaroo-bpe-gateway'),
+                    'type' => 'express_button_preview',
+                    'description' => __('Updates as you change the settings above.', 'wc-buckaroo-bpe-gateway'),
+                ],
             ],
-            'default' => 'TRUE',
         ];
+    }
 
-        $this->form_fields['checkout_method'] = [
-            'title' => __('Google Pay as checkout payment method', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'select',
-            'description' => __('In addition to the Express Checkout button, list Google Pay as a selectable payment method in the checkout. The Google Pay sheet only authorises the payment; billing and shipping are taken from the checkout form.', 'wc-buckaroo-bpe-gateway'),
-            'options' => [
-                'TRUE' => __('Show', 'wc-buckaroo-bpe-gateway'),
-                'FALSE' => __('Hide', 'wc-buckaroo-bpe-gateway'),
-            ],
-            'default' => 'TRUE',
+    protected function expressPreviewConfig(): array
+    {
+        return [
+            'method' => 'googlepay',
+            'fields' => ['color' => 'button_style', 'type' => 'button_type'],
         ];
-
-        $this->form_fields['button_style'] = [
-            'title' => __('Button style', 'wc-buckaroo-bpe-gateway'),
-            'type' => 'select',
-            'description' => __('Select the Google Pay button style', 'wc-buckaroo-bpe-gateway'),
-            'options' => [
-                'black' => __('Dark', 'wc-buckaroo-bpe-gateway'),
-                'white' => __('Light', 'wc-buckaroo-bpe-gateway'),
-            ],
-            'default' => 'black',
-        ];
-
-        $this->set_guid_after_usemaster();
     }
 
     /**
      * Whether Google Pay should be listed as a standard, selectable checkout
      * payment method (in addition to the Express Checkout button).
-     *
-     * @return bool
      */
     public function isCheckoutMethodEnabled(): bool
     {
         return $this->get_option('checkout_method', 'TRUE') === 'TRUE';
-    }
-
-    /**
-     * Set merchant_guid and google_merchant_id after mode
-     *
-     * @return void
-     */
-    protected function set_guid_after_usemaster()
-    {
-        $new_form_fields = [];
-        foreach ($this->form_fields as $k => $value) {
-            $new_form_fields[$k] = $value;
-            if ($k === 'mode') {
-                $new_form_fields['merchant_guid'] = [
-                    'title' => __('Gateway Merchant ID', 'wc-buckaroo-bpe-gateway'),
-                    'type' => 'text',
-                    'description' => __('The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza -> Services -> Google Pay.', 'wc-buckaroo-bpe-gateway'),
-                    'default' => '0',
-                ];
-                $new_form_fields['google_merchant_id'] = [
-                    'title' => __('Google Merchant ID', 'wc-buckaroo-bpe-gateway'),
-                    'type' => 'text',
-                    'description' => __('Your Google Merchant ID from the Google Pay Business Console (e.g. BCR2DN4T...).', 'wc-buckaroo-bpe-gateway'),
-                    'default' => '',
-                ];
-            }
-        }
-        $this->form_fields = $new_form_fields;
     }
 
     public function handleHooks()

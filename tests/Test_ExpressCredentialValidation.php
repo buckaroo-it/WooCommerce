@@ -102,8 +102,7 @@ class Test_ExpressCredentialValidation extends WP_UnitTestCase
             $gateway->get_field_key('enabled') => '1',
             $gateway->get_field_key('mode') => 'live',
             $gateway->get_field_key('merchant_guid') => 'merchant-guid',
-            $gateway->get_field_key('button_cart') => 'TRUE',
-            $gateway->get_field_key('button_checkout') => 'TRUE',
+            $gateway->get_field_key('button_pages') => ['cart', 'checkout'],
         ]);
         $gateway->process_admin_options();
         $this->assertSame([], $gateway->get_errors());
@@ -239,7 +238,7 @@ class Test_ExpressCredentialValidation extends WP_UnitTestCase
         $gateway->process_admin_options();
 
         $this->assertCount(1, $gateway->get_errors());
-        $this->assertStringContainsString('merchant id', $gateway->get_errors()[0]);
+        $this->assertStringContainsString('Merchant ID', $gateway->get_errors()[0]);
         $this->assertFalse((new PaypalGateway())->is_available());
     }
 

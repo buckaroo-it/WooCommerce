@@ -9,26 +9,38 @@ jQuery(document).ready(function () {
 const BUCKAROO_EXPRESS_BUTTON_HEIGHT = 40;
 
 /**
- * Force PayPal to the shared express button height.
+ * The merchant's button style, falling back to PayPal's own defaults.
+ */
+const buckarooPaypalStyle = function () {
+    const config = typeof buckaroo_paypal_express !== 'undefined' ? buckaroo_paypal_express : {};
+
+    return {
+        height: BUCKAROO_EXPRESS_BUTTON_HEIGHT,
+        color: config.button_style || 'gold',
+        shape: config.button_shape || 'rect',
+        label: config.button_type || 'paypal',
+    };
+};
+
+/**
+ * Force PayPal to the shared express button height and the merchant's style.
  *
  * Left alone it steps its height off the container width (35/45/55px) and can
- * never match the other buttons. It does honour an explicit style.height, but the
+ * never match the other buttons. It does honour an explicit style, but the
  * SDK builds its paypal.Buttons() options internally and forwards no style.
  */
 const buckarooWrapPaypalButtons = function (namespace) {
     try {
         const original = namespace.Buttons;
 
-        if (typeof original !== 'function' || original.buckarooHeightPatched === true) {
+        if (typeof original !== 'function' || original.buckarooStylePatched === true) {
             return;
         }
 
         const patched = function (options) {
             return original(
                 Object.assign({}, options, {
-                    style: Object.assign({}, options && options.style, {
-                        height: BUCKAROO_EXPRESS_BUTTON_HEIGHT,
-                    }),
+                    style: Object.assign({}, options && options.style, buckarooPaypalStyle()),
                 })
             );
         };
@@ -36,7 +48,7 @@ const buckarooWrapPaypalButtons = function (namespace) {
         Object.keys(original).forEach(key => {
             patched[key] = original[key];
         });
-        patched.buckarooHeightPatched = true;
+        patched.buckarooStylePatched = true;
 
         namespace.Buttons = patched;
     } catch (e) {

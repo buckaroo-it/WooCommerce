@@ -178,7 +178,7 @@ msgstr ""
 #: src/Gateways/Transfer/TransferGateway.php:158
 #: src/Gateways/Transfer/TransferGateway.php:168
 msgid "Yes"
-msgstr ""
+msgstr "Sí"
 
 #. Translators: %s Payment gateway name.
 #: src/Admin/GeneralSettings.php:328
@@ -191,7 +191,7 @@ msgstr ""
 #: src/Gateways/Transfer/TransferGateway.php:159
 #: src/Gateways/Transfer/TransferGateway.php:169
 msgid "No"
-msgstr ""
+msgstr "No"
 
 #: src/Admin/GeneralSettings.php:484
 msgid "enabled (live)"
@@ -524,15 +524,6 @@ msgstr ""
 msgid "We are sorry to inform you that the request to pay afterwards with Riverty | AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty | AfterPay. Or you can visit the website of Riverty | AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order."
 msgstr ""
 
-#: src/Gateways/Applepay/ApplepayGateway.php:426
-#: src/Gateways/Googlepay/GooglepayGateway.php:433
-msgid "Button on product page"
-msgstr ""
-
-#: src/Gateways/Applepay/ApplepayGateway.php:428
-msgid "Show the Apple pay button on the product page"
-msgstr ""
-
 #: src/Gateways/Applepay/ApplepayGateway.php:430
 #: src/Gateways/Applepay/ApplepayGateway.php:441
 #: src/Gateways/Applepay/ApplepayGateway.php:452
@@ -555,40 +546,18 @@ msgstr ""
 msgid "Hide"
 msgstr ""
 
-#: src/Gateways/Applepay/ApplepayGateway.php:437
-#: src/Gateways/Googlepay/GooglepayGateway.php:444
-msgid "Button on cart page"
-msgstr ""
-
-#: src/Gateways/Applepay/ApplepayGateway.php:439
-msgid "Show the Apple pay button on the cart page"
-msgstr ""
-
-#: src/Gateways/Applepay/ApplepayGateway.php:448
-#: src/Gateways/Googlepay/GooglepayGateway.php:455
-msgid "Button on checkout page"
-msgstr ""
-
-#: src/Gateways/Applepay/ApplepayGateway.php:450
-msgid "Show the Apple pay button on the checkout page"
-msgstr ""
-
 #: src/Gateways/Applepay/ApplepayGateway.php:472
 #: src/Gateways/Googlepay/GooglepayGateway.php:491
 msgid "GUID"
-msgstr ""
+msgstr "GUID"
 
 #: src/Gateways/Applepay/ApplepayGateway.php:474
-msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
-msgstr ""
+msgid "Your Buckaroo GUID, found in Buckaroo Plaza → My Buckaroo → General."
+msgstr "Su GUID de Buckaroo, disponible en Buckaroo Plaza → Mi Buckaroo → General."
 
 #: src/Gateways/Googlepay/GooglepayGateway.php:436
 msgid "Gateway Merchant ID"
-msgstr ""
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:438
-msgid "The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza -> Services -> Google Pay."
-msgstr "El merchant ID del Buckaroo Gateway se encuentra en el Buckaroo Plaza -> Services -> Google Pay."
+msgstr "Gateway Merchant ID"
 
 #: src/Gateways/Billink/BillinkGateway.php:46
 msgid "Please enter correct COC (KvK) number"
@@ -737,45 +706,21 @@ msgstr ""
 msgid "Bank selection display"
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:96
-msgid "Seller Protection"
-msgstr ""
-
-#: src/Gateways/Paypal/PaypalGateway.php:98
-msgid "Sends customer address information to PayPal to enable PayPal seller protection."
-msgstr ""
-
-#: src/Gateways/Paypal/PaypalGateway.php:101
-msgid "Disabled"
-msgstr ""
-
-#: src/Gateways/Paypal/PaypalGateway.php:106
-msgid "PayPal express merchant id"
-msgstr ""
-
 #: src/Gateways/Paypal/PaypalGateway.php:108
 msgid "PayPal merchant id required for paypal express"
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:111
-msgid "PayPal express"
-msgstr ""
-
-#: src/Gateways/Paypal/PaypalGateway.php:113
-msgid "Enable PayPal express for the following pages."
-msgstr ""
-
 #: src/Gateways/Paypal/PaypalGateway.php:116
 msgid "Product page"
-msgstr ""
+msgstr "Página del producto"
 
 #: src/Gateways/Paypal/PaypalGateway.php:117
 msgid "Cart page"
-msgstr ""
+msgstr "Página del carrito"
 
 #: src/Gateways/Paypal/PaypalGateway.php:118
 msgid "Checkout page"
-msgstr ""
+msgstr "Página de pago"
 
 #: src/Gateways/PaypalExpress/PaypalExpressController.php:112
 msgid "You have canceled the payment request"
@@ -1321,48 +1266,165 @@ msgid ""
 "English will be used as a fallback language for unknown language types."
 msgstr ""
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:435
-msgid "Show the Google Pay button on the product page"
-msgstr "Mostrar el botón de Google Pay en la página del producto"
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:446
-msgid "Show the Google Pay button on the cart page"
-msgstr "Mostrar el botón de Google Pay en la página del carrito"
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:457
-msgid "Show the Google Pay button on the checkout page"
-msgstr "Mostrar el botón de Google Pay en la página de pago"
-
 #: src/Gateways/Googlepay/GooglepayGateway.php:466
 msgid "Button style"
 msgstr "Estilo del botón"
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:468
-msgid "Select the Google Pay button style"
-msgstr "Seleccione el estilo del botón de Google Pay"
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:470
-msgid "Dark"
-msgstr "Oscuro"
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:471
-msgid "Light"
-msgstr "Claro"
 
 #: src/Gateways/Googlepay/GooglepayGateway.php:497
 msgid "Google Merchant ID"
 msgstr "Google Merchant ID"
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:499
-msgid "Your Google Merchant ID from the Google Pay Business Console (e.g. BCR2DN4T...)."
-msgstr "Su Google Merchant ID de la Google Pay Business Console (p. ej. BCR2DN4T...)."
 #: src/Hooks/PaymentSetupScripts.php
 msgid "This action will enable payment methods in LIVE mode based on your active Buckaroo subscriptions. This will overwrite your current payment method settings. Are you sure you want to proceed?"
-msgstr ""
+msgstr "Esta acción activará los métodos de pago en modo LIVE según sus suscripciones activas de Buckaroo. Se sobrescribirá la configuración actual de sus métodos de pago. ¿Está seguro de que desea continuar?"
 
 #: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php
 msgid "Dutch pay-after-delivery by invoice from ABN AMRO, for business customers with a Chamber of Commerce registration."
 msgstr "Pago B2B tras la entrega mediante factura de ABN AMRO (Países Bajos)."
+
+msgid "Advanced settings"
+msgstr "Ajustes avanzados"
+
+msgid "The wallet only authorises the payment. Billing and shipping come from the checkout form."
+msgstr "El monedero solo autoriza el pago. Los datos de facturación y envío proceden del formulario de pago."
+
+msgid "Black"
+msgstr "Negro"
+
+msgid "Blue"
+msgstr "Azul"
+
+msgid "Book"
+msgstr "Reservar"
+
+msgid "Book with"
+msgstr "Reservar con"
+
+msgid "Button preview"
+msgstr "Vista previa del botón"
+
+msgid "Button type"
+msgstr "Tipo de botón"
+
+msgid "Buy"
+msgstr "Comprar"
+
+msgid "Buy now"
+msgstr "Comprar ahora"
+
+msgid "Buy with"
+msgstr "Comprar con"
+
+msgid "Check out"
+msgstr "Finalizar compra"
+
+msgid "Checkout"
+msgstr "Finalizar compra"
+
+msgid "Checkout with"
+msgstr "Finalizar compra con"
+
+msgid "Colour of the express button as the customer sees it."
+msgstr "Color del botón express tal como lo ve el cliente."
+
+msgid "Gold (standard)"
+msgstr "Dorado (estándar)"
+
+msgid "Graphical settings"
+msgstr "Ajustes gráficos"
+
+msgid "Updates as you change the settings above."
+msgstr "Se actualiza al cambiar los ajustes anteriores."
+
+msgid "List as payment method in checkout"
+msgstr "Mostrar como método de pago en la página de pago"
+
+msgid "Merchant ID"
+msgstr "Merchant ID"
+
+msgid "Method specific settings"
+msgstr "Ajustes específicos del método"
+
+msgid "Order"
+msgstr "Pedir"
+
+msgid "Order with"
+msgstr "Pedir con"
+
+msgid "Clear all to hide the express button everywhere."
+msgstr "Vacíe la selección para ocultar el botón express en todas partes."
+
+msgid "Pay with"
+msgstr "Pagar con"
+
+msgid "Plain"
+msgstr "Solo logotipo"
+
+msgid "Rounded button shape"
+msgstr "Forma de botón redondeada"
+
+msgid "Sandbox credentials"
+msgstr "Credenciales de sandbox"
+
+msgid "Sandbox merchant ID"
+msgstr "Sandbox merchant ID"
+
+msgid "Seller protection"
+msgstr "Protección del vendedor"
+
+msgid "Sends the customer address to PayPal, needed for seller protection."
+msgstr "Envía la dirección del cliente a PayPal, necesario para la Protección del vendedor."
+
+msgid "Show the express button on"
+msgstr "Mostrar el botón express en"
+
+msgid "Show the express button with fully rounded corners."
+msgstr "Muestra el botón express con las esquinas completamente redondeadas."
+
+msgid "Silver"
+msgstr "Plateado"
+
+msgid "Subscribe"
+msgstr "Suscribirse"
+
+msgid "Subscribe with"
+msgstr "Suscribirse con"
+
+msgid "Your Buckaroo Gateway merchant ID, found in Buckaroo Plaza → Services → <a href=\"https://plaza.buckaroo.nl/Configuration/GooglePay\" target=\"_blank\" rel=\"noopener\">Google Pay</a>."
+msgstr "Su merchant ID del Buckaroo Gateway, disponible en Buckaroo Plaza → Services → <a href=\"https://plaza.buckaroo.nl/Configuration/GooglePay\" target=\"_blank\" rel=\"noopener\">Google Pay</a>."
+
+msgid "The preview could not be loaded."
+msgstr "No se pudo cargar la vista previa."
+
+msgid "Used in Test mode. Found in PayPal sandbox → <a href=\"https://www.sandbox.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>."
+msgstr "Se utiliza en el modo de prueba. Disponible en el sandbox de PayPal → <a href=\"https://www.sandbox.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Información de la empresa</a>."
+
+msgid "Used only when Transaction mode is set to Test. The PayPal sandbox client ids are managed by the Buckaroo plugin. The sandbox merchant ID is optional."
+msgstr "Solo se utiliza cuando el modo de transacción está en Test. Los client IDs de sandbox de PayPal los gestiona el plugin de Buckaroo. El merchant ID de sandbox es opcional."
+
+msgid "White"
+msgstr "Blanco"
+
+msgid "White outline"
+msgstr "Blanco con contorno"
+
+msgid "Wording Apple shows on the button, next to the Apple Pay mark."
+msgstr "Texto que Apple muestra en el botón, junto al logotipo de Apple Pay."
+
+msgid "Wording Google shows on the button, next to the Google Pay mark."
+msgstr "Texto que Google muestra en el botón, junto al logotipo de Google Pay."
+
+msgid "Wording PayPal shows on the button, next to the PayPal mark."
+msgstr "Texto que PayPal muestra en el botón, junto al logotipo de PayPal."
+
+msgid "Your Google Merchant ID, found in the <a href=\"https://pay.google.com/business/console\" target=\"_blank\" rel=\"noopener\">Google Pay & Wallet Console</a> (e.g. BCR2DN4T...). Required for live payments."
+msgstr "Su Google Merchant ID, disponible en la <a href=\"https://pay.google.com/business/console\" target=\"_blank\" rel=\"noopener\">Google Pay & Wallet Console</a> (p. ej. BCR2DN4T...). Obligatorio para pagos reales."
+
+msgid "Found in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>. Required for live payments."
+msgstr "Disponible en PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Información de la empresa</a>. Obligatorio para pagos reales."
+
+msgid "Global digital wallet with card and balance payments, plus Buyer Protection."
+msgstr "Monedero digital global con pagos con tarjeta y saldo, además de la Protección del comprador."
 
 #: src/Gateways/ExpressProductCart.php:27
 msgid "No shipping required"
@@ -1384,7 +1446,3 @@ msgstr "Se requiere %s para activar este método de pago en el modo de transacci
 #: src/Gateways/AbstractPaymentGateway.php:682
 msgid "Not configured"
 msgstr "Sin configurar"
-
-#: src/Gateways/Paypal/PaypalGateway.php:115
-msgid "Used only when the Transaction mode above is set to \"Test\". The Buckaroo SDK manages the PayPal sandbox client IDs. The sandbox merchant ID is optional."
-msgstr "Se utiliza únicamente cuando el modo de transacción anterior está configurado en \"Test\". El SDK de Buckaroo gestiona los identificadores de cliente de PayPal Sandbox. El identificador de comercio de Sandbox es opcional."

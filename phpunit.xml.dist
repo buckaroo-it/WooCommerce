@@ -17,6 +17,11 @@
 			<directory prefix="Test_" suffix=".php">./tests/Integration/</directory>
 		</testsuite>
 	</testsuites>
+	<groups>
+		<exclude>
+			<group>external-http</group>
+		</exclude>
+	</groups>
 	<coverage processUncoveredFiles="true">
 		<include>
 			<directory suffix=".php">./src</directory>

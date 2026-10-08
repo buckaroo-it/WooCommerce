@@ -6,6 +6,7 @@ use Buckaroo\Woocommerce\Services\PaymentFee;
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressPlacements;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinController;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
@@ -172,7 +173,7 @@ class InitGateways
                     $payment_method = array_merge(
                         $payment_method,
                         [
-                            'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE'
+                            'showInCheckout' => ExpressPlacements::enabledFor($gateway_id, 'checkout')
                                 && $gateway::hasRequiredCredentials($gateway->settings),
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
                             'buttonStyle' => $gateway->get_option('button_style', 'black'),
@@ -188,7 +189,7 @@ class InitGateways
                     $payment_method = array_merge(
                         $payment_method,
                         [
-                            'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE'
+                            'showInCheckout' => ExpressPlacements::enabledFor($gateway_id, 'checkout')
                                 && $gateway::hasRequiredCredentials($gateway->settings),
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
                             'buttonStyle' => $gateway->get_option('button_style', 'black'),
