@@ -161,13 +161,13 @@ class PaymentGatewayRegistry
      */
     protected function getAllGateways(): array
     {
-        $creditCards = $this->getSelectedCreditCards();
+        $creditCardsToShow = $this->getCreditCardsToShow();
 
         return array_merge(
             $this->gateways,
             array_filter(
                 CreditCardGateway::$cards,
-                fn ($key) => in_array(str_replace('_creditcard', '', $key), $creditCards),
+                fn ($key) => in_array(str_replace('_creditcard', '', $key), $creditCardsToShow),
                 ARRAY_FILTER_USE_KEY
             )
         );
@@ -178,14 +178,13 @@ class PaymentGatewayRegistry
      */
     public function getCreditCardsToShow(): array
     {
-        return CreditCardGateway::separateCardsAllowed() ? $this->getSelectedCreditCards() : [];
-    }
-
-    private function getSelectedCreditCards(): array
-    {
         $creditSettings = get_option('woocommerce_buckaroo_creditcard_settings', null);
 
-        if (is_array($creditSettings) && is_array($creditSettings['show_in_checkout'] ?? null)) {
+        if (
+            CreditCardGateway::separateCardsAllowed() &&
+            is_array($creditSettings) &&
+            is_array($creditSettings['show_in_checkout'] ?? null)
+        ) {
             return $creditSettings['show_in_checkout'];
         }
 
