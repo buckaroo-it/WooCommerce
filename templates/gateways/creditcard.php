@@ -20,6 +20,17 @@ defined('ABSPATH') || exit;
 $creditCardMethod = isset($this->creditcardmethod) ? $this->creditcardmethod : 'redirect';
 $customer_name = implode(' ', [$this->getScalarCheckoutField('billing_first_name'), $this->getScalarCheckoutField('billing_last_name')]);
 $show_required = ($creditCardMethod == 'encrypt' && $this->isSecure()) || ($creditCardMethod == 'redirect' && $this->id === 'buckaroo_creditcard');
+
+if (! $show_required) {
+    ?>
+    <input
+        type="hidden"
+        name="<?php echo esc_attr($this->id); ?>-creditcard-issuer"
+        value="<?php echo esc_attr(str_replace('buckaroo_creditcard_', '', $this->id)); ?>"
+    />
+    <?php
+    return;
+}
 ?>
 
 <fieldset class="buckaroo-creditcard-fieldset">
@@ -31,7 +42,7 @@ $show_required = ($creditCardMethod == 'encrypt' && $this->isSecure()) || ($cred
                 <option value='0' style='color: grey !important'>
                     <?php esc_html_e('Select your credit card:', 'wc-buckaroo-bpe-gateway'); ?>
                 </option>
-                <?php foreach ($this->getCardsList() as $issuer) { ?>
+                <?php foreach ($this->getCheckoutCardsList() as $issuer) { ?>
                     <option value='<?php echo esc_attr($issuer['servicename']); ?>'>
                         <?php esc_html_e($issuer['displayname'], 'wc-buckaroo-bpe-gateway'); ?>
                     </option>

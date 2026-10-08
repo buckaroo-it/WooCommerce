@@ -225,6 +225,65 @@ class CreditCardGateway extends AbstractPaymentGateway
     }
 
     /**
+     * Separate credit cards are only available in Redirect mode.
+     */
+    public static function separateCardsAllowed(): bool
+    {
+        $settings = get_option('woocommerce_buckaroo_creditcard_settings', []);
+
+        return (is_array($settings) ? ($settings['creditcardmethod'] ?? 'redirect') : 'redirect') === 'redirect';
+    }
+
+    /**
+     * Credit cards shown as separate payment methods in the checkout.
+     */
+    public function getSeparateCards(): array
+    {
+        if ($this->id !== self::GATEWAY_ID || ! self::separateCardsAllowed()) {
+            return [];
+        }
+
+        $separate = $this->get_option(self::SHOW_IN_CHECKOUT_FIELD, []);
+
+        if (! is_array($separate)) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            $separate,
+            fn ($card) => (get_option('woocommerce_buckaroo_creditcard_' . $card . '_settings')['enabled'] ?? 'no') === 'yes'
+        ));
+    }
+
+    /**
+     * Credit cards for the checkout dropdown, without the separate ones.
+     */
+    public function getCheckoutCardsList(): array
+    {
+        $separate = $this->getSeparateCards();
+
+        return array_values(array_filter(
+            $this->getCardsList(),
+            fn ($card) => ! in_array($card['servicename'], $separate, true)
+        ));
+    }
+
+    private function allCardsShownSeparately(): bool
+    {
+        return $this->getSeparateCards() !== [] && $this->getCheckoutCardsList() === [];
+    }
+
+    public function is_available()
+    {
+        return parent::is_available() && ! $this->allCardsShownSeparately();
+    }
+
+    public function isVisibleInCheckout(): bool
+    {
+        return parent::isVisibleInCheckout() && ! $this->allCardsShownSeparately();
+    }
+
+    /**
      * Add fields to the form_fields() array, specific to this page.
      */
     public function init_form_fields()
@@ -322,7 +381,7 @@ class CreditCardGateway extends AbstractPaymentGateway
      */
     public function after_admin_options_update()
     {
-        set_transient('buckaroo_credicard_updated', true);
+        set_transient('buckaroo_creditcard_updated', true);
     }
 
     /**

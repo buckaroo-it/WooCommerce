@@ -50,6 +50,11 @@ class Plugin
             'woocommerce_payment_gateways',
             [$this->gatewayRegistry, 'hookGatewaysToWooCommerce']
         );
+
+        add_action(
+            'wc_payment_gateways_initialized',
+            [$this->gatewayRegistry, 'groupSeparateCreditCards']
+        );
     }
 
     /**

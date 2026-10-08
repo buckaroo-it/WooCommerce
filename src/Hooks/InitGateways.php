@@ -164,7 +164,7 @@ class InitGateways
                     $payment_method['type'] = (new AfterpayOldGateway())->type;
                 }
                 if (str_starts_with($gateway_id, 'buckaroo_creditcard')) {
-                    $payment_method['creditCardIssuers'] = $gateway->getCardsList();
+                    $payment_method['creditCardIssuers'] = $gateway->getCheckoutCardsList();
                     $payment_method['creditCardMethod'] = $gateway->get_option('creditcardmethod');
                     $payment_method['creditCardIsSecure'] = $this->getCredtCardIsSecure();
                 }
