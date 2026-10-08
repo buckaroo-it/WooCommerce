@@ -30,6 +30,12 @@ class TransferResponse implements IGatewayResponse
             return;
         }
 
+        // Once the order has its Buckaroo transaction, only that transaction may update the details.
+        $orderTransactionKey = (string) $order->get_transaction_id('edit');
+        if ($orderTransactionKey !== '' && (string) $this->responseParser->getTransactionKey() !== $orderTransactionKey) {
+            return;
+        }
+
         $fields = $this->extractBankFields();
 
         if (empty($fields)) {
