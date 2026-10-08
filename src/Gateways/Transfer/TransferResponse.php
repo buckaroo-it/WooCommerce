@@ -13,18 +13,28 @@ class TransferResponse implements IGatewayResponse
     public function __construct(ResponseParser $responseParser)
     {
         $this->responseParser = $responseParser;
-        $this->updateMeta();
     }
 
-    protected function updateMeta(): void
+    /**
+     * Store the bank transfer details on the order.
+     * Only call this with a validated reply for the order it was resolved to.
+     */
+    public function storeBankDetails(WC_Order $order): void
     {
-        $order = $this->getOrder();
+        if ($order->get_payment_method() !== 'buckaroo_transfer') {
+            return;
+        }
 
-        if (! $order instanceof WC_Order) {
+        $paymentMethod = $this->responseParser->getPaymentMethod();
+        if (! is_string($paymentMethod) || strtolower($paymentMethod) !== 'transfer') {
             return;
         }
 
         $fields = $this->extractBankFields();
+
+        if (empty($fields)) {
+            return;
+        }
 
         foreach ($fields as $metaKey => $value) {
             if ($value === null || $value === '') {
@@ -78,22 +88,6 @@ class TransferResponse implements IGatewayResponse
         }
 
         return $fields;
-    }
-
-    protected function getOrder(): ?WC_Order
-    {
-        $orderId = $this->responseParser->getOrderNumber() ?: $this->responseParser->getInvoice();
-        if (! is_null($this->responseParser->getRealOrderId())) {
-            $orderId = $this->responseParser->getRealOrderId();
-        }
-
-        if (empty($orderId)) {
-            return null;
-        }
-
-        $order = wc_get_order($orderId);
-
-        return $order instanceof WC_Order ? $order : null;
     }
 
     public function toResponse(): ResponseParser
