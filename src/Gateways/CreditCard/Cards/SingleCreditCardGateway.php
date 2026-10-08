@@ -49,6 +49,16 @@ class SingleCreditCardGateway extends CreditCardGateway
         $this->renderTemplate('buckaroo_creditcard');
     }
 
+    public function is_available()
+    {
+        return parent::is_available() && self::separateCardsAllowed();
+    }
+
+    public function isVisibleInCheckout(): bool
+    {
+        return parent::isVisibleInCheckout() && self::separateCardsAllowed();
+    }
+
     /**
      * Add fields to the form_fields() array, specific to this page.
      */

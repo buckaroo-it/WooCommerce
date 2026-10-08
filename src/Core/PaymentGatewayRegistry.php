@@ -133,6 +133,8 @@ class PaymentGatewayRegistry
             return;
         }
 
+        delete_transient('buckaroo_creditcard_updated');
+
         $gatewayNames = $this->getCreditCardsToShow();
 
         if (empty($gatewayNames)) {
@@ -152,7 +154,6 @@ class PaymentGatewayRegistry
                 }
             }
         }
-        delete_transient('buckaroo_creditcard_updated');
     }
 
     /**
@@ -160,13 +161,13 @@ class PaymentGatewayRegistry
      */
     protected function getAllGateways(): array
     {
-        $creditCardsToShow = $this->getCreditCardsToShow();
+        $creditCards = $this->getSelectedCreditCards();
 
         return array_merge(
             $this->gateways,
             array_filter(
                 CreditCardGateway::$cards,
-                fn ($key) => in_array(str_replace('_creditcard', '', $key), $creditCardsToShow),
+                fn ($key) => in_array(str_replace('_creditcard', '', $key), $creditCards),
                 ARRAY_FILTER_USE_KEY
             )
         );
@@ -177,14 +178,14 @@ class PaymentGatewayRegistry
      */
     public function getCreditCardsToShow(): array
     {
+        return CreditCardGateway::separateCardsAllowed() ? $this->getSelectedCreditCards() : [];
+    }
+
+    private function getSelectedCreditCards(): array
+    {
         $creditSettings = get_option('woocommerce_buckaroo_creditcard_settings', null);
 
-        if (
-            $creditSettings !== null &&
-            isset($creditSettings['creditcardmethod'], $creditSettings['show_in_checkout']) &&
-            $creditSettings['creditcardmethod'] === 'encrypt' &&
-            is_array($creditSettings['show_in_checkout'])
-        ) {
+        if (is_array($creditSettings) && is_array($creditSettings['show_in_checkout'] ?? null)) {
             return $creditSettings['show_in_checkout'];
         }
 
@@ -201,6 +202,39 @@ class PaymentGatewayRegistry
         }
 
         return $methods;
+    }
+
+    /**
+     * Place the separate credit cards directly after the main credit card method.
+     */
+    public function groupSeparateCreditCards($wcGateways): void
+    {
+        if (! is_object($wcGateways) || ! is_array($wcGateways->payment_gateways ?? null)) {
+            return;
+        }
+
+        $isSeparate = fn ($gateway) => strpos($gateway->id, CreditCardGateway::GATEWAY_ID . '_') === 0;
+        $separate = array_values(array_filter($wcGateways->payment_gateways, $isSeparate));
+        $hasMain = in_array(CreditCardGateway::GATEWAY_ID, wp_list_pluck($wcGateways->payment_gateways, 'id'), true);
+
+        if (! $hasMain || $separate === []) {
+            return;
+        }
+
+        $ordered = [];
+        foreach ($wcGateways->payment_gateways as $gateway) {
+            if ($isSeparate($gateway)) {
+                continue;
+            }
+
+            $ordered[] = $gateway;
+
+            if ($gateway->id === CreditCardGateway::GATEWAY_ID) {
+                array_push($ordered, ...$separate);
+            }
+        }
+
+        $wcGateways->payment_gateways = $ordered;
     }
 
     /**

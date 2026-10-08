@@ -70,7 +70,7 @@ buckarooAdmin = {
     setCredicardSeparate(value) {
         jQuery('#woocommerce_buckaroo_creditcard_show_in_checkout')
             .closest('tr')
-            .toggle(value === 'encrypt');
+            .toggle(value === 'redirect');
 
         const hiddenProviders = [
             'cartebancaire',
