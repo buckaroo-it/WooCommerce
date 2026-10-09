@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\PaymentProcessors;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\Transfer\TransferResponse;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
@@ -58,6 +59,8 @@ class ReturnProcessor
                 return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Response not valid!');
             }
         }
+
+        (new TransferResponse($responseParser))->storeBankDetails($order);
 
         $order->set_transaction_id($responseParser->getTransactionKey());
         $order->save();
