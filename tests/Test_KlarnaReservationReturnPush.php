@@ -112,6 +112,32 @@ class Test_KlarnaReservationReturnPush extends TestCase
         $this->assertTrue($stored->is_paid(), 'Order should be paid, got status ' . $stored->get_status());
     }
 
+    public function test_the_reservation_is_stored_before_the_status_hooks_run(): void
+    {
+        $order = $this->createKlarnaOrder();
+        $seen = [];
+        $listener = function ($orderId) use (&$seen) {
+            $stored = wc_get_order($orderId);
+            $seen = [
+                'reserved' => $stored->get_meta('buckaroo_is_reserved'),
+                'amount' => $stored->get_meta(KlarnaProcessor::RESERVED_AMOUNT_META_KEY),
+                'data_request' => $stored->get_meta(KlarnaProcessor::DATA_REQUEST_META_KEY),
+            ];
+        };
+        add_action('woocommerce_order_status_on-hold', $listener);
+
+        try {
+            $this->reservationPush($order);
+        } finally {
+            remove_action('woocommerce_order_status_on-hold', $listener);
+        }
+
+        $this->assertSame(
+            ['reserved' => 'yes', 'amount' => '25.00', 'data_request' => 'DATA-REQUEST-KEY'],
+            $seen
+        );
+    }
+
     public function test_a_capture_push_without_pay_action_on_a_reserved_order_still_completes_it(): void
     {
         $order = $this->createKlarnaOrder();

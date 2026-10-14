@@ -90,10 +90,6 @@ class KlarnaPushProcessor
         }
 
         $order->set_transaction_id($responseParser->getTransactionKey());
-        $order->update_status(
-            'on-hold',
-            __('Klarna reservation authorized; awaiting capture.', 'wc-buckaroo-bpe-gateway')
-        );
         $order->add_meta_data('buckaroo_is_reserved', 'yes', true);
         $order->update_meta_data(self::RESERVATION_PUSH_META_KEY, 'yes');
         $order->update_meta_data('_wc_order_authorized', 'yes');
@@ -107,8 +103,13 @@ class KlarnaPushProcessor
             $order->update_meta_data(KlarnaProcessor::DATA_REQUEST_META_KEY, $dataRequestKey);
         }
 
-        $order->save_meta_data();
+        // Persist the reservation before the status change, so status hooks (e.g. capture
+        // on completed) already see the order as reserved.
         $order->save();
+        $order->update_status(
+            'on-hold',
+            __('Klarna reservation authorized; awaiting capture.', 'wc-buckaroo-bpe-gateway')
+        );
 
         return $context;
     }
