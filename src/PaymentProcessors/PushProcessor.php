@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\PaymentProcessors;
 
 use Buckaroo\Woocommerce\Constraints\BuckarooTransactionStatus;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressUpdateOrderAddresses;
+use Buckaroo\Woocommerce\Gateways\Transfer\TransferResponse;
 use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateOrderMetaToHpos;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
@@ -269,6 +270,8 @@ class PushProcessor
             if ($responseParser->getPaymentMethod() == 'paypal') {
                 (new PaypalExpressUpdateOrderAddresses($order, $responseParser))->update();
             }
+
+            (new TransferResponse($responseParser))->storeBankDetails($order);
 
             $giftCardPartialPayment = ($responseParser->isAwaitingConsumer() && $responseParser->getTransactionType() == 'I150');
 
