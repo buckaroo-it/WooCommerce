@@ -19,6 +19,9 @@ class KlarnaPushProcessor
 
     private const SETTLEMENT_LOCK_WAIT_SECONDS = 5;
 
+    /** Written only by the reservation push; the browser return never sets it. */
+    public const RESERVATION_PUSH_META_KEY = '_buckaroo_klarna_reservation_push';
+
     public static function handle($handled, WC_Order $order, ResponseParser $responseParser): bool
     {
         if ($handled) {
@@ -71,19 +74,24 @@ class KlarnaPushProcessor
             ];
         }
 
-        if (
-            $order->get_payment_method() !== 'buckaroo_klarnapay' ||
-            $order->get_meta('buckaroo_is_reserved') === 'yes'
-        ) {
+        // Any other push (e.g. a capture) settles the order through the generic push path.
+        if ($order->get_payment_method() !== 'buckaroo_klarnapay' || ! self::isReservationPush($responseParser)) {
             return null;
         }
 
+        // A reservation never completes the order, also when it was already handled.
+        $context = [
+            'transaction' => $responseParser->getDataRequest(),
+            'completed_order' => false,
+        ];
+
+        if (self::isReservationPushHandled($order)) {
+            return $context;
+        }
+
         $order->set_transaction_id($responseParser->getTransactionKey());
-        $order->update_status(
-            'on-hold',
-            __('Klarna reservation authorized; awaiting capture.', 'wc-buckaroo-bpe-gateway')
-        );
         $order->add_meta_data('buckaroo_is_reserved', 'yes', true);
+        $order->update_meta_data(self::RESERVATION_PUSH_META_KEY, 'yes');
         $order->update_meta_data('_wc_order_authorized', 'yes');
         $order->update_meta_data(
             KlarnaProcessor::RESERVED_AMOUNT_META_KEY,
@@ -95,13 +103,42 @@ class KlarnaPushProcessor
             $order->update_meta_data(KlarnaProcessor::DATA_REQUEST_META_KEY, $dataRequestKey);
         }
 
-        $order->save_meta_data();
+        // Persist the reservation before the status change, so status hooks (e.g. capture
+        // on completed) already see the order as reserved.
         $order->save();
+        $order->update_status(
+            'on-hold',
+            __('Klarna reservation authorized; awaiting capture.', 'wc-buckaroo-bpe-gateway')
+        );
 
-        return [
-            'transaction' => $responseParser->getDataRequest(),
-            'completed_order' => false,
-        ];
+        return $context;
+    }
+
+    /**
+     * A Klarna reservation is a data request; a capture (Pay/Capture) is not a reservation.
+     */
+    private static function isReservationPush(ResponseParser $responseParser): bool
+    {
+        if (self::isPay($responseParser) || strcasecmp((string) $responseParser->getActionCode(), 'Capture') === 0) {
+            return false;
+        }
+
+        $dataRequestKey = $responseParser->getDataRequest();
+
+        return is_string($dataRequestKey) && strlen($dataRequestKey) > 0;
+    }
+
+    /**
+     * Orders reserved before the push marker existed are recognised by the reserved
+     * flag together with the on-hold status, which only the reservation push sets.
+     */
+    private static function isReservationPushHandled(WC_Order $order): bool
+    {
+        if ($order->get_meta(self::RESERVATION_PUSH_META_KEY) === 'yes') {
+            return true;
+        }
+
+        return $order->get_meta('buckaroo_is_reserved') === 'yes' && $order->get_status() === 'on-hold';
     }
 
     public static function reconcileCapture(WC_Order $order, ResponseParser $responseParser): bool

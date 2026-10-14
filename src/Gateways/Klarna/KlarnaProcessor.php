@@ -85,37 +85,22 @@ class KlarnaProcessor extends AbstractPaymentProcessor
         return $this->isReserved() ? 'pay' : 'reserve';
     }
 
+    /**
+     * The reservation state (reserved flag, reserved amount, on-hold) is written by
+     * the signed reservation push only, see KlarnaPushProcessor::handleReservation().
+     */
     public function beforeReturnHandler(ResponseParser $responseParser, string $redirectUrl)
     {
         $dataRequestKey = $responseParser->getDataRequest();
 
         if (is_string($dataRequestKey) && strlen($dataRequestKey) > 0) {
-            $order = $this->get_order();
-            OrderMeta::update($order, self::DATA_REQUEST_META_KEY, $dataRequestKey);
-
-            if ($this->isResponseReserved($responseParser)) {
-                OrderMeta::update($order, 'buckaroo_is_reserved', 'yes');
-                OrderMeta::update(
-                    $order,
-                    self::RESERVED_AMOUNT_META_KEY,
-                    number_format($responseParser->getAmount() ?? $order->get_total('edit'), 2, '.', '')
-                );
-            }
+            OrderMeta::update($this->get_order(), self::DATA_REQUEST_META_KEY, $dataRequestKey);
         }
     }
 
     private function isReserved(): bool
     {
         return OrderMeta::get($this->get_order(), 'buckaroo_is_reserved') === 'yes';
-    }
-
-    private function isResponseReserved(ResponseParser $responseParser): bool
-    {
-        if ($responseParser->isSuccess()) {
-            return true;
-        }
-
-        return in_array($responseParser->get('coreStatus'), ['completed', 'processing', 'pending', 'on-hold'], true);
     }
 
     /**
