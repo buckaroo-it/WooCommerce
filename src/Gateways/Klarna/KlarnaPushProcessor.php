@@ -74,8 +74,8 @@ class KlarnaPushProcessor
             ];
         }
 
-        // A capture (Pay) push settles the order through the generic push path.
-        if ($order->get_payment_method() !== 'buckaroo_klarnapay' || self::isPay($responseParser)) {
+        // Any other push (e.g. a capture) settles the order through the generic push path.
+        if ($order->get_payment_method() !== 'buckaroo_klarnapay' || ! self::isReservationPush($responseParser)) {
             return null;
         }
 
@@ -111,6 +111,20 @@ class KlarnaPushProcessor
         $order->save();
 
         return $context;
+    }
+
+    /**
+     * A Klarna reservation is a data request; a capture (Pay/Capture) is not a reservation.
+     */
+    private static function isReservationPush(ResponseParser $responseParser): bool
+    {
+        if (self::isPay($responseParser) || strcasecmp((string) $responseParser->getActionCode(), 'Capture') === 0) {
+            return false;
+        }
+
+        $dataRequestKey = $responseParser->getDataRequest();
+
+        return is_string($dataRequestKey) && strlen($dataRequestKey) > 0;
     }
 
     /**

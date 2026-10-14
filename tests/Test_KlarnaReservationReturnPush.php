@@ -8,6 +8,7 @@ use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaProcessor;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPushProcessor;
 use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
+use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
 use Buckaroo\Woocommerce\ResponseParser\FormDataParser;
 use PHPUnit\Framework\TestCase;
 
@@ -29,7 +30,11 @@ class Test_KlarnaReservationReturnPush extends TestCase
         }
 
         $this->enableHpos();
-        update_option('woocommerce_buckaroo_mastersettings_settings', ['culture' => 'en-US']);
+        update_option('woocommerce_buckaroo_mastersettings_settings', [
+            'culture' => 'en-US',
+            'merchantkey' => 'test-store-key',
+            'secretkey' => 'test-secret-key',
+        ]);
         new KlarnaFulfillmentActions();
     }
 
@@ -107,6 +112,25 @@ class Test_KlarnaReservationReturnPush extends TestCase
         $this->assertTrue($stored->is_paid(), 'Order should be paid, got status ' . $stored->get_status());
     }
 
+    public function test_a_capture_push_without_pay_action_on_a_reserved_order_still_completes_it(): void
+    {
+        $order = $this->createKlarnaOrder();
+
+        $this->reservationPush($order);
+        $this->push(wc_get_order($order->get_id()), [
+            'brq_statuscode' => '190',
+            'brq_amount' => '25.00',
+            'brq_currency' => 'EUR',
+            'brq_transactions' => 'PLAZA-CAPTURE',
+            'brq_transaction_type' => 'C000',
+            'brq_transaction_method' => 'klarna',
+            'brq_ordernumber' => (string) $order->get_id(),
+        ]);
+
+        $stored = wc_get_order($order->get_id());
+        $this->assertTrue($stored->is_paid(), 'Order should be paid, got status ' . $stored->get_status());
+    }
+
     private function assertReservedAndUnpaid(WC_Order $order): void
     {
         $this->assertSame('on-hold', $order->get_status());
@@ -122,17 +146,20 @@ class Test_KlarnaReservationReturnPush extends TestCase
 
     private function browserReturn(WC_Order $order, string $statusCode): void
     {
-        $responseParser = new FormDataParser([
+        if (function_exists('wc_load_cart') && WC()->cart === null) {
+            wc_load_cart();
+        }
+
+        // The signature check is covered elsewhere; this drives the rest of the real return path.
+        (new ReturnProcessor([
             'brq_statuscode' => $statusCode,
             'brq_amount' => '25.00',
             'brq_currency' => 'EUR',
+            'brq_transactions' => 'RESERVE-PUSH',
             'brq_transaction_method' => 'klarna',
             'brq_datarequest' => 'DATA-REQUEST-KEY',
             'brq_ordernumber' => (string) $order->get_id(),
-        ]);
-        $responseParser->set('coreStatus', BuckarooTransactionStatus::fromTransactionStatus($responseParser->getStatusCode()));
-
-        (new KlarnaPayGateway())->newPaymentProcessorInstance($order)->beforeReturnHandler($responseParser, '');
+        ], false))->handle(new KlarnaPayGateway());
     }
 
     private function reservationPush(WC_Order $order): void
