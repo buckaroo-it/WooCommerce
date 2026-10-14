@@ -21,7 +21,7 @@ use WC_Order;
 
 class PushProcessor
 {
-    /** Same lock as KlarnaPushProcessor, so every writer of buckaroo_settlement is serialized. */
+    /** Every writer of buckaroo_settlement takes this lock, so they are serialized. */
     public const SETTLEMENT_LOCK_PURPOSE = 'settlement';
 
     public const SETTLEMENT_LOCK_KEY = 'order';

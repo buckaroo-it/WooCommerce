@@ -154,7 +154,7 @@ class Test_PushProcessorReplay extends TestCase
         $this->push($order, 'TX_ONE', '190', '50.00');
 
         $stored = wc_get_order($order->get_id());
-        $this->assertSame('processing', $stored->get_status());
+        $this->assertTrue($stored->is_paid(), 'Order should be paid, got status ' . $stored->get_status());
         $this->assertSame(['TX_ONE' => 50.00], OrderMeta::get($stored, 'buckaroo_settlement'));
         $this->assertSame('ok', OrderMeta::get($stored, '_pushallowed'));
     }
@@ -167,7 +167,8 @@ class Test_PushProcessorReplay extends TestCase
 
         $this->push($order, 'TX_RETRY', '190', '50.00');
 
-        $this->assertSame('processing', wc_get_order($order->get_id())->get_status());
+        $stored = wc_get_order($order->get_id());
+        $this->assertTrue($stored->is_paid(), 'Order should be paid, got status ' . $stored->get_status());
     }
 
     public function test_partial_payments_complete_the_order_when_the_total_is_reached()
@@ -180,7 +181,7 @@ class Test_PushProcessorReplay extends TestCase
         $this->push(wc_get_order($order->get_id()), 'TX_TWO', '190', '30.00');
 
         $stored = wc_get_order($order->get_id());
-        $this->assertSame('processing', $stored->get_status());
+        $this->assertTrue($stored->is_paid(), 'Order should be paid, got status ' . $stored->get_status());
         $this->assertSame(['TX_ONE' => 20.00, 'TX_TWO' => 30.00], OrderMeta::get($stored, 'buckaroo_settlement'));
     }
 
