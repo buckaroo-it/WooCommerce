@@ -5,6 +5,7 @@ namespace Buckaroo\Woocommerce\Hooks;
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
 use Buckaroo\Woocommerce\Gateways\Express\ExpressPlacements;
+use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use BuckarooDeps\Buckaroo\Resources\Constants\Endpoints;
@@ -230,6 +231,7 @@ class PaymentSetupScripts
                     'general_error' => esc_html__('Something went wrong while processing your identification.'),
                     'bank_required' => esc_html__('You need to select your bank!'),
                 ],
+                'idin_nonce' => wp_create_nonce(IdinProcessor::NONCE_ACTION),
                 'payByBankLogos' => PayByBankProcessor::getIssuerLogoUrls(),
                 'creditCardIssuers' => (new CreditCardGateway())->getCardsList(),
                 'locale' => get_locale(),

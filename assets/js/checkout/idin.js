@@ -34,6 +34,7 @@ class BuckarooIdin {
                 data: {
                     'wc-api': 'WC_Gateway_Buckaroo_idin-identify',
                     issuer,
+                    _wpnonce: buckaroo_global.idin_nonce,
                 },
                 dataType: 'json',
             })
