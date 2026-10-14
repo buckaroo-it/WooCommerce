@@ -1564,10 +1564,6 @@ msgstr "Aucune livraison nécessaire"
 msgid "Google Pay amount has changed. Please refresh the page and approve the updated total."
 msgstr "Le montant Google Pay a changé. Actualisez la page et approuvez le nouveau total."
 
-#: src/Gateways/AbstractPaymentGateway.php
-msgid "Configured. Leave blank to keep unchanged"
-msgstr "Configuré. Laisser vide pour conserver la valeur"
-
 #: src/Admin/PaymentMethodSettings.php
 msgid "Show redirect notice on checkout"
 msgstr "Afficher le message de redirection lors du paiement"

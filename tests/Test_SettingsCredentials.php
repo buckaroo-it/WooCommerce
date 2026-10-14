@@ -24,7 +24,7 @@ class Test_SettingsCredentials extends TestCase
         try {
             update_option($option, [$key => 'original-credential']);
             $this->assertSame('original-credential', (new $class())->get_option($key), 'Credential fixture must be readable before saving');
-            foreach (['', '   ', null, 'replacement-credential', '0'] as $submitted) {
+            foreach (['', '   ', null, '******', '***', 'replacement-credential', '0'] as $submitted) {
                 $gateway->set_post_data([$gateway->get_field_key($key) => $submitted]);
                 $gateway->process_admin_options();
                 $reloaded = new $class();
@@ -59,17 +59,18 @@ class Test_SettingsCredentials extends TestCase
         $gateway->settings[$key] = 'secret-"<&-fixture';
         $html = $gateway->generate_password_html($key, $gateway->form_fields[$key]);
         $this->assertStringNotContainsString('fixture', $html);
-        $this->assertStringContainsString('value=""', $html);
-        $this->assertStringContainsString('Configured', $html);
+        $this->assertStringContainsString('value="******"', $html);
+        $this->assertStringContainsString('data-1p-ignore="true"', $html);
+        $this->assertStringContainsString('bk-credential', $html);
         $this->assertSame('secret-"<&-fixture', $gateway->get_option($key));
 
         $gateway->settings[$key] = '';
         $html = $gateway->generate_password_html($key, $gateway->form_fields[$key]);
-        $this->assertStringNotContainsString('Configured', $html);
+        $this->assertStringNotContainsString('******', $html);
         $this->assertStringContainsString('value=""', $html);
     }
 
-    public function test_settings_render_empty_credentials_without_reveal_controls(): void
+    public function test_settings_render_masked_credentials_without_reveal_controls(): void
     {
         $gateway = new PaymentMethodSettings();
         $gateway->settings['merchantkey'] = 'stored-merchant-fixture';
@@ -83,8 +84,8 @@ class Test_SettingsCredentials extends TestCase
         $this->assertStringNotContainsString('stored-merchant-fixture', $html);
         $this->assertStringNotContainsString('stored-secret-fixture', $html);
         $this->assertStringNotContainsString('bk-key-btn', $html);
-        $this->assertSame(2, substr_count($html, 'value=""'));
-        $this->assertSame(2, substr_count($html, 'placeholder="Configured. Leave blank to keep unchanged"'));
+        $this->assertSame(2, substr_count($html, 'value="******"'));
+        $this->assertStringNotContainsString('Configured', $html);
         $this->assertStringNotContainsString('required="required"', $html);
         $this->assertSame('stored-secret-fixture', $gateway->get_option('secretkey'));
     }

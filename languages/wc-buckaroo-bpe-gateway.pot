@@ -1282,10 +1282,6 @@ msgstr ""
 msgid "Google Pay amount has changed. Please refresh the page and approve the updated total."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php
-msgid "Configured. Leave blank to keep unchanged"
-msgstr ""
-
 #: src/Gateways/AbstractPaymentGateway.php:425
 #, php-format
 msgid "%s is required to enable this payment method in the selected transaction mode."
