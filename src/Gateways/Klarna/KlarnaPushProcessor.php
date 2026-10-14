@@ -55,7 +55,7 @@ class KlarnaPushProcessor
 
     public static function handleReservation($context, WC_Order $order, ResponseParser $responseParser)
     {
-        if ($context !== null || $order->get_status() === 'cancelled') {
+        if ($context !== null || in_array($order->get_status(), ['cancelled', 'refunded'], true)) {
             return $context;
         }
 
