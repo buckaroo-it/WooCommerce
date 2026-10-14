@@ -13,12 +13,24 @@ use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
+use Buckaroo\Woocommerce\Services\NamedLock;
 use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
+use RuntimeException;
 use WC_Data_Exception;
 use WC_Order;
 
 class PushProcessor
 {
+    /** Same lock as KlarnaPushProcessor, so every writer of buckaroo_settlement is serialized. */
+    public const SETTLEMENT_LOCK_PURPOSE = 'settlement';
+
+    public const SETTLEMENT_LOCK_KEY = 'order';
+
+    public const SETTLEMENT_LOCK_WAIT_SECONDS = 5;
+
+    /** A push never changes the status of these orders. */
+    private const LOCKED_STATUSES = ['cancelled', 'refunded'];
+
     /**
      * @param $order_id
      * @param WC_Order $order
@@ -27,6 +39,30 @@ class PushProcessor
      * @throws WC_Data_Exception
      */
     protected function onSuccess($order_id, $order, ResponseParser $responseParser)
+    {
+        if (! NamedLock::acquire(self::SETTLEMENT_LOCK_PURPOSE, $order, self::SETTLEMENT_LOCK_KEY, self::SETTLEMENT_LOCK_WAIT_SECONDS)) {
+            throw new RuntimeException(
+                __('Buckaroo push could not be processed because the order is locked.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
+
+        try {
+            $order->read_meta_data(true);
+
+            return $this->processSuccess($order_id, $order, $responseParser);
+        } finally {
+            NamedLock::release(self::SETTLEMENT_LOCK_PURPOSE, $order, self::SETTLEMENT_LOCK_KEY);
+        }
+    }
+
+    /**
+     * @param $order_id
+     * @param WC_Order $order
+     * @param ResponseParser $responseParser
+     * @return array|void
+     * @throws WC_Data_Exception
+     */
+    protected function processSuccess($order_id, $order, ResponseParser $responseParser)
     {
         global $woocommerce, $wpdb;
 
@@ -52,6 +88,36 @@ class PushProcessor
         } else {
             switch ($responseParser->get('coreStatus')) {
                 case 'completed':
+                    $orderAmount = Helper::roundAmount($order->get_total());
+                    $paidAmount = Helper::roundAmount($responseParser->getAmount());
+                    $settlementState = $this->calculateSettlementState($order, $responseParser, $paidAmount);
+                    $totalPaid = $settlementState['totalPaid'];
+
+                    if (! $settlementState['isNewPayment']) {
+                        Logger::log(
+                            'Push message. Payment ' . $this->getTransactionKey($responseParser) . ' was already recorded. Order status not changed: ' . $order->get_status()
+                        );
+
+                        return;
+                    }
+
+                    if (in_array($order->get_status(), self::LOCKED_STATUSES, true)) {
+                        Logger::log('Push message. Payment received for order in status ' . $order->get_status() . '. Order status not changed.');
+
+                        $this->updateSettlementMeta($order, $responseParser, $paidAmount);
+                        if ($paidAmount > 0) {
+                            $order->add_order_note(
+                                sprintf(
+                                    __('Received Buckaroo payment push notification of %1$s for an order with status %2$s. The order status was not changed.', 'wc-buckaroo-bpe-gateway'),
+                                    wc_price($paidAmount),
+                                    wc_get_order_status_name($order->get_status())
+                                )
+                            );
+                        }
+
+                        return;
+                    }
+
                     $completedOrder = true;
                     $transaction = $this->getTransactionKey($responseParser);
                     $payment_methodname = $responseParser->getPaymentMethod();
@@ -86,12 +152,6 @@ class PushProcessor
                         }
                     }
 
-                    $orderAmount = Helper::roundAmount($order->get_total());
-                    $paidAmount = Helper::roundAmount($responseParser->getAmount());
-                    $settlementState = $this->calculateSettlementState($order, $responseParser, $paidAmount);
-                    $totalPaid = $settlementState['totalPaid'];
-                    $isNewPayment = $settlementState['isNewPayment'];
-
                     // Order is completely paid
                     if ($totalPaid >= $orderAmount && $completedOrder) {
                         $order->payment_complete($transaction);
@@ -103,7 +163,7 @@ class PushProcessor
                     $message .= '<br>Order total: ' . wc_price($orderAmount);
                     $message .= '<br>Open amount: ' . wc_price($orderAmount - $totalPaid);
 
-                    if ($paidAmount > 0 && $isNewPayment) {
+                    if ($paidAmount > 0) {
                         $order->add_order_note($message);
                     }
 
@@ -113,6 +173,12 @@ class PushProcessor
 
                     break;
                 default:
+                    if (in_array($order->get_status(), self::LOCKED_STATUSES, true)) {
+                        Logger::log('Push message. Pending push for order in status ' . $order->get_status() . '. Order status not changed.');
+
+                        return;
+                    }
+
                     Logger::log('Update status 1. Order status: on-hold');
                     $order->set_transaction_id($responseParser->getTransactionKey());
                     $order->update_status('on-hold', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
