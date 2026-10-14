@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
+use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 
 class TestCredentials
@@ -34,8 +35,8 @@ class TestCredentials
         $settings = get_option('woocommerce_buckaroo_mastersettings_settings', []);
         $storeKey = trim(wp_unslash($storeKey));
         $secretKey = trim(wp_unslash($secretKey));
-        $storeKey = $storeKey === '' ? ($settings['merchantkey'] ?? '') : $storeKey;
-        $secretKey = $secretKey === '' ? ($settings['secretkey'] ?? '') : $secretKey;
+        $storeKey = AbstractPaymentGateway::isUnchangedCredential($storeKey) ? ($settings['merchantkey'] ?? '') : $storeKey;
+        $secretKey = AbstractPaymentGateway::isUnchangedCredential($secretKey) ? ($settings['secretkey'] ?? '') : $secretKey;
         if ($storeKey === '' || $secretKey === '') {
             wp_die(esc_html__('Credentials are incorrect', 'wc-buckaroo-bpe-gateway'));
         }
