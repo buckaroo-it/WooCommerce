@@ -33,7 +33,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     protected const REQUIRED_CREDENTIALS = [];
 
     /** Placeholder shown in an empty field when a credential is stored. */
-    protected const MASKED_CREDENTIAL = '******';
+    protected const CREDENTIAL_PLACEHOLDER = '******';
 
     /** ISO 3166-1 alpha-2 codes counted as European by getCountryLabel(). */
     private const EUROPEAN_COUNTRIES = ['AT', 'BE', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GB', 'GR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LI', 'LT', 'LU', 'LV', 'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'];
@@ -411,7 +411,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             'data-bwignore' => 'true',
         ]);
         if ($configured) {
-            $data['placeholder'] = static::MASKED_CREDENTIAL;
+            $data['placeholder'] = static::CREDENTIAL_PLACEHOLDER;
             $data['description'] = trim(__('Saved. Enter a new value only to replace it.', 'wc-buckaroo-bpe-gateway') . ' ' . ($data['description'] ?? ''));
             unset($data['custom_attributes']['required']);
         }
