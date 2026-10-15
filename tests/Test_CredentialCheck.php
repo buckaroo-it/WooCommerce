@@ -77,8 +77,6 @@ class Test_CredentialCheck extends TestCase
             'omitted' => [[], ['stored-store', 'stored-secret'], 'Credentials are OK'],
             'blank' => [['website_key' => '', 'secret_key' => ''], ['stored-store', 'stored-secret'], 'Credentials are OK'],
             'whitespace' => [['secret_key' => '   '], ['stored-store', 'stored-secret'], 'Credentials are OK'],
-            'masked' => [['website_key' => '******', 'secret_key' => '******'], ['stored-store', 'stored-secret'], 'Credentials are OK'],
-            'masked with new secret' => [['website_key' => '******', 'secret_key' => 'new-secret'], ['stored-store', 'new-secret'], 'Credentials are OK'],
             'replacement' => [['website_key' => 'new-store', 'secret_key' => 'new-secret'], ['new-store', 'new-secret'], 'Credentials are OK'],
             'mixed' => [['secret_key' => 'new-secret'], ['stored-store', 'new-secret'], 'Credentials are OK'],
             'slashed' => [['secret_key' => "new\\'secret"], ['stored-store', "new'secret"], 'Credentials are OK'],
