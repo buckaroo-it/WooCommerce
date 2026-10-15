@@ -9,6 +9,7 @@ use Buckaroo\Woocommerce\Order\OrderCaptureRefund;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\Services\Helper;
 use WC_Cart;
+use WC_Tax;
 
 class OrderActions
 {
@@ -210,7 +211,15 @@ class OrderActions
             return;
         }
 
-        $extra_charge_amount = $configuredFee->calculate((float) $cart->get_cart_contents_total());
+        $base = (float) $cart->get_cart_contents_total();
+        if (wc_prices_include_tax()) {
+            $base += (float) $cart->get_cart_contents_tax();
+        }
+        $extra_charge_amount = $configuredFee->calculateExcludingTax(
+            $base,
+            $cart->get_customer() && $cart->get_customer()->get_is_vat_exempt()
+                ? [] : WC_Tax::get_rates($gateway_feetax, $cart->get_customer())
+        );
 
         $feedName = __('Payment fee', 'wc-buckaroo-bpe-gateway');
         $feedId = sanitize_title($feedName);

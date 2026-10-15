@@ -372,8 +372,8 @@ msgid "Payment fee"
 msgstr ""
 
 #: src/Gateways/AbstractPaymentGateway.php:166
-msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)"
-msgstr "Indique un importe fijo (p. ej. 1.50), un porcentaje (p. ej. 1%) o ambos (p. ej. 0.25 + 1.5%). Los cargos combinados se calculan sobre el total de los productos después de los descuentos, sin incluir gastos de envío ni impuestos. Use un punto (.) como separador decimal."
+msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5% or 1.5% + 0.25). Combined fees are applied from left to right, starting with the product total after discounts, excluding shipping. Fee amounts and the percentage base follow the WooCommerce \"Prices entered with tax\" setting. Use a dot (.) for decimals."
+msgstr "Indique un importe fijo (p. ej. 1.50), un porcentaje (p. ej. 1%) o ambos (p. ej. 0.25 + 1.5% o 1.5% + 0.25). Las comisiones combinadas se aplican de izquierda a derecha, partiendo del total de los productos después de los descuentos, sin envío. Los importes de las comisiones y la base del porcentaje siguen el ajuste de WooCommerce \"Precios introducidos con impuestos\". Use un punto (.) como separador decimal."
 
 #: src/Gateways/AbstractPaymentGateway.php:159
 msgid "Minimum order amount allowed"
@@ -1446,3 +1446,7 @@ msgstr "Sin configurar"
 #: src/Gateways/AbstractPaymentGateway.php
 msgid "Saved. Enter a new value only to replace it."
 msgstr "Guardado. Introduzca un valor nuevo solo para reemplazarlo."
+
+#: src/Gateways/AbstractPaymentGateway.php:763
+msgid "Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals."
+msgstr "Comisión de pago no válida. Use un importe fijo (0.25), un porcentaje (1.5%) o ambos (0.25 + 1.5%) con un punto como separador decimal."

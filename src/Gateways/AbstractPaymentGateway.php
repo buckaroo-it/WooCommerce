@@ -19,6 +19,7 @@ use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Services\Request;
 use Buckaroo\Woocommerce\Services\SessionHandler;
 use Exception;
+use WC_Admin_Settings;
 use WC_Order;
 use WC_Order_Refund;
 use WC_Payment_Gateway;
@@ -169,7 +170,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             'extrachargeamount' => [
                 'title' => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'text',
-                'description' => __('Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
+                'description' => __('Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5% or 1.5% + 0.25). Combined fees are applied from left to right, starting with the product total after discounts, excluding shipping. Fee amounts and the percentage base follow the WooCommerce "Prices entered with tax" setting. Use a dot (.) for decimals.', 'wc-buckaroo-bpe-gateway'),
                 'default' => '0',
             ],
             'minvalue' => [
@@ -509,6 +510,9 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             if ($fee->percentage > 0) {
                 $parts[] = str_replace('&nbsp;', '', wc_price($fee->percentage, ['currency' => 'null'])) . '%';
             }
+            if ($fee->percentageFirst) {
+                $parts = array_reverse($parts);
+            }
         }
 
         $feeText = $parts ? ' (+ ' . implode(' + ', $parts) . ')' : '';
@@ -521,7 +525,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function getPaymentFeeVat($amount)
     {
         // Allow this to run only on checkout page
-        if (! is_checkout()) {
+        if (! is_checkout() || wc_prices_include_tax()) {
             return 0;
         }
 
@@ -840,6 +844,19 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         }
 
         return parent::validate_text_field($key, $text);
+    }
+
+    /** Validate the payment fee before WooCommerce saves the settings. */
+    public function validate_extrachargeamount_field($key, $value)
+    {
+        $value = $value ?? '';
+        if (! is_scalar($value) || (trim((string) $value) !== '' && PaymentFee::parse($value) === null)) {
+            $message = __('Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals.', 'wc-buckaroo-bpe-gateway');
+            WC_Admin_Settings::add_error($message);
+            throw new Exception($message);
+        }
+
+        return parent::validate_text_field($key, $value);
     }
 
     /**

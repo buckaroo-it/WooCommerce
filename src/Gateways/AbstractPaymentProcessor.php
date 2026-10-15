@@ -9,6 +9,7 @@ use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Services\Request;
 use WC_Order;
 use WC_Order_Item_Fee;
+use WC_Tax;
 
 class AbstractPaymentProcessor extends AbstractProcessor
 {
@@ -122,20 +123,26 @@ class AbstractPaymentProcessor extends AbstractProcessor
             }
         }
 
-        // Combined fees use the cart's discounted product base. Keep the
-        // existing percentage-only order fallback base for stored settings.
-        if ($configuredFee->combined) {
+        // Use discounted product totals for combined and tax-inclusive fees.
+        if ($configuredFee->combined || wc_prices_include_tax()) {
             $subtotal = 0.0;
             foreach ($order->get_items('line_item') as $lineItem) {
                 $subtotal += (float) $lineItem->get_total();
+                if (wc_prices_include_tax()) {
+                    $subtotal += (float) $lineItem->get_total_tax();
+                }
             }
         } else {
             $subtotal = (float) $order->get_subtotal();
         }
-        $feeAmount = $configuredFee->calculate($subtotal);
-
         $feeTaxClass = $this->gateway->get_option('feetax', '');
         $feeTaxClass = is_scalar($feeTaxClass) ? (string) $feeTaxClass : '';
+        $taxLocation = $this->resolveTaxLocation($order);
+        $vatExempt = apply_filters('woocommerce_order_is_vat_exempt', 'yes' === $order->get_meta('is_vat_exempt'), $order);
+        $feeAmount = $configuredFee->calculateExcludingTax(
+            $subtotal,
+            $vatExempt ? [] : WC_Tax::find_rates(array_merge($taxLocation, ['tax_class' => $feeTaxClass]))
+        );
 
         $item = new WC_Order_Item_Fee();
         $item->set_name($feeName);
@@ -143,7 +150,9 @@ class AbstractPaymentProcessor extends AbstractProcessor
         $item->set_tax_class($feeTaxClass);
         $item->set_tax_status('taxable');
         $item->set_total((string) $feeAmount);
-        $item->calculate_taxes($this->resolveTaxLocation($order));
+        if (! $vatExempt) {
+            $item->calculate_taxes($taxLocation);
+        }
 
         $order->add_item($item);
         $order->save();

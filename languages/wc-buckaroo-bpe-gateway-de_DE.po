@@ -916,8 +916,8 @@ msgid "Specify minimum order amount allowed to show the current method. Zero or 
 msgstr "Geben Sie den minimal zulässigen Bestellbetrag an, um die aktuelle Methode anzuzeigen. Ein Wert von null oder leer bedeutet, dass keine Regel angewendet wird."
 
 #: src/Gateways/AbstractPaymentGateway.php:166
-msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)"
-msgstr "Geben Sie einen festen Betrag (z. B. 1.50), einen Prozentsatz (z. B. 1%) oder beides (z. B. 0.25 + 1.5%) an. Kombinierte Gebühren werden auf Grundlage der Produktsumme nach Abzug von Rabatten berechnet, ohne Versandkosten und Steuern. Verwenden Sie einen Punkt (.) als Dezimaltrennzeichen."
+msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5% or 1.5% + 0.25). Combined fees are applied from left to right, starting with the product total after discounts, excluding shipping. Fee amounts and the percentage base follow the WooCommerce \"Prices entered with tax\" setting. Use a dot (.) for decimals."
+msgstr "Geben Sie einen Festbetrag (z. B. 1.50), einen Prozentsatz (z. B. 1%) oder beides (z. B. 0.25 + 1.5% oder 1.5% + 0.25) an. Kombinierte Gebühren werden von links nach rechts angewendet, ausgehend von der Produktsumme nach Rabatten, ohne Versand. Gebührenbeträge und die Prozentbasis folgen der WooCommerce-Einstellung \"Preise mit Steuern eingegeben\". Verwenden Sie einen Punkt (.) als Dezimaltrennzeichen."
 
 #: src/Admin/PaymentMethodSettings.php:48
 msgid "Store key"
@@ -1585,42 +1585,6 @@ msgstr "Nicht konfiguriert"
 msgid "Saved. Enter a new value only to replace it."
 msgstr "Gespeichert. Geben Sie nur einen neuen Wert ein, um ihn zu ersetzen."
 
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:183
-msgid "The Klarna authorization was not released automatically because a capture was already made or is in progress. Use the \"Klarna: Cancel reservation\" order action to release what is left."
-msgstr "Die Klarna-Autorisierung wurde nicht automatisch freigegeben, da bereits ein Einzug erfolgt ist oder gerade verarbeitet wird. Verwenden Sie die Bestellaktion \"Klarna: Reservierung stornieren\", um den Restbetrag freizugeben."
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:198
-msgid "The Klarna authorization was released because the order was cancelled."
-msgstr "Die Klarna-Autorisierung wurde freigegeben, da die Bestellung storniert wurde."
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:199
-msgid "The Klarna authorization could not be released automatically. It may already have been released or expired; otherwise use the \"Klarna: Cancel reservation\" order action to release it."
-msgstr "Die Klarna-Autorisierung konnte nicht automatisch freigegeben werden. Möglicherweise wurde sie bereits freigegeben oder ist abgelaufen; verwenden Sie andernfalls die Bestellaktion \"Klarna: Reservierung stornieren\", um sie freizugeben."
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:617
-msgid "Klarna: Check capture status"
-msgstr "Klarna: Einzugsstatus prüfen"
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:624
-msgid "Klarna: Cancel reservation"
-msgstr "Klarna: Reservierung stornieren"
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:627
-msgid "Klarna: Retry capture"
-msgstr "Klarna: Einzug erneut versuchen"
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:135
-msgid "Klarna payment authorized. The order contains only digital products, so it was completed and the payment is being collected now."
-msgstr "Klarna-Zahlung autorisiert. Die Bestellung enthält nur digitale Produkte, daher wurde sie abgeschlossen und die Zahlung wird jetzt eingezogen."
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:139
-msgid "Klarna payment authorized. The order contains only digital products and was completed, but the payment could not be collected automatically: check the order notes and capture it from this order."
-msgstr "Klarna-Zahlung autorisiert. Die Bestellung enthält nur digitale Produkte und wurde abgeschlossen, aber die Zahlung konnte nicht automatisch eingezogen werden: Prüfen Sie die Bestellnotizen und ziehen Sie die Zahlung über diese Bestellung ein."
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:143
-msgid "Klarna payment authorized, but not collected yet. Set the order to Completed after shipping to collect the payment."
-msgstr "Klarna-Zahlung autorisiert, aber noch nicht eingezogen. Setzen Sie die Bestellung nach dem Versand auf Fertiggestellt, um die Zahlung einzuziehen."
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:146
-msgid "Klarna payment authorized, but not collected yet. Automatic capture is off: capture the payment from this order after shipping."
-msgstr "Klarna-Zahlung autorisiert, aber noch nicht eingezogen. Der automatische Einzug ist deaktiviert: Ziehen Sie die Zahlung nach dem Versand über diese Bestellung ein."
+#: src/Gateways/AbstractPaymentGateway.php:763
+msgid "Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals."
+msgstr "Ungültige Zahlungsgebühr. Verwenden Sie einen Festbetrag (0.25), einen Prozentsatz (1.5%) oder beides (0.25 + 1.5%) mit einem Punkt als Dezimaltrennzeichen."

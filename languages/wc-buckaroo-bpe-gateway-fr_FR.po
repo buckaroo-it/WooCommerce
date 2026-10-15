@@ -912,8 +912,8 @@ msgid "Specify minimum order amount allowed to show the current method. Zero or 
 msgstr "Spécifiez le montant minimum de commande autorisé pour afficher la méthode actuelle. Une valeur zéro ou vide signifie qu'aucune règle ne sera appliquée."
 
 #: src/Gateways/AbstractPaymentGateway.php:166
-msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)"
-msgstr "Indiquez un montant fixe (par ex. 1.50), un pourcentage (par ex. 1%) ou les deux (par ex. 0.25 + 1.5%). Les frais combinés sont calculés sur le total des produits après remises, hors livraison et taxes. Utilisez un point (.) comme séparateur décimal."
+msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5% or 1.5% + 0.25). Combined fees are applied from left to right, starting with the product total after discounts, excluding shipping. Fee amounts and the percentage base follow the WooCommerce \"Prices entered with tax\" setting. Use a dot (.) for decimals."
+msgstr "Indiquez un montant fixe (ex. 1.50), un pourcentage (ex. 1%) ou les deux (ex. 0.25 + 1.5% ou 1.5% + 0.25). Les frais combinés sont appliqués de gauche à droite, à partir du total des produits après remises, hors livraison. Les montants des frais et la base du pourcentage suivent le réglage WooCommerce \"Tarifs saisis avec la TVA\". Utilisez un point (.) comme séparateur décimal."
 
 #: src/Admin/PaymentMethodSettings.php:48
 msgid "Store key"
@@ -1585,42 +1585,6 @@ msgstr "Non configuré"
 msgid "Saved. Enter a new value only to replace it."
 msgstr "Enregistré. Saisissez une nouvelle valeur uniquement pour la remplacer."
 
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:183
-msgid "The Klarna authorization was not released automatically because a capture was already made or is in progress. Use the \"Klarna: Cancel reservation\" order action to release what is left."
-msgstr "L'autorisation Klarna n'a pas été libérée automatiquement, car un encaissement a déjà été effectué ou est en cours. Utilisez l'action de commande « Klarna : Annuler la réservation » pour libérer le montant restant."
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:198
-msgid "The Klarna authorization was released because the order was cancelled."
-msgstr "L'autorisation Klarna a été libérée, car la commande a été annulée."
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:199
-msgid "The Klarna authorization could not be released automatically. It may already have been released or expired; otherwise use the \"Klarna: Cancel reservation\" order action to release it."
-msgstr "L'autorisation Klarna n'a pas pu être libérée automatiquement. Elle a peut-être déjà été libérée ou a expiré ; sinon, utilisez l'action de commande « Klarna : Annuler la réservation » pour la libérer."
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:617
-msgid "Klarna: Check capture status"
-msgstr "Klarna : Vérifier le statut de l'encaissement"
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:624
-msgid "Klarna: Cancel reservation"
-msgstr "Klarna : Annuler la réservation"
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:627
-msgid "Klarna: Retry capture"
-msgstr "Klarna : Réessayer l'encaissement"
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:135
-msgid "Klarna payment authorized. The order contains only digital products, so it was completed and the payment is being collected now."
-msgstr "Paiement Klarna autorisé. La commande ne contient que des produits numériques ; elle a donc été terminée et le paiement est en cours d'encaissement."
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:139
-msgid "Klarna payment authorized. The order contains only digital products and was completed, but the payment could not be collected automatically: check the order notes and capture it from this order."
-msgstr "Paiement Klarna autorisé. La commande ne contient que des produits numériques et a été terminée, mais le paiement n'a pas pu être encaissé automatiquement : consultez les notes de commande et encaissez le paiement depuis cette commande."
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:143
-msgid "Klarna payment authorized, but not collected yet. Set the order to Completed after shipping to collect the payment."
-msgstr "Paiement Klarna autorisé, mais pas encore encaissé. Passez la commande au statut Terminée après l'expédition pour encaisser le paiement."
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:146
-msgid "Klarna payment authorized, but not collected yet. Automatic capture is off: capture the payment from this order after shipping."
-msgstr "Paiement Klarna autorisé, mais pas encore encaissé. L'encaissement automatique est désactivé : encaissez le paiement depuis cette commande après l'expédition."
+#: src/Gateways/AbstractPaymentGateway.php:763
+msgid "Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals."
+msgstr "Frais de paiement non valides. Utilisez un montant fixe (0.25), un pourcentage (1.5%) ou les deux (0.25 + 1.5%) avec un point comme séparateur décimal."
