@@ -4,11 +4,14 @@ namespace Buckaroo\Woocommerce\PaymentProcessors\Actions;
 
 use Buckaroo\Woocommerce\Gateways\AbstractRefundProcessor;
 use Buckaroo\Woocommerce\Order\OrderMeta;
+use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Logger;
+use Buckaroo\Woocommerce\Services\NamedLock;
 use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
+use RuntimeException;
 use WC_Order;
 use WP_Error;
 
@@ -33,21 +36,37 @@ class RefundAction
     public static function initiateExternalServiceRefund($order_id, ResponseParser $responseParser)
     {
         Logger::log('PUSH', 'Refund payment PUSH received ' . $responseParser->get('coreStatus'));
-        $allowedPush = OrderMeta::get($order_id, '_pushallowed');
-        Logger::log(__METHOD__ . '|10|', $allowedPush);
-        if ($responseParser->isSuccess() && $allowedPush == 'ok') {
-            $tmp = OrderMeta::get($order_id, '_refundbuckaroo' . $responseParser->getTransactionKey());
-            if (empty($tmp)) {
-                OrderMeta::add($order_id, '_refundbuckaroo' . $responseParser->getTransactionKey(), 'ok', true);
-                wc_create_refund(
-                    [
-                        'amount' => $responseParser->getAmountCredit(),
-                        'reason' => __('Refunded', 'wc-buckaroo-bpe-gateway'),
-                        'order_id' => $order_id,
-                        'line_items' => [],
-                    ]
-                );
+        $order = wc_get_order($order_id);
+        if (! $order instanceof WC_Order) {
+            exit();
+        }
+
+        if (! NamedLock::acquire(PushProcessor::SETTLEMENT_LOCK_PURPOSE, $order, PushProcessor::SETTLEMENT_LOCK_KEY, PushProcessor::SETTLEMENT_LOCK_WAIT_SECONDS)) {
+            throw new RuntimeException(
+                __('Buckaroo push could not be processed because the order is locked.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
+
+        try {
+            $order->read_meta_data(true);
+            $allowedPush = OrderMeta::get($order, '_pushallowed');
+            Logger::log(__METHOD__ . '|10|', $allowedPush);
+            if ($responseParser->isSuccess() && $allowedPush == 'ok') {
+                $tmp = OrderMeta::get($order, '_refundbuckaroo' . $responseParser->getTransactionKey());
+                if (empty($tmp)) {
+                    OrderMeta::add($order, '_refundbuckaroo' . $responseParser->getTransactionKey(), 'ok', true);
+                    wc_create_refund(
+                        [
+                            'amount' => $responseParser->getAmountCredit(),
+                            'reason' => __('Refunded', 'wc-buckaroo-bpe-gateway'),
+                            'order_id' => $order_id,
+                            'line_items' => [],
+                        ]
+                    );
+                }
             }
+        } finally {
+            NamedLock::release(PushProcessor::SETTLEMENT_LOCK_PURPOSE, $order, PushProcessor::SETTLEMENT_LOCK_KEY);
         }
         exit();
     }
