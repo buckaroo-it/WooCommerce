@@ -912,8 +912,8 @@ msgid "Specify minimum order amount allowed to show the current method. Zero or 
 msgstr "Spécifiez le montant minimum de commande autorisé pour afficher la méthode actuelle. Une valeur zéro ou vide signifie qu'aucune règle ne sera appliquée."
 
 #: src/Gateways/AbstractPaymentGateway.php:166
-msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)"
-msgstr "Indiquez un montant fixe (par ex. 1.50), un pourcentage (par ex. 1%) ou les deux (par ex. 0.25 + 1.5%). Les frais combinés sont calculés sur le total des produits après remises, hors livraison et taxes. Utilisez un point (.) comme séparateur décimal."
+msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5% or 1.5% + 0.25). Combined fees are applied from left to right, starting with the product total after discounts, excluding shipping. Fee amounts and the percentage base follow the WooCommerce \"Prices entered with tax\" setting. Use a dot (.) for decimals."
+msgstr "Indiquez un montant fixe (ex. 1.50), un pourcentage (ex. 1%) ou les deux (ex. 0.25 + 1.5% ou 1.5% + 0.25). Les frais combinés sont appliqués de gauche à droite, à partir du total des produits après remises, hors livraison. Les montants des frais et la base du pourcentage suivent le réglage WooCommerce \"Tarifs saisis avec la TVA\". Utilisez un point (.) comme séparateur décimal."
 
 #: src/Admin/PaymentMethodSettings.php:48
 msgid "Store key"
@@ -1584,3 +1584,7 @@ msgstr "Non configuré"
 #: src/Gateways/AbstractPaymentGateway.php
 msgid "Saved. Enter a new value only to replace it."
 msgstr "Enregistré. Saisissez une nouvelle valeur uniquement pour la remplacer."
+
+#: src/Gateways/AbstractPaymentGateway.php:763
+msgid "Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals."
+msgstr "Frais de paiement non valides. Utilisez un montant fixe (0.25), un pourcentage (1.5%) ou les deux (0.25 + 1.5%) avec un point comme séparateur décimal."

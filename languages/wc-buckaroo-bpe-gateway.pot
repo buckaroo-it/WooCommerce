@@ -345,7 +345,7 @@ msgid "Payment fee"
 msgstr ""
 
 #: src/Gateways/AbstractPaymentGateway.php:166
-msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)"
+msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5% or 1.5% + 0.25). Combined fees are applied from left to right, starting with the product total after discounts, excluding shipping. Fee amounts and the percentage base follow the WooCommerce \"Prices entered with tax\" setting. Use a dot (.) for decimals."
 msgstr ""
 
 #: src/Gateways/AbstractPaymentGateway.php:159
@@ -1500,4 +1500,7 @@ msgstr ""
 
 #: src/Gateways/AbstractPaymentGateway.php
 msgid "Saved. Enter a new value only to replace it."
+
+#: src/Gateways/AbstractPaymentGateway.php:763
+msgid "Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals."
 msgstr ""

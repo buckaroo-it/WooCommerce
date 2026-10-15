@@ -916,8 +916,8 @@ msgid "Specify minimum order amount allowed to show the current method. Zero or 
 msgstr "Geben Sie den minimal zulässigen Bestellbetrag an, um die aktuelle Methode anzuzeigen. Ein Wert von null oder leer bedeutet, dass keine Regel angewendet wird."
 
 #: src/Gateways/AbstractPaymentGateway.php:166
-msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)"
-msgstr "Geben Sie einen festen Betrag (z. B. 1.50), einen Prozentsatz (z. B. 1%) oder beides (z. B. 0.25 + 1.5%) an. Kombinierte Gebühren werden auf Grundlage der Produktsumme nach Abzug von Rabatten berechnet, ohne Versandkosten und Steuern. Verwenden Sie einen Punkt (.) als Dezimaltrennzeichen."
+msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5% or 1.5% + 0.25). Combined fees are applied from left to right, starting with the product total after discounts, excluding shipping. Fee amounts and the percentage base follow the WooCommerce \"Prices entered with tax\" setting. Use a dot (.) for decimals."
+msgstr "Geben Sie einen Festbetrag (z. B. 1.50), einen Prozentsatz (z. B. 1%) oder beides (z. B. 0.25 + 1.5% oder 1.5% + 0.25) an. Kombinierte Gebühren werden von links nach rechts angewendet, ausgehend von der Produktsumme nach Rabatten, ohne Versand. Gebührenbeträge und die Prozentbasis folgen der WooCommerce-Einstellung \"Preise mit Steuern eingegeben\". Verwenden Sie einen Punkt (.) als Dezimaltrennzeichen."
 
 #: src/Admin/PaymentMethodSettings.php:48
 msgid "Store key"
@@ -1584,3 +1584,7 @@ msgstr "Nicht konfiguriert"
 #: src/Gateways/AbstractPaymentGateway.php
 msgid "Saved. Enter a new value only to replace it."
 msgstr "Gespeichert. Geben Sie nur einen neuen Wert ein, um ihn zu ersetzen."
+
+#: src/Gateways/AbstractPaymentGateway.php:763
+msgid "Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals."
+msgstr "Ungültige Zahlungsgebühr. Verwenden Sie einen Festbetrag (0.25), einen Prozentsatz (1.5%) oder beides (0.25 + 1.5%) mit einem Punkt als Dezimaltrennzeichen."

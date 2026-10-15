@@ -429,10 +429,21 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
 
     /** @dataProvider paymentFees */
     public function test_approved_paypal_cart_order_uses_the_quoted_address_total_and_fee_once(
-        string $rawFee, string $expectedTotal, int $feeCount, bool $productPage = false, bool $discounted = false, bool $taxed = false
+        string $rawFee, string $expectedTotal, int $feeCount, bool $productPage = false, bool $discounted = false, bool $taxed = false, bool $inclusive = false
     ): void
     {
+        update_option('woocommerce_prices_include_tax', $inclusive ? 'yes' : 'no');
         $rateId = null;
+        $productRateId = null;
+        if ($inclusive) {
+            update_option('woocommerce_default_country', 'NL');
+            WC_Tax::create_tax_class('Fee tax', 'fee-tax');
+            $productRateId = WC_Tax::_insert_tax_rate([
+                'tax_rate_country' => 'NL', 'tax_rate' => '21.0000',
+                'tax_rate_name' => 'Product VAT', 'tax_rate_priority' => 1,
+                'tax_rate_compound' => 0, 'tax_rate_shipping' => 0, 'tax_rate_class' => '',
+            ]);
+        }
         if ($taxed) {
             update_option('woocommerce_calc_taxes', 'yes');
             $rateId = WC_Tax::_insert_tax_rate([
@@ -528,6 +539,7 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
         } finally {
             remove_action('woocommerce_cart_calculate_fees', $address_fee, 20);
             if ($rateId !== null) { WC_Tax::_delete_tax_rate($rateId); }
+            if ($productRateId !== null) { WC_Tax::_delete_tax_rate($productRateId); }
             WC()->payment_gateways->payment_gateways = $gateways_before;
             if ($settings_before === null) {
                 delete_option('woocommerce_buckaroo_paypal_settings');
@@ -565,10 +577,13 @@ $this->assertSame($expectedTotal, $order->get_total());
         return [
             'fixed' => ['2.50', '24.50', 1],
             'percentage' => ['10%', '23.50', 1],
-            'combined cart' => ['0.25 + 10%', '23.75', 1],
-            'combined fee tax' => ['0.25 + 10%', '27.27', 1, false, false, true],
-            'combined product' => ['0.25 + 10%', '23.75', 1, true],
-            'discounted' => ['0.25 + 10%', '18.25', 1, false, true],
+            'combined cart' => ['0.25 + 10%', '23.78', 1],
+            'combined fee tax' => ['0.25 + 10%', '27.30', 1, false, false, true],
+            'inclusive cart' => ['50% + 1', '30.50', 1, false, false, true, true],
+            'inclusive product' => ['1 + 50%', '31.00', 1, true, false, true, true],
+            'inclusive discounted' => ['50% + 1', '23.00', 1, false, true, true, true],
+            'combined product' => ['0.25 + 10%', '23.78', 1, true],
+            'discounted' => ['0.25 + 10%', '18.28', 1, false, true],
             'zero fixed' => ['0 + 10%', '23.50', 1],
             'zero percentage' => ['0.25 + 0%', '22.25', 1],
             'disabled' => ['0', '22.00', 0],

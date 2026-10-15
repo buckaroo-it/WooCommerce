@@ -912,8 +912,8 @@ msgid "Specify minimum order amount allowed to show the current method. Zero or 
 msgstr "Specificeer het minimaal toegestane bestelbedrag om de huidige methode weer te geven. Een waarde van nul of leeg betekent dat er geen regel wordt toegepast."
 
 #: src/Gateways/AbstractPaymentGateway.php:166
-msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5%). Combined fees use the product total after discounts, excluding shipping and tax. Decimals must be separated by a dot (.)"
-msgstr "Geef een vast bedrag (bijv. 1.50), een percentage (bijv. 1%) of beide (bijv. 0.25 + 1.5%) op. Bij gecombineerde kosten wordt het producttotaal na korting gebruikt, exclusief verzendkosten en belasting. Gebruik een punt (.) als decimaalteken."
+msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5% or 1.5% + 0.25). Combined fees are applied from left to right, starting with the product total after discounts, excluding shipping. Fee amounts and the percentage base follow the WooCommerce \"Prices entered with tax\" setting. Use a dot (.) for decimals."
+msgstr "Geef een vast bedrag (bijv. 1.50), een percentage (bijv. 1%) of beide (bijv. 0.25 + 1.5% of 1.5% + 0.25) op. Gecombineerde kosten worden van links naar rechts toegepast, uitgaande van het producttotaal na korting, exclusief verzending. Kostenbedragen en de procentuele grondslag volgen de WooCommerce-instelling \"Prijzen ingevoerd met belasting\". Gebruik een punt (.) als decimaalteken."
 
 #: src/Admin/PaymentMethodSettings.php:48
 msgid "Store key"
@@ -1589,3 +1589,7 @@ msgstr "Niet geconfigureerd"
 #: src/Gateways/AbstractPaymentGateway.php
 msgid "Saved. Enter a new value only to replace it."
 msgstr "Opgeslagen. Vul alleen een nieuwe waarde in om deze te vervangen."
+
+#: src/Gateways/AbstractPaymentGateway.php:763
+msgid "Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals."
+msgstr "Ongeldige betaalkosten. Gebruik een vast bedrag (0.25), percentage (1.5%) of beide (0.25 + 1.5%) met een punt als decimaalteken."
