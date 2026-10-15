@@ -86,7 +86,7 @@ class KlarnaProcessor extends AbstractPaymentProcessor
     }
 
     /**
-     * The reservation state (reserved flag, reserved amount, on-hold) is written by
+     * The reservation state (reserved flag, reserved amount, order status) is written by
      * the signed reservation push only, see KlarnaPushProcessor::handleReservation().
      */
     public function beforeReturnHandler(ResponseParser $responseParser, string $redirectUrl)

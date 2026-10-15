@@ -202,7 +202,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
             $storedOrder->get_meta(KlarnaProcessor::DATA_REQUEST_META_KEY)
         );
         $this->assertSame('25.00', $storedOrder->get_meta(KlarnaProcessor::RESERVED_AMOUNT_META_KEY));
-        $this->assertSame('on-hold', $storedOrder->get_status());
+        $this->assertSame('processing', $storedOrder->get_status());
     }
 
     public function test_successful_pay_reconciliation_marks_a_manual_on_hold_capture_as_paid(): void

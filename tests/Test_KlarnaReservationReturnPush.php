@@ -7,6 +7,7 @@ use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaFulfillmentActions;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaProcessor;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPushProcessor;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
 use Buckaroo\Woocommerce\ResponseParser\FormDataParser;
@@ -14,12 +15,15 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * The browser return and the reservation push of a Klarna (MoR) reserve can arrive
- * in any order; only the push may move the order to its reserved (on-hold) state,
- * and a reservation must never complete the order.
+ * in any order; only the push may move the order to its authorized (processing) state,
+ * and a reservation must never be recorded as captured.
  */
 class Test_KlarnaReservationReturnPush extends TestCase
 {
     use HposStorage;
+
+    /** @var int[] */
+    private $productIds = [];
 
     protected function setUp(): void
     {
@@ -40,30 +44,34 @@ class Test_KlarnaReservationReturnPush extends TestCase
 
     protected function tearDown(): void
     {
+        foreach ($this->productIds as $productId) {
+            wp_delete_post($productId, true);
+        }
+
         delete_option('woocommerce_buckaroo_mastersettings_settings');
         $this->deleteCreatedOrders();
         $this->disableHpos();
         parent::tearDown();
     }
 
-    public function test_return_before_reservation_push_leaves_the_order_reserved_and_unpaid(): void
+    public function test_return_before_reservation_push_leaves_the_order_authorized_in_processing(): void
     {
         $order = $this->createKlarnaOrder();
 
         $this->browserReturn($order, '190');
         $this->reservationPush($order);
 
-        $this->assertReservedAndUnpaid(wc_get_order($order->get_id()));
+        $this->assertAuthorizedInProcessing(wc_get_order($order->get_id()));
     }
 
-    public function test_reservation_push_before_return_leaves_the_order_reserved_and_unpaid(): void
+    public function test_reservation_push_before_return_leaves_the_order_authorized_in_processing(): void
     {
         $order = $this->createKlarnaOrder();
 
         $this->reservationPush($order);
         $this->browserReturn(wc_get_order($order->get_id()), '190');
 
-        $this->assertReservedAndUnpaid(wc_get_order($order->get_id()));
+        $this->assertAuthorizedInProcessing(wc_get_order($order->get_id()));
     }
 
     public function test_the_browser_return_does_not_write_the_reservation_state(): void
@@ -82,14 +90,14 @@ class Test_KlarnaReservationReturnPush extends TestCase
         }
     }
 
-    public function test_a_replayed_reservation_push_does_not_complete_the_order(): void
+    public function test_a_replayed_reservation_push_does_not_change_the_order_again(): void
     {
         $order = $this->createKlarnaOrder();
 
         $this->reservationPush($order);
         $this->reservationPush(wc_get_order($order->get_id()));
 
-        $this->assertReservedAndUnpaid(wc_get_order($order->get_id()));
+        $this->assertAuthorizedInProcessing(wc_get_order($order->get_id()));
     }
 
     public function test_a_capture_push_after_the_reservation_still_completes_the_order(): void
@@ -124,12 +132,12 @@ class Test_KlarnaReservationReturnPush extends TestCase
                 'data_request' => $stored->get_meta(KlarnaProcessor::DATA_REQUEST_META_KEY),
             ];
         };
-        add_action('woocommerce_order_status_on-hold', $listener);
+        add_action('woocommerce_order_status_processing', $listener);
 
         try {
             $this->reservationPush($order);
         } finally {
-            remove_action('woocommerce_order_status_on-hold', $listener);
+            remove_action('woocommerce_order_status_processing', $listener);
         }
 
         $this->assertSame(
@@ -138,12 +146,10 @@ class Test_KlarnaReservationReturnPush extends TestCase
         );
     }
 
-    public function test_a_capture_push_without_pay_action_on_a_reserved_order_still_completes_it(): void
+    public function test_a_capture_push_without_pay_action_is_not_handled_as_the_reservation(): void
     {
         $order = $this->createKlarnaOrder();
-
-        $this->reservationPush($order);
-        $this->push(wc_get_order($order->get_id()), [
+        $push = new FormDataParser([
             'brq_statuscode' => '190',
             'brq_amount' => '25.00',
             'brq_currency' => 'EUR',
@@ -153,21 +159,30 @@ class Test_KlarnaReservationReturnPush extends TestCase
             'brq_ordernumber' => (string) $order->get_id(),
         ]);
 
-        $stored = wc_get_order($order->get_id());
-        $this->assertTrue($stored->is_paid(), 'Order should be paid, got status ' . $stored->get_status());
+        $this->assertNull(apply_filters('buckaroo_push_reservation', null, $order, $push));
+        $this->assertSame('pending', wc_get_order($order->get_id())->get_status());
     }
 
-    private function assertReservedAndUnpaid(WC_Order $order): void
+    private function assertAuthorizedInProcessing(WC_Order $order): void
     {
-        $this->assertSame('on-hold', $order->get_status());
-        $this->assertFalse($order->is_paid());
-        $this->assertNull($order->get_date_paid());
+        $this->assertSame('processing', $order->get_status());
+        $this->assertSame([], OrderMeta::get($order, '_wc_order_captures', false), 'A reservation is not a capture');
+        $this->assertSame(1, $this->countAuthorizedNotes($order));
         $this->assertSame('yes', $order->get_meta('buckaroo_is_reserved'));
         $this->assertSame('yes', $order->get_meta(KlarnaPushProcessor::RESERVATION_PUSH_META_KEY));
         $this->assertSame('yes', $order->get_meta('_wc_order_authorized'));
         $this->assertSame('25.00', $order->get_meta(KlarnaProcessor::RESERVED_AMOUNT_META_KEY));
         $this->assertSame('DATA-REQUEST-KEY', $order->get_meta(KlarnaProcessor::DATA_REQUEST_META_KEY));
         $this->assertSame('RESERVE-PUSH', $order->get_transaction_id());
+    }
+
+    private function countAuthorizedNotes(WC_Order $order): int
+    {
+        $notes = wc_get_order_notes(['order_id' => $order->get_id()]);
+
+        return count(array_filter($notes, function ($note) {
+            return strpos($note->content, 'Klarna payment authorized') === 0;
+        }));
     }
 
     private function browserReturn(WC_Order $order, string $statusCode): void
@@ -218,10 +233,18 @@ class Test_KlarnaReservationReturnPush extends TestCase
 
     private function createKlarnaOrder(): WC_Order
     {
+        $product = new WC_Product_Simple();
+        $product->set_name('Physical product');
+        $product->set_regular_price('25.00');
+        $product->set_price('25.00');
+        $product->save();
+        $this->productIds[] = $product->get_id();
+
         $order = $this->createOrder();
+        $order->add_product($product, 1);
         $order->set_payment_method('buckaroo_klarnapay');
         $order->set_currency('EUR');
-        $order->set_total(25.00);
+        $order->calculate_totals();
         $order->save();
 
         return wc_get_order($order->get_id());

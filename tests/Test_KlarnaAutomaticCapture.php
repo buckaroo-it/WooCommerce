@@ -51,18 +51,19 @@ class Test_KlarnaAutomaticCapture extends TestCase
         parent::tearDown();
     }
 
-    public function test_klarna_mor_exposes_a_default_off_automatic_capture_setting(): void
+    public function test_klarna_mor_exposes_a_default_on_automatic_capture_setting(): void
     {
         $gateway = new KlarnaPayGateway();
 
         $this->assertArrayHasKey('automatic_capture', $gateway->form_fields);
         $this->assertSame('checkbox', $gateway->form_fields['automatic_capture']['type']);
-        $this->assertSame('no', $gateway->form_fields['automatic_capture']['default']);
-        $this->assertSame('no', $gateway->get_option('automatic_capture'));
+        $this->assertSame('yes', $gateway->form_fields['automatic_capture']['default']);
+        $this->assertSame('yes', $gateway->get_option('automatic_capture'));
     }
 
     public function test_completed_transition_does_not_enqueue_when_automatic_capture_is_disabled(): void
     {
+        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'no']);
         $order = $this->createReservedOrder();
         new KlarnaFulfillmentActions();
 

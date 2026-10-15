@@ -40,6 +40,9 @@ class KlarnaPushProcessor
         }
 
         if ($responseParser->isSuccess()) {
+            // The reservation is closed: cancelling the order must not release it again.
+            $order->delete_meta_data('buckaroo_is_reserved');
+            $order->save_meta_data();
             $order->add_order_note(
                 __('Klarna reservation cancellation confirmed (push received).', 'wc-buckaroo-bpe-gateway')
             );
@@ -79,7 +82,7 @@ class KlarnaPushProcessor
             return null;
         }
 
-        // A reservation never completes the order, also when it was already handled.
+        // The generic push path never completes a reservation; this handler does it once.
         $context = [
             'transaction' => $responseParser->getDataRequest(),
             'completed_order' => false,
@@ -103,15 +106,44 @@ class KlarnaPushProcessor
             $order->update_meta_data(KlarnaProcessor::DATA_REQUEST_META_KEY, $dataRequestKey);
         }
 
+        // An order that needs no processing (digital only) is completed by payment_complete()
+        // and is captured right away, also when automatic capture is off.
+        $captureOnPayment = ! $order->needs_processing();
+        if ($captureOnPayment) {
+            $order->update_meta_data(KlarnaFulfillmentActions::CAPTURE_ON_PAYMENT_META_KEY, 'yes');
+        }
+
         // Persist the reservation before the status change, so status hooks (e.g. capture
         // on completed) already see the order as reserved.
         $order->save();
-        $order->update_status(
-            'on-hold',
-            __('Klarna reservation authorized; awaiting capture.', 'wc-buckaroo-bpe-gateway')
-        );
+        $order->payment_complete($responseParser->getTransactionKey());
+
+        if ($captureOnPayment && $order->get_status() !== 'completed') {
+            $captureOnPayment = false;
+            $order->delete_meta_data(KlarnaFulfillmentActions::CAPTURE_ON_PAYMENT_META_KEY);
+            $order->save();
+        }
+
+        $order->add_order_note(self::authorizedNote($captureOnPayment, $order));
 
         return $context;
+    }
+
+    private static function authorizedNote(bool $captureOnPayment, WC_Order $order): string
+    {
+        if ($captureOnPayment && KlarnaCaptureAttempt::all($order) !== []) {
+            return __('Klarna payment authorized. The order contains only digital products, so it was completed and the payment is being collected now.', 'wc-buckaroo-bpe-gateway');
+        }
+
+        if ($captureOnPayment) {
+            return __('Klarna payment authorized. The order contains only digital products and was completed, but the payment could not be collected automatically: check the order notes and capture it from this order.', 'wc-buckaroo-bpe-gateway');
+        }
+
+        if (KlarnaPayGateway::isAutomaticCaptureEnabled()) {
+            return __('Klarna payment authorized, but not collected yet. Set the order to Completed after shipping to collect the payment.', 'wc-buckaroo-bpe-gateway');
+        }
+
+        return __('Klarna payment authorized, but not collected yet. Automatic capture is off: capture the payment from this order after shipping.', 'wc-buckaroo-bpe-gateway');
     }
 
     /**
@@ -130,7 +162,8 @@ class KlarnaPushProcessor
 
     /**
      * Orders reserved before the push marker existed are recognised by the reserved
-     * flag together with the on-hold status, which only the reservation push sets.
+     * flag on an order that has left the unpaid statuses, which only the reservation
+     * push moves it out of.
      */
     private static function isReservationPushHandled(WC_Order $order): bool
     {
@@ -138,7 +171,8 @@ class KlarnaPushProcessor
             return true;
         }
 
-        return $order->get_meta('buckaroo_is_reserved') === 'yes' && $order->get_status() === 'on-hold';
+        return $order->get_meta('buckaroo_is_reserved') === 'yes' &&
+            ! in_array($order->get_status(), ['pending', 'failed'], true);
     }
 
     public static function reconcileCapture(WC_Order $order, ResponseParser $responseParser): bool
