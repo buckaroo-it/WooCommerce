@@ -434,7 +434,7 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
      */
     public function test_wallet_probe_includes_the_configured_express_payment_fee(
         string $controller,
-        string $wallet_name, string $raw, float $expected, bool $current = false, bool $discounted = false, bool $taxed = false
+        string $wallet_name, string $raw, float $expected, bool $current = false, bool $discounted = false, bool $taxed = false, bool $inclusive = false
     ): void
     {
         [$product_id, $variation_id] = $this->createWildcardVariationProduct();
@@ -442,7 +442,18 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
             ? 'woocommerce_buckaroo_applepay_settings'
             : 'woocommerce_buckaroo_googlepay_settings';
         update_option('woocommerce_calc_taxes', $taxed ? 'yes' : 'no');
+        update_option('woocommerce_prices_include_tax', $inclusive ? 'yes' : 'no');
         $rateId = null;
+        $productRateId = null;
+        if ($inclusive) {
+            update_option('woocommerce_default_country', 'NL');
+            WC_Tax::create_tax_class('Fee tax', 'fee-tax');
+            $productRateId = WC_Tax::_insert_tax_rate([
+                'tax_rate_country' => 'NL', 'tax_rate' => '20.0000',
+                'tax_rate_name' => 'Product VAT', 'tax_rate_priority' => 1,
+                'tax_rate_compound' => 0, 'tax_rate_shipping' => 0, 'tax_rate_class' => '',
+            ]);
+        }
         if ($taxed) {
             $rateId = WC_Tax::_insert_tax_rate([
                 'tax_rate_country' => 'NL', 'tax_rate' => '20.0000',
@@ -497,7 +508,7 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
             $this->assertTrue($result['success']);
             $this->order_ids[] = $result['data']['id'];
             $order = wc_get_order($result['data']['id']);
-            $this->assertSame(($taxed ? ($discounted ? 24.0 : 30.0) : ($discounted ? 20.0 : 25.0)) + $expected, (float) $order->get_total());
+            $this->assertSame(round(($taxed && ! $inclusive ? ($discounted ? 24.0 : 30.0) : ($discounted ? 20.0 : 25.0)) + $expected, wc_get_price_decimals()), (float) $order->get_total());
             $this->assertCount($expected > 0 ? 1 : 0, $order->get_fees());
             $approvedAmount = round(array_sum(array_map(static function ($item) {
                 return round((float) $item['price'], 2);
@@ -519,10 +530,10 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
                 }
             }
 
-            if ($taxed) {
+            if ($taxed && ! $inclusive) {
                 $savedFees = array_values($order->get_fees());
-                $this->assertSame($discounted ? 2.25 : 2.75, (float) $savedFees[0]->get_total());
-                $this->assertSame($discounted ? 0.45 : 0.55, (float) $savedFees[0]->get_total_tax());
+                $this->assertSame($discounted ? 2.28 : 2.78, (float) $savedFees[0]->get_total());
+                $this->assertSame($discounted ? 0.46 : 0.56, (float) $savedFees[0]->get_total_tax());
             }
             $this->assertSame($stateBefore, $this->captureLiveCheckoutState());
             if ($discounted && $wallet_name === 'Google Pay') {
@@ -535,6 +546,7 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
         } finally {
             if ($coupon) { $coupon->delete(true); }
             if ($rateId !== null) { WC_Tax::_delete_tax_rate($rateId); }
+            if ($productRateId !== null) { WC_Tax::_delete_tax_rate($productRateId); }
             if ($settings_before === null) {
                 delete_option($option_name);
             } else {
@@ -546,7 +558,7 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
             return ($item['type'] ?? '') === 'fee';
         }));
         $this->assertCount($expected > 0 ? 1 : 0, $fees);
-        if ($expected > 0) { $this->assertSame($expected, $fees[0]['price']); }
+        if ($expected > 0) { $this->assertSame($expected, round($fees[0]['price'], wc_get_price_decimals())); }
     }
 
     public function test_rejected_google_pay_amount_releases_coupon_usage(): void
@@ -651,11 +663,14 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
     {
         $cases = [];
         foreach ($this->walletControllers() as $wallet => $args) {
-            $cases[$wallet . ' discounted'] = array_merge($args, ['0.25 + 10%', 2.25, true, true]);
-            $cases[$wallet . ' discounted product'] = array_merge($args, ['0.25 + 10%', 2.25, false, true]);
-            $cases[$wallet . ' discounted taxed'] = array_merge($args, ['0.25 + 10%', 2.7, true, true, true]);
-            $cases[$wallet . ' taxed'] = array_merge($args, ['0.25 + 10%', 3.3, true, false, true]);
-            foreach ([['2.50', 2.5], ['10%', 2.5], ['0.25 + 10%', 2.75], ['0 + 10%', 2.5], ['0', 0.0], ['invalid', 0.0]] as $fee) {
+            $cases[$wallet . ' inclusive cart'] = array_merge($args, ['50% + 1', 13.5, true, false, true, true]);
+            $cases[$wallet . ' inclusive product'] = array_merge($args, ['1 + 50%', 14.0, false, false, true, true]);
+            $cases[$wallet . ' inclusive discounted'] = array_merge($args, ['50% + 1', 11.0, true, true, true, true]);
+            $cases[$wallet . ' discounted'] = array_merge($args, ['0.25 + 10%', 2.28, true, true]);
+            $cases[$wallet . ' discounted product'] = array_merge($args, ['0.25 + 10%', 2.28, false, true]);
+            $cases[$wallet . ' discounted taxed'] = array_merge($args, ['0.25 + 10%', 2.74, true, true, true]);
+            $cases[$wallet . ' taxed'] = array_merge($args, ['0.25 + 10%', 3.34, true, false, true]);
+            foreach ([['2.50', 2.5], ['10%', 2.5], ['0.25 + 10%', 2.78], ['0 + 10%', 2.5], ['0', 0.0], ['invalid', 0.0]] as $fee) {
                 foreach ([false, true] as $current) {
                     $cases[$wallet . $fee[0] . ($current ? ' cart' : ' product')] = array_merge($args, $fee, [$current]);
                 }

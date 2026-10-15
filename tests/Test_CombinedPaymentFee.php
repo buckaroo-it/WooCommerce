@@ -105,7 +105,7 @@ class Test_CombinedPaymentFee extends WP_UnitTestCase
     public function orderFees(): array
     {
         return [
-            'combined discounted base' => ['0.25 + 1.5%', '1.45', '96.45'],
+            'percentage first discounted base' => ['1.5% + 0.25', '1.45', '96.45'],
             'combined fee tax' => ['0.25 + 1.5%', '1.45', '96.75', true],
             'zero fixed' => ['0 + 1.5%', '1.2', '96.20'],
             'legacy fixed' => ['2.50', '2.5', '97.50'],
@@ -130,6 +130,85 @@ class Test_CombinedPaymentFee extends WP_UnitTestCase
             $this->assertArrayNotHasKey('extrachargeamount', $payByBank->form_fields);
         } finally {
             $_POST = $before;
+        }
+    }
+
+    /** @dataProvider feeSettings */
+    public function test_settings_validate_fee_before_saving($raw, bool $valid): void
+    {
+        foreach ([
+            \Buckaroo\Woocommerce\Gateways\Ideal\IdealGateway::class,
+            \Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway::class,
+        ] as $gatewayClass) {
+            $gateway = new $gatewayClass();
+            update_option($gateway->get_option_key(), ['extrachargeamount' => '2.50']);
+            $before = $_POST;
+            $errors = new ReflectionProperty(WC_Admin_Settings::class, 'errors');
+            if (PHP_VERSION_ID < 80100) {
+                $errors->setAccessible(true);
+            }
+            $beforeErrors = $errors->getValue();
+            $errors->setValue(null, []);
+            $_POST = [
+                $gateway->get_field_key('extrachargeamount') => $raw,
+                $gateway->get_field_key('title') => 'Updated title',
+            ];
+            try {
+                $gateway->process_admin_options();
+                $loaded = new $gatewayClass();
+                $saved = get_option($gateway->get_option_key());
+                $this->assertSame($valid ? trim((string) $raw) : '2.50', $saved['extrachargeamount']);
+                $this->assertSame('Updated title', $loaded->get_option('title'));
+                $this->assertCount($valid ? 0 : 1, $gateway->get_errors());
+                if (! $valid) {
+                    $this->assertStringContainsString('Invalid payment fee.', $gateway->get_errors()[0]);
+                    ob_start();
+                    WC_Admin_Settings::show_messages();
+                    $notice = ob_get_clean();
+                    $this->assertStringContainsString('Invalid payment fee.', $notice);
+                    $this->assertStringContainsString('0.25 + 1.5%', $notice);
+                }
+            } finally {
+                $_POST = $before;
+                $errors->setValue(null, $beforeErrors);
+            }
+        }
+    }
+
+    public function feeSettings(): array
+    {
+        return [
+            'fixed' => ['0.25', true],
+            'percentage' => ['1.5%', true],
+            'combined' => ['0.25 + 1.5%', true],
+            'whitespace' => [' 0.25+1.5% ', true],
+            'zero' => ['0', true],
+            'zero components' => ['0 + 0%', true],
+            'empty' => ['', true],
+            'blank' => ['  ', true],
+            'missing' => [null, true],
+            'percentage first' => ['1.5% + 0.25', true],
+            'fixed first integer' => ['1 + 50%', true],
+            'percentage first integer' => ['50% + 1', true],
+            'comma decimals' => ['0,25 + 1,5%', false],
+            'text' => ['abc', false],
+            'negative' => ['-1', false],
+            'extra component' => ['1 + 2% + 3', false],
+            'array' => [[], false],
+        ];
+    }
+
+    public function test_title_preserves_combined_fee_order(): void
+    {
+        $gateway = new \Buckaroo\Woocommerce\Gateways\Ideal\IdealGateway();
+        $gateway->settings['title'] = 'Test method';
+        foreach (['1 + 50%' => false, '50% + 1' => true] as $raw => $percentageFirst) {
+            $gateway->settings['extrachargeamount'] = $raw;
+            $gateway->setTitle();
+            $this->assertSame($raw, $gateway->get_option('extrachargeamount'));
+            $this->assertStringContainsString('50.00%', $gateway->title);
+            $this->assertStringContainsString('1.00', $gateway->title);
+            $this->assertSame($percentageFirst, strpos($gateway->title, '50.00%') < strpos($gateway->title, '1.00'));
         }
     }
 
