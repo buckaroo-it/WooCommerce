@@ -1584,3 +1584,43 @@ msgstr "Nicht konfiguriert"
 #: src/Gateways/AbstractPaymentGateway.php
 msgid "Saved. Enter a new value only to replace it."
 msgstr "Gespeichert. Geben Sie nur einen neuen Wert ein, um ihn zu ersetzen."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:183
+msgid "The Klarna authorization was not released automatically because a capture was already made or is in progress. Use the \"Klarna: Cancel reservation\" order action to release what is left."
+msgstr "Die Klarna-Autorisierung wurde nicht automatisch freigegeben, da bereits ein Einzug erfolgt ist oder gerade verarbeitet wird. Verwenden Sie die Bestellaktion \"Klarna: Reservierung stornieren\", um den Restbetrag freizugeben."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:198
+msgid "The Klarna authorization was released because the order was cancelled."
+msgstr "Die Klarna-Autorisierung wurde freigegeben, da die Bestellung storniert wurde."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:199
+msgid "The Klarna authorization could not be released automatically. It may already have been released or expired; otherwise use the \"Klarna: Cancel reservation\" order action to release it."
+msgstr "Die Klarna-Autorisierung konnte nicht automatisch freigegeben werden. Möglicherweise wurde sie bereits freigegeben oder ist abgelaufen; verwenden Sie andernfalls die Bestellaktion \"Klarna: Reservierung stornieren\", um sie freizugeben."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:617
+msgid "Klarna: Check capture status"
+msgstr "Klarna: Einzugsstatus prüfen"
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:624
+msgid "Klarna: Cancel reservation"
+msgstr "Klarna: Reservierung stornieren"
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:627
+msgid "Klarna: Retry capture"
+msgstr "Klarna: Einzug erneut versuchen"
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:135
+msgid "Klarna payment authorized. The order contains only digital products, so it was completed and the payment is being collected now."
+msgstr "Klarna-Zahlung autorisiert. Die Bestellung enthält nur digitale Produkte, daher wurde sie abgeschlossen und die Zahlung wird jetzt eingezogen."
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:139
+msgid "Klarna payment authorized. The order contains only digital products and was completed, but the payment could not be collected automatically: check the order notes and capture it from this order."
+msgstr "Klarna-Zahlung autorisiert. Die Bestellung enthält nur digitale Produkte und wurde abgeschlossen, aber die Zahlung konnte nicht automatisch eingezogen werden: Prüfen Sie die Bestellnotizen und ziehen Sie die Zahlung über diese Bestellung ein."
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:143
+msgid "Klarna payment authorized, but not collected yet. Set the order to Completed after shipping to collect the payment."
+msgstr "Klarna-Zahlung autorisiert, aber noch nicht eingezogen. Setzen Sie die Bestellung nach dem Versand auf Fertiggestellt, um die Zahlung einzuziehen."
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:146
+msgid "Klarna payment authorized, but not collected yet. Automatic capture is off: capture the payment from this order after shipping."
+msgstr "Klarna-Zahlung autorisiert, aber noch nicht eingezogen. Der automatische Einzug ist deaktiviert: Ziehen Sie die Zahlung nach dem Versand über diese Bestellung ein."
