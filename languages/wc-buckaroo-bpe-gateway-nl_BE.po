@@ -1585,3 +1585,7 @@ msgstr "%s is vereist om deze betaalmethode in de geselecteerde transactiemodus 
 #: src/Gateways/AbstractPaymentGateway.php:682
 msgid "Not configured"
 msgstr "Niet geconfigureerd"
+
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Saved. Enter a new value only to replace it."
+msgstr "Opgeslagen. Vul alleen een nieuwe waarde in om deze te vervangen."

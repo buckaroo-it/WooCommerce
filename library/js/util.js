@@ -41,28 +41,6 @@ buckarooAdmin = {
             );
         });
     },
-    maskedCredentials: function () {
-        jQuery(document)
-            .on('beforeinput', '.bk-credential', function (e) {
-                if (!/^\*+$/.test(this.value)) {
-                    return;
-                }
-                const event = e.originalEvent;
-                const isInsert = event.inputType.indexOf('insert') === 0;
-                const text = event.data || (event.dataTransfer ? event.dataTransfer.getData('text/plain') : '');
-                event.preventDefault();
-                this.dataset.masked = this.value;
-                this.value = isInsert ? text : '';
-                if (isInsert) {
-                    this.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            })
-            .on('blur', '.bk-credential', function () {
-                if (this.value === '' && this.dataset.masked) {
-                    this.value = this.dataset.masked;
-                }
-            });
-    },
     autoConfigureButton: function () {
         let autoConfigButton = jQuery('[id$="auto_configure"]');
 
@@ -117,7 +95,6 @@ buckarooAdmin = {
 
     init: function () {
         this.testButton();
-        this.maskedCredentials();
         this.autoConfigureButton();
         this.credicardToggleSelect();
     },

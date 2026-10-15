@@ -1585,3 +1585,7 @@ msgstr "Uw Google Merchant ID, te vinden in de <a href=\"https://pay.google.com/
 
 msgid "The wallet only authorises the payment. Billing and shipping come from the checkout form."
 msgstr "De wallet autoriseert alleen de betaling. Factuur- en verzendgegevens komen uit het afrekenformulier."
+
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Saved. Enter a new value only to replace it."
+msgstr "Opgeslagen. Vul alleen een nieuwe waarde in om deze te vervangen."

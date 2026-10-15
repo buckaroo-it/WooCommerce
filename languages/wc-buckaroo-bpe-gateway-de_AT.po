@@ -1580,3 +1580,7 @@ msgstr "%s ist erforderlich, um diese Zahlungsart im ausgewählten Transaktionsm
 #: src/Gateways/AbstractPaymentGateway.php:682
 msgid "Not configured"
 msgstr "Nicht konfiguriert"
+
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Saved. Enter a new value only to replace it."
+msgstr "Gespeichert. Geben Sie nur einen neuen Wert ein, um ihn zu ersetzen."

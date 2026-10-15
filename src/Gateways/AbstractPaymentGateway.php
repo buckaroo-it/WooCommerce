@@ -32,8 +32,8 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     /** Required credential keys mapped to "always" or "live". */
     protected const REQUIRED_CREDENTIALS = [];
 
-    /** Placeholder value rendered in place of a stored credential. */
-    public const MASKED_CREDENTIAL = '******';
+    /** Placeholder shown in an empty field when a credential is stored. */
+    protected const MASKED_CREDENTIAL = '******';
 
     /** ISO 3166-1 alpha-2 codes counted as European by getCountryLabel(). */
     private const EUROPEAN_COUNTRIES = ['AT', 'BE', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GB', 'GR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LI', 'LT', 'LU', 'LV', 'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'];
@@ -391,18 +391,12 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         ) ?? $html;
     }
 
-    /** Check whether a submitted credential is the mask or blank. */
-    public static function isUnchangedCredential(string $value): bool
-    {
-        return preg_match('/^\**$/', trim($value)) === 1;
-    }
-
-    /** Keep configured credentials when their fields are submitted masked or blank. */
+    /** Keep configured credentials when their fields are left blank. */
     public function validate_password_field($key, $value)
     {
         $value = parent::validate_password_field($key, $value);
 
-        return static::isUnchangedCredential($value) ? $this->get_option($key, '') : $value;
+        return $value === '' ? $this->get_option($key, '') : $value;
     }
 
     /** Render credentials without exposing their stored values. */
@@ -410,7 +404,6 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     {
         $configured = $this->get_option($key, '') !== '';
         $data['type'] = 'password';
-        $data['class'] = trim(($data['class'] ?? '') . ' bk-credential');
         $data['custom_attributes'] = array_merge($data['custom_attributes'] ?? [], [
             'autocomplete' => 'new-password',
             'data-1p-ignore' => 'true',
@@ -418,12 +411,14 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             'data-bwignore' => 'true',
         ]);
         if ($configured) {
+            $data['placeholder'] = static::MASKED_CREDENTIAL;
+            $data['description'] = trim(__('Saved. Enter a new value only to replace it.', 'wc-buckaroo-bpe-gateway') . ' ' . ($data['description'] ?? ''));
             unset($data['custom_attributes']['required']);
         }
 
         // Render with a separate settings copy so payment credentials stay available.
         $renderer = clone $this;
-        $renderer->settings[$key] = $configured ? static::MASKED_CREDENTIAL : '';
+        $renderer->settings[$key] = '';
 
         return $renderer->generate_text_html($key, $data);
     }
