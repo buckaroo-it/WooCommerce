@@ -1586,42 +1586,6 @@ msgstr "%s is vereist om deze betaalmethode in de geselecteerde transactiemodus 
 msgid "Not configured"
 msgstr "Niet geconfigureerd"
 
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:183
-msgid "The Klarna authorization was not released automatically because a capture was already made or is in progress. Use the \"Klarna: Cancel reservation\" order action to release what is left."
-msgstr "De Klarna-autorisatie is niet automatisch vrijgegeven omdat er al een inning is gedaan of wordt verwerkt. Gebruik de bestelactie \"Klarna: Reservering annuleren\" om het resterende bedrag vrij te geven."
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:198
-msgid "The Klarna authorization was released because the order was cancelled."
-msgstr "De Klarna-autorisatie is vrijgegeven omdat de bestelling is geannuleerd."
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:199
-msgid "The Klarna authorization could not be released automatically. It may already have been released or expired; otherwise use the \"Klarna: Cancel reservation\" order action to release it."
-msgstr "De Klarna-autorisatie kon niet automatisch worden vrijgegeven. Mogelijk is deze al vrijgegeven of verlopen; gebruik anders de bestelactie \"Klarna: Reservering annuleren\" om deze vrij te geven."
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:617
-msgid "Klarna: Check capture status"
-msgstr "Klarna: Status van inning controleren"
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:624
-msgid "Klarna: Cancel reservation"
-msgstr "Klarna: Reservering annuleren"
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:627
-msgid "Klarna: Retry capture"
-msgstr "Klarna: Inning opnieuw proberen"
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:135
-msgid "Klarna payment authorized. The order contains only digital products, so it was completed and the payment is being collected now."
-msgstr "Klarna-betaling geautoriseerd. De bestelling bevat alleen digitale producten en is daarom voltooid; de betaling wordt nu geïnd."
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:139
-msgid "Klarna payment authorized. The order contains only digital products and was completed, but the payment could not be collected automatically: check the order notes and capture it from this order."
-msgstr "Klarna-betaling geautoriseerd. De bestelling bevat alleen digitale producten en is voltooid, maar de betaling kon niet automatisch worden geïnd: controleer de bestelnotities en int de betaling vanuit deze bestelling."
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:143
-msgid "Klarna payment authorized, but not collected yet. Set the order to Completed after shipping to collect the payment."
-msgstr "Klarna-betaling geautoriseerd, maar nog niet geïnd. Zet de bestelling na verzending op Voltooid om de betaling te innen."
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:146
-msgid "Klarna payment authorized, but not collected yet. Automatic capture is off: capture the payment from this order after shipping."
-msgstr "Klarna-betaling geautoriseerd, maar nog niet geïnd. Automatisch innen staat uit: int de betaling na verzending vanuit deze bestelling."
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Saved. Enter a new value only to replace it."
+msgstr "Opgeslagen. Vul alleen een nieuwe waarde in om deze te vervangen."

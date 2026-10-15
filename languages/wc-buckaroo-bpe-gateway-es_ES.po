@@ -1442,3 +1442,7 @@ msgstr "Se requiere %s para activar este método de pago en el modo de transacci
 #: src/Gateways/AbstractPaymentGateway.php:682
 msgid "Not configured"
 msgstr "Sin configurar"
+
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Saved. Enter a new value only to replace it."
+msgstr "Guardado. Introduzca un valor nuevo solo para reemplazarlo."

@@ -1498,42 +1498,6 @@ msgstr ""
 msgid "Sends the customer address to PayPal, needed for seller protection."
 msgstr ""
 
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:183
-msgid "The Klarna authorization was not released automatically because a capture was already made or is in progress. Use the \"Klarna: Cancel reservation\" order action to release what is left."
-msgstr ""
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:198
-msgid "The Klarna authorization was released because the order was cancelled."
-msgstr ""
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:199
-msgid "The Klarna authorization could not be released automatically. It may already have been released or expired; otherwise use the \"Klarna: Cancel reservation\" order action to release it."
-msgstr ""
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:617
-msgid "Klarna: Check capture status"
-msgstr ""
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:624
-msgid "Klarna: Cancel reservation"
-msgstr ""
-
-#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:627
-msgid "Klarna: Retry capture"
-msgstr ""
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:135
-msgid "Klarna payment authorized. The order contains only digital products, so it was completed and the payment is being collected now."
-msgstr ""
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:139
-msgid "Klarna payment authorized. The order contains only digital products and was completed, but the payment could not be collected automatically: check the order notes and capture it from this order."
-msgstr ""
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:143
-msgid "Klarna payment authorized, but not collected yet. Set the order to Completed after shipping to collect the payment."
-msgstr ""
-
-#: src/Gateways/Klarna/KlarnaPushProcessor.php:146
-msgid "Klarna payment authorized, but not collected yet. Automatic capture is off: capture the payment from this order after shipping."
+#: src/Gateways/AbstractPaymentGateway.php
+msgid "Saved. Enter a new value only to replace it."
 msgstr ""
