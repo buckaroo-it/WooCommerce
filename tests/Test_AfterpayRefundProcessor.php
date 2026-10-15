@@ -154,6 +154,7 @@ class Test_AfterpayRefundProcessor extends TestCase
         $product = $this->createMock(\Buckaroo\Woocommerce\Order\OrderItem::class);
         $product->method('get_id')->willReturn(42);
         $product->method('get_title')->willReturn('Widget');
+        $product->method('get_unit_price')->willReturn(12.50);
         $product->method('get_vat')->willReturn(21.0);
 
         $processor = $this->getMockBuilder(AfterpayNewRefundProcessor::class)

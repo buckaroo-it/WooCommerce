@@ -423,6 +423,8 @@ class Test_KlarnaAuthorizedOrderStatus extends TestCase
             'role' => 'shop_manager',
         ]);
         $this->userIds[] = $userId;
+        // The test install does not run the WooCommerce role setup, so grant the capability directly.
+        get_user_by('id', $userId)->add_cap('edit_shop_orders');
 
         return $userId;
     }
