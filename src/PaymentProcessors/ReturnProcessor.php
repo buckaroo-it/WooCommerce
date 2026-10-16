@@ -10,6 +10,7 @@ use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
+use Buckaroo\Woocommerce\Services\LoggerStorage;
 use Exception;
 use WC_Order;
 
@@ -36,7 +37,7 @@ class ReturnProcessor
 
         $_SESSION['buckaroo_response'] = '';
 
-        Logger::log(__METHOD__, var_export($_SERVER, true));
+        Logger::log(__METHOD__, LoggerStorage::request_context());
         Logger::log(__METHOD__, $responseParser);
 
         $orderId = $this->getOrderId($responseParser);
