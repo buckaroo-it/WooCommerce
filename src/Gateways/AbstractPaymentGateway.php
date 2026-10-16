@@ -30,9 +30,6 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 {
     public const PAYMENT_CLASS = null;
 
-    /** Settings save callbacks indexed by gateway ID. */
-    private static array $settingsSaveHandlers = [];
-
     /** Required credential keys mapped to "always" or "live". */
     protected const REQUIRED_CREDENTIALS = [];
 
@@ -628,14 +625,11 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
         $this->notify_url = home_url('/');
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            // WP-53: the registry and WooCommerce both instantiate gateways.
-            // Keep one save callback so settings and validation run once.
             $saveHook = 'woocommerce_update_options_payment_gateways_' . $this->id;
-            if (isset(self::$settingsSaveHandlers[$this->id])) {
-                remove_action($saveHook, self::$settingsSaveHandlers[$this->id]);
+            // The plugin registry and WooCommerce both create this gateway; save once.
+            if (! has_action($saveHook)) {
+                add_action($saveHook, [$this, 'process_admin_options']);
             }
-            self::$settingsSaveHandlers[$this->id] = [$this, 'process_admin_options'];
-            add_action($saveHook, self::$settingsSaveHandlers[$this->id]);
 
             add_action(
                 'woocommerce_api_' . strtolower(wc_clean($class)),
