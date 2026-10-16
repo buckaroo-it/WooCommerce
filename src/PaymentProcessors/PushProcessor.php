@@ -13,6 +13,7 @@ use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
+use Buckaroo\Woocommerce\Services\LoggerStorage;
 use Buckaroo\Woocommerce\Services\NamedLock;
 use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use RuntimeException;
@@ -296,7 +297,7 @@ class PushProcessor
 
         $responseParser = ResponseRegistry::getResponseFromRequest();
 
-        Logger::log(__METHOD__, var_export($_SERVER, true));
+        Logger::log(__METHOD__, LoggerStorage::request_context());
         Logger::log(__METHOD__, $responseParser);
 
         $order_id = $responseParser->getRealOrderId() ?: $responseParser->getOrderNumber() ?: $responseParser->getInvoice();
