@@ -140,7 +140,9 @@ class Test_CombinedPaymentFee extends WP_UnitTestCase
             \Buckaroo\Woocommerce\Gateways\Ideal\IdealGateway::class,
             \Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway::class,
         ] as $gatewayClass) {
+            // The plugin registry and WooCommerce each create a gateway instance.
             $gateway = new $gatewayClass();
+            new $gatewayClass();
             update_option($gateway->get_option_key(), ['extrachargeamount' => '2.50']);
             $before = $_POST;
             $errors = new ReflectionProperty(WC_Admin_Settings::class, 'errors');
@@ -154,18 +156,16 @@ class Test_CombinedPaymentFee extends WP_UnitTestCase
                 $gateway->get_field_key('title') => 'Updated title',
             ];
             try {
-                $gateway->process_admin_options();
+                do_action('woocommerce_update_options_payment_gateways_' . $gateway->id);
                 $loaded = new $gatewayClass();
                 $saved = get_option($gateway->get_option_key());
                 $this->assertSame($valid ? trim((string) $raw) : '2.50', $saved['extrachargeamount']);
                 $this->assertSame('Updated title', $loaded->get_option('title'));
-                $this->assertCount($valid ? 0 : 1, $gateway->get_errors());
+                ob_start();
+                WC_Admin_Settings::show_messages();
+                $notice = ob_get_clean();
+                $this->assertSame($valid ? 0 : 1, substr_count($notice, 'Invalid payment fee.'));
                 if (! $valid) {
-                    $this->assertStringContainsString('Invalid payment fee.', $gateway->get_errors()[0]);
-                    ob_start();
-                    WC_Admin_Settings::show_messages();
-                    $notice = ob_get_clean();
-                    $this->assertStringContainsString('Invalid payment fee.', $notice);
                     $this->assertStringContainsString('0.25 + 1.5%', $notice);
                 }
             } finally {

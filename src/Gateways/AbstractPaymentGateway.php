@@ -625,10 +625,11 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
         $this->notify_url = home_url('/');
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action(
-                'woocommerce_update_options_payment_gateways_' . $this->id,
-                [$this, 'process_admin_options']
-            );
+            $saveHook = 'woocommerce_update_options_payment_gateways_' . $this->id;
+            // The plugin registry and WooCommerce both create this gateway; save once.
+            if (! has_action($saveHook)) {
+                add_action($saveHook, [$this, 'process_admin_options']);
+            }
 
             add_action(
                 'woocommerce_api_' . strtolower(wc_clean($class)),
