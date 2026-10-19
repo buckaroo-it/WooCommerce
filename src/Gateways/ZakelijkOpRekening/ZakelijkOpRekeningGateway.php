@@ -143,6 +143,11 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
      */
     public function process_payment($order_id)
     {
+        $rejected = $this->rejectIneligibleOrder($order_id);
+        if ($rejected !== null) {
+            return $rejected;
+        }
+
         try {
             $processor = $this->newPaymentProcessorInstance($order_id);
 

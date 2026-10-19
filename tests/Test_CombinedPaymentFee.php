@@ -216,6 +216,8 @@ class Test_CombinedPaymentFee extends WP_UnitTestCase
     {
         if (! WC()->session) { WC()->initialize_session(); }
         if (! WC()->customer) { WC()->customer = new WC_Customer(0, true); }
+        $currency = get_option('woocommerce_currency');
+        update_option('woocommerce_currency', 'EUR');
         $original = WC()->cart;
         WC()->cart = new WC_Cart();
         $product = new WC_Product_Simple();
@@ -249,6 +251,7 @@ class Test_CombinedPaymentFee extends WP_UnitTestCase
             WC()->cart = $original;
             $product->delete(true);
             $coupon->delete(true);
+            update_option('woocommerce_currency', $currency);
         }
     }
 
