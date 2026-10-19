@@ -26,20 +26,19 @@ $country = $this->getScalarCheckoutField('billing_country');
     <?php
     // Gender selection removed from checkout to reduce friction; the gateway
     // always sends "Unknown" for the mandatory Klarna gender/salutation parameter.
-    ?>
 
-    <p class="form-row validate-required">
-        <label for="<?php echo esc_attr($this->getKlarnaSelector()); ?>-phone">
-            <?php esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway'); ?>
-            <span class="required">*</span>
-        </label>
-        <input id="<?php echo esc_attr($this->getKlarnaSelector()); ?>-phone"
-        name="<?php echo esc_attr($this->getKlarnaSelector()); ?>-phone"
-        class="input-tel"
-        type="tel"
-        autocomplete="off"
-        value="<?php echo esc_html($customerPhone) ?? ''; ?>">
-    </p>
+    woocommerce_form_field(
+        $this->getKlarnaSelector() . '-phone',
+        [
+            'type' => 'tel',
+            'label' => __('Phone:', 'wc-buckaroo-bpe-gateway'),
+            'required' => true,
+            'autocomplete' => 'off',
+            'class' => ['form-row-wide'],
+        ],
+        $customerPhone
+    );
+    ?>
 
     <?php if (! empty($this->getScalarCheckoutField('ship_to_different_address'))) { ?>
     <input
@@ -49,8 +48,4 @@ $country = $this->getScalarCheckoutField('billing_country');
     type="hidden"
     value="1" />
     <?php } ?>
-
-    <p class="required" style="float:right;">*
-        <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
-    </p>
 </fieldset>

@@ -6,6 +6,7 @@ import AfterPayB2B from '../partials/buckaroo_afterpay_b2b';
 import PhoneDropdown from '../partials/buckaroo_phone';
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
+import { CheckboxField } from '../components/CheckoutFields';
 
 function AfterPayView({ onStateChange, methodName, gateway: { type, b2b }, billing, locale }) {
     const initialState = {
@@ -51,17 +52,12 @@ function AfterPayView({ onStateChange, methodName, gateway: { type, b2b }, billi
 
             {b2b === 'enable' && type === 'afterpaydigiaccept' && (
                 <div>
-                    <div className="form-row form-row-wide validate-required">
-                        <label htmlFor="buckaroo-afterpay-b2b">
-                            {__('Checkout for company', 'wc-buckaroo-bpe-gateway')}
-                            <input
-                                id="buckaroo-afterpay-b2b"
-                                name="buckaroo-afterpay-b2b"
-                                type="checkbox"
-                                onChange={handleAdditionalCheckboxChange}
-                            />
-                        </label>
-                    </div>
+                    <CheckboxField
+                        id="buckaroo-afterpay-b2b"
+                        label={__('Checkout for company', 'wc-buckaroo-bpe-gateway')}
+                        checked={isAdditionalCheckboxChecked}
+                        onChange={handleAdditionalCheckboxChange}
+                    />
                     {isAdditionalCheckboxChecked && <AfterPayB2B handleChange={handleChange} />}
                 </div>
             )}

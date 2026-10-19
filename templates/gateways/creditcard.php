@@ -34,21 +34,26 @@ if (! $show_required) {
 ?>
 
 <fieldset class="buckaroo-creditcard-fieldset">
-    <?php if ($creditCardMethod == 'redirect' && $this->id === 'buckaroo_creditcard') { ?>
-        <p class="form-row form-row-wide">
-            <select
-                name='<?php echo esc_attr($this->id); ?>-creditcard-issuer'
-                id='buckaroo-creditcard-issuer'>
-                <option value='0' style='color: grey !important'>
-                    <?php esc_html_e('Select your credit card:', 'wc-buckaroo-bpe-gateway'); ?>
-                </option>
-                <?php foreach ($this->getCheckoutCardsList() as $issuer) { ?>
-                    <option value='<?php echo esc_attr($issuer['servicename']); ?>'>
-                        <?php esc_html_e($issuer['displayname'], 'wc-buckaroo-bpe-gateway'); ?>
-                    </option>
-                <?php } ?>
-            </select>
-        </p>
+    <?php
+    if ($creditCardMethod == 'redirect' && $this->id === 'buckaroo_creditcard') {
+        // An empty value marks the placeholder, so WooCommerce's required check flags it.
+        $cardOptions = ['' => __('Select your credit card:', 'wc-buckaroo-bpe-gateway')];
+        foreach ($this->getCheckoutCardsList() as $issuer) {
+            $cardOptions[$issuer['servicename']] = __($issuer['displayname'], 'wc-buckaroo-bpe-gateway');
+        }
+
+        woocommerce_form_field(
+            $this->id . '-creditcard-issuer',
+            [
+                'type' => 'select',
+                'id' => 'buckaroo-creditcard-issuer',
+                'label' => __('Credit Card:', 'wc-buckaroo-bpe-gateway'),
+                'required' => true,
+                'options' => $cardOptions,
+                'class' => ['form-row-wide'],
+            ]
+        );
+        ?>
     <?php } else { ?>
         <input
             type="hidden"
@@ -62,7 +67,7 @@ if (! $show_required) {
         <div class="form-row form-row-wide validate-required">
             <label id="<?php echo esc_attr($this->id); ?>-name-label" class="buckaroo-label">
                 <?php esc_html_e('Cardholder Name:', 'wc-buckaroo-bpe-gateway'); ?>
-                <span class="required">*</span>
+                <span class="required" aria-hidden="true">*</span>
             </label>
             <div id="<?php echo esc_attr($this->id); ?>-name-wrapper" class="cardHolderName input-text"></div>
             <div id="<?php echo esc_attr($this->id); ?>-name-error" class="input-error"></div>
@@ -71,7 +76,7 @@ if (! $show_required) {
         <div class="form-row form-row-wide validate-required">
             <label id="<?php echo esc_attr($this->id); ?>-number-label" class="buckaroo-label">
                 <?php esc_html_e('Card Number:', 'wc-buckaroo-bpe-gateway'); ?>
-                <span class="required">*</span>
+                <span class="required" aria-hidden="true">*</span>
             </label>
             <div id="<?php echo esc_attr($this->id); ?>-number-wrapper" class="cardNumber input-text"></div>
             <div id="<?php echo esc_attr($this->id); ?>-number-error" class="input-error"></div>
@@ -80,7 +85,7 @@ if (! $show_required) {
         <div class="form-row form-row-first">
             <label id="<?php echo esc_attr($this->id); ?>-expiry-label" class="buckaroo-label">
                 <?php esc_html_e('Expiration Date:', 'wc-buckaroo-bpe-gateway'); ?>
-                <span class="required">*</span>
+                <span class="required" aria-hidden="true">*</span>
             </label>
             <div id="<?php echo esc_attr($this->id); ?>-expiry-wrapper" class="expirationDate input-text"></div>
             <div id="<?php echo esc_attr($this->id); ?>-expiry-error" class="input-error"></div>
@@ -89,7 +94,7 @@ if (! $show_required) {
         <div class="form-row form-row-last">
             <label id="<?php echo esc_attr($this->id); ?>-cvc-label" class="buckaroo-label">
                 <?php esc_html_e('CVC:', 'wc-buckaroo-bpe-gateway'); ?>
-                <span class="required">*</span>
+                <span class="required" aria-hidden="true">*</span>
             </label>
             <div id="<?php echo esc_attr($this->id); ?>-cvc-wrapper" class="cvc input-text"></div>
             <div id="<?php echo esc_attr($this->id); ?>-cvc-error" class="input-error"></div>
@@ -100,13 +105,5 @@ if (! $show_required) {
                 id="<?php echo esc_attr($this->id); ?>-encrypted-data"
                 name="<?php echo esc_attr($this->id); ?>-encrypted-data"
                 class="encryptedCardData input-text">
-    <?php } ?>
-
-
-    <?php if ($show_required) { ?>
-    <p class="form-row form-row-wide validate-required"></p>
-    <p class="required" style="float:right;">*
-        <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
-    </p>
     <?php } ?>
 </fieldset>

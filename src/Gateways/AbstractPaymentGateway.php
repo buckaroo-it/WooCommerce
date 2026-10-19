@@ -802,8 +802,11 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
         do_action('buckaroo_before_render_gateway_template_' . $name, $this);
 
+        // Scopes the plugin's checkout CSS; the fields themselves carry WooCommerce's markup.
+        echo '<div class="buckaroo-checkout-fields">';
         $this->getPaymentTemplate('global');
         $this->getPaymentTemplate($name);
+        echo '</div>';
 
         do_action('buckaroo_after_render_gateway_template_' . $name, $this);
     }

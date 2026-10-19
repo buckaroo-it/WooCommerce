@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
+import { CheckboxField } from '../components/CheckoutFields';
 
 function TermsAndConditionsCheckbox({ paymentMethod, b2b, handleTermsChange, billingData }) {
     const [isChecked, setIsChecked] = useState(false);
@@ -43,22 +44,17 @@ function TermsAndConditionsCheckbox({ paymentMethod, b2b, handleTermsChange, bil
     };
 
     return (
-        <div>
-            <a href={`${termsUrl}`} target="_blank" rel="noreferrer">
-                {labelText}
-            </a>
-            <span className="required">*</span>
-            <input
-                id={`${fieldName}-accept`}
-                name={`${fieldName}-accept`}
-                type="checkbox"
-                checked={isChecked}
-                onChange={handleCheckboxChange}
-            />
-            <p className="required" style={{ float: 'right' }}>
-                *{__('Required', 'wc-buckaroo-bpe-gateway')}
-            </p>
-        </div>
+        <CheckboxField
+            id={`${fieldName}-accept`}
+            label={
+                <a href={`${termsUrl}`} target="_blank" rel="noreferrer">
+                    {labelText}
+                </a>
+            }
+            checked={isChecked}
+            onChange={handleCheckboxChange}
+            required
+        />
     );
 }
 
