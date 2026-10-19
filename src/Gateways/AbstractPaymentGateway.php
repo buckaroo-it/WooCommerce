@@ -48,6 +48,9 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
     public $maxvalue;
 
+    /** Set for merchant actions from the order screen; skips the shopper-facing amount rules. */
+    protected bool $merchantInitiated = false;
+
     public $showpayproc = false;
 
     public $currency;
@@ -911,7 +914,39 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     public function process_payment($order_id)
     {
+        $rejected = $this->rejectIneligibleOrder($order_id);
+        if ($rejected !== null) {
+            return $rejected;
+        }
+
         return (new PayAction($this->newPaymentProcessorInstance($order_id), $order_id))->process();
+    }
+
+    /**
+     * Re-check the amount and currency rules against the order being paid, so a
+     * path that bypassed the available-gateways filter cannot start a payment
+     * with an ineligible method. Returns the failure response, or null to proceed.
+     *
+     * @param  int|string  $order_id
+     */
+    protected function rejectIneligibleOrder($order_id): ?array
+    {
+        if ($this->merchantInitiated) {
+            return null;
+        }
+
+        $order = $order_id ? wc_get_order($order_id) : null;
+        if (! $order instanceof WC_Order || $this->isAllowedForOrder($order)) {
+            return null;
+        }
+
+        Logger::log(__METHOD__ . '|rejected|', [$this->id, $order->get_id()]);
+        wc_add_notice(
+            __('This payment method is not available for this order. Please choose another payment method.', 'wc-buckaroo-bpe-gateway'),
+            'error'
+        );
+
+        return ['result' => 'failure'];
     }
 
     /**
@@ -1286,5 +1321,35 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     {
         return $this->enabled == 'yes' && $this->checkCurrencySupported()
             && static::hasRequiredCredentials($this->settings);
+    }
+
+    /**
+     * Amount and currency rules: supported currency, merchant min/max and any
+     * method-specific isAvailable() range. A zero amount skips the amount checks.
+     */
+    public function isAllowedFor(float $amount, string $currency): bool
+    {
+        if (! in_array($currency, $this->supportedCurrencies, true)) {
+            return false;
+        }
+
+        if ($amount <= 0) {
+            return true;
+        }
+
+        if (! empty($this->maxvalue) && $amount > (float) $this->maxvalue) {
+            return false;
+        }
+
+        if (! empty($this->minvalue) && $amount < (float) $this->minvalue) {
+            return false;
+        }
+
+        return ! method_exists($this, 'isAvailable') || $this->isAvailable($amount);
+    }
+
+    public function isAllowedForOrder(WC_Order $order): bool
+    {
+        return $this->isAllowedFor((float) $order->get_total('edit'), (string) $order->get_currency('edit'));
     }
 }
