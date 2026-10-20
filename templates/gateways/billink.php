@@ -20,42 +20,33 @@ defined('ABSPATH') || exit;
 
 
 <fieldset id="buckaroo_billink_b2b">
-    <p class="form-row form-row-wide validate-required">
+    <p class="form-row form-row-wide">
         <?php esc_html_e('Fill required fields if bill in on the company:', 'wc-buckaroo-bpe-gateway'); ?>
     </p>
-    <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-billink-company-coc-registration">
-            <?php esc_html_e('COC (KvK) number:', 'wc-buckaroo-bpe-gateway'); ?>
-            <span class="required">*</span>
-        </label>
-        
-        <input
-        id="buckaroo-billink-company-coc-registration"
-        name="buckaroo-billink-company-coc-registration"
-        class="input-text"
-        type="text"
-        maxlength="250"
-        autocomplete="off"
-        value="" />
-    </p>
+    <?php
+    woocommerce_form_field(
+        'buckaroo-billink-company-coc-registration',
+        [
+            'type' => 'text',
+            'label' => __('COC (KvK) number:', 'wc-buckaroo-bpe-gateway'),
+            'required' => true,
+            'maxlength' => 250,
+            'autocomplete' => 'off',
+            'class' => ['form-row-wide'],
+        ]
+    );
 
-    <p class="form-row form-row-wide">
-        <label for="buckaroo-billink-VatNumber">
-            <?php esc_html_e('VAT number:', 'wc-buckaroo-bpe-gateway'); ?>
-        </label>
-        <input
-        id="buckaroo-billink-VatNumber"
-        name="buckaroo-billink-VatNumber"
-        class="input-text"
-        type="text"
-        maxlength="250"
-        autocomplete="off"
-        value="" />
-    </p>
-
-    <p class="required" style="float:right;">
-        * <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
-    </p>
+    woocommerce_form_field(
+        'buckaroo-billink-VatNumber',
+        [
+            'type' => 'text',
+            'label' => __('VAT number:', 'wc-buckaroo-bpe-gateway'),
+            'maxlength' => 250,
+            'autocomplete' => 'off',
+            'class' => ['form-row-wide'],
+        ]
+    );
+    ?>
 </fieldset>
 
 <?php if (! empty($this->getScalarCheckoutField('ship_to_different_address'))) { ?>

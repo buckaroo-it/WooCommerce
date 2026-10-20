@@ -23,56 +23,45 @@ $phone = $this->getScalarCheckoutField('billing_phone');
         <?php esc_html_e('Voor iedereen, powered by ABN AMRO. Betaal later.', 'wc-buckaroo-bpe-gateway'); ?>
     </p>
 
-    <?php if (strlen(trim($company)) === 0) { ?>
-    <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-zakelijkoprekening-company">
-            <?php esc_html_e('Company name:', 'wc-buckaroo-bpe-gateway'); ?>
-            <span class="required">*</span>
-        </label>
-        <input
-            id="buckaroo-zakelijkoprekening-company"
-            name="buckaroo-zakelijkoprekening-company"
-            class="input-text"
-            type="text"
-            maxlength="250"
-            autocomplete="organization"
-            value="" />
-    </p>
-    <?php } ?>
+    <?php
+    if (strlen(trim($company)) === 0) {
+        woocommerce_form_field(
+            'buckaroo-zakelijkoprekening-company',
+            [
+                'type' => 'text',
+                'label' => __('Company name:', 'wc-buckaroo-bpe-gateway'),
+                'required' => true,
+                'maxlength' => 250,
+                'autocomplete' => 'organization',
+                'class' => ['form-row-wide'],
+            ]
+        );
+    }
 
-    <?php if (strlen(trim($phone)) === 0) { ?>
-    <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-zakelijkoprekening-phone">
-            <?php esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway'); ?>
-            <span class="required">*</span>
-        </label>
-        <input
-            id="buckaroo-zakelijkoprekening-phone"
-            name="buckaroo-zakelijkoprekening-phone"
-            class="input-tel"
-            type="tel"
-            autocomplete="tel"
-            value="" />
-    </p>
-    <?php } ?>
+    if (strlen(trim($phone)) === 0) {
+        woocommerce_form_field(
+            'buckaroo-zakelijkoprekening-phone',
+            [
+                'type' => 'tel',
+                'label' => __('Phone:', 'wc-buckaroo-bpe-gateway'),
+                'required' => true,
+                'autocomplete' => 'tel',
+                'class' => ['form-row-wide'],
+            ]
+        );
+    }
 
-    <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-zakelijkoprekening-company-coc-registration">
-            <?php esc_html_e('Chamber of Commerce (KvK) number:', 'wc-buckaroo-bpe-gateway'); ?>
-            <span class="required">*</span>
-        </label>
-        <input
-            id="buckaroo-zakelijkoprekening-company-coc-registration"
-            name="buckaroo-zakelijkoprekening-company-coc-registration"
-            class="input-text"
-            type="text"
-            maxlength="14"
-            placeholder="12345678"
-            autocomplete="off"
-            value="" />
-    </p>
-
-    <p class="required" style="float:right;">
-        * <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
-    </p>
+    woocommerce_form_field(
+        'buckaroo-zakelijkoprekening-company-coc-registration',
+        [
+            'type' => 'text',
+            'label' => __('Chamber of Commerce (KvK) number:', 'wc-buckaroo-bpe-gateway'),
+            'placeholder' => '12345678',
+            'required' => true,
+            'maxlength' => 14,
+            'autocomplete' => 'off',
+            'class' => ['form-row-wide'],
+        ]
+    );
+    ?>
 </fieldset>

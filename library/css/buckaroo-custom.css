@@ -6,16 +6,6 @@
     background-color: white;
 }
 
-input[type='password'].error,
-input[type='text'].error {
-    border-color: red;
-}
-
-input[type='password'].validated,
-input[type='text'].validated {
-    border-color: green;
-}
-
 .capture-form {
     background: white;
     background-color: #e4e4e4;
@@ -339,7 +329,7 @@ label.bk-in3-logo img {
 
 /** end in3 logo input **/
 
-/* Style for the select element */
+/* PayByBank issuer select in the Checkout Block. Typography comes from the theme. */
 .buckaroo-custom-select {
     padding: 10px;
     border: 2px solid #aaa;
@@ -349,20 +339,7 @@ label.bk-in3-logo img {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    font-family: Arial, sans-serif;
-    font-size: 16px;
     cursor: pointer;
-}
-
-.buckaroo-custom-select::after {
-    content: '\25BC';
-    position: absolute;
-    top: 50%;
-    right: 15px;
-    transform: translateY(-50%);
-    font-size: 10px;
-    color: #aaa;
-    pointer-events: none;
 }
 
 .buckaroo-custom-select:hover {
@@ -398,8 +375,6 @@ label.bk-in3-logo img {
     padding: 0.75rem;
     border: 1px solid #d1d5db;
     border-radius: 0.25rem;
-    font-size: 1rem;
-    color: #4a5568;
     background-color: #fff;
     outline: none;
     transition: border-color 0.2s ease-in-out;
@@ -420,6 +395,27 @@ label.bk-in3-logo img {
 .woocommerce-page.woocommerce-checkout #payment .buckaroo-creditcard-fieldset div.form-row {
     margin: 0 0 1em;
     padding: 3px;
+}
+
+/* Additional checkout fields use WooCommerce's own field markup and styling; only
+   layout the theme cannot know about lives here. */
+
+/* The templates group their fields in a fieldset. Themes style fieldsets as boxes
+   (Astra: 30px side padding and min-width: min-content), which squeezes the fields
+   and overflows the payment box on mobile; WooCommerce's own payment fields sit
+   directly in the payment box. */
+.buckaroo-checkout-fields fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* react-datepicker wraps the Checkout Block birthdate input in two inline-blocks. */
+.buckaroo-checkout-fields .react-datepicker-wrapper,
+.buckaroo-checkout-fields .react-datepicker__input-container {
+    display: block;
+    width: 100%;
 }
 
 /* -------------------------------------------------------------------------

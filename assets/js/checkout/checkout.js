@@ -14,7 +14,27 @@ class BuckarooCheckout {
         jQuery('body').on('change', 'input[name="payment_method"]', () => {
             jQuery('body').trigger('update_checkout');
         });
+        // WooCommerce restores payment field values after every checkout refresh
+        // and fires `change` on them, which runs its inline validation and marks
+        // every empty required Buckaroo field invalid before the shopper has
+        // touched it. Remember what the shopper did touch so the rest can be reset.
+        const touchedFields = new Set();
+        jQuery('body').on('input change focusout', '.buckaroo-checkout-fields :input', function (e) {
+            if (!e.isTrigger && this.name) {
+                touchedFields.add(this.name);
+            }
+        });
+        // A failed submit validated the selected method's fields on purpose.
+        jQuery('body').on('checkout_error', () => {
+            jQuery('input[name="payment_method"]:checked')
+                .closest('li')
+                .find('.buckaroo-checkout-fields :input[name]')
+                .each(function () {
+                    touchedFields.add(this.name);
+                });
+        });
         jQuery('body').on('updated_checkout', e => {
+            self.resetUntouchedValidation(touchedFields);
             self.afterpay();
             self.afterpaynew();
             self.bilink();
@@ -32,7 +52,7 @@ class BuckarooCheckout {
             self.bilink_toggle(jQuery(this).val());
 
             jQuery('#buckaroo-afterpaynew-company-coc-registration')
-                .parent()
+                .closest('.form-row')
                 .toggle(jQuery.trim(jQuery(this).val()).length !== 0);
         });
 
@@ -42,7 +62,7 @@ class BuckarooCheckout {
         jQuery('body').on('change', '#buckaroo-afterpay-b2b', function () {
             const b2bActive = jQuery(this).is(':checked');
             const birthdate = jQuery('#buckaroo-afterpay-birthdate');
-            const birthdateParent = birthdate.parent();
+            const birthdateParent = birthdate.closest('.form-row');
 
             const gender = jQuery('[name="buckaroo-afterpay-gender"]');
             const genderParent = gender.parent();
@@ -63,11 +83,28 @@ class BuckarooCheckout {
     }
 
     /**
+     * Clear WooCommerce's inline validation state from Buckaroo fields the
+     * shopper has not interacted with yet.
+     *
+     * @param {Set<string>} touchedFields Names of fields the shopper edited
+     */
+    resetUntouchedValidation(touchedFields) {
+        jQuery('.buckaroo-checkout-fields .form-row.woocommerce-invalid').each(function () {
+            const $row = jQuery(this);
+            const name = $row.find(':input').attr('name');
+            if (name && !touchedFields.has(name)) {
+                $row.removeClass('woocommerce-invalid woocommerce-invalid-required-field');
+                $row.find(':input').removeAttr('aria-invalid');
+            }
+        });
+    }
+
+    /**
      * toggle phone number
      */
     afterpay() {
         if (jQuery('input[name=billing_phone]').length) {
-            jQuery('#buckaroo-afterpay-phone').parent().hide();
+            jQuery('#buckaroo-afterpay-phone').closest('.form-row').hide();
         }
     }
 
@@ -76,10 +113,10 @@ class BuckarooCheckout {
      */
     afterpaynew() {
         if (jQuery('input[name=billing_phone]').length) {
-            jQuery('#buckaroo-afterpaynew-phone').parent().hide();
+            jQuery('#buckaroo-afterpaynew-phone').closest('.form-row').hide();
         }
         jQuery('#buckaroo-afterpaynew-company-coc-registration')
-            .parent()
+            .closest('.form-row')
             .toggle(jQuery.trim(jQuery('input[name=billing_company]').val()).length !== 0);
     }
 
@@ -153,7 +190,7 @@ class BuckarooCheckout {
      */
     klarna() {
         if (jQuery('input[name=billing_phone]').length) {
-            jQuery('input[id^="buckaroo-klarna"][type="tel"]').parent().hide();
+            jQuery('input[id^="buckaroo-klarna"][type="tel"]').closest('.form-row').hide();
         }
     }
 }

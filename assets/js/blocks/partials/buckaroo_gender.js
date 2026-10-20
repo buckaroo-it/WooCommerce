@@ -1,5 +1,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
+import { SelectField } from '../components/CheckoutFields';
 
 function GenderDropdown({ paymentMethod, genders, handleChange }) {
     const translateGender = key => {
@@ -15,30 +16,18 @@ function GenderDropdown({ paymentMethod, genders, handleChange }) {
 
     const capitalizeFirstLetter = string => string.charAt(0).toUpperCase() + string.slice(1);
 
-    const genderOptions = Object.entries(genders[paymentMethod]).map(([key, value]) => (
-        <option key={key} value={value}>
-            {translateGender(key)}
-        </option>
-    ));
+    const genderOptions = [
+        { value: '', label: __('Select your Gender', 'wc-buckaroo-bpe-gateway') },
+        ...Object.entries(genders[paymentMethod]).map(([key, value]) => ({ key, value, label: translateGender(key) })),
+    ];
 
     return (
-        <div className={`payment_box payment_method_${paymentMethod}`}>
-            <div className="form-row form-row-wide">
-                <label htmlFor={`${paymentMethod}-gender`}>
-                    {__('Gender:', 'wc-buckaroo-bpe-gateway')}
-                    <span className="required">*</span>
-                </label>
-                <select
-                    className="buckaroo-custom-select"
-                    name={`${paymentMethod}-gender`}
-                    id={`${paymentMethod}-gender`}
-                    onChange={handleChange}
-                >
-                    <option>{__('Select your Gender', 'wc-buckaroo-bpe-gateway')}</option>
-                    {genderOptions}
-                </select>
-            </div>
-        </div>
+        <SelectField
+            id={`${paymentMethod}-gender`}
+            label={__('Gender:', 'wc-buckaroo-bpe-gateway')}
+            options={genderOptions}
+            onChange={handleChange}
+        />
     );
 }
 

@@ -214,13 +214,11 @@ function CreditCard({
     return (
         <div>
             {creditCardMethod === 'redirect' && paymentMethodId === 'buckaroo_creditcard' && (
-                <div className="form-row form-row-wide">
-                    <DefaultDropdown
-                        paymentMethodId={paymentMethodId}
-                        creditCardIssuers={creditCardIssuers}
-                        handleChange={handleChange}
-                    />
-                </div>
+                <DefaultDropdown
+                    paymentMethodId={paymentMethodId}
+                    creditCardIssuers={creditCardIssuers}
+                    handleChange={handleChange}
+                />
             )}
             {isEncryptAndSecure && (
                 <div className="method--bankdata">
@@ -262,11 +260,6 @@ function CreditCard({
                         </label>
                         <div id="cc-cvc-wrapper" className="cvc input-text" />
                         <div id="cc-cvc-error" className="input-error" />
-                    </div>
-
-                    <div className="form-row form-row-wide validate-required"></div>
-                    <div className="required" style={{ textAlign: 'right' }}>
-                        *{__('Required', 'wc-buckaroo-bpe-gateway')}
                     </div>
                 </div>
             )}
