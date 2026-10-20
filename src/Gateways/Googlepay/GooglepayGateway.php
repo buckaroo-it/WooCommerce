@@ -183,14 +183,14 @@ class GooglepayGateway extends AbstractPaymentGateway
         $order = wc_create_order();
 
         try {
-            $wc_methods = ExpressProductCart::calculateItems(
+            $shipping_rate = ExpressProductCart::calculateItems(
                 $items,
                 'buckaroo_googlepay',
-                function ($cart) use ($order) {
+                function ($cart) use ($order, $selected_method_id) {
+                    $shipping_rate = ExpressProductCart::selectedShippingRate($cart, $selected_method_id);
                     self::createOrderFromCart($order, $cart);
-                    $packages = WC()->shipping()->get_packages();
 
-                    return $packages ? (current($packages)['rates'] ?? []) : [];
+                    return $shipping_rate;
                 },
                 [
                     'billing' => [
@@ -235,8 +235,8 @@ class GooglepayGateway extends AbstractPaymentGateway
                 $order->set_billing_phone($billingPhone);
             }
 
-            if (! empty($selected_method_id) && isset($wc_methods[$selected_method_id])) {
-                $order->add_shipping($wc_methods[$selected_method_id]);
+            if ($shipping_rate) {
+                ExpressProductCart::addShippingLine($order, $shipping_rate);
             }
 
             $order->set_payment_method($this);
@@ -246,6 +246,7 @@ class GooglepayGateway extends AbstractPaymentGateway
             $order->update_status('pending payment', 'Order created using Google Pay', true);
             wc_update_coupon_usage_counts($order->get_id());
         } catch (Throwable $e) {
+            Logger::log(__METHOD__ . '|fail|', $e->getMessage());
             $order->delete(true);
 
             return false;
