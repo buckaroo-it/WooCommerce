@@ -45,6 +45,8 @@ class Test_ExpressShippingLine extends WP_UnitTestCase
 
         update_option('woocommerce_ship_to_countries', 'all');
         update_option('woocommerce_calc_taxes', 'no');
+        // The wallets only accept EUR orders.
+        update_option('woocommerce_currency', 'EUR');
 
         // A flat rate for every country, from the "locations not covered" zone.
         $instance_id = (new WC_Shipping_Zone(0))->add_shipping_method('flat_rate');

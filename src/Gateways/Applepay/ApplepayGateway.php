@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Applepay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressAvailability;
 use Buckaroo\Woocommerce\Gateways\Express\ExpressSettings;
 use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
 use Buckaroo\Woocommerce\Services\Helper;
@@ -16,6 +17,7 @@ use WC_Shipping_Rate;
 
 class ApplepayGateway extends AbstractPaymentGateway
 {
+    use ExpressAvailability;
     use ExpressSettings;
 
     public const PAYMENT_CLASS = ApplepayProcessor::class;
@@ -118,6 +120,10 @@ class ApplepayGateway extends AbstractPaymentGateway
             )
         ) {
             $this->error_response('Invalid billing address format.');
+        }
+
+        if (! $this->isExpressCheckoutAllowed($items)) {
+            $this->error_response($this->expressUnavailableMessage());
         }
 
         $this->CustomerCardName = implode(
@@ -235,6 +241,10 @@ class ApplepayGateway extends AbstractPaymentGateway
                     ]);
                     throw new \UnexpectedValueException('Apple Pay amount does not match the WooCommerce order total.');
                 }
+            }
+
+            if (! $this->isAllowedForOrder($order)) {
+                throw new \UnexpectedValueException('Apple Pay is not available for this order.');
             }
 
             $order->update_status('pending payment', 'Order created using Apple Pay', true);
