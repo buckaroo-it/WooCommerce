@@ -12,7 +12,7 @@ use WC_Order;
 use WC_Order_Item_Coupon;
 use WC_Order_Item_Fee;
 use WC_Order_Item_Product;
-use WC_Order_Item_Shipping;
+use WC_Shipping_Rate;
 
 class ApplepayGateway extends AbstractPaymentGateway
 {
@@ -173,10 +173,8 @@ class ApplepayGateway extends AbstractPaymentGateway
                 $items,
                 'buckaroo_applepay',
                 function ($cart) use ($order, $selected_method_id) {
-                    $wc_methods = self::getShippingRatesForCart();
-                    self::createOrderFromCart($order, $cart, $wc_methods, $selected_method_id);
-
-                    return $wc_methods;
+                    $shipping_rate = ExpressProductCart::selectedShippingRate($cart, $selected_method_id);
+                    self::createOrderFromCart($order, $cart, $shipping_rate);
                 },
                 [
                     'billing' => [
@@ -257,12 +255,14 @@ class ApplepayGateway extends AbstractPaymentGateway
         ];
     }
 
-    private static function createOrderFromCart($order, $cart, array $wc_methods, $selected_method_id)
+    private static function createOrderFromCart($order, $cart, ?WC_Shipping_Rate $shipping_rate)
     {
         self::createOrderLineItems($order, $cart);
         self::createOrderFeeLines($order, $cart);
         self::createOrderCouponLines($order, $cart);
-        self::createOrderShippingLine($order, $wc_methods, $selected_method_id);
+        if ($shipping_rate) {
+            ExpressProductCart::addShippingLine($order, $shipping_rate);
+        }
         self::createOrderTaxLines($order, $cart);
     }
 
@@ -367,49 +367,6 @@ class ApplepayGateway extends AbstractPaymentGateway
         if (is_callable([$checkout, 'create_order_tax_lines'])) {
             $checkout->create_order_tax_lines($order, $cart);
         }
-    }
-
-    private static function createOrderShippingLine($order, array $wc_methods, $selected_method_id)
-    {
-        if (empty($selected_method_id)) {
-            return;
-        }
-
-        if (
-            ! isset($wc_methods[$selected_method_id])
-            || ! $wc_methods[$selected_method_id] instanceof \WC_Shipping_Rate
-        ) {
-            Logger::log(__METHOD__ . '|missing shipping rate|', $selected_method_id);
-
-            return;
-        }
-
-        $rate = $wc_methods[$selected_method_id];
-        $shippingItem = new WC_Order_Item_Shipping();
-        $shippingItem->set_props([
-            'method_title' => $rate->get_label(),
-            'method_id' => $rate->get_method_id(),
-            'instance_id' => $rate->get_instance_id(),
-            'total' => wc_format_decimal($rate->get_cost()),
-            'taxes' => [
-                'total' => $rate->get_taxes(),
-            ],
-            'tax_status' => $rate->get_tax_status(),
-        ]);
-
-        foreach ($rate->get_meta_data() as $key => $value) {
-            $shippingItem->add_meta_data($key, $value, true);
-        }
-
-        do_action('woocommerce_checkout_create_order_shipping_item', $shippingItem, 0, [], $order);
-        $order->add_item($shippingItem);
-    }
-
-    private static function getShippingRatesForCart(): array
-    {
-        $packages = WC()->shipping()->get_packages();
-
-        return $packages ? (current($packages)['rates'] ?? []) : [];
     }
 
     private static function orderAddresses($address)
