@@ -32,6 +32,8 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
         WC()->cart->empty_cart(false);
         wc_clear_notices();
         $_GET = [];
+        // The wallets only accept EUR orders.
+        update_option('woocommerce_currency', 'EUR');
     }
 
     protected function tearDown(): void
@@ -564,7 +566,11 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
     public function test_rejected_google_pay_amount_releases_coupon_usage(): void
     {
         update_option('woocommerce_buckaroo_mastersettings_settings', ['culture' => 'en-US']);
-        update_option('woocommerce_buckaroo_googlepay_settings', ['extrachargeamount' => '0.25 + 1.5%']);
+        update_option('woocommerce_buckaroo_googlepay_settings', [
+            'enabled' => 'yes',
+            'merchant_guid' => 'test-guid',
+            'extrachargeamount' => '0.25 + 1.5%',
+        ]);
         $productId = $this->createSimpleProduct('Amount validation', '15.00');
         WC()->cart->add_to_cart($productId);
         $coupon = new WC_Coupon();

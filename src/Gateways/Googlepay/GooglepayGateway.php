@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Googlepay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressAvailability;
 use Buckaroo\Woocommerce\Gateways\Express\ExpressSettings;
 use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
 use Buckaroo\Woocommerce\Services\Helper;
@@ -14,6 +15,7 @@ use WC_Order_Item_Product;
 
 class GooglepayGateway extends AbstractPaymentGateway
 {
+    use ExpressAvailability;
     use ExpressSettings;
 
     public const PAYMENT_CLASS = GooglepayProcessor::class;
@@ -114,6 +116,10 @@ class GooglepayGateway extends AbstractPaymentGateway
             )
         ) {
             $this->error_response('Invalid billing address format.');
+        }
+
+        if (! $this->isExpressCheckoutAllowed($items)) {
+            $this->error_response($this->expressUnavailableMessage());
         }
 
         $this->CustomerCardName = $this->resolveCustomerName(
@@ -243,6 +249,11 @@ class GooglepayGateway extends AbstractPaymentGateway
             $this->setOrderContribution($order);
 
             $order->calculate_totals();
+
+            if (! $this->isAllowedForOrder($order)) {
+                throw new \UnexpectedValueException('Google Pay is not available for this order.');
+            }
+
             $order->update_status('pending payment', 'Order created using Google Pay', true);
             wc_update_coupon_usage_counts($order->get_id());
         } catch (Throwable $e) {
