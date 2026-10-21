@@ -96,9 +96,14 @@ class KlarnaPushProcessor
         $order->add_meta_data('buckaroo_is_reserved', 'yes', true);
         $order->update_meta_data(self::RESERVATION_PUSH_META_KEY, 'yes');
         $order->update_meta_data('_wc_order_authorized', 'yes');
+        // A reservation push can carry a zero amount; the reservation covers the order total then.
+        $reservedAmount = $responseParser->getAmount();
+        if ($reservedAmount === null || $reservedAmount <= 0) {
+            $reservedAmount = (float) $order->get_total('edit');
+        }
         $order->update_meta_data(
             KlarnaProcessor::RESERVED_AMOUNT_META_KEY,
-            number_format($responseParser->getAmount() ?? $order->get_total('edit'), 2, '.', '')
+            number_format($reservedAmount, 2, '.', '')
         );
 
         $dataRequestKey = $responseParser->getDataRequest();
@@ -327,10 +332,7 @@ class KlarnaPushProcessor
                 __('Klarna capture success could not be finalized in the attempt ledger.', 'wc-buckaroo-bpe-gateway')
             );
         }
-        $reservedAmount = OrderMeta::get($order, KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
-        $captureTarget = is_numeric($reservedAmount)
-            ? (float) $reservedAmount
-            : (float) $order->get_total('edit');
+        $captureTarget = KlarnaProcessor::getReservedAmount($order) ?? (float) $order->get_total('edit');
         $capturedAmount = (float) OrderMeta::get($order, '_wc_order_amount_captured');
         if (Helper::roundAmount($capturedAmount) >= Helper::roundAmount($captureTarget)) {
             $order->payment_complete($transactionKey);

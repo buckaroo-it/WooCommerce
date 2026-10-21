@@ -266,6 +266,30 @@ class Test_KlarnaCaptureOperation extends TestCase
         $this->assertFileExists(dirname(__DIR__) . '/src/Gateways/Klarna/KlarnaCaptureAttempt.php');
     }
 
+    public function test_a_zero_reserved_amount_does_not_block_capturing_the_order_total(): void
+    {
+        $order = $this->createReservedOrder(12.50, 2);
+        $order->update_meta_data(KlarnaProcessor::RESERVED_AMOUNT_META_KEY, '0.00');
+        $order->save();
+        $item = current($order->get_items('line_item'));
+        $buckarooClient = new InMemoryBuckarooClient($this->successfulResponse('PAY-ZERO-RESERVED'));
+
+        $result = (new KlarnaPayGateway())->capture(
+            wc_get_order($order->get_id()),
+            25.00,
+            CaptureAllocation::fromArrays(
+                [$item->get_id() => 2],
+                [$item->get_id() => 25.00],
+                [$item->get_id() => []]
+            ),
+            $buckarooClient
+        );
+
+        $this->assertTrue($result->isSuccess(), $result->getMessage());
+        $this->assertSame(1, $buckarooClient->sendCount);
+        $this->assertSame('25.00', $buckarooClient->payload['amountDebit']);
+    }
+
     public function test_manual_capture_uses_the_same_remaining_allocation_as_automatic_capture(): void
     {
         $order = $this->createReservedOrder(12.50, 2);

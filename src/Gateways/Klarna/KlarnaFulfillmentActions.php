@@ -94,8 +94,8 @@ class KlarnaFulfillmentActions
             return;
         }
 
-        $reservedAmount = $order->get_meta(KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
-        if (! is_numeric($reservedAmount)) {
+        $reservedAmount = KlarnaProcessor::getReservedAmount($order);
+        if ($reservedAmount === null) {
             $order->add_order_note(
                 __('Automatic Klarna capture was skipped because the reserved amount is unknown.', 'wc-buckaroo-bpe-gateway')
             );
@@ -636,10 +636,9 @@ class KlarnaFulfillmentActions
             return;
         }
 
-        $reservedAmount = $order->get_meta(KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
         $allocation = CaptureAllocation::remainingForOrder(
             $order,
-            is_numeric($reservedAmount) ? (float) $reservedAmount : null
+            KlarnaProcessor::getReservedAmount($order)
         );
         $attempt = KlarnaCaptureAttempt::retry($order, $allocation);
         if ($attempt === null) {
