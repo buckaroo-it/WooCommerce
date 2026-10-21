@@ -997,7 +997,37 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             );
         }
 
+        $this->setCaptureNotice($order, $capture_amount, $result);
+
         return $result->toAjaxResponse();
+    }
+
+    /**
+     * Shown on the order page that reloads after a successful capture.
+     */
+    private function setCaptureNotice(WC_Order $order, $amount, CaptureResult $result): void
+    {
+        $formattedAmount = number_format((float) $amount, 2, '.', '') . ' ' . $order->get_currency();
+
+        if ($result->isSuccess()) {
+            $message = sprintf(
+                __('Captured %1$s for order #%2$s.', 'wc-buckaroo-bpe-gateway'),
+                $formattedAmount,
+                $order->get_order_number()
+            );
+            $type = 'success';
+        } elseif ($result->getStatus() === CaptureResult::PENDING) {
+            $message = sprintf(
+                __('Capture of %1$s for order #%2$s was requested and is awaiting confirmation from Buckaroo.', 'wc-buckaroo-bpe-gateway'),
+                $formattedAmount,
+                $order->get_order_number()
+            );
+            $type = 'info';
+        } else {
+            return;
+        }
+
+        set_transient(get_current_user_id() . 'buckarooAdminNotice', ['type' => $type, 'message' => $message]);
     }
 
     protected function executeCapture(

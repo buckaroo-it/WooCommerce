@@ -195,6 +195,32 @@ class Test_KlarnaCaptureOperation extends TestCase
         $this->assertSame('15.00', $buckarooClient->payload['amountDebit']);
     }
 
+    public function test_a_successful_manual_capture_leaves_a_success_notice_for_the_reloaded_page(): void
+    {
+        $order = $this->createReservedOrder(15.00, 1);
+        $item = current($order->get_items('line_item'));
+        $gateway = new TestableKlarnaPayGateway(new InMemoryBuckarooClient($this->successfulResponse('PAY-NOTICE')));
+        $noticeKey = get_current_user_id() . 'buckarooAdminNotice';
+        delete_transient($noticeKey);
+        $_POST = [
+            'capture_amount' => '15.00',
+            'line_item_qtys' => wp_json_encode([$item->get_id() => 1]),
+            'line_item_totals' => wp_json_encode([$item->get_id() => 15.00]),
+            'line_item_tax_totals' => wp_json_encode([$item->get_id() => []]),
+        ];
+
+        $gateway->process_capture($order->get_id());
+
+        $this->assertSame(
+            [
+                'type' => 'success',
+                'message' => sprintf('Captured 15.00 EUR for order #%s.', $order->get_order_number()),
+            ],
+            get_transient($noticeKey)
+        );
+        delete_transient($noticeKey);
+    }
+
     public function test_pending_capture_for_an_unrelated_gateway_is_not_reported_as_successful(): void
     {
         $order = $this->createReservedOrder(15.00, 1);
