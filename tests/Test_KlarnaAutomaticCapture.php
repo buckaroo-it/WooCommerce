@@ -97,6 +97,22 @@ class Test_KlarnaAutomaticCapture extends TestCase
         );
     }
 
+    public function test_completed_transition_queues_the_order_total_when_the_reserved_amount_is_zero(): void
+    {
+        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'yes']);
+        $order = $this->createReservedOrder();
+        $order->update_meta_data(KlarnaProcessor::RESERVED_AMOUNT_META_KEY, '0.00');
+        $order->save();
+        new KlarnaFulfillmentActions();
+
+        wc_get_order($order->get_id())->update_status('completed');
+
+        $attempts = KlarnaCaptureAttempt::all(wc_get_order($order->get_id()));
+        $this->assertCount(1, $attempts);
+        $this->assertSame('queued', $attempts[0]['state']);
+        $this->assertSame('25.00', $attempts[0]['amount']);
+    }
+
     public function test_background_hook_claims_and_captures_a_completed_order_once(): void
     {
         update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'yes']);
