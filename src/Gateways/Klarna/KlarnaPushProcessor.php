@@ -368,12 +368,9 @@ class KlarnaPushProcessor
             return true;
         }
 
+        $unresolvedStates = [KlarnaCaptureAttempt::IN_PROGRESS, CaptureResult::PENDING, CaptureResult::UNKNOWN];
         foreach (KlarnaCaptureAttempt::all($order) as $attempt) {
-            if (in_array(
-                $attempt['state'] ?? '',
-                [KlarnaCaptureAttempt::IN_PROGRESS, CaptureResult::PENDING, CaptureResult::UNKNOWN],
-                true
-            )) {
+            if (in_array($attempt['state'] ?? '', $unresolvedStates, true)) {
                 return false;
             }
         }
