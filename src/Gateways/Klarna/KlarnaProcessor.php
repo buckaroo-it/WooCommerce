@@ -6,12 +6,29 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\Services\CultureCodeResolver;
+use WC_Order;
 
 class KlarnaProcessor extends AbstractPaymentProcessor
 {
     public const DATA_REQUEST_META_KEY = '_buckaroo_klarna_data_request_key';
 
     public const RESERVED_AMOUNT_META_KEY = '_buckaroo_klarna_reserved_amount';
+
+    /**
+     * The reserved amount, or null when it was never stored. A Klarna reservation is
+     * never for zero, so a stored non-positive amount (from a reservation push that
+     * carried no amount) falls back to the order total instead of blocking capture.
+     */
+    public static function getReservedAmount(WC_Order $order): ?float
+    {
+        $reservedAmount = OrderMeta::get($order, self::RESERVED_AMOUNT_META_KEY);
+
+        if (! is_numeric($reservedAmount)) {
+            return null;
+        }
+
+        return (float) $reservedAmount > 0 ? (float) $reservedAmount : (float) $order->get_total('edit');
+    }
 
     public function determineCulture(): string
     {

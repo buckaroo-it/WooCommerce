@@ -313,10 +313,9 @@ class KlarnaCaptureAttempt
             return false;
         }
 
-        $reservedAmount = $order->get_meta('_buckaroo_klarna_reserved_amount');
         $remaining = CaptureAllocation::remainingForOrder(
             $order,
-            is_numeric($reservedAmount) ? (float) $reservedAmount : null
+            KlarnaProcessor::getReservedAmount($order)
         );
 
         return $remaining->getAmount() > 0;

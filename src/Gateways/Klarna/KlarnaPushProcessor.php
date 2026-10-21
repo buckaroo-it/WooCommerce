@@ -8,7 +8,6 @@ use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
-use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\NamedLock;
 use RuntimeException;
 use WC_Order;
@@ -96,9 +95,14 @@ class KlarnaPushProcessor
         $order->add_meta_data('buckaroo_is_reserved', 'yes', true);
         $order->update_meta_data(self::RESERVATION_PUSH_META_KEY, 'yes');
         $order->update_meta_data('_wc_order_authorized', 'yes');
+        // A reservation push can carry a zero amount; the reservation covers the order total then.
+        $reservedAmount = $responseParser->getAmount();
+        if ($reservedAmount === null || $reservedAmount <= 0) {
+            $reservedAmount = (float) $order->get_total('edit');
+        }
         $order->update_meta_data(
             KlarnaProcessor::RESERVED_AMOUNT_META_KEY,
-            number_format($responseParser->getAmount() ?? $order->get_total('edit'), 2, '.', '')
+            number_format($reservedAmount, 2, '.', '')
         );
 
         $dataRequestKey = $responseParser->getDataRequest();
@@ -189,7 +193,7 @@ class KlarnaPushProcessor
         $transactionKey = (string) $responseParser->getTransactionKey();
         $attempt = self::findCaptureAttempt($order, $responseParser, $transactionKey);
         if ($attempt === null) {
-            return false;
+            return self::recordExternalCapture($order, $responseParser, $transactionKey);
         }
 
         $attemptNumber = (int) $attempt['attempt_number'];
@@ -327,19 +331,82 @@ class KlarnaPushProcessor
                 __('Klarna capture success could not be finalized in the attempt ledger.', 'wc-buckaroo-bpe-gateway')
             );
         }
-        $reservedAmount = OrderMeta::get($order, KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
-        $captureTarget = is_numeric($reservedAmount)
-            ? (float) $reservedAmount
-            : (float) $order->get_total('edit');
-        $capturedAmount = (float) OrderMeta::get($order, '_wc_order_amount_captured');
-        if (Helper::roundAmount($capturedAmount) >= Helper::roundAmount($captureTarget)) {
-            $order->payment_complete($transactionKey);
-        }
+        KlarnaFulfillmentActions::completeWhenFullyCaptured($order, $transactionKey);
         $order->save();
         self::updateSettlementMeta($order, $responseParser, $amount);
         OrderMeta::add($order, '_payment_method_transaction', 'klarna', true);
         OrderMeta::add($order, '_pushallowed', 'ok', true);
         KlarnaCaptureAttempt::clearAttention($order);
+
+        return true;
+    }
+
+    /**
+     * A capture made outside the plugin (e.g. in Buckaroo Plaza) has no attempt in the
+     * ledger. Record it against the remaining order items, so the captured amount and
+     * the order status follow, instead of leaving it to the generic push handling.
+     * While a plugin capture is still unresolved, or when the amount exceeds what is
+     * left to capture, the push may belong to that capture, so it is not recorded.
+     */
+    private static function recordExternalCapture(
+        WC_Order $order,
+        ResponseParser $responseParser,
+        string $transactionKey
+    ): bool {
+        $amount = $responseParser->getAmount();
+        if (
+            $transactionKey === '' ||
+            $amount === null ||
+            $amount <= 0 ||
+            ! CaptureResult::isSuccessStatusCode($responseParser->getStatusCode()) ||
+            $order->get_meta('buckaroo_is_reserved') !== 'yes'
+        ) {
+            return false;
+        }
+
+        if (OrderMeta::get($order, '_capturebuckaroo' . $transactionKey)) {
+            return true;
+        }
+
+        $unresolvedStates = [KlarnaCaptureAttempt::IN_PROGRESS, CaptureResult::PENDING, CaptureResult::UNKNOWN];
+        foreach (KlarnaCaptureAttempt::all($order) as $attempt) {
+            if (in_array($attempt['state'] ?? '', $unresolvedStates, true)) {
+                return false;
+            }
+        }
+
+        $capturedAmount = (float) OrderMeta::get($order, '_wc_order_amount_captured');
+        $reservedAmount = KlarnaProcessor::getReservedAmount($order) ?? (float) $order->get_total('edit');
+        $allocation = CaptureAllocation::remainingForOrder(
+            $order,
+            min($reservedAmount, $capturedAmount + $amount)
+        );
+        if ($allocation->getAmount() - $amount <= -0.01) {
+            return false;
+        }
+        $products = (new KlarnaOrderArticles(new OrderDetails($order), new KlarnaPayGateway()))
+            ->get_products_for_capture($allocation, $amount);
+
+        $captureResult = CaptureRecorder::record(
+            $order,
+            $amount,
+            $order->get_currency(),
+            $allocation,
+            $transactionKey,
+            $responseParser->get(),
+            $products
+        );
+        if (! $captureResult->isSuccess()) {
+            throw new RuntimeException(
+                __('Klarna capture made in Buckaroo Plaza could not be recorded locally.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
+
+        KlarnaFulfillmentActions::completeWhenFullyCaptured($order, $transactionKey);
+        $order->save();
+        self::updateSettlementMeta($order, $responseParser, $amount);
+        OrderMeta::add($order, '_payment_method_transaction', 'klarna', true);
+        OrderMeta::add($order, '_pushallowed', 'ok', true);
 
         return true;
     }

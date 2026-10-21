@@ -146,6 +146,24 @@ class Test_KlarnaReservationReturnPush extends TestCase
         );
     }
 
+    public function test_a_reservation_push_with_a_zero_amount_reserves_the_order_total(): void
+    {
+        $order = $this->createKlarnaOrder();
+
+        $this->push($order, [
+            'brq_action' => 'Reserve',
+            'brq_statuscode' => '190',
+            'brq_amount' => '0.00',
+            'brq_currency' => 'EUR',
+            'brq_transactions' => 'RESERVE-PUSH',
+            'brq_transaction_method' => 'klarna',
+            'brq_datarequest' => 'DATA-REQUEST-KEY',
+            'brq_ordernumber' => (string) $order->get_id(),
+        ]);
+
+        $this->assertSame('25.00', wc_get_order($order->get_id())->get_meta(KlarnaProcessor::RESERVED_AMOUNT_META_KEY));
+    }
+
     public function test_a_capture_push_without_pay_action_is_not_handled_as_the_reservation(): void
     {
         $order = $this->createKlarnaOrder();

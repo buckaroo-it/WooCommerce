@@ -7,6 +7,7 @@ use Buckaroo\Woocommerce\Order\CaptureAllocation;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
+use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use Throwable;
 use WC_Order;
@@ -66,6 +67,29 @@ class KlarnaFulfillmentActions
         add_action(self::RELEASE_RESERVATION_HOOK, [$this, 'handle_release_reservation'], 10, 1);
     }
 
+    /**
+     * Once the reserved amount is fully captured the order is paid and fulfilled: mark it
+     * paid if it was still on hold, then complete it. Partial captures leave it unchanged,
+     * and completing it here does not capture again, since nothing remains to capture.
+     */
+    public static function completeWhenFullyCaptured(WC_Order $order, string $transactionKey): void
+    {
+        $captureTarget = KlarnaProcessor::getReservedAmount($order) ?? (float) $order->get_total('edit');
+        $capturedAmount = (float) OrderMeta::get($order, '_wc_order_amount_captured');
+        if (Helper::roundAmount($capturedAmount) < Helper::roundAmount($captureTarget)) {
+            return;
+        }
+
+        $order->payment_complete($transactionKey);
+
+        if ($order->has_status(['processing', 'on-hold'])) {
+            $order->update_status(
+                'completed',
+                __('Klarna payment fully captured.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
+    }
+
     public function handle_completed_order($orderId, $queueAttempt = 0): void
     {
         $order = wc_get_order($orderId);
@@ -94,8 +118,8 @@ class KlarnaFulfillmentActions
             return;
         }
 
-        $reservedAmount = $order->get_meta(KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
-        if (! is_numeric($reservedAmount)) {
+        $reservedAmount = KlarnaProcessor::getReservedAmount($order);
+        if ($reservedAmount === null) {
             $order->add_order_note(
                 __('Automatic Klarna capture was skipped because the reserved amount is unknown.', 'wc-buckaroo-bpe-gateway')
             );
@@ -636,10 +660,9 @@ class KlarnaFulfillmentActions
             return;
         }
 
-        $reservedAmount = $order->get_meta(KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
         $allocation = CaptureAllocation::remainingForOrder(
             $order,
-            is_numeric($reservedAmount) ? (float) $reservedAmount : null
+            KlarnaProcessor::getReservedAmount($order)
         );
         $attempt = KlarnaCaptureAttempt::retry($order, $allocation);
         if ($attempt === null) {
