@@ -8,7 +8,6 @@ use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
-use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\NamedLock;
 use RuntimeException;
 use WC_Order;
@@ -332,11 +331,7 @@ class KlarnaPushProcessor
                 __('Klarna capture success could not be finalized in the attempt ledger.', 'wc-buckaroo-bpe-gateway')
             );
         }
-        $captureTarget = KlarnaProcessor::getReservedAmount($order) ?? (float) $order->get_total('edit');
-        $capturedAmount = (float) OrderMeta::get($order, '_wc_order_amount_captured');
-        if (Helper::roundAmount($capturedAmount) >= Helper::roundAmount($captureTarget)) {
-            $order->payment_complete($transactionKey);
-        }
+        KlarnaFulfillmentActions::completeWhenFullyCaptured($order, $transactionKey);
         $order->save();
         self::updateSettlementMeta($order, $responseParser, $amount);
         OrderMeta::add($order, '_payment_method_transaction', 'klarna', true);

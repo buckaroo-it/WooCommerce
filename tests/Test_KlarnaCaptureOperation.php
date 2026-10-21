@@ -290,6 +290,38 @@ class Test_KlarnaCaptureOperation extends TestCase
         $this->assertSame('25.00', $buckarooClient->payload['amountDebit']);
     }
 
+    public function test_a_full_manual_capture_completes_the_order_and_a_partial_one_does_not(): void
+    {
+        $order = $this->createReservedOrder(12.50, 2);
+        $order->set_status('processing');
+        $order->save();
+        $item = current($order->get_items('line_item'));
+        $gateway = new KlarnaPayGateway();
+        $halfAllocation = CaptureAllocation::fromArrays(
+            [$item->get_id() => 1],
+            [$item->get_id() => 12.50],
+            [$item->get_id() => []]
+        );
+
+        $gateway->capture(
+            wc_get_order($order->get_id()),
+            12.50,
+            $halfAllocation,
+            new InMemoryBuckarooClient($this->successfulResponse('PAY-FIRST-HALF'))
+        );
+        $this->assertSame('processing', wc_get_order($order->get_id())->get_status());
+
+        $result = $gateway->capture(
+            wc_get_order($order->get_id()),
+            12.50,
+            $halfAllocation,
+            new InMemoryBuckarooClient($this->successfulResponse('PAY-SECOND-HALF'))
+        );
+
+        $this->assertTrue($result->isSuccess(), $result->getMessage());
+        $this->assertSame('completed', wc_get_order($order->get_id())->get_status());
+    }
+
     public function test_manual_capture_uses_the_same_remaining_allocation_as_automatic_capture(): void
     {
         $order = $this->createReservedOrder(12.50, 2);

@@ -205,7 +205,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         $this->assertSame('processing', $storedOrder->get_status());
     }
 
-    public function test_successful_pay_reconciliation_marks_a_manual_on_hold_capture_as_paid(): void
+    public function test_successful_pay_reconciliation_completes_a_fully_captured_on_hold_order(): void
     {
         $order = $this->createReservedOrder();
         $order->set_status('on-hold');
@@ -238,10 +238,10 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
 
         $storedOrder = wc_get_order($order->get_id());
         $this->assertTrue($storedOrder->is_paid());
-        $this->assertSame('processing', $storedOrder->get_status());
+        $this->assertSame('completed', $storedOrder->get_status());
     }
 
-    public function test_partial_manual_pay_push_marks_the_order_paid_only_after_the_remaining_capture(): void
+    public function test_partial_manual_pay_push_completes_the_order_only_after_the_remaining_capture(): void
     {
         $order = $this->createReservedOrder(2);
         $order->set_status('on-hold');
@@ -286,7 +286,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
 
         $fullyCapturedOrder = wc_get_order($order->get_id());
         $this->assertTrue($fullyCapturedOrder->is_paid());
-        $this->assertSame('processing', $fullyCapturedOrder->get_status());
+        $this->assertSame('completed', $fullyCapturedOrder->get_status());
     }
 
     public function test_claim_releases_its_worker_option_when_the_attempt_ledger_is_locked(): void

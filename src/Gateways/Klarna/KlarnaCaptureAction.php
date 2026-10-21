@@ -130,7 +130,7 @@ class KlarnaCaptureAction
     private function finalize(TransactionResponse $response, array $products): CaptureResult
     {
         if ($response->isSuccess()) {
-            return CaptureRecorder::record(
+            $result = CaptureRecorder::record(
                 $this->order,
                 $this->captureAmount,
                 $this->order->get_currency(),
@@ -139,6 +139,11 @@ class KlarnaCaptureAction
                 $response->toArray(),
                 $products
             );
+            if ($result->isSuccess()) {
+                KlarnaFulfillmentActions::completeWhenFullyCaptured($this->order, (string) $response->getTransactionKey());
+            }
+
+            return $result;
         }
 
         if (CaptureResult::isPendingStatusCode($response->getStatusCode())) {

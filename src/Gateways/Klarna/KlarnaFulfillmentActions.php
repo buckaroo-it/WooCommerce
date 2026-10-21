@@ -7,6 +7,7 @@ use Buckaroo\Woocommerce\Order\CaptureAllocation;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
+use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use Throwable;
 use WC_Order;
@@ -64,6 +65,29 @@ class KlarnaFulfillmentActions
         add_action(self::RECOVER_CAPTURE_HOOK, [$this, 'handle_recover_capture'], 10, 2);
         add_action(self::CHECK_CAPTURE_HOOK, [$this, 'handle_scheduled_check_capture'], 10, 3);
         add_action(self::RELEASE_RESERVATION_HOOK, [$this, 'handle_release_reservation'], 10, 1);
+    }
+
+    /**
+     * Once the reserved amount is fully captured the order is paid and fulfilled: mark it
+     * paid if it was still on hold, then complete it. Partial captures leave it unchanged,
+     * and completing it here does not capture again, since nothing remains to capture.
+     */
+    public static function completeWhenFullyCaptured(WC_Order $order, string $transactionKey): void
+    {
+        $captureTarget = KlarnaProcessor::getReservedAmount($order) ?? (float) $order->get_total('edit');
+        $capturedAmount = (float) OrderMeta::get($order, '_wc_order_amount_captured');
+        if (Helper::roundAmount($capturedAmount) < Helper::roundAmount($captureTarget)) {
+            return;
+        }
+
+        $order->payment_complete($transactionKey);
+
+        if ($order->has_status(['processing', 'on-hold'])) {
+            $order->update_status(
+                'completed',
+                __('Klarna payment fully captured.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
     }
 
     public function handle_completed_order($orderId, $queueAttempt = 0): void
