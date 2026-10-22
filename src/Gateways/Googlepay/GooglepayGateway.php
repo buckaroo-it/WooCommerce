@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Googlepay;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Gateways\Express\ExpressAvailability;
 use Buckaroo\Woocommerce\Gateways\Express\ExpressSettings;
 use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
@@ -297,6 +298,9 @@ class GooglepayGateway extends AbstractPaymentGateway
                 'total' => $fee->total,
                 'total_tax' => $fee->tax,
             ]);
+            if ($fee->id === sanitize_title(__('Payment fee', 'wc-buckaroo-bpe-gateway'))) {
+                $item_fee->add_meta_data(AbstractPaymentProcessor::FEE_GATEWAY_META, 'buckaroo_googlepay', true);
+            }
             $order->add_item($item_fee);
         }
     }
