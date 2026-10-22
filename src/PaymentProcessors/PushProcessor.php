@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\PaymentProcessors;
 
 use Buckaroo\Woocommerce\Constraints\BuckarooTransactionStatus;
+use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressUpdateOrderAddresses;
 use Buckaroo\Woocommerce\Gateways\Transfer\TransferResponse;
 use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateOrderMetaToHpos;
@@ -180,6 +181,12 @@ class PushProcessor
                         return;
                     }
 
+                    if (self::isStaleReply($order, $responseParser)) {
+                        Logger::log('Push message. Pending push for transaction ' . $responseParser->getTransactionKey() . ' is not the order\'s current transaction. Order status not changed.');
+
+                        return;
+                    }
+
                     Logger::log('Update status 1. Order status: on-hold');
                     $order->set_transaction_id($responseParser->getTransactionKey());
                     $order->update_status('on-hold', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
@@ -200,6 +207,98 @@ class PushProcessor
                 'redirect' => $order->get_checkout_order_received_url(),
             ];
         }
+    }
+
+    /**
+     * Mark the order failed for a failed or cancelled payment push. Runs under
+     * the settlement lock, so it cannot overwrite a success push processed at
+     * the same time, and ignores a reply for another transaction than the
+     * order's current one. A failed order can still be retried by the customer.
+     */
+    protected function onFailure(WC_Order $order, ResponseParser $responseParser): void
+    {
+        if (! NamedLock::acquire(self::SETTLEMENT_LOCK_PURPOSE, $order, self::SETTLEMENT_LOCK_KEY, self::SETTLEMENT_LOCK_WAIT_SECONDS)) {
+            throw new RuntimeException(
+                __('Buckaroo push could not be processed because the order is locked.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
+
+        try {
+            $current = wc_get_order($order->get_id());
+            if (! $current instanceof WC_Order) {
+                return;
+            }
+
+            if (in_array($current->get_status(), ['completed', 'processing', 'cancelled', 'refunded', 'failed'], true) || $this->isOrderFullyPaid($current)) {
+                Logger::log(
+                    $this->isOrderFullyPaid($current)
+                        ? 'Push message. Order was previously fully paid - status cannot be changed to failed.'
+                        : 'Push message. Order status cannot be changed.'
+                );
+
+                return;
+            }
+
+            if (self::isStaleReply($current, $responseParser)) {
+                Logger::log('Push message. Failure push for transaction ' . $responseParser->getTransactionKey() . ' is not the order\'s current transaction. Order status not changed.');
+
+                return;
+            }
+
+            Logger::log('Update status 2. Order status: failed');
+            $current->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
+        } finally {
+            NamedLock::release(self::SETTLEMENT_LOCK_PURPOSE, $order, self::SETTLEMENT_LOCK_KEY);
+        }
+    }
+
+    /**
+     * Why a validly signed reply must not be applied to this order, or null.
+     * A reply in another currency than the order is never applied, and a
+     * test-mode reply is applied only to an order placed in test mode or
+     * paid through a gateway in test mode: test and live share one secret.
+     */
+    public static function replyMismatch(WC_Order $order, ResponseParser $responseParser): ?string
+    {
+        $currency = strtoupper(trim((string) $responseParser->getCurrency()));
+        if ($currency !== '' && $currency !== strtoupper((string) $order->get_currency())) {
+            return 'currency';
+        }
+
+        if ($responseParser->isTest() && ! self::orderAcceptsTestReplies($order)) {
+            return 'mode';
+        }
+
+        return null;
+    }
+
+    private static function orderAcceptsTestReplies(WC_Order $order): bool
+    {
+        if ((string) OrderMeta::get($order, '_buckaroo_order_in_test_mode') === '1') {
+            return true;
+        }
+
+        $gateways = WC()->payment_gateways() ? WC()->payment_gateways()->payment_gateways() : [];
+        $gateway = $gateways[$order->get_payment_method()] ?? null;
+
+        return $gateway instanceof AbstractPaymentGateway && strtolower((string) $gateway->getMode()) === 'test';
+    }
+
+    /**
+     * A reply for another transaction than the one the order last started,
+     * e.g. a replayed reply of an earlier attempt. It must not move the order
+     * to on-hold or failed. Pay-per-email orders are paid with a transaction
+     * other than the invitation, so they are not compared.
+     */
+    public static function isStaleReply(WC_Order $order, ResponseParser $responseParser): bool
+    {
+        $current = (string) $order->get_transaction_id('edit');
+        $replyKey = (string) $responseParser->getTransactionKey();
+
+        return $current !== '' &&
+            $replyKey !== '' &&
+            $current !== $replyKey &&
+            strtolower($order->get_payment_method()) !== 'buckaroo_payperemail';
     }
 
     protected function getTransactionKey(ResponseParser $responseParser)
@@ -334,6 +433,30 @@ class PushProcessor
                 return $checkIfRedirectRequired;
             }
 
+            // Locks below are read from order meta; copy first so a replay is seen.
+            MigrateOrderMetaToHpos::ensureOrderMigrated($order);
+            $order->read_meta_data(true);
+
+            $mismatch = self::replyMismatch($order, $responseParser);
+            if ($mismatch !== null) {
+                Logger::log('Push message. Reply ' . $responseParser->getTransactionKey() . ' ignored: ' . $mismatch . ' does not match the order.');
+                $order->add_order_note(
+                    $mismatch === 'currency'
+                        ? sprintf(
+                            __('Ignored a Buckaroo push for transaction %1$s in %2$s, because the order is in %3$s.', 'wc-buckaroo-bpe-gateway'),
+                            esc_html((string) $responseParser->getTransactionKey()),
+                            esc_html((string) $responseParser->getCurrency()),
+                            esc_html($order->get_currency())
+                        )
+                        : sprintf(
+                            __('Ignored a Buckaroo test-mode push for transaction %s, because the order was placed in live mode.', 'wc-buckaroo-bpe-gateway'),
+                            esc_html((string) $responseParser->getTransactionKey())
+                        )
+                );
+
+                return;
+            }
+
             if ($responseParser->getPaymentMethod() == 'paypal') {
                 (new PaypalExpressUpdateOrderAddresses($order, $responseParser))->update();
             }
@@ -346,9 +469,6 @@ class PushProcessor
                 Logger::log('PUSH', 'Partial payment PUSH received ' . $responseParser->getStatusCode());
                 exit();
             }
-
-            // Locks below are read from order meta; copy first so a replay is seen.
-            MigrateOrderMetaToHpos::ensureOrderMigrated($order);
 
             if ($responseParser->getRefundParentKey() !== null) {
                 RefundAction::initiateExternalServiceRefund($order_id, $responseParser);
@@ -387,36 +507,10 @@ class PushProcessor
 
                 Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
 
-                if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled', 'refunded']) && ! $this->isOrderFullyPaid($order)) {
-                    // We receive a valid response that the payment is canceled/failed.
-                    Logger::log('Update status 2. Order status: failed');
-                    $order->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
-                } else {
-                    if ($this->isOrderFullyPaid($order)) {
-                        Logger::log('Push message. Order was previously fully paid - status cannot be changed to failed.');
-                    } else {
-                        Logger::log('Push message. Order status cannot be changed.');
-                    }
-                }
+                $this->onFailure($order, $responseParser);
 
                 if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_CANCELLED) {
                     Logger::log('Payment cancelled by customer - keeping status as failed to allow retry');
-                    // Keep order as 'failed' instead of 'cancelled' to allow customer to retry payment
-                    // WooCommerce only allows 'pending' or 'failed' orders to be retried
-                    // Only update to failed if order is not already in a final state
-                    if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled', 'refunded']) && ! $this->isOrderFullyPaid($order)) {
-                        // If order is not already failed, update it to failed
-                        if ($order->get_status() !== 'failed') {
-                            Logger::log('Update status: failed (from cancelled push)');
-                            $order->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
-                        }
-                    } else {
-                        if ($this->isOrderFullyPaid($order)) {
-                            Logger::log('Push message. Order was previously fully paid - status cannot be changed.');
-                        } else {
-                            Logger::log('Push message. Order status cannot be changed.');
-                        }
-                    }
                     wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
                 } elseif ($responseParser->getPaymentMethod() == 'afterpaydigiaccept' && $responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_REJECTED) {
                     wc_add_notice(
