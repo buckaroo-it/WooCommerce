@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 
 // Markup and class names of the WooCommerce Blocks form components, so the fields
 // pick up the checkout block's own styling. The components themselves are not
@@ -7,6 +8,10 @@ import React, { useState } from 'react';
 
 const textInputClass = (isActive, className = '') =>
     ['wc-block-components-text-input', className, isActive && 'is-active'].filter(Boolean).join(' ');
+
+// WooCommerce's own string, so optional fields read exactly like the checkout's
+// address fields; the Checkout Block loads its translation for those.
+const optionalLabel = label => sprintf(__('%s (optional)', 'woocommerce'), label);
 
 export function TextField({
     id,
@@ -23,6 +28,7 @@ export function TextField({
     const [ownValue, setOwnValue] = useState('');
     const currentValue = value !== undefined ? value : ownValue;
     const isActive = isFocused || String(currentValue ?? '') !== '';
+    const shownLabel = required ? label : optionalLabel(label);
 
     const handleChange = e => {
         if (value === undefined) {
@@ -43,11 +49,11 @@ export function TextField({
                 onChange={handleChange}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-                aria-label={label}
+                aria-label={shownLabel}
                 aria-required={required}
                 {...inputProps}
             />
-            <label htmlFor={id}>{label}</label>
+            <label htmlFor={id}>{shownLabel}</label>
         </div>
     );
 }

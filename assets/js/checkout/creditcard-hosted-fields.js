@@ -1,3 +1,5 @@
+import { hostedFieldStyling, syncHostedFieldErrors } from '../shared/hosted-field-styling';
+
 class BuckarooCreditCardsHostedFields {
     constructor() {
         this.form = jQuery('form[name=checkout]');
@@ -49,15 +51,11 @@ class BuckarooCreditCardsHostedFields {
         this.sdkClient = new BuckarooHostedFieldsSdk.HFClient(token);
         this.sdkClient.setLanguage(buckaroo_global.locale);
         this.sdkClient.setSupportedServices(this.getSupportedServices());
-        await this.sdkClient.startSession(event =>
-            this.sdkClient.handleValidation(
-                event,
-                `${this.paymentMethodId}-name-error`,
-                `${this.paymentMethodId}-number-error`,
-                `${this.paymentMethodId}-expiry-error`,
-                `${this.paymentMethodId}-cvc-error`
-            )
-        );
+        const errorIds = ['name', 'number', 'expiry', 'cvc'].map(field => `${this.paymentMethodId}-${field}-error`);
+        await this.sdkClient.startSession(event => {
+            this.sdkClient.handleValidation(event, ...errorIds);
+            syncHostedFieldErrors(errorIds);
+        });
     }
 
     getSupportedServices() {
@@ -99,7 +97,6 @@ class BuckarooCreditCardsHostedFields {
                     id: 'ccname',
                     placeHolder: 'John Doe',
                     labelSelector: `#${this.paymentMethodId}-name-label`,
-                    baseStyling: {},
                 },
             },
             {
@@ -109,7 +106,6 @@ class BuckarooCreditCardsHostedFields {
                     id: 'ccnumber',
                     placeHolder: '4111 1111 1111 1111',
                     labelSelector: `#${this.paymentMethodId}-number-label`,
-                    baseStyling: {},
                 },
             },
             {
@@ -119,7 +115,6 @@ class BuckarooCreditCardsHostedFields {
                     id: 'ccexpiry',
                     placeHolder: 'MM/YY',
                     labelSelector: `#${this.paymentMethodId}-expiry-label`,
-                    baseStyling: {},
                 },
             },
             {
@@ -129,12 +124,20 @@ class BuckarooCreditCardsHostedFields {
                     id: 'cccvc',
                     placeHolder: '123',
                     labelSelector: `#${this.paymentMethodId}-cvc-label`,
-                    baseStyling: {},
                 },
             },
         ];
 
-        await Promise.all(fields.map(field => field.mount(field.selector, field.config)));
+        await Promise.all(
+            fields.map(field => {
+                const { baseStyling, cardLogoStyling } = hostedFieldStyling(field.selector);
+                const config = { ...field.config, baseStyling };
+                if (field.mount === this.sdkClient.mountCardNumber) {
+                    config.cardLogoStyling = cardLogoStyling;
+                }
+                return field.mount(field.selector, config);
+            })
+        );
     }
 
     scheduleTokenRefresh(expiresIn) {
