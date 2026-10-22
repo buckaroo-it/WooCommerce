@@ -13,6 +13,9 @@ use WC_Tax;
 
 class AbstractPaymentProcessor extends AbstractProcessor
 {
+    /** Order fee item meta holding the id of the gateway the Payment fee was calculated for. */
+    public const FEE_GATEWAY_META = '_buckaroo_fee_gateway';
+
     protected OrderDetails $order_details;
 
     protected OrderArticles $order_articles;
@@ -106,21 +109,50 @@ class AbstractPaymentProcessor extends AbstractProcessor
      * logic in OrderActions::add_fee_to_cart so both paths produce the
      * same fee name, amount and tax handling.
      *
-     * @return bool True when a fee item was added to the order.
+     * A Payment fee line calculated for another payment method (e.g. the
+     * method last stored in the session on block checkout, or the original
+     * method on order-pay) is replaced, so the order always carries the fee
+     * of the gateway that is paying.
+     *
+     * @return bool True when the order's fee items were changed.
      */
     protected function ensureBuckarooFeeItem(WC_Order $order): bool
     {
         $configuredFee = PaymentFee::parse($this->gateway->get_option('extrachargeamount', 0));
-        if ($configuredFee === null || ! $configuredFee->hasFee()) {
-            return false;
-        }
+        $hasFee = $configuredFee !== null && $configuredFee->hasFee();
 
         $feeName = __('Payment fee', 'wc-buckaroo-bpe-gateway');
 
+        $existingFees = [];
         foreach ($order->get_items('fee') as $existingFee) {
-            if ($existingFee instanceof WC_Order_Item_Fee && $existingFee->get_name() === $feeName) {
-                return false;
+            if (
+                $existingFee instanceof WC_Order_Item_Fee &&
+                ($existingFee->get_name() === $feeName || $existingFee->meta_exists(self::FEE_GATEWAY_META))
+            ) {
+                $existingFees[] = $existingFee;
             }
+        }
+
+        if (
+            $hasFee &&
+            count($existingFees) === 1 &&
+            $existingFees[0]->get_meta(self::FEE_GATEWAY_META) === $this->gateway->id
+        ) {
+            return false;
+        }
+
+        if (! $hasFee && $existingFees === []) {
+            return false;
+        }
+
+        foreach ($existingFees as $existingFee) {
+            $order->remove_item($existingFee->get_id());
+        }
+
+        if (! $hasFee) {
+            $order->save();
+
+            return true;
         }
 
         // Use discounted product totals for combined and tax-inclusive fees.
@@ -150,6 +182,7 @@ class AbstractPaymentProcessor extends AbstractProcessor
         $item->set_tax_class($feeTaxClass);
         $item->set_tax_status('taxable');
         $item->set_total((string) $feeAmount);
+        $item->add_meta_data(self::FEE_GATEWAY_META, $this->gateway->id, true);
         if (! $vatExempt) {
             $item->calculate_taxes($taxLocation);
         }
