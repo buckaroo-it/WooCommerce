@@ -46,10 +46,7 @@ function PayByBankDropdown({
                 </div>
             ) : (
                 <div>
-                    <div
-                        className="bk-paybybank-input bk-paybybank-mobile"
-                        style={{ display: 'none' }}
-                    >
+                    <div className="bk-paybybank-input bk-paybybank-mobile" style={{ display: 'none' }}>
                         <SelectField
                             id={`${methodName}-issuer`}
                             label={__('Select your bank', 'wc-buckaroo-bpe-gateway')}
@@ -59,9 +56,7 @@ function PayByBankDropdown({
                         />
                     </div>
                     <div className="bk-paybybank-input bk-paybybank-not-mobile">
-                        <div
-                            className={`bk-paybybank-selector ${showAllBanks ? 'show-all' : ''}`}
-                        >
+                        <div className={`bk-paybybank-selector ${showAllBanks ? 'show-all' : ''}`}>
                             {Object.keys(payByBankIssuers).map(issuerCode => (
                                 <div className="custom-control custom-radio bank-control" key={issuerCode}>
                                     <input
