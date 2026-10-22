@@ -64,41 +64,33 @@ if (! $show_required) {
     <?php if ($creditCardMethod == 'encrypt' && $this->isSecure()) { ?>
         <div class="<?php echo esc_attr($this->id); ?>-hf-error woocommerce-error"></div>
 
-        <div class="form-row form-row-wide validate-required">
-            <label id="<?php echo esc_attr($this->id); ?>-name-label" class="buckaroo-label">
-                <?php esc_html_e('Cardholder Name:', 'wc-buckaroo-bpe-gateway'); ?>
-                <span class="required" aria-hidden="true">*</span>
-            </label>
-            <div id="<?php echo esc_attr($this->id); ?>-name-wrapper" class="cardHolderName input-text"></div>
-            <div id="<?php echo esc_attr($this->id); ?>-name-error" class="input-error"></div>
-        </div>
+        <?php
+        $hostedFields = [
+            'name' => [__('Cardholder Name:', 'wc-buckaroo-bpe-gateway'), 'form-row-wide'],
+            'number' => [__('Card Number:', 'wc-buckaroo-bpe-gateway'), 'form-row-wide'],
+            'expiry' => [__('Expiration Date:', 'wc-buckaroo-bpe-gateway'), 'form-row-first'],
+            'cvc' => [__('CVC:', 'wc-buckaroo-bpe-gateway'), 'form-row-last'],
+        ];
 
-        <div class="form-row form-row-wide validate-required">
-            <label id="<?php echo esc_attr($this->id); ?>-number-label" class="buckaroo-label">
-                <?php esc_html_e('Card Number:', 'wc-buckaroo-bpe-gateway'); ?>
-                <span class="required" aria-hidden="true">*</span>
-            </label>
-            <div id="<?php echo esc_attr($this->id); ?>-number-wrapper" class="cardNumber input-text"></div>
-            <div id="<?php echo esc_attr($this->id); ?>-number-error" class="input-error"></div>
-        </div>
-
-        <div class="form-row form-row-first">
-            <label id="<?php echo esc_attr($this->id); ?>-expiry-label" class="buckaroo-label">
-                <?php esc_html_e('Expiration Date:', 'wc-buckaroo-bpe-gateway'); ?>
-                <span class="required" aria-hidden="true">*</span>
-            </label>
-            <div id="<?php echo esc_attr($this->id); ?>-expiry-wrapper" class="expirationDate input-text"></div>
-            <div id="<?php echo esc_attr($this->id); ?>-expiry-error" class="input-error"></div>
-        </div>
-
-        <div class="form-row form-row-last">
-            <label id="<?php echo esc_attr($this->id); ?>-cvc-label" class="buckaroo-label">
-                <?php esc_html_e('CVC:', 'wc-buckaroo-bpe-gateway'); ?>
-                <span class="required" aria-hidden="true">*</span>
-            </label>
-            <div id="<?php echo esc_attr($this->id); ?>-cvc-wrapper" class="cvc input-text"></div>
-            <div id="<?php echo esc_attr($this->id); ?>-cvc-error" class="input-error"></div>
-        </div>
+        // WooCommerce's form row markup around an inert input that only draws the
+        // field; the card iframe is mounted over it into the frame.
+        foreach ($hostedFields as $field => [$label, $rowClass]) {
+            $fieldId = $this->id . '-' . $field;
+            ?>
+            <p class="form-row <?php echo esc_attr($rowClass); ?> validate-required buckaroo-hosted-field-row">
+                <label id="<?php echo esc_attr($fieldId); ?>-label">
+                    <?php echo esc_html($label); ?>&nbsp;<span class="required" aria-hidden="true">*</span>
+                </label>
+                <span class="woocommerce-input-wrapper buckaroo-hosted-field">
+                    <input type="text" class="input-text buckaroo-hosted-field__input" tabindex="-1" aria-hidden="true" readonly>
+                    <span id="<?php echo esc_attr($fieldId); ?>-wrapper" class="buckaroo-hosted-field__frame"></span>
+                </span>
+                <span id="<?php echo esc_attr($fieldId); ?>-error" class="buckaroo-hosted-field__error" role="alert"></span>
+            </p>
+            <?php
+        }
+        ?>
+        <div class="clear"></div>
 
         <input
                 type="hidden"
