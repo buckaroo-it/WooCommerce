@@ -567,6 +567,25 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         $this->assertSame([], OrderMeta::get(wc_get_order($order->get_id()), '_wc_order_captures', false));
     }
 
+    public function test_a_full_plaza_capture_on_a_cancelled_order_is_recorded_without_reviving_the_order(): void
+    {
+        $order = $this->createReservedOrder();
+        $order->set_status('cancelled');
+        $order->save();
+
+        $this->assertTrue(KlarnaPushProcessor::reconcileCapture(
+            wc_get_order($order->get_id()),
+            $this->payPush($order, 'PAY-PLAZA-CANCELLED', 25.00)
+        ));
+
+        $storedOrder = wc_get_order($order->get_id());
+        $this->assertCount(1, OrderMeta::get($storedOrder, '_wc_order_captures', false));
+        $this->assertSame('cancelled', $storedOrder->get_status());
+        $this->assertFalse($storedOrder->is_paid());
+        $notes = wp_list_pluck(wc_get_order_notes(['order_id' => $order->get_id()]), 'content');
+        $this->assertNotEmpty(preg_grep('/fully captured, but the order is cancelled or refunded/', $notes));
+    }
+
     public function test_real_c339_push_without_action_wins_over_worker_response(): void
     {
         $order = $this->createReservedOrder();
