@@ -409,6 +409,14 @@ label.bk-in3-logo img {
     border: 0;
 }
 
+/* Checkout Block: WooCommerce spaces a checkbox only 1em from the field above it,
+   and its label has line-height: 1, so under an input (Riverty's terms below the
+   birthdate) it reads as glued on; match the 1.5em the payment box gives the first
+   input instead. */
+.buckaroo-checkout-fields .wc-block-components-checkbox {
+    margin-top: 1.5em;
+}
+
 /* react-datepicker wraps the Checkout Block birthdate input in two inline-blocks. */
 .buckaroo-checkout-fields .react-datepicker-wrapper,
 .buckaroo-checkout-fields .react-datepicker__input-container {
