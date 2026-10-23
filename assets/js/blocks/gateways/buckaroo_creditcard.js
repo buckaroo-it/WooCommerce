@@ -6,16 +6,16 @@ import { hostedFieldStyling, syncHostedFieldErrors } from '../../shared/hosted-f
 
 const HOSTED_FIELD_ERROR_IDS = ['cc-name-error', 'cc-number-error', 'cc-expiry-error', 'cc-cvc-error'];
 
-// A hosted card field in the markup of the Checkout Block's text input. The input
-// only draws the field; the card iframe is mounted over it into the frame.
-function HostedField({ name, label }) {
+// A hosted card field in the markup of the Checkout Block's text input, with its
+// validation error inside it as WooCommerce renders it. The fields are siblings,
+// like the Block's own inputs, so its spacing between consecutive inputs applies.
+// The input only draws the field; the card iframe is mounted over it into the frame.
+function HostedField({ name, label, className = '' }) {
     return (
-        <div className="buckaroo-hosted-field-row">
-            <div className="wc-block-components-text-input is-active buckaroo-hosted-field">
-                <input type="text" className="buckaroo-hosted-field__input" tabIndex={-1} aria-hidden="true" readOnly />
-                <div id={`cc-${name}-wrapper`} className="buckaroo-hosted-field__frame" />
-                <label id={`cc-${name}-label`}>{label}</label>
-            </div>
+        <div className={`wc-block-components-text-input is-active buckaroo-hosted-field ${className}`.trim()}>
+            <input type="text" className="buckaroo-hosted-field__input" tabIndex={-1} aria-hidden="true" readOnly />
+            <div id={`cc-${name}-wrapper`} className="buckaroo-hosted-field__frame" />
+            <label id={`cc-${name}-label`}>{label}</label>
             <div
                 id={`cc-${name}-error`}
                 className="wc-block-components-validation-error buckaroo-hosted-field__error"
@@ -242,10 +242,16 @@ function CreditCard({
                 <div className="buckaroo-hosted-fields">
                     <HostedField name="name" label={__('Cardholder Name:', 'wc-buckaroo-bpe-gateway')} />
                     <HostedField name="number" label={__('Card Number:', 'wc-buckaroo-bpe-gateway')} />
-                    <div className="buckaroo-hosted-fields__columns">
-                        <HostedField name="expiry" label={__('Expiration Month:', 'wc-buckaroo-bpe-gateway')} />
-                        <HostedField name="cvc" label={__('CVC:', 'wc-buckaroo-bpe-gateway')} />
-                    </div>
+                    <HostedField
+                        name="expiry"
+                        label={__('Expiration Month:', 'wc-buckaroo-bpe-gateway')}
+                        className="buckaroo-hosted-field--half"
+                    />
+                    <HostedField
+                        name="cvc"
+                        label={__('CVC:', 'wc-buckaroo-bpe-gateway')}
+                        className="buckaroo-hosted-field--half"
+                    />
                 </div>
             )}
         </div>

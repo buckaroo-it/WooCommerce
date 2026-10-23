@@ -7,7 +7,22 @@
 
 const TRANSPARENT_BACKGROUND = /^(transparent|rgba\(0,\s*0,\s*0,\s*0\))$/;
 
+// A family name that is valid without quotes: one or more CSS identifiers.
+const UNQUOTED_FAMILY = /^-?[a-z_][\w-]*(\s+-?[a-z_][\w-]*)*$/i;
+
 const px = value => parseFloat(value) || 0;
+
+// Hosted Fields escapes the quotes in a font stack (`"Segoe UI"`), which voids the
+// whole declaration and leaves the iframe on the browser's default serif font, so
+// the families are passed unquoted. A name that is only valid quoted is left out;
+// the rest of the stack still applies.
+function unquotedFontFamily(fontFamily) {
+    return fontFamily
+        .split(',')
+        .map(family => family.trim().replace(/^(["'])(.*)\1$/, '$2'))
+        .filter(family => UNQUOTED_FAMILY.test(family))
+        .join(', ');
+}
 
 function themeInputFor(frame) {
     return frame?.parentElement?.querySelector('.buckaroo-hosted-field__input') ?? null;
@@ -16,16 +31,20 @@ function themeInputFor(frame) {
 // The SDK sizes its iframe from the frame once, at mount time, so the frame is
 // placed over the theme input's text line first: inside its border and side
 // padding, centred on its content box, and tall enough for the text not to clip
-// when the theme's content box is a single line-height (WooCommerce Blocks).
-function placeFrame(frame, style) {
+// when the theme's content box is a single line-height (WooCommerce Blocks). The
+// height is fixed rather than following the field, which also holds the validation
+// error in the Checkout Block and grows when one is shown.
+function placeFrame(frame, input, style) {
     const top = px(style.borderTopWidth) + px(style.paddingTop);
     const bottom = px(style.borderBottomWidth) + px(style.paddingBottom);
     const contentHeight = px(style.height) - top - bottom;
     const slack = Math.max(px(style.fontSize) * 1.5 - contentHeight, 0) / 2;
+    const frameTop = Math.max(top - slack, 0);
+    const frameBottom = Math.max(bottom - slack, 0);
 
     Object.assign(frame.style, {
-        top: `${Math.max(top - slack, 0)}px`,
-        bottom: `${Math.max(bottom - slack, 0)}px`,
+        top: `${frameTop}px`,
+        height: `${input.offsetHeight - frameTop - frameBottom}px`,
         left: `${px(style.borderLeftWidth) + px(style.paddingLeft)}px`,
         right: `${px(style.borderRightWidth) + px(style.paddingRight)}px`,
     });
@@ -44,7 +63,7 @@ export function hostedFieldStyling(frameSelector) {
     }
 
     const style = window.getComputedStyle(input);
-    placeFrame(frame, style);
+    placeFrame(frame, input, style);
 
     // The theme's placeholder colour lives on the pseudo element, which browsers
     // only resolve for an input that has a placeholder.
@@ -56,7 +75,7 @@ export function hostedFieldStyling(frameSelector) {
     return {
         baseStyling: {
             fontSize: style.fontSize,
-            fontFamily: style.fontFamily,
+            fontFamily: unquotedFontFamily(style.fontFamily) || undefined,
             fontStyle: 'normal',
             fontWeight: style.fontWeight,
             textAlign: 'left',
@@ -89,17 +108,13 @@ export function hostedFieldStyling(frameSelector) {
 export function syncHostedFieldErrors(errorIds) {
     errorIds.forEach(errorId => {
         const error = document.getElementById(errorId);
-        const row = error?.closest('.buckaroo-hosted-field-row');
 
-        if (!row) {
+        if (!error) {
             return;
         }
 
         const invalid = error.textContent.trim() !== '';
-        row.querySelector('.wc-block-components-text-input')?.classList.toggle('has-error', invalid);
-
-        if (row.classList.contains('form-row')) {
-            row.classList.toggle('woocommerce-invalid', invalid);
-        }
+        error.closest('.wc-block-components-text-input')?.classList.toggle('has-error', invalid);
+        error.closest('.form-row.buckaroo-hosted-field-row')?.classList.toggle('woocommerce-invalid', invalid);
     });
 }

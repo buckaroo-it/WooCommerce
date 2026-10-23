@@ -377,16 +377,22 @@ label.bk-in3-logo img {
     display: none;
 }
 
-/* Expiry and CVC side by side. The classic checkout floats them with
-   form-row-first/last, which the Checkout Block has no styles for. */
-.buckaroo-hosted-fields__columns {
+/* Checkout Block: expiry and CVC side by side. The fields stay siblings so the
+   Block's spacing between consecutive inputs applies to every one of them. The
+   classic checkout floats them with form-row-first/last instead. */
+.buckaroo-hosted-fields {
     display: flex;
-    gap: 16px;
+    flex-wrap: wrap;
+    column-gap: 16px;
 }
 
-.buckaroo-hosted-fields__columns > .buckaroo-hosted-field-row {
-    flex: 1 1 0;
+.buckaroo-hosted-fields > .buckaroo-hosted-field {
+    flex: 1 1 100%;
     min-width: 0;
+}
+
+.buckaroo-hosted-fields > .buckaroo-hosted-field--half {
+    flex-basis: calc(50% - 8px);
 }
 
 /* Additional checkout fields use WooCommerce's own field markup and styling; only
