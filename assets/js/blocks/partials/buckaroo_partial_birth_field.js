@@ -49,7 +49,10 @@ function BirthDayField({ paymentMethod, handleBirthDayChange, locale = { siteLoc
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onCalendarClose={() => setIsFocused(false)}
-                dateFormat="dd-MM-yyyy"
+                // The first format is used for display. A single string format makes
+                // react-datepicker fall back to `new Date(value)` when parsing fails,
+                // which reads 10/04/1999 as month-first (4 October); a list has no fallback.
+                dateFormat={['dd-MM-yyyy', 'd-M-yyyy', 'd/M/yyyy', 'd.M.yyyy']}
                 autoComplete="off"
                 ariaRequired="true"
                 // The floating label covers the input until it is active.
