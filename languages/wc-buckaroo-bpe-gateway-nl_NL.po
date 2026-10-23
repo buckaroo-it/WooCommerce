@@ -1593,3 +1593,11 @@ msgstr "Opgeslagen. Vul alleen een nieuwe waarde in om deze te vervangen."
 #: src/Gateways/AbstractPaymentGateway.php:763
 msgid "Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals."
 msgstr "Ongeldige betaalkosten. Gebruik een vast bedrag (0.25), percentage (1.5%) of beide (0.25 + 1.5%) met een punt als decimaalteken."
+
+    #: src/Gateways/PaypalExpress/PaypalExpressController.php:387
+msgid "A shipping address is required to pay with PayPal."
+msgstr "Een verzendadres is vereist om met PayPal te betalen."
+
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:396
+msgid "No shipping method is available for this address."
+msgstr "Er is geen verzendmethode beschikbaar voor dit adres."

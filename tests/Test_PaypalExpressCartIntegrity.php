@@ -14,6 +14,12 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
     /** @var int[] */
     private $order_ids = [];
 
+    /** @var int[] */
+    private $shipping_zone_ids = [];
+
+    /** @var bool|null */
+    private $shipping_enabled_before;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -44,6 +50,17 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
         $_POST = [];
         $_REQUEST = [];
         wp_set_current_user(0);
+
+        if ($this->shipping_enabled_before !== null) {
+            WC()->shipping()->enabled = $this->shipping_enabled_before;
+            foreach ((new WC_Shipping_Zone(0))->get_shipping_methods() as $instance_id => $method) {
+                (new WC_Shipping_Zone(0))->delete_shipping_method($instance_id);
+            }
+            foreach ($this->shipping_zone_ids as $zone_id) {
+                (new WC_Shipping_Zone($zone_id))->delete(true);
+            }
+            delete_transient('wc_shipping_method_count');
+        }
 
         foreach ($this->product_ids as $product_id) {
             wp_delete_post($product_id, true);
@@ -695,6 +712,160 @@ $this->assertSame($expectedTotal, $order->get_total());
         $this->assertSame($persistent_before, get_user_meta($user_id, $persistent_key, true));
     }
 
+    public function test_physical_paypal_order_without_a_shipping_address_is_rejected(): void
+    {
+        $this->addFlatRate();
+        $product_id = $this->createSimpleProduct('Physical without address', '15.00');
+        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+
+        [$response, $calls] = $this->sendPaypalCartOrder(null);
+
+        $this->assertTrue($response['error']);
+        $this->assertSame(0, $calls);
+    }
+
+    public function test_physical_paypal_order_to_a_country_the_shop_does_not_ship_to_is_rejected(): void
+    {
+        $this->addFlatRate();
+        update_option('woocommerce_ship_to_countries', 'specific');
+        update_option('woocommerce_specific_ship_to_countries', ['BE']);
+        $product_id = $this->createSimpleProduct('Physical abroad', '15.00');
+        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+
+        [$response, $calls] = $this->sendPaypalCartOrder('NL');
+
+        $this->assertTrue($response['error']);
+        $this->assertSame(0, $calls);
+    }
+
+    public function test_physical_paypal_order_to_an_address_without_shipping_rates_is_rejected(): void
+    {
+        $zone = new WC_Shipping_Zone();
+        $zone->set_zone_name('Belgium only');
+        $zone->add_location('BE', 'country');
+        $zone->save();
+        $this->shipping_zone_ids[] = $zone->get_id();
+        $this->addFlatRate($zone);
+        $product_id = $this->createSimpleProduct('Physical without rates', '15.00');
+        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+
+        [$response, $calls] = $this->sendPaypalCartOrder('NL');
+
+        $this->assertTrue($response['error']);
+        $this->assertSame(0, $calls);
+    }
+
+    public function test_physical_paypal_order_with_a_shipping_rate_is_created_with_shipping(): void
+    {
+        $this->addFlatRate();
+        $product_id = $this->createSimpleProduct('Physical with rate', '15.00');
+        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+
+        [$response, $calls, $shipping_total] = $this->sendPaypalCartOrder('NL');
+
+        $this->assertFalse($response['error']);
+        $this->assertSame(1, $calls);
+        $this->assertSame(5.0, $shipping_total);
+    }
+
+    public function test_virtual_paypal_order_needs_no_shipping_address(): void
+    {
+        $this->addFlatRate();
+        $product_id = $this->createSimpleProduct('Virtual product', '15.00', true);
+        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+
+        [$response, $calls] = $this->sendPaypalCartOrder(null);
+
+        $this->assertFalse($response['error']);
+        $this->assertSame(1, $calls);
+    }
+
+    /**
+     * Quote the live cart (with a PayPal address when a country is given) and
+     * send the approved order. Returns the response, how often an order was
+     * created and the shipping total of the cart it was created from.
+     */
+    private function sendPaypalCartOrder(?string $country): array
+    {
+        $shipping_data = [
+            'shipping_address' => [
+                'country_code' => $country,
+                'state' => '',
+                'postal_code' => '8441ER',
+                'city' => 'Heerenveen',
+            ],
+        ];
+
+        if ($country === null) {
+            $this->setPaypalRequest([], 'express-cart-totals', 'cart_total_nonce', 'cart');
+            $quote_response = $this->captureJsonResponse([$this->controller(), 'get_cart_total']);
+        } else {
+            $this->setPaypalRequest([], 'express-set-shipping', 'set_shipping_nonce', 'cart');
+            $_POST['shipping_data'] = $shipping_data;
+            $_REQUEST = $_POST;
+            $quote_response = $this->captureJsonResponse([$this->controller(), 'add_shipping']);
+        }
+        $this->assertFalse($quote_response['error']);
+
+        $_POST = [
+            'page' => 'cart',
+            'orderId' => 'PAYPAL-ORDER',
+            'quote_token' => $quote_response['data']['quote_token'],
+            'send_order_nonce' => wp_create_nonce('express-send_order'),
+        ];
+        if ($country !== null) {
+            $_POST['shipping_data'] = $shipping_data;
+        }
+        $_REQUEST = $_POST;
+
+        $calls = 0;
+        $shipping_total = null;
+        $order = new class($calls, $shipping_total) {
+            private $calls;
+
+            private $shipping_total;
+
+            public function __construct(int &$calls, &$shipping_total)
+            {
+                $this->calls = &$calls;
+                $this->shipping_total = &$shipping_total;
+            }
+
+            public function create_and_send($order_id): array
+            {
+                $this->calls++;
+                $this->shipping_total = (float) WC()->cart->get_shipping_total();
+
+                return ['redirect' => '/order-received'];
+            }
+        };
+        $controller = new PaypalExpressController(new PaypalExpressShipping(), $order);
+
+        $response = $this->captureJsonResponse([$controller, 'send_order']);
+
+        return [$response, $calls, $shipping_total];
+    }
+
+    /**
+     * Add a flat rate of 5 to a zone, by default the "locations not covered" zone.
+     */
+    private function addFlatRate(?WC_Shipping_Zone $zone = null): void
+    {
+        if ($this->shipping_enabled_before === null) {
+            $this->shipping_enabled_before = WC()->shipping()->enabled;
+        }
+        WC()->shipping()->enabled = true;
+        update_option('woocommerce_ship_to_countries', 'all');
+
+        $zone = $zone ?? new WC_Shipping_Zone(0);
+        $instance_id = $zone->add_shipping_method('flat_rate');
+        update_option(
+            "woocommerce_flat_rate_{$instance_id}_settings",
+            ['enabled' => 'yes', 'title' => 'Flat rate', 'tax_status' => 'none', 'cost' => '5']
+        );
+        delete_transient('wc_shipping_method_count');
+    }
+
     private function controller(): PaypalExpressController
     {
         return new PaypalExpressController(
@@ -737,13 +908,14 @@ $this->assertSame($expectedTotal, $order->get_total());
         return [$product_id, $variation_id];
     }
 
-    private function createSimpleProduct(string $name, string $price): int
+    private function createSimpleProduct(string $name, string $price, bool $virtual = false): int
     {
         $product = new WC_Product_Simple();
         $product->set_name($name);
         $product->set_status('publish');
         $product->set_regular_price($price);
         $product->set_price($price);
+        $product->set_virtual($virtual);
         $product_id = $product->save();
         $this->product_ids[] = $product_id;
 

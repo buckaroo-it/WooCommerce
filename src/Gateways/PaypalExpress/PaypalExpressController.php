@@ -8,6 +8,8 @@ use Buckaroo\Woocommerce\Gateways\Paypal\PaypalGateway;
 use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Gateways\ExpressPaymentManager;
 use Throwable;
+use UnexpectedValueException;
+use WC_Cart;
 
 /**
  * Core for dealing with paypal express button
@@ -324,6 +326,7 @@ class PaypalExpressController
                     if (! hash_equals($quote['total'], $order_total)) {
                         throw new PaypalExpressException('PayPal quote total has changed');
                     }
+                    $this->validate_shipping($cart);
                     $response = $this->order->create_and_send(
                         sanitize_text_field(wp_unslash($_POST['orderId']))
                     );
@@ -359,6 +362,38 @@ class PaypalExpressController
                     'error' => true,
                     'message' => 'Cannot process buckaroo payment',
                 ]
+            );
+        }
+    }
+
+    /**
+     * A cart that needs shipping must ship to the PayPal address with a method
+     * the shop offers there, as classic checkout requires. Call inside the
+     * order cart, where the customer and packages reflect the PayPal address.
+     *
+     * @param WC_Cart $cart Cart the order is created from.
+     * @return void
+     *
+     * @throws PaypalExpressException When the PayPal address or its shipping method is not valid.
+     */
+    private function validate_shipping($cart): void
+    {
+        if (! $cart->needs_shipping()) {
+            return;
+        }
+
+        if (! isset($_POST['shipping_data']['shipping_address'])) {
+            throw new PaypalExpressException(
+                __('A shipping address is required to pay with PayPal.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
+
+        $chosen_methods = WC()->session ? (array) WC()->session->get('chosen_shipping_methods') : [];
+        try {
+            ExpressProductCart::selectedShippingRate($cart, $chosen_methods[0] ?? '');
+        } catch (UnexpectedValueException $th) {
+            throw new PaypalExpressException(
+                __('No shipping method is available for this address.', 'wc-buckaroo-bpe-gateway')
             );
         }
     }
