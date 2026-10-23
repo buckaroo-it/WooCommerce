@@ -7,7 +7,22 @@
 
 const TRANSPARENT_BACKGROUND = /^(transparent|rgba\(0,\s*0,\s*0,\s*0\))$/;
 
+// A family name that is valid without quotes: one or more CSS identifiers.
+const UNQUOTED_FAMILY = /^-?[a-z_][\w-]*(\s+-?[a-z_][\w-]*)*$/i;
+
 const px = value => parseFloat(value) || 0;
+
+// Hosted Fields escapes the quotes in a font stack (`"Segoe UI"`), which voids the
+// whole declaration and leaves the iframe on the browser's default serif font, so
+// the families are passed unquoted. A name that is only valid quoted is left out;
+// the rest of the stack still applies.
+function unquotedFontFamily(fontFamily) {
+    return fontFamily
+        .split(',')
+        .map(family => family.trim().replace(/^(["'])(.*)\1$/, '$2'))
+        .filter(family => UNQUOTED_FAMILY.test(family))
+        .join(', ');
+}
 
 function themeInputFor(frame) {
     return frame?.parentElement?.querySelector('.buckaroo-hosted-field__input') ?? null;
@@ -56,7 +71,7 @@ export function hostedFieldStyling(frameSelector) {
     return {
         baseStyling: {
             fontSize: style.fontSize,
-            fontFamily: style.fontFamily,
+            fontFamily: unquotedFontFamily(style.fontFamily) || undefined,
             fontStyle: 'normal',
             fontWeight: style.fontWeight,
             textAlign: 'left',
