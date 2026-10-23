@@ -1588,3 +1588,11 @@ msgstr "Enregistré. Saisissez une nouvelle valeur uniquement pour la remplacer.
 #: src/Gateways/AbstractPaymentGateway.php:763
 msgid "Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals."
 msgstr "Frais de paiement non valides. Utilisez un montant fixe (0.25), un pourcentage (1.5%) ou les deux (0.25 + 1.5%) avec un point comme séparateur décimal."
+
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:387
+msgid "A shipping address is required to pay with PayPal."
+msgstr "Une adresse de livraison est requise pour payer avec PayPal."
+
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:396
+msgid "No shipping method is available for this address."
+msgstr "Aucun mode de livraison n'est disponible pour cette adresse."
