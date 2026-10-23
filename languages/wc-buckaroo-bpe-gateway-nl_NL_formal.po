@@ -1629,3 +1629,11 @@ msgstr "Klarna-betaling geautoriseerd, maar nog niet geïnd. Zet de bestelling n
 #: src/Gateways/Klarna/KlarnaPushProcessor.php:146
 msgid "Klarna payment authorized, but not collected yet. Automatic capture is off: capture the payment from this order after shipping."
 msgstr "Klarna-betaling geautoriseerd, maar nog niet geïnd. Automatisch innen staat uit: int de betaling na verzending vanuit deze bestelling."
+
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:387
+msgid "A shipping address is required to pay with PayPal."
+msgstr "Een verzendadres is vereist om met PayPal te betalen."
+
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:396
+msgid "No shipping method is available for this address."
+msgstr "Er is geen verzendmethode beschikbaar voor dit adres."

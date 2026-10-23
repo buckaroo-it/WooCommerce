@@ -1500,6 +1500,7 @@ msgstr ""
 
 #: src/Gateways/AbstractPaymentGateway.php
 msgid "Saved. Enter a new value only to replace it."
+msgstr ""
 
 #: src/Gateways/AbstractPaymentGateway.php:763
 msgid "Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals."
@@ -1543,4 +1544,12 @@ msgstr ""
 
 #: src/Gateways/Klarna/KlarnaPushProcessor.php:146
 msgid "Klarna payment authorized, but not collected yet. Automatic capture is off: capture the payment from this order after shipping."
+msgstr ""
+
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:387
+msgid "A shipping address is required to pay with PayPal."
+msgstr ""
+
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:396
+msgid "No shipping method is available for this address."
 msgstr ""

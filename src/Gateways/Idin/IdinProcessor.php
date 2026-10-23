@@ -111,8 +111,9 @@ class IdinProcessor extends AbstractPaymentProcessor
         if ($woocommerce->cart) {
             $items = $woocommerce->cart->get_cart();
 
+            // A variation has no categories of its own; they belong to its parent product.
             foreach ($items as $item) {
-                $productIds[] = $item['data']->get_id();
+                $productIds[] = ! empty($item['product_id']) ? (int) $item['product_id'] : $item['data']->get_id();
             }
         }
 

@@ -61,12 +61,28 @@ class ReturnProcessor
             }
         }
 
+        // A browser return can be replayed, so it is matched to the order. The
+        // synchronous response of PayAction is not validated and starts the
+        // order's current transaction.
+        $staleReply = false;
+        if ($this->validateReplyHandler) {
+            if (PushProcessor::replyMismatch($order, $responseParser) !== null) {
+                Logger::log('Return ignored: currency or mode does not match the order. Order id: ' . $orderId);
+
+                return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Response not valid!');
+            }
+
+            $staleReply = PushProcessor::isStaleReply($order, $responseParser);
+        }
+
         (new TransferResponse($responseParser))->storeBankDetails($order);
 
-        $order->set_transaction_id($responseParser->getTransactionKey());
-        $order->save();
+        if (! $staleReply) {
+            $order->set_transaction_id($responseParser->getTransactionKey());
+            $order->save();
 
-        OrderMeta::update($order, '_buckaroo_order_in_test_mode', $responseParser->isTest());
+            OrderMeta::update($order, '_buckaroo_order_in_test_mode', $responseParser->isTest());
+        }
 
         // Check if we need to redirect first (based on the response)
         if ($redirect = Helper::processCheckRedirectRequired($responseParser)) {
@@ -107,7 +123,11 @@ class ReturnProcessor
         }
 
         // Update order status: failed/cancelled
-        $this->updateStatusFailedOrCancelled($order, $responseParser);
+        if ($staleReply) {
+            Logger::log('Return for transaction ' . $responseParser->getTransactionKey() . ' is not the order\'s current transaction. Order status not changed.');
+        } else {
+            $this->updateStatusFailedOrCancelled($order, $responseParser);
+        }
 
         // Show notice
         $errorDescription = __('Payment unsuccessful. Please try again or choose another payment method.', 'wc-buckaroo-bpe-gateway');
