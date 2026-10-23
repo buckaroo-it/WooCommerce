@@ -409,10 +409,16 @@ label.bk-in3-logo img {
     border: 0;
 }
 
+/* Checkout Block: an input wrapped on its own (the birthdate) gets WooCommerce's
+   1.5em only-child margin, which leaves a wide gap below the redirect notice; give
+   it the 16px WooCommerce puts between fields. */
+.buckaroo-checkout-fields .wc-block-components-text-input:only-child {
+    margin-top: 16px;
+}
+
 /* Checkout Block: WooCommerce spaces a checkbox only 1em from the field above it,
    and its label has line-height: 1, so under an input (Riverty's terms below the
-   birthdate) it reads as glued on; match the 1.5em the payment box gives the first
-   input instead. */
+   birthdate) it reads as glued on. */
 .buckaroo-checkout-fields .wc-block-components-checkbox {
     margin-top: 1.5em;
 }
