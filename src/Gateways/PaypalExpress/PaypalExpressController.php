@@ -4,9 +4,12 @@ namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
+use Buckaroo\Woocommerce\Gateways\Paypal\PaypalGateway;
 use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Gateways\ExpressPaymentManager;
 use Throwable;
+use UnexpectedValueException;
+use WC_Cart;
 
 /**
  * Core for dealing with paypal express button
@@ -107,6 +110,9 @@ class PaypalExpressController
                 'merchant_id' => $this->get_merchant_id(),
                 'is_test' => $this->is_test_mode(),
                 'page' => $this->determine_page(),
+                'button_style' => $this->get_setting_value('button_style') ?? 'gold',
+                'button_shape' => self::buttonShape($this->get_setting_value('button_rounded')),
+                'button_type' => $this->get_setting_value('button_type') ?? 'paypal',
                 'i18n' => [
                     'cancel_error_message' => __('You have canceled the payment request', 'wc-buckaroo-bpe-gateway'),
                     'cannot_create_payment' => __('Cannot create payment', 'wc-buckaroo-bpe-gateway'),
@@ -128,6 +134,7 @@ class PaypalExpressController
     protected function is_active()
     {
         return $this->settings['enabled'] == 'yes' &&
+            PaypalGateway::hasRequiredCredentials($this->settings) &&
             ! (count($this->settings['express']) === 1 && in_array(self::LOCATION_NONE, $this->settings['express']));
     }
 
@@ -319,6 +326,7 @@ class PaypalExpressController
                     if (! hash_equals($quote['total'], $order_total)) {
                         throw new PaypalExpressException('PayPal quote total has changed');
                     }
+                    $this->validate_shipping($cart);
                     $response = $this->order->create_and_send(
                         sanitize_text_field(wp_unslash($_POST['orderId']))
                     );
@@ -354,6 +362,38 @@ class PaypalExpressController
                     'error' => true,
                     'message' => 'Cannot process buckaroo payment',
                 ]
+            );
+        }
+    }
+
+    /**
+     * A cart that needs shipping must ship to the PayPal address with a method
+     * the shop offers there, as classic checkout requires. Call inside the
+     * order cart, where the customer and packages reflect the PayPal address.
+     *
+     * @param WC_Cart $cart Cart the order is created from.
+     * @return void
+     *
+     * @throws PaypalExpressException When the PayPal address or its shipping method is not valid.
+     */
+    private function validate_shipping($cart): void
+    {
+        if (! $cart->needs_shipping()) {
+            return;
+        }
+
+        if (! isset($_POST['shipping_data']['shipping_address'])) {
+            throw new PaypalExpressException(
+                __('A shipping address is required to pay with PayPal.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
+
+        $chosen_methods = WC()->session ? (array) WC()->session->get('chosen_shipping_methods') : [];
+        try {
+            ExpressProductCart::selectedShippingRate($cart, $chosen_methods[0] ?? '');
+        } catch (UnexpectedValueException $th) {
+            throw new PaypalExpressException(
+                __('No shipping method is available for this address.', 'wc-buckaroo-bpe-gateway')
             );
         }
     }
@@ -559,7 +599,7 @@ class PaypalExpressController
      */
     protected function is_test_mode()
     {
-        return isset($this->settings['mode']) && strtolower((string) $this->settings['mode']) === 'test';
+        return strtolower((string) ($this->settings['mode'] ?? 'test')) === 'test';
     }
 
     /**
@@ -581,6 +621,14 @@ class PaypalExpressController
         }
 
         return $this->get_setting_value('express_merchant_id');
+    }
+
+    /**
+     * Map the stored Yes/No onto PayPal's own shape vocabulary.
+     */
+    public static function buttonShape(?string $stored): string
+    {
+        return $stored === 'TRUE' ? 'pill' : 'rect';
     }
 
     /**

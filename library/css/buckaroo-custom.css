@@ -6,16 +6,6 @@
     background-color: white;
 }
 
-input[type='password'].error,
-input[type='text'].error {
-    border-color: red;
-}
-
-input[type='password'].validated,
-input[type='text'].validated {
-    border-color: green;
-}
-
 .capture-form {
     background: white;
     background-color: #e4e4e4;
@@ -203,17 +193,21 @@ label[for^='payment_method_buckaroo_'] img {
 
 /* paybybank */
 
+/* The arrows are masks over the text colour, so they follow the theme. */
 .bk-toggle-down {
-    background-image: url("data:image/svg+xml,%3Csvg width='20px' height='20px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.293 9.293a1 1 0 0 1 1.414 0L12 14.586l5.293-5.293a1 1 0 1 1 1.414 1.414l-6 6a1 1 0 0 1-1.414 0l-6-6a1 1 0 0 1 0-1.414z' fill='%230D0D0D'/%3E%3C/svg%3E%0A");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='20px' height='20px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.293 9.293a1 1 0 0 1 1.414 0L12 14.586l5.293-5.293a1 1 0 1 1 1.414 1.414l-6 6a1 1 0 0 1-1.414 0l-6-6a1 1 0 0 1 0-1.414z' fill='%230D0D0D'/%3E%3C/svg%3E%0A");
+    mask-image: url("data:image/svg+xml,%3Csvg width='20px' height='20px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.293 9.293a1 1 0 0 1 1.414 0L12 14.586l5.293-5.293a1 1 0 1 1 1.414 1.414l-6 6a1 1 0 0 1-1.414 0l-6-6a1 1 0 0 1 0-1.414z' fill='%230D0D0D'/%3E%3C/svg%3E%0A");
 }
 
 .bk-toggle-up {
-    background-image: url("data:image/svg+xml,%3Csvg width='20px' height='20px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.293 7.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1-1.414 1.414L12 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414l6-6z' fill='%230D0D0D'/%3E%3C/svg%3E%0A");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='20px' height='20px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.293 7.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1-1.414 1.414L12 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414l6-6z' fill='%230D0D0D'/%3E%3C/svg%3E%0A");
+    mask-image: url("data:image/svg+xml,%3Csvg width='20px' height='20px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.293 7.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1-1.414 1.414L12 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414l6-6z' fill='%230D0D0D'/%3E%3C/svg%3E%0A");
 }
 
 .bk-toggle {
     height: 20px;
     width: 20px;
+    background-color: currentColor;
 }
 
 .bk-toggle-wrap {
@@ -266,9 +260,9 @@ label[for^='payment_method_buckaroo_'] img {
     }
 
     .bk-paybybank-selector .bank-method-input:checked + .bank-method-label {
-        background-color: #ededed;
-        color: #000;
-        border-radius: 5px;
+        outline: 1px solid currentColor;
+        outline-offset: -1px;
+        border-radius: 4px;
     }
 
     .bk-paybybank-selector .bank-method-label {
@@ -283,7 +277,7 @@ label[for^='payment_method_buckaroo_'] img {
     .bk-paybybank-selector .bank-method-label strong {
         display: block;
         text-align: center;
-        font-size: 12px;
+        font-size: 0.75em;
         flex: 100% 0 0;
     }
 
@@ -339,45 +333,6 @@ label.bk-in3-logo img {
 
 /** end in3 logo input **/
 
-/* Style for the select element */
-.buckaroo-custom-select {
-    padding: 10px;
-    border: 2px solid #aaa;
-    border-radius: 5px;
-    background-color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    font-family: Arial, sans-serif;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.buckaroo-custom-select::after {
-    content: '\25BC';
-    position: absolute;
-    top: 50%;
-    right: 15px;
-    transform: translateY(-50%);
-    font-size: 10px;
-    color: #aaa;
-    pointer-events: none;
-}
-
-.buckaroo-custom-select:hover {
-    border-color: #888;
-}
-
-.buckaroo-custom-select:focus {
-    outline: none;
-    border-color: #555;
-}
-
-.buckaroo-custom-select::-ms-expand {
-    display: none;
-}
-
 .wc-buckaroo-action-button.email::after {
     content: '\f465';
 }
@@ -386,40 +341,155 @@ label.bk-in3-logo img {
     content: '\f103';
 }
 
-/* Credit Card Form Styling */
-
-/* Input Fields */
-.cardHolderName,
-.cardNumber,
-.expirationDate,
-.cvc {
-    width: 100%;
-    height: 3rem;
-    padding: 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.25rem;
-    font-size: 1rem;
-    color: #4a5568;
-    background-color: #fff;
-    outline: none;
-    transition: border-color 0.2s ease-in-out;
+/* Credit card hosted fields. Each field is an inert theme input that draws the box,
+   with the card iframe laid over its text line; hosted-field-styling.js places the
+   frame and passes the input's font and colours to the SDK. */
+.buckaroo-hosted-field {
+    position: relative;
+    display: block;
 }
 
-/* Error Styling */
-.cardHolderName + .input-error,
-.cardNumber + .input-error,
-.expirationDate + .input-error,
-.cvc + .input-error {
-    color: #f56565;
+.buckaroo-hosted-field__input {
+    pointer-events: none;
 }
 
+.buckaroo-hosted-field__frame {
+    position: absolute;
+    inset: 0;
+}
+
+/* The SDK sizes the iframe in pixels once, at mount time. */
+.buckaroo-hosted-field__frame iframe {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    border: 0;
+}
+
+/* The focused input is inside the iframe, so the theme's :focus style cannot
+   reach the field. WooCommerce's own inputs take the text colour on focus. */
+.buckaroo-hosted-field:focus-within:not(.has-error) .buckaroo-hosted-field__input {
+    border-color: currentColor;
+}
+
+.buckaroo-hosted-field__error:empty,
 .woocommerce-error:empty {
     display: none;
 }
 
-.woocommerce-page.woocommerce-checkout #payment .buckaroo-creditcard-fieldset div.form-row {
-    margin: 0 0 1em;
-    padding: 3px;
+/* Checkout Block: expiry and CVC side by side. The fields stay siblings so the
+   Block's spacing between consecutive inputs applies to every one of them. The
+   classic checkout floats them with form-row-first/last instead. */
+.buckaroo-hosted-fields {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 16px;
+}
+
+.buckaroo-hosted-fields > .buckaroo-hosted-field {
+    flex: 1 1 100%;
+    min-width: 0;
+}
+
+.buckaroo-hosted-fields > .buckaroo-hosted-field--half {
+    flex-basis: calc(50% - 8px);
+}
+
+/* Additional checkout fields use WooCommerce's own field markup and styling; only
+   layout the theme cannot know about lives here. */
+
+/* The templates group their fields in a fieldset. Themes style fieldsets as boxes
+   (Astra: 30px side padding and min-width: min-content), which squeezes the fields
+   and overflows the payment box on mobile; WooCommerce's own payment fields sit
+   directly in the payment box. */
+.buckaroo-checkout-fields fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* Checkout Block: an input wrapped on its own (the birthdate) gets WooCommerce's
+   1.5em only-child margin, which leaves a wide gap below the redirect notice; give
+   it the 16px WooCommerce puts between fields. */
+.buckaroo-checkout-fields .wc-block-components-text-input:only-child {
+    margin-top: 16px;
+}
+
+/* Checkout Block: WooCommerce spaces a checkbox only 1em from the field above it,
+   and its label has line-height: 1, so under an input (Riverty's terms below the
+   birthdate) it reads as glued on. */
+.buckaroo-checkout-fields .wc-block-components-checkbox {
+    margin-top: 1.5em;
+}
+
+/* react-datepicker wraps the Checkout Block birthdate input in two inline-blocks. */
+.buckaroo-checkout-fields .react-datepicker-wrapper,
+.buckaroo-checkout-fields .react-datepicker__input-container {
+    display: block;
+    width: 100%;
+}
+
+/* Checkout Block birthdate calendar. The library's stylesheet sets its own font
+   and black text; these hand typography back to the theme. The popper sits in the
+   payment box, so it has to stack above the fields that follow it. */
+.buckaroo-checkout-fields .react-datepicker-popper {
+    z-index: 100;
+}
+
+.buckaroo-checkout-fields .react-datepicker {
+    font-family: inherit;
+    font-size: 0.875em;
+    color: inherit;
+}
+
+.buckaroo-checkout-fields .react-datepicker__day-name,
+.buckaroo-checkout-fields .react-datepicker__month-read-view,
+.buckaroo-checkout-fields .react-datepicker__year-read-view,
+.buckaroo-checkout-fields .react-datepicker__month-option,
+.buckaroo-checkout-fields .react-datepicker__year-option,
+.buckaroo-checkout-fields
+    .react-datepicker__day:not(.react-datepicker__day--disabled):not(.react-datepicker__day--selected):not(
+        .react-datepicker__day--keyboard-selected
+    ) {
+    color: inherit;
+}
+
+/* The month and year dropdowns already name the shown month; the title above
+   them only repeats it, and overlaps them once the theme's line height applies. */
+.buckaroo-checkout-fields .react-datepicker__current-month--hasMonthDropdown,
+.buckaroo-checkout-fields .react-datepicker__current-month--hasYearDropdown {
+    display: none;
+}
+
+.buckaroo-checkout-fields .react-datepicker__header__dropdown {
+    line-height: 1.3;
+    font-weight: 700;
+}
+
+/* The month arrows are <button>s, which themes style as call-to-action buttons. */
+.buckaroo-checkout-fields .react-datepicker__navigation,
+.buckaroo-checkout-fields .react-datepicker__navigation:hover,
+.buckaroo-checkout-fields .react-datepicker__navigation:focus {
+    width: 32px;
+    min-width: 0;
+    height: 32px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: inherit;
+    line-height: normal;
+}
+
+.buckaroo-checkout-fields .react-datepicker__navigation-icon::before,
+.buckaroo-checkout-fields .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before,
+.buckaroo-checkout-fields .react-datepicker__month-read-view--down-arrow,
+.buckaroo-checkout-fields .react-datepicker__year-read-view--down-arrow {
+    border-color: currentColor;
 }
 
 /* -------------------------------------------------------------------------
@@ -974,33 +1044,6 @@ label.bk-in3-logo img {
     width: 100%;
     margin: 0 !important;
 }
-.bk-creds-field {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.bk-key-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 6px;
-    align-self: stretch;
-    border: 1px solid #dcdcde;
-    border-radius: 3px;
-    background: #f6f7f7;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.1s;
-    color: #555;
-}
-.bk-key-btn:active {
-    opacity: 0.8;
-}
-.bk-key-btn--toggle:hover {
-    background: #e8e9ea;
-    color: #1a1a2e;
-}
-
 /* General Options section */
 .bk-general-options-card {
     margin: 0;
@@ -1101,7 +1144,7 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
     cursor: pointer;
     text-align: center;
     line-height: 1.8em;
-    color: #555;
+    color: inherit;
     user-select: none;
 }
 .ui-datepicker .ui-datepicker-prev {
@@ -1142,7 +1185,7 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
     padding: 0.35em;
     text-align: center;
     text-decoration: none;
-    color: #333;
+    color: inherit;
     border-radius: 3px;
 }
 .ui-datepicker td a:hover {
@@ -1160,7 +1203,6 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
     /* keeps the icon on the first line when the text wraps */
     align-items: flex-start;
     gap: 8px;
-    color: #646970;
 }
 
 .buckaroo-redirect-notice::before {
@@ -1169,6 +1211,15 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
     width: 20px;
     height: 20px;
     margin-top: 1px;
-    background: no-repeat center / contain
+    /* a mask over the text colour, so the icon follows the theme */
+    background-color: currentColor;
+    -webkit-mask: no-repeat center / contain
         url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 5H5.5C4.67157 5 4 5.67157 4 6.5V14C4 14.8284 4.67157 15.5 5.5 15.5H13C13.8284 15.5 14.5 14.8284 14.5 14V12.5' stroke='%23808992' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M10 5H15V10' stroke='%23808992' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M15 5L8.5 11.5' stroke='%23808992' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    mask: no-repeat center / contain
+        url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 5H5.5C4.67157 5 4 5.67157 4 6.5V14C4 14.8284 4.67157 15.5 5.5 15.5H13C13.8284 15.5 14.5 14.8284 14.5 14V12.5' stroke='%23808992' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M10 5H15V10' stroke='%23808992' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M15 5L8.5 11.5' stroke='%23808992' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+/* Express button preview on the settings screen, held to the field width. */
+.buckaroo-express-preview {
+    max-width: 400px;
 }

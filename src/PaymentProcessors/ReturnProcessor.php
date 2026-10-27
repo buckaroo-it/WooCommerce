@@ -3,12 +3,14 @@
 namespace Buckaroo\Woocommerce\PaymentProcessors;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\Transfer\TransferResponse;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
+use Buckaroo\Woocommerce\Services\LoggerStorage;
 use Exception;
 use WC_Order;
 
@@ -35,7 +37,7 @@ class ReturnProcessor
 
         $_SESSION['buckaroo_response'] = '';
 
-        Logger::log(__METHOD__, var_export($_SERVER, true));
+        Logger::log(__METHOD__, LoggerStorage::request_context());
         Logger::log(__METHOD__, $responseParser);
 
         $orderId = $this->getOrderId($responseParser);
@@ -59,10 +61,28 @@ class ReturnProcessor
             }
         }
 
-        $order->set_transaction_id($responseParser->getTransactionKey());
-        $order->save();
+        // A browser return can be replayed, so it is matched to the order. The
+        // synchronous response of PayAction is not validated and starts the
+        // order's current transaction.
+        $staleReply = false;
+        if ($this->validateReplyHandler) {
+            if (PushProcessor::replyMismatch($order, $responseParser) !== null) {
+                Logger::log('Return ignored: currency or mode does not match the order. Order id: ' . $orderId);
 
-        OrderMeta::update($order, '_buckaroo_order_in_test_mode', $responseParser->isTest());
+                return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Response not valid!');
+            }
+
+            $staleReply = PushProcessor::isStaleReply($order, $responseParser);
+        }
+
+        (new TransferResponse($responseParser))->storeBankDetails($order);
+
+        if (! $staleReply) {
+            $order->set_transaction_id($responseParser->getTransactionKey());
+            $order->save();
+
+            OrderMeta::update($order, '_buckaroo_order_in_test_mode', $responseParser->isTest());
+        }
 
         // Check if we need to redirect first (based on the response)
         if ($redirect = Helper::processCheckRedirectRequired($responseParser)) {
@@ -103,7 +123,11 @@ class ReturnProcessor
         }
 
         // Update order status: failed/cancelled
-        $this->updateStatusFailedOrCancelled($order, $responseParser);
+        if ($staleReply) {
+            Logger::log('Return for transaction ' . $responseParser->getTransactionKey() . ' is not the order\'s current transaction. Order status not changed.');
+        } else {
+            $this->updateStatusFailedOrCancelled($order, $responseParser);
+        }
 
         // Show notice
         $errorDescription = __('Payment unsuccessful. Please try again or choose another payment method.', 'wc-buckaroo-bpe-gateway');

@@ -287,6 +287,21 @@ class KlarnaCaptureAttempt
         return empty($attempts) ? null : end($attempts);
     }
 
+    /**
+     * Whether a capture succeeded or may still succeed (queued, running or unconfirmed).
+     */
+    public static function hasStartedCapture(WC_Order $order): bool
+    {
+        foreach (self::all($order) as $attempt) {
+            $state = $attempt['state'] ?? '';
+            if ($state === 'succeeded' || in_array($state, self::BLOCKING_STATES, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static function canRetry(WC_Order $order): bool
     {
         $attempt = self::latest($order);
@@ -298,10 +313,9 @@ class KlarnaCaptureAttempt
             return false;
         }
 
-        $reservedAmount = $order->get_meta('_buckaroo_klarna_reserved_amount');
         $remaining = CaptureAllocation::remainingForOrder(
             $order,
-            is_numeric($reservedAmount) ? (float) $reservedAmount : null
+            KlarnaProcessor::getReservedAmount($order)
         );
 
         return $remaining->getAmount() > 0;

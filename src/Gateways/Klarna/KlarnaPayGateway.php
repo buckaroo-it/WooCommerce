@@ -8,10 +8,23 @@ use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
+use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use WC_Order;
 
 class KlarnaPayGateway extends KlarnaGateway
 {
+    /**
+     * Klarna as Merchant of Record settles in the local currency of the
+     * shopper's market, so it is not limited to the EUR default that
+     * KlarnaGateway inherits from AbstractPaymentGateway. Klarna Pay later
+     * (KlarnaKpGateway) is EUR only and keeps the inherited default, which is
+     * why these live here and not on the shared KlarnaGateway base.
+     */
+    protected array $supportedCurrencies = ['EUR', 'CHF', 'DKK', 'GBP', 'NOK', 'PLN', 'SEK'];
+
+    /** As the base list, plus PL so Polish shoppers can pay in PLN. */
+    protected array $supportedCountries = ['DE', 'AT', 'SE', 'NO', 'FI', 'DK', 'NL', 'CH', 'GB', 'BE', 'PL'];
+
     public bool $capturable = true;
 
     public function __construct()
@@ -38,8 +51,32 @@ class KlarnaPayGateway extends KlarnaGateway
             'label' => __('Automatic capture when order is completed', 'wc-buckaroo-bpe-gateway'),
             'type' => 'checkbox',
             'description' => __('Captures the remaining reserved amount at Klarna when the order status changes to Completed. The result is confirmed by the Buckaroo push. A failed capture adds an order note and an admin notice and can be retried from the order actions.', 'wc-buckaroo-bpe-gateway'),
-            'default' => 'no',
+            'default' => 'yes',
         ];
+    }
+
+    public function init_settings()
+    {
+        parent::init_settings();
+
+        if (! isset($this->settings['automatic_capture'])) {
+            $this->settings['automatic_capture'] = self::isAutomaticCaptureEnabled() ? 'yes' : 'no';
+        }
+    }
+
+    /**
+     * Automatic capture is on by default for new installs only: shops that saved
+     * Klarna (MoR) settings before the option existed keep the previous default (off).
+     */
+    public static function isAutomaticCaptureEnabled(): bool
+    {
+        $settings = get_option('woocommerce_buckaroo_klarnapay_settings', null);
+
+        if (! is_array($settings)) {
+            return true;
+        }
+
+        return ($settings['automatic_capture'] ?? 'no') === 'yes';
     }
 
     /**
@@ -146,27 +183,59 @@ class KlarnaPayGateway extends KlarnaGateway
      */
     public function cancel_reservation(WC_Order $order)
     {
-        $processor = $this->newPaymentProcessorInstance($order);
-        $payment = new BuckarooClient($this->getMode());
+        $response = $this->sendCancelReservation($order);
 
-        $dataRequestKey = OrderMeta::get($order, KlarnaProcessor::DATA_REQUEST_META_KEY);
-
-        if (! is_string($dataRequestKey) || strlen($dataRequestKey) === 0) {
+        if ($response === null) {
             return $this->create_capture_error(__('Cannot cancel reservation, Klarna Data Request key not found', 'wc-buckaroo-bpe-gateway'));
         }
 
-        (new CancelReservationAction())->handle(
-            $payment->method($this->getServiceCode($processor))->cancelReserve(
-                array_merge(
-                    $processor->getBody(),
-                    // Klarna's `klarna` service references the original reserve via
-                    // a service-level `DataRequestKey` parameter (the SDK's `Pay`
-                    // model exposes it as `dataRequestKey`).
-                    ['dataRequestKey' => $dataRequestKey]
-                )
-            ),
-            $order
+        (new CancelReservationAction())->handle($response, $order);
+    }
+
+    /**
+     * Release the Klarna reservation without changing the order status.
+     *
+     * @return bool Whether Buckaroo confirmed the release.
+     */
+    public function release_reservation(WC_Order $order, ?BuckarooClient $buckarooClient = null): bool
+    {
+        $response = $this->sendCancelReservation($order, $buckarooClient);
+
+        return $response !== null && $response->isSuccess();
+    }
+
+    /**
+     * @return TransactionResponse|null Null when the order has no Data Request key.
+     */
+    private function sendCancelReservation(WC_Order $order, ?BuckarooClient $buckarooClient = null): ?TransactionResponse
+    {
+        $dataRequestKey = OrderMeta::get($order, KlarnaProcessor::DATA_REQUEST_META_KEY);
+
+        if (! is_string($dataRequestKey) || strlen($dataRequestKey) === 0) {
+            return null;
+        }
+
+        $processor = $this->newPaymentProcessorInstance($order);
+        $payment = $buckarooClient ?? new BuckarooClient($this->getMode());
+
+        $response = $payment->method($this->getServiceCode($processor))->cancelReserve(
+            array_merge(
+                $processor->getBody(),
+                // Klarna's `klarna` service references the original reserve via
+                // a service-level `DataRequestKey` parameter (the SDK's `Pay`
+                // model exposes it as `dataRequestKey`).
+                ['dataRequestKey' => $dataRequestKey]
+            )
         );
+
+        // The reservation is no longer open: stop capture, release and the order actions
+        // from acting on it again (cancelling the order would otherwise release it twice).
+        if ($response->isSuccess()) {
+            $order->delete_meta_data('buckaroo_is_reserved');
+            $order->save_meta_data();
+        }
+
+        return $response;
     }
 
     /**

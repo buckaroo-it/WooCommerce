@@ -3,7 +3,7 @@ Contributors: buckaroosupport
 Tags: payment gateway, payments, ideal, klarna, checkout
 Requires at least: 5.3.18
 Tested up to: 7.1
-Stable tag: 4.10.2
+Stable tag: 4.11.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -142,6 +142,9 @@ Technical questions about the plugin: [support@buckaroo.nl](mailto:support@bucka
 
 == Upgrade Notice ==
 
+= 4.11.0 =
+Payment fees can now combine a fixed amount and a percentage, Klarna (MoR) authorized orders move to "Processing" instead of "On hold" and support currencies other than EUR, and the express payment settings have been standardised. Includes security fixes for payment replies, pushes and the plugin log, and support for WooCommerce 11.2.0.
+
 = 4.10.2 =
 Update to use PHP SDK v1.24.5 for the plugin (latest)
 Update outdated payment method labels in PayPerEmail "Allowed methods" setting
@@ -158,6 +161,43 @@ Adds support for High-Performance Order Storage. Existing orders are updated aut
 == Changelog ==
 
 For release notes of earlier versions, see the [releases on GitHub](https://github.com/buckaroo-it/WooCommerce/releases).
+
+= 4.11.0 =
+
+Improvements & new features
+
+BTI-1595 Support for WooCommerce 11.2.0
+BTI-1178 Payment fees can combine a fixed amount and a percentage (e.g. 0.25 + 1.5%)
+BTI-1744 Klarna (MoR) authorized orders are moved to "Processing" instead of "On hold"
+BTI-1479 The express payment method settings (Apple Pay, Google Pay, PayPal) have been standardised
+BTI-1485 The express payment credentials (Apple Pay, Google Pay, PayPal) are validated before the payment method is offered
+BTI-1742 The additional checkout fields use the theme / WooCommerce default styling
+BTI-1549 The Store key and Secret key are write-only in the settings; the reveal option has been removed
+BTI-1747 A stored Store key and Secret key are shown as a masked value instead of a placeholder
+BTI-1559 Clearer Hosted Fields credential hints, with a link to the token registration in Buckaroo Plaza
+BTI-1558 The "Show separate in checkout" setting for Credit and debit cards is hidden when Hosted Fields is enabled
+BTI-1696 The country information for Bank Transfer has been adjusted to "Multi-currency"
+BTI-1514 Payconiq has been removed as a payment method (deprecated)
+BTI-1745 Missing payment methods have been added to README.md
+
+Bug fixes
+
+BTI-1478 Klarna (MoR) only supported EUR; other currencies are now supported
+BTI-1823 Klarna (MoR) capture failed from the order admin, Buckaroo Plaza and automatic capture
+BTI-1873 The authorisation and Klarna reservation state was overwritten by returns or never reset
+BTI-1766 Klarna reserved orders could be marked as paid when the return arrived before the push
+BTI-1761 Repeated signed replies could change the status of cancelled, failed or refunded orders
+BTI-1864 Payment replies were not matched to the order's currency, mode, gateway and transaction
+BTI-1737 Bank transfer reply data was stored on the order before the signature was validated
+BTI-1767 The settings page wrote submitted form data, including credentials, to the plugin log
+BTI-1862 The payment fee was taken from a previously selected method on the block checkout and order-pay page
+BTI-1765 Gateway availability rules used the cart instead of the order on the order-pay page
+BTI-1763 Apple Pay and Google Pay express transactions skipped the gateway availability rules
+BTI-1764 Apple Pay, Google Pay and PayPal express orders could be created without a valid shipping method
+BTI-1762 iDIN age verification was not bound to the visitor session that started it
+BTI-1861 iDIN age verification was skipped for variations of products in iDIN categories
+BTI-1910 The birthdate field interpreted typed dates incorrectly
+BTI-1608 The checkout redirect notice "after submission..." was not translated
 
 = 4.10.1 =
 

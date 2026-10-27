@@ -8,7 +8,22 @@ use Buckaroo\Woocommerce\Services\Logger;
 
 class IdinProcessor extends AbstractPaymentProcessor
 {
+    /**
+     * Nonce action for the identify and reset endpoints. The `woocommerce`
+     * prefix makes WooCommerce bind guest nonces to the customer session.
+     */
+    public const NONCE_ACTION = 'woocommerce-buckaroo-idin';
+
+    /** How long a successful verification is accepted. */
+    public const VERIFICATION_TTL = 30 * DAY_IN_SECONDS;
+
+    /** How long a started verification can be completed. */
+    public const PENDING_TTL = HOUR_IN_SECONDS;
+
     private static $idinCategories;
+
+    /** @var string|null */
+    private $verificationNonce;
 
     public static function checkIfValidIssuer($code)
     {
@@ -78,11 +93,13 @@ class IdinProcessor extends AbstractPaymentProcessor
             return true;
         }
 
-        if ($currentUserId = get_current_user_id()) {
-            return get_user_meta($currentUserId, 'buckaroo_idin', true);
-        } else {
-            return WC()->session->get('buckaroo_idin');
+        if (! self::getStoredValue('buckaroo_idin')) {
+            return false;
         }
+
+        $verifiedAt = (int) self::getStoredValue('buckaroo_idin_verified_at');
+
+        return $verifiedAt > 0 && (time() - $verifiedAt) < self::VERIFICATION_TTL;
     }
 
     public static function getCartProductIds()
@@ -94,8 +111,9 @@ class IdinProcessor extends AbstractPaymentProcessor
         if ($woocommerce->cart) {
             $items = $woocommerce->cart->get_cart();
 
+            // A variation has no categories of its own; they belong to its parent product.
             foreach ($items as $item) {
-                $productIds[] = $item['data']->get_id();
+                $productIds[] = ! empty($item['product_id']) ? (int) $item['product_id'] : $item['data']->get_id();
             }
         }
 
@@ -104,15 +122,9 @@ class IdinProcessor extends AbstractPaymentProcessor
 
     public static function setCurrentUserIsVerified($bin)
     {
-        $currentUserId = get_current_user_id();
-
-        if ($currentUserId) {
-            add_user_meta($currentUserId, 'buckaroo_idin', 1, true);
-            add_user_meta($currentUserId, 'buckaroo_idin_bin', $bin, true);
-        } else {
-            WC()->session->set('buckaroo_idin', 1);
-            WC()->session->set('buckaroo_idin_bin', $bin);
-        }
+        self::setStoredValue('buckaroo_idin', 1);
+        self::setStoredValue('buckaroo_idin_bin', $bin);
+        self::setStoredValue('buckaroo_idin_verified_at', time());
     }
 
     public static function setCurrentUserIsNotVerified()
@@ -122,9 +134,85 @@ class IdinProcessor extends AbstractPaymentProcessor
         if ($currentUserId) {
             delete_user_meta($currentUserId, 'buckaroo_idin');
             delete_user_meta($currentUserId, 'buckaroo_idin_bin');
+            delete_user_meta($currentUserId, 'buckaroo_idin_verified_at');
+            delete_user_meta($currentUserId, 'buckaroo_idin_pending');
         } else {
             WC()->session->set('buckaroo_idin', 0);
             WC()->session->set('buckaroo_idin_bin', 0);
+            WC()->session->set('buckaroo_idin_verified_at', null);
+            WC()->session->set('buckaroo_idin_pending', null);
+        }
+    }
+
+    /**
+     * Record that the current visitor started a verification and return the
+     * nonce sent along with it. Starting again replaces the previous one.
+     */
+    public static function startVerification(): string
+    {
+        if (! get_current_user_id() && WC()->session && ! WC()->session->has_session()) {
+            WC()->session->set_customer_session_cookie(true);
+        }
+
+        $nonce = wp_generate_password(32, false);
+
+        self::setStoredValue(
+            'buckaroo_idin_pending',
+            [
+                'nonce' => $nonce,
+                'created' => time(),
+            ]
+        );
+
+        return $nonce;
+    }
+
+    /**
+     * Check that a reply belongs to the verification the current visitor
+     * started. A matching nonce is cleared, so a reply can be used only once.
+     *
+     * @param  mixed  $nonce  The nonce echoed back in the signed reply.
+     */
+    public static function consumeVerification($nonce): bool
+    {
+        $pending = self::getStoredValue('buckaroo_idin_pending');
+
+        if (
+            ! is_string($nonce) || $nonce === '' ||
+            ! is_array($pending) || ! is_string($pending['nonce'] ?? null) ||
+            ! hash_equals($pending['nonce'], $nonce)
+        ) {
+            return false;
+        }
+
+        self::setStoredValue('buckaroo_idin_pending', null);
+
+        return (time() - (int) ($pending['created'] ?? 0)) < self::PENDING_TTL;
+    }
+
+    private static function getStoredValue(string $key)
+    {
+        if ($currentUserId = get_current_user_id()) {
+            return get_user_meta($currentUserId, $key, true);
+        }
+
+        return WC()->session ? WC()->session->get($key) : null;
+    }
+
+    private static function setStoredValue(string $key, $value): void
+    {
+        if ($currentUserId = get_current_user_id()) {
+            if ($value === null) {
+                delete_user_meta($currentUserId, $key);
+            } else {
+                update_user_meta($currentUserId, $key, $value);
+            }
+
+            return;
+        }
+
+        if (WC()->session) {
+            WC()->session->set($key, $value);
         }
     }
 
@@ -143,10 +231,19 @@ class IdinProcessor extends AbstractPaymentProcessor
             'pushURLFailure' => $this->get_push_url(),
             'clientIP' => $this->getIp(),
             'issuer' => $this->gateway->issuer,
-            // 'additionalParameters' => [
-            // 'current_user_id' => get_current_user_id(),
-            // ],
+            'additionalParameters' => [
+                'idin_nonce' => $this->getVerificationNonce(),
+            ],
         ];
+    }
+
+    private function getVerificationNonce(): string
+    {
+        if ($this->verificationNonce === null) {
+            $this->verificationNonce = self::startVerification();
+        }
+
+        return $this->verificationNonce;
     }
 
     public function get_return_url($order_id = null): string

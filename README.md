@@ -43,7 +43,7 @@ Card payments run through Hosted Fields, which keeps the card entry inside your 
 | Requirement | Supported versions |
 |---|---|
 | WordPress | 5.3.18 up to 7.1 |
-| WooCommerce | 5.0 up to 11.1.0 |
+| WooCommerce | 5.0 up to 11.2.0 |
 | PHP | 8.0 or higher |
 
 You also need a Buckaroo account. Don't have one yet? [Request an account](https://www.buckaroo.nl/start).
@@ -100,13 +100,13 @@ The plugin supports the following payment methods. Each one can be enabled or di
 | [Alipay](https://docs.buckaroo.io/docs/alipay) | [Apple Pay](https://docs.buckaroo.io/docs/apple-pay) | [Bancontact](https://docs.buckaroo.io/docs/bancontact) |
 | [Bank Transfer](https://docs.buckaroo.io/docs/transfer) | [Belfius](https://docs.buckaroo.io/docs/belfius) | [Billink](https://docs.buckaroo.io/docs/billink) |
 | [Bizum](https://docs.buckaroo.io/docs/bizum) | [Blik](https://docs.buckaroo.io/docs/blik) | [Credit and debit cards](https://docs.buckaroo.io/docs/creditcards) |
-| [EPS](https://docs.buckaroo.io/docs/eps) | [Giftcards](https://docs.buckaroo.io/docs/giftcards) | [iDEAL / Wero](https://docs.buckaroo.io/docs/ideal) |
-| [In3](https://docs.buckaroo.io/docs/in3) | [KBC](https://docs.buckaroo.io/docs/kbc) | [Klarna](https://docs.buckaroo.io/docs/klarna-kp) |
-| [MB Way](https://docs.buckaroo.io/docs/mb-way) | [Multibanco](https://docs.buckaroo.io/docs/multibanco) | [Pay by Bank](https://docs.buckaroo.io/docs/pay-by-bank) |
-| [PayPal](https://docs.buckaroo.io/docs/paypal) | [PayPerEmail](https://docs.buckaroo.io/docs/payperemail) | [Przelewy24](https://docs.buckaroo.io/docs/przelewy24) |
-| [Riverty](https://docs.buckaroo.io/docs/riverty) | [SEPA Direct Debit](https://docs.buckaroo.io/docs/sepa-direct-debit) | [Swish](https://docs.buckaroo.io/docs/swish) |
-| [Trustly](https://docs.buckaroo.io/docs/trustly) | [Twint](https://docs.buckaroo.io/docs/twint) | [WeChatPay](https://docs.buckaroo.io/docs/wechatpay) |
-| [Wero](https://docs.buckaroo.io/docs/wero) |  |  |
+| [EPS](https://docs.buckaroo.io/docs/eps) | [Giftcards](https://docs.buckaroo.io/docs/giftcards) | [Google Pay](https://docs.buckaroo.io/docs/google-pay) |
+| [iDEAL / Wero](https://docs.buckaroo.io/docs/ideal) | [In3](https://docs.buckaroo.io/docs/in3) | [KBC](https://docs.buckaroo.io/docs/kbc) |
+| [Klarna](https://docs.buckaroo.io/docs/klarna) | [MB Way](https://docs.buckaroo.io/docs/mb-way) | [Multibanco](https://docs.buckaroo.io/docs/multibanco) |
+| [Pay by Bank](https://docs.buckaroo.io/docs/pay-by-bank) | [PayPal](https://docs.buckaroo.io/docs/paypal) | [PayPerEmail](https://docs.buckaroo.io/docs/payperemail) |
+| [Przelewy24](https://docs.buckaroo.io/docs/przelewy24) | [Riverty](https://docs.buckaroo.io/docs/riverty) | [SEPA Direct Debit](https://docs.buckaroo.io/docs/sepa-direct-debit) |
+| [Swish](https://docs.buckaroo.io/docs/swish) | [Trustly](https://docs.buckaroo.io/docs/trustly) | [Twint](https://docs.buckaroo.io/docs/twint) |
+| [WeChatPay](https://docs.buckaroo.io/docs/wechatpay) | [Wero](https://docs.buckaroo.io/docs/wero) | [Zakelijk op rekening (ABN AMRO)](https://docs.buckaroo.io/docs/zakelijk-op-rekening) |
 
 > [!IMPORTANT]
 > All supported methods appear in the WordPress admin, but you need an active Buckaroo subscription for a method before you can offer it in your checkout.
@@ -132,6 +132,8 @@ Still stuck? Contact us and include your WordPress version, WooCommerce version,
 ---
 
 ## Contribute
+
+Building from source requires PHP 8.2 or later, because Mozart (installed in `tools/mozart`) needs it. The built plugin still runs on PHP 7.4 and later. Run `composer install` from the plugin root.
 
 We really appreciate it when developers help improve the Buckaroo plugins. Please read our [Contribution Guidelines](https://github.com/buckaroo-it/WooCommerce/blob/develop/CONTRIBUTING.md) before opening a pull request, and target the `develop` branch.
 

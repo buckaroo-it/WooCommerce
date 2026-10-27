@@ -225,6 +225,65 @@ class CreditCardGateway extends AbstractPaymentGateway
     }
 
     /**
+     * Separate credit cards are only available in Redirect mode.
+     */
+    public static function separateCardsAllowed(): bool
+    {
+        $settings = get_option('woocommerce_buckaroo_creditcard_settings', []);
+
+        return (is_array($settings) ? ($settings['creditcardmethod'] ?? 'redirect') : 'redirect') === 'redirect';
+    }
+
+    /**
+     * Credit cards shown as separate payment methods in the checkout.
+     */
+    public function getSeparateCards(): array
+    {
+        if ($this->id !== self::GATEWAY_ID || ! self::separateCardsAllowed()) {
+            return [];
+        }
+
+        $separate = $this->get_option(self::SHOW_IN_CHECKOUT_FIELD, []);
+
+        if (! is_array($separate)) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            $separate,
+            fn ($card) => (get_option('woocommerce_buckaroo_creditcard_' . $card . '_settings')['enabled'] ?? 'no') === 'yes'
+        ));
+    }
+
+    /**
+     * Credit cards for the checkout dropdown, without the separate ones.
+     */
+    public function getCheckoutCardsList(): array
+    {
+        $separate = $this->getSeparateCards();
+
+        return array_values(array_filter(
+            $this->getCardsList(),
+            fn ($card) => ! in_array($card['servicename'], $separate, true)
+        ));
+    }
+
+    private function allCardsShownSeparately(): bool
+    {
+        return $this->getSeparateCards() !== [] && $this->getCheckoutCardsList() === [];
+    }
+
+    public function is_available()
+    {
+        return parent::is_available() && ! $this->allCardsShownSeparately();
+    }
+
+    public function isVisibleInCheckout(): bool
+    {
+        return parent::isVisibleInCheckout() && ! $this->allCardsShownSeparately();
+    }
+
+    /**
      * Add fields to the form_fields() array, specific to this page.
      */
     public function init_form_fields()
@@ -256,12 +315,28 @@ class CreditCardGateway extends AbstractPaymentGateway
         $this->form_fields['hosted_fields_client_id'] = [
             'title' => __('Buckaroo Hosted Fields Client ID', 'wc-buckaroo-bpe-gateway'),
             'type' => 'password',
-            'description' => __('Enter your Buckaroo Hosted Fields Client ID, obtainable from the Buckaroo Plaza at -> Settings -> Token registration.', 'wc-buckaroo-bpe-gateway'),
+            'description' => wp_kses(
+                sprintf(
+                    /* translators: 1: opening link to Token registration, 2: closing link. */
+                    __('Enter your Hosted Fields Client ID. Create or look up your credentials in Buckaroo Plaza under Configuration > %1$sToken registration%2$s.', 'wc-buckaroo-bpe-gateway'),
+                    sprintf('<a href="%s" target="_blank" rel="noopener noreferrer">', esc_url('https://plaza.buckaroo.nl/Configuration/TokenApi/Applications')),
+                    '</a>'
+                ),
+                ['a' => ['href' => [], 'target' => [], 'rel' => []]]
+            ),
         ];
         $this->form_fields['hosted_fields_client_secret'] = [
             'title' => __('Buckaroo Hosted Fields Client Secret', 'wc-buckaroo-bpe-gateway'),
             'type' => 'password',
-            'description' => __('Enter your Buckaroo Hosted Fields Client Secret, obtainable from the Buckaroo Plaza at -> Settings -> Token registration.', 'wc-buckaroo-bpe-gateway'),
+            'description' => wp_kses(
+                sprintf(
+                    /* translators: 1: opening link to Token registration, 2: closing link. */
+                    __('Enter your Hosted Fields Client Secret. Create or look up your credentials in Buckaroo Plaza under Configuration > %1$sToken registration%2$s.', 'wc-buckaroo-bpe-gateway'),
+                    sprintf('<a href="%s" target="_blank" rel="noopener noreferrer">', esc_url('https://plaza.buckaroo.nl/Configuration/TokenApi/Applications')),
+                    '</a>'
+                ),
+                ['a' => ['href' => [], 'target' => [], 'rel' => []]]
+            ),
         ];
         $this->form_fields['AllowedProvider'] = [
             'title' => __('Allowed provider', 'wc-buckaroo-bpe-gateway'),
@@ -306,7 +381,7 @@ class CreditCardGateway extends AbstractPaymentGateway
      */
     public function after_admin_options_update()
     {
-        set_transient('buckaroo_credicard_updated', true);
+        set_transient('buckaroo_creditcard_updated', true);
     }
 
     /**

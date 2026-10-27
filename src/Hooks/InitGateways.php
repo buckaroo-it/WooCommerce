@@ -2,9 +2,11 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
+use Buckaroo\Woocommerce\Services\PaymentFee;
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressPlacements;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinController;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
@@ -162,7 +164,7 @@ class InitGateways
                     $payment_method['type'] = (new AfterpayOldGateway())->type;
                 }
                 if (str_starts_with($gateway_id, 'buckaroo_creditcard')) {
-                    $payment_method['creditCardIssuers'] = $gateway->getCardsList();
+                    $payment_method['creditCardIssuers'] = $gateway->getCheckoutCardsList();
                     $payment_method['creditCardMethod'] = $gateway->get_option('creditcardmethod');
                     $payment_method['creditCardIsSecure'] = $this->getCredtCardIsSecure();
                 }
@@ -171,7 +173,8 @@ class InitGateways
                     $payment_method = array_merge(
                         $payment_method,
                         [
-                            'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE',
+                            'showInCheckout' => ExpressPlacements::enabledFor($gateway_id, 'checkout')
+                                && $gateway::hasRequiredCredentials($gateway->settings),
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
                             'buttonStyle' => $gateway->get_option('button_style', 'black'),
                             // Whether Apple Pay is also listed as a standard,
@@ -186,7 +189,8 @@ class InitGateways
                     $payment_method = array_merge(
                         $payment_method,
                         [
-                            'showInCheckout' => $gateway->get_option('button_checkout') === 'TRUE',
+                            'showInCheckout' => ExpressPlacements::enabledFor($gateway_id, 'checkout')
+                                && $gateway::hasRequiredCredentials($gateway->settings),
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
                             'buttonStyle' => $gateway->get_option('button_style', 'black'),
                             // Whether Google Pay is also listed as a standard,
@@ -202,7 +206,8 @@ class InitGateways
                     $payment_method = array_merge(
                         $payment_method,
                         [
-                            'showInCheckout' => is_array($expressPages) && in_array(PaypalExpressController::LOCATION_CHECKOUT, $expressPages),
+                            'showInCheckout' => is_array($expressPages) && in_array(PaypalExpressController::LOCATION_CHECKOUT, $expressPages)
+                                && $gateway::hasRequiredCredentials($gateway->settings),
                         ]
                     );
                 }
@@ -223,19 +228,9 @@ class InitGateways
      */
     private function gatewayHasFee($gateway): bool
     {
-        $rawAmount = $gateway->get_option('extrachargeamount', 0);
+        $fee = PaymentFee::parse($gateway->get_option('extrachargeamount', 0));
 
-        if (! is_scalar($rawAmount)) {
-            return false;
-        }
-
-        $rawAmount = trim((string) $rawAmount);
-
-        if (! preg_match('/^\d+(?:\.\d+)?%?$/', $rawAmount)) {
-            return false;
-        }
-
-        return (float) str_replace('%', '', $rawAmount) !== 0.0;
+        return $fee !== null && $fee->hasFee();
     }
 
     /**

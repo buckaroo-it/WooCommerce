@@ -20,15 +20,12 @@ jobs:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: '7.4'
-
-            -   name: Install Mozart globally
-                run: composer global require --no-progress --no-interaction coenjacobs/mozart
+                    php-version: '8.2'
 
             -   name: Install prod deps & compile
                 run: |
                     composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
-                    "$(composer global config home --quiet)/vendor/bin/mozart" compose
+                    composer compose-dependencies
                     composer dump-autoload -o
 
             -   name: Get Release Version
@@ -74,7 +71,7 @@ jobs:
                     fi
 
                     rsync -a --delete --delete-excluded -c \
-                        --exclude='.git' --exclude='.github' --exclude='.wordpress-org' \
+                        --exclude='.git' --exclude='.github' --exclude='.wordpress-org' --exclude='tools' \
                         "${{ github.workspace }}/" trunk/
 
                     if [ -d "${{ github.workspace }}/.wordpress-org" ]; then
@@ -103,7 +100,7 @@ jobs:
 
             -   name: Package Plugin
                 run: |
-                    rsync -av --exclude='.git' --exclude='.github' --exclude='.wordpress-org' ./* "wc-buckaroo-bpe-gateway/"
+                    rsync -av --exclude='.git' --exclude='.github' --exclude='.wordpress-org' --exclude='tools' ./* "wc-buckaroo-bpe-gateway/"
                     zip -r "wc-buckaroo-bpe-gateway.zip" "wc-buckaroo-bpe-gateway"
 
             -   name: Upload Asset to Release

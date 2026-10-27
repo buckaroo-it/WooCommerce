@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
 import PhoneDropdown from '../partials/buckaroo_phone';
+import { TextField } from '../components/CheckoutFields';
 
 function ZakelijkOpRekening({ onStateChange, methodName, billing }) {
     const initialState = {
@@ -35,21 +36,13 @@ function ZakelijkOpRekening({ onStateChange, methodName, billing }) {
             </p>
 
             {!hasCompany && (
-                <p className="form-row form-row-wide validate-required">
-                    <label htmlFor={`${methodName}-company`}>
-                        {__('Company name:', 'wc-buckaroo-bpe-gateway')}
-                        <span className="required">*</span>
-                    </label>
-                    <input
-                        id={`${methodName}-company`}
-                        name={`${methodName}-company`}
-                        className="input-text"
-                        type="text"
-                        maxLength="250"
-                        autoComplete="organization"
-                        onChange={handleChange}
-                    />
-                </p>
+                <TextField
+                    id={`${methodName}-company`}
+                    label={__('Company name:', 'wc-buckaroo-bpe-gateway')}
+                    maxLength="250"
+                    autoComplete="organization"
+                    onChange={handleChange}
+                />
             )}
 
             {!hasPhone && (

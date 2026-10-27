@@ -11,6 +11,8 @@ class ApplepayController
     public static function getShopInformation()
     {
         $country_code = preg_replace('/\:\*/', '', get_option('woocommerce_default_country'));
+        $settings = get_option('woocommerce_buckaroo_applepay_settings', []);
+        $settings = is_array($settings) ? $settings : [];
 
         wp_send_json(
             [
@@ -18,7 +20,9 @@ class ApplepayController
                 'country_code' => $country_code,
                 'currency_code' => get_option('woocommerce_currency'),
                 'culture_code' => $country_code,
-                'merchant_id' => get_option('woocommerce_buckaroo_applepay_settings')['merchant_guid'],
+                'merchant_id' => $settings['merchant_guid'] ?? '',
+                'button_style' => $settings['button_style'] ?? 'black',
+                'button_type' => $settings['button_type'] ?? 'plain',
             ]
         );
     }
@@ -64,7 +68,8 @@ class ApplepayController
             $product = $cart_item['data'];
             $quantity = $cart_item['quantity'];
 
-            $line_total = $cart_item['line_total'] + $cart_item['line_tax'];
+            // Coupons are separate negative lines in the wallet breakdown.
+            $line_total = $cart_item['line_subtotal'] + $cart_item['line_subtotal_tax'];
 
             $items[] = [
                 'type' => 'product',
@@ -142,11 +147,7 @@ class ApplepayController
 
     public static function getShippingMethods()
     {
-        $wc_methods_callback = static function () {
-            $packages = WC()->shipping()->get_packages();
-
-            return $packages ? (current($packages)['rates'] ?? []) : [];
-        };
+        $wc_methods_callback = [ExpressProductCart::class, 'walletShippingRates'];
 
         try {
             if (isset($_GET['product_id']) && is_numeric($_GET['product_id'])) {

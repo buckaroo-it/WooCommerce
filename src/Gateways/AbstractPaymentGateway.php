@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Woocommerce\Gateways;
 
+use Buckaroo\Woocommerce\Services\PaymentFee;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Order\OrderArticles;
 use Buckaroo\Woocommerce\Order\OrderDetails;
@@ -18,6 +19,7 @@ use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Services\Request;
 use Buckaroo\Woocommerce\Services\SessionHandler;
 use Exception;
+use WC_Admin_Settings;
 use WC_Order;
 use WC_Order_Refund;
 use WC_Payment_Gateway;
@@ -27,6 +29,12 @@ use WP_Error;
 class AbstractPaymentGateway extends WC_Payment_Gateway
 {
     public const PAYMENT_CLASS = null;
+
+    /** Required credential keys mapped to "always" or "live". */
+    protected const REQUIRED_CREDENTIALS = [];
+
+    /** Placeholder shown in an empty field when a credential is stored. */
+    protected const CREDENTIAL_PLACEHOLDER = '******';
 
     /** ISO 3166-1 alpha-2 codes counted as European by getCountryLabel(). */
     private const EUROPEAN_COUNTRIES = ['AT', 'BE', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GB', 'GR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LI', 'LT', 'LU', 'LV', 'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'];
@@ -39,6 +47,9 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public $minvalue;
 
     public $maxvalue;
+
+    /** Set for merchant actions from the order screen; skips the shopper-facing amount rules. */
+    protected bool $merchantInitiated = false;
 
     public $showpayproc = false;
 
@@ -162,7 +173,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             'extrachargeamount' => [
                 'title' => __('Payment fee', 'wc-buckaroo-bpe-gateway'),
                 'type' => 'text',
-                'description' => __('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.)', 'wc-buckaroo-bpe-gateway'),
+                'description' => __('Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5% or 1.5% + 0.25). Combined fees are applied from left to right, starting with the product total after discounts, excluding shipping. Fee amounts and the percentage base follow the WooCommerce "Prices entered with tax" setting. Use a dot (.) for decimals.', 'wc-buckaroo-bpe-gateway'),
                 'default' => '0',
             ],
             'minvalue' => [
@@ -219,16 +230,21 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     public function getRedirectNoticeHtml()
     {
-        if (! $this->redirectsToPaymentPage()) {
+        if (! $this->redirectsToPaymentPage() || $this->get_option('show_redirect_notice', 'yes') !== 'yes') {
             return '';
         }
 
-        return '<span class="buckaroo-redirect-notice">'
-            . esc_html__(
-                'After submission, you will be redirected to securely complete your payment.',
-                'wc-buckaroo-bpe-gateway'
-            )
-            . '</span>';
+        $text = apply_filters(
+            'buckaroo_checkout_redirect_notice_text',
+            __('After submission, you will be redirected to securely complete your payment.', 'wc-buckaroo-bpe-gateway'),
+            $this
+        );
+
+        if (! is_string($text) || trim($text) === '') {
+            return '';
+        }
+
+        return '<span class="buckaroo-redirect-notice">' . esc_html($text) . '</span>';
     }
 
     public function isInTestMode(): bool
@@ -379,16 +395,90 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         ) ?? $html;
     }
 
+    /** Keep configured credentials when their fields are left blank. */
+    public function validate_password_field($key, $value)
+    {
+        $value = parent::validate_password_field($key, $value);
+
+        return $value === '' ? $this->get_option($key, '') : $value;
+    }
+
+    /** Render credentials without exposing their stored values. */
+    public function generate_password_html($key, $data)
+    {
+        $configured = $this->get_option($key, '') !== '';
+        $data['type'] = 'password';
+        $data['custom_attributes'] = array_merge($data['custom_attributes'] ?? [], [
+            'autocomplete' => 'new-password',
+            'data-1p-ignore' => 'true',
+            'data-lpignore' => 'true',
+            'data-bwignore' => 'true',
+        ]);
+        if ($configured) {
+            $data['placeholder'] = static::CREDENTIAL_PLACEHOLDER;
+            $data['description'] = trim(__('Saved. Enter a new value only to replace it.', 'wc-buckaroo-bpe-gateway') . ' ' . ($data['description'] ?? ''));
+            unset($data['custom_attributes']['required']);
+        }
+
+        // Render with a separate settings copy so payment credentials stay available.
+        $renderer = clone $this;
+        $renderer->settings[$key] = '';
+
+        return $renderer->generate_text_html($key, $data);
+    }
+
     /** {@inheritDoc} */
     public function process_admin_options()
     {
         parent::process_admin_options();
+
+        if ($this->get_option('enabled') === 'yes') {
+            foreach (static::getMissingRequiredCredentials($this->settings) as $key) {
+                $error = sprintf(
+                    __('%s is required to enable this payment method in the selected transaction mode.', 'wc-buckaroo-bpe-gateway'),
+                    $this->form_fields[$key]['title']
+                );
+                $this->add_error($error);
+                if (class_exists('WC_Admin_Settings')) {
+                    \WC_Admin_Settings::add_error($error);
+                }
+            }
+        }
 
         $optionKey = $this->plugin_id . $this->id . '_settings';
         $this->ensureOptionsNotAutoloaded([
             $optionKey,
             'woocommerce_buckaroo_mastersettings_settings',
         ]);
+    }
+
+    /** Check method-specific credentials for the selected transaction mode. */
+    public static function hasRequiredCredentials(array $settings): bool
+    {
+        return static::getMissingRequiredCredentials($settings) === [];
+    }
+
+    protected static function getMissingRequiredCredentials(array $settings): array
+    {
+        $missing = [];
+        $mode = strtolower((string) ($settings['mode'] ?? 'test'));
+        foreach (static::REQUIRED_CREDENTIALS as $key => $requiredIn) {
+            if ($requiredIn === 'live' && $mode === 'test') {
+                continue;
+            }
+
+            $value = $settings[$key] ?? '';
+            if (! is_scalar($value) || trim((string) $value) === '' || trim((string) $value) === '0') {
+                $missing[] = $key;
+            }
+        }
+
+        return $missing;
+    }
+
+    public function is_available()
+    {
+        return parent::is_available() && static::hasRequiredCredentials($this->settings);
     }
 
     /**
@@ -414,30 +504,21 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     public function setTitle()
     {
-        $feeText = '';
-        $fee = $this->get_option('extrachargeamount', 0);
-        $is_percentage = strpos($fee, '%') !== false;
-        $fee = floatval(str_replace('%', '', $fee));
-
-        if ($fee != 0) {
-            if ($is_percentage) {
-                $fee = str_replace(
-                    '&nbsp;',
-                    '',
-                    wc_price(
-                        $fee,
-                        [
-                            'currency' => 'null',
-                        ]
-                    )
-                ) . '%';
-            } else {
-                $fee = wc_price($fee + $this->getPaymentFeeVat($fee));
+        $parts = [];
+        $fee = PaymentFee::parse($this->get_option('extrachargeamount', 0));
+        if ($fee !== null) {
+            if ($fee->fixed > 0) {
+                $parts[] = wc_price($fee->fixed + $this->getPaymentFeeVat($fee->fixed));
             }
-
-            $feeText = ' (+ ' . $fee . ')';
+            if ($fee->percentage > 0) {
+                $parts[] = str_replace('&nbsp;', '', wc_price($fee->percentage, ['currency' => 'null'])) . '%';
+            }
+            if ($fee->percentageFirst) {
+                $parts = array_reverse($parts);
+            }
         }
 
+        $feeText = $parts ? ' (+ ' . implode(' + ', $parts) . ')' : '';
         $this->title = strip_tags($this->get_option('title', $this->title ?? '') . $feeText);
     }
 
@@ -447,7 +528,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function getPaymentFeeVat($amount)
     {
         // Allow this to run only on checkout page
-        if (! is_checkout()) {
+        if (! is_checkout() || wc_prices_include_tax()) {
             return 0;
         }
 
@@ -547,10 +628,11 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
         $this->notify_url = home_url('/');
         if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
-            add_action(
-                'woocommerce_update_options_payment_gateways_' . $this->id,
-                [$this, 'process_admin_options']
-            );
+            $saveHook = 'woocommerce_update_options_payment_gateways_' . $this->id;
+            // The plugin registry and WooCommerce both create this gateway; save once.
+            if (! has_action($saveHook)) {
+                add_action($saveHook, [$this, 'process_admin_options']);
+            }
 
             add_action(
                 'woocommerce_api_' . strtolower(wc_clean($class)),
@@ -610,10 +692,13 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         $currencies    = $this->getSupportedCurrencies();
         $countries     = $this->getSupportedCountries();
         $is_enabled    = $this->enabled === 'yes';
-        $mode          = strtolower((string) $this->get_option('mode', 'test'));
+        $mode          = strtolower((string) $this->get_option('mode'));
 
-        if ($is_enabled) {
-            if ($mode === 'live') {
+        if (! static::hasRequiredCredentials($this->settings)) {
+            $status_class = 'bk-status--disabled';
+            $status_label = __('Not configured', 'wc-buckaroo-bpe-gateway');
+        } elseif ($is_enabled) {
+            if ($mode !== 'test') {
                 $status_class = 'bk-status--live';
                 $status_label = __('Active', 'wc-buckaroo-bpe-gateway');
             } else {
@@ -720,8 +805,11 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
         do_action('buckaroo_before_render_gateway_template_' . $name, $this);
 
+        // Scopes the plugin's checkout CSS; the fields themselves carry WooCommerce's markup.
+        echo '<div class="buckaroo-checkout-fields">';
         $this->getPaymentTemplate('global');
         $this->getPaymentTemplate($name);
+        echo '</div>';
 
         do_action('buckaroo_after_render_gateway_template_' . $name, $this);
     }
@@ -763,6 +851,19 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         }
 
         return parent::validate_text_field($key, $text);
+    }
+
+    /** Validate the payment fee before WooCommerce saves the settings. */
+    public function validate_extrachargeamount_field($key, $value)
+    {
+        $value = $value ?? '';
+        if (! is_scalar($value) || (trim((string) $value) !== '' && PaymentFee::parse($value) === null)) {
+            $message = __('Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals.', 'wc-buckaroo-bpe-gateway');
+            WC_Admin_Settings::add_error($message);
+            throw new Exception($message);
+        }
+
+        return parent::validate_text_field($key, $value);
     }
 
     /**
@@ -816,7 +917,39 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
      */
     public function process_payment($order_id)
     {
+        $rejected = $this->rejectIneligibleOrder($order_id);
+        if ($rejected !== null) {
+            return $rejected;
+        }
+
         return (new PayAction($this->newPaymentProcessorInstance($order_id), $order_id))->process();
+    }
+
+    /**
+     * Re-check the amount and currency rules against the order being paid, so a
+     * path that bypassed the available-gateways filter cannot start a payment
+     * with an ineligible method. Returns the failure response, or null to proceed.
+     *
+     * @param  int|string  $order_id
+     */
+    protected function rejectIneligibleOrder($order_id): ?array
+    {
+        if ($this->merchantInitiated) {
+            return null;
+        }
+
+        $order = $order_id ? wc_get_order($order_id) : null;
+        if (! $order instanceof WC_Order || $this->isAllowedForOrder($order)) {
+            return null;
+        }
+
+        Logger::log(__METHOD__ . '|rejected|', [$this->id, $order->get_id()]);
+        wc_add_notice(
+            __('This payment method is not available for this order. Please choose another payment method.', 'wc-buckaroo-bpe-gateway'),
+            'error'
+        );
+
+        return ['result' => 'failure'];
     }
 
     /**
@@ -864,7 +997,37 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             );
         }
 
+        $this->setCaptureNotice($order, $capture_amount, $result);
+
         return $result->toAjaxResponse();
+    }
+
+    /**
+     * Shown on the order page that reloads after a successful capture.
+     */
+    private function setCaptureNotice(WC_Order $order, $amount, CaptureResult $result): void
+    {
+        $formattedAmount = number_format((float) $amount, 2, '.', '') . ' ' . $order->get_currency();
+
+        if ($result->isSuccess()) {
+            $message = sprintf(
+                __('Captured %1$s for order #%2$s.', 'wc-buckaroo-bpe-gateway'),
+                $formattedAmount,
+                $order->get_order_number()
+            );
+            $type = 'success';
+        } elseif ($result->getStatus() === CaptureResult::PENDING) {
+            $message = sprintf(
+                __('Capture of %1$s for order #%2$s was requested and is awaiting confirmation from Buckaroo.', 'wc-buckaroo-bpe-gateway'),
+                $formattedAmount,
+                $order->get_order_number()
+            );
+            $type = 'info';
+        } else {
+            return;
+        }
+
+        set_transient(get_current_user_id() . 'buckarooAdminNotice', ['type' => $type, 'message' => $message]);
     }
 
     protected function executeCapture(
@@ -1189,6 +1352,37 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
     public function isVisibleInCheckout(): bool
     {
-        return $this->enabled == 'yes' && $this->checkCurrencySupported();
+        return $this->enabled == 'yes' && $this->checkCurrencySupported()
+            && static::hasRequiredCredentials($this->settings);
+    }
+
+    /**
+     * Amount and currency rules: supported currency, merchant min/max and any
+     * method-specific isAvailable() range. A zero amount skips the amount checks.
+     */
+    public function isAllowedFor(float $amount, string $currency): bool
+    {
+        if (! in_array($currency, $this->supportedCurrencies, true)) {
+            return false;
+        }
+
+        if ($amount <= 0) {
+            return true;
+        }
+
+        if (! empty($this->maxvalue) && $amount > (float) $this->maxvalue) {
+            return false;
+        }
+
+        if (! empty($this->minvalue) && $amount < (float) $this->minvalue) {
+            return false;
+        }
+
+        return ! method_exists($this, 'isAvailable') || $this->isAvailable($amount);
+    }
+
+    public function isAllowedForOrder(WC_Order $order): bool
+    {
+        return $this->isAllowedFor((float) $order->get_total('edit'), (string) $order->get_currency('edit'));
     }
 }

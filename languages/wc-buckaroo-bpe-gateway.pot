@@ -2,21 +2,21 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WC Buckaroo BPE Gateway 4.8.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-buckaroo-bpe-gateway\n"
+"Project-Id-Version: Buckaroo Payments for WooCommerce 4.11.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/buckaroo-woocommerce\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-03T22:08:34+00:00\n"
+"POT-Creation-Date: 2026-10-27T13:22:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.11.0\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
 
 #. Plugin Name of the plugin
 #: index.php
-msgid "WC Buckaroo BPE Gateway"
+msgid "Buckaroo Payments for WooCommerce"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -27,7 +27,7 @@ msgstr ""
 
 #. Description of the plugin
 #: index.php
-msgid "Buckaroo payment system plugin for WooCommerce."
+msgid "WooCommerce payment gateway for iDEAL, Bancontact, Klarna, PayPal, credit cards and more, powered by Buckaroo."
 msgstr ""
 
 #. Author of the plugin
@@ -35,254 +35,275 @@ msgstr ""
 msgid "Buckaroo"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:23
+#: src/Admin/GeneralSettings.php:21
 msgid "Buckaroo Settings"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:64
+#: src/Admin/GeneralSettings.php:54
 msgid "General Settings"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:65
-#: src/Admin/GeneralSettings.php:264
+#: src/Admin/GeneralSettings.php:55
+#: src/Admin/GeneralSettings.php:299
 #: src/Hooks/AdminHooks.php:69
 #: src/Hooks/AdminHooks.php:70
 msgid "Payment Methods"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:66
-#: src/Admin/GeneralSettings.php:171
+#: src/Admin/GeneralSettings.php:56
+#: src/Admin/GeneralSettings.php:143
 #: src/Hooks/AdminHooks.php:76
 #: src/Hooks/AdminHooks.php:77
 msgid "Verification Settings"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:67
-#: src/Admin/GeneralSettings.php:200
+#: src/Admin/GeneralSettings.php:57
+#: src/Admin/GeneralSettings.php:168
 #: src/Hooks/AdminHooks.php:83
 #: src/Hooks/AdminHooks.php:84
 msgid "Advanced Settings"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:68
+#: src/Admin/GeneralSettings.php:58
 #: src/Hooks/AdminHooks.php:90
 #: src/Hooks/AdminHooks.php:91
 msgid "Reports"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:123
-msgid "Buckaroo General Settings"
+#: src/Admin/GeneralSettings.php:76
+msgid "General Options"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:127
-msgid "Documentation"
+#: src/Admin/GeneralSettings.php:77
+msgid "Configure transaction, fee and locale settings."
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:131
-msgid "FAQ"
-msgstr ""
-
-#: src/Admin/GeneralSettings.php:139
-msgid "Integrate more then 30+ international payment methods in your WooCommerce webshop. Simply enable them into your WooCommerce webshop with the Buckaroo Payments plugin.</br>Please go to the <a href=\"https://plaza.buckaroo.nl/Configuration/Website/Index/\">signup page</a> to create a Buckaroo account and start receiving payments.</br>Contact <a href=\"mailto:support@buckaroo.nl\">support@buckaroo.nl</a> if you have any questions about this plugin."
-msgstr ""
-
-#: src/Admin/GeneralSettings.php:174
-msgid "Configure verification settings for age verification and identity checking."
-msgstr ""
-
-#: src/Admin/GeneralSettings.php:203
+#: src/Admin/GeneralSettings.php:171
 msgid "Configure advanced debugging and development settings."
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:267
-msgid "Buckaroo payment methods are listed below and can be accessed, enabled or disabled."
+#: src/Admin/GeneralSettings.php:235
+#: src/Gateways/AbstractPaymentGateway.php:710
+msgid "Inactive"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:278
-msgid "Method"
+#: src/Admin/GeneralSettings.php:240
+#: src/Gateways/AbstractPaymentGateway.php:703
+msgid "Active"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:279
-#: src/Gateways/Paypal/PaypalGateway.php:100
-msgid "Enabled"
-msgstr ""
-
-#: src/Admin/GeneralSettings.php:280
-msgid "Actions"
-msgstr ""
-
-#. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:315
-msgid "Manage the \"%s\" payment method"
+#: src/Admin/GeneralSettings.php:243
+#: src/Gateways/AbstractPaymentGateway.php:706
+msgid "Test"
 msgstr ""
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:315
-msgid "Manage"
-msgstr ""
-
-#. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:318
-msgid "Set up the \"%s\" payment method"
-msgstr ""
-
-#. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:318
-msgid "Set up"
-msgstr ""
-
-#. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:325
+#: src/Admin/GeneralSettings.php:268
+#, php-format
 msgid "The \"%s\" payment method is currently enabled"
 msgstr ""
 
 #. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:325
-#: src/Gateways/Transfer/TransferGateway.php:158
-#: src/Gateways/Transfer/TransferGateway.php:168
-msgid "Yes"
-msgstr ""
-
-#. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:328
+#: src/Admin/GeneralSettings.php:270
+#, php-format
 msgid "The \"%s\" payment method is currently disabled"
 msgstr ""
 
-#. Translators: %s Payment gateway name.
-#: src/Admin/GeneralSettings.php:328
-#: src/Gateways/Transfer/TransferGateway.php:159
-#: src/Gateways/Transfer/TransferGateway.php:169
+#: src/Admin/GeneralSettings.php:273
+#: src/Gateways/Express/ExpressSettings.php:125
+#: src/Gateways/Paypal/PaypalGateway.php:170
+#: src/Gateways/Paypal/PaypalGateway.php:187
+#: src/Gateways/Transfer/TransferGateway.php:134
+#: src/Gateways/Transfer/TransferGateway.php:144
+msgid "Yes"
+msgstr ""
+
+#: src/Admin/GeneralSettings.php:273
+#: src/Gateways/Express/ExpressSettings.php:126
+#: src/Gateways/Paypal/PaypalGateway.php:171
+#: src/Gateways/Paypal/PaypalGateway.php:188
+#: src/Gateways/Transfer/TransferGateway.php:135
+#: src/Gateways/Transfer/TransferGateway.php:145
 msgid "No"
 msgstr ""
 
+#: src/Admin/GeneralSettings.php:276
+#: src/Admin/GeneralSettings.php:306
+#: src/Hooks/AdminHooks.php:29
+#: src/Hooks/AdminHooks.php:62
+#: src/Hooks/AdminHooks.php:63
+msgid "Settings"
+msgstr ""
+
+#: src/Admin/GeneralSettings.php:300
+msgid "Buckaroo payment methods are listed below and can be accessed, enabled or disabled."
+msgstr ""
+
+#: src/Admin/GeneralSettings.php:303
+msgid "Method"
+msgstr ""
+
+#: src/Admin/GeneralSettings.php:304
+msgid "Status"
+msgstr ""
+
+#: src/Admin/GeneralSettings.php:305
+msgid "Enabled"
+msgstr ""
+
+#: src/Admin/GeneralSettings.php:397
+#: src/Admin/PaymentMethodSettings.php:48
+msgid "Store key"
+msgstr ""
+
+#: src/Admin/GeneralSettings.php:398
+#: src/Admin/PaymentMethodSettings.php:58
+msgid "Secret key"
+msgstr ""
+
+#. Translators: %s Payment credential name.
+#: src/Admin/GeneralSettings.php:405
+#, php-format
+msgid "%s is required. Payments will fail until it is filled in."
+msgstr ""
+
+#: src/Admin/GeneralSettings.php:479
+msgid "Give every payment the attention it deserves, with 40+ methods in one plugin."
+msgstr ""
+
 #: src/Admin/GeneralSettings.php:484
-msgid "enabled (live)"
+msgid "Documentation"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:486
-msgid "enabled (test)"
+#: src/Admin/GeneralSettings.php:488
+msgid "Contact"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:489
-msgid "disabled"
+#: src/Admin/GeneralSettings.php:504
+msgid "iDIN"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:494
-msgid "edit"
+#: src/Admin/GeneralSettings.php:505
+msgid "Configure age verification and identity checking settings using iDIN."
+msgstr ""
+
+#: src/Admin/GeneralSettings.php:535
+msgid "API credentials"
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:16
 msgid "Buckaroo Master Settings"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:48
-msgid "Store key"
-msgstr ""
-
 #: src/Admin/PaymentMethodSettings.php:50
-msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">store key</a> (Settings -> API Key -> Store keys)."
+msgid "Enter your Store key"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:57
-msgid "Secret key"
+#: src/Admin/PaymentMethodSettings.php:51
+msgid "Find this in Buckaroo Plaza under Settings → API Keys → <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\" rel=\"noopener\">Store Key</a>."
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:59
-msgid "This is your Buckaroo Payment Plaza <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\">secret key</a> (Settings -> API Key -> Secret key)."
+#: src/Admin/PaymentMethodSettings.php:60
+msgid "Enter your Secret key"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:66
-msgid "Test credentials"
+#: src/Admin/PaymentMethodSettings.php:61
+msgid "Find this in Buckaroo Plaza under Settings → API Keys → <a href=\"https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys\" target=\"_blank\" rel=\"noopener\">Secret Key</a>."
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:68
-msgid "Click here to verify store key & secret key."
+#: src/Admin/PaymentMethodSettings.php:72
+msgid "Test credentials"
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:70
-msgid "Test"
-msgstr ""
-
-#: src/Admin/PaymentMethodSettings.php:76
-msgid "Automatic payment method configuration"
+msgid "Check that the Store Key and Secret Key above are valid."
 msgstr ""
 
 #: src/Admin/PaymentMethodSettings.php:78
-msgid "Automatically configure the Buckaroo plugin based on your active subscriptions. When you use this option, the plugin will connect to your Buckaroo account, check which payment methods are active, and enable them in Live mode. You will be asked to confirm before changes are applied."
-msgstr ""
-
-#: src/Admin/PaymentMethodSettings.php:80
 #: src/Admin/PaymentMethodSettings.php:82
+#: src/Admin/PaymentMethodSettings.php:84
 msgid "Auto-configure"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:88
+#: src/Admin/PaymentMethodSettings.php:80
+msgid "With the auto-configure button you can automatically configure all the payment methods based on your active Buckaroo Plaza subscriptions. Methods are enabled in live mode and will accept real payments."
+msgstr ""
+
+#: src/Admin/PaymentMethodSettings.php:90
 msgid "Select tax class for fee"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:91
+#: src/Admin/PaymentMethodSettings.php:93
 msgid "Fee tax class"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:95
+#: src/Admin/PaymentMethodSettings.php:97
 msgid "Payment fee display"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:101
+#: src/Admin/PaymentMethodSettings.php:103
 msgid "Select if payment fee is displayed including / excluding VAT"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:105
-msgid "Language"
-msgstr ""
-
 #: src/Admin/PaymentMethodSettings.php:107
-msgid ""
-"The chosen language (culture) for the Buckaroo payment engine <br>page.\n"
-"When this is set to “Dynamic language” the plugin will <br>automatically determine the language based on the\n"
-"language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>\n"
-"English will be used as a fallback language for unknown language types."
+msgid "Payment page language"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:126
+#: src/Admin/PaymentMethodSettings.php:109
+msgid "Select the Buckaroo payment page language. “Dynamic language” uses the customer’s browser language, with English as fallback."
+msgstr ""
+
+#: src/Admin/PaymentMethodSettings.php:122
+msgid "Show redirect notice on checkout"
+msgstr ""
+
+#: src/Admin/PaymentMethodSettings.php:124
+msgid "Show a notice when customers are redirected to complete payment."
+msgstr ""
+
+#: src/Admin/PaymentMethodSettings.php:129
 msgid "Debug mode"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:128
+#: src/Admin/PaymentMethodSettings.php:131
 msgid "Toggle debug mode on/off"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:137
+#: src/Admin/PaymentMethodSettings.php:140
 msgid "Debug data storage"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:139
+#: src/Admin/PaymentMethodSettings.php:142
 msgid "Select where to store debug data"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:149
-#: src/Admin/PaymentMethodSettings.php:151
+#: src/Admin/PaymentMethodSettings.php:152
 msgid "Transaction description"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:157
+#: src/Admin/PaymentMethodSettings.php:154
+#: src/Admin/PaymentMethodSettings.php:161
+msgid "Available tags: {order_number}, {shop_name}, {product_name} (first product)."
+msgstr ""
+
 #: src/Admin/PaymentMethodSettings.php:159
 msgid "Refund description"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:167
+#: src/Admin/PaymentMethodSettings.php:168
 msgid "iDIN mode"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:169
+#: src/Admin/PaymentMethodSettings.php:170
 msgid "By turning on this setting age verification with iDIN will be in use"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:192
+#: src/Admin/PaymentMethodSettings.php:193
 msgid "iDIN specific product categories"
 msgstr ""
 
-#: src/Admin/PaymentMethodSettings.php:195
+#: src/Admin/PaymentMethodSettings.php:196
 msgid "Select for what product categories iDIN verification should be applied. Don't select anything if want to apply iDIN to any product"
 msgstr ""
 
@@ -299,354 +320,453 @@ msgid "Date"
 msgstr ""
 
 #: src/Admin/ReportPage.php:139
-#: src/Gateways/AbstractPaymentGateway.php:144
+#: src/Gateways/AbstractPaymentGateway.php:165
 msgid "Description"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:108
+#: src/Gateways/AbstractPaymentGateway.php:129
 msgid "Warning"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:108
+#: src/Gateways/AbstractPaymentGateway.php:129
 msgid "default_charset is not set.<br>This might cause a problems on receiving push message.<br>Please set default_charset=\"UTF-8\" in your php.ini and add AddDefaultCharset UTF-8 to .htaccess file."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:118
+#: src/Gateways/AbstractPaymentGateway.php:139
 msgid "Enable/Disable"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:119
+#: src/Gateways/AbstractPaymentGateway.php:140
+#, php-format
 msgid "Enable %s Payment Method"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:125
+#: src/Gateways/AbstractPaymentGateway.php:146
 msgid "Transaction mode"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:127
+#: src/Gateways/AbstractPaymentGateway.php:148
 msgid "Transaction mode used for processing orders"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:135
-msgid "Front-end label"
+#: src/Gateways/AbstractPaymentGateway.php:156
+msgid "Title"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:137
+#: src/Gateways/AbstractPaymentGateway.php:158
 msgid "Determines how the payment method is named in the checkout."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:146
+#: src/Gateways/AbstractPaymentGateway.php:167
 msgid "This controls the description which the user sees during checkout."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:153
-#: src/Hooks/OrderActions.php:146
+#: src/Gateways/AbstractPaymentGateway.php:174
+#: src/Gateways/AbstractPaymentProcessor.php:124
+#: src/Gateways/Googlepay/GooglepayGateway.php:301
+#: src/Hooks/OrderActions.php:230
+#: src/Hooks/OrderActions.php:263
+#: src/Order/OrderArticles.php:166
 msgid "Payment fee"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:155
-msgid "Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.)"
+#: src/Gateways/AbstractPaymentGateway.php:176
+msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5% or 1.5% + 0.25). Combined fees are applied from left to right, starting with the product total after discounts, excluding shipping. Fee amounts and the percentage base follow the WooCommerce \"Prices entered with tax\" setting. Use a dot (.) for decimals."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:159
+#: src/Gateways/AbstractPaymentGateway.php:180
 msgid "Minimum order amount allowed"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:162
+#: src/Gateways/AbstractPaymentGateway.php:183
 msgid "Specify minimum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:166
+#: src/Gateways/AbstractPaymentGateway.php:187
 msgid "Maximum order amount allowed"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:169
+#: src/Gateways/AbstractPaymentGateway.php:190
 msgid "Specify maximum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:184
-#: src/Gateways/Ideal/IdealGateway.php:46
+#: src/Gateways/AbstractPaymentGateway.php:205
+#: src/Gateways/AbstractPaymentGateway.php:309
+#, php-format
 msgid "Pay with %s"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:227
+#: src/Gateways/AbstractPaymentGateway.php:239
 msgid "After submission, you will be redirected to securely complete your payment."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:371
+#: src/Gateways/AbstractPaymentGateway.php:264
+msgid "Test mode"
+msgstr ""
+
+#: src/Gateways/AbstractPaymentGateway.php:383
+msgid "Back to Buckaroo settings"
+msgstr ""
+
+#: src/Gateways/AbstractPaymentGateway.php:419
+msgid "Saved. Enter a new value only to replace it."
+msgstr ""
+
+#: src/Gateways/AbstractPaymentGateway.php:438
+#, php-format
+msgid "%s is required to enable this payment method in the selected transaction mode."
+msgstr ""
+
+#: src/Gateways/AbstractPaymentGateway.php:699
+msgid "Not configured"
+msgstr ""
+
+#: src/Gateways/AbstractPaymentGateway.php:747
 msgid "This payment method is not supported for the selected currency "
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:695
-msgid "Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands."
+#: src/Gateways/AbstractPaymentGateway.php:861
+msgid "Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals."
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:77
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:63
-#: src/Gateways/In3/In3Gateway.php:76
+#: src/Gateways/AbstractPaymentGateway.php:948
+#: src/Gateways/Express/ExpressAvailability.php:47
+msgid "This payment method is not available for this order. Please choose another payment method."
+msgstr ""
+
+#: src/Gateways/AbstractPaymentGateway.php:993
+#, php-format
+msgid "Capture failed for transaction ID: %1$s %2$s"
+msgstr ""
+
+#: src/Gateways/AbstractPaymentGateway.php:1014
+#, php-format
+msgid "Captured %1$s for order #%2$s."
+msgstr ""
+
+#: src/Gateways/AbstractPaymentGateway.php:1021
+#, php-format
+msgid "Capture of %1$s for order #%2$s was requested and is awaiting confirmation from Buckaroo."
+msgstr ""
+
+#: src/Gateways/AbstractPaymentGateway.php:1330
+msgid "Global"
+msgstr ""
+
+#: src/Gateways/AbstractPaymentGateway.php:1334
+msgid "Europe"
+msgstr ""
+
+#: src/Gateways/AbstractPaymentGateway.php:1344
+msgid "Multi-currency"
+msgstr ""
+
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:47
+msgid "European pay-after-delivery within 30 days."
+msgstr ""
+
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:79
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:68
+#: src/Gateways/In3/In3Gateway.php:59
 msgid "You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order."
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:81
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:57
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:83
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:61
 msgid "Please accept licence agreements"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:90
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:92
 msgid "Company registration number is required"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:95
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:76
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:97
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:81
 msgid "Please enter phone number"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:101
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:103
 msgid "Invalid billing address, cannot find house number"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:108
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:110
 msgid "Invalid shipping address, cannot find house number"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:149
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:150
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:150
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:154
 msgid "Riverty Pay or Capture"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:151
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:152
-#: src/Gateways/CreditCard/CreditCardGateway.php:234
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:152
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:156
+#: src/Gateways/CreditCard/CreditCardGateway.php:308
 msgid "Choose to execute Pay or Capture call"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:160
-msgid "Send image info"
-msgstr ""
-
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:162
-msgid "Image info will be sent to BPE gateway inside ImageUrl parameter"
-msgstr ""
-
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:171
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:161
 msgid "Riverty customer type"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:173
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:163
 msgid "This setting determines whether you accept Riverty payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process."
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:182
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:172
 msgid "Min order amount  for B2B"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:185
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:175
 msgid "The payment method shows only for orders with an order amount greater than the minimum amount."
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:189
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:179
 msgid "Max order amount  for B2B"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayNewGateway.php:192
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:182
 msgid "The payment method shows only for orders with an order amount smaller than the maximum amount."
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:68
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:38
+msgid "Riverty via the older API integration, for merchants not yet migrated."
+msgstr ""
+
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:73
 msgid "Company registration number is required (KvK)"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:71
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:76
 msgid "Company name is required"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:80
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:85
 msgid "IBAN is required"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:114
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:118
 msgid "Select Riverty service"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:116
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:120
 msgid "Please select the service"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:118
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:122
 msgid "Offer customer to pay afterwards by SEPA Direct Debit."
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:119
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:123
 msgid "Offer customer to pay afterwards by digital invoice."
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:125
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:129
 msgid "Enable B2B option for Riverty"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:127
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:131
 msgid "Enables or disables possibility to pay using company credentials"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:136
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:140
 msgid "Default product VAT type"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayOldGateway.php:138
+#: src/Gateways/Afterpay/AfterpayOldGateway.php:142
 msgid "Please select the default VAT type for your products"
 msgstr ""
 
-#: src/Gateways/Afterpay/AfterpayOldProcessor.php:151
+#: src/Gateways/Afterpay/AfterpayOldProcessor.php:152
 msgid "We are sorry to inform you that the request to pay afterwards with Riverty | AfterPay is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty | AfterPay. Or you can visit the website of Riverty | AfterPay and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order."
 msgstr ""
 
-#: src/Gateways/Applepay/ApplepayGateway.php:426
-#: src/Gateways/Googlepay/GooglepayGateway.php:433
-msgid "Button on product page"
+#: src/Gateways/Alipay/AlipayGateway.php:15
+msgid "One of the world's largest mobile wallets, widely used by shoppers in China."
 msgstr ""
 
-#: src/Gateways/Applepay/ApplepayGateway.php:428
-msgid "Show the Apple pay button on the product page"
+#: src/Gateways/Applepay/ApplepayController.php:188
+#: src/Gateways/Googlepay/GooglepayController.php:180
+msgid "Shipping"
 msgstr ""
 
-#: src/Gateways/Applepay/ApplepayGateway.php:430
-#: src/Gateways/Applepay/ApplepayGateway.php:441
-#: src/Gateways/Applepay/ApplepayGateway.php:452
-#: src/Gateways/Googlepay/GooglepayGateway.php:437
-#: src/Gateways/Googlepay/GooglepayGateway.php:448
-#: src/Gateways/Googlepay/GooglepayGateway.php:459
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:120
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:131
-msgid "Show"
+#: src/Gateways/Applepay/ApplepayController.php:211
+msgid "Unable to calculate Apple Pay cart."
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:37
+msgid "Apple's mobile wallet for quick, secure payments via Face ID or Touch ID on Apple devices."
 msgstr ""
 
 #: src/Gateways/Applepay/ApplepayGateway.php:431
-#: src/Gateways/Applepay/ApplepayGateway.php:442
-#: src/Gateways/Applepay/ApplepayGateway.php:453
-#: src/Gateways/Googlepay/GooglepayGateway.php:438
-#: src/Gateways/Googlepay/GooglepayGateway.php:449
-#: src/Gateways/Googlepay/GooglepayGateway.php:460
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:121
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:132
-msgid "Hide"
-msgstr ""
-
-#: src/Gateways/Applepay/ApplepayGateway.php:437
-#: src/Gateways/Googlepay/GooglepayGateway.php:444
-msgid "Button on cart page"
-msgstr ""
-
-#: src/Gateways/Applepay/ApplepayGateway.php:439
-msgid "Show the Apple pay button on the cart page"
-msgstr ""
-
-#: src/Gateways/Applepay/ApplepayGateway.php:448
-#: src/Gateways/Googlepay/GooglepayGateway.php:455
-msgid "Button on checkout page"
-msgstr ""
-
-#: src/Gateways/Applepay/ApplepayGateway.php:450
-msgid "Show the Apple pay button on the checkout page"
-msgstr ""
-
-#: src/Gateways/Applepay/ApplepayGateway.php:472
-#: src/Gateways/Googlepay/GooglepayGateway.php:491
 msgid "GUID"
 msgstr ""
 
-#: src/Gateways/Applepay/ApplepayGateway.php:474
-msgid "The Buckaroo GUID which can be found in the Buckaroo Plaza > My Buckaroo > General."
+#: src/Gateways/Applepay/ApplepayGateway.php:433
+msgid "Your Buckaroo GUID, found in Buckaroo Plaza → My Buckaroo → General."
 msgstr ""
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:436
-msgid "Gateway Merchant ID"
+#: src/Gateways/Applepay/ApplepayGateway.php:441
+#: src/Gateways/Googlepay/GooglepayGateway.php:407
+#: src/Gateways/Paypal/PaypalGateway.php:141
+msgid "Button style"
 msgstr ""
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:438
-msgid "The Buckaroo Gateway merchant ID which can be found in the Buckaroo Plaza -> Services -> Google Pay."
+#: src/Gateways/Applepay/ApplepayGateway.php:443
+#: src/Gateways/Googlepay/GooglepayGateway.php:409
+#: src/Gateways/Paypal/PaypalGateway.php:143
+msgid "Colour of the express button as the customer sees it."
 msgstr ""
 
-#: src/Gateways/Billink/BillinkGateway.php:46
+#: src/Gateways/Applepay/ApplepayGateway.php:445
+#: src/Gateways/Googlepay/GooglepayGateway.php:411
+#: src/Gateways/Paypal/PaypalGateway.php:149
+msgid "Black"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:446
+#: src/Gateways/Googlepay/GooglepayGateway.php:412
+#: src/Gateways/Paypal/PaypalGateway.php:148
+msgid "White"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:447
+msgid "White outline"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:452
+#: src/Gateways/Googlepay/GooglepayGateway.php:417
+#: src/Gateways/Paypal/PaypalGateway.php:154
+msgid "Button type"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:454
+msgid "Wording Apple shows on the button, next to the Apple Pay mark."
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:456
+#: src/Gateways/Googlepay/GooglepayGateway.php:421
+#: src/Gateways/Paypal/PaypalGateway.php:158
+msgid "Plain"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:457
+msgid "Buy"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:458
+msgid "Check out"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:459
+msgid "Order"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:460
+msgid "Book"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:461
+msgid "Subscribe"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:466
+#: src/Gateways/Googlepay/GooglepayGateway.php:433
+#: src/Gateways/Paypal/PaypalGateway.php:176
+msgid "Button preview"
+msgstr ""
+
+#: src/Gateways/Applepay/ApplepayGateway.php:468
+#: src/Gateways/Googlepay/GooglepayGateway.php:435
+#: src/Gateways/Paypal/PaypalGateway.php:178
+msgid "Updates as you change the settings above."
+msgstr ""
+
+#: src/Gateways/Bancontact/BancontactGateway.php:15
+msgid "Belgium's most popular payment method, linked directly to the shopper's own bank."
+msgstr ""
+
+#: src/Gateways/Belfius/BelfiusGateway.php:15
+msgid "Direct, guaranteed bank payments for customers of Belfius, a major Belgian bank."
+msgstr ""
+
+#: src/Gateways/Billink/BillinkGateway.php:27
+msgid "Dutch pay-after-delivery by invoice with a 14-day term, for private and business customers."
+msgstr ""
+
+#: src/Gateways/Billink/BillinkGateway.php:48
 msgid "Please enter correct COC (KvK) number"
 msgstr ""
 
-#: src/Gateways/Billink/BillinkGateway.php:52
-msgid "Please enter correct birth date"
-msgstr ""
-
-#: src/Gateways/Billink/BillinkGateway.php:55
-#: src/Gateways/Klarna/KlarnaGateway.php:38
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:72
-msgid "Unknown gender"
-msgstr ""
-
-#: src/Gateways/Billink/BillinkGateway.php:60
-msgid "Please accept license agreements"
-msgstr ""
-
-#: src/Gateways/CreditCard/CreditCardGateway.php:106
-#: src/Gateways/CreditCard/CreditCardGateway.php:118
-msgid "Select a credit or debit card."
+#: src/Gateways/Bizum/BizumGateway.php:13
+msgid "Spain's mobile payment method, with instant bank-to-bank transfers via phone number."
 msgstr ""
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:110
+#: src/Gateways/CreditCard/CreditCardGateway.php:122
+msgid "Select a credit or debit card."
+msgstr ""
+
+#: src/Gateways/CreditCard/CreditCardGateway.php:114
 msgid "Please complete the card form before proceeding."
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:122
+#: src/Gateways/CreditCard/CreditCardGateway.php:126
 msgid "A valid credit card is required."
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:220
+#: src/Gateways/CreditCard/CreditCardGateway.php:294
 msgid "Credit and debit card method"
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:222
+#: src/Gateways/CreditCard/CreditCardGateway.php:296
 msgid "Redirect user to Buckaroo or enter credit or debit card information (directly) inline in the checkout. SSL is required to enable inline credit or debit card information."
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:228
+#: src/Gateways/CreditCard/CreditCardGateway.php:302
 msgid "Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us."
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:232
+#: src/Gateways/CreditCard/CreditCardGateway.php:306
 msgid "Credit and debit card flow"
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:242
+#: src/Gateways/CreditCard/CreditCardGateway.php:316
 msgid "Buckaroo Hosted Fields Client ID"
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:244
-msgid "Enter your Buckaroo Hosted Fields Client ID, obtainable from the Buckaroo Plaza at -> Settings -> Token registration."
+#. translators: 1: opening link to Token registration, 2: closing link.
+#: src/Gateways/CreditCard/CreditCardGateway.php:321
+#, php-format
+msgid "Enter your Hosted Fields Client ID. Create or look up your credentials in Buckaroo Plaza under Configuration > %1$sToken registration%2$s."
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:247
+#: src/Gateways/CreditCard/CreditCardGateway.php:329
 msgid "Buckaroo Hosted Fields Client Secret"
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:249
-msgid "Enter your Buckaroo Hosted Fields Client Secret, obtainable from the Buckaroo Plaza at -> Settings -> Token registration."
+#. translators: 1: opening link to Token registration, 2: closing link.
+#: src/Gateways/CreditCard/CreditCardGateway.php:334
+#, php-format
+msgid "Enter your Hosted Fields Client Secret. Create or look up your credentials in Buckaroo Plaza under Configuration > %1$sToken registration%2$s."
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:252
+#: src/Gateways/CreditCard/CreditCardGateway.php:342
 msgid "Allowed provider"
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:255
+#: src/Gateways/CreditCard/CreditCardGateway.php:345
 msgid "Select which credit or debit card providers will be visible to customer"
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:259
+#: src/Gateways/CreditCard/CreditCardGateway.php:349
 msgid "Show separate in checkout"
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:261
-#: src/Gateways/Paypal/PaypalGateway.php:115
+#: src/Gateways/CreditCard/CreditCardGateway.php:351
 msgid "None"
 msgstr ""
 
-#: src/Gateways/CreditCard/CreditCardGateway.php:262
+#: src/Gateways/CreditCard/CreditCardGateway.php:352
 msgid "Select which credit or debit card providers will be shown separately in the checkout"
 msgstr ""
 
@@ -658,453 +778,979 @@ msgstr ""
 msgid "Error: Invalid response from server."
 msgstr ""
 
-#: src/Gateways/GiftCard/GiftCardGateway.php:34
-msgid "List of authorized giftcards"
+#: src/Gateways/Express/ExpressSettings.php:49
+msgid "Method specific settings"
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:55
+msgid "Graphical settings"
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:61
+msgid "Advanced settings"
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:110
+msgid "Show the express button on"
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:113
+msgid "Clear all to hide the express button everywhere."
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:121
+msgid "List as payment method in checkout"
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:123
+msgid "The wallet only authorises the payment. Billing and shipping come from the checkout form."
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:138
+msgid "Product page"
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:139
+msgid "Cart page"
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:140
+msgid "Checkout page"
+msgstr ""
+
+#: src/Gateways/Express/ExpressSettings.php:352
+msgid "The preview could not be loaded."
+msgstr ""
+
+#: src/Gateways/ExpressProductCart.php:29
+msgid "No shipping required"
 msgstr ""
 
 #: src/Gateways/GiftCard/GiftCardGateway.php:36
+msgid "List of authorized giftcards"
+msgstr ""
+
+#: src/Gateways/GiftCard/GiftCardGateway.php:38
 msgid "Giftcards must be comma separated"
 msgstr ""
 
 #: src/Gateways/GiftCard/GiftCardProcessor.php:30
+#, php-format
 msgid "Card number or pin is incorrect for %s"
 msgstr ""
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:435
-msgid "Show the Google Pay button on the product page"
+#: src/Gateways/Googlepay/GooglepayController.php:203
+msgid "Unable to calculate Google Pay cart."
 msgstr ""
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:446
-msgid "Show the Google Pay button on the cart page"
+#: src/Gateways/Googlepay/GooglepayGateway.php:34
+msgid "Google's wallet, using the cards saved to a shopper's Google Account."
 msgstr ""
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:457
-msgid "Show the Google Pay button on the checkout page"
+#: src/Gateways/Googlepay/GooglepayGateway.php:391
+msgid "Gateway Merchant ID"
 msgstr ""
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:466
-msgid "Button style"
+#: src/Gateways/Googlepay/GooglepayGateway.php:393
+msgid "Your Buckaroo Gateway merchant ID, found in Buckaroo Plaza → Services → <a href=\"https://plaza.buckaroo.nl/Configuration/GooglePay\" target=\"_blank\" rel=\"noopener\">Google Pay</a>."
 msgstr ""
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:468
-msgid "Select the Google Pay button style"
-msgstr ""
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:470
-msgid "Dark"
-msgstr ""
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:471
-msgid "Light"
-msgstr ""
-
-#: src/Gateways/Googlepay/GooglepayGateway.php:497
+#: src/Gateways/Googlepay/GooglepayGateway.php:397
 msgid "Google Merchant ID"
 msgstr ""
 
-#: src/Gateways/Googlepay/GooglepayGateway.php:499
-msgid "Your Google Merchant ID from the Google Pay Business Console (e.g. BCR2DN4T...)."
+#: src/Gateways/Googlepay/GooglepayGateway.php:399
+msgid "Your Google Merchant ID, found in the <a href=\"https://pay.google.com/business/console\" target=\"_blank\" rel=\"noopener\">Google Pay & Wallet Console</a> (e.g. BCR2DN4T...). Required for live payments."
 msgstr ""
 
-#: src/Gateways/Idin/IdinController.php:25
-msgid "You have been verified successfully"
+#: src/Gateways/Googlepay/GooglepayGateway.php:419
+msgid "Wording Google shows on the button, next to the Google Pay mark."
 msgstr ""
 
-#: src/Gateways/Idin/IdinController.php:27
-msgid "According to iDIN you are under 18 years old"
+#: src/Gateways/Googlepay/GooglepayGateway.php:422
+#: src/Gateways/Paypal/PaypalGateway.php:161
+msgid "Pay with"
 msgstr ""
 
-#: src/Gateways/Idin/IdinController.php:33
+#: src/Gateways/Googlepay/GooglepayGateway.php:423
+msgid "Buy with"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:424
+msgid "Checkout with"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:425
+msgid "Order with"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:426
+msgid "Book with"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayGateway.php:427
+msgid "Subscribe with"
+msgstr ""
+
+#: src/Gateways/Googlepay/GooglepayProcessor.php:34
+msgid "Google Pay amount has changed. Please refresh the page and approve the updated total."
+msgstr ""
+
+#: src/Gateways/Ideal/IdealGateway.php:17
+msgid "The Netherlands' most-used online payment method, via the shopper's own bank, now co-branded with Wero."
+msgstr ""
+
+#: src/Gateways/Idin/IdinController.php:23
+#: src/Gateways/Idin/IdinController.php:28
 msgid "Verification has been failed"
 msgstr ""
 
-#: src/Gateways/In3/In3Gateway.php:85
+#: src/Gateways/Idin/IdinController.php:35
+msgid "You have been verified successfully"
+msgstr ""
+
+#: src/Gateways/Idin/IdinController.php:37
+msgid "According to iDIN you are under 18 years old"
+msgstr ""
+
+#: src/Gateways/In3/In3Gateway.php:28
+msgid "Interest-free payment in three instalments over 60 days, settled via iDEAL."
+msgstr ""
+
+#: src/Gateways/In3/In3Gateway.php:68
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php:128
+#, php-format
 msgid "Please fill in a phone number for %s. This is required in order to use this payment method."
 msgstr ""
 
-#: src/Gateways/In3/In3Gateway.php:124
-msgid "Api version"
+#: src/Gateways/Kbc/KbcGateway.php:15
+msgid "Direct bank payments for customers of KBC/CBC in Belgium."
 msgstr ""
 
-#: src/Gateways/In3/In3Gateway.php:126
-msgid "Chose the api version for this payment method."
+#: src/Gateways/Klarna/CancelReservationAction.php:14
+msgid "Klarna reservation was successfully canceled"
 msgstr ""
 
-#: src/Gateways/Klarna/KlarnaGateway.php:48
-#: src/Gateways/Klarna/KlarnaGateway.php:54
-msgid "Payment method is not supported for country ("
+#: src/Gateways/Klarna/CancelReservationAction.php:22
+#, php-format
+msgid "Klarna reservation for order #%s was successfully canceled"
 msgstr ""
 
-#: src/Gateways/PayByBank/PayByBankGateway.php:36
-msgid "<strong>PayByBank </strong> is a required field."
+#: src/Gateways/Klarna/CancelReservationAction.php:33
+#, php-format
+msgid "Cannot cancel klarna reservation for order #%s"
+msgstr ""
+
+#: src/Gateways/Klarna/ExtendReservationAction.php:13
+msgid "Klarna reservation was successfully extended"
+msgstr ""
+
+#: src/Gateways/Klarna/ExtendReservationAction.php:21
+#, php-format
+msgid "Klarna reservation for order #%s was successfully extended"
+msgstr ""
+
+#: src/Gateways/Klarna/ExtendReservationAction.php:32
+#, php-format
+msgid "Cannot extend klarna reservation for order #%s"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:54
+#: src/PaymentProcessors/Actions/CaptureAction.php:51
+msgid "This order cannot be captured"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:58
+#: src/PaymentProcessors/Actions/CaptureAction.php:55
+msgid "A valid capture amount is required"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:62
+#: src/PaymentProcessors/Actions/CaptureAction.php:59
+msgid "Capture amount does not match the selected order items."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:71
+msgid "This capture amount is already claimed or awaiting reconciliation."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:78
+msgid "This capture amount is already being processed."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:90
+#: src/PaymentProcessors/Actions/CaptureAction.php:67
+msgid "The selected amount is no longer available to capture."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:98
+#: src/Gateways/Klarna/KlarnaPayGateway.php:139
+msgid "Cannot perform capture, Klarna Data Request key not found"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:165
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:234
+#: src/PaymentProcessors/Actions/CaptureAction.php:109
+msgid "Capture failed"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureAttempt.php:162
+msgid "The capture worker stopped before recording an outcome; reconciliation is required."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureAttempt.php:466
+#, php-format
+msgid "Automatic Klarna capture of %1$s %2$s failed (attempt %3$d): %4$s"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureAttempt.php:476
+#, php-format
+msgid "Automatic Klarna capture outcome is unknown for %1$s %2$s (attempt %3$d): %4$s"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:67
+#, php-format
+msgid "Klarna capture status check for attempt %1$d could not be completed: %2$s"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:80
+#, php-format
+msgid "Klarna capture status check: Buckaroo transaction %1$s could not be matched to capture attempt %2$d."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:91
+#, php-format
+msgid "Klarna capture status check: attempt %1$d is now %2$s (Buckaroo transaction %3$s)."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:144
+#, php-format
+msgid "Klarna capture status check: attempt %1$d has no Buckaroo transaction key. Waiting for the Buckaroo push until %2$s before it can be marked as failed."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:153
+msgid "No Buckaroo transaction key or push was received for this capture attempt. Verify in Buckaroo Plaza that no capture exists for this order before using Retry capture."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:158
+#, php-format
+msgid "Klarna capture status check: attempt %1$d changed in the meantime and was not marked as failed. Check again later."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:171
+#, php-format
+msgid "Klarna capture attempt %1$d was marked as failed: %2$s"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:87
+msgid "The Klarna payment was fully captured, but the order is cancelled or refunded, so its status was not changed. Refund the captured amount if the order should stay closed."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:98
+msgid "Klarna payment fully captured."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:125
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:607
+msgid "Automatic Klarna capture was skipped because the Data Request key is missing."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:134
+msgid "Automatic Klarna capture was skipped because the reserved amount is unknown."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:163
+msgid "Automatic Klarna capture could not be scheduled."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:217
+msgid "The Klarna authorization was not released automatically because a capture was already made or is in progress. Use the \"Klarna: Cancel reservation\" order action to release what is left."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:232
+msgid "The Klarna authorization was released because the order was cancelled."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:233
+msgid "The Klarna authorization could not be released automatically. It may already have been released or expired; otherwise use the \"Klarna: Cancel reservation\" order action to release it."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:272
+msgid "Automatic Klarna capture recovery could not be scheduled."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:328
+msgid "Automatic Klarna capture stopped after repeated worker lock contention."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:406
+#, php-format
+msgid "Automatic Klarna capture status check for attempt %d could not be scheduled. Use the \"Klarna: Check capture status\" order action."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:505
+msgid "Automatic Klarna capture could not create a durable attempt."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:529
+msgid "Automatic Klarna capture could not retry durable attempt creation."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:543
+msgid "Automatic Klarna capture is waiting for final lock recovery."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:577
+msgid "Automatic Klarna capture could not be rescheduled after lock contention."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:587
+msgid "Automatic Klarna capture could not recover from lock contention."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:596
+msgid "Automatic Klarna capture was skipped because the order is no longer Completed."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:599
+msgid "Automatic Klarna capture was skipped because the payment method changed."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:602
+msgid "Automatic Klarna capture was skipped because the reservation is no longer active."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:611
+msgid "Automatic Klarna capture was skipped because automatic capture is disabled."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:651
+msgid "Klarna: Check capture status"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:658
+msgid "Klarna: Cancel reservation"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:661
+msgid "Klarna: Retry capture"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:684
+#, php-format
+msgid "Klarna capture retry queued (attempt %1$d) for %2$s %3$s."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:697
+msgid "Klarna capture retry could not be scheduled."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:720
+msgid "Klarna capture failed"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:721
+msgid "Klarna capture outcome is unknown"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:728
+msgid "Review order"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaKpGateway.php:24
+msgid "Klarna pay-after-delivery, authorized at checkout and captured on shipment."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPayGateway.php:34
+msgid "Klarna pay-later and instalment options, with Klarna acting as Merchant of Record."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPayGateway.php:50
+msgid "Automatic capture"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPayGateway.php:51
+msgid "Automatic capture when order is completed"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPayGateway.php:53
+msgid "Captures the remaining reserved amount at Klarna when the order status changes to Completed. The result is confirmed by the Buckaroo push. A failed capture adds an order note and an admin notice and can be retried from the order actions."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPayGateway.php:189
+msgid "Cannot cancel reservation, Klarna Data Request key not found"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPayGateway.php:255
+msgid "Cannot extend reservation, Klarna Data Request key not found"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:46
+msgid "Klarna reservation cancellation confirmed (push received)."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:51
+#, php-format
+msgid "Klarna reservation cancellation push reported a failure: %s"
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:139
+msgid "Klarna payment authorized. The order contains only digital products, so it was completed and the payment is being collected now."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:143
+msgid "Klarna payment authorized. The order contains only digital products and was completed, but the payment could not be collected automatically: check the order notes and capture it from this order."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:147
+msgid "Klarna payment authorized, but not collected yet. Set the order to Completed after shipping to collect the payment."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:150
+msgid "Klarna payment authorized, but not collected yet. Automatic capture is off: capture the payment from this order after shipping."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:275
+msgid "Klarna capture success could not be prepared for local reconciliation."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:311
+msgid "Klarna capture recording failure could not be persisted for retry."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:331
+msgid "Klarna capture success could not be finalized in the attempt ledger."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:401
+msgid "Klarna capture made in Buckaroo Plaza could not be recorded locally."
+msgstr ""
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:474
+msgid "Klarna capture settlement could not be recorded locally."
 msgstr ""
 
 #: src/Gateways/PayByBank/PayByBankGateway.php:38
+msgid "<strong>PayByBank </strong> is a required field."
+msgstr ""
+
+#: src/Gateways/PayByBank/PayByBankGateway.php:40
 msgid "A valid PayByBank is required."
 msgstr ""
 
-#: src/Gateways/PayByBank/PayByBankGateway.php:48
+#: src/Gateways/PayByBank/PayByBankGateway.php:50
 msgid "Bank selection display"
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:96
-msgid "Seller Protection"
+#: src/Gateways/Paypal/PaypalGateway.php:61
+msgid "Global digital wallet with card and balance payments, plus Buyer Protection."
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:98
-msgid "Sends customer address information to PayPal to enable PayPal seller protection."
+#: src/Gateways/Paypal/PaypalGateway.php:120
+msgid "Merchant ID"
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:101
-msgid "Disabled"
+#: src/Gateways/Paypal/PaypalGateway.php:122
+msgid "Found in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>. Required for live payments."
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:106
-msgid "PayPal express merchant id"
+#: src/Gateways/Paypal/PaypalGateway.php:127
+msgid "Sandbox credentials"
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:108
-msgid "PayPal merchant id required for paypal express"
+#: src/Gateways/Paypal/PaypalGateway.php:129
+msgid "Used only when Transaction mode is set to Test. The PayPal sandbox client ids are managed by the Buckaroo plugin. The sandbox merchant ID is optional."
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:111
-msgid "PayPal express"
+#: src/Gateways/Paypal/PaypalGateway.php:132
+msgid "Sandbox merchant ID"
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:113
-msgid "Enable PayPal express for the following pages."
+#: src/Gateways/Paypal/PaypalGateway.php:134
+msgid "Used in Test mode. Found in PayPal sandbox → <a href=\"https://www.sandbox.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>."
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:116
-msgid "Product page"
+#: src/Gateways/Paypal/PaypalGateway.php:145
+msgid "Gold (standard)"
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:117
-msgid "Cart page"
+#: src/Gateways/Paypal/PaypalGateway.php:146
+msgid "Blue"
 msgstr ""
 
-#: src/Gateways/Paypal/PaypalGateway.php:118
-msgid "Checkout page"
+#: src/Gateways/Paypal/PaypalGateway.php:147
+msgid "Silver"
 msgstr ""
 
-#: src/Gateways/PaypalExpress/PaypalExpressController.php:112
+#: src/Gateways/Paypal/PaypalGateway.php:156
+msgid "Wording PayPal shows on the button, next to the PayPal mark."
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:159
+msgid "Checkout"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:160
+msgid "Buy now"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:166
+msgid "Rounded button shape"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:168
+msgid "Show the express button with fully rounded corners."
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:183
+msgid "Seller protection"
+msgstr ""
+
+#: src/Gateways/Paypal/PaypalGateway.php:185
+msgid "Sends the customer address to PayPal, needed for seller protection."
+msgstr ""
+
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:117
 msgid "You have canceled the payment request"
 msgstr ""
 
-#: src/Gateways/PaypalExpress/PaypalExpressController.php:113
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:118
 msgid "Cannot create payment"
 msgstr ""
 
-#: src/Gateways/PaypalExpress/PaypalExpressController.php:114
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:119
 msgid "PayPal merchant id is required"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:66
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:120
+msgid "Please choose product options before using PayPal."
+msgstr ""
+
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:387
+msgid "A shipping address is required to pay with PayPal."
+msgstr ""
+
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:396
+msgid "No shipping method is available for this address."
+msgstr ""
+
+#: src/Gateways/PaypalExpress/PaypalExpressOrder.php:67
+msgid "PayPal Express payment processing failed."
+msgstr ""
+
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:50
+msgid "Buckaroo service for sending customers a payment request by email with a secure pay link."
+msgstr ""
+
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:72
 msgid "Please select gender"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:76
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:78
+msgid "Unknown gender"
+msgstr ""
+
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:82
 msgid "Please enter firstname"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:80
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:86
 msgid "Please enter lastname"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:83
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:89
 msgid "Please enter email"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:85
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:91
 msgid "Please enter valid email"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:109
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:115
 msgid "Show on Checkout page"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:111
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:117
 msgid "Show PayPerEmail on Checkout page"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:116
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:122
 msgid "Show PayLink"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:118
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:124
 msgid "Show PayLink in admin order actions"
 msgstr ""
 
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:126
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:137
+msgid "Show"
+msgstr ""
+
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:127
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:138
+msgid "Hide"
+msgstr ""
+
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:133
 msgid "Show PayPerEmail"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:129
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:135
 msgid "Show PayPerEmail in admin order actions"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:138
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:144
 msgid "Due date (in days)"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:140
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:146
 msgid "The expiration date for the paylink."
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:145
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:151
 msgid "Allowed methods"
 msgstr ""
 
-#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:167
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:173
 msgid "Select which methods appear to the customer"
 msgstr ""
 
-#: src/Gateways/SepaDirectDebit/SepaDirectDebitGateway.php:37
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:323
+#: src/Hooks/TestCredentials.php:23
+#: src/Services/AutoConfiguration.php:29
+msgid "You are not allowed to perform this action."
+msgstr ""
+
+#: src/Gateways/Przelewy24/Przelewy24Gateway.php:18
+msgid "Poland's leading online payment platform, connecting 165+ local banks and methods."
+msgstr ""
+
+#: src/Gateways/SepaDirectDebit/SepaDirectDebitGateway.php:17
+msgid "One-off collection from the customer's bank account via a SEPA mandate."
+msgstr ""
+
+#: src/Gateways/SepaDirectDebit/SepaDirectDebitGateway.php:45
 msgid "Please fill in all required fields"
 msgstr ""
 
-#: src/Gateways/SepaDirectDebit/SepaDirectDebitGateway.php:41
+#: src/Gateways/SepaDirectDebit/SepaDirectDebitGateway.php:49
 msgid "Wrong IBAN number"
 msgstr ""
 
 #: src/Gateways/Swish/SwishGateway.php:15
-msgid "Swish is Sweden's real-time mobile payment method, authorized via BankID."
+msgid "Sweden's real-time mobile payment method, authorized via BankID."
 msgstr ""
 
-#: src/Gateways/Transfer/TransferGateway.php:65
-msgid "Thank you for your order. You have chosen to pay by transfer. To complete your order, please transfer the outstanding amount, %1$s, using the details below."
+#: src/Gateways/Transfer/TransferGateway.php:24
+msgid "Manual bank transfer, with payment instructions provided to the customer after checkout."
 msgstr ""
 
 #: src/Gateways/Transfer/TransferGateway.php:69
-msgid "Amount"
-msgstr ""
-
-#: src/Gateways/Transfer/TransferGateway.php:70
-msgid "Payment reference"
-msgstr ""
-
-#: src/Gateways/Transfer/TransferGateway.php:71
-msgid "Accountholder"
-msgstr ""
-
-#: src/Gateways/Transfer/TransferGateway.php:72
-msgid "IBAN"
+#, php-format
+msgid "Thank you for your order. You have chosen to pay by transfer. To complete your order, please transfer the outstanding amount, %1$s, using the details below."
 msgstr ""
 
 #: src/Gateways/Transfer/TransferGateway.php:73
-msgid "BIC"
+msgid "Amount"
 msgstr ""
 
 #: src/Gateways/Transfer/TransferGateway.php:74
-msgid "NB:"
+msgid "Payment reference"
+msgstr ""
+
+#: src/Gateways/Transfer/TransferGateway.php:75
+msgid "Accountholder"
+msgstr ""
+
+#: src/Gateways/Transfer/TransferGateway.php:76
+msgid "IBAN"
 msgstr ""
 
 #: src/Gateways/Transfer/TransferGateway.php:77
+msgid "BIC"
+msgstr ""
+
+#: src/Gateways/Transfer/TransferGateway.php:78
+msgid "NB:"
+msgstr ""
+
+#: src/Gateways/Transfer/TransferGateway.php:81
+#, php-format
 msgid "To ensure that your payment can be processed smoothly, you must quote the payment reference %1$s in the description of your transfer. This will enable faster processing of the payment."
 msgstr ""
 
-#: src/Gateways/Transfer/TransferGateway.php:148
+#: src/Gateways/Transfer/TransferGateway.php:124
 msgid "Number of days till order expire"
 msgstr ""
 
-#: src/Gateways/Transfer/TransferGateway.php:150
+#: src/Gateways/Transfer/TransferGateway.php:126
 msgid "Number of days to the date that the order should be payed."
 msgstr ""
 
-#: src/Gateways/Transfer/TransferGateway.php:154
+#: src/Gateways/Transfer/TransferGateway.php:130
 msgid "Send email"
 msgstr ""
 
-#: src/Gateways/Transfer/TransferGateway.php:156
+#: src/Gateways/Transfer/TransferGateway.php:132
 msgid "Buckaroo sends an email to the customer with the payment procedures."
 msgstr ""
 
-#: src/Gateways/Transfer/TransferGateway.php:164
+#: src/Gateways/Transfer/TransferGateway.php:140
 msgid "Show payment procedures"
 msgstr ""
 
-#: src/Gateways/Transfer/TransferGateway.php:166
+#: src/Gateways/Transfer/TransferGateway.php:142
 msgid "Show payment procedures on the thank you page after payment confirmation."
 msgstr ""
 
-#: src/Gateways/Trustly/TrustlyGateway.php:19
+#: src/Gateways/Trustly/TrustlyGateway.php:20
 msgid "Trustly is a secure online banking payment method that allows customers to pay directly from their bank account."
 msgstr ""
 
-#: src/Gateways/Twint/TwintGateway.php:17
+#: src/Gateways/Twint/TwintGateway.php:18
 msgid "TWINT is Switzerland's payment app for convenient and secure payments using your smartphone."
 msgstr ""
 
-#: src/Gateways/Wero/WeroGateway.php:74
+#: src/Gateways/Wero/WeroGateway.php:76
 msgid "Wero Pay or Authorize"
 msgstr ""
 
-#: src/Gateways/Wero/WeroGateway.php:76
+#: src/Gateways/Wero/WeroGateway.php:78
 msgid "Choose to execute Pay or Authorize/Capture flow for Wero."
 msgstr ""
 
-#: src/Hooks/AdminHooks.php:29
-#: src/Hooks/AdminHooks.php:62
-#: src/Hooks/AdminHooks.php:63
-msgid "Settings"
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php:58
+msgid "Dutch pay-after-delivery by invoice from ABN AMRO, for business customers with a Chamber of Commerce registration."
+msgstr ""
+
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php:106
+msgid "Zakelijk op rekening is only available for companies located in The Netherlands."
+msgstr ""
+
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php:113
+msgid "A company name is required to pay with Zakelijk op rekening. Please fill in the company name in your billing details."
+msgstr ""
+
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php:120
+msgid "Please enter a valid Chamber of Commerce (KvK) number."
+msgstr ""
+
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php:170
+msgid "Could not start the payment. Please try again or choose another payment method."
 msgstr ""
 
 #: src/Hooks/AdminHooks.php:111
 msgid "Buckaroo BPE requires WooCommerce to be installed and active"
 msgstr ""
 
-#: src/Hooks/TestCredentials.php:17
-#: src/Hooks/TestCredentials.php:21
-#: src/Hooks/TestCredentials.php:29
+#: src/Hooks/OrderActions.php:60
+#: src/Order/OrderCaptureRefund.php:41
+msgid "Invalid security token. Please reload the page and try again."
+msgstr ""
+
+#: src/Hooks/OrderActions.php:72
+msgid "You are not allowed to capture this order."
+msgstr ""
+
+#: src/Hooks/OrderActions.php:99
+msgid "Could not resolve a Buckaroo gateway for this order. The order may have been created with an older version of the plugin."
+msgstr ""
+
+#: src/Hooks/OrderActions.php:116
+msgid "This order is not in a capturable state."
+msgstr ""
+
+#: src/Hooks/PaymentSetupScripts.php:128
+msgid "This action will enable payment methods in LIVE mode based on your active Buckaroo subscriptions. This will overwrite your current payment method settings. Are you sure you want to proceed?"
+msgstr ""
+
+#: src/Hooks/TestCredentials.php:31
+#: src/Hooks/TestCredentials.php:40
+#: src/Hooks/TestCredentials.php:46
 msgid "Credentials are incorrect"
 msgstr ""
 
-#: src/Hooks/TestCredentials.php:27
+#: src/Hooks/TestCredentials.php:44
 msgid "Credentials are OK"
 msgstr ""
 
-#: src/Install/Migration/MigrationHandler.php:109
+#: src/Install/Migration/MigrationHandler.php:114
 msgid "You installed a previous version of Buckaroo BPE, some functionality may not work properly"
 msgstr ""
 
-#: src/Order/OrderCaptureRefund.php:42
-msgid "A order id is required"
+#: src/Order/CaptureRecorder.php:27
+msgid "Capture succeeded but could not be recorded locally; reconciliation is required."
 msgstr ""
 
-#: src/Order/OrderCaptureRefund.php:49
-msgid "A capture id is required"
+#: src/Order/CaptureRecorder.php:40
+msgid "Could not start the local capture transaction."
 msgstr ""
 
-#: src/Order/OrderCaptureRefund.php:83
-msgid "Cannot process refund"
+#: src/Order/CaptureRecorder.php:91
+msgid "Could not verify the local capture record."
 msgstr ""
 
-#: src/PaymentProcessors/Actions/CancelReservationAction.php:14
-msgid "Klarna reservation was successfully canceled"
-msgstr ""
-
-#: src/PaymentProcessors/Actions/CancelReservationAction.php:22
-msgid "Klarna reservation for order #%s was successfully canceled"
-msgstr ""
-
-#: src/PaymentProcessors/Actions/CancelReservationAction.php:33
-msgid "Cannot cancel klarna reservation for order #%s"
-msgstr ""
-
-#: src/PaymentProcessors/Actions/CaptureAction.php:62
+#: src/Order/CaptureRecorder.php:96
+#, php-format
 msgid "Captured %1$s - Capture transaction ID: %2$s"
 msgstr ""
 
-#: src/PaymentProcessors/Actions/CaptureAction.php:84
-msgid ""
-"Capture failed for transaction ID: %s \n"
-""
+#: src/Order/CaptureRecorder.php:102
+msgid "Could not record the capture order note."
 msgstr ""
 
-#: src/PaymentProcessors/Actions/CaptureAction.php:97
-msgid "Capture failed for transaction ID: %s"
+#: src/Order/CaptureRecorder.php:106
+msgid "Could not commit the local capture record."
 msgstr ""
 
-#: src/PaymentProcessors/Actions/RefundAction.php:43
+#: src/Order/OrderCaptureRefund.php:49
+msgid "You are not allowed to refund this order."
+msgstr ""
+
+#: src/Order/OrderCaptureRefund.php:58
+msgid "A order id is required"
+msgstr ""
+
+#: src/Order/OrderCaptureRefund.php:65
+msgid "A capture id is required"
+msgstr ""
+
+#: src/Order/OrderCaptureRefund.php:101
+msgid "Cannot process refund"
+msgstr ""
+
+#: src/PaymentProcessors/Actions/RefundAction.php:46
+#: src/PaymentProcessors/PushProcessor.php:47
+#: src/PaymentProcessors/PushProcessor.php:222
+msgid "Buckaroo push could not be processed because the order is locked."
+msgstr ""
+
+#: src/PaymentProcessors/Actions/RefundAction.php:61
 msgid "Refunded"
 msgstr ""
 
-#: src/PaymentProcessors/Actions/RefundAction.php:68
+#: src/PaymentProcessors/Actions/RefundAction.php:89
+#, php-format
 msgid "Refunded %1$s - Refund transaction ID: %2$s"
 msgstr ""
 
-#: src/PaymentProcessors/Actions/RefundAction.php:85
+#: src/PaymentProcessors/Actions/RefundAction.php:107
+#, php-format
+msgid "Refund of %1$s is pending processing - Transaction ID: %2$s"
+msgstr ""
+
+#: src/PaymentProcessors/Actions/RefundAction.php:124
+#, php-format
 msgid ""
 "Refund failed for transaction ID: %s \n"
 ""
 msgstr ""
 
-#: src/PaymentProcessors/PushProcessor.php:344
-#: src/PaymentProcessors/ReturnProcessor.php:159
+#: src/PaymentProcessors/PushProcessor.php:113
+#, php-format
+msgid "Received Buckaroo payment push notification of %1$s for an order with status %2$s. The order status was not changed."
+msgstr ""
+
+#: src/PaymentProcessors/PushProcessor.php:446
+#, php-format
+msgid "Ignored a Buckaroo push for transaction %1$s in %2$s, because the order is in %3$s."
+msgstr ""
+
+#: src/PaymentProcessors/PushProcessor.php:452
+#, php-format
+msgid "Ignored a Buckaroo test-mode push for transaction %s, because the order was placed in live mode."
+msgstr ""
+
+#: src/PaymentProcessors/PushProcessor.php:514
+#: src/PaymentProcessors/ReturnProcessor.php:184
 msgid "Payment cancelled by customer."
 msgstr ""
 
-#: src/PaymentProcessors/PushProcessor.php:347
-#: src/PaymentProcessors/PushProcessor.php:371
+#: src/PaymentProcessors/PushProcessor.php:517
+#: src/PaymentProcessors/PushProcessor.php:541
 msgid "We are sorry to inform you that the request to pay afterwards with Riverty is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty. Or you can visit the website of Riverty and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order."
 msgstr ""
 
-#: src/PaymentProcessors/PushProcessor.php:355
-#: src/PaymentProcessors/PushProcessor.php:379
-#: src/PaymentProcessors/ReturnProcessor.php:108
-#: src/PaymentProcessors/ReturnProcessor.php:109
+#: src/PaymentProcessors/PushProcessor.php:525
+#: src/PaymentProcessors/PushProcessor.php:549
+#: src/PaymentProcessors/ReturnProcessor.php:133
+#: src/PaymentProcessors/ReturnProcessor.php:134
 msgid "Payment unsuccessful. Please try again or choose another payment method."
 msgstr ""
 
-#: src/Services/AutoConfiguration.php:32
+#: src/Services/AutoConfiguration.php:38
 msgid "Failed to retrieve active subscriptions. Please check your credentials."
 msgstr ""
 
-#: src/Services/AutoConfiguration.php:36
+#: src/Services/AutoConfiguration.php:42
 msgid "No active subscriptions found. Please check your Buckaroo account."
 msgstr ""
 
-#: src/Services/AutoConfiguration.php:42
-#: src/Services/AutoConfiguration.php:145
+#: src/Services/AutoConfiguration.php:48
+#: src/Services/AutoConfiguration.php:151
 msgid "Configuration failed: "
 msgstr ""
 
-#: src/Services/AutoConfiguration.php:135
+#: src/Services/AutoConfiguration.php:141
 msgid "No payment methods were configured. Please check your active subscriptions."
 msgstr ""
 
-#: src/Services/AutoConfiguration.php:138
+#: src/Services/AutoConfiguration.php:144
+#, php-format
 msgid "Successfully configured %d payment method(s): %s"
 msgstr ""
 
-#: src/Services/AutoConfiguration.php:202
+#: src/Services/AutoConfiguration.php:208
+#, php-format
 msgid "Failed to configure %s: %s"
 msgstr ""
 
-#: src/Services/Helper.php:154
-#: assets/js/blocks/partials/buckaroo_gender.js:7
+#: src/Services/Helper.php:165
+#: assets/js/blocks/partials/buckaroo_gender.js:8
 #: assets/js/dist/blocks.js:2
 msgid "He/him"
 msgstr ""
 
-#: src/Services/Helper.php:156
-#: assets/js/blocks/partials/buckaroo_gender.js:8
+#: src/Services/Helper.php:167
+#: assets/js/blocks/partials/buckaroo_gender.js:9
 #: assets/js/dist/blocks.js:2
 msgid "She/her"
 msgstr ""
 
-#: src/Services/Helper.php:158
-#: assets/js/blocks/partials/buckaroo_gender.js:9
+#: src/Services/Helper.php:169
+#: assets/js/blocks/partials/buckaroo_gender.js:10
 #: assets/js/dist/blocks.js:2
 msgid "They/them"
 msgstr ""
 
-#: src/Services/Helper.php:160
-#: assets/js/blocks/partials/buckaroo_gender.js:10
+#: src/Services/Helper.php:171
+#: assets/js/blocks/partials/buckaroo_gender.js:11
 #: assets/js/dist/blocks.js:2
 msgid "I prefer not to say"
 msgstr ""
 
-#: templates/gateways/afterpay.php:35
-#: templates/gateways/afterpaynew.php:54
-#: templates/gateways/in3.php:38
-#: templates/gateways/klarnapay.php:43
+#: templates/gateways/afterpay.php:38
+#: templates/gateways/afterpaynew.php:53
+#: templates/gateways/in3.php:36
+#: templates/gateways/klarnapay.php:34
+#: templates/gateways/zakelijkoprekening.php:46
 msgid "Phone:"
 msgstr ""
 
-#: templates/gateways/afterpay.php:62
-#: templates/gateways/sepadirectdebit.php:42
-#: assets/js/blocks/gateways/buckaroo_sepadirectdebit.js:34
+#: templates/gateways/afterpay.php:63
+#: templates/gateways/sepadirectdebit.php:44
+#: assets/js/blocks/gateways/buckaroo_sepadirectdebit.js:27
 #: assets/js/dist/blocks.js:2
 msgid "IBAN:"
 msgstr ""
 
-#: templates/gateways/afterpaynew.php:33
+#: templates/gateways/afterpaynew.php:36
 msgid "Identification Number"
 msgstr ""
 
-#: templates/gateways/afterpaynew.php:70
-#: assets/js/blocks/partials/buckaroo_coc_field.js:8
+#: templates/gateways/afterpaynew.php:67
+#: assets/js/blocks/partials/buckaroo_coc_field.js:9
 #: assets/js/dist/blocks.js:2
 msgid "CoC-number:"
 msgstr ""
@@ -1116,52 +1762,35 @@ msgstr ""
 msgid "Fill required fields if bill in on the company:"
 msgstr ""
 
-#: templates/gateways/billink.php:28
-#: templates/gateways/partial_afterpay_b2b.php:38
-#: assets/js/blocks/partials/buckaroo_afterpay_b2b.js:12
+#: templates/gateways/billink.php:31
+#: templates/gateways/partial_afterpay_b2b.php:41
+#: assets/js/blocks/partials/buckaroo_afterpay_b2b.js:11
 #: assets/js/dist/blocks.js:2
 msgid "COC (KvK) number:"
 msgstr ""
 
-#: templates/gateways/billink.php:44
+#: templates/gateways/billink.php:43
 msgid "VAT number:"
 msgstr ""
 
-#: templates/gateways/billink.php:60
-#: templates/gateways/billink.php:84
-#: assets/js/blocks/partials/buckaroo_terms_and_condition.js:37
-#: assets/js/dist/blocks.js:2
-msgid "Accept terms of use"
-msgstr ""
-
-#: templates/gateways/billink.php:71
-#: templates/gateways/billink.php:94
-#: templates/gateways/creditcard.php:98
-#: templates/gateways/klarnapay.php:64
-#: templates/gateways/partial_afterpay_tos.php:83
-#: templates/gateways/payperemail.php:73
-#: templates/gateways/sepadirectdebit.php:69
-#: assets/js/blocks/gateways/buckaroo_creditcard.js:269
-#: assets/js/blocks/gateways/buckaroo_payperemail.js:69
-#: assets/js/blocks/gateways/buckaroo_sepadirectdebit.js:62
-#: assets/js/blocks/partials/buckaroo_afterpay_tos.js:13
-#: assets/js/blocks/partials/buckaroo_terms_and_condition.js:59
-#: assets/js/dist/blocks.js:2
-msgid "Required"
-msgstr ""
-
-#: templates/gateways/creditcard.php:32
+#: templates/gateways/creditcard.php:40
 msgid "Select your credit card:"
 msgstr ""
 
-#: templates/gateways/creditcard.php:53
-#: assets/js/blocks/gateways/buckaroo_creditcard.js:229
+#: templates/gateways/creditcard.php:50
+#: assets/js/blocks/partials/buckaroo_creditcard_dropdown.js:14
+#: assets/js/dist/blocks.js:2
+msgid "Credit Card:"
+msgstr ""
+
+#: templates/gateways/creditcard.php:69
+#: assets/js/blocks/gateways/buckaroo_creditcard.js:243
 #: assets/js/dist/blocks.js:2
 msgid "Cardholder Name:"
 msgstr ""
 
-#: templates/gateways/creditcard.php:62
-#: assets/js/blocks/gateways/buckaroo_creditcard.js:242
+#: templates/gateways/creditcard.php:70
+#: assets/js/blocks/gateways/buckaroo_creditcard.js:244
 #: assets/js/dist/blocks.js:2
 msgid "Card Number:"
 msgstr ""
@@ -1170,48 +1799,39 @@ msgstr ""
 msgid "Expiration Date:"
 msgstr ""
 
-#: templates/gateways/creditcard.php:80
-#: assets/js/blocks/gateways/buckaroo_creditcard.js:260
+#: templates/gateways/creditcard.php:72
+#: assets/js/blocks/gateways/buckaroo_creditcard.js:252
 #: assets/js/dist/blocks.js:2
 msgid "CVC:"
 msgstr ""
 
-#: templates/gateways/global.php:22
-msgid "TEST MODE"
-msgstr ""
-
-#: templates/gateways/klarnapay.php:28
-msgid "Payment method is not supported for country "
-msgstr ""
-
 #: templates/gateways/partial_afterpay_b2b.php:24
-#: assets/js/blocks/gateways/buckaroo_afterpay.js:55
+#: assets/js/blocks/gateways/buckaroo_afterpay.js:57
 #: assets/js/dist/blocks.js:2
 msgid "Checkout for company"
 msgstr ""
 
-#: templates/gateways/partial_afterpay_b2b.php:51
-#: assets/js/blocks/partials/buckaroo_afterpay_b2b.js:28
+#: templates/gateways/partial_afterpay_b2b.php:53
+#: assets/js/blocks/partials/buckaroo_afterpay_b2b.js:18
 #: assets/js/dist/blocks.js:2
 msgid "Name of the organization:"
 msgstr ""
 
-#: templates/gateways/partial_afterpay_tos.php:56
-#: templates/gateways/partial_afterpay_tos.php:60
-#: assets/js/blocks/partials/buckaroo_afterpay_tos.js:8
-#: assets/js/blocks/partials/buckaroo_terms_and_condition.js:33
+#: templates/gateways/partial_afterpay_tos.php:51
+#: templates/gateways/partial_afterpay_tos.php:62
+#: assets/js/blocks/partials/buckaroo_terms_and_condition.js:34
 #: assets/js/dist/blocks.js:2
 msgid "Accept Riverty conditions:"
 msgstr ""
 
-#: templates/gateways/partial_birth_field.php:24
-#: assets/js/blocks/partials/buckaroo_partial_birth_field.js:30
+#: templates/gateways/partial_birth_field.php:26
+#: assets/js/blocks/partials/buckaroo_partial_birth_field.js:35
 #: assets/js/dist/blocks.js:2
 msgid "Birthdate (format DD-MM-YYYY):"
 msgstr ""
 
-#: templates/gateways/partial_gender_field.php:29
-#: assets/js/blocks/partials/buckaroo_gender.js:28
+#: templates/gateways/partial_gender_field.php:36
+#: assets/js/blocks/partials/buckaroo_gender.js:27
 #: assets/js/dist/blocks.js:2
 msgid "Gender:"
 msgstr ""
@@ -1219,53 +1839,67 @@ msgstr ""
 #: templates/gateways/paybybank.php:28
 #: templates/gateways/paybybank.php:49
 #: templates/idin/checkout.php:35
-#: assets/js/blocks/gateways/buckaroo_paybybank.js:30
-#: assets/js/blocks/gateways/buckaroo_paybybank.js:45
+#: assets/js/blocks/gateways/buckaroo_paybybank.js:41
+#: assets/js/blocks/gateways/buckaroo_paybybank.js:52
 #: assets/js/dist/blocks.js:2
 msgid "Select your bank"
 msgstr ""
 
 #: templates/gateways/paybybank.php:85
-#: assets/js/blocks/gateways/buckaroo_paybybank.js:91
+#: assets/js/blocks/gateways/buckaroo_paybybank.js:94
 #: assets/js/dist/blocks.js:2
 msgid "Less banks"
 msgstr ""
 
 #: templates/gateways/paybybank.php:85
 #: templates/gateways/paybybank.php:86
-#: assets/js/blocks/gateways/buckaroo_paybybank.js:90
+#: assets/js/blocks/gateways/buckaroo_paybybank.js:93
 #: assets/js/dist/blocks.js:2
 msgid "More banks"
 msgstr ""
 
-#: templates/gateways/payperemail.php:33
-#: assets/js/blocks/gateways/buckaroo_payperemail.js:22
+#: templates/gateways/payperemail.php:34
+#: assets/js/blocks/gateways/buckaroo_payperemail.js:23
 #: assets/js/dist/blocks.js:2
 msgid "First Name:"
 msgstr ""
 
-#: templates/gateways/payperemail.php:47
-#: assets/js/blocks/gateways/buckaroo_payperemail.js:38
+#: templates/gateways/payperemail.php:46
+#: assets/js/blocks/gateways/buckaroo_payperemail.js:31
 #: assets/js/dist/blocks.js:2
 msgid "Last Name:"
 msgstr ""
 
-#: templates/gateways/payperemail.php:61
-#: assets/js/blocks/gateways/buckaroo_payperemail.js:54
+#: templates/gateways/payperemail.php:58
+#: assets/js/blocks/gateways/buckaroo_payperemail.js:39
 #: assets/js/dist/blocks.js:2
 msgid "Email:"
 msgstr ""
 
-#: templates/gateways/sepadirectdebit.php:28
+#: templates/gateways/sepadirectdebit.php:31
 #: assets/js/blocks/gateways/buckaroo_sepadirectdebit.js:19
 #: assets/js/dist/blocks.js:2
 msgid "Bank account holder:"
 msgstr ""
 
-#: templates/gateways/sepadirectdebit.php:57
-#: assets/js/blocks/gateways/buckaroo_sepadirectdebit.js:49
+#: templates/gateways/sepadirectdebit.php:56
+#: assets/js/blocks/gateways/buckaroo_sepadirectdebit.js:35
 #: assets/js/dist/blocks.js:2
 msgid "BIC:"
+msgstr ""
+
+#: templates/gateways/zakelijkoprekening.php:23
+msgid "Voor iedereen, powered by ABN AMRO. Betaal later."
+msgstr ""
+
+#: templates/gateways/zakelijkoprekening.php:32
+#: assets/js/blocks/gateways/buckaroo_zakelijkoprekening.js:41
+#: assets/js/dist/blocks.js:2
+msgid "Company name:"
+msgstr ""
+
+#: templates/gateways/zakelijkoprekening.php:58
+msgid "Chamber of Commerce (KvK) number:"
 msgstr ""
 
 #: templates/idin/cart.php:7
@@ -1294,57 +1928,87 @@ msgstr ""
 msgid "You must be 18 years or older to order this product"
 msgstr ""
 
-#: assets/js/blocks/gateways/buckaroo_afterpaynew.js:66
+#: assets/js/blocks/gateways/buckaroo_afterpaynew.js:61
 #: assets/js/dist/blocks.js:2
 msgid "Identification Number:"
 msgstr ""
 
-#: assets/js/blocks/gateways/buckaroo_billink.js:40
+#: assets/js/blocks/gateways/buckaroo_applepay.js:107
+#: assets/js/dist/blocks.js:2
+msgid "Apple Pay is not available in this browser or context. Please choose another payment method."
+msgstr ""
+
+#: assets/js/blocks/gateways/buckaroo_applepay.js:130
+#: assets/js/dist/blocks.js:2
+msgid "Apple Pay authorisation was not completed."
+msgstr ""
+
+#: assets/js/blocks/gateways/buckaroo_billink.js:32
 #: assets/js/dist/blocks.js:2
 msgid "VAT-number:"
 msgstr ""
 
-#: assets/js/blocks/gateways/buckaroo_creditcard.js:152
+#: assets/js/blocks/gateways/buckaroo_creditcard.js:170
 #: assets/js/dist/blocks.js:2
 msgid "We are refreshing the payment form, because the session has expired."
 msgstr ""
 
-#: assets/js/blocks/gateways/buckaroo_creditcard.js:175
+#: assets/js/blocks/gateways/buckaroo_creditcard.js:193
 #: assets/js/dist/blocks.js:2
 msgid "Failed to initialize Buckaroo hosted fields."
 msgstr ""
 
-#: assets/js/blocks/gateways/buckaroo_creditcard.js:183
+#: assets/js/blocks/gateways/buckaroo_creditcard.js:201
 #: assets/js/dist/blocks.js:2
 msgid "Session expired, please try again."
 msgstr ""
 
-#: assets/js/blocks/gateways/buckaroo_creditcard.js:251
+#: assets/js/blocks/gateways/buckaroo_creditcard.js:247
 #: assets/js/dist/blocks.js:2
 msgid "Expiration Month:"
 msgstr ""
 
-#: assets/js/blocks/partials/buckaroo_creditcard_dropdown.js:16
+#: assets/js/blocks/gateways/buckaroo_googlepay.js:107
 #: assets/js/dist/blocks.js:2
-msgid "Credit Card:"
+msgid "Google Pay is not available in this browser or context. Please choose another payment method."
 msgstr ""
 
-#: assets/js/blocks/partials/buckaroo_creditcard_dropdown.js:25
+#: assets/js/blocks/gateways/buckaroo_googlepay.js:130
+#: assets/js/dist/blocks.js:2
+msgid "Google Pay authorisation was not completed."
+msgstr ""
+
+#: assets/js/blocks/gateways/buckaroo_zakelijkoprekening.js:26
+#: assets/js/dist/blocks.js:2
+msgid "Betaal later"
+msgstr ""
+
+#: assets/js/blocks/gateways/buckaroo_zakelijkoprekening.js:28
+#: assets/js/dist/blocks.js:2
+msgid "Voor iedereen, powered by ABN AMRO."
+msgstr ""
+
+#: assets/js/blocks/gateways/buckaroo_zakelijkoprekening.js:34
+#: assets/js/dist/blocks.js:2
+msgid "lees meer"
+msgstr ""
+
+#: assets/js/blocks/partials/buckaroo_creditcard_dropdown.js:7
 #: assets/js/dist/blocks.js:2
 msgid "Select your credit card"
 msgstr ""
 
-#: assets/js/blocks/partials/buckaroo_financial_warning.js:6
-#: assets/js/dist/blocks.js:2
-msgid "You must be at least 18+ to use this service. By paying on time, you avoid extra costs and ensure that you can use %s services again in the future. By continuing, you accept the Terms and Conditions and confirm that you have read the Privacy Statement and Cookie Statement."
-msgstr ""
-
-#: assets/js/blocks/partials/buckaroo_gender.js:37
+#: assets/js/blocks/partials/buckaroo_gender.js:20
 #: assets/js/dist/blocks.js:2
 msgid "Select your Gender"
 msgstr ""
 
-#: assets/js/blocks/partials/buckaroo_phone.js:13
+#: assets/js/blocks/partials/buckaroo_phone.js:14
 #: assets/js/dist/blocks.js:2
 msgid "Phone Number:"
+msgstr ""
+
+#: assets/js/blocks/partials/buckaroo_terms_and_condition.js:38
+#: assets/js/dist/blocks.js:2
+msgid "Accept terms of use"
 msgstr ""

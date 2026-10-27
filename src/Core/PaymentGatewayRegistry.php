@@ -23,7 +23,6 @@ use Buckaroo\Woocommerce\Gateways\Bizum\BizumGateway;
 use Buckaroo\Woocommerce\Gateways\MbWay\MbWayGateway;
 use Buckaroo\Woocommerce\Gateways\Multibanco\MultibancoGateway;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankGateway;
-use Buckaroo\Woocommerce\Gateways\Payconiq\PayconiqGateway;
 use Buckaroo\Woocommerce\Gateways\Paypal\PaypalGateway;
 use Buckaroo\Woocommerce\Gateways\PayPerEmail\PayPerEmailGateway;
 use Buckaroo\Woocommerce\Gateways\Przelewy24\Przelewy24Gateway;
@@ -64,7 +63,6 @@ class PaymentGatewayRegistry
         'multibanco' => ['gateway_class' => MultibancoGateway::class],
         'przelewy24' => ['gateway_class' => Przelewy24Gateway::class],
         'paybybank' => ['gateway_class' => PayByBankGateway::class],
-        'payconiq' => ['gateway_class' => PayconiqGateway::class],
         'paypal' => ['gateway_class' => PaypalGateway::class],
         'payperemail' => ['gateway_class' => PayPerEmailGateway::class],
         'sepadirectdebit' => ['gateway_class' => SepaDirectDebitGateway::class],
@@ -135,6 +133,8 @@ class PaymentGatewayRegistry
             return;
         }
 
+        delete_transient('buckaroo_creditcard_updated');
+
         $gatewayNames = $this->getCreditCardsToShow();
 
         if (empty($gatewayNames)) {
@@ -154,7 +154,6 @@ class PaymentGatewayRegistry
                 }
             }
         }
-        delete_transient('buckaroo_creditcard_updated');
     }
 
     /**
@@ -182,10 +181,9 @@ class PaymentGatewayRegistry
         $creditSettings = get_option('woocommerce_buckaroo_creditcard_settings', null);
 
         if (
-            $creditSettings !== null &&
-            isset($creditSettings['creditcardmethod'], $creditSettings['show_in_checkout']) &&
-            $creditSettings['creditcardmethod'] === 'encrypt' &&
-            is_array($creditSettings['show_in_checkout'])
+            CreditCardGateway::separateCardsAllowed() &&
+            is_array($creditSettings) &&
+            is_array($creditSettings['show_in_checkout'] ?? null)
         ) {
             return $creditSettings['show_in_checkout'];
         }
@@ -203,6 +201,39 @@ class PaymentGatewayRegistry
         }
 
         return $methods;
+    }
+
+    /**
+     * Place the separate credit cards directly after the main credit card method.
+     */
+    public function groupSeparateCreditCards($wcGateways): void
+    {
+        if (! is_object($wcGateways) || ! is_array($wcGateways->payment_gateways ?? null)) {
+            return;
+        }
+
+        $isSeparate = fn ($gateway) => strpos($gateway->id, CreditCardGateway::GATEWAY_ID . '_') === 0;
+        $separate = array_values(array_filter($wcGateways->payment_gateways, $isSeparate));
+        $hasMain = in_array(CreditCardGateway::GATEWAY_ID, wp_list_pluck($wcGateways->payment_gateways, 'id'), true);
+
+        if (! $hasMain || $separate === []) {
+            return;
+        }
+
+        $ordered = [];
+        foreach ($wcGateways->payment_gateways as $gateway) {
+            if ($isSeparate($gateway)) {
+                continue;
+            }
+
+            $ordered[] = $gateway;
+
+            if ($gateway->id === CreditCardGateway::GATEWAY_ID) {
+                array_push($ordered, ...$separate);
+            }
+        }
+
+        $wcGateways->payment_gateways = $ordered;
     }
 
     /**

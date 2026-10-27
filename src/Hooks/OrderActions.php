@@ -2,12 +2,16 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
+use Buckaroo\Woocommerce\Services\PaymentFee;
 use Buckaroo\Woocommerce\Core\PaymentGatewayRegistry;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Order\OrderCaptureRefund;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\Services\Helper;
 use WC_Cart;
+use WC_Order_Item_Fee;
+use WC_Tax;
 
 class OrderActions
 {
@@ -19,6 +23,7 @@ class OrderActions
         add_action('wp_ajax_nopriv_woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
         add_action('woocommerce_cart_calculate_fees', [$this, 'calculate_order_fees']);
         add_action('buckaroo_cart_calculate_fees', [$this, 'add_fee_to_cart'], 10, 3);
+        add_action('woocommerce_checkout_create_order_fee_item', [$this, 'tag_payment_fee_item'], 10, 3);
 
         add_action('wp_ajax_order_capture', [$this, 'handleOrderCapture']);
         new OrderCaptureRefund();
@@ -156,8 +161,11 @@ class OrderActions
      */
     public function calculate_order_fees()
     {
-        if (isset($_POST['method'])) {
-            WC()->session->set('chosen_payment_method', $_POST['method']);
+        if (isset($_POST['method']) && is_string($_POST['method'])) {
+            $method = sanitize_text_field(wp_unslash($_POST['method']));
+            if (array_key_exists($method, WC()->payment_gateways()->payment_gateways())) {
+                WC()->session->set('chosen_payment_method', $method);
+            }
         }
 
         $cart = WC()->cart;
@@ -204,32 +212,20 @@ class OrderActions
      */
     public function add_fee_to_cart($cart, $gateway_extrachargeamount, $gateway_feetax)
     {
-        // no fee available
-        if (
-            ! is_scalar($gateway_extrachargeamount) ||
-            empty($gateway_extrachargeamount) ||
-            (float) $gateway_extrachargeamount === 0
-        ) {
+        $configuredFee = PaymentFee::parse($gateway_extrachargeamount);
+        if ($configuredFee === null || ! $configuredFee->hasFee()) {
             return;
         }
 
-        // not a valid value
-        if (! $this->is_extrachargeamount_valid($gateway_extrachargeamount)) {
-            return;
+        $base = (float) $cart->get_cart_contents_total();
+        if (wc_prices_include_tax()) {
+            $base += (float) $cart->get_cart_contents_tax();
         }
-
-        $subtotal = $cart->get_cart_contents_total();
-        $is_percentage = strpos($gateway_extrachargeamount, '%') !== false;
-        $extra_charge_amount = (float) str_replace('%', '', $gateway_extrachargeamount);
-
-        // percentage not 0
-        if ($extra_charge_amount === 0) {
-            return;
-        }
-
-        if ($is_percentage) {
-            $extra_charge_amount = round($subtotal * $extra_charge_amount / 100, 2);
-        }
+        $extra_charge_amount = $configuredFee->calculateExcludingTax(
+            $base,
+            $cart->get_customer() && $cart->get_customer()->get_is_vat_exempt()
+                ? [] : WC_Tax::get_rates($gateway_feetax, $cart->get_customer())
+        );
 
         $feedName = __('Payment fee', 'wc-buckaroo-bpe-gateway');
         $feedId = sanitize_title($feedName);
@@ -249,6 +245,34 @@ class OrderActions
     }
 
     /**
+     * Record on the order fee item which payment method the cart's Payment fee
+     * was calculated for. Cart fees are calculated for the session's chosen
+     * payment method, which on block checkout can differ from the method that
+     * pays; the payment processor compares this to replace a mismatched fee.
+     *
+     * @param  WC_Order_Item_Fee  $item
+     * @param  string  $fee_key
+     * @param  object  $fee
+     * @return void
+     */
+    public function tag_payment_fee_item($item, $fee_key, $fee)
+    {
+        if (
+            ! $item instanceof WC_Order_Item_Fee ||
+            ! isset($fee->id) ||
+            $fee->id !== sanitize_title(__('Payment fee', 'wc-buckaroo-bpe-gateway')) ||
+            ! WC()->session
+        ) {
+            return;
+        }
+
+        $method = WC()->session->get('chosen_payment_method');
+        if (is_string($method) && $method !== '') {
+            $item->add_meta_data(AbstractPaymentProcessor::FEE_GATEWAY_META, $method, true);
+        }
+    }
+
+    /**
      * Check if extrachangeamount is valid
      *
      * @param  string  $value
@@ -256,7 +280,7 @@ class OrderActions
      */
     public function is_extrachargeamount_valid($value)
     {
-        return (bool) preg_match('/^\d+(?:\.\d+)?%?$/', $value);
+        return PaymentFee::parse($value) !== null;
     }
 
     /**

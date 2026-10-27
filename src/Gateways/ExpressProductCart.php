@@ -5,9 +5,99 @@ namespace Buckaroo\Woocommerce\Gateways;
 use Exception;
 use UnexpectedValueException;
 use WC_Product_Attribute;
+use WC_Cart;
+use WC_Order;
+use WC_Order_Item_Shipping;
+use WC_Shipping_Rate;
 
 final class ExpressProductCart
 {
+    /** Wallets require a selection even when the cart needs no delivery. */
+    public static function walletShippingRates(WC_Cart $cart): array
+    {
+        $needsShipping = false;
+        foreach ($cart->get_cart() as $item) {
+            if ($item['data']->needs_shipping()) {
+                $needsShipping = true;
+                break;
+            }
+        }
+
+        if (! $cart->is_empty() && ! $needsShipping) {
+            return [new WC_Shipping_Rate(
+                'buckaroo_no_shipping',
+                __('No shipping required', 'wc-buckaroo-bpe-gateway'),
+                0
+            )];
+        }
+
+        $packages = WC()->shipping()->get_packages();
+
+        return $packages ? (current($packages)['rates'] ?? []) : [];
+    }
+
+    /**
+     * The rate a wallet order must charge, checked the way classic checkout
+     * checks it. Call inside a calculation callback, where the cart, customer
+     * and packages reflect the wallet address.
+     *
+     * Returns null when the cart needs no shipping.
+     *
+     * @throws UnexpectedValueException When the cart needs shipping and the
+     *                                  address or selected method is not valid.
+     */
+    public static function selectedShippingRate(WC_Cart $cart, $selected_method_id): ?WC_Shipping_Rate
+    {
+        if (! $cart->needs_shipping()) {
+            return null;
+        }
+
+        $country = WC()->customer ? WC()->customer->get_shipping_country() : '';
+        if ($country === '' || ! array_key_exists($country, WC()->countries->get_shipping_countries())) {
+            throw new UnexpectedValueException('The shop does not ship to the wallet address.');
+        }
+
+        // A wallet charges a single method, so it cannot cover split packages.
+        $packages = WC()->shipping()->get_packages();
+        if (count($packages) !== 1) {
+            throw new UnexpectedValueException('Express checkout needs exactly one shipping package.');
+        }
+
+        $rates = current($packages)['rates'] ?? [];
+        $selected_method_id = is_scalar($selected_method_id) ? (string) $selected_method_id : '';
+        if (
+            $selected_method_id === ''
+            || ! isset($rates[$selected_method_id])
+            || ! $rates[$selected_method_id] instanceof WC_Shipping_Rate
+        ) {
+            throw new UnexpectedValueException('The selected shipping method is not available for the wallet address.');
+        }
+
+        return $rates[$selected_method_id];
+    }
+
+    public static function addShippingLine(WC_Order $order, WC_Shipping_Rate $rate): void
+    {
+        $shippingItem = new WC_Order_Item_Shipping();
+        $shippingItem->set_props([
+            'method_title' => $rate->get_label(),
+            'method_id' => $rate->get_method_id(),
+            'instance_id' => $rate->get_instance_id(),
+            'total' => wc_format_decimal($rate->get_cost()),
+            'taxes' => [
+                'total' => $rate->get_taxes(),
+            ],
+            'tax_status' => $rate->get_tax_status(),
+        ]);
+
+        foreach ($rate->get_meta_data() as $key => $value) {
+            $shippingItem->add_meta_data($key, $value, true);
+        }
+
+        do_action('woocommerce_checkout_create_order_shipping_item', $shippingItem, 0, [], $order);
+        $order->add_item($shippingItem);
+    }
+
     public static function calculate(array $request, string $payment_method, callable $callback)
     {
         return self::withProducts(

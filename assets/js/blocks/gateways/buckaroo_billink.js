@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
+import { TextField } from '../components/CheckoutFields';
 
 function Billink({ onStateChange, methodName, billing }) {
     const initialState = {
@@ -26,21 +27,13 @@ function Billink({ onStateChange, methodName, billing }) {
     return (
         <div id="buckaroo_billink_b2b">
             <CoCField methodName={methodName} handleChange={handleChange} />
-            <p className="form-row form-row-wide validate-required">
-                <label htmlFor={`${methodName}-VatNumber`}>
-                    {__('VAT-number:', 'wc-buckaroo-bpe-gateway')}
-                    <span className="required">*</span>
-                </label>
-                <input
-                    id={`${methodName}-VatNumber`}
-                    name={`${methodName}-VatNumber`}
-                    className="input-text"
-                    type="text"
-                    maxLength="250"
-                    autoComplete="off"
-                    onChange={handleChange}
-                />
-            </p>
+            <TextField
+                id={`${methodName}-VatNumber`}
+                label={__('VAT-number:', 'wc-buckaroo-bpe-gateway')}
+                maxLength="250"
+                autoComplete="off"
+                onChange={handleChange}
+            />
         </div>
     );
 }

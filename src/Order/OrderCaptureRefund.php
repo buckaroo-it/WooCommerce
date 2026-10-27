@@ -76,13 +76,15 @@ class OrderCaptureRefund
         if ($capture !== null && isset($capture['transaction_id'])) {
             $paymentMethod = OrderMeta::get($order_id, '_wc_order_selected_payment_method');
             $gateway = (new PaymentGatewayRegistry())->newGatewayInstance($paymentMethod);
-            $successful_refund =
-                (new RefundAction(
-                    $gateway->newRefundProcessorInstance($order_id, $capture['amount'], ''),
-                    $order_id,
-                    $capture['transaction_id']
-                ))
-                    ->process();
+            if ($gateway !== null) {
+                $successful_refund =
+                    (new RefundAction(
+                        $gateway->newRefundProcessorInstance($order_id, $capture['amount'], ''),
+                        $order_id,
+                        $capture['transaction_id']
+                    ))
+                        ->process();
+            }
         }
 
         if (is_object($successful_refund) && $successful_refund instanceof WP_Error) {

@@ -6,8 +6,14 @@ use Buckaroo\Woocommerce\Services\BuckarooClient;
 
 class TestCredentials
 {
-    public function __construct()
+    /** @var callable */
+    private $checkCredentials;
+
+    public function __construct(?callable $checkCredentials = null)
     {
+        $this->checkCredentials = $checkCredentials ?? static function (string $storeKey, string $secretKey): bool {
+            return (new BuckarooClient('test', $storeKey, $secretKey))->confirmCredential();
+        };
         add_action('wp_ajax_buckaroo_test_credentials', [$this, 'handle']);
     }
 
@@ -19,17 +25,22 @@ class TestCredentials
 
         check_ajax_referer('buckaroo_admin_ajax', 'security');
 
-        if (! isset($_POST['website_key']) || ! is_string($_POST['website_key'])) {
+        $storeKey = $_POST['website_key'] ?? '';
+        $secretKey = $_POST['secret_key'] ?? '';
+        if (! is_string($storeKey) || ! is_string($secretKey)) {
             wp_die(esc_html__('Credentials are incorrect', 'wc-buckaroo-bpe-gateway'));
         }
 
-        if (! isset($_POST['secret_key']) || ! is_string($_POST['secret_key'])) {
+        $settings = get_option('woocommerce_buckaroo_mastersettings_settings', []);
+        $storeKey = trim(wp_unslash($storeKey));
+        $secretKey = trim(wp_unslash($secretKey));
+        $storeKey = $storeKey === '' ? ($settings['merchantkey'] ?? '') : $storeKey;
+        $secretKey = $secretKey === '' ? ($settings['secretkey'] ?? '') : $secretKey;
+        if ($storeKey === '' || $secretKey === '') {
             wp_die(esc_html__('Credentials are incorrect', 'wc-buckaroo-bpe-gateway'));
         }
 
-        $buckarooClient = new BuckarooClient('test', $_POST['website_key'], $_POST['secret_key']);
-
-        if ($buckarooClient->confirmCredential()) {
+        if (($this->checkCredentials)($storeKey, $secretKey)) {
             wp_die(esc_html__('Credentials are OK', 'wc-buckaroo-bpe-gateway'));
         } else {
             wp_die(esc_html__('Credentials are incorrect', 'wc-buckaroo-bpe-gateway'));

@@ -19,12 +19,21 @@ class GooglepayProcessor extends AbstractPaymentProcessor
             'paymentData' => $this->encodeWalletToken($paymentData['token'] ?? ''),
         ];
 
-        // The Express Checkout button authorises a specific amount and posts it
-        // along. The standard checkout method does not: there the order total
-        // computed by AbstractPaymentProcessor is authoritative.
+        // Express payments carry the amount approved in the wallet. Only send
+        // the order total when it matches that approval, including fees and tax.
         $amount = $this->request->input('amount');
-        if ($amount !== null && $amount !== '' && is_scalar($amount)) {
-            $body['amountDebit'] = number_format((float) $amount, 2, '.', '');
+        if ($this->request->exists('amount')) {
+            $orderAmount = number_format((float) $this->get_order()->get_total('edit'), 2, '.', '');
+            if (
+                ! is_scalar($amount) ||
+                ! preg_match('/\A\d+(?:\.\d{1,2})?\z/', (string) $amount) ||
+                ! is_finite((float) $amount) ||
+                number_format((float) $amount, 2, '.', '') !== $orderAmount
+            ) {
+                throw new \InvalidArgumentException(
+                    __('Google Pay amount has changed. Please refresh the page and approve the updated total.', 'wc-buckaroo-bpe-gateway')
+                );
+            }
         }
 
         return $body;

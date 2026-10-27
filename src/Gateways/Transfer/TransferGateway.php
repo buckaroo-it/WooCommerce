@@ -15,7 +15,7 @@ class TransferGateway extends AbstractPaymentGateway
 
     public $showpayproc;
 
-    protected array $supportedCurrencies = ['EUR', 'GBP', 'PLN'];
+    protected array $supportedCurrencies = ['EUR', 'CHF', 'CZK', 'DKK', 'GBP', 'NOK', 'PLN', 'SEK', 'USD'];
 
     public function __construct()
     {
