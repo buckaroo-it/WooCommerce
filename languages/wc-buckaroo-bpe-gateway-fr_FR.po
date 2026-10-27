@@ -1188,35 +1188,35 @@ msgstr "Actions"
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:110
 msgid "Please complete the card form before proceeding."
-msgstr ""
+msgstr "Veuillez remplir le formulaire de carte avant de continuer."
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:242
 msgid "Buckaroo Hosted Fields Client ID"
-msgstr ""
+msgstr "Client ID Buckaroo Hosted Fields"
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:244
 msgid "Enter your Buckaroo Hosted Fields Client ID, obtainable from the Buckaroo Plaza at -> Settings -> Token registration."
-msgstr ""
+msgstr "Saisissez votre Client ID Buckaroo Hosted Fields, disponible dans Buckaroo Plaza sous -> Paramètres -> Token registration."
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:247
 msgid "Buckaroo Hosted Fields Client Secret"
-msgstr ""
+msgstr "Client Secret Buckaroo Hosted Fields"
 
 #: src/Gateways/CreditCard/CreditCardGateway.php:249
 msgid "Enter your Buckaroo Hosted Fields Client Secret, obtainable from the Buckaroo Plaza at -> Settings -> Token registration."
-msgstr ""
+msgstr "Saisissez votre Client Secret Buckaroo Hosted Fields, disponible dans Buckaroo Plaza sous -> Paramètres -> Token registration."
 
 #: src/Gateways/CreditCard/HostedFieldsController.php:23
 msgid "Hosted fields client keys are not provided."
-msgstr ""
+msgstr "Les clés client Hosted Fields ne sont pas renseignées."
 
 #: src/Gateways/CreditCard/HostedFieldsController.php:57
 msgid "Error: Invalid response from server."
-msgstr ""
+msgstr "Erreur : réponse du serveur non valide."
 
 #: templates/gateways/creditcard.php:71
 msgid "Expiration Date:"
-msgstr ""
+msgstr "Date d'expiration :"
 
 #: assets/js/blocks/gateways/buckaroo_creditcard.js:152
 #: assets/js/dist/blocks.js:2
@@ -1278,15 +1278,15 @@ msgstr "NB :"
 
 #: src/Gateways/Swish/SwishGateway.php:15
 msgid "Swish is Sweden's real-time mobile payment method, authorized via BankID."
-msgstr ""
+msgstr "Swish est le moyen de paiement mobile en temps réel de la Suède, autorisé via BankID."
 
 #: src/Gateways/Wero/WeroGateway.php:74
 msgid "Wero Pay or Authorize"
-msgstr ""
+msgstr "Wero Pay ou Authorize"
 
 #: src/Gateways/Wero/WeroGateway.php:76
 msgid "Choose to execute Pay or Authorize/Capture flow for Wero."
-msgstr ""
+msgstr "Choisissez d'exécuter le flux Pay ou Authorize/Capture pour Wero."
 
 #: src/Admin/PaymentMethodSettings.php:107
 msgid ""
@@ -1295,6 +1295,10 @@ msgid ""
 "language <br>settings of the customer's web browser. Please note that we only <br>support the following languages: English, Dutch, German and French.<br>\n"
 "English will be used as a fallback language for unknown language types."
 msgstr ""
+"La langue (culture) choisie pour la <br>page de paiement Buckaroo.\n"
+"Lorsque « Langue dynamique » est sélectionné, le plugin <br>détermine automatiquement la langue en fonction des\n"
+"paramètres de langue <br>du navigateur du client. Veuillez noter que nous ne <br>prenons en charge que les langues suivantes : anglais, néerlandais, allemand et français.<br>\n"
+"L'anglais sera utilisé comme langue de secours pour les langues inconnues."
 
 #: src/Gateways/Googlepay/GooglepayGateway.php:466
 msgid "Button style"
@@ -1623,3 +1627,34 @@ msgstr "Le formulaire de paiement n'est pas initialisé"
 #: src/Hooks/PaymentSetupScripts.php:240
 msgid "Invalid payment details"
 msgstr "Données de paiement non valides"
+
+#: src/Admin/GeneralSettings.php:504
+msgid "iDIN"
+msgstr "iDIN"
+
+#: src/Admin/GeneralSettings.php:505
+msgid "Configure age verification and identity checking settings using iDIN."
+msgstr "Configurez les paramètres de vérification de l'âge et de contrôle d'identité avec iDIN."
+
+#: src/Gateways/Idin/IdinController.php:58
+#: src/Gateways/Idin/IdinController.php:83
+#: src/Gateways/Idin/IdinController.php:108
+msgid "Could not perform the operation"
+msgstr ""
+
+#: src/Gateways/Idin/IdinController.php:62
+msgid "iDIN is disabled"
+msgstr ""
+
+#: src/Gateways/Idin/IdinController.php:66
+#: src/Gateways/Idin/IdinController.php:71
+msgid "Please select a issuer from the list"
+msgstr ""
+
+#: src/Hooks/PaymentSetupScripts.php:231
+msgid "Something went wrong while processing your identification."
+msgstr ""
+
+#: src/Hooks/PaymentSetupScripts.php:232
+msgid "You need to select your bank!"
+msgstr ""

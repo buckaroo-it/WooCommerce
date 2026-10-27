@@ -1580,3 +1580,34 @@ msgstr ""
 #: src/Hooks/PaymentSetupScripts.php:240
 msgid "Invalid payment details"
 msgstr ""
+
+#: src/Admin/GeneralSettings.php:504
+msgid "iDIN"
+msgstr ""
+
+#: src/Admin/GeneralSettings.php:505
+msgid "Configure age verification and identity checking settings using iDIN."
+msgstr ""
+
+#: src/Gateways/Idin/IdinController.php:58
+#: src/Gateways/Idin/IdinController.php:83
+#: src/Gateways/Idin/IdinController.php:108
+msgid "Could not perform the operation"
+msgstr ""
+
+#: src/Gateways/Idin/IdinController.php:62
+msgid "iDIN is disabled"
+msgstr ""
+
+#: src/Gateways/Idin/IdinController.php:66
+#: src/Gateways/Idin/IdinController.php:71
+msgid "Please select a issuer from the list"
+msgstr ""
+
+#: src/Hooks/PaymentSetupScripts.php:231
+msgid "Something went wrong while processing your identification."
+msgstr ""
+
+#: src/Hooks/PaymentSetupScripts.php:232
+msgid "You need to select your bank!"
+msgstr ""
