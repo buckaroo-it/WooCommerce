@@ -1596,3 +1596,13 @@ msgstr "Une adresse de livraison est requise pour payer avec PayPal."
 #: src/Gateways/PaypalExpress/PaypalExpressController.php:396
 msgid "No shipping method is available for this address."
 msgstr "Aucun mode de livraison n'est disponible pour cette adresse."
+
+#: assets/js/blocks/index.js:43
+#: assets/js/dist/blocks.js:2
+msgid "An error occurred while processing your payment. Please try again."
+msgstr "Une erreur est survenue lors du traitement de votre paiement. Veuillez réessayer."
+
+#: assets/js/blocks/index.js:115
+#: assets/js/dist/blocks.js:2
+msgid "Loading..."
+msgstr "Chargement..."

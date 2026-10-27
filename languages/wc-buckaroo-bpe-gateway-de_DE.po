@@ -1596,3 +1596,13 @@ msgstr "Für die Zahlung mit PayPal ist eine Versandadresse erforderlich."
 #: src/Gateways/PaypalExpress/PaypalExpressController.php:396
 msgid "No shipping method is available for this address."
 msgstr "Für diese Adresse ist keine Versandart verfügbar."
+
+#: assets/js/blocks/index.js:43
+#: assets/js/dist/blocks.js:2
+msgid "An error occurred while processing your payment. Please try again."
+msgstr "Bei der Verarbeitung Ihrer Zahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+
+#: assets/js/blocks/index.js:115
+#: assets/js/dist/blocks.js:2
+msgid "Loading..."
+msgstr "Wird geladen..."

@@ -1553,3 +1553,13 @@ msgstr ""
 #: src/Gateways/PaypalExpress/PaypalExpressController.php:396
 msgid "No shipping method is available for this address."
 msgstr ""
+
+#: assets/js/blocks/index.js:43
+#: assets/js/dist/blocks.js:2
+msgid "An error occurred while processing your payment. Please try again."
+msgstr ""
+
+#: assets/js/blocks/index.js:115
+#: assets/js/dist/blocks.js:2
+msgid "Loading..."
+msgstr ""
