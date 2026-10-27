@@ -220,8 +220,8 @@ class PayPerEmailGateway extends AbstractPaymentGateway
                             'buckaroo_send_payperemail_' . $orderId
                         ),
                         'icon' => 'email',
-                        'tooltip' => __('Send a PayPerEmail', 'textdomain'),
-                        'label' => __('P1', 'textdomain'),
+                        'tooltip' => __('Send a PayPerEmail', 'wc-buckaroo-bpe-gateway'),
+                        'label' => __('P1', 'wc-buckaroo-bpe-gateway'),
                         'enabled' => $this->canShowPayPerEmail($status),
                     ],
                     [
@@ -230,8 +230,8 @@ class PayPerEmailGateway extends AbstractPaymentGateway
                             'buckaroo_send_payperemail_' . $orderId
                         ),
                         'icon' => 'link',
-                        'tooltip' => __('Create PayLink', 'textdomain'),
-                        'label' => __('P1', 'textdomain'),
+                        'tooltip' => __('Create PayLink', 'wc-buckaroo-bpe-gateway'),
+                        'label' => __('P1', 'wc-buckaroo-bpe-gateway'),
                         'enabled' => $this->canShowPaylink($status),
                     ],
                 ];
@@ -255,10 +255,10 @@ class PayPerEmailGateway extends AbstractPaymentGateway
                 if ($this->isEnabled()) {
                     $status = $theorder->get_status();
                     if ($this->canShowPayPerEmail($status)) {
-                        $actions['buckaroo_send_admin_payperemail'] = __('Send a PayPerEmail', 'woocommerce');
+                        $actions['buckaroo_send_admin_payperemail'] = __('Send a PayPerEmail', 'wc-buckaroo-bpe-gateway');
                     }
                     if ($this->canShowPaylink($status)) {
-                        $actions['buckaroo_create_paylink'] = __('Create PayLink', 'woocommerce');
+                        $actions['buckaroo_create_paylink'] = __('Create PayLink', 'wc-buckaroo-bpe-gateway');
                     }
                 }
 

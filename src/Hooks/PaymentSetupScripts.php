@@ -228,8 +228,16 @@ class PaymentSetupScripts
                 'ajax_url' => home_url('/'),
                 'admin_ajax_url' => admin_url('admin-ajax.php'),
                 'idin_i18n' => [
-                    'general_error' => esc_html__('Something went wrong while processing your identification.'),
-                    'bank_required' => esc_html__('You need to select your bank!'),
+                    'general_error' => esc_html__('Something went wrong while processing your identification.', 'wc-buckaroo-bpe-gateway'),
+                    'bank_required' => esc_html__('You need to select your bank!', 'wc-buckaroo-bpe-gateway'),
+                ],
+                // Rendered with jQuery .text(), so not HTML-escaped here.
+                'creditcard_i18n' => [
+                    'init_failed' => __('Failed to initialize payment form', 'wc-buckaroo-bpe-gateway'),
+                    'refresh_failed' => __('Payment form refresh failed', 'wc-buckaroo-bpe-gateway'),
+                    'not_initialized' => __('Payment form not initialized', 'wc-buckaroo-bpe-gateway'),
+                    'session_expired' => __('Session expired, please try again.', 'wc-buckaroo-bpe-gateway'),
+                    'invalid_details' => __('Invalid payment details', 'wc-buckaroo-bpe-gateway'),
                 ],
                 'idin_nonce' => wp_create_nonce(IdinProcessor::NONCE_ACTION),
                 'payByBankLogos' => PayByBankProcessor::getIssuerLogoUrls(),

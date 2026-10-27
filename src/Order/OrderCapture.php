@@ -84,7 +84,7 @@ class OrderCapture
         if (method_exists($this->gateway, 'canShowCaptureForm') && $this->gateway->canShowCaptureForm($order)) {
             add_meta_box(
                 'buckaroo-order-klarnakp-capture',
-                __('Capture & refund order', 'woocommerce'),
+                __('Capture & refund order', 'wc-buckaroo-bpe-gateway'),
                 [$this, 'output'],
                 $post_type,
                 'normal',

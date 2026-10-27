@@ -129,7 +129,7 @@ class RefundAction
             )
         );
 
-        return new WP_Error('error_refund', __('Refund failed: ') . $transactionResponse->getSomeError());
+        return new WP_Error('error_refund', __('Refund failed: ', 'wc-buckaroo-bpe-gateway') . $transactionResponse->getSomeError());
     }
 
     private function isPendingRefund(TransactionResponse $transactionResponse): bool

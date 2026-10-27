@@ -55,20 +55,20 @@ class IdinController
     public function identify()
     {
         if (! $this->hasValidNonce()) {
-            $this->sendError(esc_html__('Could not perform the operation'));
+            $this->sendError(esc_html__('Could not perform the operation', 'wc-buckaroo-bpe-gateway'));
         }
 
         if (! IdinProcessor::isIdin(IdinProcessor::getCartProductIds())) {
-            $this->sendError(esc_html__('iDIN is disabled'));
+            $this->sendError(esc_html__('iDIN is disabled', 'wc-buckaroo-bpe-gateway'));
         }
 
         if (! is_string($_GET['issuer'] ?? null)) {
-            $this->sendError(esc_html__('Please select a issuer from the list'));
+            $this->sendError(esc_html__('Please select a issuer from the list', 'wc-buckaroo-bpe-gateway'));
         }
         $issuer = sanitize_text_field($_GET['issuer']);
 
         if (! IdinProcessor::checkIfValidIssuer($issuer)) {
-            $this->sendError(esc_html__('Please select a issuer from the list'));
+            $this->sendError(esc_html__('Please select a issuer from the list', 'wc-buckaroo-bpe-gateway'));
         }
 
         try {
@@ -80,7 +80,7 @@ class IdinController
             );
         } catch (Throwable $th) {
             Logger::log(__METHOD__ . (string) $th);
-            $this->sendError(esc_html__('Could not perform the operation'));
+            $this->sendError(esc_html__('Could not perform the operation', 'wc-buckaroo-bpe-gateway'));
             throw $th;
         }
     }
@@ -105,7 +105,7 @@ class IdinController
     public function reset()
     {
         if (! $this->hasValidNonce()) {
-            $this->sendError(esc_html__('Could not perform the operation'));
+            $this->sendError(esc_html__('Could not perform the operation', 'wc-buckaroo-bpe-gateway'));
         }
 
         IdinProcessor::setCurrentUserIsNotVerified();

@@ -48,7 +48,7 @@ class KlarnaCancelReservation
             $order->get_payment_method() === 'buckaroo_klarnakp' &&
             OrderMeta::get($order, 'buckaroo_is_reserved') === 'yes'
         ) {
-            $actions['buckaroo_klarnakp_cancel_reservation'] = esc_html__('Cancel reservation', 'woocommerce');
+            $actions['buckaroo_klarnakp_cancel_reservation'] = esc_html__('Cancel reservation', 'wc-buckaroo-bpe-gateway');
         }
 
         return $actions;

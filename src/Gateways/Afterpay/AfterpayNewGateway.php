@@ -162,9 +162,9 @@ class AfterpayNewGateway extends AbstractPaymentGateway
             'type' => 'select',
             'description' => __('This setting determines whether you accept Riverty payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.', 'wc-buckaroo-bpe-gateway'),
             'options' => [
-                self::CUSTOMER_TYPE_BOTH => __('Both'),
-                self::CUSTOMER_TYPE_B2C => __('B2C (Business-to-consumer)'),
-                self::CUSTOMER_TYPE_B2B => __('B2B ((Business-to-Business)'),
+                self::CUSTOMER_TYPE_BOTH => __('Both', 'wc-buckaroo-bpe-gateway'),
+                self::CUSTOMER_TYPE_B2C => __('B2C (Business-to-consumer)', 'wc-buckaroo-bpe-gateway'),
+                self::CUSTOMER_TYPE_B2B => __('B2B (Business-to-Business)', 'wc-buckaroo-bpe-gateway'),
             ],
             'default' => self::CUSTOMER_TYPE_BOTH,
         ];
