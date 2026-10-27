@@ -6,7 +6,7 @@ Plugin URI: http://www.buckaroo.nl
 Author: Buckaroo
 Author URI: http://www.buckaroo.nl
 Description: WooCommerce payment gateway for iDEAL, Bancontact, Klarna, PayPal, credit cards and more, powered by Buckaroo.
-Version: 4.10.2
+Version: 4.11.0
 WC requires at least: 5.0
 WC tested up to: 11.2.0
 Text Domain: wc-buckaroo-bpe-gateway
