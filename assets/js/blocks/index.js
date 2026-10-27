@@ -36,11 +36,11 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
 
     useEffect(() => {
         const unsubscribe = eventRegistration.onCheckoutFail(props => {
-            setErrorMessage(props.processingResponse.paymentDetails.errorMessage);
             return {
                 type: emitResponse.responseTypes.FAIL,
-                errorMessage: 'Error',
-                message: 'Error occurred, please try again',
+                message:
+                    props.processingResponse?.paymentDetails?.errorMessage ||
+                    __('An error occurred while processing your payment. Please try again.', 'wc-buckaroo-bpe-gateway'),
             };
         });
         return () => unsubscribe();
@@ -112,7 +112,7 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
     }, deps);
 
     if (!PaymentComponent) {
-        return <div>Loading...</div>;
+        return <div>{__('Loading...', 'wc-buckaroo-bpe-gateway')}</div>;
     }
 
     // Both arrive from PHP, escaped and translated, and either can be empty.
