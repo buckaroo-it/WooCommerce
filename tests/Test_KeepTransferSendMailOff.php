@@ -32,7 +32,7 @@ class Test_KeepTransferSendMailOff extends TestCase
 
     public function test_migration_version_is_set()
     {
-        $this->assertEquals('4.11.0', (new KeepTransferSendMailOff())->version);
+        $this->assertEquals('4.11.1', (new KeepTransferSendMailOff())->version);
     }
 
     public function test_sendmail_defaults_to_true_on_fresh_install()

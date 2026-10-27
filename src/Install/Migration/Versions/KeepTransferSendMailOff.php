@@ -6,7 +6,7 @@ use Buckaroo\Woocommerce\Install\Migration\Migration;
 
 class KeepTransferSendMailOff implements Migration
 {
-    public $version = '4.11.0';
+    public $version = '4.11.1';
 
     public function execute()
     {
