@@ -40,29 +40,65 @@ jobs:
       - name: Validate composer.json
         run: composer validate --strict
         
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      # composer.lock is not committed, so the installed set floats within the
+      # composer.json constraints. The week stamp refreshes the cache weekly so
+      # new SDK releases still get picked up without a composer.json change.
+      - name: Compute cache week
+        id: cache-week
+        run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
         
-      - name: Cache composer dependencies
-        uses: actions/cache@v3
+      - name: Cache vendor and prefixed dependencies
+        id: vendor-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            vendor
+            vendor_buckaroo
+          key: ${{ runner.os }}-vendor-${{ hashFiles('composer.json', 'tools/mozart/composer.json') }}-${{ steps.cache-week.outputs.week }}
+          
+      - name: Get composer cache directory
+        if: steps.vendor-cache.outputs.cache-hit != 'true'
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+        
+      - name: Cache composer downloads
+        if: steps.vendor-cache.outputs.cache-hit != 'true'
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json', 'tools/mozart/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
           
       - name: Install Composer dependencies
+        if: steps.vendor-cache.outputs.cache-hit != 'true'
         run: composer install --prefer-dist --no-progress --no-suggest
         
+      # Coverage is only collected on PHP 8.1. Loading a coverage driver on the
+      # other versions slows every test down for nothing; pcov is much faster
+      # than Xdebug for the one job that does collect coverage.
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           extensions: mysql, mbstring, zip
-          coverage: xdebug
+          coverage: ${{ matrix.php == '8.1' && 'pcov' || 'none' }}
           tools: composer
           
+      - name: Resolve latest WordPress version
+        id: wp-version
+        run: echo "version=$(curl -s https://api.wordpress.org/core/version-check/1.7/ | jq -r '.offers[0].version')" >> "$GITHUB_OUTPUT"
+        
+      - name: Cache WordPress test suite
+        id: wp-tests-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            /tmp/wordpress
+            /tmp/wordpress-tests-lib
+          key: ${{ runner.os }}-wp-tests-${{ steps.wp-version.outputs.version }}
+          
       - name: Install Subversion
+        if: steps.wp-tests-cache.outputs.cache-hit != 'true'
         run: sudo apt-get update && sudo apt-get install -y subversion
         
       - name: Install WordPress test suite
@@ -79,19 +115,19 @@ jobs:
           cd ../WooCommerce
         
       - name: Run Unit Tests
+        if: matrix.php != '8.1'
         run: vendor/bin/phpunit --testsuite unit --testdox
         
       - name: Run Integration Tests
+        if: matrix.php != '8.1'
         run: vendor/bin/phpunit --testsuite integration --testdox
         
+      # On 8.1 a single run of both suites produces the coverage report, so the
+      # tests are not executed twice.
       - name: Run All Tests with Coverage
-        run: composer test
-        
-      - name: Generate code coverage report
         if: matrix.php == '8.1'
-        continue-on-error: true
-        run: composer test:coverage
-        
+        run: vendor/bin/phpunit --testdox --coverage-clover coverage/clover.xml
+          
       - name: Upload coverage reports to Codecov
         if: matrix.php == '8.1'
         uses: codecov/codecov-action@v3
