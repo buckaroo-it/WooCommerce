@@ -46,7 +46,7 @@ class OrderActions
 
         printf(
             '<div class="notice notice-error"><p>%s</p></div>',
-            esc_html__('The payment for this order was made in test mode')
+            esc_html__('The payment for this order was made in test mode', 'wc-buckaroo-bpe-gateway')
         );
     }
 
@@ -81,7 +81,7 @@ class OrderActions
                 [
                     'errors' => [
                         'error_capture' => [
-                            [esc_html__('A valid order number is required')],
+                            [esc_html__('A valid order number is required', 'wc-buckaroo-bpe-gateway')],
                         ],
                     ],
                 ]

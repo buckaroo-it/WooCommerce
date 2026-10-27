@@ -1658,3 +1658,637 @@ msgstr ""
 #: src/Hooks/PaymentSetupScripts.php:232
 msgid "You need to select your bank!"
 msgstr ""
+
+#: src/Order/OrderCapture.php:87
+msgid "Capture & refund order"
+msgstr "Bestellung capturen & rückerstatten"
+
+#: src/Order/OrderCaptureRefund.php:41
+#: src/Hooks/OrderActions.php:60
+msgid "Invalid security token. Please reload the page and try again."
+msgstr "Ungültiges Sicherheitstoken. Bitte laden Sie die Seite neu und versuchen Sie es erneut."
+
+#: src/Order/OrderCaptureRefund.php:49
+msgid "You are not allowed to refund this order."
+msgstr "Sie sind nicht berechtigt, diese Bestellung zu erstatten."
+
+#: src/Order/CaptureRecorder.php:27
+msgid "Capture succeeded but could not be recorded locally; reconciliation is required."
+msgstr "Capture erfolgreich, konnte aber nicht lokal gespeichert werden; ein Abgleich ist erforderlich."
+
+#: src/Order/CaptureRecorder.php:40
+msgid "Could not start the local capture transaction."
+msgstr "Die lokale Capture-Transaktion konnte nicht gestartet werden."
+
+#: src/Order/CaptureRecorder.php:91
+msgid "Could not verify the local capture record."
+msgstr "Der lokale Capture-Eintrag konnte nicht überprüft werden."
+
+#: src/Order/CaptureRecorder.php:102
+msgid "Could not record the capture order note."
+msgstr "Die Bestellnotiz zum Capture konnte nicht gespeichert werden."
+
+#: src/Order/CaptureRecorder.php:106
+msgid "Could not commit the local capture record."
+msgstr "Der lokale Capture-Eintrag konnte nicht festgeschrieben werden."
+
+#: src/Admin/PaymentMethodSettings.php:107
+msgid "Payment page language"
+msgstr "Sprache der Zahlungsseite"
+
+#: src/Admin/PaymentMethodSettings.php:109
+msgid "Select the Buckaroo payment page language. “Dynamic language” uses the customer’s browser language, with English as fallback."
+msgstr "Wählen Sie die Sprache der Buckaroo-Zahlungsseite. „Dynamic language“ verwendet die Browsersprache des Kunden, mit Englisch als Fallback."
+
+#: src/Admin/PaymentMethodSettings.php:144
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:165
+msgid "Both"
+msgstr "Beides"
+
+#: src/Admin/PaymentMethodSettings.php:145
+msgid "File"
+msgstr "Datei"
+
+#: src/Admin/PaymentMethodSettings.php:146
+msgid "Database"
+msgstr "Datenbank"
+
+#: src/Admin/PaymentMethodSettings.php:154
+#: src/Admin/PaymentMethodSettings.php:161
+msgid "Available tags: {order_number}, {shop_name}, {product_name} (first product)."
+msgstr "Verfügbare Tags: {order_number}, {shop_name}, {product_name} (erstes Produkt)."
+
+#: src/Admin/ReportPage.php:54
+msgid "Log"
+msgstr "Protokoll"
+
+#: src/Admin/ReportPage.php:55
+msgid "Logs"
+msgstr "Protokolle"
+
+#: src/Admin/ReportPage.php:226
+msgid "Back"
+msgstr "Zurück"
+
+#: src/Admin/ReportPage.php:227
+msgid "Download"
+msgstr "Herunterladen"
+
+#: src/Admin/ReportPage.php:231
+msgid "No log file found"
+msgstr "Keine Protokolldatei gefunden"
+
+#: src/Admin/GeneralSettings.php:76
+msgid "General Options"
+msgstr "Allgemeine Optionen"
+
+#: src/Admin/GeneralSettings.php:77
+msgid "Configure transaction, fee and locale settings."
+msgstr "Konfigurieren Sie Transaktions-, Gebühren- und Spracheinstellungen."
+
+#: src/Admin/GeneralSettings.php:235
+#: src/Gateways/AbstractPaymentGateway.php:710
+msgid "Inactive"
+msgstr "Inaktiv"
+
+#: src/Admin/GeneralSettings.php:240
+#: src/Gateways/AbstractPaymentGateway.php:703
+msgid "Active"
+msgstr "Aktiv"
+
+#: src/Admin/GeneralSettings.php:304
+msgid "Status"
+msgstr "Status"
+
+#: src/Admin/GeneralSettings.php:488
+msgid "Contact"
+msgstr "Kontakt"
+
+#: src/Hooks/TestCredentials.php:23
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:323
+#: src/Services/AutoConfiguration.php:29
+msgid "You are not allowed to perform this action."
+msgstr "Sie sind nicht berechtigt, diese Aktion auszuführen."
+
+#: src/Hooks/OrderActions.php:49
+msgid "The payment for this order was made in test mode"
+msgstr "Die Zahlung für diese Bestellung wurde im Testmodus durchgeführt"
+
+#: src/Hooks/OrderActions.php:72
+msgid "You are not allowed to capture this order."
+msgstr "Sie sind nicht berechtigt, für diese Bestellung ein Capture auszuführen."
+
+#: src/Hooks/OrderActions.php:84
+#: src/Gateways/AbstractPaymentGateway.php:970
+#: src/Gateways/AbstractPaymentGateway.php:980
+msgid "A valid order number is required"
+msgstr "Eine gültige Bestellnummer ist erforderlich"
+
+#: src/Hooks/OrderActions.php:99
+msgid "Could not resolve a Buckaroo gateway for this order. The order may have been created with an older version of the plugin."
+msgstr "Für diese Bestellung konnte kein Buckaroo-Gateway ermittelt werden. Die Bestellung wurde möglicherweise mit einer älteren Version des Plugins erstellt."
+
+#: src/Hooks/OrderActions.php:116
+msgid "This order is not in a capturable state."
+msgstr "Für diese Bestellung ist derzeit kein Capture möglich."
+
+#: src/Gateways/AbstractPaymentGateway.php:156
+msgid "Title"
+msgstr "Titel"
+
+#: src/Gateways/AbstractPaymentGateway.php:846
+msgid "Please provide valid payment fee"
+msgstr "Bitte geben Sie eine gültige Zahlungsgebühr an"
+
+#: src/Gateways/AbstractPaymentGateway.php:948
+#: src/Gateways/Express/ExpressAvailability.php:47
+msgid "This payment method is not available for this order. Please choose another payment method."
+msgstr "Diese Zahlungsmethode ist für diese Bestellung nicht verfügbar. Bitte wählen Sie eine andere Zahlungsmethode."
+
+#: src/Gateways/AbstractPaymentGateway.php:966
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:54
+#: src/PaymentProcessors/Actions/CaptureAction.php:51
+msgid "This order cannot be captured"
+msgstr "Für diese Bestellung ist kein Capture möglich"
+
+#: src/Gateways/AbstractPaymentGateway.php:975
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:58
+#: src/PaymentProcessors/Actions/CaptureAction.php:55
+msgid "A valid capture amount is required"
+msgstr "Ein gültiger Capture-Betrag ist erforderlich"
+
+#: src/Gateways/AbstractPaymentGateway.php:993
+#, php-format
+msgid "Capture failed for transaction ID: %1$s %2$s"
+msgstr "Capture fehlgeschlagen für Transaktions-ID: %1$s %2$s"
+
+#: src/Gateways/AbstractPaymentGateway.php:1014
+#, php-format
+msgid "Captured %1$s for order #%2$s."
+msgstr "Capture von %1$s für Bestellung #%2$s ausgeführt."
+
+#: src/Gateways/AbstractPaymentGateway.php:1021
+#, php-format
+msgid "Capture of %1$s for order #%2$s was requested and is awaiting confirmation from Buckaroo."
+msgstr "Capture von %1$s für Bestellung #%2$s wurde angefordert und wartet auf die Bestätigung von Buckaroo."
+
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:223
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:258
+msgid "Send a PayPerEmail"
+msgstr "PayPerEmail senden"
+
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:224
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:234
+msgid "P1"
+msgstr "P1"
+
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:233
+#: src/Gateways/PayPerEmail/PayPerEmailGateway.php:261
+msgid "Create PayLink"
+msgstr "PayLink erstellen"
+
+#: src/Gateways/Klarna/ExtendReservationAction.php:13
+msgid "Klarna reservation was successfully extended"
+msgstr "Klarna-Reservierung wurde erfolgreich verlängert"
+
+#: src/Gateways/Klarna/ExtendReservationAction.php:21
+#, php-format
+msgid "Klarna reservation for order #%s was successfully extended"
+msgstr "Klarna-Reservierung für Bestellung #%s wurde erfolgreich verlängert"
+
+#: src/Gateways/Klarna/ExtendReservationAction.php:32
+#, php-format
+msgid "Cannot extend klarna reservation for order #%s"
+msgstr "Klarna-Reservierung für Bestellung #%s kann nicht verlängert werden"
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:46
+msgid "Klarna reservation cancellation confirmed (push received)."
+msgstr "Stornierung der Klarna-Reservierung bestätigt (Push empfangen)."
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:51
+#, php-format
+msgid "Klarna reservation cancellation push reported a failure: %s"
+msgstr "Der Push zur Stornierung der Klarna-Reservierung meldete einen Fehler: %s"
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:139
+msgid "Klarna payment authorized. The order contains only digital products, so it was completed and the payment is being collected now."
+msgstr "Klarna-Zahlung autorisiert. Die Bestellung enthält nur digitale Produkte, daher wurde sie abgeschlossen und die Zahlung wird jetzt eingezogen."
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:143
+msgid "Klarna payment authorized. The order contains only digital products and was completed, but the payment could not be collected automatically: check the order notes and capture it from this order."
+msgstr "Klarna-Zahlung autorisiert. Die Bestellung enthält nur digitale Produkte und wurde abgeschlossen, aber die Zahlung konnte nicht automatisch eingezogen werden: Prüfen Sie die Bestellnotizen und führen Sie das Capture über diese Bestellung aus."
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:147
+msgid "Klarna payment authorized, but not collected yet. Set the order to Completed after shipping to collect the payment."
+msgstr "Klarna-Zahlung autorisiert, aber noch nicht eingezogen. Setzen Sie die Bestellung nach dem Versand auf Abgeschlossen, um die Zahlung einzuziehen."
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:150
+msgid "Klarna payment authorized, but not collected yet. Automatic capture is off: capture the payment from this order after shipping."
+msgstr "Klarna-Zahlung autorisiert, aber noch nicht eingezogen. Automatisches Capture ist deaktiviert: Führen Sie das Capture der Zahlung nach dem Versand über diese Bestellung aus."
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:234
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:165
+#: src/PaymentProcessors/Actions/CaptureAction.php:109
+msgid "Capture failed"
+msgstr "Capture fehlgeschlagen"
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:275
+msgid "Klarna capture success could not be prepared for local reconciliation."
+msgstr "Das erfolgreiche Klarna-Capture konnte nicht für den lokalen Abgleich vorbereitet werden."
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:311
+msgid "Klarna capture recording failure could not be persisted for retry."
+msgstr "Der Fehler beim Speichern des Klarna-Captures konnte nicht für einen erneuten Versuch gesichert werden."
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:331
+msgid "Klarna capture success could not be finalized in the attempt ledger."
+msgstr "Das erfolgreiche Klarna-Capture konnte im Versuchsprotokoll nicht abgeschlossen werden."
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:401
+msgid "Klarna capture made in Buckaroo Plaza could not be recorded locally."
+msgstr "Das in Buckaroo Plaza ausgeführte Klarna-Capture konnte nicht lokal gespeichert werden."
+
+#: src/Gateways/Klarna/KlarnaPushProcessor.php:474
+msgid "Klarna capture settlement could not be recorded locally."
+msgstr "Die Abrechnung des Klarna-Captures konnte nicht lokal gespeichert werden."
+
+#: src/Gateways/Klarna/KlarnaCaptureAttempt.php:162
+msgid "The capture worker stopped before recording an outcome; reconciliation is required."
+msgstr "Der Capture-Worker wurde beendet, bevor ein Ergebnis gespeichert wurde; ein Abgleich ist erforderlich."
+
+#: src/Gateways/Klarna/KlarnaCaptureAttempt.php:466
+#, php-format
+msgid "Automatic Klarna capture of %1$s %2$s failed (attempt %3$d): %4$s"
+msgstr "Automatisches Klarna-Capture von %1$s %2$s fehlgeschlagen (Versuch %3$d): %4$s"
+
+#: src/Gateways/Klarna/KlarnaCaptureAttempt.php:476
+#, php-format
+msgid "Automatic Klarna capture outcome is unknown for %1$s %2$s (attempt %3$d): %4$s"
+msgstr "Ergebnis des automatischen Klarna-Captures von %1$s %2$s ist unbekannt (Versuch %3$d): %4$s"
+
+#: src/Gateways/Klarna/KlarnaKpGateway.php:47
+#: src/Gateways/Klarna/KlarnaKpGateway.php:126
+msgid "Cannot perform capture, reservation_number not found"
+msgstr "Capture kann nicht ausgeführt werden, reservation_number nicht gefunden"
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:62
+#: src/PaymentProcessors/Actions/CaptureAction.php:59
+msgid "Capture amount does not match the selected order items."
+msgstr "Der Capture-Betrag stimmt nicht mit den ausgewählten Bestellpositionen überein."
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:71
+msgid "This capture amount is already claimed or awaiting reconciliation."
+msgstr "Dieser Capture-Betrag ist bereits beansprucht oder wartet auf einen Abgleich."
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:78
+msgid "This capture amount is already being processed."
+msgstr "Dieser Capture-Betrag wird bereits verarbeitet."
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:90
+#: src/PaymentProcessors/Actions/CaptureAction.php:67
+msgid "The selected amount is no longer available to capture."
+msgstr "Der ausgewählte Betrag steht nicht mehr für ein Capture zur Verfügung."
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:98
+#: src/Gateways/Klarna/KlarnaPayGateway.php:139
+msgid "Cannot perform capture, Klarna Data Request key not found"
+msgstr "Capture kann nicht ausgeführt werden, Klarna Data Request key nicht gefunden"
+
+#: src/Gateways/Klarna/KlarnaCaptureAction.php:159
+#: src/PaymentProcessors/Actions/CaptureAction.php:103
+msgid "Capture failed: "
+msgstr "Capture fehlgeschlagen: "
+
+#: src/Gateways/Klarna/KlarnaCancelReservation.php:51
+msgid "Cancel reservation"
+msgstr "Reservierung stornieren"
+
+#: src/Gateways/Klarna/KlarnaPayGateway.php:50
+msgid "Automatic capture"
+msgstr "Automatisches Capture"
+
+#: src/Gateways/Klarna/KlarnaPayGateway.php:51
+msgid "Automatic capture when order is completed"
+msgstr "Automatisches Capture bei Abschluss der Bestellung"
+
+#: src/Gateways/Klarna/KlarnaPayGateway.php:53
+msgid "Captures the remaining reserved amount at Klarna when the order status changes to Completed. The result is confirmed by the Buckaroo push. A failed capture adds an order note and an admin notice and can be retried from the order actions."
+msgstr "Führt ein Capture des verbleibenden reservierten Betrags bei Klarna aus, sobald der Bestellstatus auf Abgeschlossen wechselt. Das Ergebnis wird durch den Buckaroo-Push bestätigt. Ein fehlgeschlagenes Capture erzeugt eine Bestellnotiz und einen Admin-Hinweis und kann über die Bestellaktionen erneut versucht werden."
+
+#: src/Gateways/Klarna/KlarnaPayGateway.php:189
+msgid "Cannot cancel reservation, Klarna Data Request key not found"
+msgstr "Reservierung kann nicht storniert werden, Klarna Data Request key nicht gefunden"
+
+#: src/Gateways/Klarna/KlarnaPayGateway.php:255
+msgid "Cannot extend reservation, Klarna Data Request key not found"
+msgstr "Reservierung kann nicht verlängert werden, Klarna Data Request key nicht gefunden"
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:67
+#, php-format
+msgid "Klarna capture status check for attempt %1$d could not be completed: %2$s"
+msgstr "Die Statusprüfung des Klarna-Captures für Versuch %1$d konnte nicht abgeschlossen werden: %2$s"
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:80
+#, php-format
+msgid "Klarna capture status check: Buckaroo transaction %1$s could not be matched to capture attempt %2$d."
+msgstr "Statusprüfung Klarna-Capture: Buckaroo-Transaktion %1$s konnte keinem Capture-Versuch %2$d zugeordnet werden."
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:91
+#, php-format
+msgid "Klarna capture status check: attempt %1$d is now %2$s (Buckaroo transaction %3$s)."
+msgstr "Statusprüfung Klarna-Capture: Versuch %1$d ist jetzt %2$s (Buckaroo-Transaktion %3$s)."
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:144
+#, php-format
+msgid "Klarna capture status check: attempt %1$d has no Buckaroo transaction key. Waiting for the Buckaroo push until %2$s before it can be marked as failed."
+msgstr "Statusprüfung Klarna-Capture: Versuch %1$d hat keinen Buckaroo-Transaktionsschlüssel. Es wird bis %2$s auf den Buckaroo-Push gewartet, bevor er als fehlgeschlagen markiert werden kann."
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:153
+msgid "No Buckaroo transaction key or push was received for this capture attempt. Verify in Buckaroo Plaza that no capture exists for this order before using Retry capture."
+msgstr "Für diesen Capture-Versuch wurde weder ein Buckaroo-Transaktionsschlüssel noch ein Push empfangen. Prüfen Sie in Buckaroo Plaza, dass für diese Bestellung kein Capture existiert, bevor Sie „Capture erneut versuchen“ verwenden."
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:158
+#, php-format
+msgid "Klarna capture status check: attempt %1$d changed in the meantime and was not marked as failed. Check again later."
+msgstr "Statusprüfung Klarna-Capture: Versuch %1$d hat sich zwischenzeitlich geändert und wurde nicht als fehlgeschlagen markiert. Prüfen Sie es später erneut."
+
+#: src/Gateways/Klarna/KlarnaCaptureStatusCheck.php:171
+#, php-format
+msgid "Klarna capture attempt %1$d was marked as failed: %2$s"
+msgstr "Klarna-Capture-Versuch %1$d wurde als fehlgeschlagen markiert: %2$s"
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:87
+msgid "The Klarna payment was fully captured, but the order is cancelled or refunded, so its status was not changed. Refund the captured amount if the order should stay closed."
+msgstr "Für die Klarna-Zahlung wurde ein vollständiges Capture ausgeführt, aber die Bestellung ist storniert oder erstattet, daher wurde ihr Status nicht geändert. Erstatten Sie den eingezogenen Betrag, wenn die Bestellung geschlossen bleiben soll."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:98
+msgid "Klarna payment fully captured."
+msgstr "Vollständiges Capture der Klarna-Zahlung ausgeführt."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:125
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:607
+msgid "Automatic Klarna capture was skipped because the Data Request key is missing."
+msgstr "Automatisches Klarna-Capture wurde übersprungen, da der Data Request key fehlt."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:134
+msgid "Automatic Klarna capture was skipped because the reserved amount is unknown."
+msgstr "Automatisches Klarna-Capture wurde übersprungen, da der reservierte Betrag unbekannt ist."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:163
+msgid "Automatic Klarna capture could not be scheduled."
+msgstr "Automatisches Klarna-Capture konnte nicht geplant werden."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:217
+msgid "The Klarna authorization was not released automatically because a capture was already made or is in progress. Use the \"Klarna: Cancel reservation\" order action to release what is left."
+msgstr "Die Klarna-Autorisierung wurde nicht automatisch freigegeben, da bereits ein Capture ausgeführt wurde oder läuft. Verwenden Sie die Bestellaktion \"Klarna: Reservierung stornieren\", um den Restbetrag freizugeben."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:232
+msgid "The Klarna authorization was released because the order was cancelled."
+msgstr "Die Klarna-Autorisierung wurde freigegeben, da die Bestellung storniert wurde."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:233
+msgid "The Klarna authorization could not be released automatically. It may already have been released or expired; otherwise use the \"Klarna: Cancel reservation\" order action to release it."
+msgstr "Die Klarna-Autorisierung konnte nicht automatisch freigegeben werden. Möglicherweise wurde sie bereits freigegeben oder ist abgelaufen; verwenden Sie andernfalls die Bestellaktion \"Klarna: Reservierung stornieren\", um sie freizugeben."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:272
+msgid "Automatic Klarna capture recovery could not be scheduled."
+msgstr "Die Wiederherstellung des automatischen Klarna-Captures konnte nicht geplant werden."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:328
+msgid "Automatic Klarna capture stopped after repeated worker lock contention."
+msgstr "Automatisches Klarna-Capture wurde nach wiederholten Sperrkonflikten des Workers beendet."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:406
+#, php-format
+msgid "Automatic Klarna capture status check for attempt %d could not be scheduled. Use the \"Klarna: Check capture status\" order action."
+msgstr "Die automatische Statusprüfung des Klarna-Captures für Versuch %d konnte nicht geplant werden. Verwenden Sie die Bestellaktion \"Klarna: Capture-Status prüfen\"."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:505
+msgid "Automatic Klarna capture could not create a durable attempt."
+msgstr "Automatisches Klarna-Capture konnte keinen dauerhaften Versuch anlegen."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:529
+msgid "Automatic Klarna capture could not retry durable attempt creation."
+msgstr "Automatisches Klarna-Capture konnte das Anlegen eines dauerhaften Versuchs nicht erneut versuchen."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:543
+msgid "Automatic Klarna capture is waiting for final lock recovery."
+msgstr "Automatisches Klarna-Capture wartet auf die abschließende Sperrwiederherstellung."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:577
+msgid "Automatic Klarna capture could not be rescheduled after lock contention."
+msgstr "Automatisches Klarna-Capture konnte nach einem Sperrkonflikt nicht neu geplant werden."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:587
+msgid "Automatic Klarna capture could not recover from lock contention."
+msgstr "Automatisches Klarna-Capture konnte sich nicht von einem Sperrkonflikt erholen."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:596
+msgid "Automatic Klarna capture was skipped because the order is no longer Completed."
+msgstr "Automatisches Klarna-Capture wurde übersprungen, da die Bestellung nicht mehr abgeschlossen ist."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:599
+msgid "Automatic Klarna capture was skipped because the payment method changed."
+msgstr "Automatisches Klarna-Capture wurde übersprungen, da sich die Zahlungsmethode geändert hat."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:602
+msgid "Automatic Klarna capture was skipped because the reservation is no longer active."
+msgstr "Automatisches Klarna-Capture wurde übersprungen, da die Reservierung nicht mehr aktiv ist."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:611
+msgid "Automatic Klarna capture was skipped because automatic capture is disabled."
+msgstr "Automatisches Klarna-Capture wurde übersprungen, da das automatische Capture deaktiviert ist."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:651
+msgid "Klarna: Check capture status"
+msgstr "Klarna: Capture-Status prüfen"
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:658
+msgid "Klarna: Cancel reservation"
+msgstr "Klarna: Reservierung stornieren"
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:661
+msgid "Klarna: Retry capture"
+msgstr "Klarna: Capture erneut versuchen"
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:684
+#, php-format
+msgid "Klarna capture retry queued (attempt %1$d) for %2$s %3$s."
+msgstr "Erneuter Klarna-Capture-Versuch eingeplant (Versuch %1$d) für %2$s %3$s."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:697
+msgid "Klarna capture retry could not be scheduled."
+msgstr "Erneuter Klarna-Capture-Versuch konnte nicht geplant werden."
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:720
+msgid "Klarna capture failed"
+msgstr "Klarna-Capture fehlgeschlagen"
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:721
+msgid "Klarna capture outcome is unknown"
+msgstr "Ergebnis des Klarna-Captures ist unbekannt"
+
+#: src/Gateways/Klarna/KlarnaFulfillmentActions.php:728
+msgid "Review order"
+msgstr "Bestellung prüfen"
+
+#: src/Gateways/Klarna/capture-form.php:276
+#: templates/capture-form.php:276
+msgid "Capture"
+msgstr "Capture"
+
+#: src/Gateways/Klarna/capture-form.php:391
+#: templates/capture-form.php:391
+msgid "Previous capture(s)"
+msgstr "Bisherige Capture(s)"
+
+#: src/Gateways/Klarna/capture-form.php:401
+#: templates/capture-form.php:401
+#, php-format
+msgid "Capture - #%s"
+msgstr "Capture - #%s"
+
+#: src/Gateways/Klarna/capture-form.php:462
+#: templates/capture-form.php:462
+msgid "Total available to capture"
+msgstr "Insgesamt für Capture verfügbar"
+
+#: src/Gateways/PayByBank/PayByBankGateway.php:53
+msgid "Radio button"
+msgstr "Optionsfeld"
+
+#: src/Gateways/PayByBank/PayByBankGateway.php:54
+msgid "Dropdown"
+msgstr "Dropdown-Menü"
+
+#: src/Gateways/Googlepay/GooglepayController.php:180
+#: src/Gateways/Applepay/ApplepayController.php:188
+msgid "Shipping"
+msgstr "Versand"
+
+#: src/Gateways/Googlepay/GooglepayController.php:203
+msgid "Unable to calculate Google Pay cart."
+msgstr "Google Pay-Warenkorb konnte nicht berechnet werden."
+
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:166
+msgid "B2C (Business-to-consumer)"
+msgstr "B2C (Business-to-Consumer)"
+
+#: src/Gateways/Afterpay/AfterpayNewGateway.php:167
+msgid "B2B (Business-to-Business)"
+msgstr "B2B (Business-to-Business)"
+
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php:106
+msgid "Zakelijk op rekening is only available for companies located in The Netherlands."
+msgstr "Zakelijk op rekening ist nur für Unternehmen mit Sitz in den Niederlanden verfügbar."
+
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php:113
+msgid "A company name is required to pay with Zakelijk op rekening. Please fill in the company name in your billing details."
+msgstr "Für die Zahlung mit Zakelijk op rekening ist ein Firmenname erforderlich. Bitte geben Sie den Firmennamen in Ihren Rechnungsdaten an."
+
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php:120
+msgid "Please enter a valid Chamber of Commerce (KvK) number."
+msgstr "Bitte geben Sie eine gültige Handelskammernummer (KvK) ein."
+
+#: src/Gateways/ZakelijkOpRekening/ZakelijkOpRekeningGateway.php:170
+msgid "Could not start the payment. Please try again or choose another payment method."
+msgstr "Die Zahlung konnte nicht gestartet werden. Bitte versuchen Sie es erneut oder wählen Sie eine andere Zahlungsmethode."
+
+#: src/Gateways/CreditCard/HostedFieldsController.php:72
+msgid "Unknown error occurred."
+msgstr "Ein unbekannter Fehler ist aufgetreten."
+
+#: src/Gateways/PaypalExpress/PaypalExpressOrder.php:67
+msgid "PayPal Express payment processing failed."
+msgstr "Die Verarbeitung der PayPal Express-Zahlung ist fehlgeschlagen."
+
+#: src/Gateways/PaypalExpress/PaypalExpressController.php:120
+msgid "Please choose product options before using PayPal."
+msgstr "Bitte wählen Sie die Produktoptionen aus, bevor Sie PayPal verwenden."
+
+#: src/Gateways/Applepay/ApplepayController.php:211
+msgid "Unable to calculate Apple Pay cart."
+msgstr "Apple Pay-Warenkorb konnte nicht berechnet werden."
+
+#: src/Gateways/Swish/SwishGateway.php:15
+msgid "Sweden's real-time mobile payment method, authorized via BankID."
+msgstr "Schwedens mobile Echtzeit-Zahlungsmethode, autorisiert über BankID."
+
+#: src/PaymentProcessors/PushProcessor.php:47
+#: src/PaymentProcessors/PushProcessor.php:222
+#: src/PaymentProcessors/Actions/RefundAction.php:46
+msgid "Buckaroo push could not be processed because the order is locked."
+msgstr "Der Buckaroo-Push konnte nicht verarbeitet werden, da die Bestellung gesperrt ist."
+
+#: src/PaymentProcessors/PushProcessor.php:113
+#, php-format
+msgid "Received Buckaroo payment push notification of %1$s for an order with status %2$s. The order status was not changed."
+msgstr "Buckaroo-Zahlungs-Push von %1$s für eine Bestellung mit Status %2$s empfangen. Der Bestellstatus wurde nicht geändert."
+
+#: src/PaymentProcessors/PushProcessor.php:446
+#, php-format
+msgid "Ignored a Buckaroo push for transaction %1$s in %2$s, because the order is in %3$s."
+msgstr "Buckaroo-Push für Transaktion %1$s in %2$s ignoriert, da die Bestellung in %3$s ist."
+
+#: src/PaymentProcessors/PushProcessor.php:452
+#, php-format
+msgid "Ignored a Buckaroo test-mode push for transaction %s, because the order was placed in live mode."
+msgstr "Buckaroo-Push im Testmodus für Transaktion %s ignoriert, da die Bestellung im Live-Modus aufgegeben wurde."
+
+#: src/PaymentProcessors/Actions/RefundAction.php:107
+#, php-format
+msgid "Refund of %1$s is pending processing - Transaction ID: %2$s"
+msgstr "Rückerstattung von %1$s wird noch verarbeitet - Transaktions-ID: %2$s"
+
+#: src/PaymentProcessors/Actions/RefundAction.php:132
+msgid "Refund failed: "
+msgstr "Rückerstattung fehlgeschlagen: "
+
+#: templates/gateways/zakelijkoprekening.php:23
+msgid "Voor iedereen, powered by ABN AMRO. Betaal later."
+msgstr ""
+
+#: templates/gateways/zakelijkoprekening.php:32
+#: assets/js/blocks/gateways/buckaroo_zakelijkoprekening.js:41
+#: assets/js/dist/blocks.js:2
+msgid "Company name:"
+msgstr "Firmenname:"
+
+#: templates/gateways/zakelijkoprekening.php:58
+msgid "Chamber of Commerce (KvK) number:"
+msgstr "Handelskammernummer (KvK):"
+
+#: assets/js/blocks/gateways/buckaroo_applepay.js:107
+#: assets/js/dist/blocks.js:2
+msgid "Apple Pay is not available in this browser or context. Please choose another payment method."
+msgstr "Apple Pay ist in diesem Browser oder Kontext nicht verfügbar. Bitte wählen Sie eine andere Zahlungsmethode."
+
+#: assets/js/blocks/gateways/buckaroo_applepay.js:130
+#: assets/js/dist/blocks.js:2
+msgid "Apple Pay authorisation was not completed."
+msgstr "Die Apple Pay-Autorisierung wurde nicht abgeschlossen."
+
+#: assets/js/blocks/gateways/buckaroo_zakelijkoprekening.js:26
+#: assets/js/dist/blocks.js:2
+msgid "Betaal later"
+msgstr ""
+
+#: assets/js/blocks/gateways/buckaroo_zakelijkoprekening.js:28
+#: assets/js/dist/blocks.js:2
+msgid "Voor iedereen, powered by ABN AMRO."
+msgstr ""
+
+#: assets/js/blocks/gateways/buckaroo_zakelijkoprekening.js:34
+#: assets/js/dist/blocks.js:2
+msgid "lees meer"
+msgstr ""
+
+#: assets/js/blocks/gateways/buckaroo_googlepay.js:107
+#: assets/js/dist/blocks.js:2
+msgid "Google Pay is not available in this browser or context. Please choose another payment method."
+msgstr "Google Pay ist in diesem Browser oder Kontext nicht verfügbar. Bitte wählen Sie eine andere Zahlungsmethode."
+
+#: assets/js/blocks/gateways/buckaroo_googlepay.js:130
+#: assets/js/dist/blocks.js:2
+msgid "Google Pay authorisation was not completed."
+msgstr "Die Google Pay-Autorisierung wurde nicht abgeschlossen."

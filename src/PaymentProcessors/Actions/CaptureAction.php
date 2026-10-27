@@ -100,7 +100,7 @@ class CaptureAction
             Logger::log(__METHOD__, $error);
             OrderMeta::update($this->order, '_pushallowed', 'ok');
 
-            return CaptureResult::failed(__('Capture failed: ') . $error, $response->getTransactionKey());
+            return CaptureResult::failed(__('Capture failed: ', 'wc-buckaroo-bpe-gateway') . $error, $response->getTransactionKey());
         }
 
         OrderMeta::update($this->order, '_pushallowed', 'ok');

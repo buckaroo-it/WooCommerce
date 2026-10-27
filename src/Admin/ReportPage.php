@@ -51,8 +51,8 @@ class ReportPage extends WP_List_Table
     {
         parent::__construct(
             [
-                'singular' => esc_html__('Log'),
-                'plural' => esc_html__('Logs'),
+                'singular' => esc_html__('Log', 'wc-buckaroo-bpe-gateway'),
+                'plural' => esc_html__('Logs', 'wc-buckaroo-bpe-gateway'),
                 'ajax' => false,
             ]
         );
@@ -223,12 +223,12 @@ class ReportPage extends WP_List_Table
 
     public function display_log_file($fileName)
     {
-        $backButton = '<a style="margin-right:10px" href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=buckaroo_settings&section=report')) . '">' . esc_html__('Back') . '</a>';
-        $downloadButton = '<a style="margin-left:10px" href="' . esc_url(plugin_dir_url(BK_PLUGIN_FILE) . '?buckaroo_download_log_file=' . $fileName) . '">' . esc_html__('Download') . '</a>';
+        $backButton = '<a style="margin-right:10px" href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=buckaroo_settings&section=report')) . '">' . esc_html__('Back', 'wc-buckaroo-bpe-gateway') . '</a>';
+        $downloadButton = '<a style="margin-left:10px" href="' . esc_url(plugin_dir_url(BK_PLUGIN_FILE) . '?buckaroo_download_log_file=' . $fileName) . '">' . esc_html__('Download', 'wc-buckaroo-bpe-gateway') . '</a>';
         $directory = LoggerStorage::get_file_storage_location();
         $logs = glob($directory . '*.log');
 
-        $logData = '<p>' . $backButton . esc_html__('No log file found') . '</p>';
+        $logData = '<p>' . $backButton . esc_html__('No log file found', 'wc-buckaroo-bpe-gateway') . '</p>';
         foreach ($logs as $filePath) {
             if (basename($filePath) === $fileName) {
                 $file = file_get_contents($filePath);

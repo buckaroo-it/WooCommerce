@@ -69,7 +69,7 @@ class HostedFieldsController
 
             return true;
         } else {
-            $error_message = isset($data['error_message']) ? $data['error_message'] : __('Unknown error occurred.', 'your-textdomain');
+            $error_message = isset($data['error_message']) ? $data['error_message'] : __('Unknown error occurred.', 'wc-buckaroo-bpe-gateway');
             wp_send_json(['error' => __($error_message, 'wc-buckaroo-bpe-gateway')], 500);
 
             return false;

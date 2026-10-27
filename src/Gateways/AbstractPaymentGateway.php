@@ -843,7 +843,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             if (isset($_POST[$field])) {
                 $text = wp_kses_post(trim(stripslashes($_POST[$field])));
                 if (! is_float($text) && ! is_numeric($text)) {
-                    $this->errors[] = __('Please provide valid payment fee');
+                    $this->errors[] = __('Please provide valid payment fee', 'wc-buckaroo-bpe-gateway');
 
                     return false;
                 }
@@ -963,21 +963,21 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function process_capture($order_id)
     {
         if (! $this->capturable || ! $this->canShowCaptureForm($order_id)) {
-            return $this->create_capture_error(__('This order cannot be captured'));
+            return $this->create_capture_error(__('This order cannot be captured', 'wc-buckaroo-bpe-gateway'));
         }
 
         if ($order_id === null || ! is_numeric($order_id)) {
-            return $this->create_capture_error(__('A valid order number is required'));
+            return $this->create_capture_error(__('A valid order number is required', 'wc-buckaroo-bpe-gateway'));
         }
 
         $capture_amount = $this->request->input('capture_amount');
         if ($capture_amount === null || ! is_scalar($capture_amount)) {
-            return $this->create_capture_error(__('A valid capture amount is required'));
+            return $this->create_capture_error(__('A valid capture amount is required', 'wc-buckaroo-bpe-gateway'));
         }
 
         $order = Helper::findOrder($order_id);
         if (! $order instanceof WC_Order) {
-            return $this->create_capture_error(__('A valid order number is required'));
+            return $this->create_capture_error(__('A valid order number is required', 'wc-buckaroo-bpe-gateway'));
         }
 
         $allocation = CaptureAllocation::fromJson(

@@ -273,7 +273,7 @@ if (count($items_to_capture)) {
             <?php esc_html_e('Qty', 'woocommerce'); ?>
         </div>
         <div class="qty bk-auto m-h-15">
-            <?php esc_html_e('Capture', 'woocommerce'); ?>
+            <?php esc_html_e('Capture', 'wc-buckaroo-bpe-gateway'); ?>
         </div>
         <div class="amount bk-auto m-h-15" style="margin-right:0">
             <?php esc_html_e('Total', 'woocommerce'); ?>
@@ -388,7 +388,7 @@ if (isset($items_to_capture['fee'])) {
 }
 
 if (count($previous_captures)) {
-    echo esc_html__('Previous capture(s)', 'woocommerce');
+    echo esc_html__('Previous capture(s)', 'wc-buckaroo-bpe-gateway');
     ?>
     <ul>
         <?php
@@ -398,7 +398,7 @@ if (count($previous_captures)) {
                 <div class="name">
                     <?php
                     printf(
-                        esc_html__('Capture - #%s', 'woocommerce'),
+                        esc_html__('Capture - #%s', 'wc-buckaroo-bpe-gateway'),
                         esc_attr($capture->get_id())
                     );
                     ?>
@@ -459,7 +459,7 @@ if (count($items_to_capture)) {
     ?>
 
     <div class="bk-capture-action">
-        <?php esc_html_e('Total available to capture', 'woocommerce'); ?>:
+        <?php esc_html_e('Total available to capture', 'wc-buckaroo-bpe-gateway'); ?>:
         <input type="text" name="total" disabled id="bk-capture-total" style="text-align:right;">
         <p class="add-items">
             <button type="button" class="button button-primary capture-bk-items">Capture</button>
