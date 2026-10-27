@@ -1221,17 +1221,18 @@ msgstr ""
 #: assets/js/blocks/gateways/buckaroo_creditcard.js:152
 #: assets/js/dist/blocks.js:2
 msgid "We are refreshing the payment form, because the session has expired."
-msgstr ""
+msgstr "We vernieuwen het betaalformulier, omdat de sessie is verlopen."
 
 #: assets/js/blocks/gateways/buckaroo_creditcard.js:175
 #: assets/js/dist/blocks.js:2
 msgid "Failed to initialize Buckaroo hosted fields."
-msgstr ""
+msgstr "De Buckaroo hosted fields konden niet worden geladen."
 
 #: assets/js/blocks/gateways/buckaroo_creditcard.js:183
 #: assets/js/dist/blocks.js:2
+#: src/Hooks/PaymentSetupScripts.php:239
 msgid "Session expired, please try again."
-msgstr ""
+msgstr "Sessie verlopen. Probeer het opnieuw."
 
 #: src/Gateways/Trustly/TrustlyGateway.php:19
 msgid "Trustly is a secure online banking payment method that allows customers to pay directly from their bank account."
@@ -1647,3 +1648,19 @@ msgstr "Er is een fout opgetreden bij het verwerken van uw betaling. Probeer het
 #: assets/js/dist/blocks.js:2
 msgid "Loading..."
 msgstr "Laden..."
+
+#: src/Hooks/PaymentSetupScripts.php:236
+msgid "Failed to initialize payment form"
+msgstr "Het betaalformulier kon niet worden geladen"
+
+#: src/Hooks/PaymentSetupScripts.php:237
+msgid "Payment form refresh failed"
+msgstr "Het vernieuwen van het betaalformulier is mislukt"
+
+#: src/Hooks/PaymentSetupScripts.php:238
+msgid "Payment form not initialized"
+msgstr "Het betaalformulier is niet geladen"
+
+#: src/Hooks/PaymentSetupScripts.php:240
+msgid "Invalid payment details"
+msgstr "Ongeldige betaalgegevens"

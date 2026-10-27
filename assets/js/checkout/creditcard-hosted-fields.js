@@ -1,5 +1,8 @@
 import { hostedFieldStyling, syncHostedFieldErrors } from '../shared/hosted-field-styling';
 
+// Translated in PHP (PaymentSetupScripts) and passed in through buckaroo_global.
+const t = (key, fallback) => window.buckaroo_global?.creditcard_i18n?.[key] || fallback;
+
 class BuckarooCreditCardsHostedFields {
     constructor() {
         this.form = jQuery('form[name=checkout]');
@@ -24,7 +27,7 @@ class BuckarooCreditCardsHostedFields {
             return true;
         } catch (error) {
             console.error('Hosted fields initialization failed:', error);
-            this.showError('Failed to initialize payment form');
+            this.showError(t('init_failed', 'Failed to initialize payment form'));
             return false;
         }
     }
@@ -152,20 +155,20 @@ class BuckarooCreditCardsHostedFields {
             await this.initialize();
         } catch (error) {
             console.error('Token refresh failed:', error);
-            this.showError('Payment form refresh failed');
+            this.showError(t('refresh_failed', 'Payment form refresh failed'));
         }
     }
 
     async handleFormSubmit() {
         if (!this.sdkClient) {
-            throw new Error('Payment form not initialized');
+            throw new Error(t('not_initialized', 'Payment form not initialized'));
         }
 
         if (Date.now() > this.tokenExpiresAt) {
             try {
                 await this.refreshToken();
             } catch (error) {
-                throw new Error('Session expired, please try again');
+                throw new Error(t('session_expired', 'Session expired, please try again.'));
             }
         }
 
@@ -178,7 +181,7 @@ class BuckarooCreditCardsHostedFields {
 
             return true;
         } catch (error) {
-            throw new Error(error.message || 'Invalid payment details');
+            throw new Error(error.message || t('invalid_details', 'Invalid payment details'));
         }
     }
 
@@ -223,7 +226,7 @@ class BuckarooCreditCardsHostedFields {
                             this.form.trigger('submit');
                         })
                         .catch(error => {
-                            this.showError(error);
+                            this.showError(error.message);
                         })
                         .finally(() => {
                             this.isSubmitting = false;
