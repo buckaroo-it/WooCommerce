@@ -134,7 +134,7 @@ class TransferGateway extends AbstractPaymentGateway
                 'TRUE' => __('Yes', 'wc-buckaroo-bpe-gateway'),
                 'FALSE' => __('No', 'wc-buckaroo-bpe-gateway'),
             ],
-            'default' => 'FALSE',
+            'default' => 'TRUE',
         ];
         $this->form_fields['showpayproc'] = [
             'title' => __('Show payment procedures', 'wc-buckaroo-bpe-gateway'),
