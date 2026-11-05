@@ -1000,8 +1000,8 @@ label.bk-in3-logo img {
         display: grid;
         grid-template-columns: auto 1fr;
         grid-template-areas:
-            "icon status"
-            "info info";
+            'icon status'
+            'info info';
         align-items: center;
         gap: 12px;
         padding: 16px;
@@ -1333,7 +1333,7 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
  * scrolls sideways, instead of a wrapped list with "|" separators.
  * ------------------------------------------------------------------------- */
 @media screen and (max-width: 782px) {
-    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*="tab=buckaroo_settings"]) {
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) {
         float: none;
         display: flex;
         flex-wrap: nowrap;
@@ -1349,18 +1349,18 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
         text-align: left;
     }
 
-    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*="tab=buckaroo_settings"])::-webkit-scrollbar {
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings'])::-webkit-scrollbar {
         display: none;
     }
 
-    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*="tab=buckaroo_settings"]) li {
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) li {
         flex: none;
         margin: 0;
         font-size: 0; /* hides the "|" separators */
         scroll-snap-align: start;
     }
 
-    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*="tab=buckaroo_settings"]) a {
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) a {
         display: block;
         padding: 8px 14px;
         font-size: 14px;
@@ -1373,11 +1373,11 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
     }
 
     /* WooCommerce removes the padding of the first link with a stronger selector */
-    body.woocommerce_page_wc-settings #mainform ul.subsubsub:has(a[href*="tab=buckaroo_settings"]) li:first-child a {
+    body.woocommerce_page_wc-settings #mainform ul.subsubsub:has(a[href*='tab=buckaroo_settings']) li:first-child a {
         padding: 8px 14px;
     }
 
-    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*="tab=buckaroo_settings"]) a.current {
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) a.current {
         color: #fff;
         background: #1a2340;
         border-color: #1a2340;
@@ -1388,16 +1388,16 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
 /* Tablets (such as iPad mini in portrait): the pills stretch to fill the row
  * when they fit, and the row scrolls sideways as on phones when they do not. */
 @media screen and (min-width: 600px) and (max-width: 782px) {
-    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*="tab=buckaroo_settings"]) {
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) {
         margin: 12px 0 16px;
         padding: 2px 0 6px;
     }
 
-    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*="tab=buckaroo_settings"]) li {
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) li {
         flex: 1 0 auto;
     }
 
-    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*="tab=buckaroo_settings"]) a {
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) a {
         text-align: center;
     }
 }
@@ -1639,7 +1639,7 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
     pointer-events: none;
 }
 
-.bk-logs-search input[type="search"] {
+.bk-logs-search input[type='search'] {
     flex: 1;
     min-width: 0;
     height: 36px;
@@ -1733,7 +1733,7 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
 }
 
 .bk-log-entry:not([data-single-line]) summary::after {
-    content: "";
+    content: '';
     flex-shrink: 0;
     width: 8px;
     height: 8px;
