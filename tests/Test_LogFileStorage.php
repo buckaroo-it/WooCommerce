@@ -323,7 +323,7 @@ class Test_LogFileStorage extends WP_UnitTestCase
 
     public function test_download_url_points_to_admin_post_with_a_nonce(): void
     {
-        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+        $this->logInWithDownloadCapability();
 
         // wp_nonce_url() escapes the separators for use in HTML
         $url = html_entity_decode(ReportDownload::url('01-11-2026'));
@@ -346,7 +346,7 @@ class Test_LogFileStorage extends WP_UnitTestCase
 
     public function test_download_without_a_valid_nonce_is_refused(): void
     {
-        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+        $this->logInWithDownloadCapability();
         $_REQUEST['_wpnonce'] = 'not-a-nonce';
         $_GET['date'] = '01-11-2026';
 
@@ -354,13 +354,14 @@ class Test_LogFileStorage extends WP_UnitTestCase
             (new ReportDownload())->handle();
             $this->fail('Expected wp_die');
         } catch (WPDieException $e) {
-            $this->assertStringNotContainsString('No log file found', $e->getMessage());
+            // wp_nonce_ays(), not the capability check or the file lookup
+            $this->assertStringContainsString('The link you followed has expired.', $e->getMessage());
         }
     }
 
     public function test_a_valid_download_request_reaches_the_file_lookup(): void
     {
-        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+        $this->logInWithDownloadCapability();
         $_REQUEST['_wpnonce'] = wp_create_nonce(ReportDownload::ACTION);
 
         foreach (['01-01-2020', null] as $date) {
@@ -432,6 +433,18 @@ class Test_LogFileStorage extends WP_UnitTestCase
             'both' => [LoggerStorage::STORAGE_ALL, true, true],
             'not set' => ['', true, true],
         ];
+    }
+
+    /**
+     * WooCommerce only adds manage_woocommerce to the roles when it installs, which
+     * a fresh test database may not have done, so the user gets it directly
+     */
+    private function logInWithDownloadCapability(): void
+    {
+        $user = new WP_User(self::factory()->user->create(['role' => 'subscriber']));
+        $user->add_cap(ReportDownload::CAPABILITY);
+        wp_set_current_user($user->ID);
+        $this->assertTrue(current_user_can(ReportDownload::CAPABILITY));
     }
 
     private function writeLog(string $date, string $contents): string
