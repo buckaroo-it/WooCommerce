@@ -886,6 +886,34 @@ label.bk-in3-logo img {
     justify-content: center;
 }
 
+/* Phones: logo and name on top, status, toggle and settings in a row below.
+ * Side by side they need about 350px, which pushed the settings button out
+ * of the card and squeezed the name away. */
+@media screen and (max-width: 600px) {
+    .buckaroo-gateway-list__header {
+        display: none;
+    }
+    .buckaroo-gateway-list .buckaroo-payment-card {
+        flex-wrap: wrap;
+        row-gap: 10px;
+        padding: 12px 14px;
+    }
+    .buckaroo-gateway-list .buckaroo-payment-card-info {
+        flex: 1 1 0;
+    }
+    .buckaroo-gateway-list .buckaroo-payment-card-actions {
+        flex: 1 0 100%;
+        padding-top: 10px;
+        border-top: 1px solid #f0f0f1;
+    }
+    .buckaroo-gateway-list .bk-status-pill {
+        margin-right: auto;
+    }
+    .buckaroo-gateway-list .wc-payment-gateway-method-toggle-enabled {
+        width: auto;
+    }
+}
+
 /* Gateway settings page summary card */
 .bk-gateway-summary-card {
     display: flex;
@@ -965,6 +993,37 @@ label.bk-in3-logo img {
     flex-shrink: 0;
     margin-left: auto;
 }
+
+/* Phones: logo and status share the top row, the text gets the full width below */
+@media screen and (max-width: 600px) {
+    .bk-gateway-summary-card {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-areas:
+            'icon status'
+            'info info';
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+    }
+    .bk-gateway-summary-card__icon {
+        grid-area: icon;
+        width: 64px;
+        height: 44px;
+    }
+    .bk-gateway-summary-card__icon-placeholder {
+        width: 64px;
+        height: 44px;
+    }
+    .bk-gateway-summary-card__info {
+        grid-area: info;
+    }
+    .bk-gateway-summary-card__status {
+        grid-area: status;
+        justify-self: end;
+        margin-left: 0;
+    }
+}
 .bk-intro-hero {
     text-align: center;
     padding: 32px 24px 28px;
@@ -980,6 +1039,8 @@ label.bk-in3-logo img {
 .bk-intro-hero__logo-img {
     height: 36px;
     width: auto;
+    max-width: 100%;
+    object-fit: contain;
     display: inline-block;
 }
 .bk-intro-hero__desc {
@@ -1033,6 +1094,32 @@ label.bk-in3-logo img {
     background: transparent;
     color: #1a2340;
     opacity: 1;
+}
+
+/* Phones: smaller logo that stays inside the card, buttons side by side at equal width */
+@media screen and (max-width: 600px) {
+    .bk-intro-hero {
+        padding: 22px 16px 18px;
+    }
+    .bk-intro-hero__logo {
+        margin-bottom: 10px;
+    }
+    .bk-intro-hero__logo-img {
+        height: 26px;
+    }
+    .bk-intro-hero__desc {
+        margin-bottom: 16px;
+    }
+    .bk-intro-hero__actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+        gap: 8px;
+    }
+    .bk-hero-btn {
+        justify-content: center;
+        padding: 9px 12px;
+        font-size: 13px;
+    }
 }
 
 /* API Credentials section */
@@ -1091,10 +1178,27 @@ body.woocommerce_page_wc-settings .form-table td textarea,
 body.woocommerce_page_wc-settings .form-table td textarea.wide-input,
 body.woocommerce_page_wc-settings .form-table td textarea.large-text,
 body.woocommerce_page_wc-settings .form-table td textarea.input-text {
+    /* Same width as the selects on desktop, but shrinks to fit on phones */
     width: 29em !important;
-    max-width: 29em !important;
+    max-width: 100% !important;
     min-width: 0 !important;
     box-sizing: border-box !important;
+}
+
+/* Mobile: full width like the other fields. The fieldset WooCommerce wraps
+ * around each field grows to fit its content by default, which kept the
+ * textarea at 29em and pushed it off screen. */
+@media screen and (max-width: 782px) {
+    body.woocommerce_page_wc-settings .form-table td fieldset {
+        min-width: 0;
+    }
+
+    body.woocommerce_page_wc-settings .form-table td textarea,
+    body.woocommerce_page_wc-settings .form-table td textarea.wide-input,
+    body.woocommerce_page_wc-settings .form-table td textarea.large-text,
+    body.woocommerce_page_wc-settings .form-table td textarea.input-text {
+        width: 100% !important;
+    }
 }
 
 /* -------------------------------------------------------------------------
@@ -1222,4 +1326,576 @@ body.woocommerce_page_wc-settings .form-table td textarea.input-text {
 /* Express button preview on the settings screen, held to the field width. */
 .buckaroo-express-preview {
     max-width: 400px;
+}
+
+/* -------------------------------------------------------------------------
+ * Buckaroo settings sub-menu on small screens: one row of pills that
+ * scrolls sideways, instead of a wrapped list with "|" separators.
+ * ------------------------------------------------------------------------- */
+@media screen and (max-width: 782px) {
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) {
+        float: none;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 8px;
+        width: auto;
+        margin: 12px -10px 16px;
+        padding: 2px 10px 6px;
+        overflow-x: auto;
+        scroll-snap-type: x proximity;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        white-space: nowrap;
+        text-align: left;
+    }
+
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings'])::-webkit-scrollbar {
+        display: none;
+    }
+
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) li {
+        flex: none;
+        margin: 0;
+        font-size: 0; /* hides the "|" separators */
+        scroll-snap-align: start;
+    }
+
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) a {
+        display: block;
+        padding: 8px 14px;
+        font-size: 14px;
+        line-height: 1.2;
+        color: #1d2327;
+        background: #fff;
+        border: 1px solid #dcdcde;
+        border-radius: 999px;
+        text-decoration: none;
+    }
+
+    /* WooCommerce removes the padding of the first link with a stronger selector */
+    body.woocommerce_page_wc-settings #mainform ul.subsubsub:has(a[href*='tab=buckaroo_settings']) li:first-child a {
+        padding: 8px 14px;
+    }
+
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) a.current {
+        color: #fff;
+        background: #1a2340;
+        border-color: #1a2340;
+        font-weight: 600;
+    }
+}
+
+/* Tablets (such as iPad mini in portrait): the pills stretch to fill the row
+ * when they fit, and the row scrolls sideways as on phones when they do not. */
+@media screen and (min-width: 600px) and (max-width: 782px) {
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) {
+        margin: 12px 0 16px;
+        padding: 2px 0 6px;
+    }
+
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) li {
+        flex: 1 0 auto;
+    }
+
+    body.woocommerce_page_wc-settings ul.subsubsub:has(a[href*='tab=buckaroo_settings']) a {
+        text-align: center;
+    }
+}
+
+/* -------------------------------------------------------------------------
+ * Reports: log overview and log viewer
+ * ------------------------------------------------------------------------- */
+.bk-logs {
+    max-width: 1100px;
+    margin-top: 16px;
+    color: #1a1a2e;
+}
+
+.bk-logs-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.bk-logs .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.bk-logs .button .dashicons {
+    margin: 0 6px 0 -2px;
+    vertical-align: -3px;
+}
+
+/* Header */
+.bk-logs-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px;
+}
+
+.bk-logs-header h2 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    line-height: 1.3;
+}
+
+.bk-logs-header .description {
+    margin: 0;
+    max-width: 640px;
+}
+
+.bk-logs-header__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    margin-top: 14px;
+}
+
+.bk-logs-header__meta .bk-status-pill {
+    height: 26px;
+    font-size: 12px;
+}
+
+.bk-logs-meta {
+    font-size: 13px;
+    color: #646970;
+}
+
+.bk-logs-header__actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* Small labels */
+.bk-logs-chip {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: #f0f0f1;
+    color: #50575e;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+    vertical-align: 1px;
+}
+
+.bk-logs-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 18px;
+    white-space: nowrap;
+}
+
+.bk-logs-badge--error {
+    background: #fcf0f1;
+    color: #b32d2e;
+}
+
+/* Empty states */
+.bk-logs-empty {
+    padding: 48px 24px;
+    text-align: center;
+    color: #646970;
+}
+
+.bk-logs-empty .dashicons {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    color: #c3c4c7;
+}
+
+.bk-logs-empty p {
+    max-width: 440px;
+    margin: 6px auto 16px;
+}
+
+.bk-logs-empty .bk-logs-empty__title {
+    margin-bottom: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+/* Overview: one row per day */
+.bk-logs-days {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.bk-logs-day {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0;
+    padding: 14px 24px;
+    border-top: 1px solid #f0f0f1;
+}
+
+.bk-logs-day:first-child {
+    border-top: 0;
+}
+
+.bk-logs-day:hover {
+    background: #fafafa;
+}
+
+.bk-logs-day__main {
+    flex: 1;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+}
+
+.bk-logs-day__main:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.bk-logs-day__main:focus-visible .bk-logs-day__date {
+    text-decoration: underline;
+}
+
+.bk-logs-day__date {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.bk-logs-day__meta {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: #787c82;
+}
+
+.bk-logs-day__errors {
+    display: none;
+}
+
+.bk-logs-day__actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.bk-logs .bk-logs-icon-button {
+    padding: 0 8px;
+}
+
+.bk-logs .bk-logs-icon-button .dashicons {
+    margin: 0;
+}
+
+/* Viewer */
+.bk-logs-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.bk-logs-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.bk-logs-search {
+    position: relative;
+    display: flex;
+    flex: 1 1 320px;
+    max-width: 480px;
+    gap: 6px;
+}
+
+.bk-logs-search .dashicons {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8c8f94;
+    pointer-events: none;
+}
+
+.bk-logs-search input[type='search'] {
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+    padding: 0 10px 0 32px;
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+}
+
+.bk-logs-search .button {
+    height: 36px;
+    border-radius: 8px;
+}
+
+.bk-logs-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.bk-logs-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid #dcdcde;
+    border-radius: 999px;
+    background: #fff;
+    color: #1d2327;
+    font-size: 13px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.bk-logs-filter:hover {
+    border-color: #1a2340;
+    color: #1a2340;
+}
+
+.bk-logs-filter.is-active {
+    background: #1a2340;
+    border-color: #1a2340;
+    color: #fff;
+}
+
+.bk-logs-filter__count {
+    padding: 0 6px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.06);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.bk-logs-filter.is-active .bk-logs-filter__count {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Entries */
+.bk-log-entry {
+    border-top: 1px solid #f0f0f1;
+    border-left: 3px solid transparent;
+}
+
+.bk-log-entry:first-child {
+    border-top: 0;
+}
+
+.bk-log-entry.is-error {
+    border-left-color: #d63638;
+}
+
+.bk-log-entry summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 12px 20px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.bk-log-entry summary::-webkit-details-marker {
+    display: none;
+}
+
+.bk-log-entry summary:hover {
+    background: #fafafa;
+}
+
+.bk-log-entry[data-single-line] summary {
+    cursor: default;
+}
+
+.bk-log-entry:not([data-single-line]) summary::after {
+    content: '';
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    margin: 6px 4px 0 0;
+    border-right: 2px solid #8c8f94;
+    border-bottom: 2px solid #8c8f94;
+    transform: rotate(45deg);
+    transition: transform 0.15s ease;
+}
+
+.bk-log-entry[open] summary::after {
+    transform: rotate(-135deg);
+    margin-top: 10px;
+}
+
+.bk-log-entry__time {
+    flex-shrink: 0;
+    width: 64px;
+    font-family: Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 20px;
+    color: #787c82;
+}
+
+.bk-log-entry__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.bk-log-entry__source {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+}
+
+.bk-log-entry__source code {
+    padding: 0;
+    background: none;
+    font-size: 12px;
+    color: #50575e;
+    word-break: break-all;
+}
+
+.bk-log-entry__summary {
+    display: block;
+    font-size: 13px;
+    line-height: 20px;
+    overflow-wrap: anywhere;
+}
+
+.bk-log-entry__request {
+    flex-shrink: 0;
+    font-family: Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 20px;
+    color: #787c82;
+    text-decoration: none;
+}
+
+.bk-log-entry__request:hover {
+    color: #1a2340;
+    text-decoration: underline;
+}
+
+.bk-log-entry__message {
+    max-height: 420px;
+    margin: 0 20px 14px 100px;
+    padding: 12px 14px;
+    overflow: auto;
+    border-radius: 8px;
+    background: #f6f7f7;
+    font-family: Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.bk-logs-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 16px;
+}
+
+.bk-logs-pagination .page-numbers {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    box-sizing: border-box;
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    background: #fff;
+    line-height: 30px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.bk-logs-pagination .page-numbers.current {
+    background: #1a2340;
+    border-color: #1a2340;
+    color: #fff;
+}
+
+.bk-logs-pagination .page-numbers.dots {
+    border: 0;
+    background: none;
+}
+
+@media screen and (max-width: 782px) {
+    .bk-logs-header {
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .bk-logs-day {
+        gap: 12px;
+        padding: 12px 16px;
+    }
+
+    /* The error count moves into the meta line to keep rows short */
+    .bk-logs-day .bk-logs-day__badge {
+        display: none;
+    }
+
+    .bk-logs-day__errors {
+        display: inline;
+        color: #b32d2e;
+        font-weight: 600;
+    }
+
+    .bk-logs-search {
+        max-width: none;
+        flex-basis: 100%;
+    }
+
+    .bk-log-entry summary {
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        padding: 12px 14px;
+    }
+
+    .bk-log-entry__time {
+        width: auto;
+    }
+
+    .bk-log-entry__body {
+        flex-basis: 100%;
+        order: 3;
+    }
+
+    .bk-log-entry__request {
+        margin-left: auto;
+    }
+
+    .bk-log-entry:not([data-single-line]) summary::after {
+        order: 2;
+    }
+
+    .bk-log-entry__message {
+        margin: 0 14px 12px;
+    }
 }
