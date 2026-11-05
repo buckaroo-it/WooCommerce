@@ -109,13 +109,44 @@ class LoggerStorage
             wp_die(esc_html__('No log file found', 'wc-buckaroo-bpe-gateway'), '', ['response' => 404]);
         }
 
-        nocache_headers();
-        header('Content-Type: text/plain; charset=utf-8');
-        header('Content-Disposition: attachment; filename="buckaroo-' . $date . '.log"');
-        header('X-Content-Type-Options: nosniff');
+        // @codeCoverageIgnoreStart
+        // Ends the request, which a test cannot do
+        self::send_log_file($file, (string) $date);
+        exit;
+        // @codeCoverageIgnoreEnd
+    }
+
+    /**
+     * Headers and contents of a log file download
+     *
+     * @param  string  $date  d-m-Y
+     */
+    protected static function send_log_file(string $file, string $date): void
+    {
+        if (! headers_sent()) {
+            // @codeCoverageIgnoreStart
+            // Tests have printed output already, so headers cannot be sent there
+            nocache_headers();
+            foreach (self::download_headers($date) as $header) {
+                header($header);
+            }
+            // @codeCoverageIgnoreEnd
+        }
 
         readfile($file);
-        exit();
+    }
+
+    /**
+     * @param  string  $date  d-m-Y
+     * @return string[]
+     */
+    protected static function download_headers(string $date): array
+    {
+        return [
+            'Content-Type: text/plain; charset=utf-8',
+            'Content-Disposition: attachment; filename="buckaroo-' . $date . '.log"',
+            'X-Content-Type-Options: nosniff',
+        ];
     }
 
     /**

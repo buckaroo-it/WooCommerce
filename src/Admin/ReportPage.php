@@ -19,8 +19,12 @@ class ReportPage
 {
     public const PER_PAGE = 50;
 
-    /** First line of an entry in a log file: date|||request|||location|||message */
-    private const FILE_ENTRY_PATTERN = '/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|\|\|([^|]*)\|\|\|(.*?)\|\|\|(.*)$/s';
+    /**
+     * First line of an entry in a log file: date|||request|||location|||message.
+     * Locations end with a pipe ("Class::method|tag|"), so the separator after
+     * them is the first "|||" that is not followed by another pipe.
+     */
+    private const FILE_ENTRY_PATTERN = '/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\|\|\|([^|]*)\|\|\|(.*?)\|\|\|(?!\|)(.*)$/s';
 
     /** A logged exception starts with its class name, such as "RuntimeException: ..." */
     private const ERROR_MESSAGE_PATTERN = '/^[^\s:]*(Exception|Error): /';

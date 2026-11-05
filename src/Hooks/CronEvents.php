@@ -111,23 +111,6 @@ class CronEvents
     }
 
     /**
-     * Check if line is older than required
-     *
-     * @param  DateTime|null  $date
-     * @return bool
-     */
-    protected function is_file_line_not_stale($date)
-    {
-        if ($date === null) {
-            return true;
-        }
-
-        $staleDate = $this->get_stale_date();
-
-        return $date > $staleDate;
-    }
-
-    /**
      * Clean database storage
      *
      * @return void
