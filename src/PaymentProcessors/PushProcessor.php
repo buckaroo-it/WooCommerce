@@ -260,119 +260,130 @@ class PushProcessor
                 ini_set('serialize_precision', $original_precision);
             }
 
-            // Check if redirect required
-            $checkIfRedirectRequired = Helper::processCheckRedirectRequired($responseParser);
-            if ($checkIfRedirectRequired) {
-                return $checkIfRedirectRequired;
-            }
-
-            if ($responseParser->getPaymentMethod() == 'paypal') {
-                (new PaypalExpressUpdateOrderAddresses($order, $responseParser))->update();
-            }
-
-            $giftCardPartialPayment = ($responseParser->isAwaitingConsumer() && $responseParser->getTransactionType() == 'I150');
-
-            if ($responseParser->getRelatedTransactionPartialPayment() !== null || $giftCardPartialPayment) {
-                Logger::log('PUSH', 'Partial payment PUSH received ' . $responseParser->getStatusCode());
-                exit();
-            }
-
-            // Locks below are read from order meta; copy first so a replay is seen.
-            MigrateOrderMetaToHpos::ensureOrderMigrated($order);
-
-            if ($responseParser->getRefundParentKey() !== null) {
-                RefundAction::initiateExternalServiceRefund($order_id, $responseParser);
-            }
-
-            if (apply_filters('buckaroo_push_handled', false, $order, $responseParser)) {
-                return;
-            }
-
-            Logger::log('Order status: ' . $order->get_status());
-
-            if ($responseParser->isOnHold() && ($order->get_payment_method() == 'buckaroo_paypal')) {
-                $responseParser->set('coreStatus', BuckarooTransactionStatus::STATUS_CANCELLED);
-            }
-
-            Logger::log('Response order status: ' . $responseParser->get('coreStatus'));
-            Logger::log('Status message: ' . $responseParser->getSubCodeMessage());
-
-            if (! $this->metaUpdate($order_id, $order, $responseParser)) {
-                return;
-            }
-
-            if ($responseParser->isSuccess()) {
-                $this->onSuccess($order_id, $order, $responseParser);
-            } else {
-                if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_ON_HOLD && in_array($order->get_payment_method(), ['buckaroo_in3', 'buckaroo_zakelijkoprekening'], true)) {
-                    return;
-                }
-
-                if (in_array($order->get_payment_method(), ['buckaroo_payperemail', 'buckaroo_transfer'])) {
-                    Logger::log('Payperemail status check: ' . $responseParser->getStatusCode());
-                    if (Helper::handleUnsuccessfulPayment($responseParser->getStatusCode())) {
-                        return;
-                    }
-                }
-
-                Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
-
-                if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled', 'refunded']) && ! $this->isOrderFullyPaid($order)) {
-                    // We receive a valid response that the payment is canceled/failed.
-                    Logger::log('Update status 2. Order status: failed');
-                    $order->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
-                } else {
-                    if ($this->isOrderFullyPaid($order)) {
-                        Logger::log('Push message. Order was previously fully paid - status cannot be changed to failed.');
-                    } else {
-                        Logger::log('Push message. Order status cannot be changed.');
-                    }
-                }
-
-                if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_CANCELLED) {
-                    Logger::log('Payment cancelled by customer - keeping status as failed to allow retry');
-                    // Keep order as 'failed' instead of 'cancelled' to allow customer to retry payment
-                    // WooCommerce only allows 'pending' or 'failed' orders to be retried
-                    // Only update to failed if order is not already in a final state
-                    if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled', 'refunded']) && ! $this->isOrderFullyPaid($order)) {
-                        // If order is not already failed, update it to failed
-                        if ($order->get_status() !== 'failed') {
-                            Logger::log('Update status: failed (from cancelled push)');
-                            $order->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
-                        }
-                    } else {
-                        if ($this->isOrderFullyPaid($order)) {
-                            Logger::log('Push message. Order was previously fully paid - status cannot be changed.');
-                        } else {
-                            Logger::log('Push message. Order status cannot be changed.');
-                        }
-                    }
-                    wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
-                } elseif ($responseParser->getPaymentMethod() == 'afterpaydigiaccept' && $responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_REJECTED) {
-                    wc_add_notice(
-                        __(
-                            "We are sorry to inform you that the request to pay afterwards with Riverty is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty. Or you can visit the website of Riverty and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
-                            'wc-buckaroo-bpe-gateway'
-                        ),
-                        'error'
-                    );
-                } else {
-                    wc_add_notice(
-                        __(
-                            'Payment unsuccessful. Please try again or choose another payment method.',
-                            'wc-buckaroo-bpe-gateway'
-                        ),
-                        'error'
-                    );
-                }
-
-                return;
-            }
+            return $this->processVerified($order_id, $order, $responseParser);
         } else {
             Logger::log('Response not valid!');
             Logger::log('Parse response:\n', $responseParser);
 
             if ($responseParser->getPaymentMethod() == 'afterpaydigiaccept' && $responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_REJECTED) {
+                wc_add_notice(
+                    __(
+                        "We are sorry to inform you that the request to pay afterwards with Riverty is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty. Or you can visit the website of Riverty and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
+                        'wc-buckaroo-bpe-gateway'
+                    ),
+                    'error'
+                );
+            } else {
+                wc_add_notice(
+                    __(
+                        'Payment unsuccessful. Please try again or choose another payment method.',
+                        'wc-buckaroo-bpe-gateway'
+                    ),
+                    'error'
+                );
+            }
+
+            return;
+        }
+    }
+
+    /**
+     * The order logic of a push whose signature is valid: the same for a BPE push and a UPG webhook.
+     *
+     * @param  int|string  $order_id
+     * @return array|void|null
+     */
+    public function processVerified($order_id, WC_Order $order, ResponseParser $responseParser)
+    {
+        // Check if redirect required
+        $checkIfRedirectRequired = Helper::processCheckRedirectRequired($responseParser);
+        if ($checkIfRedirectRequired) {
+            return $checkIfRedirectRequired;
+        }
+
+        if ($responseParser->getPaymentMethod() == 'paypal') {
+            (new PaypalExpressUpdateOrderAddresses($order, $responseParser))->update();
+        }
+
+        $giftCardPartialPayment = ($responseParser->isAwaitingConsumer() && $responseParser->getTransactionType() == 'I150');
+
+        if ($responseParser->getRelatedTransactionPartialPayment() !== null || $giftCardPartialPayment) {
+            Logger::log('PUSH', 'Partial payment PUSH received ' . $responseParser->getStatusCode());
+            exit();
+        }
+
+        // Locks below are read from order meta; copy first so a replay is seen.
+        MigrateOrderMetaToHpos::ensureOrderMigrated($order);
+
+        if ($responseParser->getRefundParentKey() !== null) {
+            RefundAction::initiateExternalServiceRefund($order_id, $responseParser);
+        }
+
+        if (apply_filters('buckaroo_push_handled', false, $order, $responseParser)) {
+            return;
+        }
+
+        Logger::log('Order status: ' . $order->get_status());
+
+        if ($responseParser->isOnHold() && ($order->get_payment_method() == 'buckaroo_paypal')) {
+            $responseParser->set('coreStatus', BuckarooTransactionStatus::STATUS_CANCELLED);
+        }
+
+        Logger::log('Response order status: ' . $responseParser->get('coreStatus'));
+        Logger::log('Status message: ' . $responseParser->getSubCodeMessage());
+
+        if (! $this->metaUpdate($order_id, $order, $responseParser)) {
+            return;
+        }
+
+        if ($responseParser->isSuccess()) {
+            $this->onSuccess($order_id, $order, $responseParser);
+        } else {
+            if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_ON_HOLD && in_array($order->get_payment_method(), ['buckaroo_in3', 'buckaroo_zakelijkoprekening'], true)) {
+                return;
+            }
+
+            if (in_array($order->get_payment_method(), ['buckaroo_payperemail', 'buckaroo_transfer'])) {
+                Logger::log('Payperemail status check: ' . $responseParser->getStatusCode());
+                if (Helper::handleUnsuccessfulPayment($responseParser->getStatusCode())) {
+                    return;
+                }
+            }
+
+            Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
+
+            if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled', 'refunded']) && ! $this->isOrderFullyPaid($order)) {
+                // We receive a valid response that the payment is canceled/failed.
+                Logger::log('Update status 2. Order status: failed');
+                $order->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
+            } else {
+                if ($this->isOrderFullyPaid($order)) {
+                    Logger::log('Push message. Order was previously fully paid - status cannot be changed to failed.');
+                } else {
+                    Logger::log('Push message. Order status cannot be changed.');
+                }
+            }
+
+            if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_CANCELLED) {
+                Logger::log('Payment cancelled by customer - keeping status as failed to allow retry');
+                // Keep order as 'failed' instead of 'cancelled' to allow customer to retry payment
+                // WooCommerce only allows 'pending' or 'failed' orders to be retried
+                // Only update to failed if order is not already in a final state
+                if (! in_array($order->get_status(), ['completed', 'processing', 'cancelled', 'refunded']) && ! $this->isOrderFullyPaid($order)) {
+                    // If order is not already failed, update it to failed
+                    if ($order->get_status() !== 'failed') {
+                        Logger::log('Update status: failed (from cancelled push)');
+                        $order->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
+                    }
+                } else {
+                    if ($this->isOrderFullyPaid($order)) {
+                        Logger::log('Push message. Order was previously fully paid - status cannot be changed.');
+                    } else {
+                        Logger::log('Push message. Order status cannot be changed.');
+                    }
+                }
+                wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
+            } elseif ($responseParser->getPaymentMethod() == 'afterpaydigiaccept' && $responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_REJECTED) {
                 wc_add_notice(
                     __(
                         "We are sorry to inform you that the request to pay afterwards with Riverty is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty. Or you can visit the website of Riverty and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
@@ -401,7 +412,7 @@ class PushProcessor
      *
      * @return array
      */
-    protected function getAllHeaders(): array
+    public function getAllHeaders(): array
     {
         if (function_exists('getallheaders')) {
             return getallheaders();

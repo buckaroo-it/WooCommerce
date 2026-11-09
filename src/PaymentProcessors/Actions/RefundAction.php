@@ -7,6 +7,9 @@ use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Logger;
+use BuckarooDeps\Buckaroo\Adapter\Api;
+use BuckarooDeps\Buckaroo\Adapter\Contracts\Result;
+use BuckarooDeps\Buckaroo\Adapter\Status;
 use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use WC_Order;
@@ -54,12 +57,41 @@ class RefundAction
 
     public function process()
     {
-        $transactionResponse = $this->buckarooClient->process(
+        $result = $this->buckarooClient->process(
             $this->paymentProcessor,
             $this->originalTransactionKey ? ['originalTransactionKey' => $this->originalTransactionKey] : []
         );
 
-        return $this->finalize($transactionResponse);
+        if ($result->api() === Api::Upg) {
+            return $this->finalizeUpg($result);
+        }
+
+        return $this->finalize($result->raw());
+    }
+
+    /** A UPG refund starts Pending, like a BPE refund that is pending processing. */
+    public function finalizeUpg(Result $result)
+    {
+        if ($result->status() === Status::Success || $result->status() === Status::Pending) {
+            $this->order->add_order_note(
+                sprintf(
+                    $result->status() === Status::Success
+                        ? __('Refunded %1$s - Payment reference: %2$s', 'wc-buckaroo-bpe-gateway')
+                        : __('Refund of %1$s is pending processing - Payment reference: %2$s', 'wc-buckaroo-bpe-gateway'),
+                    wc_price((float) $result->amount()),
+                    $result->reference()
+                )
+            );
+
+            return true;
+        }
+
+        $this->order->add_order_note(
+            sprintf(__('Refund failed for transaction ID: %s', 'wc-buckaroo-bpe-gateway'), $this->order->get_transaction_id())
+            . "\n" . $result->message()
+        );
+
+        return new WP_Error('error_refund', __('Refund failed: ', 'wc-buckaroo-bpe-gateway') . $result->message());
     }
 
     public function finalize(TransactionResponse $transactionResponse)

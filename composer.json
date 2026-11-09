@@ -11,9 +11,27 @@
             "role": "Developer"
         }
     ],
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../../../sdk-adapter",
+            "options": {
+                "symlink": false
+            }
+        },
+        {
+            "type": "path",
+            "url": "../../../../upg-sdk",
+            "options": {
+                "symlink": false
+            }
+        }
+    ],
     "require": {
-        "php": ">=7.4",
-        "buckaroo/sdk": "^1.24.5"
+        "php": ">=8.2",
+        "buckaroo/sdk": "^1.24.5",
+        "buckaroo/sdk-adapter": "*@dev",
+        "buckaroo/upg-sdk": "*@dev"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.9",
@@ -33,7 +51,9 @@
             "classmap_directory": "/vendor_buckaroo/Classmap/",
             "classmap_prefix": "BuckarooDeps_",
             "packages": [
-                "buckaroo/sdk"
+                "buckaroo/sdk",
+                "buckaroo/sdk-adapter",
+                "buckaroo/upg-sdk"
             ],
             "delete_vendor_directories": true
         }
@@ -61,7 +81,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.4.33"
+            "php": "8.2.0"
         },
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true

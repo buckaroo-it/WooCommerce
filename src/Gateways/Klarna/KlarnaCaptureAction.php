@@ -109,7 +109,7 @@ class KlarnaCaptureAction
 
             $response = null;
             try {
-                $response = $this->buckarooClient->process($this->paymentProcessor, $payload);
+                $response = $this->buckarooClient->process($this->paymentProcessor, $payload)->raw();
                 $result = $this->finalize($response, $articles);
             } catch (Throwable $exception) {
                 $transactionKey = $response instanceof TransactionResponse

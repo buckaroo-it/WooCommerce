@@ -13,7 +13,9 @@ use Buckaroo\Woocommerce\Gateways\BuckarooBlocks;
 use Buckaroo\Woocommerce\Gateways\BuckarooExpressBlocks;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
+use Buckaroo\Woocommerce\PaymentProcessors\UpgWebhookProcessor;
 use Buckaroo\Woocommerce\Services\Helper;
+use Buckaroo\Woocommerce\Services\UpgSettings;
 
 class InitGateways
 {
@@ -21,6 +23,7 @@ class InitGateways
     {
         add_action('enqueue_block_assets', [$this, 'initGatewaysOnCheckout']);
         add_action('woocommerce_api_wc_push_buckaroo', [$this, 'pushClassInit']);
+        add_action('woocommerce_api_' . UpgSettings::WEBHOOK_ACTION, [$this, 'upgWebhookInit']);
         add_filter('woocommerce_gateway_icon', [$this, 'prependTestModeBadge'], 10, 2);
 
         add_action('woocommerce_blocks_payment_method_type_registration', [$this, 'registerBuckarooExpressBlocks']);
@@ -67,6 +70,12 @@ class InitGateways
     public function pushClassInit()
     {
         (new PushProcessor())->handle();
+        exit;
+    }
+
+    public function upgWebhookInit()
+    {
+        status_header((new UpgWebhookProcessor())->handleRequest());
         exit;
     }
 

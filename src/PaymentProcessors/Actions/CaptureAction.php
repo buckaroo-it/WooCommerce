@@ -69,7 +69,7 @@ class CaptureAction
 
         $response = null;
         try {
-            $response = $this->buckarooClient->process($this->paymentProcessor, $this->payload);
+            $response = $this->buckarooClient->process($this->paymentProcessor, $this->payload)->raw();
 
             return $this->finalize($response);
         } catch (Throwable $exception) {

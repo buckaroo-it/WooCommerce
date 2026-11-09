@@ -5,8 +5,9 @@ namespace Buckaroo\Woocommerce\Gateways\ZakelijkOpRekening\Sdk;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Logger;
+use BuckarooDeps\Buckaroo\Adapter\Bpe\BpeResult;
+use BuckarooDeps\Buckaroo\Adapter\Contracts\Result;
 use BuckarooDeps\Buckaroo\Services\PayloadService;
-use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 
 /**
  * Sends In3 Capture through ZakelijkOpRekeningPaymentMethod.
@@ -14,7 +15,7 @@ use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
  */
 class ZakelijkOpRekeningClient extends BuckarooClient
 {
-    public function process(AbstractProcessor $processor, array $additionalData = []): TransactionResponse
+    public function process(AbstractProcessor $processor, array $additionalData = []): Result
     {
         $serviceCode = $processor->gateway->getServiceCode($processor);
         $requestData = array_merge($processor->getBody(), $additionalData);
@@ -24,6 +25,6 @@ class ZakelijkOpRekeningClient extends BuckarooClient
         $method = new ZakelijkOpRekeningPaymentMethod($this->client(), $serviceCode);
         $method->setPayload((new PayloadService($requestData))->toArray());
 
-        return $method->capture();
+        return new BpeResult($method->capture());
     }
 }

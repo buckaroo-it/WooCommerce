@@ -13,12 +13,15 @@ use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\PayAction;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
+use Buckaroo\Woocommerce\ResponseParser\UpgResponseParser;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Services\Request;
 use Buckaroo\Woocommerce\Services\SessionHandler;
+use Buckaroo\Woocommerce\Services\UpgSettings;
 use Exception;
+use Throwable;
 use WC_Order;
 use WC_Order_Refund;
 use WC_Payment_Gateway;
@@ -685,12 +688,44 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     }
 
     /**
+     * The consumer comes back: a UPG return first, otherwise the BPE return as before.
+     *
+     * @return array|null the redirect to send the consumer to, or null for the failed page
+     */
+    public function handleReturn()
+    {
+        // Without a UPG key for this mode there is no UPG return: the BPE path runs exactly as before.
+        if (UpgSettings::hasKey($this->getMode())) {
+            try {
+                $upgResult = (new BuckarooClient($this->getMode()))->returned(stripslashes_deep($_GET));
+            } catch (Throwable $e) {
+                Logger::log(__METHOD__, 'UPG return could not be read: ' . $e->getMessage());
+                wc_add_notice(__('We could not confirm your payment yet. If you already paid, please do not pay again: you will receive a confirmation by email.', 'wc-buckaroo-bpe-gateway'), 'notice');
+
+                return null;
+            }
+
+            if ($upgResult !== null) {
+                if (UpgResponseParser::orderToUpdate($upgResult) === null) {
+                    Logger::log(__METHOD__, 'UPG return for an unknown order or an attempt that may not change it; nothing changed.');
+
+                    return null;
+                }
+
+                return ReturnProcessor::forUpg($upgResult, $this, false)->handle($this);
+            }
+        }
+
+        return (new ReturnProcessor(stripslashes_deep($_POST ?? $_GET)))->handle($this);
+    }
+
+    /**
      * Check response data
      */
     public function response_handler()
     {
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
-        $result = (new ReturnProcessor(stripslashes_deep($_POST ?? $_GET)))->handle($this);
+        $result = $this->handleReturn();
 
         if (! is_null($result)) {
             wp_safe_redirect($result['redirect']);
