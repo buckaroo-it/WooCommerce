@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 use Buckaroo\Woocommerce\Admin\GeneralSettings;
 use Buckaroo\Woocommerce\Admin\PaymentMethodSettings;
-use PHPUnit\Framework\TestCase;
 
-class Test_RedirectNoticeSettings extends TestCase
+class Test_RedirectNoticeSettings extends WP_UnitTestCase
 {
     public function test_redirect_notice_setting_is_enabled_until_merchant_turns_it_off(): void
     {

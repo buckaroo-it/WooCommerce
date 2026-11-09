@@ -2,9 +2,14 @@ import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { __ } from '@wordpress/i18n';
+import { TextFieldWrapper } from '../components/CheckoutFields';
 
 function BirthDayField({ paymentMethod, handleBirthDayChange, locale = { siteLocale: 'en-GB' } }) {
     const [birthdate, setBirthdate] = useState(null);
+    const [isFocused, setIsFocused] = useState(false);
+    // Text typed but not (yet) parsed as a date leaves birthdate null.
+    const [typedValue, setTypedValue] = useState('');
+    const isActive = isFocused || birthdate !== null || typedValue !== '';
 
     const localeFormatMap = {
         nl_NL: 'DD-MM-JJJJ',
@@ -25,21 +30,33 @@ function BirthDayField({ paymentMethod, handleBirthDayChange, locale = { siteLoc
     };
 
     return (
-        <div className="form-row form-row-wide validate-required">
-            <label htmlFor={`${paymentMethod}-birthdate`}>
-                {__('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway')}
-                <span className="required">*</span>
-            </label>
-
+        <TextFieldWrapper
+            id={`${paymentMethod}-birthdate`}
+            label={__('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway')}
+            isActive={isActive}
+        >
             <DatePicker
                 id={`${paymentMethod}-birthdate`}
                 name={`${paymentMethod}-birthdate`}
                 selected={birthdate}
                 onChange={handleDateChange}
-                dateFormat="dd-MM-yyyy"
-                className="input-text"
+                onChangeRaw={e => {
+                    // Also fires for calendar clicks, whose target is not the input.
+                    if (typeof e?.target?.value === 'string') {
+                        setTypedValue(e.target.value);
+                    }
+                }}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                onCalendarClose={() => setIsFocused(false)}
+                // The first format is used for display. A single string format makes
+                // react-datepicker fall back to `new Date(value)` when parsing fails,
+                // which reads 10/04/1999 as month-first (4 October); a list has no fallback.
+                dateFormat={['dd-MM-yyyy', 'd-M-yyyy', 'd/M/yyyy', 'd.M.yyyy']}
                 autoComplete="off"
-                placeholderText={localeFormatMap[locale.siteLocale] || localeFormatMap.default}
+                ariaRequired="true"
+                // The floating label covers the input until it is active.
+                placeholderText={isActive ? localeFormatMap[locale.siteLocale] || localeFormatMap.default : ''}
                 showYearDropdown
                 scrollableYearDropdown
                 yearDropdownItemNumber={100}
@@ -47,7 +64,7 @@ function BirthDayField({ paymentMethod, handleBirthDayChange, locale = { siteLoc
                 maxDate={new Date()}
                 showMonthDropdown
             />
-        </div>
+        </TextFieldWrapper>
     );
 }
 

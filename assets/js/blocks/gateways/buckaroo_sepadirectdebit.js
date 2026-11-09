@@ -1,6 +1,7 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import useFormData from '../hooks/useFormData';
+import { TextField } from '../components/CheckoutFields';
 
 function SepaDirectDebitForm({ onStateChange, methodName, billing }) {
     const initialState = {
@@ -13,55 +14,31 @@ function SepaDirectDebitForm({ onStateChange, methodName, billing }) {
 
     return (
         <div>
-            <div className="form-row form-row-wide validate-required">
-                <label htmlFor="buckaroo-sepadirectdebit-accountname">
-                    <span className="required">*</span>
-                    {__('Bank account holder:', 'wc-buckaroo-bpe-gateway')}
-                </label>
-                <input
-                    id="buckaroo-sepadirectdebit-accountname"
-                    name="buckaroo-sepadirectdebit-accountname"
-                    className="input-text"
-                    type="text"
-                    maxLength="250"
-                    autoComplete="off"
-                    value={formState[`${methodName}-accountname`]}
-                    onChange={handleChange}
-                />
-            </div>
-            <div className="form-row form-row-wide validate-required">
-                <label htmlFor="buckaroo-sepadirectdebit-iban">
-                    {__('IBAN:', 'wc-buckaroo-bpe-gateway')}
-                    <span className="required">*</span>
-                </label>
-                <input
-                    id="buckaroo-sepadirectdebit-iban"
-                    name="buckaroo-sepadirectdebit-iban"
-                    className="input-text"
-                    type="text"
-                    maxLength="25"
-                    autoComplete="off"
-                    value={formState[`${methodName}-iban`]}
-                    onChange={handleChange}
-                />
-            </div>
-            <div className="form-row form-row-wide">
-                <label htmlFor="buckaroo-sepadirectdebit-bic">{__('BIC:', 'wc-buckaroo-bpe-gateway')}</label>
-                <input
-                    id="buckaroo-sepadirectdebit-bic"
-                    name="buckaroo-sepadirectdebit-bic"
-                    className="input-text"
-                    type="text"
-                    maxLength="11"
-                    autoComplete="off"
-                    value={formState[`${methodName}-bic`]}
-                    onChange={handleChange}
-                />
-            </div>
-            <div className="required" style={{ float: 'right' }}>
-                *{__('Required', 'wc-buckaroo-bpe-gateway')}
-            </div>
-            <br />
+            <TextField
+                id="buckaroo-sepadirectdebit-accountname"
+                label={__('Bank account holder:', 'wc-buckaroo-bpe-gateway')}
+                maxLength="250"
+                autoComplete="off"
+                value={formState[`${methodName}-accountname`]}
+                onChange={handleChange}
+            />
+            <TextField
+                id="buckaroo-sepadirectdebit-iban"
+                label={__('IBAN:', 'wc-buckaroo-bpe-gateway')}
+                maxLength="25"
+                autoComplete="off"
+                value={formState[`${methodName}-iban`]}
+                onChange={handleChange}
+            />
+            <TextField
+                id="buckaroo-sepadirectdebit-bic"
+                label={__('BIC:', 'wc-buckaroo-bpe-gateway')}
+                required={false}
+                maxLength="11"
+                autoComplete="off"
+                value={formState[`${methodName}-bic`]}
+                onChange={handleChange}
+            />
         </div>
     );
 }

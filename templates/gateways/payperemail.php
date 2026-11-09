@@ -25,51 +25,42 @@ $customerEmail = $this->getScalarCheckoutField('billing_email');
 <fieldset>
 
 <?php
-    $this->getPaymentTemplate('partial_gender_field');
+$this->getPaymentTemplate('partial_gender_field');
+
+woocommerce_form_field(
+    'buckaroo-payperemail-firstname',
+    [
+        'type' => 'text',
+        'label' => __('First Name:', 'wc-buckaroo-bpe-gateway'),
+        'required' => true,
+        'autocomplete' => 'off',
+        'class' => ['form-row-wide'],
+    ],
+    $customerFirstName
+);
+
+woocommerce_form_field(
+    'buckaroo-payperemail-lastname',
+    [
+        'type' => 'text',
+        'label' => __('Last Name:', 'wc-buckaroo-bpe-gateway'),
+        'required' => true,
+        'autocomplete' => 'off',
+        'class' => ['form-row-wide'],
+    ],
+    $customerLastName
+);
+
+woocommerce_form_field(
+    'buckaroo-payperemail-email',
+    [
+        'type' => 'email',
+        'label' => __('Email:', 'wc-buckaroo-bpe-gateway'),
+        'required' => true,
+        'autocomplete' => 'off',
+        'class' => ['form-row-wide'],
+    ],
+    $customerEmail
+);
 ?>
-
-<p class="form-row validate-required">
-    <label for="buckaroo-payperemail-firstname">
-        <?php esc_html_e('First Name:', 'wc-buckaroo-bpe-gateway'); ?>
-        <span class="required">*</span>
-    </label>
-    <input
-    id="buckaroo-payperemail-firstname"
-    name="buckaroo-payperemail-firstname"
-    class="input-text"
-    type="text"
-    autocomplete="off"
-    value="<?php echo esc_html($customerFirstName) ?? ''; ?>">
-</p>
-
-<p class="form-row validate-required">
-    <label for="buckaroo-payperemail-lastname">
-        <?php esc_html_e('Last Name:', 'wc-buckaroo-bpe-gateway'); ?>
-        <span class="required">*</span>
-    </label>
-    <input
-    id="buckaroo-payperemail-lastname"
-    name="buckaroo-payperemail-lastname"
-    class="input-text"
-    type="text"
-    autocomplete="off"
-    value="<?php echo esc_html($customerLastName) ?? ''; ?>">
-</p>
-
-<p class="form-row validate-required">
-    <label for="buckaroo-payperemail-email">
-        <?php esc_html_e('Email:', 'wc-buckaroo-bpe-gateway'); ?>
-        <span class="required">*</span>
-    </label>
-    <input
-    id="buckaroo-payperemail-email"
-    name="buckaroo-payperemail-email"
-    type="email"
-    autocomplete="off"
-    value="<?php echo esc_html($customerEmail) ?? ''; ?>">
-</p>
-
-<p class="required" style="float:right;">
-    * <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
-</p>
 </fieldset>

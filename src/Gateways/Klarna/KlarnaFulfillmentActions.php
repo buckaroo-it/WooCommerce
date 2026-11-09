@@ -4,8 +4,12 @@ namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateOrderMetaToHpos;
 use Buckaroo\Woocommerce\Order\CaptureAllocation;
+use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\PaymentProcessors\Actions\CaptureResult;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
+use Buckaroo\Woocommerce\Services\Helper;
+use Buckaroo\Woocommerce\Services\Logger;
+use Throwable;
 use WC_Order;
 
 class KlarnaFulfillmentActions
@@ -18,7 +22,12 @@ class KlarnaFulfillmentActions
 
     public const CHECK_CAPTURE_HOOK = 'buckaroo_klarnapay_check_capture';
 
+    public const RELEASE_RESERVATION_HOOK = 'buckaroo_klarnapay_release_reservation';
+
     public const ACTION_GROUP = 'buckaroo-klarna-capture';
+
+    /** Set on a digital-only order that the authorization itself completed. */
+    public const CAPTURE_ON_PAYMENT_META_KEY = '_buckaroo_klarna_capture_on_payment';
 
     private const MAX_QUEUE_ATTEMPTS = 3;
 
@@ -50,10 +59,45 @@ class KlarnaFulfillmentActions
         add_action('woocommerce_order_action_buckaroo_klarnapay_retry_capture', [$this, 'handle_retry_capture'], 10, 1);
         add_action('woocommerce_order_action_buckaroo_klarnapay_check_capture', [$this, 'handle_check_capture'], 10, 1);
         add_action('woocommerce_order_status_completed', [$this, 'handle_completed_order'], 10, 1);
+        add_action('woocommerce_order_status_cancelled', [$this, 'handle_cancelled_order'], 10, 1);
         add_action(self::QUEUE_CAPTURE_HOOK, [$this, 'handle_completed_order'], 10, 2);
         add_action(self::AUTOMATIC_CAPTURE_HOOK, [$this, 'handle_automatic_capture'], 10, 3);
         add_action(self::RECOVER_CAPTURE_HOOK, [$this, 'handle_recover_capture'], 10, 2);
         add_action(self::CHECK_CAPTURE_HOOK, [$this, 'handle_scheduled_check_capture'], 10, 3);
+        add_action(self::RELEASE_RESERVATION_HOOK, [$this, 'handle_release_reservation'], 10, 1);
+    }
+
+    /**
+     * Once the reserved amount is fully captured the order is paid and fulfilled: mark it
+     * paid if it was still on hold, then complete it. Partial captures leave it unchanged,
+     * and completing it here does not capture again, since nothing remains to capture.
+     * A cancelled or refunded order keeps its status: payment_complete() would revive a
+     * cancelled order, so the merchant gets a note to settle the capture instead.
+     */
+    public static function completeWhenFullyCaptured(WC_Order $order, string $transactionKey): void
+    {
+        $captureTarget = KlarnaProcessor::getReservedAmount($order) ?? (float) $order->get_total('edit');
+        $capturedAmount = (float) OrderMeta::get($order, '_wc_order_amount_captured');
+        if (Helper::roundAmount($capturedAmount) < Helper::roundAmount($captureTarget)) {
+            return;
+        }
+
+        if ($order->has_status(['cancelled', 'refunded'])) {
+            $order->add_order_note(
+                __('The Klarna payment was fully captured, but the order is cancelled or refunded, so its status was not changed. Refund the captured amount if the order should stay closed.', 'wc-buckaroo-bpe-gateway')
+            );
+
+            return;
+        }
+
+        $order->payment_complete($transactionKey);
+
+        if ($order->has_status(['processing', 'on-hold'])) {
+            $order->update_status(
+                'completed',
+                __('Klarna payment fully captured.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
     }
 
     public function handle_completed_order($orderId, $queueAttempt = 0): void
@@ -67,12 +111,11 @@ class KlarnaFulfillmentActions
             return;
         }
 
-        $gateway = $this->gateway();
-        if ($gateway->get_option('automatic_capture', 'no') !== 'yes') {
+        if (! $this->capturesOnCompleted($order)) {
             return;
         }
 
-        if ($order->get_meta('buckaroo_is_reserved') !== 'yes') {
+        if (! $this->hasOpenReservation($order)) {
             return;
         }
 
@@ -85,11 +128,8 @@ class KlarnaFulfillmentActions
             return;
         }
 
-        MigrateOrderMetaToHpos::ensureOrderMigrated($order);
-        $order->read_meta_data(true);
-
-        $reservedAmount = $order->get_meta(KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
-        if (! is_numeric($reservedAmount)) {
+        $reservedAmount = KlarnaProcessor::getReservedAmount($order);
+        if ($reservedAmount === null) {
             $order->add_order_note(
                 __('Automatic Klarna capture was skipped because the reserved amount is unknown.', 'wc-buckaroo-bpe-gateway')
             );
@@ -127,6 +167,83 @@ class KlarnaFulfillmentActions
                 KlarnaCaptureAttempt::recordAttention($order, $failed);
             }
         }
+    }
+
+    /**
+     * Queue the release of the open Klarna reservation of a cancelled order, so bulk
+     * and automated cancellations do not wait on the Buckaroo API.
+     * Keyed on the reservation itself, so orders left On hold by older versions work too.
+     */
+    public function handle_cancelled_order($orderId): void
+    {
+        $order = wc_get_order($orderId);
+        if (! $order instanceof WC_Order || ! $this->hasOpenReservation($order)) {
+            return;
+        }
+
+        $args = [$order->get_id()];
+        if (
+            function_exists('as_enqueue_async_action') &&
+            (
+                as_enqueue_async_action(self::RELEASE_RESERVATION_HOOK, $args, self::ACTION_GROUP, true) ||
+                (function_exists('as_has_scheduled_action') && as_has_scheduled_action(self::RELEASE_RESERVATION_HOOK, $args, self::ACTION_GROUP))
+            )
+        ) {
+            return;
+        }
+
+        $this->handle_release_reservation($order->get_id());
+    }
+
+    /**
+     * Release the open Klarna reservation of a cancelled order that was not captured.
+     */
+    public function handle_release_reservation($orderId): void
+    {
+        $order = wc_get_order($orderId);
+        if (
+            ! $order instanceof WC_Order ||
+            $order->get_status() !== 'cancelled' ||
+            ! $this->hasOpenReservation($order)
+        ) {
+            return;
+        }
+
+        if (
+            KlarnaCaptureAttempt::hasStartedCapture($order) ||
+            OrderMeta::get($order, '_wc_order_captures', false) !== []
+        ) {
+            $order->add_order_note(
+                __('The Klarna authorization was not released automatically because a capture was already made or is in progress. Use the "Klarna: Cancel reservation" order action to release what is left.', 'wc-buckaroo-bpe-gateway')
+            );
+
+            return;
+        }
+
+        try {
+            $released = $this->gateway()->release_reservation($order, $this->buckarooClient);
+        } catch (Throwable $e) {
+            Logger::log(__METHOD__, $e->getMessage());
+            $released = false;
+        }
+
+        $order->add_order_note(
+            $released
+                ? __('The Klarna authorization was released because the order was cancelled.', 'wc-buckaroo-bpe-gateway')
+                : __('The Klarna authorization could not be released automatically. It may already have been released or expired; otherwise use the "Klarna: Cancel reservation" order action to release it.', 'wc-buckaroo-bpe-gateway')
+        );
+    }
+
+    private function hasOpenReservation(WC_Order $order): bool
+    {
+        if ($order->get_payment_method() !== 'buckaroo_klarnapay') {
+            return false;
+        }
+
+        MigrateOrderMetaToHpos::ensureOrderMigrated($order);
+        $order->read_meta_data(true);
+
+        return $order->get_meta('buckaroo_is_reserved') === 'yes';
     }
 
     public function handle_automatic_capture($orderId, $attemptNumber, $rescheduleAttempt = 0): void
@@ -490,11 +607,21 @@ class KlarnaFulfillmentActions
             return __('Automatic Klarna capture was skipped because the Data Request key is missing.', 'wc-buckaroo-bpe-gateway');
         }
 
-        if ($this->gateway()->get_option('automatic_capture', 'no') !== 'yes') {
+        if (! $this->capturesOnCompleted($order)) {
             return __('Automatic Klarna capture was skipped because automatic capture is disabled.', 'wc-buckaroo-bpe-gateway');
         }
 
         return '';
+    }
+
+    /**
+     * Completed captures when automatic capture is on, or when the payment itself
+     * completed a digital-only order (see KlarnaPushProcessor::handleReservation()).
+     */
+    private function capturesOnCompleted(WC_Order $order): bool
+    {
+        return KlarnaPayGateway::isAutomaticCaptureEnabled() ||
+            $order->get_meta(self::CAPTURE_ON_PAYMENT_META_KEY) === 'yes';
     }
 
     /**
@@ -515,10 +642,16 @@ class KlarnaFulfillmentActions
             $order = $theorder;
         }
 
-        if (
-            $order->get_payment_method() !== 'buckaroo_klarnapay' ||
-            $order->get_meta('buckaroo_is_reserved') !== 'yes'
-        ) {
+        if ($order->get_payment_method() !== 'buckaroo_klarnapay') {
+            return $actions;
+        }
+
+        // An unconfirmed capture stays checkable after the rest of the reservation was released.
+        if (current_user_can('edit_shop_orders') && KlarnaCaptureAttempt::canCheckStatus($order)) {
+            $actions['buckaroo_klarnapay_check_capture'] = esc_html__('Klarna: Check capture status', 'wc-buckaroo-bpe-gateway');
+        }
+
+        if ($order->get_meta('buckaroo_is_reserved') !== 'yes') {
             return $actions;
         }
 
@@ -526,10 +659,6 @@ class KlarnaFulfillmentActions
 
         if (current_user_can('edit_shop_orders') && KlarnaCaptureAttempt::canRetry($order)) {
             $actions['buckaroo_klarnapay_retry_capture'] = esc_html__('Klarna: Retry capture', 'wc-buckaroo-bpe-gateway');
-        }
-
-        if (current_user_can('edit_shop_orders') && KlarnaCaptureAttempt::canCheckStatus($order)) {
-            $actions['buckaroo_klarnapay_check_capture'] = esc_html__('Klarna: Check capture status', 'wc-buckaroo-bpe-gateway');
         }
 
         return $actions;
@@ -541,10 +670,9 @@ class KlarnaFulfillmentActions
             return;
         }
 
-        $reservedAmount = $order->get_meta(KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
         $allocation = CaptureAllocation::remainingForOrder(
             $order,
-            is_numeric($reservedAmount) ? (float) $reservedAmount : null
+            KlarnaProcessor::getReservedAmount($order)
         );
         $attempt = KlarnaCaptureAttempt::retry($order, $allocation);
         if ($attempt === null) {

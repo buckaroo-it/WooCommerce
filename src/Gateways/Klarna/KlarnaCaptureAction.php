@@ -82,9 +82,10 @@ class KlarnaCaptureAction
         }
 
         try {
-            $reservedAmount = OrderMeta::get($this->order, KlarnaProcessor::RESERVED_AMOUNT_META_KEY);
-            $maximumAmount = is_numeric($reservedAmount) ? (float) $reservedAmount : null;
-            $available = CaptureAllocation::remainingForOrder($this->order, $maximumAmount);
+            $available = CaptureAllocation::remainingForOrder(
+                $this->order,
+                KlarnaProcessor::getReservedAmount($this->order)
+            );
             if (! $this->allocation->isWithin($available)) {
                 $result = CaptureResult::failed(__('The selected amount is no longer available to capture.', 'wc-buckaroo-bpe-gateway'));
                 $this->recordAttemptResult($result);
@@ -129,7 +130,7 @@ class KlarnaCaptureAction
     private function finalize(TransactionResponse $response, array $products): CaptureResult
     {
         if ($response->isSuccess()) {
-            return CaptureRecorder::record(
+            $result = CaptureRecorder::record(
                 $this->order,
                 $this->captureAmount,
                 $this->order->get_currency(),
@@ -138,6 +139,11 @@ class KlarnaCaptureAction
                 $response->toArray(),
                 $products
             );
+            if ($result->isSuccess()) {
+                KlarnaFulfillmentActions::completeWhenFullyCaptured($this->order, (string) $response->getTransactionKey());
+            }
+
+            return $result;
         }
 
         if (CaptureResult::isPendingStatusCode($response->getStatusCode())) {

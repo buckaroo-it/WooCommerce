@@ -23,49 +23,41 @@ $customer_name .= ' ' . $this->getScalarCheckoutField('billing_last_name');
 ?>
 
 <fieldset>
-    <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-sepadirectdebit-accountname">
-            <?php esc_html_e('Bank account holder:', 'wc-buckaroo-bpe-gateway'); ?>
-            <span class="required">*</span>
-        </label>
-        <input
-        id="buckaroo-sepadirectdebit-accountname"
-        name="buckaroo-sepadirectdebit-accountname"
-        class="input-text"
-        type="text"
-        maxlength="250"
-        autocomplete="off"
-        value="<?php echo esc_html($customer_name); ?>" />
-    </p>
-    <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-sepadirectdebit-iban">
-            <?php esc_html_e('IBAN:', 'wc-buckaroo-bpe-gateway'); ?>
-            <span class="required">*</span>
-        </label>
-        <input
-        id="buckaroo-sepadirectdebit-iban"
-        name="buckaroo-sepadirectdebit-iban"
-        class="input-text"
-        type="text"
-        maxlength="25"
-        autocomplete="off"
-        value=""
-        />
-    </p>
-    <p class="form-row form-row-wide">
-        <label for="buckaroo-sepadirectdebit-bic">
-            <?php esc_html_e('BIC:', 'wc-buckaroo-bpe-gateway'); ?>
-        </label>
-        <input
-        id="buckaroo-sepadirectdebit-bic"
-        name="buckaroo-sepadirectdebit-bic"
-        class="input-text"
-        type="text"
-        maxlength="11"
-        autocomplete="off"
-        value=""/>
-    </p>
-    <p class="required" style="float:right;">
-        * <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
-    </p>
+    <?php
+    woocommerce_form_field(
+        'buckaroo-sepadirectdebit-accountname',
+        [
+            'type' => 'text',
+            'label' => __('Bank account holder:', 'wc-buckaroo-bpe-gateway'),
+            'required' => true,
+            'maxlength' => 250,
+            'autocomplete' => 'off',
+            'class' => ['form-row-wide'],
+        ],
+        $customer_name
+    );
+
+    woocommerce_form_field(
+        'buckaroo-sepadirectdebit-iban',
+        [
+            'type' => 'text',
+            'label' => __('IBAN:', 'wc-buckaroo-bpe-gateway'),
+            'required' => true,
+            'maxlength' => 25,
+            'autocomplete' => 'off',
+            'class' => ['form-row-wide'],
+        ]
+    );
+
+    woocommerce_form_field(
+        'buckaroo-sepadirectdebit-bic',
+        [
+            'type' => 'text',
+            'label' => __('BIC:', 'wc-buckaroo-bpe-gateway'),
+            'maxlength' => 11,
+            'autocomplete' => 'off',
+            'class' => ['form-row-wide'],
+        ]
+    );
+    ?>
 </fieldset>

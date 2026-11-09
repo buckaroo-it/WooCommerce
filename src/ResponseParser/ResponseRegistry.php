@@ -3,7 +3,6 @@
 namespace Buckaroo\Woocommerce\ResponseParser;
 
 use Buckaroo\Woocommerce\Constraints\BuckarooTransactionStatus;
-use Buckaroo\Woocommerce\Gateways\Transfer\TransferResponse;
 
 class ResponseRegistry
 {
@@ -15,12 +14,7 @@ class ResponseRegistry
             $responseParser->set('coreStatus', BuckarooTransactionStatus::fromTransactionStatus($responseParser->getStatusCode()));
         }
 
-        switch ($responseParser->getPaymentMethod()) {
-            case 'transfer':
-                return (new TransferResponse($responseParser))->toResponse();
-            default:
-                return $responseParser;
-        }
+        return $responseParser;
     }
 
     final public static function getResponseFromRequest(): ResponseParser

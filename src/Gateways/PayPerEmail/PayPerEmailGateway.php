@@ -269,6 +269,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway
         add_action(
             'woocommerce_order_action_buckaroo_send_admin_payperemail',
             function ($order) {
+                $this->merchantInitiated = true;
                 // WooCommerce's order-save request returns to the order screen on its own.
                 $this->process_payment($order->get_id());
             }
@@ -279,6 +280,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway
             function () {
                 $orderId = absint($_GET['order_id'] ?? 0);
                 $this->verifyAdminOrderActionRequest($orderId);
+                $this->merchantInitiated = true;
                 $this->process_payment($orderId);
                 wp_safe_redirect(wp_get_referer() ?: admin_url('edit.php?post_type=shop_order'));
                 exit;
@@ -289,6 +291,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway
             'woocommerce_order_action_buckaroo_create_paylink',
             function ($order) {
                 $this->usePayPerLink = true;
+                $this->merchantInitiated = true;
                 // WooCommerce's order-save request returns to the order screen on its own.
                 $this->process_payment($order->get_id());
             }
@@ -300,6 +303,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway
                 $orderId = absint($_GET['order_id'] ?? 0);
                 $this->verifyAdminOrderActionRequest($orderId);
                 $this->usePayPerLink = true;
+                $this->merchantInitiated = true;
                 $this->process_payment($orderId);
 
                 wp_safe_redirect(wp_get_referer() ?: admin_url('edit.php?post_type=shop_order'));

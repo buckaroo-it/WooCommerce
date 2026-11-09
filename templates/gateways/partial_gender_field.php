@@ -23,18 +23,19 @@ $section_id = str_replace('_', '-', $this->id);
 
 $allGenders = Helper::getAllGendersForPaymentMethods();
 $genderVal = $allGenders[$section_id] ?? [];
-?>
-<p class="form-row">
-    <label for="<?php echo esc_attr($section_id); ?>-gender">
-        <?php echo __('Gender:', 'wc-buckaroo-bpe-gateway'); ?>
-        <span class="required">*</span>
-    </label>
-    <select name="<?php echo esc_attr($section_id); ?>-gender" id="<?php echo esc_attr($section_id); ?>-gender">
-        <?php
-        foreach ($genderVal as $key => $value) {
-            $translatedLabel = Helper::translateGender($key);
-            echo '<option value="' . esc_attr($value) . '">' . esc_html($translatedLabel) . '</option>';
-        }
-        ?>
-    </select>
-</p>
+
+$genderOptions = [];
+foreach ($genderVal as $key => $value) {
+    $genderOptions[$value] = Helper::translateGender($key);
+}
+
+woocommerce_form_field(
+    $section_id . '-gender',
+    [
+        'type' => 'select',
+        'label' => __('Gender:', 'wc-buckaroo-bpe-gateway'),
+        'required' => true,
+        'options' => $genderOptions,
+        'class' => ['form-row-wide'],
+    ]
+);

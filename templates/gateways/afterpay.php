@@ -29,22 +29,20 @@ $customer_phone = $this->getScalarCheckoutField('billing_phone');
         $this->getPaymentTemplate('partial_afterpay_b2b');
     }
     $this->getPaymentTemplate('partial_birth_field');
-    ?>
-    <?php if (strlen(trim($customer_phone)) === 0) { ?>
-    <p class="form-row validate-required">
-        <label for="buckaroo-afterpay-phone">
-            <?php esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway'); ?>
-            <span class="required">*</span>
-        </label>
 
-        <input id="buckaroo-afterpay-phone"
-        name="buckaroo-afterpay-phone"
-        class="input-tel"
-        type="tel"
-        autocomplete="off"
-        value="<?php echo esc_html($customer_phone) ?? ''; ?>">
-    </p>
-    <?php } ?>
+    if (strlen(trim($customer_phone)) === 0) {
+        woocommerce_form_field(
+            'buckaroo-afterpay-phone',
+            [
+                'type' => 'tel',
+                'label' => __('Phone:', 'wc-buckaroo-bpe-gateway'),
+                'required' => true,
+                'autocomplete' => 'off',
+                'class' => ['form-row-wide'],
+            ]
+        );
+    }
+    ?>
     <?php
     if (! empty($this->getScalarCheckoutField('ship_to_different_address'))) {
         ?>
@@ -58,21 +56,15 @@ $customer_phone = $this->getScalarCheckoutField('billing_phone');
     ?>
     <?php
     if ($this->type == 'afterpayacceptgiro') {
-        ?>
-        <p class="form-row form-row-wide validate-required">
-            <label for="buckaroo-afterpay-company-coc-registration">
-                <?php esc_html_e('IBAN:', 'wc-buckaroo-bpe-gateway'); ?>
-                <span class="required">*</span>
-            </label>
-            
-            <input 
-            id="buckaroo-afterpay-company-coc-registration"
-            name="buckaroo-afterpay-company-coc-registration"
-            class="input-text"
-            type="text"
-            value="" />
-        </p>
-        <?php
+        woocommerce_form_field(
+            'buckaroo-afterpay-company-coc-registration',
+            [
+                'type' => 'text',
+                'label' => __('IBAN:', 'wc-buckaroo-bpe-gateway'),
+                'required' => true,
+                'class' => ['form-row-wide'],
+            ]
+        );
     }
     $this->getPaymentTemplate('partial_afterpay_tos');
     ?>

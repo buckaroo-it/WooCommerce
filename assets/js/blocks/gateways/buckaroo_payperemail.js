@@ -2,6 +2,7 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import GenderDropdown from '../partials/buckaroo_gender';
 import useFormData from '../hooks/useFormData';
+import { TextField } from '../components/CheckoutFields';
 
 function PayPerEmailForm({ onStateChange, methodName, gateway: { genders }, billing }) {
     const initialState = {
@@ -17,58 +18,30 @@ function PayPerEmailForm({ onStateChange, methodName, gateway: { genders }, bill
         <div>
             <GenderDropdown paymentMethod={methodName} genders={genders} handleChange={handleChange} />
 
-            <div className="form-row validate-required">
-                <label htmlFor="buckaroo-payperemail-firstname">
-                    {__('First Name:', 'wc-buckaroo-bpe-gateway')}
-                    <span className="required">*</span>
-                </label>
-                <input
-                    id="buckaroo-payperemail-firstname"
-                    name="buckaroo-payperemail-firstname"
-                    className="input-text"
-                    type="text"
-                    autoComplete="off"
-                    value={formState[`${methodName}-firstname`] || ''}
-                    onChange={handleChange}
-                />
-            </div>
+            <TextField
+                id="buckaroo-payperemail-firstname"
+                label={__('First Name:', 'wc-buckaroo-bpe-gateway')}
+                autoComplete="off"
+                value={formState[`${methodName}-firstname`] || ''}
+                onChange={handleChange}
+            />
 
-            <div className="form-row validate-required">
-                <label htmlFor="buckaroo-payperemail-lastname">
-                    {__('Last Name:', 'wc-buckaroo-bpe-gateway')}
-                    <span className="required">*</span>
-                </label>
-                <input
-                    id="buckaroo-payperemail-lastname"
-                    name="buckaroo-payperemail-lastname"
-                    className="input-text"
-                    type="text"
-                    autoComplete="off"
-                    value={formState[`${methodName}-lastname`] || ''}
-                    onChange={handleChange}
-                />
-            </div>
+            <TextField
+                id="buckaroo-payperemail-lastname"
+                label={__('Last Name:', 'wc-buckaroo-bpe-gateway')}
+                autoComplete="off"
+                value={formState[`${methodName}-lastname`] || ''}
+                onChange={handleChange}
+            />
 
-            <div className="form-row validate-required">
-                <label htmlFor="buckaroo-payperemail-email">
-                    {__('Email:', 'wc-buckaroo-bpe-gateway')}
-                    <span className="required">*</span>
-                </label>
-                <input
-                    id="buckaroo-payperemail-email"
-                    name="buckaroo-payperemail-email"
-                    className="input-text"
-                    type="email"
-                    autoComplete="off"
-                    value={formState[`${methodName}-email`] || ''}
-                    onChange={handleChange}
-                />
-            </div>
-
-            <div className="required" style={{ float: 'right' }}>
-                *{__('Required', 'wc-buckaroo-bpe-gateway')}
-            </div>
-            <br />
+            <TextField
+                id="buckaroo-payperemail-email"
+                label={__('Email:', 'wc-buckaroo-bpe-gateway')}
+                type="email"
+                autoComplete="off"
+                value={formState[`${methodName}-email`] || ''}
+                onChange={handleChange}
+            />
         </div>
     );
 }

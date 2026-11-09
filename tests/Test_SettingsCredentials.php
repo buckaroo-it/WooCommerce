@@ -62,12 +62,15 @@ class Test_SettingsCredentials extends TestCase
         $html = $gateway->generate_password_html($key, $gateway->form_fields[$key]);
         $this->assertStringNotContainsString('fixture', $html);
         $this->assertStringContainsString('value=""', $html);
-        $this->assertStringContainsString('Configured', $html);
+        $this->assertStringContainsString('placeholder="******"', $html);
+        $this->assertStringContainsString('Saved. Enter a new value only to replace it.', $html);
+        $this->assertStringContainsString('data-1p-ignore="true"', $html);
         $this->assertSame('secret-"<&-fixture', $gateway->get_option($key));
 
         $gateway->settings[$key] = '';
         $html = $gateway->generate_password_html($key, $gateway->form_fields[$key]);
-        $this->assertStringNotContainsString('Configured', $html);
+        $this->assertStringNotContainsString('placeholder="******"', $html);
+        $this->assertStringNotContainsString('Saved.', $html);
         $this->assertStringContainsString('value=""', $html);
     }
 
@@ -90,7 +93,8 @@ class Test_SettingsCredentials extends TestCase
         $this->assertStringNotContainsString('stored-upg-live-fixture', $html);
         $this->assertStringNotContainsString('bk-key-btn', $html);
         $this->assertSame(4, substr_count($html, 'value=""'));
-        $this->assertSame(4, substr_count($html, 'placeholder="Configured. Leave blank to keep unchanged"'));
+        $this->assertSame(4, substr_count($html, 'placeholder="******"'));
+        $this->assertSame(4, substr_count($html, 'Saved. Enter a new value only to replace it.'));
         $this->assertStringNotContainsString('required="required"', $html);
         $this->assertSame('stored-secret-fixture', $gateway->get_option('secretkey'));
     }

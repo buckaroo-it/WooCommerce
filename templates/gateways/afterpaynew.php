@@ -27,62 +27,52 @@ $country = ! empty($country) ? $country : $this->country;
 
 
 <fieldset>
-    <?php if ($country == 'FI') { ?>
-    <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-afterpaynew-identification-number">
-            <?php esc_html_e('Identification Number', 'wc-buckaroo-bpe-gateway'); ?>
-            <span class="required">*</span>
-        </label>
-
-        <input 
-        id="buckaroo-afterpaynew-identification-number"
-        name="buckaroo-afterpaynew-identification-number"
-        class="input-text"
-        type="text"
-        maxlength="250"
-        autocomplete="off"
-        value="" />
-    </p>
-    <?php } ?>
-
     <?php
+    if ($country == 'FI') {
+        woocommerce_form_field(
+            'buckaroo-afterpaynew-identification-number',
+            [
+                'type' => 'text',
+                'label' => __('Identification Number', 'wc-buckaroo-bpe-gateway'),
+                'required' => true,
+                'maxlength' => 250,
+                'autocomplete' => 'off',
+                'class' => ['form-row-wide'],
+            ]
+        );
+    }
+
     if (in_array($country, ['BE', 'NL', 'DE'])) {
         $this->getPaymentTemplate('partial_birth_field');
-        ?>
-        <?php if (strlen(trim($customer_phone)) === 0) { ?>
-    <p class="form-row validate-required">
-        <label for="buckaroo-afterpaynew-phone">
-            <?php esc_html_e('Phone:', 'wc-buckaroo-bpe-gateway'); ?>
-            <span class="required">*</span>
-        </label>
-        <input
-        id="buckaroo-afterpaynew-phone"
-        name="buckaroo-afterpaynew-phone"
-        class="input-tel"
-        type="tel"
-        autocomplete="off"
-        value="<?php echo esc_html($customer_phone); ?>">
-    </p>
-        <?php } ?>
-    <?php } ?>
 
-    <?php if ($country == 'NL' && $this->customer_type !== \Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway::CUSTOMER_TYPE_B2C) { ?>
-    <p class="form-row form-row-wide validate-required">
-        <label for="buckaroo-afterpaynew-company-coc-registration">
-            <?php esc_html_e('CoC-number:', 'wc-buckaroo-bpe-gateway'); ?>
-            <span class="required">*</span>
-        </label>
+        if (strlen(trim($customer_phone)) === 0) {
+            woocommerce_form_field(
+                'buckaroo-afterpaynew-phone',
+                [
+                    'type' => 'tel',
+                    'label' => __('Phone:', 'wc-buckaroo-bpe-gateway'),
+                    'required' => true,
+                    'autocomplete' => 'off',
+                    'class' => ['form-row-wide'],
+                ]
+            );
+        }
+    }
 
-        <input 
-        id="buckaroo-afterpaynew-company-coc-registration"
-        name="buckaroo-afterpaynew-company-coc-registration"
-        class="input-text"
-        type="text"
-        maxlength="250"
-        autocomplete="off"
-        value="" />
-    </p>
-    <?php } ?>
+    if ($country == 'NL' && $this->customer_type !== \Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway::CUSTOMER_TYPE_B2C) {
+        woocommerce_form_field(
+            'buckaroo-afterpaynew-company-coc-registration',
+            [
+                'type' => 'text',
+                'label' => __('CoC-number:', 'wc-buckaroo-bpe-gateway'),
+                'required' => true,
+                'maxlength' => 250,
+                'autocomplete' => 'off',
+                'class' => ['form-row-wide'],
+            ]
+        );
+    }
+    ?>
 
     <?php if (! empty($this->getScalarCheckoutField('ship_to_different_address'))) { ?>
     <input
@@ -95,5 +85,5 @@ $country = ! empty($country) ? $country : $this->country;
     }
     $this->getPaymentTemplate('partial_afterpay_tos');
     ?>
-    
+
 </fieldset>

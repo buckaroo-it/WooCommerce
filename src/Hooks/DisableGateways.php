@@ -20,37 +20,22 @@ class DisableGateways
             return [];
         }
 
-        if ($available_gateways) {
-            if (! empty(WC()->cart)) {
-                $totalCartAmount = WC()->cart->get_total(null);
+        $payment = $available_gateways ? $this->resolvePayment() : null;
+        if ($payment !== null) {
+            [$amount, $currency] = $payment;
 
-                /* skip check when card total is 0 */
-                if ($totalCartAmount == 0) {
-                    return $available_gateways;
+            foreach ($available_gateways as $key => $gateway) {
+                if (! $this->isBuckarooPayment($key)) {
+                    continue;
                 }
 
-                foreach ($available_gateways as $key => $gateway) {
-                    if (! $this->isBuckarooPayment($key)) {
-                        continue;
-                    }
+                if (method_exists($gateway, 'isVisibleInCheckout') && ! $gateway->isVisibleInCheckout()) {
+                    unset($available_gateways[$key]);
+                    continue;
+                }
 
-                    if (method_exists($gateway, 'isVisibleInCheckout') && ! $gateway->isVisibleInCheckout()) {
-                        unset($available_gateways[$key]);
-                    }
-
-                    if (method_exists($gateway, 'isAvailable') && ! $gateway->isAvailable($totalCartAmount)) {
-                        unset($available_gateways[$key]);
-                    }
-
-                    if (! empty($gateway->minvalue) || ! empty($gateway->maxvalue)) {
-                        if (! empty($gateway->maxvalue) && $totalCartAmount > $gateway->maxvalue) {
-                            unset($available_gateways[$key]);
-                        }
-
-                        if (! empty($gateway->minvalue) && $totalCartAmount < $gateway->minvalue) {
-                            unset($available_gateways[$key]);
-                        }
-                    }
+                if (method_exists($gateway, 'isAllowedFor') && ! $gateway->isAllowedFor($amount, $currency)) {
+                    unset($available_gateways[$key]);
                 }
             }
         }
@@ -77,6 +62,31 @@ class DisableGateways
         }
 
         return $available_gateways;
+    }
+
+    /**
+     * Amount and currency being paid, resolved the way core's get_order_total()
+     * does: the order on the order-pay page, otherwise the cart. Null when
+     * neither is available (e.g. admin screens).
+     *
+     * @return array{0: float, 1: string}|null
+     */
+    protected function resolvePayment(): ?array
+    {
+        $orderId = absint(get_query_var('order-pay'));
+        if ($orderId > 0) {
+            $order = wc_get_order($orderId);
+
+            return $order instanceof \WC_Order
+                ? [(float) $order->get_total('edit'), (string) $order->get_currency('edit')]
+                : null;
+        }
+
+        if (empty(WC()->cart)) {
+            return null;
+        }
+
+        return [(float) WC()->cart->get_total('edit'), get_woocommerce_currency()];
     }
 
     /**

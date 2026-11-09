@@ -2,6 +2,28 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 import useFormData from '../hooks/useFormData';
 import DefaultDropdown from '../partials/buckaroo_creditcard_dropdown';
+import { hostedFieldStyling, syncHostedFieldErrors } from '../../shared/hosted-field-styling';
+
+const HOSTED_FIELD_ERROR_IDS = ['cc-name-error', 'cc-number-error', 'cc-expiry-error', 'cc-cvc-error'];
+
+// A hosted card field in the markup of the Checkout Block's text input, with its
+// validation error inside it as WooCommerce renders it. The fields are siblings,
+// like the Block's own inputs, so its spacing between consecutive inputs applies.
+// The input only draws the field; the card iframe is mounted over it into the frame.
+function HostedField({ name, label, className = '' }) {
+    return (
+        <div className={`wc-block-components-text-input is-active buckaroo-hosted-field ${className}`.trim()}>
+            <input type="text" className="buckaroo-hosted-field__input" tabIndex={-1} aria-hidden="true" readOnly />
+            <div id={`cc-${name}-wrapper`} className="buckaroo-hosted-field__frame" />
+            <label id={`cc-${name}-label`}>{label}</label>
+            <div
+                id={`cc-${name}-error`}
+                className="wc-block-components-validation-error buckaroo-hosted-field__error"
+                role="alert"
+            />
+        </div>
+    );
+}
 
 function CreditCard({
     eventRegistration,
@@ -78,13 +100,8 @@ function CreditCard({
             sdkClientRef.current = sdkClient;
 
             await sdkClient.startSession(event => {
-                sdkClient.handleValidation(
-                    event,
-                    'cc-name-error',
-                    'cc-number-error',
-                    'cc-expiry-error',
-                    'cc-cvc-error'
-                );
+                sdkClient.handleValidation(event, ...HOSTED_FIELD_ERROR_IDS);
+                syncHostedFieldErrors(HOSTED_FIELD_ERROR_IDS);
             });
 
             const mountingOperations = [
@@ -95,7 +112,6 @@ function CreditCard({
                         id: 'ccname',
                         placeHolder: 'John Doe',
                         labelSelector: '#cc-name-label',
-                        baseStyling: {},
                     },
                 },
                 {
@@ -105,7 +121,6 @@ function CreditCard({
                         id: 'cc',
                         placeHolder: '555x xxxx xxxx xxxx',
                         labelSelector: '#cc-number-label',
-                        baseStyling: {},
                     },
                 },
                 {
@@ -115,7 +130,6 @@ function CreditCard({
                         id: 'cvc',
                         placeHolder: '1234',
                         labelSelector: '#cc-cvc-label',
-                        baseStyling: {},
                     },
                 },
                 {
@@ -125,13 +139,17 @@ function CreditCard({
                         id: 'expiry',
                         placeHolder: 'MM / YY',
                         labelSelector: '#cc-expiry-label',
-                        baseStyling: {},
                     },
                 },
             ];
 
             for (const op of mountingOperations) {
-                await op.mount(op.wrapper, op.config);
+                const { baseStyling, cardLogoStyling } = hostedFieldStyling(op.wrapper);
+                const config = { ...op.config, baseStyling };
+                if (op.mount === sdkClient.mountCardNumber) {
+                    config.cardLogoStyling = cardLogoStyling;
+                }
+                await op.mount(op.wrapper, config);
             }
 
             setTimeout(() => setErrorMessage(''), 3000);
@@ -214,60 +232,26 @@ function CreditCard({
     return (
         <div>
             {creditCardMethod === 'redirect' && paymentMethodId === 'buckaroo_creditcard' && (
-                <div className="form-row form-row-wide">
-                    <DefaultDropdown
-                        paymentMethodId={paymentMethodId}
-                        creditCardIssuers={creditCardIssuers}
-                        handleChange={handleChange}
-                    />
-                </div>
+                <DefaultDropdown
+                    paymentMethodId={paymentMethodId}
+                    creditCardIssuers={creditCardIssuers}
+                    handleChange={handleChange}
+                />
             )}
             {isEncryptAndSecure && (
-                <div className="method--bankdata">
-                    <div className="form-row">
-                        <label id="cc-name-label" className="buckaroo-label" htmlFor={`${paymentMethodId}-cardname`}>
-                            {__('Cardholder Name:', 'wc-buckaroo-bpe-gateway')}
-                            <span className="required">*</span>
-                        </label>
-                        <div id="cc-name-wrapper" className="cardHolderName input-text" />
-                        <div id="cc-name-error" className="input-error" />
-                    </div>
-
-                    <div className="form-row">
-                        <label
-                            id="cc-number-label"
-                            className="buckaroo-label"
-                            htmlFor={`${paymentMethodId}-cardnumber`}
-                        >
-                            {__('Card Number:', 'wc-buckaroo-bpe-gateway')}
-                            <span className="required">*</span>
-                        </label>
-                        <div id="cc-number-wrapper" className="cardNumber input-text" />
-                        <div id="cc-number-error" className="input-error" />
-                    </div>
-
-                    <div className="form-row form-row-first">
-                        <label className="buckaroo-label" htmlFor={`${paymentMethodId}-cardmonth`} id="cc-expiry-label">
-                            {__('Expiration Month:', 'wc-buckaroo-bpe-gateway')}
-                            <span className="required">*</span>
-                        </label>
-                        <div id="cc-expiry-wrapper" className="expirationDate input-text" />
-                        <div id="cc-expiry-error" className="input-error" />
-                    </div>
-
-                    <div className="form-row form-row-last">
-                        <label id="cc-cvc-label" className="buckaroo-label" htmlFor={`${paymentMethodId}-cardcvc`}>
-                            {__('CVC:', 'wc-buckaroo-bpe-gateway')}
-                            <span className="required">*</span>
-                        </label>
-                        <div id="cc-cvc-wrapper" className="cvc input-text" />
-                        <div id="cc-cvc-error" className="input-error" />
-                    </div>
-
-                    <div className="form-row form-row-wide validate-required"></div>
-                    <div className="required" style={{ textAlign: 'right' }}>
-                        *{__('Required', 'wc-buckaroo-bpe-gateway')}
-                    </div>
+                <div className="buckaroo-hosted-fields">
+                    <HostedField name="name" label={__('Cardholder Name:', 'wc-buckaroo-bpe-gateway')} />
+                    <HostedField name="number" label={__('Card Number:', 'wc-buckaroo-bpe-gateway')} />
+                    <HostedField
+                        name="expiry"
+                        label={__('Expiration Month:', 'wc-buckaroo-bpe-gateway')}
+                        className="buckaroo-hosted-field--half"
+                    />
+                    <HostedField
+                        name="cvc"
+                        label={__('CVC:', 'wc-buckaroo-bpe-gateway')}
+                        className="buckaroo-hosted-field--half"
+                    />
                 </div>
             )}
         </div>

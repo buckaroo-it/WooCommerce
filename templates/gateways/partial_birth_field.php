@@ -18,20 +18,16 @@
 defined('ABSPATH') || exit;
 
 $section_id = str_replace('_', '-', $this->id);
-?>
-<p class="form-row form-row-wide validate-required">
-    <label for="<?php echo esc_attr($section_id); ?>-birthdate">
-        <?php esc_html_e('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway'); ?>
-        <span class="required">*</span>
-    </label>
 
-    <input
-    id="<?php echo esc_attr($section_id); ?>-birthdate"
-    name="<?php echo esc_attr($section_id); ?>-birthdate"
-    class="input-text"
-    type="text"
-    maxlength="250"
-    autocomplete="off"
-    value=""
-    placeholder="DD-MM-YYYY" />
-</p>
+woocommerce_form_field(
+    $section_id . '-birthdate',
+    [
+        'type' => 'text',
+        'label' => __('Birthdate (format DD-MM-YYYY):', 'wc-buckaroo-bpe-gateway'),
+        'placeholder' => 'DD-MM-YYYY',
+        'required' => true,
+        'maxlength' => 250,
+        'autocomplete' => 'off',
+        'class' => ['form-row-wide'],
+    ]
+);

@@ -16,7 +16,7 @@ class Plugin
      *
      * @var string
      */
-    public const VERSION = '4.10.2';
+    public const VERSION = '4.11.0';
 
     /**
      * Instance of PaymentGatewayRegistry.
@@ -49,6 +49,11 @@ class Plugin
         add_filter(
             'woocommerce_payment_gateways',
             [$this->gatewayRegistry, 'hookGatewaysToWooCommerce']
+        );
+
+        add_action(
+            'wc_payment_gateways_initialized',
+            [$this->gatewayRegistry, 'groupSeparateCreditCards']
         );
     }
 

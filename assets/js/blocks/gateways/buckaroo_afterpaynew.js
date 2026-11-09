@@ -5,6 +5,7 @@ import TermsAndConditionsCheckbox from '../partials/buckaroo_terms_and_condition
 import PhoneDropdown from '../partials/buckaroo_phone';
 import useFormData from '../hooks/useFormData';
 import CoCField from '../partials/buckaroo_coc_field';
+import { TextField } from '../components/CheckoutFields';
 
 function AfterPayNew({ onStateChange, methodName, gateway: { customer_type, b2b }, billing, locale }) {
     const initialState = {
@@ -55,21 +56,13 @@ function AfterPayNew({ onStateChange, methodName, gateway: { customer_type, b2b 
             )}
 
             {billing.country === 'FI' && (
-                <p className="form-row form-row-wide validate-required">
-                    <label htmlFor="buckaroo-afterpaynew-identification-number">
-                        {__('Identification Number:', 'wc-buckaroo-bpe-gateway')}
-                        <span className="required">*</span>
-                    </label>
-                    <input
-                        id="buckaroo-afterpaynew-identification-number"
-                        name="buckaroo-afterpaynew-identification-number"
-                        className="input-text"
-                        type="text"
-                        maxLength="250"
-                        autoComplete="off"
-                        onChange={handleChange}
-                    />
-                </p>
+                <TextField
+                    id="buckaroo-afterpaynew-identification-number"
+                    label={__('Identification Number:', 'wc-buckaroo-bpe-gateway')}
+                    maxLength="250"
+                    autoComplete="off"
+                    onChange={handleChange}
+                />
             )}
 
             <TermsAndConditionsCheckbox

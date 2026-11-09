@@ -44,41 +44,32 @@ if (! isset($tosLinks[$country])) {
 
 $tos = $tosLinks[$country];
 
-?>
-
-<p class="form-row form-row-wide validate-required">
-<?php
 if (! is_array($tos)) {
-    ?>
-    <a 
-    href="<?php echo esc_url($tos); ?>"
-    target="_blank">
-        <?php esc_html_e('Accept Riverty conditions:', 'wc-buckaroo-bpe-gateway'); ?>
-    </a>
-    <?php
+    $tosLabel = sprintf(
+        '<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+        esc_url($tos),
+        esc_html__('Accept Riverty conditions:', 'wc-buckaroo-bpe-gateway')
+    );
 } else {
-    esc_html_e('Accept Riverty conditions:', 'wc-buckaroo-bpe-gateway');
-}
-?>
-    <span class="required">*</span> 
-    <input id="<?php echo esc_attr($fieldName); ?>"
-    name="<?php echo esc_attr($fieldName); ?>"
-    type="checkbox"
-    value="ON" />
-    <?php
-    if (is_array($tos)) {
-        foreach ($tos as $tosElement) {
-            ?>
-            <br>
-            <a href="<?php echo esc_url($tosElement['link']); ?>" target="_blank">
-                <?php esc_html_e($tosElement['label'], 'wc-buckaroo-bpe-gateway'); ?>
-            </a>
-            <?php
-        }
+    $tosLinksHtml = [];
+    foreach ($tos as $tosElement) {
+        $tosLinksHtml[] = sprintf(
+            '<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+            esc_url($tosElement['link']),
+            esc_html__($tosElement['label'], 'wc-buckaroo-bpe-gateway')
+        );
     }
-    ?>
-</p>
-    
-<p class="required" style="float:right;">*
-    <?php esc_html_e('Required', 'wc-buckaroo-bpe-gateway'); ?>
-</p>
+    $tosLabel = esc_html__('Accept Riverty conditions:', 'wc-buckaroo-bpe-gateway') . ' ' . implode(' / ', $tosLinksHtml);
+}
+
+woocommerce_form_field(
+    $fieldName,
+    [
+        'type' => 'checkbox',
+        'label' => $tosLabel,
+        'required' => true,
+        'checked_value' => 'ON',
+        'class' => ['form-row-wide'],
+        'label_class' => ['woocommerce-form__label', 'woocommerce-form__label-for-checkbox'],
+    ]
+);

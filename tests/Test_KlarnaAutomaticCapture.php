@@ -51,18 +51,19 @@ class Test_KlarnaAutomaticCapture extends TestCase
         parent::tearDown();
     }
 
-    public function test_klarna_mor_exposes_a_default_off_automatic_capture_setting(): void
+    public function test_klarna_mor_exposes_a_default_on_automatic_capture_setting(): void
     {
         $gateway = new KlarnaPayGateway();
 
         $this->assertArrayHasKey('automatic_capture', $gateway->form_fields);
         $this->assertSame('checkbox', $gateway->form_fields['automatic_capture']['type']);
-        $this->assertSame('no', $gateway->form_fields['automatic_capture']['default']);
-        $this->assertSame('no', $gateway->get_option('automatic_capture'));
+        $this->assertSame('yes', $gateway->form_fields['automatic_capture']['default']);
+        $this->assertSame('yes', $gateway->get_option('automatic_capture'));
     }
 
     public function test_completed_transition_does_not_enqueue_when_automatic_capture_is_disabled(): void
     {
+        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'no']);
         $order = $this->createReservedOrder();
         new KlarnaFulfillmentActions();
 
@@ -94,6 +95,22 @@ class Test_KlarnaAutomaticCapture extends TestCase
                 KlarnaFulfillmentActions::ACTION_GROUP
             )
         );
+    }
+
+    public function test_completed_transition_queues_the_order_total_when_the_reserved_amount_is_zero(): void
+    {
+        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'yes']);
+        $order = $this->createReservedOrder();
+        $order->update_meta_data(KlarnaProcessor::RESERVED_AMOUNT_META_KEY, '0.00');
+        $order->save();
+        new KlarnaFulfillmentActions();
+
+        wc_get_order($order->get_id())->update_status('completed');
+
+        $attempts = KlarnaCaptureAttempt::all(wc_get_order($order->get_id()));
+        $this->assertCount(1, $attempts);
+        $this->assertSame('queued', $attempts[0]['state']);
+        $this->assertSame('25.00', $attempts[0]['amount']);
     }
 
     public function test_background_hook_claims_and_captures_a_completed_order_once(): void

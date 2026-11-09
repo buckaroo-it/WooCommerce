@@ -119,7 +119,7 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
     const subtext = `${gateway.description || ''}${gateway.redirectNotice || ''}`;
 
     return (
-        <div className="container">
+        <div className="container buckaroo-checkout-fields">
             {subtext && <div className="buckaroo-payment-description" dangerouslySetInnerHTML={{ __html: subtext }} />}
             {errorMessage && errorMessage?.length && <div className="woocommerce-error">{errorMessage}</div>}
             <PaymentComponent gateway={gateway} title={decodeHtmlEntities(gateway.title)} />

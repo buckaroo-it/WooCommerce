@@ -62,7 +62,8 @@ class AfterpayOldGateway extends AbstractPaymentGateway
         }
 
         $birthdate = $this->parseDate($this->request->input('buckaroo-afterpay-birthdate'));
-        $b2b = $this->request->input('buckaroo-afterpay-b2b');
+        // WooCommerce versions without checked_value support post the checkbox as "1".
+        $b2b = in_array($this->request->input('buckaroo-afterpay-b2b'), ['ON', '1'], true) ? 'ON' : '';
         if (! $this->validateDate($birthdate, 'd-m-Y') && $b2b != 'ON') {
             wc_add_notice(__('You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.', 'wc-buckaroo-bpe-gateway'), 'error');
         }

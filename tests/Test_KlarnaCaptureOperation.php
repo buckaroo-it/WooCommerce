@@ -195,6 +195,32 @@ class Test_KlarnaCaptureOperation extends TestCase
         $this->assertSame('15.00', $buckarooClient->payload['amountDebit']);
     }
 
+    public function test_a_successful_manual_capture_leaves_a_success_notice_for_the_reloaded_page(): void
+    {
+        $order = $this->createReservedOrder(15.00, 1);
+        $item = current($order->get_items('line_item'));
+        $gateway = new TestableKlarnaPayGateway(new InMemoryBuckarooClient($this->successfulResponse('PAY-NOTICE')));
+        $noticeKey = get_current_user_id() . 'buckarooAdminNotice';
+        delete_transient($noticeKey);
+        $_POST = [
+            'capture_amount' => '15.00',
+            'line_item_qtys' => wp_json_encode([$item->get_id() => 1]),
+            'line_item_totals' => wp_json_encode([$item->get_id() => 15.00]),
+            'line_item_tax_totals' => wp_json_encode([$item->get_id() => []]),
+        ];
+
+        $gateway->process_capture($order->get_id());
+
+        $this->assertSame(
+            [
+                'type' => 'success',
+                'message' => sprintf('Captured 15.00 EUR for order #%s.', $order->get_order_number()),
+            ],
+            get_transient($noticeKey)
+        );
+        delete_transient($noticeKey);
+    }
+
     public function test_pending_capture_for_an_unrelated_gateway_is_not_reported_as_successful(): void
     {
         $order = $this->createReservedOrder(15.00, 1);
@@ -264,6 +290,62 @@ class Test_KlarnaCaptureOperation extends TestCase
 
         $this->assertFileDoesNotExist(dirname(__DIR__) . '/src/Order/KlarnaCaptureAttempt.php');
         $this->assertFileExists(dirname(__DIR__) . '/src/Gateways/Klarna/KlarnaCaptureAttempt.php');
+    }
+
+    public function test_a_zero_reserved_amount_does_not_block_capturing_the_order_total(): void
+    {
+        $order = $this->createReservedOrder(12.50, 2);
+        $order->update_meta_data(KlarnaProcessor::RESERVED_AMOUNT_META_KEY, '0.00');
+        $order->save();
+        $item = current($order->get_items('line_item'));
+        $buckarooClient = new InMemoryBuckarooClient($this->successfulResponse('PAY-ZERO-RESERVED'));
+
+        $result = (new KlarnaPayGateway())->capture(
+            wc_get_order($order->get_id()),
+            25.00,
+            CaptureAllocation::fromArrays(
+                [$item->get_id() => 2],
+                [$item->get_id() => 25.00],
+                [$item->get_id() => []]
+            ),
+            $buckarooClient
+        );
+
+        $this->assertTrue($result->isSuccess(), $result->getMessage());
+        $this->assertSame(1, $buckarooClient->sendCount);
+        $this->assertSame('25.00', $buckarooClient->payload['amountDebit']);
+    }
+
+    public function test_a_full_manual_capture_completes_the_order_and_a_partial_one_does_not(): void
+    {
+        $order = $this->createReservedOrder(12.50, 2);
+        $order->set_status('processing');
+        $order->save();
+        $item = current($order->get_items('line_item'));
+        $gateway = new KlarnaPayGateway();
+        $halfAllocation = CaptureAllocation::fromArrays(
+            [$item->get_id() => 1],
+            [$item->get_id() => 12.50],
+            [$item->get_id() => []]
+        );
+
+        $gateway->capture(
+            wc_get_order($order->get_id()),
+            12.50,
+            $halfAllocation,
+            new InMemoryBuckarooClient($this->successfulResponse('PAY-FIRST-HALF'))
+        );
+        $this->assertSame('processing', wc_get_order($order->get_id())->get_status());
+
+        $result = $gateway->capture(
+            wc_get_order($order->get_id()),
+            12.50,
+            $halfAllocation,
+            new InMemoryBuckarooClient($this->successfulResponse('PAY-SECOND-HALF'))
+        );
+
+        $this->assertTrue($result->isSuccess(), $result->getMessage());
+        $this->assertSame('completed', wc_get_order($order->get_id())->get_status());
     }
 
     public function test_manual_capture_uses_the_same_remaining_allocation_as_automatic_capture(): void

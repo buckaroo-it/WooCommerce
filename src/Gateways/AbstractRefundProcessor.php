@@ -59,7 +59,9 @@ class AbstractRefundProcessor extends AbstractProcessor
                 'order' => (string) $this->getOrder()->get_id(),
                 'invoice' => $this->get_invoice_number(),
                 'amountCredit' => number_format((float) $this->amount, 2, '.', ''),
-                'currency' => get_woocommerce_currency(),
+                // Refund in the currency the order was paid in, not the store's
+                // active currency, which can differ on a multi-currency store.
+                'currency' => $this->getOrder()->get_currency(),
                 'returnURL' => $this->get_return_url(),
                 'cancelURL' => $this->get_return_url(),
                 'pushURL' => $this->get_push_url(),
