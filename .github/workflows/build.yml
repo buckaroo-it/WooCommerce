@@ -10,10 +10,6 @@ on:
         branches:
             - master
 
-# The adapter and upg-sdk are private repositories until they are released.
-env:
-  COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
-
 jobs:
     build:
         services:
@@ -69,6 +65,8 @@ jobs:
             -   name: Install composer for plugin
                 working-directory: wc-buckaroo-bpe-gateway
                 run: composer install --dev
+                env:
+                    COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
 
             -   name: install composer for woocommerce
                 working-directory: woocommerce

@@ -2,10 +2,6 @@ name: Code Quality Checks
 
 on: [ push ]
 
-# The adapter and upg-sdk are private repositories until they are released.
-env:
-  COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
-
 jobs:
     phpcs:
         runs-on: ubuntu-latest
@@ -31,6 +27,8 @@ jobs:
 
             -   name: Install dependencies
                 run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+                env:
+                    COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
 
             -   name: Run PHPCS via Composer script
                 run: composer phpcs

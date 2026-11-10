@@ -9,10 +9,6 @@ on:
 permissions:
     contents: write
 
-# The adapter and upg-sdk are private repositories until they are released.
-env:
-  COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
-
 jobs:
     build_upload_sync:
         runs-on: ubuntu-latest
@@ -31,6 +27,8 @@ jobs:
                     composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
                     composer compose-dependencies
                     composer dump-autoload -o
+                env:
+                    COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
 
             -   name: Get Release Version
                 id: get_version

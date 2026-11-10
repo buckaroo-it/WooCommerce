@@ -2,10 +2,6 @@ name: PHP Compatibility Check
 
 on:
     pull_request:
-# The adapter and upg-sdk are private repositories until they are released.
-env:
-  COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
-
 jobs:
     test:
         runs-on: ubuntu-latest
@@ -28,6 +24,8 @@ jobs:
                     composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
                     composer compose-dependencies
                     composer dump-autoload -o
+                env:
+                    COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
 
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
@@ -38,3 +36,5 @@ jobs:
 
             -   name: Check PHP Compatibility
                 run: composer require --dev --no-scripts php-parallel-lint/php-parallel-lint && vendor/bin/parallel-lint . --exclude vendor --exclude tools
+                env:
+                    COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
