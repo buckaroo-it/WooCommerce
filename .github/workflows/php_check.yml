@@ -2,6 +2,10 @@ name: PHP Compatibility Check
 
 on:
     pull_request:
+# The adapter and upg-sdk are private repositories until they are released.
+env:
+  COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+
 jobs:
     test:
         runs-on: ubuntu-latest

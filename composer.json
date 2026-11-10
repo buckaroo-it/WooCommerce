@@ -13,25 +13,19 @@
     ],
     "repositories": [
         {
-            "type": "path",
-            "url": "../../../../sdk-adapter",
-            "options": {
-                "symlink": false
-            }
+            "type": "vcs",
+            "url": "https://dev.azure.com/buckaroo/Plugins/_git/buckaoro-php-adapter"
         },
         {
-            "type": "path",
-            "url": "../../../../upg-sdk",
-            "options": {
-                "symlink": false
-            }
+            "type": "vcs",
+            "url": "https://dev.azure.com/buckaroo/Plugins/_git/buckaroo-php"
         }
     ],
     "require": {
         "php": ">=8.2",
         "buckaroo/sdk": "^1.24.5",
-        "buckaroo/sdk-adapter": "*@dev",
-        "buckaroo/upg-sdk": "*@dev"
+        "buckaroo/sdk-adapter": "dev-add-sdk-adapter",
+        "buckaroo/upg-sdk": "dev-add-upg-sdk"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.9",

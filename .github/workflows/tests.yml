@@ -7,6 +7,10 @@ on:
     branches: [ main, master, develop ]
   workflow_dispatch:  # Allows manual trigger from GitHub UI
 
+# The adapter and upg-sdk are private repositories until they are released.
+env:
+  COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+
 jobs:
   test:
     name: PHPUnit Tests (PHP ${{ matrix.php }})

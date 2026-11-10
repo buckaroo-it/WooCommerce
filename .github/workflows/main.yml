@@ -9,6 +9,10 @@ on:
 permissions:
     contents: write
 
+# The adapter and upg-sdk are private repositories until they are released.
+env:
+  COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+
 jobs:
     build_upload_sync:
         runs-on: ubuntu-latest

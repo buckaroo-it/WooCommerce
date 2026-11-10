@@ -2,6 +2,10 @@ name: Code Quality Checks
 
 on: [ push ]
 
+# The adapter and upg-sdk are private repositories until they are released.
+env:
+  COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+
 jobs:
     phpcs:
         runs-on: ubuntu-latest
