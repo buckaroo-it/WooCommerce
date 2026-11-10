@@ -64,6 +64,30 @@ class PaymentMethodSettings extends AbstractPaymentGateway
                 'required' => 'required',
             ],
         ];
+        $this->form_fields['api'] = [
+            'title' => __('Payment API', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'select',
+            'description' => __('With UPG, the payment methods your UPG account has enabled (Wero, iDEAL) use UPG. All other methods, and refunds of earlier orders, keep using the Store key and Secret key.', 'wc-buckaroo-bpe-gateway'),
+            'options' => [
+                'bpe' => __('BPE', 'wc-buckaroo-bpe-gateway'),
+                'upg' => __('UPG', 'wc-buckaroo-bpe-gateway'),
+            ],
+            'default' => 'bpe',
+        ];
+        $this->form_fields['upg_test_key'] = [
+            'title' => __('UPG test API key', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'password',
+            'placeholder' => __('Enter your UPG sandbox API key', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Used by payment methods in test mode. UPG sandbox and live keys are different.', 'wc-buckaroo-bpe-gateway'),
+            'default' => '',
+        ];
+        $this->form_fields['upg_live_key'] = [
+            'title' => __('UPG live API key', 'wc-buckaroo-bpe-gateway'),
+            'type' => 'password',
+            'placeholder' => __('Enter your UPG live API key', 'wc-buckaroo-bpe-gateway'),
+            'description' => __('Used by payment methods in live mode.', 'wc-buckaroo-bpe-gateway'),
+            'default' => '',
+        ];
         $this->form_fields['test_credentials'] = [
             'title' => __('Test credentials', 'wc-buckaroo-bpe-gateway'),
             'type' => 'button',

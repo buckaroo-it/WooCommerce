@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Admin;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use Buckaroo\Woocommerce\Services\UpgSettings;
 use WC_Admin_Settings;
 use WC_Settings_API;
 use WC_Settings_Page;
@@ -384,6 +385,7 @@ class GeneralSettings extends WC_Settings_Page
 
             if ($current_section === '') {
                 $this->validateApiCredentials();
+                $this->syncUpg();
             }
 
             $this->getErrors();
@@ -405,6 +407,18 @@ class GeneralSettings extends WC_Settings_Page
                     sprintf(__('%s is required. Payments will fail until it is filled in.', 'wc-buckaroo-bpe-gateway'), $label)
                 );
             }
+        }
+    }
+
+    /** With UPG chosen, check the UPG keys, store the UPG methods and register the webhook. */
+    private function syncUpg(): void
+    {
+        if (! UpgSettings::isChosen()) {
+            return;
+        }
+
+        foreach (UpgSettings::sync() as $error) {
+            $this->gateway->add_error($error);
         }
     }
 
@@ -432,6 +446,9 @@ class GeneralSettings extends WC_Settings_Page
                 return [
                     'merchantkey',
                     'secretkey',
+                    'api',
+                    'upg_test_key',
+                    'upg_live_key',
                     'test_credentials',
                     'auto_configure',
                     'transactiondescription',
@@ -537,6 +554,12 @@ class GeneralSettings extends WC_Settings_Page
     <table class="form-table bk-creds-table"><tbody>
 
         <?php foreach (['merchantkey', 'secretkey'] as $key) : ?>
+            <?php echo $this->gateway->generate_password_html($key, $this->gateway->form_fields[$key]); ?>
+        <?php endforeach; ?>
+
+        <?php echo $this->gateway->generate_select_html('api', $this->gateway->form_fields['api']); ?>
+
+        <?php foreach (['upg_test_key', 'upg_live_key'] as $key) : ?>
             <?php echo $this->gateway->generate_password_html($key, $this->gateway->form_fields[$key]); ?>
         <?php endforeach; ?>
 

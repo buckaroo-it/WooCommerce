@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4', '8.0', '8.1', '8.2', '8.3']
+        php: ['8.2', '8.3']
         
     services:
       mysql:
@@ -72,8 +72,10 @@ jobs:
       - name: Install Composer dependencies
         if: steps.vendor-cache.outputs.cache-hit != 'true'
         run: composer install --prefer-dist --no-progress --no-suggest
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
         
-      # Coverage is only collected on PHP 8.1. Loading a coverage driver on the
+      # Coverage is only collected on PHP 8.2. Loading a coverage driver on the
       # other versions slows every test down for nothing; pcov is much faster
       # than Xdebug for the one job that does collect coverage.
       - name: Setup PHP
@@ -81,7 +83,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: mysql, mbstring, zip
-          coverage: ${{ matrix.php == '8.1' && 'pcov' || 'none' }}
+          coverage: ${{ matrix.php == '8.2' && 'pcov' || 'none' }}
           tools: composer
           
       - name: Resolve latest WordPress version
@@ -115,21 +117,21 @@ jobs:
           cd ../WooCommerce
         
       - name: Run Unit Tests
-        if: matrix.php != '8.1'
+        if: matrix.php != '8.2'
         run: vendor/bin/phpunit --testsuite unit --testdox
         
       - name: Run Integration Tests
-        if: matrix.php != '8.1'
+        if: matrix.php != '8.2'
         run: vendor/bin/phpunit --testsuite integration --testdox
         
-      # On 8.1 a single run of both suites produces the coverage report, so the
+      # On 8.2 a single run of both suites produces the coverage report, so the
       # tests are not executed twice.
       - name: Run All Tests with Coverage
-        if: matrix.php == '8.1'
+        if: matrix.php == '8.2'
         run: vendor/bin/phpunit --testdox --coverage-clover coverage/clover.xml
           
       - name: Upload coverage reports to Codecov
-        if: matrix.php == '8.1'
+        if: matrix.php == '8.2'
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage/clover.xml
@@ -148,11 +150,13 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.2'
           tools: composer, cs2pr
           
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-scripts
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
         
       - name: Run PHPCS
         run: composer phpcs -- --report=checkstyle | cs2pr

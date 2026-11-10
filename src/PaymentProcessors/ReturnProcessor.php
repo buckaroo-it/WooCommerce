@@ -7,16 +7,21 @@ use Buckaroo\Woocommerce\Gateways\Transfer\TransferResponse;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
+use Buckaroo\Woocommerce\ResponseParser\UpgResponseParser;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Services\LoggerStorage;
+use BuckarooDeps\Buckaroo\Adapter\Contracts\Result;
 use Exception;
 use WC_Order;
 
 class ReturnProcessor
 {
     protected $data = [];
+
+    /** @var ResponseParser|null set by forUpg(): a UPG result, whose status was read from UPG */
+    protected $responseParser;
 
     protected $validateReplyHandler = true;
 
@@ -26,6 +31,19 @@ class ReturnProcessor
         $this->validateReplyHandler = $validateReplyHandler;
     }
 
+    /**
+     * A UPG answer: the status was read from UPG, so there is no BPE signature to check.
+     *
+     * @param  bool  $followRedirect  true for the answer to a payment, false on the return page
+     */
+    public static function forUpg(Result $result, AbstractPaymentGateway $gateway, bool $followRedirect): self
+    {
+        $processor = new self([], false);
+        $processor->responseParser = new UpgResponseParser($result, $gateway->getServiceCode(), $gateway->getMode() === 'test', $followRedirect);
+
+        return $processor;
+    }
+
     public function handle(AbstractPaymentGateway $paymentGateway)
     {
         global $woocommerce;
@@ -33,7 +51,7 @@ class ReturnProcessor
         if (! session_id()) {
             @session_start();
         }
-        $responseParser = ResponseRegistry::getResponse($this->data);
+        $responseParser = $this->responseParser ?? ResponseRegistry::getResponse($this->data);
 
         $_SESSION['buckaroo_response'] = '';
 

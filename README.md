@@ -133,7 +133,7 @@ Still stuck? Contact us and include your WordPress version, WooCommerce version,
 
 ## Contribute
 
-Building from source requires PHP 8.2 or later, because Mozart (installed in `tools/mozart`) needs it. The built plugin still runs on PHP 7.4 and later. Run `composer install` from the plugin root.
+The plugin and building it from source (Mozart, installed in `tools/mozart`) require PHP 8.2 or later. Run `composer install` from the plugin root.
 
 We really appreciate it when developers help improve the Buckaroo plugins. Please read our [Contribution Guidelines](https://github.com/buckaroo-it/WooCommerce/blob/develop/CONTRIBUTING.md) before opening a pull request, and target the `develop` branch.
 

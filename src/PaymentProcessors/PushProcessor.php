@@ -427,116 +427,127 @@ class PushProcessor
                 ini_set('serialize_precision', $original_precision);
             }
 
-            // Check if redirect required
-            $checkIfRedirectRequired = Helper::processCheckRedirectRequired($responseParser);
-            if ($checkIfRedirectRequired) {
-                return $checkIfRedirectRequired;
-            }
-
-            // Locks below are read from order meta; copy first so a replay is seen.
-            MigrateOrderMetaToHpos::ensureOrderMigrated($order);
-            $order->read_meta_data(true);
-
-            $mismatch = self::replyMismatch($order, $responseParser);
-            if ($mismatch !== null) {
-                Logger::log('Push message. Reply ' . $responseParser->getTransactionKey() . ' ignored: ' . $mismatch . ' does not match the order.');
-                $order->add_order_note(
-                    $mismatch === 'currency'
-                        ? sprintf(
-                            __('Ignored a Buckaroo push for transaction %1$s in %2$s, because the order is in %3$s.', 'wc-buckaroo-bpe-gateway'),
-                            esc_html((string) $responseParser->getTransactionKey()),
-                            esc_html((string) $responseParser->getCurrency()),
-                            esc_html($order->get_currency())
-                        )
-                        : sprintf(
-                            __('Ignored a Buckaroo test-mode push for transaction %s, because the order was placed in live mode.', 'wc-buckaroo-bpe-gateway'),
-                            esc_html((string) $responseParser->getTransactionKey())
-                        )
-                );
-
-                return;
-            }
-
-            if ($responseParser->getPaymentMethod() == 'paypal') {
-                (new PaypalExpressUpdateOrderAddresses($order, $responseParser))->update();
-            }
-
-            (new TransferResponse($responseParser))->storeBankDetails($order);
-
-            $giftCardPartialPayment = ($responseParser->isAwaitingConsumer() && $responseParser->getTransactionType() == 'I150');
-
-            if ($responseParser->getRelatedTransactionPartialPayment() !== null || $giftCardPartialPayment) {
-                Logger::log('PUSH', 'Partial payment PUSH received ' . $responseParser->getStatusCode());
-                exit();
-            }
-
-            if ($responseParser->getRefundParentKey() !== null) {
-                RefundAction::initiateExternalServiceRefund($order_id, $responseParser);
-            }
-
-            if (apply_filters('buckaroo_push_handled', false, $order, $responseParser)) {
-                return;
-            }
-
-            Logger::log('Order status: ' . $order->get_status());
-
-            if ($responseParser->isOnHold() && ($order->get_payment_method() == 'buckaroo_paypal')) {
-                $responseParser->set('coreStatus', BuckarooTransactionStatus::STATUS_CANCELLED);
-            }
-
-            Logger::log('Response order status: ' . $responseParser->get('coreStatus'));
-            Logger::log('Status message: ' . $responseParser->getSubCodeMessage());
-
-            if (! $this->metaUpdate($order_id, $order, $responseParser)) {
-                return;
-            }
-
-            if ($responseParser->isSuccess()) {
-                $this->onSuccess($order_id, $order, $responseParser);
-            } else {
-                if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_ON_HOLD && in_array($order->get_payment_method(), ['buckaroo_in3', 'buckaroo_zakelijkoprekening'], true)) {
-                    return;
-                }
-
-                if (in_array($order->get_payment_method(), ['buckaroo_payperemail', 'buckaroo_transfer'])) {
-                    Logger::log('Payperemail status check: ' . $responseParser->getStatusCode());
-                    if (Helper::handleUnsuccessfulPayment($responseParser->getStatusCode())) {
-                        return;
-                    }
-                }
-
-                Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
-
-                $this->onFailure($order, $responseParser);
-
-                if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_CANCELLED) {
-                    Logger::log('Payment cancelled by customer - keeping status as failed to allow retry');
-                    wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
-                } elseif ($responseParser->getPaymentMethod() == 'afterpaydigiaccept' && $responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_REJECTED) {
-                    wc_add_notice(
-                        __(
-                            "We are sorry to inform you that the request to pay afterwards with Riverty is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty. Or you can visit the website of Riverty and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
-                            'wc-buckaroo-bpe-gateway'
-                        ),
-                        'error'
-                    );
-                } else {
-                    wc_add_notice(
-                        __(
-                            'Payment unsuccessful. Please try again or choose another payment method.',
-                            'wc-buckaroo-bpe-gateway'
-                        ),
-                        'error'
-                    );
-                }
-
-                return;
-            }
+            return $this->processVerified($order_id, $order, $responseParser);
         } else {
             Logger::log('Response not valid!');
             Logger::log('Parse response:\n', $responseParser);
 
             if ($responseParser->getPaymentMethod() == 'afterpaydigiaccept' && $responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_REJECTED) {
+                wc_add_notice(
+                    __(
+                        "We are sorry to inform you that the request to pay afterwards with Riverty is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty. Or you can visit the website of Riverty and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
+                        'wc-buckaroo-bpe-gateway'
+                    ),
+                    'error'
+                );
+            } else {
+                wc_add_notice(
+                    __(
+                        'Payment unsuccessful. Please try again or choose another payment method.',
+                        'wc-buckaroo-bpe-gateway'
+                    ),
+                    'error'
+                );
+            }
+
+            return;
+        }
+    }
+
+    /**
+     * The order logic of a push whose signature is valid: the same for a BPE push and a UPG webhook.
+     *
+     * @param  int|string  $order_id
+     * @return array|void|null
+     */
+    public function processVerified($order_id, WC_Order $order, ResponseParser $responseParser)
+    {
+        // Check if redirect required
+        $checkIfRedirectRequired = Helper::processCheckRedirectRequired($responseParser);
+        if ($checkIfRedirectRequired) {
+            return $checkIfRedirectRequired;
+        }
+
+        // Locks below are read from order meta; copy first so a replay is seen.
+        MigrateOrderMetaToHpos::ensureOrderMigrated($order);
+        $order->read_meta_data(true);
+
+        $mismatch = self::replyMismatch($order, $responseParser);
+        if ($mismatch !== null) {
+            Logger::log('Push message. Reply ' . $responseParser->getTransactionKey() . ' ignored: ' . $mismatch . ' does not match the order.');
+            $order->add_order_note(
+                $mismatch === 'currency'
+                    ? sprintf(
+                        __('Ignored a Buckaroo push for transaction %1$s in %2$s, because the order is in %3$s.', 'wc-buckaroo-bpe-gateway'),
+                        esc_html((string) $responseParser->getTransactionKey()),
+                        esc_html((string) $responseParser->getCurrency()),
+                        esc_html($order->get_currency())
+                    )
+                    : sprintf(
+                        __('Ignored a Buckaroo test-mode push for transaction %s, because the order was placed in live mode.', 'wc-buckaroo-bpe-gateway'),
+                        esc_html((string) $responseParser->getTransactionKey())
+                    )
+            );
+
+            return;
+        }
+
+        if ($responseParser->getPaymentMethod() == 'paypal') {
+            (new PaypalExpressUpdateOrderAddresses($order, $responseParser))->update();
+        }
+
+        (new TransferResponse($responseParser))->storeBankDetails($order);
+
+        $giftCardPartialPayment = ($responseParser->isAwaitingConsumer() && $responseParser->getTransactionType() == 'I150');
+
+        if ($responseParser->getRelatedTransactionPartialPayment() !== null || $giftCardPartialPayment) {
+            Logger::log('PUSH', 'Partial payment PUSH received ' . $responseParser->getStatusCode());
+            exit();
+        }
+
+        if ($responseParser->getRefundParentKey() !== null) {
+            RefundAction::initiateExternalServiceRefund($order_id, $responseParser);
+        }
+
+        if (apply_filters('buckaroo_push_handled', false, $order, $responseParser)) {
+            return;
+        }
+
+        Logger::log('Order status: ' . $order->get_status());
+
+        if ($responseParser->isOnHold() && ($order->get_payment_method() == 'buckaroo_paypal')) {
+            $responseParser->set('coreStatus', BuckarooTransactionStatus::STATUS_CANCELLED);
+        }
+
+        Logger::log('Response order status: ' . $responseParser->get('coreStatus'));
+        Logger::log('Status message: ' . $responseParser->getSubCodeMessage());
+
+        if (! $this->metaUpdate($order_id, $order, $responseParser)) {
+            return;
+        }
+
+        if ($responseParser->isSuccess()) {
+            $this->onSuccess($order_id, $order, $responseParser);
+        } else {
+            if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_ON_HOLD && in_array($order->get_payment_method(), ['buckaroo_in3', 'buckaroo_zakelijkoprekening'], true)) {
+                return;
+            }
+
+            if (in_array($order->get_payment_method(), ['buckaroo_payperemail', 'buckaroo_transfer'])) {
+                Logger::log('Payperemail status check: ' . $responseParser->getStatusCode());
+                if (Helper::handleUnsuccessfulPayment($responseParser->getStatusCode())) {
+                    return;
+                }
+            }
+
+            Logger::log('Payment request failed/canceled. Order status: ' . $order->get_status());
+
+            $this->onFailure($order, $responseParser);
+
+            if ($responseParser->get('coreStatus') == BuckarooTransactionStatus::STATUS_CANCELLED) {
+                Logger::log('Payment cancelled by customer - keeping status as failed to allow retry');
+                wc_add_notice(__('Payment cancelled by customer.', 'wc-buckaroo-bpe-gateway'), 'error');
+            } elseif ($responseParser->getPaymentMethod() == 'afterpaydigiaccept' && $responseParser->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_REJECTED) {
                 wc_add_notice(
                     __(
                         "We are sorry to inform you that the request to pay afterwards with Riverty is not possible at this time. This can be due to various (temporary) reasons. For questions about your rejection you can contact the customer service of Riverty. Or you can visit the website of Riverty and check the 'Frequently asked questions' through this <a href=\"https://www.afterpay.nl/nl/consumenten/vraag-en-antwoord\" target=\"_blank\">link</a>. We advise you to choose another payment method to complete your order.",
@@ -565,7 +576,7 @@ class PushProcessor
      *
      * @return array
      */
-    protected function getAllHeaders(): array
+    public function getAllHeaders(): array
     {
         if (function_exists('getallheaders')) {
             return getallheaders();

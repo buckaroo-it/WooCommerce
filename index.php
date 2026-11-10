@@ -9,6 +9,7 @@ Description: WooCommerce payment gateway for iDEAL, Bancontact, Klarna, PayPal, 
 Version: 4.11.0
 WC requires at least: 5.0
 WC tested up to: 11.2.0
+Requires PHP: 8.2
 Text Domain: wc-buckaroo-bpe-gateway
 Domain Path: /languages
 License: GPLv2 or later

@@ -2,6 +2,8 @@
 
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
+use BuckarooDeps\Buckaroo\Adapter\Bpe\BpeResult;
+use BuckarooDeps\Buckaroo\Adapter\Contracts\Result;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 
 class InMemoryBuckarooClient extends BuckarooClient
@@ -49,13 +51,13 @@ class InMemoryBuckarooClient extends BuckarooClient
         return $this->statusResponse;
     }
 
-    public function process(AbstractProcessor $processor, array $additionalData = []): TransactionResponse
+    public function process(AbstractProcessor $processor, array $additionalData = []): Result
     {
         $this->sendCount++;
         $this->service = $processor->gateway->getServiceCode($processor);
         $this->action = $processor->getAction();
         $this->payload = array_merge($processor->getBody(), $additionalData);
 
-        return $this->response;
+        return new BpeResult($this->response);
     }
 }

@@ -7,7 +7,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                php-version: [ '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ]
+                php-version: [ '8.2', '8.3', '8.4' ]
 
         steps:
             -   uses: actions/checkout@v4
@@ -24,6 +24,8 @@ jobs:
                     composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
                     composer compose-dependencies
                     composer dump-autoload -o
+                env:
+                    COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
 
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
@@ -34,3 +36,5 @@ jobs:
 
             -   name: Check PHP Compatibility
                 run: composer require --dev --no-scripts php-parallel-lint/php-parallel-lint && vendor/bin/parallel-lint . --exclude vendor --exclude tools
+                env:
+                    COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}

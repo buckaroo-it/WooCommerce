@@ -7,7 +7,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                php: [ '7.4' ]
+                php: [ '8.2' ]
         steps:
             -   uses: actions/checkout@v4
             -   name: Setup PHP
@@ -27,6 +27,8 @@ jobs:
 
             -   name: Install dependencies
                 run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+                env:
+                    COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
 
             -   name: Run PHPCS via Composer script
                 run: composer phpcs

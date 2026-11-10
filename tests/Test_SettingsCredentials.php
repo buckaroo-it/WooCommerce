@@ -47,6 +47,8 @@ class Test_SettingsCredentials extends TestCase
         return [
             [PaymentMethodSettings::class, 'merchantkey'],
             [PaymentMethodSettings::class, 'secretkey'],
+            [PaymentMethodSettings::class, 'upg_test_key'],
+            [PaymentMethodSettings::class, 'upg_live_key'],
             [CreditCardGateway::class, 'hosted_fields_client_id'],
             [CreditCardGateway::class, 'hosted_fields_client_secret'],
         ];
@@ -77,6 +79,8 @@ class Test_SettingsCredentials extends TestCase
         $gateway = new PaymentMethodSettings();
         $gateway->settings['merchantkey'] = 'stored-merchant-fixture';
         $gateway->settings['secretkey'] = 'stored-secret-fixture';
+        $gateway->settings['upg_test_key'] = 'stored-upg-test-fixture';
+        $gateway->settings['upg_live_key'] = 'stored-upg-live-fixture';
         $page = new GeneralSettings($gateway);
 
         ob_start();
@@ -85,10 +89,12 @@ class Test_SettingsCredentials extends TestCase
 
         $this->assertStringNotContainsString('stored-merchant-fixture', $html);
         $this->assertStringNotContainsString('stored-secret-fixture', $html);
+        $this->assertStringNotContainsString('stored-upg-test-fixture', $html);
+        $this->assertStringNotContainsString('stored-upg-live-fixture', $html);
         $this->assertStringNotContainsString('bk-key-btn', $html);
-        $this->assertSame(2, substr_count($html, 'value=""'));
-        $this->assertSame(2, substr_count($html, 'placeholder="******"'));
-        $this->assertSame(2, substr_count($html, 'Saved. Enter a new value only to replace it.'));
+        $this->assertSame(4, substr_count($html, 'value=""'));
+        $this->assertSame(4, substr_count($html, 'placeholder="******"'));
+        $this->assertSame(4, substr_count($html, 'Saved. Enter a new value only to replace it.'));
         $this->assertStringNotContainsString('required="required"', $html);
         $this->assertSame('stored-secret-fixture', $gateway->get_option('secretkey'));
     }

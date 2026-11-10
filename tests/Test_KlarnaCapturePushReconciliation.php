@@ -11,6 +11,8 @@ use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPushProcessor;
 use Buckaroo\Woocommerce\ResponseParser\FormDataParser;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
+use BuckarooDeps\Buckaroo\Adapter\Bpe\BpeResult;
+use BuckarooDeps\Buckaroo\Adapter\Contracts\Result;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use PHPUnit\Framework\TestCase;
 
@@ -909,7 +911,7 @@ class ThrowingBuckarooClient extends BuckarooClient
         self::$sendCount = 0;
     }
 
-    public function process(AbstractProcessor $processor, array $additionalData = []): TransactionResponse
+    public function process(AbstractProcessor $processor, array $additionalData = []): Result
     {
         self::$sendCount++;
         throw new RuntimeException('Lost response after send');
@@ -930,10 +932,10 @@ class InterleavingBuckarooClient extends BuckarooClient
         $this->response = $response;
     }
 
-    public function process(AbstractProcessor $processor, array $additionalData = []): TransactionResponse
+    public function process(AbstractProcessor $processor, array $additionalData = []): Result
     {
         ($this->duringSend)();
 
-        return $this->response;
+        return new BpeResult($this->response);
     }
 }

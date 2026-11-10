@@ -25,7 +25,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                php-version: [ '7.3', '7.4' ]
+                php-version: [ '8.2' ]
         steps:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
@@ -65,6 +65,8 @@ jobs:
             -   name: Install composer for plugin
                 working-directory: wc-buckaroo-bpe-gateway
                 run: composer install --dev
+                env:
+                    COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
 
             -   name: install composer for woocommerce
                 working-directory: woocommerce

@@ -5,6 +5,8 @@ namespace Buckaroo\Woocommerce\Services;
 use BadMethodCallException;
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
+use BuckarooDeps\Buckaroo\Adapter\Contracts\Result;
+use BuckarooDeps\Buckaroo\Adapter\Payments;
 use BuckarooDeps\Buckaroo\BuckarooClient as BaseBuckarooClient;
 use BuckarooDeps\Buckaroo\Config\DefaultConfig;
 use BuckarooDeps\Buckaroo\Handlers\Reply\ReplyHandler;
@@ -44,6 +46,11 @@ class BuckarooClient
     protected string $mode;
 
     /**
+     * Sends each transaction to the BPE SDK or to UPG. Built on the same base client.
+     */
+    protected Payments $payments;
+
+    /**
      * BuckarooClient constructor.
      *
      * Initializes the BuckarooClient with the provided or stored credentials.
@@ -70,6 +77,7 @@ class BuckarooClient
         $this->secretKey = $secretKey ?? $config['secretkey'];
         $this->mode = strtolower($mode) === 'test' ? 'test' : 'live';
         $this->buckarooClient = $this->initializeClient();
+        $this->payments = new Payments($this->buckarooClient, UpgSettings::client($this->mode), UpgSettings::methods($this->mode));
     }
 
     /**
@@ -139,18 +147,28 @@ class BuckarooClient
      *
      * @param  AbstractProcessor  $processor  The processor handling the transaction.
      * @param  array  $additionalData  Additional data to merge into the transaction.
-     * @return TransactionResponse The response from the transaction.
+     * @return Result The answer; on the BPE route raw() is the BPE TransactionResponse, as before.
      *
      * @throws Exception If the processing fails.
      */
-    public function process(AbstractProcessor $processor, array $additionalData = []): TransactionResponse
+    public function process(AbstractProcessor $processor, array $additionalData = []): Result
     {
         $serviceCode = $processor->gateway->getServiceCode($processor);
         $action = $processor->getAction();
         $requestData = array_merge($processor->getBody(), $additionalData);
         Logger::log(__METHOD__ . '|1|', [get_class($processor), $serviceCode, $action, $requestData]);
 
-        return $this->method($serviceCode)->{$action}($requestData);
+        return $this->payments->send($serviceCode, $action, $requestData);
+    }
+
+    /**
+     * The UPG result when the consumer comes back from UPG, otherwise null.
+     *
+     * @param  array  $query  the query string of the return request
+     */
+    public function returned(array $query): ?Result
+    {
+        return $this->payments->returned($query);
     }
 
     /**

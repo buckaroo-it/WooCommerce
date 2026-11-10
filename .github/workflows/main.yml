@@ -27,6 +27,8 @@ jobs:
                     composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
                     composer compose-dependencies
                     composer dump-autoload -o
+                env:
+                    COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
 
             -   name: Get Release Version
                 id: get_version

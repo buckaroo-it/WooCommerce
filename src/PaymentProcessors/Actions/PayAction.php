@@ -5,7 +5,9 @@ namespace Buckaroo\Woocommerce\PaymentProcessors\Actions;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\PaymentProcessors\ReturnProcessor;
+use Buckaroo\Woocommerce\ResponseParser\UpgResponseParser;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
+use BuckarooDeps\Buckaroo\Adapter\Api;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use WC_Order;
 
@@ -29,9 +31,15 @@ class PayAction
 
     public function process()
     {
-        $transactionResponse = $this->buckarooClient->process($this->paymentProcessor);
+        $result = $this->buckarooClient->process($this->paymentProcessor);
 
-        return $this->finalize($transactionResponse);
+        if ($result->api() === Api::Upg) {
+            UpgResponseParser::rememberSale($this->order, (string) $result->reference());
+
+            return ReturnProcessor::forUpg($result, $this->paymentProcessor->gateway, true)->handle($this->paymentProcessor->gateway);
+        }
+
+        return $this->finalize($result->raw());
     }
 
     public function finalize(TransactionResponse $transactionResponse)
