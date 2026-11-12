@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Transfer;
 
 use Buckaroo\Woocommerce\ResponseParser\IGatewayResponse;
+use Buckaroo\Woocommerce\ResponseParser\JsonParser;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use WC_Order;
 
@@ -66,7 +67,9 @@ class TransferResponse implements IGatewayResponse
 
         $fields = [];
 
-        $services = $this->responseParser->get('services');
+        // A form-post reply is signed only over its brq_/add_/cust_ fields, so
+        // its bank details are read from the brq_SERVICE_ fields only.
+        $services = $this->responseParser instanceof JsonParser ? $this->responseParser->get('services') : null;
         if (is_array($services)) {
             foreach ($services as $service) {
                 if (empty($service['parameters']) || ! is_array($service['parameters'])) {

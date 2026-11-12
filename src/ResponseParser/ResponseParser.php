@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\ResponseParser;
 
 use Buckaroo\Woocommerce\Constraints\BuckarooTransactionStatus;
+use Buckaroo\Woocommerce\Services\Helper;
 use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 
 abstract class ResponseParser implements IResponseParser
@@ -49,6 +50,30 @@ abstract class ResponseParser implements IResponseParser
         } else {
             return new FormDataParser($items);
         }
+    }
+
+    /**
+     * Whether every transaction key in the reply has the Buckaroo format.
+     * The keys are used as order meta keys and lookups, so they must be
+     * compared exactly as Buckaroo issued them. A pay-per-email reply lists
+     * its transactions comma-separated.
+     */
+    public function hasValidTransactionKeys(): bool
+    {
+        $keys = [$this->getRelatedTransactionPartialPayment(), $this->getRefundParentKey()];
+
+        $transactions = $this->getTransactionKey();
+        if ($transactions !== null && $transactions !== '') {
+            $keys = array_merge($keys, explode(',', $transactions));
+        }
+
+        foreach ($keys as $key) {
+            if ($key !== null && ! Helper::isValidTransactionKey($key)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function get($key = null, $default = null, $formatted = true)

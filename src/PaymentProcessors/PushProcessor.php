@@ -427,6 +427,12 @@ class PushProcessor
                 ini_set('serialize_precision', $original_precision);
             }
 
+            if (! $responseParser->hasValidTransactionKeys()) {
+                Logger::log('Push message. Reply ignored: a transaction key has an invalid format.');
+
+                return;
+            }
+
             // Check if redirect required
             $checkIfRedirectRequired = Helper::processCheckRedirectRequired($responseParser);
             if ($checkIfRedirectRequired) {
