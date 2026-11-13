@@ -67,8 +67,7 @@ class TransferResponse implements IGatewayResponse
 
         $fields = [];
 
-        // A form-post reply is signed only over its brq_/add_/cust_ fields, so
-        // its bank details are read from the brq_SERVICE_ fields only.
+        // A form-post reply provides its bank details in the brq_SERVICE_ fields.
         $services = $this->responseParser instanceof JsonParser ? $this->responseParser->get('services') : null;
         if (is_array($services)) {
             foreach ($services as $service) {

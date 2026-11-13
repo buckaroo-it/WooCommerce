@@ -54,9 +54,7 @@ abstract class ResponseParser implements IResponseParser
 
     /**
      * Whether every transaction key in the reply has the Buckaroo format.
-     * The keys are used as order meta keys and lookups, so they must be
-     * compared exactly as Buckaroo issued them. A pay-per-email reply lists
-     * its transactions comma-separated.
+     * A pay-per-email reply lists its transactions comma-separated.
      */
     public function hasValidTransactionKeys(): bool
     {

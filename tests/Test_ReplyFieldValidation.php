@@ -13,8 +13,7 @@ use Buckaroo\Woocommerce\Services\Helper;
 use PHPUnit\Framework\TestCase;
 
 /**
- * A validly signed form-post reply is only trusted for the fields that are
- * signed, and transaction keys are used only in the form Buckaroo issues them.
+ * Handling of transaction keys and transfer bank details in Buckaroo replies.
  */
 class Test_ReplyFieldValidation extends TestCase
 {
@@ -83,7 +82,7 @@ class Test_ReplyFieldValidation extends TestCase
     {
         return [
             'buckaroo key' => ['4E8BD922192746C3918BF4077CFB4CB9', true],
-            'html entity' => ['4E8BD922192746C3918BF4077CFB4CB&#57;', false],
+            'special characters' => ['4E8BD922192746C3918BF4077CFB4CB&#57;', false],
             'whitespace' => [' 4E8BD922192746C3918BF4077CFB4CB9', false],
             'empty' => ['', false],
             'too long' => [str_repeat('A', 65), false],
@@ -92,14 +91,14 @@ class Test_ReplyFieldValidation extends TestCase
         ];
     }
 
-    public function test_reply_with_an_entity_encoded_transaction_key_is_rejected(): void
+    public function test_reply_with_an_invalid_transaction_key_format_is_rejected(): void
     {
         $parser = ResponseParser::make(['brq_transactions' => 'ABC&#49;23']);
 
         $this->assertFalse($parser->hasValidTransactionKeys());
     }
 
-    public function test_reply_with_an_entity_encoded_related_transaction_key_is_rejected(): void
+    public function test_reply_with_an_invalid_related_transaction_key_format_is_rejected(): void
     {
         $parser = ResponseParser::make([
             'brq_transactions' => 'REFUNDKEY1',
@@ -123,7 +122,7 @@ class Test_ReplyFieldValidation extends TestCase
         $this->assertTrue($parser->hasValidTransactionKeys());
     }
 
-    public function test_signed_refund_push_replayed_with_an_entity_encoded_key_creates_no_refund(): void
+    public function test_refund_push_with_an_invalid_key_format_is_ignored(): void
     {
         $order = $this->createPaidOrder();
         OrderMeta::add($order, '_refundbuckarooREFUNDKEY1', 'ok', true);
@@ -137,7 +136,7 @@ class Test_ReplyFieldValidation extends TestCase
             'brq_transactions' => 'REFUNDKEY&#49;',
             'brq_relatedtransaction_refund' => 'PAYMENTKEY1',
         ]);
-        $this->assertTrue($this->client()->isReplyHandlerValid($reply), 'The replayed reply must carry a valid signature');
+        $this->assertTrue($this->client()->isReplyHandlerValid($reply), 'The reply must pass validation');
 
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST = $reply;
@@ -149,7 +148,7 @@ class Test_ReplyFieldValidation extends TestCase
         $this->assertSame('', OrderMeta::get($stored, '_refundbuckaroo' . 'REFUNDKEY&#49;'));
     }
 
-    public function test_signed_return_with_an_entity_encoded_key_is_rejected(): void
+    public function test_return_with_an_invalid_key_format_is_rejected(): void
     {
         $order = $this->createOrder();
         $order->set_payment_method('buckaroo_transfer');
@@ -171,7 +170,7 @@ class Test_ReplyFieldValidation extends TestCase
         $this->assertSame('', $stored->get_meta('buckaroo_IBAN'));
     }
 
-    public function test_unsigned_services_field_does_not_change_transfer_bank_details(): void
+    public function test_form_reply_bank_details_are_read_from_service_fields(): void
     {
         $order = $this->createOrder();
         $order->set_payment_method('buckaroo_transfer');
@@ -194,7 +193,7 @@ class Test_ReplyFieldValidation extends TestCase
                 ],
             ],
         ];
-        $this->assertTrue($this->client()->isReplyHandlerValid($reply), 'Unsigned fields do not affect the signature');
+        $this->assertTrue($this->client()->isReplyHandlerValid($reply), 'The reply must pass validation');
 
         (new TransferResponse(ResponseParser::make($reply)))->storeBankDetails(wc_get_order($order->get_id()));
 
@@ -203,7 +202,7 @@ class Test_ReplyFieldValidation extends TestCase
         $this->assertSame('REF-2', $stored->get_meta('buckaroo_paymentReference'));
     }
 
-    public function test_array_value_in_a_signed_field_fails_validation(): void
+    public function test_array_value_in_a_reply_field_fails_validation(): void
     {
         $reply = $this->sign([
             'brq_statuscode' => '190',
@@ -231,7 +230,7 @@ class Test_ReplyFieldValidation extends TestCase
         return new BuckarooClient('test');
     }
 
-    /** Signs a form-post reply the way Buckaroo does. */
+    /** Adds the signature to a form-post reply. */
     private function sign(array $reply): array
     {
         $signed = array_filter($reply, function ($key) {
