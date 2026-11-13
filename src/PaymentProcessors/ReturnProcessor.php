@@ -59,6 +59,12 @@ class ReturnProcessor
 
                 return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Response not valid!');
             }
+
+            if (! $responseParser->hasValidTransactionKeys()) {
+                Logger::log('Return ignored: a transaction key has an invalid format. Order id: ' . $orderId);
+
+                return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Response not valid!');
+            }
         }
 
         // A browser return can be replayed, so it is matched to the order. The

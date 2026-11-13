@@ -48,6 +48,16 @@ class Helper
         return version_compare(WC()->version, '3.0.0', '>=');
     }
 
+    /**
+     * Whether the value has the format of a Buckaroo transaction key.
+     *
+     * @param  mixed  $key
+     */
+    public static function isValidTransactionKey($key): bool
+    {
+        return is_string($key) && preg_match('/^[A-Za-z0-9]{1,64}$/', $key) === 1;
+    }
+
     public static function roundAmount($amount)
     {
         if (is_scalar($amount) && is_numeric($amount)) {

@@ -11,6 +11,7 @@ use BuckarooDeps\Buckaroo\Handlers\Reply\ReplyHandler;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use Exception;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * Class BuckarooClient
@@ -109,8 +110,8 @@ class BuckarooClient
             $replyHandler = new ReplyHandler($this->buckarooClient->client()->config(), $data, $authHeader ?? '', $url ?? '');
 
             return $replyHandler->validate()->isValid();
-        } catch (Exception $e) {
-            Logger::log(__METHOD__ . '|1|', [$e->getMessage(), $data]);
+        } catch (Throwable $e) {
+            Logger::log(__METHOD__ . '|1|', 'Reply could not be validated: ' . get_class($e) . ': ' . $e->getMessage());
 
             return false;
         }
@@ -160,7 +161,7 @@ class BuckarooClient
      */
     public function transactionStatus(string $transactionKey): TransactionResponse
     {
-        if (! preg_match('/^[A-Za-z0-9]{1,64}$/', $transactionKey)) {
+        if (! Helper::isValidTransactionKey($transactionKey)) {
             throw new InvalidArgumentException('Invalid Buckaroo transaction key.');
         }
 
