@@ -199,6 +199,14 @@ BTI-1861 iDIN age verification was skipped for variations of products in iDIN ca
 BTI-1910 The birthdate field interpreted typed dates incorrectly
 BTI-1608 The checkout redirect notice "after submission..." was not translated
 
+= 4.10.2 =
+
+Improvements
+
+BTI-1586 Update to use PHP SDK v1.24.5 for the plugin (latest)
+BTI-1442 Update outdated payment method labels in PayPerEmail "Allowed methods" setting
+BTI-1597 Update plugin listing logo and header image
+
 = 4.10.1 =
 
 Improvements
