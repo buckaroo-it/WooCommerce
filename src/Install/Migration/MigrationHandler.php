@@ -8,6 +8,7 @@ use Buckaroo\Woocommerce\Install\Migration\Versions\SetupTransactionsAndLogs;
 use Buckaroo\Woocommerce\Services\Logger;
 use Throwable;
 use Buckaroo\Woocommerce\Install\Migration\Versions\DisableAutoloadForSettings;
+use Buckaroo\Woocommerce\Install\Migration\Versions\KeepTransferSendMailOff;
 use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateIdealToIdealWero;
 use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateKlarnaPayLaterLabels;
 use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateOrderMetaToHpos;
@@ -193,6 +194,7 @@ class MigrationHandler
             new MigrateIdealToIdealWero(),
             new MigrateKlarnaPayLaterLabels(),
             new MigrateOrderMetaToHpos(),
+            new KeepTransferSendMailOff(),
         ];
     }
 
