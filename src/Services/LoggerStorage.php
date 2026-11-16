@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Services;
 
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
+use DateTime;
 
 /**
  * Singleton for storing logger data
@@ -26,7 +27,15 @@ class LoggerStorage
 
     public const STORAGE_ALL = 'all';
 
-    public const STORAGE_FILE_LOCATION = 'api/log/';
+    /** Option holding the random part of the log directory name */
+    public const STORAGE_FILE_DIRECTORY_OPTION = 'buckaroo_log_directory_suffix';
+
+    /** Daily log file name: dd-mm-yyyy.log */
+    public const LOG_FILE_NAME_PATTERN = '/^\d{2}-\d{2}-\d{4}\.log$/';
+
+    private const LOG_FILE_DATE_FORMAT = 'd-m-Y';
+
+    private const HTACCESS_DENY_ALL = "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n    Order Allow,Deny\n    Deny from all\n</IfModule>\n";
 
     public const STORAGE_DB_TABLE = 'buckaroo_log';
 
@@ -79,6 +88,13 @@ class LoggerStorage
     private static $processId;
 
     /**
+     * Whether a failed log file write was already reported in this request
+     *
+     * @var bool
+     */
+    private static $fileWriteFailureReported = false;
+
+    /**
      * Private construct
      */
     private function __construct()
@@ -94,24 +110,86 @@ class LoggerStorage
         return self::$instance;
     }
 
-    public static function downloadFile($name)
+    /**
+     * Date of a daily log file, or null when the name is not a daily log file
+     * name for an existing calendar date
+     *
+     * @param  mixed  $fileName
+     * @return DateTime|null
+     */
+    public static function get_log_file_date($fileName)
     {
-        $file = self::get_file_storage_location() . $name;
-
-        if (file_exists($file)) {
-            header('Expires: 0');
-            header('Cache-Control: no-cache, no-store, must-revalidate');
-            header('Cache-Control: pre-check=0, post-check=0, max-age=0', false);
-            header('Pragma: no-cache');
-            header('Content-type: text/plain');
-            header("Content-Disposition:attachment; filename={$name}");
-
-            readfile($file);
-            exit();
-        } else {
-            echo '<p>No log file found</p>';
-            exit();
+        if (! is_string($fileName) || preg_match(self::LOG_FILE_NAME_PATTERN, $fileName) !== 1) {
+            return null;
         }
+
+        $dateString = substr($fileName, 0, -4);
+        $date = DateTime::createFromFormat('!' . self::LOG_FILE_DATE_FORMAT, $dateString);
+
+        if (! $date instanceof DateTime || $date->format(self::LOG_FILE_DATE_FORMAT) !== $dateString) {
+            return null;
+        }
+
+        return $date;
+    }
+
+    /**
+     * Daily log files in the log directory, keyed by file name
+     *
+     * @return DateTime[]
+     */
+    public static function get_log_files()
+    {
+        $directory = self::get_file_storage_location();
+
+        if (! is_dir($directory)) {
+            return [];
+        }
+
+        $files = [];
+
+        foreach ((array) scandir($directory) as $fileName) {
+            $date = self::get_log_file_date($fileName);
+
+            if ($date !== null && is_file($directory . $fileName)) {
+                $files[$fileName] = $date;
+            }
+        }
+
+        return $files;
+    }
+
+    /**
+     * Full path of an existing daily log file, or null when the name is not
+     * a daily log file name or the file does not exist
+     *
+     * @param  mixed  $fileName
+     * @return string|null
+     */
+    public static function get_log_file_path($fileName)
+    {
+        if (self::get_log_file_date($fileName) === null) {
+            return null;
+        }
+
+        $file = self::get_file_storage_location() . $fileName;
+
+        return is_file($file) ? $file : null;
+    }
+
+    /**
+     * Send a log file to the browser as a download
+     *
+     * @return void
+     */
+    public static function send_file(string $file)
+    {
+        nocache_headers();
+        header('Content-Type: text/plain; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+        header('X-Content-Type-Options: nosniff');
+
+        readfile($file);
     }
 
     /**
@@ -132,7 +210,7 @@ class LoggerStorage
         $storage = static::getStorage();
         $method = $this->get_method_name($storage);
 
-        $date = date('Y-m-d h:i:s');
+        $date = date('Y-m-d H:i:s');
 
         if (method_exists($this, $method)) {
             $this->{$method}(
@@ -492,18 +570,113 @@ class LoggerStorage
      */
     protected function store_in_file(array $info)
     {
-        @file_put_contents(
-            self::get_file_storage_location() . date('d-m-Y') . '.log',
+        $directory = self::get_file_storage_location();
+
+        if (! self::prepare_file_storage_location($directory)) {
+            self::report_file_write_failure();
+
+            return;
+        }
+
+        $file = $directory . date(self::LOG_FILE_DATE_FORMAT) . '.log';
+
+        if (file_exists($file) && ! is_writable($file)) {
+            self::report_file_write_failure();
+
+            return;
+        }
+
+        $written = file_put_contents(
+            $file,
             implode(
                 '|||',
                 $info
             ) . PHP_EOL,
-            FILE_APPEND
+            FILE_APPEND | LOCK_EX
         );
+
+        if ($written === false) {
+            self::report_file_write_failure();
+        }
     }
 
+    /**
+     * Directory of the daily log files: a directory with a random name,
+     * created once per site, inside the uploads directory
+     *
+     * @return string
+     */
     public static function get_file_storage_location()
     {
-        return plugin_dir_path(BK_PLUGIN_FILE) . self::STORAGE_FILE_LOCATION;
+        $suffix = get_option(self::STORAGE_FILE_DIRECTORY_OPTION);
+
+        if (! is_string($suffix) || preg_match('/^[a-z0-9]{32}$/', $suffix) !== 1) {
+            $suffix = strtolower(wp_generate_password(32, false));
+            update_option(self::STORAGE_FILE_DIRECTORY_OPTION, $suffix);
+        }
+
+        $uploads = wp_upload_dir(null, false);
+        $directory = trailingslashit($uploads['basedir']) . 'buckaroo-logs-' . $suffix;
+
+        /**
+         * Directory where the Buckaroo debug log files are stored,
+         * for example a directory outside the web root
+         *
+         * @param  string  $directory
+         */
+        $directory = apply_filters('buckaroo_log_directory', $directory);
+
+        return trailingslashit($directory);
+    }
+
+    /**
+     * Create the log directory together with files that deny web access to it
+     *
+     * @return bool Whether the directory exists and is writable
+     */
+    protected static function prepare_file_storage_location(string $directory)
+    {
+        if (! is_dir($directory) && ! wp_mkdir_p($directory)) {
+            return false;
+        }
+
+        if (! is_writable($directory)) {
+            return false;
+        }
+
+        $accessFiles = [
+            '.htaccess' => self::HTACCESS_DENY_ALL,
+            'index.html' => '',
+            'index.php' => "<?php\n// Silence is golden.\n",
+        ];
+
+        foreach ($accessFiles as $name => $content) {
+            if (! file_exists($directory . $name)) {
+                file_put_contents($directory . $name, $content);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Note once per request that a log line could not be written
+     *
+     * @return void
+     */
+    protected static function report_file_write_failure()
+    {
+        if (self::$fileWriteFailureReported) {
+            return;
+        }
+
+        self::$fileWriteFailureReported = true;
+
+        if (function_exists('wc_get_logger')) {
+            wc_get_logger()->warning(
+                'The Buckaroo debug log could not be written to the log directory.',
+                ['source' => 'buckaroo']
+            );
+        }
     }
 }
