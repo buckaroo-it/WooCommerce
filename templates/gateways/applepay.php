@@ -29,5 +29,5 @@ $buttonStyle = $this->get_option('button_style', 'black');
     <div class="applepay-checkout-button-container"
          data-button-style="<?php echo esc_attr($buttonStyle); ?>"
          style="display:none;"></div>
-    <input type="hidden" name="paymentData" class="buckaroo-applepay-payment-data" value="" />
+    <input type="hidden" name="buckaroo_applepay_payment_data" class="buckaroo-applepay-payment-data" value="" />
 </div>
