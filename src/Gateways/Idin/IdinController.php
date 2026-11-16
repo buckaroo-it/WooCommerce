@@ -12,7 +12,7 @@ class IdinController
 {
     public function returnHandler()
     {
-        Logger::log(__METHOD__ . '|1|', wc_clean($_POST));
+        Logger::log(__METHOD__ . '|1|', ['request_fields' => array_keys($_POST)]);
 
         $responseParser = ResponseRegistry::getResponseFromRequest();
 
@@ -29,7 +29,7 @@ class IdinController
         } else {
             $bin = $responseParser->getService('consumerbin');
             $isEighteen = $responseParser->getService('iseighteenorolder') === 'True' ? 1 : 0;
-            Logger::log(__METHOD__ . '|5|', $bin);
+            Logger::log(__METHOD__ . '|5|', ['is_eighteen_or_older' => $isEighteen]);
             if ($isEighteen) {
                 IdinProcessor::setCurrentUserIsVerified($bin);
                 wc_add_notice(__('You have been verified successfully', 'wc-buckaroo-bpe-gateway'), 'success');
@@ -79,7 +79,7 @@ class IdinController
                 $gateway->process_payment('')
             );
         } catch (Throwable $th) {
-            Logger::log(__METHOD__ . (string) $th);
+            Logger::log(__METHOD__, $th);
             $this->sendError(esc_html__('Could not perform the operation'));
             throw $th;
         }

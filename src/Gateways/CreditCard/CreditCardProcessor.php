@@ -44,10 +44,7 @@ class CreditCardProcessor extends AbstractPaymentProcessor
         ];
 
         if ($this->isEncripted()) {
-            $encryptedData = $this->request->input($this->gateway->id . '-encrypted-data') ?: OrderMeta::get($this->get_order(), '_payload_encrypted_card_data');
-            OrderMeta::add($this->get_order(), '_payload_encrypted_card_data', $encryptedData, true);
-
-            $body['sessionId'] = $encryptedData;
+            $body['sessionId'] = $this->request->input($this->gateway->id . '-encrypted-data');
         }
 
         return $body;

@@ -71,7 +71,7 @@ class AbstractPaymentProcessor extends AbstractProcessor
             $this->getMethodBody(),
         );
 
-        Logger::log(__METHOD__ . '|1|', [$_POST, $body]);
+        Logger::log(__METHOD__ . '|1|', ['request_fields' => array_keys($_POST), 'body' => $body]);
 
         return $body;
     }

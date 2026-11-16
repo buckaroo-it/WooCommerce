@@ -211,6 +211,29 @@ class Test_LoggerRedaction extends WP_UnitTestCase
             ['HTTP_COOKIE'],
             ['PHP_AUTH_PW'],
             ['order_key'],
+            ['brq_signature'],
+            ['Signature'],
+            ['paymentData'],
+            ['paymentdata'],
+            ['sessionId'],
+            ['firstName'],
+            ['last_name'],
+            ['billing_email'],
+            ['phoneNumber'],
+            ['street'],
+            ['houseNumber'],
+            ['zipcode'],
+            ['postalCode'],
+            ['city'],
+            ['buckaroo-afterpaynew-birthdate'],
+            ['dateOfBirth'],
+            ['chamberOfCommerce'],
+            ['buckaroo-afterpaynew-company-coc-registration'],
+            ['brq_service_idin_consumerbin'],
+            ['clientIP'],
+            ['customer_ip_address'],
+            ['REMOTE_ADDR'],
+            ['brq_service_ideal_consumername'],
         ];
     }
 
@@ -231,6 +254,14 @@ class Test_LoggerRedaction extends WP_UnitTestCase
             ['RelatedTransactionKey'],
             ['amount'],
             ['buckaroo_creditcard_issuer'],
+            ['brq_statuscode'],
+            ['brq_transactions'],
+            ['currency'],
+            ['invoice'],
+            ['countryCode'],
+            ['returnURL'],
+            ['payment_method'],
+            ['description'],
         ];
     }
 
@@ -252,12 +283,14 @@ class Test_LoggerRedaction extends WP_UnitTestCase
         $parameters = [
             ['Name' => 'CustomerIBAN', 'GroupType' => '', 'Value' => 'NL00IBAN'],
             ['Name' => 'CustomerAccountName', 'Value' => 'J. Doe'],
+            ['Name' => 'MandateReference', 'Value' => 'REF-1'],
         ];
 
         $this->assertSame(
             [
                 ['Name' => 'CustomerIBAN', 'GroupType' => '', 'Value' => LoggerStorage::REDACTED],
-                ['Name' => 'CustomerAccountName', 'Value' => 'J. Doe'],
+                ['Name' => 'CustomerAccountName', 'Value' => LoggerStorage::REDACTED],
+                ['Name' => 'MandateReference', 'Value' => 'REF-1'],
             ],
             LoggerStorage::redact($parameters)
         );

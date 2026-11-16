@@ -71,7 +71,7 @@ class ApplepayGateway extends AbstractPaymentGateway
 
     public function createTransaction()
     {
-        Logger::log(__METHOD__ . '|1|', $_POST);
+        Logger::log(__METHOD__ . '|1|', ['request_fields' => array_keys($_POST)]);
 
         $this->paymentData = $this->request->input('paymentData');
 
