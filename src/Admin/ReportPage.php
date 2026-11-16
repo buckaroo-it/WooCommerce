@@ -2,10 +2,9 @@
 
 namespace Buckaroo\Woocommerce\Admin;
 
-use Buckaroo\Woocommerce\Services\Logger;
+use Buckaroo\Woocommerce\Hooks\ReportDownload;
 use Buckaroo\Woocommerce\Services\LoggerStorage;
 use DateTime;
-use Throwable;
 use WP_List_Table;
 
 /**
@@ -224,16 +223,13 @@ class ReportPage extends WP_List_Table
     public function display_log_file($fileName)
     {
         $backButton = '<a style="margin-right:10px" href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=buckaroo_settings&section=report')) . '">' . esc_html__('Back') . '</a>';
-        $downloadButton = '<a style="margin-left:10px" href="' . esc_url(plugin_dir_url(BK_PLUGIN_FILE) . '?buckaroo_download_log_file=' . $fileName) . '">' . esc_html__('Download') . '</a>';
-        $directory = LoggerStorage::get_file_storage_location();
-        $logs = glob($directory . '*.log');
+        $filePath = LoggerStorage::get_log_file_path($fileName);
 
         $logData = '<p>' . $backButton . esc_html__('No log file found') . '</p>';
-        foreach ($logs as $filePath) {
-            if (basename($filePath) === $fileName) {
-                $file = file_get_contents($filePath);
-                $logData = '<h4>' . $backButton . $fileName . $downloadButton . "</h4></hr><textarea disabled style='width:100%;height:80vh;'>" . htmlentities($file) . '</textarea>';
-            }
+        if ($filePath !== null) {
+            $downloadButton = '<a style="margin-left:10px" href="' . esc_url(ReportDownload::get_download_url($fileName)) . '">' . esc_html__('Download') . '</a>';
+            $file = file_get_contents($filePath);
+            $logData = '<h4>' . $backButton . esc_html($fileName) . $downloadButton . "</h4></hr><textarea disabled style='width:100%;height:80vh;'>" . htmlentities($file) . '</textarea>';
         }
         echo wp_kses(
             $logData,
@@ -260,10 +256,7 @@ class ReportPage extends WP_List_Table
      */
     public function get_total_count_file()
     {
-        $directory = LoggerStorage::get_file_storage_location();
-        $logs = glob($directory . '*.log');
-
-        return count($logs);
+        return count(LoggerStorage::get_log_files());
     }
 
     /**
@@ -275,32 +268,20 @@ class ReportPage extends WP_List_Table
      */
     protected function get_page_item_from_file($current_page)
     {
-        $directory = LoggerStorage::get_file_storage_location();
-        $logs = glob($directory . '*.log');
-
         $items = [];
 
-        foreach ($logs as $fileName) {
-            $date = 'unkown';
-            try {
-                $date = DateTime::createFromFormat(
-                    'd-m-Y',
-                    str_replace('.log', '', basename($fileName))
-                );
-            } catch (Throwable $th) {
-                Logger::log(__METHOD__, 'Invalid file name for log: ' . $fileName);
-            }
+        foreach (LoggerStorage::get_log_files() as $fileName => $date) {
             $items[] = [
                 'date' => $date,
-                'description' => '<a href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=buckaroo_settings&section=logs&log_file=' . basename($fileName))) . '">' . basename($fileName) . '</a>',
+                'description' => '<a href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=buckaroo_settings&section=report&log_file=' . $fileName)) . '">' . esc_html($fileName) . '</a>',
             ];
         }
 
-        // sort by date
+        // sort by date, newest first
         usort(
             $items,
             function ($item1, $item2) {
-                return $item1['date'] < $item2['date'];
+                return $item2['date'] <=> $item1['date'];
             }
         );
 

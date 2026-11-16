@@ -2,11 +2,9 @@
 
 namespace Buckaroo\Woocommerce\Hooks;
 
-use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Services\LoggerStorage;
 use DateInterval;
 use DateTime;
-use Throwable;
 
 /**
  * Start running buckaroo events
@@ -92,23 +90,12 @@ class CronEvents
     protected function clean_logger_storage_file()
     {
         $directory = LoggerStorage::get_file_storage_location();
-        $staleDate = $this->get_stale_date();
-        $logs = glob($directory . '*.log');
-        foreach ($logs as $fileName) {
-            try {
-                $date = DateTime::createFromFormat(
-                    'd-m-Y',
-                    str_replace('.log', '', basename($fileName))
-                );
+        $staleDate = (new DateTime('today'))
+            ->sub(new DateInterval('P' . self::LOG_STALE_DAYS . 'D'));
 
-                if (
-                    $date < $staleDate &&
-                    file_exists($fileName)
-                ) {
-                    unlink($fileName);
-                }
-            } catch (Throwable $th) {
-                Logger::log(__METHOD__, 'Invalid file name for log: ' . $fileName);
+        foreach (LoggerStorage::get_log_files() as $fileName => $date) {
+            if ($date < $staleDate) {
+                unlink($directory . $fileName);
             }
         }
     }
