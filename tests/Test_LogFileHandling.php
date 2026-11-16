@@ -131,7 +131,7 @@ class Test_LogFileHandling extends WP_UnitTestCase
     public function test_manager_with_missing_nonce_is_rejected(): void
     {
         $fileName = $this->createLogFile('-1 day');
-        wp_set_current_user(self::factory()->user->create(['role' => 'shop_manager']));
+        wp_set_current_user($this->createManager('shop_manager'));
         $this->setRequest($fileName, null);
 
         $this->assertErrorStatus(403, (new ReportDownload())->get_requested_file());
@@ -140,7 +140,7 @@ class Test_LogFileHandling extends WP_UnitTestCase
     public function test_manager_with_invalid_nonce_is_rejected(): void
     {
         $fileName = $this->createLogFile('-1 day');
-        wp_set_current_user(self::factory()->user->create(['role' => 'shop_manager']));
+        wp_set_current_user($this->createManager('shop_manager'));
         $this->setRequest($fileName, wp_create_nonce('another-action'));
 
         $this->assertErrorStatus(403, (new ReportDownload())->get_requested_file());
@@ -149,7 +149,7 @@ class Test_LogFileHandling extends WP_UnitTestCase
     public function test_manager_with_valid_nonce_gets_the_log_file(): void
     {
         $fileName = $this->createLogFile('-1 day', 'LOG-CONTENT-FIXTURE');
-        wp_set_current_user(self::factory()->user->create(['role' => 'shop_manager']));
+        wp_set_current_user($this->createManager('shop_manager'));
         $this->setRequest($fileName, wp_create_nonce(ReportDownload::ACTION));
 
         $file = (new ReportDownload())->get_requested_file();
@@ -161,7 +161,7 @@ class Test_LogFileHandling extends WP_UnitTestCase
 
     public function test_missing_log_file_gets_status_404(): void
     {
-        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+        wp_set_current_user($this->createManager('administrator'));
         $this->setRequest(gmdate('d-m-Y', strtotime('-3 days')) . '.log', wp_create_nonce(ReportDownload::ACTION));
 
         $this->assertErrorStatus(404, (new ReportDownload())->get_requested_file());
@@ -174,7 +174,7 @@ class Test_LogFileHandling extends WP_UnitTestCase
     {
         $this->createLogFile('-1 day');
         file_put_contents($this->directory . '/debug.log', 'OTHER-FILE');
-        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+        wp_set_current_user($this->createManager('administrator'));
         $this->setRequest($fileName, wp_create_nonce(ReportDownload::ACTION));
 
         $this->assertErrorStatus(400, (new ReportDownload())->get_requested_file());
@@ -207,7 +207,7 @@ class Test_LogFileHandling extends WP_UnitTestCase
 
     public function test_download_url_uses_admin_post_with_a_valid_nonce(): void
     {
-        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+        wp_set_current_user($this->createManager('administrator'));
         $url = ReportDownload::get_download_url('01-02-2026.log');
 
         $this->assertStringStartsWith(admin_url('admin-post.php'), $url);
@@ -221,13 +221,14 @@ class Test_LogFileHandling extends WP_UnitTestCase
     public function test_report_page_links_to_the_admin_download_url(): void
     {
         $fileName = $this->createLogFile('-1 day', 'LOG-CONTENT-FIXTURE');
-        wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+        wp_set_current_user($this->createManager('administrator'));
 
         ob_start();
         (new ReportPage())->display_log_file($fileName);
         $output = ob_get_clean();
 
-        $this->assertStringContainsString(esc_url(ReportDownload::get_download_url($fileName)), $output);
+        // Compare decoded markup: WordPress versions encode "&" in attributes differently
+        $this->assertStringContainsString(ReportDownload::get_download_url($fileName), html_entity_decode($output));
         $this->assertStringNotContainsString('buckaroo_download_log_file', $output);
         $this->assertStringNotContainsString(plugin_dir_url(BK_PLUGIN_FILE), $output);
         $this->assertStringContainsString('LOG-CONTENT-FIXTURE', $output);
@@ -246,7 +247,7 @@ class Test_LogFileHandling extends WP_UnitTestCase
         $this->assertCount(2, $items);
         $this->assertStringContainsString($newer, $items[0]['description']);
         $this->assertStringContainsString($older, $items[1]['description']);
-        $this->assertStringContainsString('section=report&#038;log_file=' . $newer, $items[0]['description']);
+        $this->assertStringContainsString('section=report&log_file=' . $newer, html_entity_decode($items[0]['description']));
     }
 
     // File logging
@@ -400,6 +401,18 @@ class Test_LogFileHandling extends WP_UnitTestCase
         file_put_contents($this->directory . '/' . $fileName, $content);
 
         return $fileName;
+    }
+
+    /**
+     * User with the WooCommerce management capability; the WooCommerce
+     * roles are not always installed in the test database
+     */
+    private function createManager(string $role): int
+    {
+        $userId = self::factory()->user->create(['role' => $role]);
+        get_user_by('id', $userId)->add_cap('manage_woocommerce');
+
+        return $userId;
     }
 
     private function setRequest($fileName, $nonce): void
