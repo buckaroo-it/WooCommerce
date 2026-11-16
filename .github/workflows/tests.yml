@@ -156,3 +156,27 @@ jobs:
         
       - name: Run PHPCS
         run: composer phpcs -- --report=checkstyle | cs2pr
+
+  js-tests:
+    name: JavaScript Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      # Node's built-in test runner, so no npm install is needed. The admin
+      # settings script must stay fully covered.
+      - name: Run JavaScript tests
+        run: >-
+          node --test --experimental-test-coverage
+          --test-coverage-include='library/js/admin-settings.js'
+          --test-coverage-lines=100
+          --test-coverage-branches=100
+          --test-coverage-functions=100
+          'tests/**/*.test.cjs'

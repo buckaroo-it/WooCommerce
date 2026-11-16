@@ -26,7 +26,20 @@ class LoggerStorage
 
     public const STORAGE_ALL = 'all';
 
-    public const STORAGE_FILE_LOCATION = 'api/log/';
+    /**
+     * Old log folder inside the plugin, which the web server serves to anyone.
+     * Files found there are moved to the protected folder.
+     */
+    public const LEGACY_FILE_LOCATION = 'api/log/';
+
+    /** Log folder inside wp-content/uploads */
+    public const FILE_DIRECTORY = 'buckaroo-logs';
+
+    /** Log files are named <d-m-Y>-<hash>.log */
+    public const LOG_DATE_FORMAT = 'd-m-Y';
+
+    /** @var bool */
+    private static $fileStoragePrepared = false;
 
     public const STORAGE_DB_TABLE = 'buckaroo_log';
 
@@ -82,24 +95,58 @@ class LoggerStorage
         return self::$instance;
     }
 
-    public static function downloadFile($name)
+    /**
+     * Send the log file of one day as a download. Callers check the user's
+     * permissions first.
+     *
+     * @param  string  $date  d-m-Y
+     */
+    public static function downloadFile($date)
     {
-        $file = self::get_file_storage_location() . $name;
+        $file = self::get_log_file_path((string) $date);
 
-        if (file_exists($file)) {
-            header('Expires: 0');
-            header('Cache-Control: no-cache, no-store, must-revalidate');
-            header('Cache-Control: pre-check=0, post-check=0, max-age=0', false);
-            header('Pragma: no-cache');
-            header('Content-type: text/plain');
-            header("Content-Disposition:attachment; filename={$name}");
-
-            readfile($file);
-            exit();
-        } else {
-            echo '<p>No log file found</p>';
-            exit();
+        if ($file === null) {
+            wp_die(esc_html__('No log file found', 'wc-buckaroo-bpe-gateway'), '', ['response' => 404]);
         }
+
+        // @codeCoverageIgnoreStart
+        // Ends the request, which a test cannot do
+        self::send_log_file($file, (string) $date);
+        exit;
+        // @codeCoverageIgnoreEnd
+    }
+
+    /**
+     * Headers and contents of a log file download
+     *
+     * @param  string  $date  d-m-Y
+     */
+    protected static function send_log_file(string $file, string $date): void
+    {
+        if (! headers_sent()) {
+            // @codeCoverageIgnoreStart
+            // Tests have printed output already, so headers cannot be sent there
+            nocache_headers();
+            foreach (self::download_headers($date) as $header) {
+                header($header);
+            }
+            // @codeCoverageIgnoreEnd
+        }
+
+        readfile($file);
+    }
+
+    /**
+     * @param  string  $date  d-m-Y
+     * @return string[]
+     */
+    protected static function download_headers(string $date): array
+    {
+        return [
+            'Content-Type: text/plain; charset=utf-8',
+            'Content-Disposition: attachment; filename="buckaroo-' . $date . '.log"',
+            'X-Content-Type-Options: nosniff',
+        ];
     }
 
     /**
@@ -119,7 +166,8 @@ class LoggerStorage
         $storage = static::getStorage();
         $method = $this->get_method_name($storage);
 
-        $date = date('Y-m-d h:i:s');
+        // 24-hour clock; "h" made 1 pm and 1 am look the same
+        $date = date('Y-m-d H:i:s');
 
         if (method_exists($this, $method)) {
             $this->{$method}(
@@ -344,8 +392,12 @@ class LoggerStorage
      */
     protected function store_in_file(array $info)
     {
+        if (! self::prepare_file_storage()) {
+            return;
+        }
+
         @file_put_contents(
-            self::get_file_storage_location() . date('d-m-Y') . '.log',
+            self::get_file_storage_location() . self::get_log_file_name(date(self::LOG_DATE_FORMAT)),
             implode(
                 '|||',
                 $info
@@ -354,8 +406,136 @@ class LoggerStorage
         );
     }
 
+    /**
+     * Folder that holds the log files, in wp-content/uploads so plugin updates keep it
+     */
     public static function get_file_storage_location()
     {
-        return plugin_dir_path(BK_PLUGIN_FILE) . self::STORAGE_FILE_LOCATION;
+        $uploads = function_exists('wp_upload_dir') ? wp_upload_dir(null, false) : [];
+        $baseDir = ! empty($uploads['basedir']) ? $uploads['basedir'] : WP_CONTENT_DIR . '/uploads';
+
+        return trailingslashit($baseDir) . self::FILE_DIRECTORY . '/';
+    }
+
+    /**
+     * File name for the log of a day. The hash, made with the site's secret salts,
+     * keeps the name unguessable on servers that ignore the folder's .htaccess (nginx).
+     *
+     * @param  string  $date  d-m-Y
+     */
+    public static function get_log_file_name(string $date): string
+    {
+        return $date . '-' . wp_hash('buckaroo-log-' . $date) . '.log';
+    }
+
+    /**
+     * Path of the log file of a day, or null when the date is invalid or there is no log
+     *
+     * @param  string  $date  d-m-Y
+     */
+    public static function get_log_file_path(string $date): ?string
+    {
+        if (! self::is_log_date($date)) {
+            return null;
+        }
+
+        $file = self::get_file_storage_location() . self::get_log_file_name($date);
+
+        return is_file($file) ? $file : null;
+    }
+
+    /**
+     * Log files by date (d-m-Y), newest first
+     *
+     * @return array<string, string>
+     */
+    public static function get_log_files(): array
+    {
+        self::prepare_file_storage();
+
+        $files = [];
+        foreach (glob(self::get_file_storage_location() . '*.log') ?: [] as $file) {
+            $date = substr(basename($file), 0, 10);
+            if (self::is_log_date($date) && basename($file) === self::get_log_file_name($date)) {
+                $files[$date] = $file;
+            }
+        }
+
+        uksort(
+            $files,
+            static function ($a, $b) {
+                return \DateTime::createFromFormat('!' . self::LOG_DATE_FORMAT, $b) <=> \DateTime::createFromFormat('!' . self::LOG_DATE_FORMAT, $a);
+            }
+        );
+
+        return $files;
+    }
+
+    public static function is_log_date(string $date): bool
+    {
+        $parsed = \DateTime::createFromFormat('!' . self::LOG_DATE_FORMAT, $date);
+
+        return $parsed !== false && $parsed->format(self::LOG_DATE_FORMAT) === $date;
+    }
+
+    /**
+     * Create the log folder, block web access to it and move logs out of the old
+     * public folder in the plugin. Runs once per request.
+     */
+    public static function prepare_file_storage(): bool
+    {
+        $directory = self::get_file_storage_location();
+
+        if (self::$fileStoragePrepared) {
+            return is_dir($directory);
+        }
+        self::$fileStoragePrepared = true;
+
+        if (! is_dir($directory) && ! wp_mkdir_p($directory)) {
+            return false;
+        }
+
+        // Apache honours .htaccess; the index file stops directory listings elsewhere
+        $protection = [
+            '.htaccess' => "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n    Deny from all\n</IfModule>\n",
+            'index.html' => '',
+            'index.php' => "<?php\n// Silence is golden.\n",
+        ];
+        foreach ($protection as $name => $contents) {
+            if (! file_exists($directory . $name)) {
+                @file_put_contents($directory . $name, $contents);
+            }
+        }
+
+        self::move_legacy_log_files($directory);
+
+        return true;
+    }
+
+    /**
+     * Older versions wrote <d-m-Y>.log into the plugin folder, where anyone can open them
+     */
+    protected static function move_legacy_log_files(string $directory): void
+    {
+        $legacyDirectory = plugin_dir_path(BK_PLUGIN_FILE) . self::LEGACY_FILE_LOCATION;
+
+        foreach (glob($legacyDirectory . '*.log') ?: [] as $legacyFile) {
+            $date = basename($legacyFile, '.log');
+            if (! self::is_log_date($date)) {
+                @unlink($legacyFile);
+                continue;
+            }
+
+            $target = $directory . self::get_log_file_name($date);
+            if (file_exists($target)) {
+                // Keep both: the old entries go in front of the new ones
+                $contents = @file_get_contents($legacyFile);
+                if ($contents !== false && @file_put_contents($target, $contents . @file_get_contents($target)) !== false) {
+                    @unlink($legacyFile);
+                }
+            } elseif (! @rename($legacyFile, $target)) {
+                @unlink($legacyFile);
+            }
+        }
     }
 }

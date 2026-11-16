@@ -90,8 +90,8 @@ class GeneralSettings extends WC_Settings_Page
                 $hide_save_button = true;
                 break;
             case 'report':
-                if (isset($_GET['log_file'])) {
-                    (new ReportPage())->display_log_file(sanitize_text_field($_GET['log_file']));
+                if (isset($_GET['log_date']) && is_string($_GET['log_date'])) {
+                    (new ReportPage())->display_log_file(sanitize_text_field(wp_unslash($_GET['log_date'])));
                 } else {
                     (new ReportPage())->output_report();
                 }
