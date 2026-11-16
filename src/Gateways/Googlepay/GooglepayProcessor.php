@@ -12,7 +12,7 @@ class GooglepayProcessor extends AbstractPaymentProcessor
     /** {@inheritDoc} */
     protected function getMethodBody(): array
     {
-        $paymentData = $this->getWalletPaymentData();
+        $paymentData = $this->getWalletPaymentData('buckaroo_googlepay_payment_data');
 
         $body = [
             'customerCardName' => $this->resolveWalletCustomerName($paymentData),

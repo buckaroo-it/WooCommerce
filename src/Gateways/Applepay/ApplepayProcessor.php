@@ -14,7 +14,7 @@ class ApplepayProcessor extends AbstractPaymentProcessor
     /** {@inheritDoc} */
     protected function getMethodBody(): array
     {
-        $paymentData = $this->getWalletPaymentData();
+        $paymentData = $this->getWalletPaymentData('buckaroo_applepay_payment_data');
 
         return [
             'customerCardName' => $this->resolveWalletCustomerName($paymentData),
