@@ -152,8 +152,6 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
     protected function getBirthDate(string $country_code, string $type = 'billing'): array
     {
         if (in_array($country_code, ['NL', 'BE']) && ($birthDate = $this->getFormatedDate())) {
-            OrderMeta::add($this->get_order(), '_payload_birthday', $birthDate, true);
-
             return [
                 $type => [
                     'recipient' => [
@@ -171,7 +169,7 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
      */
     private function getFormatedDate(): ?string
     {
-        $dateString = $this->request->input('buckaroo-afterpaynew-birthdate') ?: OrderMeta::get($this->get_order(), '_payload_birthday');
+        $dateString = $this->request->input('buckaroo-afterpaynew-birthdate');
         if (! is_scalar($dateString)) {
             return null;
         }

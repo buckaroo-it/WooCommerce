@@ -39,7 +39,19 @@ class LoggerStorage
      * credential/token/payment-data fragments, or any "...key" that is not a bare "key"
      * or a transaction reference (transactionkey, datarequestkey, paymentkey)
      */
-    private const SENSITIVE_KEY_PATTERN = '/secret|password|passwd|token|nonce|authorization|phpauthpw|cookie|iban|carddata|cardnumber|cvc|cvv|encrypted|(?<!^|transaction|datarequest|payment)key$/';
+    private const SENSITIVE_KEY_PATTERN = '/secret|password|passwd|token|nonce|authorization|phpauthpw|cookie|iban|carddata|cardnumber|cvc|cvv|encrypted|signature|paymentdata|sessionid|(?<!^|transaction|datarequest|payment)key$/';
+
+    /**
+     * Matches a normalized key that holds customer details: names, contact details,
+     * addresses, dates of birth, company registration numbers and IP addresses
+     */
+    private const PERSONAL_DATA_KEY_PATTERN = '/firstname|lastname|givenname|familyname|fullname|middlename|initials|(consumer|customer|account|holder|payer|recipient|contact|card)name|careof|email|phone|mobile|street|housenumber|housenr|address|postcode|postalcode|zipcode|^zip$|city$|locality|birth|dob$|chamberofcommerce|coc|kvk|consumerbin|^bin$|^ip$|clientip|remoteaddr|forwardedfor/';
+
+    /** Matches a normalized key whose "name" entry is the name of a person */
+    private const PERSON_CONTAINER_PATTERN = '/customer|recipient|consumer|contact|payer|holder|person|billing|shipping/';
+
+    /** Query parameters in a logged string whose value is replaced */
+    private const URL_PARAMETER_PATTERN = '/([?&;]|^)([A-Za-z0-9_\-\[\]%.]+)=([^&#\s\'"]*)/';
 
     public static $storageList = [
         self::STORAGE_ALL,
@@ -115,6 +127,7 @@ class LoggerStorage
             return;
         }
 
+        $locationId = self::redact_string($locationId);
         $message = $this->format_message(self::redact($message));
         $storage = static::getStorage();
         $method = $this->get_method_name($storage);
@@ -133,16 +146,17 @@ class LoggerStorage
      * so they never reach the log storage
      *
      * @param  mixed  $data
+     * @param  string  $parentKey  Key the data is stored under
      * @return mixed
      */
-    public static function redact($data, int $depth = 0)
+    public static function redact($data, int $depth = 0, string $parentKey = '')
     {
         if ((is_array($data) || is_object($data)) && $depth >= self::REDACT_MAX_DEPTH) {
             return self::REDACTED;
         }
 
         if ($data instanceof \stdClass) {
-            return (object) self::redact((array) $data, $depth);
+            return (object) self::redact((array) $data, $depth, $parentKey);
         }
 
         if ($data instanceof ResponseParser) {
@@ -158,22 +172,155 @@ class LoggerStorage
             return self::format_throwable($data);
         }
 
+        if (is_object($data)) {
+            return [
+                'class' => get_class($data),
+                'properties' => self::redact(self::object_properties($data), $depth + 1),
+            ];
+        }
+
+        if (is_string($data)) {
+            return self::redact_string($data, $depth);
+        }
+
         if (! is_array($data)) {
             return $data;
         }
 
         $parameterName = $data['Name'] ?? $data['name'] ?? null;
         $redactParameterValue = is_string($parameterName) && self::is_sensitive_key($parameterName);
+        $isPersonContainer = preg_match(self::PERSON_CONTAINER_PATTERN, strtolower(preg_replace('/[^a-z0-9]/i', '', $parentKey))) === 1;
 
         foreach ($data as $key => $value) {
-            if (is_string($key) && (self::is_sensitive_key($key) || ($redactParameterValue && strtolower($key) === 'value'))) {
+            $redactValue = is_string($key) && (self::is_sensitive_key($key)
+                || ($redactParameterValue && strtolower($key) === 'value')
+                || ($isPersonContainer && strtolower($key) === 'name'));
+
+            if ($redactValue) {
                 $data[$key] = self::REDACTED;
             } else {
-                $data[$key] = self::redact($value, $depth + 1);
+                $data[$key] = self::redact($value, $depth + 1, (string) $key);
             }
         }
 
         return $data;
+    }
+
+    /**
+     * Apply the key rules to a string: JSON in the string is decoded and redacted,
+     * query parameters are redacted by name, and order keys and email
+     * addresses are replaced wherever they appear
+     *
+     * @return string
+     */
+    protected static function redact_string(string $value, int $depth = 0)
+    {
+        if (strpbrk($value, '{[') !== false) {
+            $value = self::redact_json_fragments($value, $depth);
+        }
+
+        if (strpos($value, '=') !== false) {
+            $value = preg_replace_callback(
+                self::URL_PARAMETER_PATTERN,
+                function ($match) {
+                    $name = urldecode($match[2]);
+
+                    if (strtolower($name) !== 'key' && ! self::is_sensitive_key($name)) {
+                        return $match[0];
+                    }
+
+                    return $match[1] . $match[2] . '=' . self::REDACTED;
+                },
+                $value
+            ) ?? self::REDACTED;
+        }
+
+        return preg_replace(
+            ['/wc_order_[A-Za-z0-9]+/', '/[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/'],
+            self::REDACTED,
+            $value
+        ) ?? self::REDACTED;
+    }
+
+    /**
+     * Redact every JSON object or array found in a string
+     *
+     * @return string
+     */
+    protected static function redact_json_fragments(string $value, int $depth)
+    {
+        $result = '';
+        $offset = 0;
+        $length = strlen($value);
+
+        while (($start = $offset + strcspn($value, '{[', $offset)) < $length) {
+            $end = self::json_fragment_end($value, $start);
+            $decoded = $end === null ? null : json_decode(substr($value, $start, $end - $start + 1), true);
+
+            if (! is_array($decoded)) {
+                $result .= substr($value, $offset, $start - $offset + 1);
+                $offset = $start + 1;
+                continue;
+            }
+
+            $encoded = wp_json_encode(self::redact($decoded, $depth + 1), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $result .= substr($value, $offset, $start - $offset) . (is_string($encoded) ? $encoded : self::REDACTED);
+            $offset = $end + 1;
+        }
+
+        return $result . substr($value, $offset);
+    }
+
+    /**
+     * Position of the bracket that closes the one at $start, skipping
+     * brackets inside JSON strings
+     *
+     * @return int|null
+     */
+    protected static function json_fragment_end(string $value, int $start)
+    {
+        $level = 0;
+        $inString = false;
+        $length = strlen($value);
+
+        for ($i = $start; $i < $length; $i++) {
+            $char = $value[$i];
+
+            if ($inString) {
+                if ($char === '\\') {
+                    $i++;
+                } elseif ($char === '"') {
+                    $inString = false;
+                }
+            } elseif ($char === '"') {
+                $inString = true;
+            } elseif ($char === '{' || $char === '[') {
+                $level++;
+            } elseif (($char === '}' || $char === ']') && --$level === 0) {
+                return $i;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Properties of an object, including protected and private ones,
+     * keyed by their plain property name
+     *
+     * @return array
+     */
+    protected static function object_properties($object)
+    {
+        $properties = [];
+
+        foreach ((array) $object as $name => $value) {
+            $name = (string) $name;
+            $separator = strrpos($name, "\0");
+            $properties[$separator === false ? $name : substr($name, $separator + 1)] = $value;
+        }
+
+        return $properties;
     }
 
     /**
@@ -192,7 +339,7 @@ class LoggerStorage
                 '%s%s: %s in %s:%d',
                 $prefix,
                 get_class($throwable),
-                $throwable->getMessage(),
+                self::redact_string($throwable->getMessage()),
                 $throwable->getFile(),
                 $throwable->getLine()
             );
@@ -224,7 +371,7 @@ class LoggerStorage
      */
     public static function request_context()
     {
-        $fields = ['REQUEST_METHOD', 'CONTENT_TYPE', 'CONTENT_LENGTH', 'REMOTE_ADDR', 'HTTP_USER_AGENT'];
+        $fields = ['REQUEST_METHOD', 'CONTENT_TYPE', 'CONTENT_LENGTH', 'HTTP_USER_AGENT'];
         $context = [];
 
         if (isset($_SERVER['REQUEST_URI']) && is_string($_SERVER['REQUEST_URI'])) {
@@ -241,7 +388,7 @@ class LoggerStorage
     }
 
     /**
-     * Check if a key holds a credential, token or payment data
+     * Check if a key holds a credential, token, payment data or customer details
      *
      * @return bool
      */
@@ -249,7 +396,8 @@ class LoggerStorage
     {
         $normalized = strtolower(preg_replace('/[^a-z0-9]/i', '', $key));
 
-        return preg_match(self::SENSITIVE_KEY_PATTERN, $normalized) === 1;
+        return preg_match(self::SENSITIVE_KEY_PATTERN, $normalized) === 1
+            || preg_match(self::PERSONAL_DATA_KEY_PATTERN, $normalized) === 1;
     }
 
     /**

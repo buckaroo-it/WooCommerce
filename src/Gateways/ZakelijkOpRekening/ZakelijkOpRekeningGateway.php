@@ -162,10 +162,7 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
 
             return $result;
         } catch (\Throwable $e) {
-            Logger::log(
-                __METHOD__ . '|error|',
-                [$e->getMessage(), $e->getFile() . ':' . $e->getLine(), $e->getTraceAsString()]
-            );
+            Logger::log(__METHOD__ . '|error|', $e);
             wc_add_notice(
                 __('Could not start the payment. Please try again or choose another payment method.', 'wc-buckaroo-bpe-gateway'),
                 'error'
