@@ -31,8 +31,23 @@ jobs:
             -   name: Get Release Version
                 id: get_version
                 run: |
-                    RELEASE_VERSION=$(grep "^Stable tag:" readme.txt | awk -F' ' '{print $NF}')
+                    RELEASE_VERSION=$(grep "^Stable tag:" readme.txt | awk -F' ' '{print $NF}' | tr -d '\r')
+                    PLUGIN_VERSION=$(grep "^Version:" index.php | awk -F' ' '{print $NF}' | tr -d '\r')
                     echo "Release Version: $RELEASE_VERSION"
+
+                    if [ "$RELEASE_VERSION" != "$PLUGIN_VERSION" ]; then
+                        echo "Error: Stable tag ($RELEASE_VERSION) in readme.txt does not match Version ($PLUGIN_VERSION) in index.php."
+                        exit 1
+                    fi
+
+                    if [ "${{ github.event_name }}" = "release" ]; then
+                        GIT_TAG="${{ github.event.release.tag_name }}"
+                        if [ "${GIT_TAG#v}" != "$RELEASE_VERSION" ]; then
+                            echo "Error: release tag ($GIT_TAG) does not match Stable tag ($RELEASE_VERSION) in readme.txt."
+                            exit 1
+                        fi
+                    fi
+
                     echo "version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
 
                 # Step 6: Install Subversion (SVN)
@@ -54,6 +69,13 @@ jobs:
                     echo "version: $RELEASE_VERSION"
 
                     SVN_URL="https://plugins.svn.wordpress.org/wc-buckaroo-bpe-gateway"
+
+                    # Released tags are never overwritten.
+                    if svn ls --non-interactive "$SVN_URL/tags/$RELEASE_VERSION" > /dev/null 2>&1; then
+                        echo "Error: SVN tag $RELEASE_VERSION already exists."
+                        exit 1
+                    fi
+
                     WORKDIR="$HOME/tmp"
                     mkdir -p "$WORKDIR"
                     cd "$WORKDIR"
@@ -83,17 +105,14 @@ jobs:
                         svn rm --force "$f"
                     done || true
 
+                    # Trunk and the tag are committed together, so the Stable tag
+                    # in trunk always points to an existing tag.
+                    svn copy trunk "tags/$RELEASE_VERSION"
+
                     svn commit \
                         --config-option servers:global:http-timeout=3600 \
                         --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --no-auth-cache \
                         --non-interactive --trust-server-cert \
-                        -m "release $RELEASE_VERSION"
-
-                    svn copy \
-                        --config-option servers:global:http-timeout=3600 \
-                        --username "$SVN_USERNAME" --password "$SVN_PASSWORD" --no-auth-cache \
-                        --non-interactive --trust-server-cert \
-                        "$SVN_URL/trunk" "$SVN_URL/tags/$RELEASE_VERSION" \
                         -m "release $RELEASE_VERSION"
 
                     echo "SVN sync completed successfully for version: $RELEASE_VERSION"
