@@ -111,6 +111,18 @@ class SingleCreditCardGateway extends CreditCardGateway
         );
     }
 
+    /**
+     * Only the card brand of this gateway.
+     *
+     * @return string[]
+     */
+    public function getAllowedCardIssuers(): array
+    {
+        $issuer = str_replace('buckaroo_creditcard_', '', $this->id);
+
+        return array_key_exists($issuer, $this->getAllCards()) ? [$issuer] : [];
+    }
+
     public function getServiceCode(?AbstractProcessor $processor = null)
     {
         if ($processor && $processor->getAction() == 'refund') {

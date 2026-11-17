@@ -100,32 +100,64 @@ class CreditCardGateway extends AbstractPaymentGateway
     {
         parent::validate_fields();
 
-        $creditCardMethod = $this->get_option('creditcardmethod');
+        $issuer = $this->request->input($this->id . '-creditcard-issuer');
 
-        if ($creditCardMethod == 'encrypt' && $this->isSecure()) {
-            $encryptedData = $this->request->input($this->id . '-encrypted-data');
-            $issuer = $this->request->input($this->id . '-creditcard-issuer');
-
-            if (empty($issuer) || $issuer === null) {
-                wc_add_notice(__('Select a credit or debit card.', 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-
-            if (empty($encryptedData) || $encryptedData === null) {
-                wc_add_notice(__('Please complete the card form before proceeding.', 'wc-buckaroo-bpe-gateway'), 'error');
-
-                return;
-            }
-        } else {
-            $issuer = $this->request->input($this->id . '-creditcard-issuer');
-
-            if ($issuer === null) {
-                wc_add_notice(__('Select a credit or debit card.', 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-
-            if (! in_array($issuer, array_keys($this->getAllCards()))) {
-                wc_add_notice(__('A valid credit card is required.', 'wc-buckaroo-bpe-gateway'), 'error');
-            }
+        if (! is_string($issuer) || trim($issuer) === '') {
+            wc_add_notice(__('Select a credit or debit card.', 'wc-buckaroo-bpe-gateway'), 'error');
+        } elseif ($this->getSubmittedCardIssuer() === null) {
+            wc_add_notice(__('A valid credit card is required.', 'wc-buckaroo-bpe-gateway'), 'error');
         }
+
+        if ($this->usesHostedFields() && $this->getSubmittedSessionId() === null) {
+            wc_add_notice(__('Please complete the card form before proceeding.', 'wc-buckaroo-bpe-gateway'), 'error');
+        }
+    }
+
+    /**
+     * Card brands that can be paid with through this gateway, as Buckaroo
+     * service names: the providers enabled in the gateway settings.
+     *
+     * @return string[]
+     */
+    public function getAllowedCardIssuers(): array
+    {
+        return array_column($this->getCardsList(), 'servicename');
+    }
+
+    /**
+     * The card brand from the checkout, when it is one of the brands allowed
+     * for this gateway.
+     */
+    public function getSubmittedCardIssuer(): ?string
+    {
+        $issuer = $this->request->input($this->id . '-creditcard-issuer');
+
+        if (! is_string($issuer)) {
+            return null;
+        }
+
+        $issuer = strtolower(trim($issuer));
+
+        return in_array($issuer, $this->getAllowedCardIssuers(), true) ? $issuer : null;
+    }
+
+    /**
+     * The hosted fields session from the checkout, if any.
+     */
+    public function getSubmittedSessionId(): ?string
+    {
+        $sessionId = $this->request->input($this->id . '-encrypted-data');
+
+        return is_string($sessionId) && trim($sessionId) !== '' ? $sessionId : null;
+    }
+
+    /**
+     * Whether card details are entered inline (hosted fields) for this gateway,
+     * following the configured card method.
+     */
+    public function usesHostedFields(): bool
+    {
+        return ! $this->redirectsToPaymentPage();
     }
 
     /**
@@ -182,7 +214,7 @@ class CreditCardGateway extends AbstractPaymentGateway
 
         if (isset($processedPayment['result']) && $processedPayment['result'] == 'success' && $this->creditcardpayauthorize == 'authorize') {
             OrderMeta::update($order_id, '_wc_order_authorized', 'yes');
-            $this->set_order_capture($order_id, 'Creditcard', $this->request->input($this->id . '-creditcard-issuer'));
+            $this->set_order_capture($order_id, 'Creditcard', $this->getSubmittedCardIssuer());
         }
 
         return $processedPayment;
