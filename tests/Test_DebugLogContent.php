@@ -152,6 +152,11 @@ class Test_DebugLogContent extends WP_UnitTestCase
 
     public function test_hosted_fields_session_is_sent_but_not_logged_or_stored(): void
     {
+        update_option('woocommerce_buckaroo_creditcard_settings', [
+            'creditcardmethod' => 'encrypt',
+            'AllowedProvider' => ['visa'],
+        ]);
+        $_SERVER['HTTPS'] = 'on';
         $gateway = new CreditCardGateway();
         $_POST = [
             $gateway->id . '-creditcard-issuer' => 'visa',
