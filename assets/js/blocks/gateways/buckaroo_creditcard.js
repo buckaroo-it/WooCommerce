@@ -32,7 +32,7 @@ function CreditCard({
     methodName,
     locale,
     setErrorMessage,
-    gateway: { paymentMethodId, creditCardIssuers, creditCardMethod, creditCardIsSecure },
+    gateway: { paymentMethodId, creditCardIssuers, creditCardMethod, creditCardIsSecure, hostedFieldsTokenUrl },
 }) {
     const { onPaymentSetup } = eventRegistration;
     const sdkClientRef = useRef(null);
@@ -71,8 +71,9 @@ function CreditCard({
     async function initializeHostedFields() {
         try {
             const now = Date.now();
-            const response = await fetch('/?wc-api=WC_Gateway_Buckaroo_creditcard-hosted-fields-token', {
+            const response = await fetch(hostedFieldsTokenUrl, {
                 method: 'GET',
+                credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },
             });
 

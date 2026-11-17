@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Hooks;
 
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
+use Buckaroo\Woocommerce\Gateways\CreditCard\HostedFieldsController;
 use Buckaroo\Woocommerce\Gateways\Express\ExpressPlacements;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
@@ -234,6 +235,7 @@ class PaymentSetupScripts
                 'idin_nonce' => wp_create_nonce(IdinProcessor::NONCE_ACTION),
                 'payByBankLogos' => PayByBankProcessor::getIssuerLogoUrls(),
                 'creditCardIssuers' => (new CreditCardGateway())->getCardsList(),
+                'hostedFieldsTokenUrl' => $isCheckout ? HostedFieldsController::tokenUrl() : '',
                 'locale' => get_locale(),
             ]
         );
