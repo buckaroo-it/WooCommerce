@@ -287,6 +287,8 @@ class KlarnaPushProcessor
         $products = (new KlarnaOrderArticles(new OrderDetails($order), $gateway))
             ->get_products_for_capture($allocation, $amount);
 
+        // The order was already updated when this capture key was first recorded.
+        $alreadyRecorded = (bool) OrderMeta::get($order, '_capturebuckaroo' . $transactionKey);
         $captureResult = CaptureRecorder::record(
             $order,
             $amount,
@@ -317,6 +319,10 @@ class KlarnaPushProcessor
             return true;
         }
 
+        if (! $alreadyRecorded) {
+            KlarnaFulfillmentActions::updateOrderAfterCapture($order, $transactionKey);
+        }
+
         $updatedAttempt = KlarnaCaptureAttempt::updateUnlessSucceeded(
             $order,
             $attemptNumber,
@@ -331,7 +337,6 @@ class KlarnaPushProcessor
                 __('Klarna capture success could not be finalized in the attempt ledger.', 'wc-buckaroo-bpe-gateway')
             );
         }
-        KlarnaFulfillmentActions::completeWhenFullyCaptured($order, $transactionKey);
         $order->save();
         self::updateSettlementMeta($order, $responseParser, $amount);
         OrderMeta::add($order, '_payment_method_transaction', 'klarna', true);
@@ -402,7 +407,7 @@ class KlarnaPushProcessor
             );
         }
 
-        KlarnaFulfillmentActions::completeWhenFullyCaptured($order, $transactionKey);
+        KlarnaFulfillmentActions::updateOrderAfterCapture($order, $transactionKey);
         $order->save();
         self::updateSettlementMeta($order, $responseParser, $amount);
         OrderMeta::add($order, '_payment_method_transaction', 'klarna', true);
