@@ -145,6 +145,22 @@ class HostedFieldsController
         return self::tokenReply($token['access_token'], $token['expires_at']);
     }
 
+    /**
+     * Drop the token kept in the customer session. A token can start one card
+     * session only, so once the checkout has submitted card details with it,
+     * the next card form needs a new one.
+     *
+     * @return void
+     */
+    public static function forgetToken()
+    {
+        $session = WC()->session;
+
+        if ($session && $session->get(self::SESSION_TOKEN_KEY) !== null) {
+            $session->set(self::SESSION_TOKEN_KEY, null);
+        }
+    }
+
     private static function gateway(): ?CreditCardGateway
     {
         $gateways = WC()->payment_gateways() ? WC()->payment_gateways()->payment_gateways() : [];
