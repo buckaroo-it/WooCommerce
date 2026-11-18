@@ -10,6 +10,7 @@ use Buckaroo\Woocommerce\Gateways\ExpressPaymentManager;
 use Throwable;
 use UnexpectedValueException;
 use WC_Cart;
+use WC_Shipping_Rate;
 
 /**
  * Core for dealing with paypal express button
@@ -201,21 +202,22 @@ class PaypalExpressController
         try {
             $customer_context = $this->shipping->get_customer_context();
             $product_request = null;
+            $quote_breakdown = function ($cart) {
+                $this->selected_shipping_rate($cart);
+
+                return $this->shipping->get_cart_total_breakdown($cart);
+            };
             if ($this->on_product_page()) {
                 $product_request = $this->shipping->get_product_request();
                 $value = ExpressProductCart::calculate(
                     array_merge($product_request, $customer_context),
                     'buckaroo_paypal',
-                    function ($cart) {
-                        return $this->shipping->get_cart_total_breakdown($cart);
-                    }
+                    $quote_breakdown
                 );
             } else {
                 $value = ExpressProductCart::calculateCurrent(
                     'buckaroo_paypal',
-                    function ($cart) {
-                        return $this->shipping->get_cart_total_breakdown($cart);
-                    },
+                    $quote_breakdown,
                     $customer_context
                 );
             }
@@ -326,9 +328,11 @@ class PaypalExpressController
                     if (! hash_equals($quote['total'], $order_total)) {
                         throw new PaypalExpressException('PayPal quote total has changed');
                     }
-                    $this->validate_shipping($cart);
+                    $shipping_rate = $this->selected_shipping_rate($cart);
                     $response = $this->order->create_and_send(
-                        sanitize_text_field(wp_unslash($_POST['orderId']))
+                        sanitize_text_field(wp_unslash($_POST['orderId'])),
+                        $shipping_rate,
+                        $quote['total']
                     );
                     $error = $this->get_error_notices();
                     if ($error !== null) {
@@ -369,17 +373,19 @@ class PaypalExpressController
     /**
      * A cart that needs shipping must ship to the PayPal address with a method
      * the shop offers there, as classic checkout requires. Call inside the
-     * order cart, where the customer and packages reflect the PayPal address.
+     * express cart, where the customer and packages reflect the PayPal address.
      *
-     * @param WC_Cart $cart Cart the order is created from.
-     * @return void
+     * Returns null when the cart needs no shipping.
+     *
+     * @param WC_Cart $cart Cart the quote or order is calculated from.
+     * @return WC_Shipping_Rate|null
      *
      * @throws PaypalExpressException When the PayPal address or its shipping method is not valid.
      */
-    private function validate_shipping($cart): void
+    private function selected_shipping_rate($cart): ?WC_Shipping_Rate
     {
         if (! $cart->needs_shipping()) {
-            return;
+            return null;
         }
 
         if (! isset($_POST['shipping_data']['shipping_address'])) {
@@ -388,9 +394,13 @@ class PaypalExpressController
             );
         }
 
-        $chosen_methods = WC()->session ? (array) WC()->session->get('chosen_shipping_methods') : [];
+        // Use the rate the cart charged. The session's chosen methods follow the
+        // live cart, which differs from the express cart on the product page.
+        $charged_rates = $cart->get_shipping_methods();
+        $charged_rate = is_array($charged_rates) ? reset($charged_rates) : false;
+        $charged_rate_id = $charged_rate instanceof WC_Shipping_Rate ? $charged_rate->get_id() : '';
         try {
-            ExpressProductCart::selectedShippingRate($cart, $chosen_methods[0] ?? '');
+            return ExpressProductCart::selectedShippingRate($cart, $charged_rate_id);
         } catch (UnexpectedValueException $th) {
             throw new PaypalExpressException(
                 __('No shipping method is available for this address.', 'wc-buckaroo-bpe-gateway')

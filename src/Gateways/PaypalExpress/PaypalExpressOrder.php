@@ -2,7 +2,9 @@
 
 namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 
+use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
 use WC_Order;
+use WC_Shipping_Rate;
 use Throwable;
 
 /**
@@ -25,11 +27,13 @@ class PaypalExpressOrder
      * Create order from cart and send it to buckaroo
      *
      * @param string $paypal_order_id Approved PayPal order id.
+     * @param WC_Shipping_Rate|null $shipping_rate Shipping rate approved in PayPal, null when the order needs no shipping.
+     * @param string|null $approved_total Total approved in PayPal, formatted with two decimals.
      * @return array
      *
-     * @throws PaypalExpressException When WooCommerce cannot create the order.
+     * @throws PaypalExpressException When WooCommerce cannot create the order or its total differs from the approved total.
      */
-    public function create_and_send($paypal_order_id)
+    public function create_and_send($paypal_order_id, ?WC_Shipping_Rate $shipping_rate = null, ?string $approved_total = null)
     {
         $payment_method_id = 'buckaroo_paypal';
 
@@ -40,6 +44,7 @@ class PaypalExpressOrder
         }
         $payment_method = $available_gateways[$payment_method_id];
         $order = null;
+        $failure_note = __('PayPal Express payment processing failed.', 'wc-buckaroo-bpe-gateway');
 
         try {
             $order_id = WC()->checkout()->create_order(['payment_method' => $payment_method_id]);
@@ -53,7 +58,26 @@ class PaypalExpressOrder
             $order->set_address($customer->get_billing());
             $order->set_address($customer->get_shipping(), 'shipping');
 
+            // The shipping line follows the rate approved in PayPal, not the session's chosen method.
+            $order->remove_order_items('shipping');
+            if ($shipping_rate !== null) {
+                ExpressProductCart::addShippingLine($order, $shipping_rate);
+            }
+            $order->update_taxes();
+            $order->calculate_totals(false);
+
             $order->save();
+
+            if (
+                $approved_total !== null
+                && number_format((float) $order->get_total('edit'), 2, '.', '') !== $approved_total
+            ) {
+                $failure_note = __(
+                    'The order total does not match the amount approved in PayPal. The payment was not started.',
+                    'wc-buckaroo-bpe-gateway'
+                );
+                throw new PaypalExpressException($failure_note);
+            }
 
             if (method_exists($payment_method, 'set_express_order_id')) {
                 $payment_method->set_express_order_id($paypal_order_id);
@@ -62,10 +86,7 @@ class PaypalExpressOrder
             return $payment_method->process_payment($order_id);
         } catch (Throwable $th) {
             if ($order instanceof WC_Order) {
-                $order->update_status(
-                    'failed',
-                    __('PayPal Express payment processing failed.', 'wc-buckaroo-bpe-gateway')
-                );
+                $order->update_status('failed', $failure_note);
             }
 
             throw $th;

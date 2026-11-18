@@ -2012,3 +2012,7 @@ msgstr ""
 #: assets/js/dist/blocks.js:2
 msgid "lees meer"
 msgstr ""
+
+#: src/Gateways/PaypalExpress/PaypalExpressOrder.php:75
+msgid "The order total does not match the amount approved in PayPal. The payment was not started."
+msgstr "El total del pedido no coincide con el importe aprobado en PayPal. El pago no se ha iniciado."

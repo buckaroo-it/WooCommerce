@@ -48,6 +48,10 @@ class PaypalExpressUpdateOrderAddresses
         $this->order->set_billing_city($this->get('admin_area_2'));
         $this->order->set_billing_postcode($this->get('postal_code'));
         $this->order->set_billing_country($this->get('payerCountry'));
+        $state = $this->get('admin_area_1');
+        if ($state !== '') {
+            $this->order->set_billing_state($state);
+        }
         $email = $this->get('payerEmail');
         if (is_email($email)) {
             $this->order->set_billing_email($email);
@@ -61,7 +65,11 @@ class PaypalExpressUpdateOrderAddresses
         $this->order->set_shipping_address_1($this->get('address_line_1'));
         $this->order->set_shipping_city($this->get('admin_area_2'));
         $this->order->set_shipping_postcode($this->get('postal_code'));
-        $this->order->set_shipping_country($this->get('payerCountry'));
+        $state = $this->get('admin_area_1');
+        if ($state !== '') {
+            $this->order->set_shipping_state($state);
+        }
+        // payerCountry is the PayPal account's country; the shipping country stays the PayPal ship-to country set on the order.
     }
 
     private function get(string $key): string

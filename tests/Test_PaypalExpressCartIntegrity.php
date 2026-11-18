@@ -3,11 +3,28 @@
 declare(strict_types=1);
 
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
+use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressException;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressOrder;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressShipping;
+use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressUpdateOrderAddresses;
+use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 
 class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
 {
+    private const NL_ADDRESS = [
+        'country_code' => 'NL',
+        'state' => '',
+        'postal_code' => '8441ER',
+        'city' => 'Heerenveen',
+    ];
+
+    private const US_ADDRESS = [
+        'country_code' => 'US',
+        'state' => 'CA',
+        'postal_code' => '94105',
+        'city' => 'San Francisco',
+    ];
+
     /** @var int[] */
     private $product_ids = [];
 
@@ -724,35 +741,188 @@ $this->assertSame($expectedTotal, $order->get_total());
         $this->assertSame(0, $calls);
     }
 
-    public function test_physical_paypal_order_to_a_country_the_shop_does_not_ship_to_is_rejected(): void
+    /** @dataProvider paypalPages */
+    public function test_paypal_address_in_a_country_the_shop_does_not_ship_to_is_not_quoted(string $page): void
     {
         $this->addFlatRate();
         update_option('woocommerce_ship_to_countries', 'specific');
         update_option('woocommerce_specific_ship_to_countries', ['BE']);
         $product_id = $this->createSimpleProduct('Physical abroad', '15.00');
-        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
 
-        [$response, $calls] = $this->sendPaypalCartOrder('NL');
+        $response = $this->quotePaypalAddress($page, $product_id, self::NL_ADDRESS);
 
         $this->assertTrue($response['error']);
-        $this->assertSame(0, $calls);
+        $this->assertArrayNotHasKey('data', $response);
     }
 
-    public function test_physical_paypal_order_to_an_address_without_shipping_rates_is_rejected(): void
+    /** @dataProvider paypalPages */
+    public function test_paypal_address_without_shipping_rates_is_not_quoted(string $page): void
+    {
+        $this->addFlatRate($this->createShippingZone('Netherlands only', 'NL'));
+        $product_id = $this->createSimpleProduct('Physical without rates', '15.00');
+
+        $response = $this->quotePaypalAddress($page, $product_id, self::US_ADDRESS);
+
+        $this->assertTrue($response['error']);
+        $this->assertArrayNotHasKey('data', $response);
+    }
+
+    /** @dataProvider paypalPages */
+    public function test_paypal_address_in_a_state_outside_the_shipping_zone_is_not_quoted(string $page): void
     {
         $zone = new WC_Shipping_Zone();
-        $zone->set_zone_name('Belgium only');
-        $zone->add_location('BE', 'country');
+        $zone->set_zone_name('US West');
+        $zone->add_location('US:WA', 'state');
         $zone->save();
         $this->shipping_zone_ids[] = $zone->get_id();
         $this->addFlatRate($zone);
-        $product_id = $this->createSimpleProduct('Physical without rates', '15.00');
-        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+        $product_id = $this->createSimpleProduct('Physical out of zone', '15.00');
 
-        [$response, $calls] = $this->sendPaypalCartOrder('NL');
+        $response = $this->quotePaypalAddress($page, $product_id, self::US_ADDRESS);
 
         $this->assertTrue($response['error']);
-        $this->assertSame(0, $calls);
+        $this->assertArrayNotHasKey('data', $response);
+    }
+
+    /** @dataProvider paypalPages */
+    public function test_paypal_us_order_charges_the_approved_shipping_rate(string $page): void
+    {
+        $this->addFlatRate($this->createShippingZone('United States', 'US'));
+        $product_id = $this->createSimpleProduct('Physical to the US', '15.00');
+
+        [$response, $order] = $this->placePaypalOrder($page, $product_id, self::US_ADDRESS);
+
+        $this->assertFalse($response['error']);
+        $this->assertInstanceOf(WC_Order::class, $order);
+        $shipping_lines = array_values($order->get_items('shipping'));
+        $this->assertCount(1, $shipping_lines);
+        $this->assertSame('flat_rate', $shipping_lines[0]->get_method_id());
+        $this->assertSame('5.00', number_format((float) $order->get_shipping_total(), 2, '.', ''));
+        $this->assertSame('20.00', number_format((float) $order->get_total(), 2, '.', ''));
+        $this->assertSame('US', $order->get_shipping_country());
+        $this->assertSame('CA', $order->get_shipping_state());
+    }
+
+    /** @dataProvider paypalPages */
+    public function test_paypal_nl_order_charges_the_approved_shipping_rate(string $page): void
+    {
+        $this->addFlatRate($this->createShippingZone('Netherlands', 'NL'));
+        $product_id = $this->createSimpleProduct('Physical to NL', '15.00');
+
+        [$response, $order] = $this->placePaypalOrder($page, $product_id, self::NL_ADDRESS);
+
+        $this->assertFalse($response['error']);
+        $this->assertInstanceOf(WC_Order::class, $order);
+        $this->assertCount(1, $order->get_items('shipping'));
+        $this->assertSame('20.00', number_format((float) $order->get_total(), 2, '.', ''));
+        $this->assertSame('NL', $order->get_shipping_country());
+    }
+
+    /** @dataProvider paypalPages */
+    public function test_virtual_paypal_order_to_a_us_address_has_no_shipping_line(string $page): void
+    {
+        $product_id = $this->createSimpleProduct('Virtual to the US', '15.00', true);
+
+        [$response, $order] = $this->placePaypalOrder($page, $product_id, self::US_ADDRESS);
+
+        $this->assertFalse($response['error']);
+        $this->assertInstanceOf(WC_Order::class, $order);
+        $this->assertCount(0, $order->get_items('shipping'));
+        $this->assertSame('15.00', number_format((float) $order->get_total(), 2, '.', ''));
+    }
+
+    public function test_paypal_order_with_a_total_different_from_the_approved_total_is_not_sent(): void
+    {
+        $product_id = $this->createSimpleProduct('Changed total product', '15.00', true);
+        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+        $gateway = $this->fakePaypalGateway();
+        $gateways_before = WC()->payment_gateways->payment_gateways;
+        WC()->payment_gateways->payment_gateways[] = $gateway;
+        $orders_before = wc_get_orders(['limit' => -1, 'return' => 'ids']);
+        $exception = null;
+
+        try {
+            (new PaypalExpressShipping())->with_cart_for_order(
+                false,
+                static function (): array {
+                    return (new PaypalExpressOrder())->create_and_send('PAYPAL-ORDER', null, '10.00');
+                }
+            );
+        } catch (PaypalExpressException $th) {
+            $exception = $th;
+        } finally {
+            WC()->payment_gateways->payment_gateways = $gateways_before;
+        }
+
+        $this->assertInstanceOf(PaypalExpressException::class, $exception);
+        $this->assertNull($gateway->processed_order_id);
+        $new_orders = array_values(array_diff(wc_get_orders(['limit' => -1, 'return' => 'ids']), $orders_before));
+        $this->assertCount(1, $new_orders);
+        $this->order_ids[] = $new_orders[0];
+        $order = wc_get_order($new_orders[0]);
+        $this->assertTrue($order->has_status('failed'));
+        $message = $exception->getMessage();
+        $matching_notes = array_filter(
+            wc_get_order_notes(['order_id' => $order->get_id()]),
+            static function ($note) use ($message): bool {
+                return strpos($note->content, $message) === 0;
+            }
+        );
+        $this->assertCount(1, $matching_notes);
+    }
+
+    public function test_paypal_express_push_keeps_the_ship_to_country_and_sets_the_state(): void
+    {
+        $order = wc_create_order();
+        $order->set_shipping_country('US');
+        $order->set_shipping_state('');
+        $order->save();
+        $this->order_ids[] = $order->get_id();
+
+        (new PaypalExpressUpdateOrderAddresses($order, $this->paypalPush([
+            'brq_SERVICE_paypal_payerCountry' => 'NL',
+            'brq_SERVICE_paypal_address_line_1' => '1 Market St',
+            'brq_SERVICE_paypal_admin_area_1' => 'CA',
+            'brq_SERVICE_paypal_admin_area_2' => 'San Francisco',
+            'brq_SERVICE_paypal_postal_code' => '94105',
+        ])))->update();
+
+        $order = wc_get_order($order->get_id());
+        $this->assertSame('US', $order->get_shipping_country());
+        $this->assertSame('CA', $order->get_shipping_state());
+        $this->assertSame('94105', $order->get_shipping_postcode());
+        $this->assertSame('San Francisco', $order->get_shipping_city());
+        $this->assertSame('CA', $order->get_billing_state());
+    }
+
+    public function test_paypal_express_push_without_a_state_keeps_the_order_state(): void
+    {
+        $order = wc_create_order();
+        $order->set_shipping_country('NL');
+        $order->set_shipping_state('FR');
+        $order->save();
+        $this->order_ids[] = $order->get_id();
+
+        (new PaypalExpressUpdateOrderAddresses($order, $this->paypalPush([
+            'brq_SERVICE_paypal_payerCountry' => 'NL',
+            'brq_SERVICE_paypal_address_line_1' => 'Kerkstraat 42',
+            'brq_SERVICE_paypal_admin_area_2' => 'Heerenveen',
+            'brq_SERVICE_paypal_postal_code' => '8441ER',
+        ])))->update();
+
+        $order = wc_get_order($order->get_id());
+        $this->assertSame('NL', $order->get_shipping_country());
+        $this->assertSame('FR', $order->get_shipping_state());
+        $this->assertSame('8441ER', $order->get_shipping_postcode());
+    }
+
+    public function paypalPages(): array
+    {
+        return [
+            'product page' => ['product'],
+            'cart' => ['cart'],
+            'checkout' => ['checkout'],
+        ];
     }
 
     public function test_physical_paypal_order_with_a_shipping_rate_is_created_with_shipping(): void
@@ -778,6 +948,117 @@ $this->assertSame($expectedTotal, $order->get_total());
 
         $this->assertFalse($response['error']);
         $this->assertSame(1, $calls);
+    }
+
+    /**
+     * Request a PayPal quote for one product with a PayPal shipping address,
+     * from the product page or with the product in the live cart.
+     */
+    private function quotePaypalAddress(string $page, int $product_id, array $address): array
+    {
+        if ($page === 'product') {
+            $this->setPaypalRequest(
+                ['product_id' => (string) $product_id, 'add-to-cart' => (string) $product_id, 'quantity' => '1'],
+                'express-set-shipping',
+                'set_shipping_nonce',
+                $page
+            );
+        } else {
+            $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+            $this->setPaypalRequest([], 'express-set-shipping', 'set_shipping_nonce', $page);
+        }
+        $_POST['shipping_data'] = ['shipping_address' => $address];
+        $_REQUEST = $_POST;
+
+        return $this->captureJsonResponse([$this->controller(), 'add_shipping']);
+    }
+
+    /**
+     * Quote and send a PayPal order through the real order handling, with a
+     * PayPal gateway that records the order instead of calling Buckaroo.
+     * Returns the send response and the order that reached the gateway.
+     */
+    private function placePaypalOrder(string $page, int $product_id, array $address): array
+    {
+        $quote_response = $this->quotePaypalAddress($page, $product_id, $address);
+        $this->assertFalse($quote_response['error'], (string) ($quote_response['message'] ?? ''));
+
+        $_POST['orderId'] = 'PAYPAL-ORDER';
+        $_POST['quote_token'] = $quote_response['data']['quote_token'];
+        $_POST['send_order_nonce'] = wp_create_nonce('express-send_order');
+        $_REQUEST = $_POST;
+
+        $gateway = $this->fakePaypalGateway();
+        $gateways_before = WC()->payment_gateways->payment_gateways;
+        WC()->payment_gateways->payment_gateways[] = $gateway;
+        try {
+            $response = $this->captureJsonResponse([$this->controller(), 'send_order']);
+        } finally {
+            WC()->payment_gateways->payment_gateways = $gateways_before;
+        }
+
+        $order = null;
+        if ($gateway->processed_order_id !== null) {
+            $this->order_ids[] = $gateway->processed_order_id;
+            $order = wc_get_order($gateway->processed_order_id);
+            $this->assertSame(
+                $quote_response['data']['value']['value'],
+                number_format((float) $order->get_total(), 2, '.', '')
+            );
+        }
+
+        return [$response, $order];
+    }
+
+    private function fakePaypalGateway(): WC_Payment_Gateway
+    {
+        return new class extends WC_Payment_Gateway {
+            public $processed_order_id;
+
+            public function __construct()
+            {
+                $this->id = 'buckaroo_paypal';
+                $this->enabled = 'yes';
+                $this->title = 'PayPal';
+            }
+
+            public function process_payment($order_id): array
+            {
+                $this->processed_order_id = $order_id;
+
+                return [
+                    'result' => 'success',
+                    'redirect' => '/order-received/'.$order_id,
+                ];
+            }
+        };
+    }
+
+    private function createShippingZone(string $name, string $country): WC_Shipping_Zone
+    {
+        $zone = new WC_Shipping_Zone();
+        $zone->set_zone_name($name);
+        $zone->add_location($country, 'country');
+        $zone->save();
+        $this->shipping_zone_ids[] = $zone->get_id();
+
+        return $zone;
+    }
+
+    private function paypalPush(array $service_fields): ResponseParser
+    {
+        return ResponseParser::make(
+            array_merge(
+                [
+                    'brq_payment_method' => 'paypal',
+                    'ADD_is_paypal_express' => '1',
+                    'brq_SERVICE_paypal_payerFirstname' => 'Jane',
+                    'brq_SERVICE_paypal_payerLastname' => 'Doe',
+                    'brq_SERVICE_paypal_payerEmail' => 'jane@example.com',
+                ],
+                $service_fields
+            )
+        );
     }
 
     /**
