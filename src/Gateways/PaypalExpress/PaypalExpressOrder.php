@@ -29,12 +29,17 @@ class PaypalExpressOrder
      * @param string $paypal_order_id Approved PayPal order id.
      * @param WC_Shipping_Rate|null $shipping_rate Shipping rate approved in PayPal, null when the order needs no shipping.
      * @param string|null $approved_total Total approved in PayPal, formatted with two decimals.
+     * @param array $approved_contact Billing and shipping fields from the approved PayPal order.
      * @return array
      *
      * @throws PaypalExpressException When WooCommerce cannot create the order or its total differs from the approved total.
      */
-    public function create_and_send($paypal_order_id, ?WC_Shipping_Rate $shipping_rate = null, ?string $approved_total = null)
-    {
+    public function create_and_send(
+        $paypal_order_id,
+        ?WC_Shipping_Rate $shipping_rate = null,
+        ?string $approved_total = null,
+        array $approved_contact = []
+    ) {
         $payment_method_id = 'buckaroo_paypal';
 
         $customer = WC()->customer;
@@ -77,6 +82,16 @@ class PaypalExpressOrder
                     'wc-buckaroo-bpe-gateway'
                 );
                 throw new PaypalExpressException($failure_note);
+            }
+
+            // Set after the totals, which stay those of the approved quote; the push updates the addresses again.
+            foreach (['billing', 'shipping'] as $type) {
+                if (! empty($approved_contact[$type]) && is_array($approved_contact[$type])) {
+                    $order->set_address($approved_contact[$type], $type);
+                }
+            }
+            if (! empty($approved_contact)) {
+                $order->save();
             }
 
             if (method_exists($payment_method, 'set_express_order_id')) {

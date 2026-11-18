@@ -11,24 +11,26 @@ class PaypalProcessor extends AbstractPaymentProcessor
     /** {@inheritDoc} */
     public function getAction(): string
     {
-        if ($this->isSellerProtection() && ! $this->isExpress()) {
-            return 'extraInfo';
+        if (! $this->isSellerProtection()) {
+            return 'pay';
         }
 
-        return 'pay';
+        return $this->isExpress() ? PaypalExpressPayment::ACTION : 'extraInfo';
     }
 
     /** {@inheritDoc} */
     protected function getMethodBody(): array
     {
         if ($this->isExpress()) {
-            return [
+            $body = [
                 'payPalOrderId' => $this->getExpressId(),
                 'additionalParameters' => [
                     'is_paypal_express' => true,
                     'real_order_id' => $this->get_order()->get_id(),
                 ],
             ];
+
+            return $this->isSellerProtection() ? array_merge($body, $this->getSellerData()) : $body;
         }
 
         if ($this->isSellerProtection()) {

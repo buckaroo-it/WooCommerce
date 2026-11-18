@@ -5,9 +5,11 @@ namespace Buckaroo\Woocommerce\Services;
 use BadMethodCallException;
 use Buckaroo\Woocommerce\Core\Plugin;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
+use Buckaroo\Woocommerce\Gateways\Paypal\PaypalExpressPayment;
 use BuckarooDeps\Buckaroo\BuckarooClient as BaseBuckarooClient;
 use BuckarooDeps\Buckaroo\Config\DefaultConfig;
 use BuckarooDeps\Buckaroo\Handlers\Reply\ReplyHandler;
+use BuckarooDeps\Buckaroo\Services\PayloadService;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use Exception;
 use InvalidArgumentException;
@@ -151,7 +153,25 @@ class BuckarooClient
         $requestData = array_merge($processor->getBody(), $additionalData);
         Logger::log(__METHOD__ . '|1|', [get_class($processor), $serviceCode, $action, $requestData]);
 
+        if ($action === PaypalExpressPayment::ACTION) {
+            return $this->paypalExpressPayment($serviceCode, $requestData)->payExpressWithExtraInfo();
+        }
+
         return $this->method($serviceCode)->{$action}($requestData);
+    }
+
+    /**
+     * PayPal payment method for an approved PayPal Express order, with the
+     * request data set the way the SDK sets it for its own methods.
+     *
+     * @throws Exception If the request data cannot be read.
+     */
+    public function paypalExpressPayment(string $serviceCode, array $requestData): PaypalExpressPayment
+    {
+        $payment = new PaypalExpressPayment($this->buckarooClient->client(), $serviceCode);
+        $payment->setPayload((new PayloadService($requestData))->toArray());
+
+        return $payment;
     }
 
     /**
