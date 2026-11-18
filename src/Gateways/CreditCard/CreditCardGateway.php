@@ -108,8 +108,12 @@ class CreditCardGateway extends AbstractPaymentGateway
             wc_add_notice(__('A valid credit card is required.', 'wc-buckaroo-bpe-gateway'), 'error');
         }
 
-        if ($this->usesHostedFields() && $this->getSubmittedSessionId() === null) {
-            wc_add_notice(__('Please complete the card form before proceeding.', 'wc-buckaroo-bpe-gateway'), 'error');
+        if ($this->usesHostedFields()) {
+            if ($this->getSubmittedSessionId() === null) {
+                wc_add_notice(__('Please complete the card form before proceeding.', 'wc-buckaroo-bpe-gateway'), 'error');
+            } else {
+                HostedFieldsController::forgetToken();
+            }
         }
     }
 

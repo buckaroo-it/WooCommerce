@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
 use Buckaroo\Woocommerce\Gateways\CreditCard\HostedFieldsController;
 
 /**
@@ -18,6 +19,9 @@ class Test_HostedFieldsToken extends WP_UnitTestCase
 
     /** @var array<string, mixed> */
     private $get = [];
+
+    /** @var array<string, mixed> */
+    private $post = [];
 
     /** @var mixed */
     private $originalSession;
@@ -40,6 +44,7 @@ class Test_HostedFieldsToken extends WP_UnitTestCase
 
         $this->server = $_SERVER;
         $this->get = $_GET;
+        $this->post = $_POST;
         $_SERVER['HTTPS'] = 'on';
         $_SERVER['REMOTE_ADDR'] = '192.0.2.' . wp_rand(1, 254);
 
@@ -83,6 +88,8 @@ class Test_HostedFieldsToken extends WP_UnitTestCase
         WC()->payment_gateways()->init();
         $_SERVER = $this->server;
         $_GET = $this->get;
+        $_POST = $this->post;
+        wc_clear_notices();
         wp_set_current_user(0);
 
         parent::tearDown();
@@ -250,6 +257,40 @@ class Test_HostedFieldsToken extends WP_UnitTestCase
         $this->assertSame('token-1', $first['body']['access_token']);
         $this->assertSame('token-1', $second['body']['access_token']);
         $this->assertLessThanOrEqual($first['body']['expires_in'], $second['body']['expires_in']);
+        $this->assertCount(1, $this->authRequests);
+    }
+
+    public function test_new_token_is_issued_after_card_details_are_submitted(): void
+    {
+        $this->addToCart();
+        $this->useSession();
+        $first = $this->request();
+
+        $_POST = [
+            'buckaroo_creditcard-creditcard-issuer' => 'visa',
+            'buckaroo_creditcard-encrypted-data' => 'hosted-fields-session-fixture',
+        ];
+        (new CreditCardGateway())->validate_fields();
+
+        $second = $this->request();
+
+        $this->assertSame('token-1', $first['body']['access_token']);
+        $this->assertSame('token-2', $second['body']['access_token']);
+        $this->assertCount(2, $this->authRequests);
+    }
+
+    public function test_token_is_kept_when_card_form_was_not_submitted(): void
+    {
+        $this->addToCart();
+        $this->useSession();
+        $this->request();
+
+        $_POST = ['buckaroo_creditcard-creditcard-issuer' => 'visa'];
+        (new CreditCardGateway())->validate_fields();
+
+        $result = $this->request();
+
+        $this->assertSame('token-1', $result['body']['access_token']);
         $this->assertCount(1, $this->authRequests);
     }
 
