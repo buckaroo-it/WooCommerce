@@ -51,42 +51,52 @@ class AfterpayOldGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Validate payment fields on the frontend.
+     * Validate the payment fields against the order being paid.
      *
-     * @return void
+     * @return array<string>
      */
-    public function validate_fields()
+    public function getOrderValidationErrors(WC_Order $order): array
     {
-        if (! $this->request->input('buckaroo-afterpay-accept')) {
-            wc_add_notice(__('Please accept licence agreements', 'wc-buckaroo-bpe-gateway'), 'error');
+        $errors = [];
+
+        if ($this->isBlank($this->request->input('buckaroo-afterpay-accept'))) {
+            $errors[] = __('Please accept licence agreements', 'wc-buckaroo-bpe-gateway');
         }
 
-        $birthdate = $this->parseDate($this->request->input('buckaroo-afterpay-birthdate'));
+        if ($this->isB2BCheckout()) {
+            if ($this->isBlank($this->request->input('buckaroo-afterpay-company-coc-registration'))) {
+                $errors[] = __('Company registration number is required (KvK)', 'wc-buckaroo-bpe-gateway');
+            }
+            if ($this->isBlank($this->request->input('buckaroo-afterpay-company-name'))) {
+                $errors[] = __('Company name is required', 'wc-buckaroo-bpe-gateway');
+            }
+        } elseif (! $this->validateBirthdate($this->request->input('buckaroo-afterpay-birthdate'))) {
+            $errors[] = __('You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.', 'wc-buckaroo-bpe-gateway');
+        }
+
+        if ($this->getFieldOrFallback('buckaroo-afterpay-phone', $order->get_billing_phone()) === '') {
+            $errors[] = __('Please enter phone number', 'wc-buckaroo-bpe-gateway');
+        }
+
+        if ($this->type == 'afterpayacceptgiro' && $this->isBlank($this->request->input('buckaroo-afterpay-company-coc-registration'))) {
+            $errors[] = __('IBAN is required', 'wc-buckaroo-bpe-gateway');
+        }
+
+        return $errors;
+    }
+
+    /**
+     * The company checkout is only offered when the merchant enabled B2B for
+     * the digital invoice service; otherwise the posted option is ignored.
+     */
+    public function isB2BCheckout(): bool
+    {
+        if ($this->b2b !== 'enable' || $this->type !== 'afterpaydigiaccept') {
+            return false;
+        }
+
         // WooCommerce versions without checked_value support post the checkbox as "1".
-        $b2b = in_array($this->request->input('buckaroo-afterpay-b2b'), ['ON', '1'], true) ? 'ON' : '';
-        if (! $this->validateDate($birthdate, 'd-m-Y') && $b2b != 'ON') {
-            wc_add_notice(__('You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.', 'wc-buckaroo-bpe-gateway'), 'error');
-        }
-
-        if ($b2b == 'ON') {
-            if (! $this->request->input('buckaroo-afterpay-company-coc-registration')) {
-                wc_add_notice(__('Company registration number is required (KvK)', 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-            if (! $this->request->input('buckaroo-afterpay-company-name')) {
-                wc_add_notice(__('Company name is required', 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-        }
-
-        if (! $this->request->input('buckaroo-afterpay-phone') && ! $this->request->input('billing_phone')) {
-            wc_add_notice(__('Please enter phone number', 'wc-buckaroo-bpe-gateway'), 'error');
-        }
-        if ($this->type == 'afterpayacceptgiro') {
-            if ($this->request->input('buckaroo-afterpay-company-coc-registration') === null) {
-                wc_add_notice(__('IBAN is required', 'wc-buckaroo-bpe-gateway'), 'error');
-            }
-        }
-
-        parent::validate_fields();
+        return in_array($this->request->input('buckaroo-afterpay-b2b'), ['ON', '1'], true);
     }
 
     /**

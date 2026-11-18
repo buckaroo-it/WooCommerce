@@ -939,17 +939,65 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         }
 
         $order = $order_id ? wc_get_order($order_id) : null;
-        if (! $order instanceof WC_Order || $this->isAllowedForOrder($order)) {
+        if (! $order instanceof WC_Order) {
             return null;
         }
 
-        Logger::log(__METHOD__ . '|rejected|', [$this->id, $order->get_id()]);
-        wc_add_notice(
-            __('This payment method is not available for this order. Please choose another payment method.', 'wc-buckaroo-bpe-gateway'),
-            'error'
-        );
+        if (! $this->isAllowedForOrder($order)) {
+            Logger::log(__METHOD__ . '|rejected|', [$this->id, $order->get_id()]);
+            wc_add_notice(
+                __('This payment method is not available for this order. Please choose another payment method.', 'wc-buckaroo-bpe-gateway'),
+                'error'
+            );
+
+            return ['result' => 'failure'];
+        }
+
+        $errors = $this->getOrderValidationErrors($order);
+        if ($errors === []) {
+            return null;
+        }
+
+        Logger::log(__METHOD__ . '|invalid customer data|', [$this->id, $order->get_id()]);
+        foreach ($errors as $error) {
+            wc_add_notice($error, 'error');
+        }
 
         return ['result' => 'failure'];
+    }
+
+    /**
+     * Validate the customer data of the order being paid, before the payment
+     * request is sent. Billing details are read from the order, so classic
+     * checkout, Blocks checkout and order-pay are checked the same way.
+     *
+     * @return array<string> Customer-facing error messages, empty when valid
+     */
+    public function getOrderValidationErrors(WC_Order $order): array
+    {
+        return [];
+    }
+
+    /**
+     * A required text value is missing when it is not set, not a string or
+     * number, or contains only whitespace. "0" is a value.
+     *
+     * @param  mixed  $value
+     */
+    protected function isBlank($value): bool
+    {
+        return ! is_scalar($value) || is_bool($value) || trim((string) $value) === '';
+    }
+
+    /**
+     * Value of a payment method field when it is filled in, otherwise the
+     * fallback (e.g. the matching billing detail of the order).
+     */
+    protected function getFieldOrFallback(string $field, string $fallback): string
+    {
+        $value = $this->request->input($field);
+
+        return $this->isBlank($value) ? trim($fallback) : trim((string) $value);
     }
 
     /**

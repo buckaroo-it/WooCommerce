@@ -56,16 +56,12 @@ function BuckarooComponent({ wc, billing, gateway, eventRegistration, emitRespon
             response.meta.paymentMethodData = {
                 ...activePaymentMethodState,
                 isblocks: '1',
-                billing_company: billing.billingAddress.company,
-                billing_country: billing.billingAddress.country,
-                billing_address_1: billing.billingAddress.address_1,
-                billing_address_2: billing.billingAddress.address_2,
             };
 
             return response;
         });
         return () => unsubscribe();
-    }, [gateway.paymentMethodId, activePaymentMethodState, billing.billingAddress]);
+    }, [gateway.paymentMethodId, activePaymentMethodState]);
 
     // do not refresh component for every change for credit card (causing error with third-party)
     const deps =

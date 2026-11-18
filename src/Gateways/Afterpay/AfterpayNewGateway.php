@@ -60,66 +60,71 @@ class AfterpayNewGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Validate payment fields on the frontend.
+     * Validate the payment fields against the billing details of the order.
      *
-     * @return void
+     * @return array<string>
      */
-    public function validate_fields()
+    public function getOrderValidationErrors(WC_Order $order): array
     {
-        $country = $this->request->input('billing_country');
-        if ($country === null) {
-            $country = $this->country;
+        $errors = [];
+        $country = $order->get_billing_country();
+        $isB2B = $this->isB2BOrder($order);
+
+        if ($this->customer_type === self::CUSTOMER_TYPE_B2B && ! $isB2B) {
+            $errors[] = __('Riverty is only available for business customers in the Netherlands. Please fill in your company name in the billing details or choose another payment method.', 'wc-buckaroo-bpe-gateway');
         }
 
-        $birthdate = $this->parseDate(
-            $this->request->input('buckaroo-afterpaynew-birthdate')
-        );
-
-        if (! ($this->validateDate($birthdate, 'd-m-Y') && $this->validateBirthdate($birthdate)) && in_array($country, ['NL', 'BE'])) {
-            wc_add_notice(__('You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.', 'wc-buckaroo-bpe-gateway'), 'error');
+        if ($isB2B && ! $this->isAvailableB2B((float) $order->get_total('edit'))) {
+            $errors[] = __('This payment method is not available for this order. Please choose another payment method.', 'wc-buckaroo-bpe-gateway');
         }
 
-        if (! $this->request->input('buckaroo-afterpaynew-accept')) {
-            wc_add_notice(__('Please accept licence agreements', 'wc-buckaroo-bpe-gateway'), 'error');
+        if (in_array($country, ['NL', 'BE'], true) && ! $this->validateBirthdate($this->request->input('buckaroo-afterpaynew-birthdate'))) {
+            $errors[] = __('You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.', 'wc-buckaroo-bpe-gateway');
         }
 
-        if (
-            $this->customer_type !== self::CUSTOMER_TYPE_B2C &&
-            $country === 'NL' &&
-            $this->request->input('billing_company')
-        ) {
-            if ($this->request->input('buckaroo-afterpaynew-company-coc-registration') === null) {
-                wc_add_notice(__('Company registration number is required', 'wc-buckaroo-bpe-gateway'), 'error');
-            }
+        if ($this->isBlank($this->request->input('buckaroo-afterpaynew-accept'))) {
+            $errors[] = __('Please accept licence agreements', 'wc-buckaroo-bpe-gateway');
         }
 
-        if (! $this->request->input('buckaroo-afterpaynew-phone') && ! $this->request->input('billing_phone')) {
-            wc_add_notice(__('Please enter phone number', 'wc-buckaroo-bpe-gateway'), 'error');
+        if ($isB2B && $this->isBlank($this->request->input('buckaroo-afterpaynew-company-coc-registration'))) {
+            $errors[] = __('Company registration number is required', 'wc-buckaroo-bpe-gateway');
         }
 
-        if (
-            $this->is_house_number_invalid('billing')
-        ) {
-            wc_add_notice(__('Invalid billing address, cannot find house number', 'wc-buckaroo-bpe-gateway'), 'error');
+        if ($this->getFieldOrFallback('buckaroo-afterpaynew-phone', $order->get_billing_phone()) === '') {
+            $errors[] = __('Please enter phone number', 'wc-buckaroo-bpe-gateway');
+        }
+
+        if ($this->isHouseNumberMissing($order->get_billing_address_1(), $order->get_billing_address_2())) {
+            $errors[] = __('Invalid billing address, cannot find house number', 'wc-buckaroo-bpe-gateway');
         }
 
         if (
-            $this->is_house_number_invalid('shipping') &&
-            $this->request->input('ship_to_different_address') == 1
+            ! $this->isBlank($order->get_shipping_address_1()) &&
+            $this->isHouseNumberMissing($order->get_shipping_address_1(), $order->get_shipping_address_2())
         ) {
-            wc_add_notice(__('Invalid shipping address, cannot find house number', 'wc-buckaroo-bpe-gateway'), 'error');
+            $errors[] = __('Invalid shipping address, cannot find house number', 'wc-buckaroo-bpe-gateway');
         }
 
-        parent::validate_fields();
+        return $errors;
     }
 
-    private function is_house_number_invalid($type)
+    /**
+     * The order is paid as a business (category "Company") when B2B is
+     * enabled, the billing country is NL and a billing company is set; the
+     * same rule the payment request uses.
+     */
+    public function isB2BOrder(WC_Order $order): bool
     {
-        $components = OrderDetails::getAddressComponents(
-            $this->request->input($type . '_address_1') . ' ' . $this->request->input($type . '_address_2')
-        );
+        return $this->customer_type !== self::CUSTOMER_TYPE_B2C
+            && $order->get_billing_country() === 'NL'
+            && ! $this->isBlank($order->get_billing_company());
+    }
 
-        return ! is_string($components['house_number']) || empty(trim($components['house_number']));
+    private function isHouseNumberMissing(string $address_1, string $address_2): bool
+    {
+        $components = OrderDetails::getAddressComponents($address_1 . ' ' . $address_2);
+
+        return ! is_string($components['house_number']) || trim($components['house_number']) === '';
     }
 
     /**
@@ -185,14 +190,15 @@ class AfterpayNewGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Show payment if available
-     *
+     * Show payment if available. When only B2B is accepted every order is a
+     * business order, so the B2B amount range applies; with "Both" it is
+     * checked per order in getOrderValidationErrors().
      *
      * @return bool
      */
     public function isAvailable(float $cartTotal)
     {
-        if ($this->customer_type !== self::CUSTOMER_TYPE_B2B) {
+        if ($this->customer_type === self::CUSTOMER_TYPE_B2B) {
             return $this->isAvailableB2B($cartTotal);
         }
 
@@ -200,21 +206,21 @@ class AfterpayNewGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Check if payment is available for b2b
-     *
+     * Whether the amount lies within the configured B2B range, both limits
+     * included. A limit of 0 (or empty) means no limit on that side.
      *
      * @return bool
      */
-    public function isAvailableB2B(float $cartTotal)
+    public function isAvailableB2B(float $amount)
     {
-        $b2bMin = $this->get_option('b2b_min_value', 0);
-        $b2bMax = $this->get_option('b2b_max_value', 0);
+        $b2bMin = (float) $this->get_option('b2b_min_value', 0);
+        $b2bMax = (float) $this->get_option('b2b_max_value', 0);
 
-        if ($b2bMin == 0 && $b2bMax == 0) {
-            return true;
+        if ($b2bMin > 0 && $amount < $b2bMin) {
+            return false;
         }
 
-        return ($b2bMin > 0 && $cartTotal > $b2bMin) || ($b2bMax > 0 && $cartTotal < $b2bMax);
+        return ! ($b2bMax > 0 && $amount > $b2bMax);
     }
 
     /**  {@inheritDoc} */

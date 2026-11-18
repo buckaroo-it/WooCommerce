@@ -4,9 +4,12 @@ namespace Buckaroo\Woocommerce\Gateways\In3;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
+use Buckaroo\Woocommerce\Traits\HasDateValidation;
 
 class In3Processor extends AbstractPaymentProcessor
 {
+    use HasDateValidation;
+
     protected function getMethodBody(): array
     {
         return array_merge(
@@ -18,7 +21,11 @@ class In3Processor extends AbstractPaymentProcessor
 
     private function getBilling(): array
     {
-        $phone = $this->request->input('buckaroo-in3-phone', $this->getAddress('billing', 'phone'));
+        $phone = $this->request->input('buckaroo-in3-phone');
+        if (! is_string($phone) || trim($phone) === '') {
+            $phone = $this->getAddress('billing', 'phone');
+        }
+        $birthDate = $this->parseBirthdate($this->request->input('buckaroo-in3-birthdate'));
 
         return [
             'billing' => [
@@ -29,7 +36,7 @@ class In3Processor extends AbstractPaymentProcessor
                     ),
                     'firstName' => $this->getAddress('billing', 'first_name'),
                     'lastName' => $this->getAddress('billing', 'last_name'),
-                    'birthDate' => date('Y-m-d', strtotime($this->request->input('buckaroo-in3-birthdate'))),
+                    'birthDate' => $birthDate !== null ? $birthDate->format('Y-m-d') : null,
                     'customerNumber' => get_current_user_id() ?? '',
                     'phone' => $phone,
                     'country' => $this->getAddress('billing', 'country'),

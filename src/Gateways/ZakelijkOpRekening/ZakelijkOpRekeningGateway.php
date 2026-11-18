@@ -89,50 +89,36 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Validate the checkout fields (classic checkout).
+     * Validate the payment fields against the billing details of the order.
      *
-     * @return void
+     * @return array<string>
      */
-    public function validate_fields()
+    public function getOrderValidationErrors(WC_Order $order): array
     {
-        $country = $this->request->input('billing_country');
-        if (empty($country)) {
-            $customer = (function_exists('WC') && WC()) ? WC()->customer : null;
-            $country = $customer ? ($customer->get_billing_country() ?: $customer->get_shipping_country()) : $this->country;
+        $errors = [];
+
+        if ($order->get_billing_country() !== 'NL') {
+            $errors[] = __('Zakelijk op rekening is only available for companies located in The Netherlands.', 'wc-buckaroo-bpe-gateway');
         }
 
-        if (! empty($country) && $country !== 'NL') {
-            wc_add_notice(
-                __('Zakelijk op rekening is only available for companies located in The Netherlands.', 'wc-buckaroo-bpe-gateway'),
-                'error'
-            );
-        }
-
-        if ($this->getCheckoutCompany() === '') {
-            wc_add_notice(
-                __('A company name is required to pay with Zakelijk op rekening. Please fill in the company name in your billing details.', 'wc-buckaroo-bpe-gateway'),
-                'error'
-            );
+        // The company field of this payment method takes precedence, so the
+        // method also works when the WooCommerce billing "Company" field is hidden.
+        if ($this->getFieldOrFallback('buckaroo-zakelijkoprekening-company', $order->get_billing_company()) === '') {
+            $errors[] = __('A company name is required to pay with Zakelijk op rekening. Please fill in the company name in your billing details.', 'wc-buckaroo-bpe-gateway');
         }
 
         if (! $this->isValidCocNumber($this->request->input('buckaroo-zakelijkoprekening-company-coc-registration'))) {
-            wc_add_notice(
-                __('Please enter a valid Chamber of Commerce (KvK) number.', 'wc-buckaroo-bpe-gateway'),
-                'error'
+            $errors[] = __('Please enter a valid Chamber of Commerce (KvK) number.', 'wc-buckaroo-bpe-gateway');
+        }
+
+        if ($this->getFieldOrFallback('buckaroo-zakelijkoprekening-phone', $order->get_billing_phone()) === '') {
+            $errors[] = sprintf(
+                __('Please fill in a phone number for %s. This is required in order to use this payment method.', 'wc-buckaroo-bpe-gateway'),
+                $this->title
             );
         }
 
-        if ($this->getCheckoutPhone() === '') {
-            wc_add_notice(
-                sprintf(
-                    __('Please fill in a phone number for %s. This is required in order to use this payment method.', 'wc-buckaroo-bpe-gateway'),
-                    $this->title
-                ),
-                'error'
-            );
-        }
-
-        parent::validate_fields();
+        return $errors;
     }
 
     /**
@@ -248,71 +234,6 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
         $country = $customer->get_billing_country() ?: $customer->get_shipping_country();
 
         return $country === '' || $country === 'NL';
-    }
-
-    /**
-     * Resolve the billing company name from the submitted request, falling
-     * back to the WooCommerce customer session. This keeps validation correct
-     * across the classic checkout (posted field) and any context where the
-     * company is only available on the customer object.
-     */
-    private function getCheckoutCompany(): string
-    {
-        // Our own company field (collected by this payment method) takes
-        // precedence, so the method works even when the WooCommerce billing
-        // "Company" field is hidden in the checkout.
-        $own = $this->request->input('buckaroo-zakelijkoprekening-company');
-        if (is_string($own) && trim($own) !== '') {
-            return trim($own);
-        }
-
-        $company = $this->request->input('billing_company');
-        if (is_string($company) && trim($company) !== '') {
-            return trim($company);
-        }
-
-        $customer = (function_exists('WC') && WC()) ? WC()->customer : null;
-        if ($customer) {
-            $company = $customer->get_billing_company();
-            if (is_string($company) && trim($company) !== '') {
-                return trim($company);
-            }
-        }
-
-        return '';
-    }
-
-    /**
-     * Phone is required by In3 ABN but optional on the WooCommerce address.
-     * Prefer the method field (shown when billing phone is empty), then the
-     * posted billing phone, then the customer session.
-     */
-    private function getCheckoutPhone(): string
-    {
-        $own = $this->request->input('buckaroo-zakelijkoprekening-phone');
-        if (is_string($own) && trim($own) !== '') {
-            return trim($own);
-        }
-
-        $phone = $this->request->input('billing_phone');
-        if (is_string($phone) && trim($phone) !== '') {
-            return trim($phone);
-        }
-
-        $customer = (function_exists('WC') && WC()) ? WC()->customer : null;
-        if ($customer) {
-            $phone = $customer->get_billing_phone();
-            if (is_string($phone) && trim($phone) !== '') {
-                return trim($phone);
-            }
-
-            $phone = $customer->get_shipping_phone();
-            if (is_string($phone) && trim($phone) !== '') {
-                return trim($phone);
-            }
-        }
-
-        return '';
     }
 
     /**

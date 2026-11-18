@@ -3,6 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\Billink;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
+use WC_Order;
 
 class BillinkGateway extends AbstractPaymentGateway
 {
@@ -35,20 +36,20 @@ class BillinkGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Validate fields
+     * A business order (billing company set on the order) needs a CoC number.
      *
-     * @return void;
+     * @return array<string>
      */
-    public function validate_fields()
+    public function getOrderValidationErrors(WC_Order $order): array
     {
         if (
-            $this->request->input('billing_company') &&
-            $this->request->input('buckaroo-billink-company-coc-registration') === null
+            ! $this->isBlank($order->get_billing_company()) &&
+            $this->isBlank($this->request->input('buckaroo-billink-company-coc-registration'))
         ) {
-            wc_add_notice(__('Please enter correct COC (KvK) number', 'wc-buckaroo-bpe-gateway'), 'error');
+            return [__('Please enter correct COC (KvK) number', 'wc-buckaroo-bpe-gateway')];
         }
 
-        parent::validate_fields();
+        return [];
     }
 
     /**  {@inheritDoc} */

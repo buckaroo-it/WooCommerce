@@ -175,7 +175,7 @@ class Test_DebugLogContent extends WP_UnitTestCase
 
     public function test_riverty_birth_date_is_sent_but_not_stored(): void
     {
-        $_POST = ['buckaroo-afterpaynew-birthdate' => '1990-01-31'];
+        $_POST = ['buckaroo-afterpaynew-birthdate' => '31-01-1990'];
         $processor = new AfterpayNewProcessor(...$this->processorArgs(new AfterpayNewGateway()));
 
         $method = new ReflectionMethod($processor, 'getBirthDate');
