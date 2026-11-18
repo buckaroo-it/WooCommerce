@@ -12,6 +12,7 @@ use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
 use Buckaroo\Woocommerce\Gateways\BuckarooBlocks;
 use Buckaroo\Woocommerce\Gateways\BuckarooExpressBlocks;
+use Buckaroo\Woocommerce\Gateways\CreditCard\HostedFieldsController;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
 use Buckaroo\Woocommerce\Services\Helper;
@@ -167,6 +168,7 @@ class InitGateways
                     $payment_method['creditCardIssuers'] = $gateway->getCheckoutCardsList();
                     $payment_method['creditCardMethod'] = $gateway->get_option('creditcardmethod');
                     $payment_method['creditCardIsSecure'] = $this->getCredtCardIsSecure();
+                    $payment_method['hostedFieldsTokenUrl'] = HostedFieldsController::tokenUrl();
                 }
 
                 if ($gateway_id === 'buckaroo_applepay') {

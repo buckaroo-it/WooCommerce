@@ -15,6 +15,7 @@ class HookRegistry
         PaymentSetupScripts::class,
         InitGateways::class,
         DisableGateways::class,
+        RestGatewaySettings::class,
         OrderActions::class,
         CronEvents::class,
         MigrationHandler::class,

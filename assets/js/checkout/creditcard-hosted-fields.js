@@ -30,7 +30,7 @@ class BuckarooCreditCardsHostedFields {
     }
 
     async fetchToken() {
-        const tokenResponse = await fetch('/?wc-api=WC_Gateway_Buckaroo_creditcard-hosted-fields-token');
+        const tokenResponse = await fetch(buckaroo_global.hostedFieldsTokenUrl, { credentials: 'same-origin' });
 
         const tokenData = await tokenResponse.json();
 
