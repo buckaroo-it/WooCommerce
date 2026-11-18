@@ -332,7 +332,8 @@ class PaypalExpressController
                     $response = $this->order->create_and_send(
                         sanitize_text_field(wp_unslash($_POST['orderId'])),
                         $shipping_rate,
-                        $quote['total']
+                        $quote['total'],
+                        $this->shipping->get_approved_contact()
                     );
                     $error = $this->get_error_notices();
                     if ($error !== null) {

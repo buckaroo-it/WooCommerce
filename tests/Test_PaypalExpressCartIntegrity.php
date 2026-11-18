@@ -819,6 +819,77 @@ $this->assertSame($expectedTotal, $order->get_total());
     }
 
     /** @dataProvider paypalPages */
+    public function test_paypal_order_is_created_with_the_customer_details_approved_in_paypal(string $page): void
+    {
+        $this->addFlatRate($this->createShippingZone('Netherlands', 'NL'));
+        $product_id = $this->createSimpleProduct('Physical with PayPal contact', '15.00');
+
+        [$response, $order] = $this->placePaypalOrder(
+            $page,
+            $product_id,
+            self::NL_ADDRESS,
+            $this->paypalContact(['postal_code' => '8441 er'])
+        );
+
+        $this->assertFalse($response['error']);
+        $this->assertInstanceOf(WC_Order::class, $order);
+        $this->assertSame('20.00', number_format((float) $order->get_total(), 2, '.', ''));
+        $this->assertSame('Jan', $order->get_billing_first_name());
+        $this->assertSame('Jansen', $order->get_billing_last_name());
+        $this->assertSame('jan@example.com', $order->get_billing_email());
+        $this->assertSame('0612345678', $order->get_billing_phone());
+        $this->assertSame('Kerkstraat 1', $order->get_billing_address_1());
+        $this->assertSame('Heerenveen', $order->get_billing_city());
+        $this->assertSame('8441ER', $order->get_billing_postcode());
+        $this->assertSame('NL', $order->get_billing_country());
+        $this->assertSame('Piet', $order->get_shipping_first_name());
+        $this->assertSame('de Vries', $order->get_shipping_last_name());
+        $this->assertSame('Kerkstraat 1', $order->get_shipping_address_1());
+        $this->assertSame('Bus 2', $order->get_shipping_address_2());
+        $this->assertSame('Heerenveen', $order->get_shipping_city());
+        $this->assertSame('8441ER', $order->get_shipping_postcode());
+        $this->assertSame('NL', $order->get_shipping_country());
+    }
+
+    public function test_paypal_street_outside_the_quoted_location_is_not_used(): void
+    {
+        $this->addFlatRate($this->createShippingZone('Netherlands', 'NL'));
+        $product_id = $this->createSimpleProduct('Physical with other PayPal address', '15.00');
+
+        [$response, $order] = $this->placePaypalOrder(
+            'cart',
+            $product_id,
+            self::NL_ADDRESS,
+            $this->paypalContact(['city' => 'Amsterdam', 'postal_code' => '1011AB'])
+        );
+
+        $this->assertFalse($response['error']);
+        $this->assertInstanceOf(WC_Order::class, $order);
+        $this->assertSame('Jan', $order->get_billing_first_name());
+        $this->assertSame('Piet', $order->get_shipping_first_name());
+        $this->assertSame('', $order->get_billing_address_1());
+        $this->assertSame('', $order->get_shipping_address_1());
+        $this->assertSame('Heerenveen', $order->get_shipping_city());
+        $this->assertSame('8441ER', $order->get_shipping_postcode());
+    }
+
+    public function test_paypal_order_without_approved_customer_details_keeps_the_quoted_address(): void
+    {
+        $this->addFlatRate($this->createShippingZone('Netherlands', 'NL'));
+        $product_id = $this->createSimpleProduct('Physical without PayPal contact', '15.00');
+
+        [$response, $order] = $this->placePaypalOrder('cart', $product_id, self::NL_ADDRESS, ['email' => 'not-an-email']);
+
+        $this->assertFalse($response['error']);
+        $this->assertInstanceOf(WC_Order::class, $order);
+        $this->assertSame('', $order->get_billing_first_name());
+        $this->assertSame('', $order->get_billing_email());
+        $this->assertSame('', $order->get_shipping_address_1());
+        $this->assertSame('Heerenveen', $order->get_shipping_city());
+        $this->assertSame('NL', $order->get_shipping_country());
+    }
+
+    /** @dataProvider paypalPages */
     public function test_virtual_paypal_order_to_a_us_address_has_no_shipping_line(string $page): void
     {
         $product_id = $this->createSimpleProduct('Virtual to the US', '15.00', true);
@@ -978,11 +1049,14 @@ $this->assertSame($expectedTotal, $order->get_total());
      * PayPal gateway that records the order instead of calling Buckaroo.
      * Returns the send response and the order that reached the gateway.
      */
-    private function placePaypalOrder(string $page, int $product_id, array $address): array
+    private function placePaypalOrder(string $page, int $product_id, array $address, ?array $contact = null): array
     {
         $quote_response = $this->quotePaypalAddress($page, $product_id, $address);
         $this->assertFalse($quote_response['error'], (string) ($quote_response['message'] ?? ''));
 
+        if ($contact !== null) {
+            $_POST['paypal_contact'] = $contact;
+        }
         $_POST['orderId'] = 'PAYPAL-ORDER';
         $_POST['quote_token'] = $quote_response['data']['quote_token'];
         $_POST['send_order_nonce'] = wp_create_nonce('express-send_order');
@@ -1008,6 +1082,30 @@ $this->assertSame($expectedTotal, $order->get_total());
         }
 
         return [$response, $order];
+    }
+
+    /**
+     * Customer details as the express button reads them from the approved PayPal order.
+     */
+    private function paypalContact(array $overrides = []): array
+    {
+        return array_merge(
+            [
+                'first_name' => 'Jan',
+                'last_name' => 'Jansen',
+                'shipping_first_name' => 'Piet',
+                'shipping_last_name' => 'de Vries',
+                'email' => 'jan@example.com',
+                'phone' => '0612345678',
+                'address_line_1' => 'Kerkstraat 1',
+                'address_line_2' => 'Bus 2',
+                'city' => 'Heerenveen',
+                'state' => '',
+                'postal_code' => '8441ER',
+                'country_code' => 'NL',
+            ],
+            $overrides
+        );
     }
 
     private function fakePaypalGateway(): WC_Payment_Gateway

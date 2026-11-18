@@ -62,6 +62,83 @@ class PaypalExpressShipping
     }
 
     /**
+     * Customer details from the approved PayPal order, as order address fields.
+     *
+     * The name, email and phone are always used. The street is only used when
+     * the approved address is in the location the order was quoted for, and
+     * the billing address then takes the whole PayPal address, as the push does.
+     *
+     * @return array{billing?: array<string, string>, shipping?: array<string, string>}
+     */
+    public function get_approved_contact(): array
+    {
+        if (! isset($_POST['paypal_contact']) || ! is_array($_POST['paypal_contact'])) {
+            return [];
+        }
+
+        $contact = wc_clean(wp_unslash($_POST['paypal_contact']));
+        $field = static function (string $key) use ($contact): string {
+            return isset($contact[$key]) && is_string($contact[$key]) ? trim($contact[$key]) : '';
+        };
+
+        $billing = array_filter(
+            [
+                'first_name' => $field('first_name'),
+                'last_name' => $field('last_name'),
+                'phone' => $field('phone'),
+            ],
+            'strlen'
+        );
+        if (is_email($field('email'))) {
+            $billing['email'] = $field('email');
+        }
+
+        $shipping = array_filter(
+            [
+                'first_name' => $field('shipping_first_name') !== '' ? $field('shipping_first_name') : $field('first_name'),
+                'last_name' => $field('shipping_last_name') !== '' ? $field('shipping_last_name') : $field('last_name'),
+            ],
+            'strlen'
+        );
+
+        $location = $this->get_quoted_location($field);
+        if ($field('address_line_1') !== '' && $location !== null) {
+            $street = [
+                'address_1' => $field('address_line_1'),
+                'address_2' => $field('address_line_2'),
+            ];
+            $shipping = array_merge($shipping, $street);
+            $billing = array_merge($billing, $street, $location);
+        }
+
+        return array_filter(['billing' => $billing, 'shipping' => $shipping]);
+    }
+
+    /**
+     * The quoted shipping location, when the approved PayPal address is in it.
+     *
+     * @param callable $field Reads a field of the approved PayPal address.
+     * @return array{country: string, state: string, postcode: string, city: string}|null
+     */
+    private function get_quoted_location(callable $field): ?array
+    {
+        if (! isset($_POST['shipping_data']['shipping_address'])) {
+            return null;
+        }
+
+        $location = array_map('strval', $this->get_customer_location());
+        $normalize = static function (string $value): string {
+            return strtoupper(str_replace(' ', '', trim($value)));
+        };
+
+        $matches = $normalize($field('country_code')) === $normalize($location['country'])
+            && $normalize($field('postal_code')) === $normalize($location['postcode'])
+            && $normalize($field('city')) === $normalize($location['city']);
+
+        return $matches ? $location : null;
+    }
+
+    /**
      * Keep the shopper's billing location while applying PayPal shipping.
      *
      * @return array

@@ -38,11 +38,15 @@ const buckarooWrapPaypalButtons = function (namespace) {
         }
 
         const patched = function (options) {
-            return original(
-                Object.assign({}, options, {
-                    style: Object.assign({}, options && options.style, buckarooPaypalStyle()),
-                })
-            );
+            const overrides = {
+                style: Object.assign({}, options && options.style, buckarooPaypalStyle()),
+            };
+
+            if (options && typeof options.onApprove === 'function') {
+                overrides.onApprove = buckarooWithApprovedContact(options.onApprove);
+            }
+
+            return original(Object.assign({}, options, overrides));
         };
 
         Object.keys(original).forEach(key => {
@@ -54,6 +58,68 @@ const buckarooWrapPaypalButtons = function (namespace) {
     } catch (e) {
         // PayPal keeps its own height.
     }
+};
+
+/**
+ * Customer name, phone, email and address from an approved PayPal order.
+ */
+const buckarooPaypalContact = function (order) {
+    const payer = (order && order.payer) || {};
+    const unit = ((order && order.purchase_units) || [])[0] || {};
+    const shipping = unit.shipping || {};
+    const address = shipping.address || {};
+    const payerName = payer.name || {};
+    const fullName = shipping.name && typeof shipping.name.full_name === 'string' ? shipping.name.full_name.trim() : '';
+    const space = fullName.indexOf(' ');
+    const phone = payer.phone && payer.phone.phone_number ? payer.phone.phone_number.national_number : '';
+
+    return {
+        first_name: payerName.given_name || '',
+        last_name: payerName.surname || '',
+        shipping_first_name: space > 0 ? fullName.substring(0, space) : fullName,
+        shipping_last_name: space > 0 ? fullName.substring(space + 1) : '',
+        email: payer.email_address || '',
+        phone: phone || '',
+        address_line_1: address.address_line_1 || '',
+        address_line_2: address.address_line_2 || '',
+        city: address.admin_area_2 || '',
+        state: address.admin_area_1 || '',
+        postal_code: address.postal_code || '',
+        country_code: address.country_code || '',
+    };
+};
+
+/**
+ * Read the approved PayPal order before the SDK's own approval handler runs,
+ * so the order is created with the customer details chosen in PayPal.
+ *
+ * The SDK passes only the approval data to its payment handler. When the
+ * order cannot be read, the payment continues without these details.
+ */
+const buckarooWithApprovedContact = function (onApprove) {
+    return function (data, actions) {
+        const args = arguments;
+        const self = this;
+        let read = Promise.resolve(null);
+
+        try {
+            if (actions && actions.order && typeof actions.order.get === 'function') {
+                read = Promise.resolve(actions.order.get()).then(buckarooPaypalContact);
+            }
+        } catch (e) {
+            read = Promise.resolve(null);
+        }
+
+        return read
+            .catch(() => null)
+            .then(contact => {
+                if (buckarooPaypalExpressInstance !== null) {
+                    buckarooPaypalExpressInstance.approvedContact = contact;
+                }
+
+                return onApprove.apply(self, args);
+            });
+    };
 };
 
 /**
@@ -155,6 +221,8 @@ class BuckarooPaypalExpress {
 
     quoteToken = null;
 
+    approvedContact = null;
+
     totalRequestId = 0;
 
     initialized = false;
@@ -250,6 +318,7 @@ class BuckarooPaypalExpress {
         this.result = null;
         this.shippingData = null;
         this.quoteToken = null;
+        this.approvedContact = null;
 
         if (!this.hasValidProductSelection()) {
             this.displayErrorMessage(buckaroo_paypal_express.i18n.select_product_options);
@@ -416,6 +485,7 @@ class BuckarooPaypalExpress {
                     quote_token: this.quoteToken,
                     order_data: this.getOrderData(),
                     shipping_data: this.shippingData,
+                    paypal_contact: this.approvedContact,
                     page: this.page,
                     send_order_nonce: buckaroo_paypal_express.send_order_nonce,
                 })
