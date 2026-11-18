@@ -130,6 +130,8 @@ class KlarnaCaptureAction
     private function finalize(TransactionResponse $response, array $products): CaptureResult
     {
         if ($response->isSuccess()) {
+            // The order was already updated when this capture key was first recorded.
+            $alreadyRecorded = (bool) OrderMeta::get($this->order, '_capturebuckaroo' . $response->getTransactionKey());
             $result = CaptureRecorder::record(
                 $this->order,
                 $this->captureAmount,
@@ -139,8 +141,8 @@ class KlarnaCaptureAction
                 $response->toArray(),
                 $products
             );
-            if ($result->isSuccess()) {
-                KlarnaFulfillmentActions::completeWhenFullyCaptured($this->order, (string) $response->getTransactionKey());
+            if ($result->isSuccess() && ! $alreadyRecorded) {
+                KlarnaFulfillmentActions::updateOrderAfterCapture($this->order, (string) $response->getTransactionKey());
             }
 
             return $result;

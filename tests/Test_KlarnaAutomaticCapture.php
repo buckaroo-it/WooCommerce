@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPayGateway;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaFulfillmentActions;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaProcessor;
+use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaPushProcessor;
+use Buckaroo\Woocommerce\ResponseParser\FormDataParser;
 use Buckaroo\Woocommerce\Install\Migration\Versions\MigrateOrderMetaToHpos;
 use Buckaroo\Woocommerce\Gateways\Klarna\KlarnaCaptureAttempt;
 use Buckaroo\Woocommerce\Order\CaptureAllocation;
@@ -134,6 +136,34 @@ class Test_KlarnaAutomaticCapture extends TestCase
         $this->assertCount(1, $captures);
         $this->assertSame('25.00', $captures[0]['amount']);
         $this->assertSame('completed', $storedOrder->get_status());
+    }
+
+    public function test_the_push_of_an_automatic_capture_keeps_the_order_completed_with_one_confirmation_note(): void
+    {
+        update_option('woocommerce_buckaroo_klarnapay_settings', ['automatic_capture' => 'yes']);
+        update_option('woocommerce_buckaroo_mastersettings_settings', ['culture' => 'en-US']);
+        $order = $this->createReservedOrder();
+        new KlarnaFulfillmentActions(new InMemoryBuckarooClient($this->successfulResponse('PAY-AUTOMATIC-PUSH')));
+        $order->update_status('completed');
+        do_action(KlarnaFulfillmentActions::AUTOMATIC_CAPTURE_HOOK, $order->get_id(), 1);
+
+        $push = new FormDataParser([
+            'brq_action' => 'Pay',
+            'brq_statuscode' => '190',
+            'brq_amount' => '25.00',
+            'brq_currency' => 'EUR',
+            'brq_transactions' => 'PAY-AUTOMATIC-PUSH',
+            'brq_transaction_method' => 'klarna',
+            'brq_ordernumber' => (string) $order->get_id(),
+        ]);
+        $this->assertTrue(KlarnaPushProcessor::reconcileCapture(wc_get_order($order->get_id()), $push));
+        $this->assertTrue(KlarnaPushProcessor::reconcileCapture(wc_get_order($order->get_id()), $push));
+
+        $storedOrder = wc_get_order($order->get_id());
+        $this->assertSame('completed', $storedOrder->get_status());
+        $this->assertCount(1, OrderMeta::get($storedOrder, '_wc_order_captures', false));
+        $notes = wp_list_pluck(wc_get_order_notes(['order_id' => $order->get_id()]), 'content');
+        $this->assertCount(1, array_keys($notes, 'Klarna capture confirmed (transaction: PAY-AUTOMATIC-PUSH).', true));
     }
 
     public function test_background_hook_captures_only_the_remaining_amount_after_a_partial_capture(): void

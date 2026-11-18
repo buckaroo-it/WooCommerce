@@ -205,7 +205,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         $this->assertSame('processing', $storedOrder->get_status());
     }
 
-    public function test_successful_pay_reconciliation_completes_a_fully_captured_on_hold_order(): void
+    public function test_successful_pay_reconciliation_marks_a_fully_captured_on_hold_order_paid(): void
     {
         $order = $this->createReservedOrder();
         $order->set_status('on-hold');
@@ -238,10 +238,11 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
 
         $storedOrder = wc_get_order($order->get_id());
         $this->assertTrue($storedOrder->is_paid());
-        $this->assertSame('completed', $storedOrder->get_status());
+        $this->assertSame('processing', $storedOrder->get_status());
+        $this->assertSame(0, $this->countConfirmationNotes($order, 'PAY-MANUAL'));
     }
 
-    public function test_partial_manual_pay_push_completes_the_order_only_after_the_remaining_capture(): void
+    public function test_partial_manual_pay_push_marks_the_order_paid_only_after_the_remaining_capture(): void
     {
         $order = $this->createReservedOrder(2);
         $order->set_status('on-hold');
@@ -286,7 +287,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
 
         $fullyCapturedOrder = wc_get_order($order->get_id());
         $this->assertTrue($fullyCapturedOrder->is_paid());
-        $this->assertSame('completed', $fullyCapturedOrder->get_status());
+        $this->assertSame('processing', $fullyCapturedOrder->get_status());
     }
 
     public function test_claim_releases_its_worker_option_when_the_attempt_ledger_is_locked(): void
@@ -514,7 +515,7 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         $this->assertSame('PAY-KNOWN', $attempt['transaction_key']);
     }
 
-    public function test_a_full_plaza_capture_is_recorded_once_and_completes_the_order(): void
+    public function test_a_full_plaza_capture_is_recorded_once_and_keeps_a_processing_order_processing(): void
     {
         $order = $this->createReservedOrder();
         $order->set_status('processing');
@@ -534,7 +535,100 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         $this->assertCount(1, $captures);
         $this->assertSame('PAY-PLAZA', $captures[0]['transaction_id']);
         $this->assertSame('25.00', number_format((float) OrderMeta::get($storedOrder, '_wc_order_amount_captured'), 2, '.', ''));
+        $this->assertSame('processing', $storedOrder->get_status());
+        $this->assertSame(1, $this->countConfirmationNotes($order, 'PAY-PLAZA'));
+    }
+
+    public function test_a_plaza_capture_keeps_a_completed_order_completed_and_a_repeated_push_changes_nothing(): void
+    {
+        $order = $this->createReservedOrder();
+        $order->set_status('completed');
+        $order->save();
+        $push = $this->payPush($order, 'PAY-PLAZA-COMPLETED', 25.00);
+
+        $this->assertTrue(KlarnaPushProcessor::reconcileCapture(wc_get_order($order->get_id()), $push));
+        $this->assertTrue(KlarnaPushProcessor::reconcileCapture(wc_get_order($order->get_id()), $push));
+
+        $storedOrder = wc_get_order($order->get_id());
         $this->assertSame('completed', $storedOrder->get_status());
+        $this->assertCount(1, OrderMeta::get($storedOrder, '_wc_order_captures', false));
+        $this->assertSame('ok', OrderMeta::get($storedOrder, '_capturebuckaroo' . 'PAY-PLAZA-COMPLETED'));
+        $this->assertSame(1, $this->countConfirmationNotes($order, 'PAY-PLAZA-COMPLETED'));
+    }
+
+    public function test_a_full_capture_completes_an_on_hold_order_that_needs_no_processing(): void
+    {
+        $order = $this->createReservedOrder();
+        $product = current($order->get_items('line_item'))->get_product();
+        $product->set_virtual(true);
+        $product->set_downloadable(true);
+        $product->save();
+        $order->set_status('on-hold');
+        $order->save();
+
+        $this->assertTrue(KlarnaPushProcessor::reconcileCapture(
+            wc_get_order($order->get_id()),
+            $this->payPush($order, 'PAY-PLAZA-DIGITAL', 25.00)
+        ));
+
+        $storedOrder = wc_get_order($order->get_id());
+        $this->assertSame('completed', $storedOrder->get_status());
+        $this->assertTrue($storedOrder->is_paid());
+    }
+
+    public function test_each_plaza_capture_key_is_confirmed_once_on_a_processing_order(): void
+    {
+        $order = $this->createReservedOrder(2);
+        $order->set_status('processing');
+        $order->save();
+
+        foreach (['PAY-PLAZA-ONE', 'PAY-PLAZA-TWO', 'PAY-PLAZA-ONE'] as $transactionKey) {
+            $this->assertTrue(KlarnaPushProcessor::reconcileCapture(
+                wc_get_order($order->get_id()),
+                $this->payPush($order, $transactionKey, 25.00)
+            ));
+        }
+
+        $storedOrder = wc_get_order($order->get_id());
+        $this->assertSame('processing', $storedOrder->get_status());
+        $this->assertCount(2, OrderMeta::get($storedOrder, '_wc_order_captures', false));
+        $this->assertSame(1, $this->countConfirmationNotes($order, 'PAY-PLAZA-ONE'));
+        $this->assertSame(1, $this->countConfirmationNotes($order, 'PAY-PLAZA-TWO'));
+    }
+
+    public function test_renamed_core_statuses_do_not_change_capture_status_handling(): void
+    {
+        $renameStatuses = static function (array $statuses): array {
+            $statuses['wc-on-hold'] = 'Backorders';
+            $statuses['wc-completed'] = 'Afgerond en verstuurd';
+
+            return $statuses;
+        };
+        add_filter('wc_order_statuses', $renameStatuses);
+
+        try {
+            $onHold = $this->createReservedOrder();
+            $onHold->set_status('on-hold');
+            $onHold->save();
+            $completed = $this->createReservedOrder();
+            $completed->set_status('completed');
+            $completed->save();
+
+            $this->assertTrue(KlarnaPushProcessor::reconcileCapture(
+                wc_get_order($onHold->get_id()),
+                $this->payPush($onHold, 'PAY-RENAMED-ON-HOLD', 25.00)
+            ));
+            $this->assertTrue(KlarnaPushProcessor::reconcileCapture(
+                wc_get_order($completed->get_id()),
+                $this->payPush($completed, 'PAY-RENAMED-COMPLETED', 25.00)
+            ));
+        } finally {
+            remove_filter('wc_order_statuses', $renameStatuses);
+        }
+
+        $this->assertSame('processing', wc_get_order($onHold->get_id())->get_status());
+        $this->assertSame('completed', wc_get_order($completed->get_id())->get_status());
+        $this->assertSame(1, $this->countConfirmationNotes($completed, 'PAY-RENAMED-COMPLETED'));
     }
 
     public function test_a_partial_plaza_capture_is_recorded_without_completing_the_order(): void
@@ -859,6 +953,15 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         $response->method('toArray')->willReturn(['Key' => $transactionKey]);
 
         return $response;
+    }
+
+    private function countConfirmationNotes(WC_Order $order, string $transactionKey): int
+    {
+        $notes = wp_list_pluck(wc_get_order_notes(['order_id' => $order->get_id()]), 'content');
+
+        return count(array_filter($notes, static function ($note) use ($transactionKey): bool {
+            return $note === sprintf('Klarna capture confirmed (transaction: %s).', $transactionKey);
+        }));
     }
 
     private function payPush(WC_Order $order, string $transactionKey, float $amount): FormDataParser

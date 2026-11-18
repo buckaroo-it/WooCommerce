@@ -316,7 +316,7 @@ class Test_KlarnaCaptureOperation extends TestCase
         $this->assertSame('25.00', $buckarooClient->payload['amountDebit']);
     }
 
-    public function test_a_full_manual_capture_completes_the_order_and_a_partial_one_does_not(): void
+    public function test_a_manual_capture_keeps_a_processing_order_processing_and_confirms_each_capture(): void
     {
         $order = $this->createReservedOrder(12.50, 2);
         $order->set_status('processing');
@@ -345,7 +345,30 @@ class Test_KlarnaCaptureOperation extends TestCase
         );
 
         $this->assertTrue($result->isSuccess(), $result->getMessage());
-        $this->assertSame('completed', wc_get_order($order->get_id())->get_status());
+        $this->assertSame('processing', wc_get_order($order->get_id())->get_status());
+        $notes = wp_list_pluck(wc_get_order_notes(['order_id' => $order->get_id()]), 'content');
+        $this->assertCount(1, preg_grep('/^Klarna capture confirmed \(transaction: PAY-FIRST-HALF\)\.$/', $notes));
+        $this->assertCount(1, preg_grep('/^Klarna capture confirmed \(transaction: PAY-SECOND-HALF\)\.$/', $notes));
+    }
+
+    public function test_a_manual_capture_marks_an_on_hold_order_paid_once_fully_captured(): void
+    {
+        $order = $this->createReservedOrder(25.00, 1);
+        $order->set_status('on-hold');
+        $order->save();
+        $item = current($order->get_items('line_item'));
+
+        $result = (new KlarnaPayGateway())->capture(
+            wc_get_order($order->get_id()),
+            25.00,
+            CaptureAllocation::fromArrays([$item->get_id() => 1], [$item->get_id() => 25.00], [$item->get_id() => []]),
+            new InMemoryBuckarooClient($this->successfulResponse('PAY-ON-HOLD'))
+        );
+
+        $this->assertTrue($result->isSuccess(), $result->getMessage());
+        $storedOrder = wc_get_order($order->get_id());
+        $this->assertSame('processing', $storedOrder->get_status());
+        $this->assertTrue($storedOrder->is_paid());
     }
 
     public function test_manual_capture_uses_the_same_remaining_allocation_as_automatic_capture(): void

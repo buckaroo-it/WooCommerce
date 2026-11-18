@@ -68,21 +68,40 @@ class KlarnaFulfillmentActions
     }
 
     /**
-     * Once the reserved amount is fully captured the order is paid and fulfilled: mark it
-     * paid if it was still on hold, then complete it. Partial captures leave it unchanged,
-     * and completing it here does not capture again, since nothing remains to capture.
+     * Update the order after a capture was recorded.
+     *
+     * An order that is still awaiting payment (pending, on hold, failed) is marked paid through
+     * payment_complete() once the reserved amount is fully captured, so WooCommerce picks
+     * Processing, or Completed for an order that needs no processing. Partial captures
+     * leave it unchanged.
      * A cancelled or refunded order keeps its status: payment_complete() would revive a
      * cancelled order, so the merchant gets a note to settle the capture instead.
+     * Any other status (processing, completed or a custom status) is managed by the
+     * merchant and is kept; the capture is confirmed with an order note.
      */
-    public static function completeWhenFullyCaptured(WC_Order $order, string $transactionKey): void
+    public static function updateOrderAfterCapture(WC_Order $order, string $transactionKey): void
     {
+        $awaitingPayment = $order->has_status(['pending', 'on-hold', 'failed']);
+        $closed = $order->has_status(['cancelled', 'refunded']);
+
+        if (! $awaitingPayment && ! $closed) {
+            $order->add_order_note(
+                sprintf(
+                    __('Klarna capture confirmed (transaction: %s).', 'wc-buckaroo-bpe-gateway'),
+                    $transactionKey
+                )
+            );
+
+            return;
+        }
+
         $captureTarget = KlarnaProcessor::getReservedAmount($order) ?? (float) $order->get_total('edit');
         $capturedAmount = (float) OrderMeta::get($order, '_wc_order_amount_captured');
         if (Helper::roundAmount($capturedAmount) < Helper::roundAmount($captureTarget)) {
             return;
         }
 
-        if ($order->has_status(['cancelled', 'refunded'])) {
+        if ($closed) {
             $order->add_order_note(
                 __('The Klarna payment was fully captured, but the order is cancelled or refunded, so its status was not changed. Refund the captured amount if the order should stay closed.', 'wc-buckaroo-bpe-gateway')
             );
@@ -91,13 +110,6 @@ class KlarnaFulfillmentActions
         }
 
         $order->payment_complete($transactionKey);
-
-        if ($order->has_status(['processing', 'on-hold'])) {
-            $order->update_status(
-                'completed',
-                __('Klarna payment fully captured.', 'wc-buckaroo-bpe-gateway')
-            );
-        }
     }
 
     public function handle_completed_order($orderId, $queueAttempt = 0): void
