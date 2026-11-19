@@ -7,6 +7,9 @@ on:
     branches: [ main, master, develop ]
   workflow_dispatch:  # Allows manual trigger from GitHub UI
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: PHPUnit Tests (PHP ${{ matrix.php }})
@@ -29,10 +32,12 @@ jobs:
         
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
         
       - name: Setup PHP 8.2 for Mozart
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: '8.2'
           tools: composer
@@ -49,7 +54,7 @@ jobs:
         
       - name: Cache vendor and prefixed dependencies
         id: vendor-cache
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             vendor
@@ -63,7 +68,7 @@ jobs:
         
       - name: Cache composer downloads
         if: steps.vendor-cache.outputs.cache-hit != 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('composer.json', 'tools/mozart/composer.json') }}
@@ -77,7 +82,7 @@ jobs:
       # other versions slows every test down for nothing; pcov is much faster
       # than Xdebug for the one job that does collect coverage.
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ matrix.php }}
           extensions: mysql, mbstring, zip
@@ -90,7 +95,7 @@ jobs:
         
       - name: Cache WordPress test suite
         id: wp-tests-cache
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             /tmp/wordpress
@@ -130,7 +135,7 @@ jobs:
           
       - name: Upload coverage reports to Codecov
         if: matrix.php == '8.1'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
         with:
           files: ./coverage/clover.xml
           flags: unittests
@@ -143,10 +148,12 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
         
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: '8.1'
           tools: composer, cs2pr
