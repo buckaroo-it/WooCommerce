@@ -8,8 +8,10 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Order\OrderCaptureRefund;
 use Buckaroo\Woocommerce\Order\OrderMeta;
+use Buckaroo\Woocommerce\PaymentProcessors\Actions\RefundAction;
 use Buckaroo\Woocommerce\Services\Helper;
 use WC_Cart;
+use WC_Order;
 use WC_Order_Item_Fee;
 use WC_Tax;
 
@@ -26,6 +28,7 @@ class OrderActions
         add_action('woocommerce_checkout_create_order_fee_item', [$this, 'tag_payment_fee_item'], 10, 3);
 
         add_action('wp_ajax_order_capture', [$this, 'handleOrderCapture']);
+        add_action('woocommerce_create_refund', [RefundAction::class, 'rememberCreatedRefund']);
         new OrderCaptureRefund();
     }
 
@@ -89,6 +92,31 @@ class OrderActions
         }
 
         $orderId = (int) sanitize_text_field($_POST['order_id']);
+        $order = $orderId > 0 ? wc_get_order($orderId) : false;
+        if (! $order instanceof WC_Order) {
+            wp_send_json(
+                [
+                    'errors' => [
+                        'error_capture' => [
+                            [esc_html__('A valid order number is required')],
+                        ],
+                    ],
+                ]
+            );
+        }
+
+        if (! Helper::currentUserCanEditOrder($order)) {
+            wp_send_json(
+                [
+                    'errors' => [
+                        'error_capture' => [
+                            [esc_html__('You are not allowed to capture this order.', 'wc-buckaroo-bpe-gateway')],
+                        ],
+                    ],
+                ]
+            );
+        }
+
         $gateway = $this->resolveCapturableGateway($orderId);
 
         if ($gateway === null) {

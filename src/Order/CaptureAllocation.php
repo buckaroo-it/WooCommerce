@@ -243,23 +243,112 @@ class CaptureAllocation
         return hash('sha256', wp_json_encode([$quantities, $totals, $taxTotals]));
     }
 
+    /**
+     * Whether this allocation only uses order items, quantities and amounts
+     * that are still available. Amounts are compared in cents. An item with a
+     * negative available total (e.g. a discount fee) accepts a total between
+     * that amount and zero; every other item accepts zero up to its total.
+     */
     public function isWithin(self $available): bool
     {
-        if ($this->getAmount() - $available->getAmount() >= 0.01) {
+        if (! $this->isWellFormed()) {
             return false;
         }
 
-        foreach ($this->totals as $itemId => $total) {
-            if ((float) $total - $available->getTotal((int) $itemId) >= 0.01) {
+        if (self::toCents($this->getAmount()) > self::toCents($available->getAmount())) {
+            return false;
+        }
+
+        $itemIds = array_unique(array_merge(
+            array_keys($this->totals),
+            array_keys($this->quantities),
+            array_keys($this->taxTotals)
+        ));
+        foreach ($itemIds as $itemId) {
+            if (! array_key_exists($itemId, $available->totals)) {
                 return false;
             }
+        }
 
+        foreach ($this->totals as $itemId => $total) {
+            $requested = self::toCents($total);
+            $availableTotal = self::toCents($available->getTotal((int) $itemId));
+
+            if ($availableTotal < 0) {
+                if ($requested > 0 || $requested < $availableTotal) {
+                    return false;
+                }
+            } elseif ($requested < 0 || $requested > $availableTotal) {
+                return false;
+            }
+        }
+
+        foreach (array_keys($this->quantities) as $itemId) {
             if ($this->getQuantity((int) $itemId) > $available->getQuantity((int) $itemId)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    private function isWellFormed(): bool
+    {
+        foreach ([$this->totals, $this->quantities, $this->taxTotals] as $values) {
+            foreach (array_keys($values) as $itemId) {
+                if (! self::isItemId($itemId)) {
+                    return false;
+                }
+            }
+        }
+
+        foreach ($this->totals as $total) {
+            if (! self::isAmount($total)) {
+                return false;
+            }
+        }
+
+        foreach ($this->quantities as $quantity) {
+            if (
+                ! is_scalar($quantity) ||
+                ! is_numeric($quantity) ||
+                (float) $quantity < 0 ||
+                floor((float) $quantity) !== (float) $quantity
+            ) {
+                return false;
+            }
+        }
+
+        foreach ($this->taxTotals as $taxes) {
+            if (! is_array($taxes)) {
+                return false;
+            }
+
+            foreach ($taxes as $tax) {
+                if ($tax !== '' && ! self::isAmount($tax)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private static function isItemId($itemId): bool
+    {
+        return (is_int($itemId) && $itemId > 0) ||
+            (is_string($itemId) && ctype_digit($itemId) && (int) $itemId > 0);
+    }
+
+    private static function isAmount($amount): bool
+    {
+        return (is_int($amount) || is_float($amount) || (is_string($amount) && is_numeric($amount))) &&
+            is_finite((float) $amount);
+    }
+
+    private static function toCents($amount): int
+    {
+        return (int) round((float) $amount * 100);
     }
 
     public function overlaps(self $other): bool

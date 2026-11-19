@@ -41,6 +41,18 @@ class Helper
     }
 
     /**
+     * Whether the current user may edit this order, checked the same way the
+     * WooCommerce order edit screen does (also for HPOS orders).
+     */
+    public static function currentUserCanEditOrder(WC_Order $order): bool
+    {
+        $postType = get_post_type_object($order->get_type());
+        $capability = $postType && isset($postType->cap->edit_post) ? $postType->cap->edit_post : 'edit_shop_order';
+
+        return current_user_can($capability, $order->get_id()) || current_user_can('manage_woocommerce');
+    }
+
+    /**
      * Checks if WooCommerce Version 3 or greater is installed
      */
     public static function isWooCommerceVersion3OrGreater(): bool
