@@ -58,17 +58,10 @@ jobs:
             -   name: Cleanup
                 run: |
                     rm -rd Media
-            # The icons are served from the shop's own domain, so an SVG must
-            # not be able to run script or load anything external.
-            -   name: Reject SVGs with active content
+            -   name: Check the icons
                 run: |
-                    unsafe=$(grep -r -l -i -E --include='*.svg' \
-                        '<script|<foreignObject|<!ENTITY|javascript:|[[:space:]]on[a-z]+[[:space:]]*=|href[[:space:]]*=[[:space:]]*["'"'"']?(https?:)?//' \
-                        library/buckaroo_images || true)
-                    if [ -n "$unsafe" ]; then
-                        echo "::error::SVGs with active content: $unsafe"
-                        exit 1
-                    fi
+                    php .github/workflows/check-icons.php \
+                        library/buckaroo_images/svg library/buckaroo_images/creditcards library/buckaroo_images/ideal
             -   name: Open a pull request
                 env:
                     GH_TOKEN: ${{ github.token }}
