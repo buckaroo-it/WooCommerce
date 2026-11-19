@@ -1,9 +1,11 @@
 name: Build, Upload Release, and Sync with SVN
 
 on:
+    # A full release is published, or a pre-release is changed to a full
+    # release. Pre-releases themselves are not published to wordpress.org.
     release:
         types:
-            - published
+            - released
     # Builds the package without publishing, so packaging changes are checked
     # before a release.
     pull_request:
@@ -23,8 +25,6 @@ concurrency:
 
 jobs:
     package:
-        # Pre-releases are not published to wordpress.org.
-        if: github.event_name != 'release' || !github.event.release.prerelease
         runs-on: ubuntu-latest
         outputs:
             version: ${{ steps.get_version.outputs.version }}
