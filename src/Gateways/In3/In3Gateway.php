@@ -5,6 +5,7 @@ namespace Buckaroo\Woocommerce\Gateways\In3;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\Traits\HasDateValidation;
+use WC_Order;
 
 class In3Gateway extends AbstractPaymentGateway
 {
@@ -42,37 +43,26 @@ class In3Gateway extends AbstractPaymentGateway
     }
 
     /**
-     * Validate payment fields on the frontend.
+     * Validate the payment fields against the billing details of the order.
      *
-     * @return void
+     * @return array<string>
      */
-    public function validate_fields()
+    public function getOrderValidationErrors(WC_Order $order): array
     {
-        $birthdate = $this->request->input('buckaroo-in3-birthdate');
+        $errors = [];
 
-        $country = $this->request->input('billing_country');
-        if ($country === null) {
-            $country = $this->country;
+        if ($order->get_billing_country() === 'NL' && ! $this->validateBirthdate($this->request->input('buckaroo-in3-birthdate'))) {
+            $errors[] = __('You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.', 'wc-buckaroo-bpe-gateway');
         }
 
-        if ($country === 'NL' && ! $this->validateDate($birthdate, 'd-m-Y')) {
-            wc_add_notice(__('You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.', 'wc-buckaroo-bpe-gateway'), 'error');
-        }
-
-        if (
-            $this->request->input('billing_phone') === null &&
-            $this->request->input('buckaroo-in3-phone') === null
-        ) {
-            wc_add_notice(
-                sprintf(
-                    __('Please fill in a phone number for %s. This is required in order to use this payment method.', 'wc-buckaroo-bpe-gateway'),
-                    'In3'
-                ),
-                'error'
+        if ($this->getFieldOrFallback('buckaroo-in3-phone', $order->get_billing_phone()) === '') {
+            $errors[] = sprintf(
+                __('Please fill in a phone number for %s. This is required in order to use this payment method.', 'wc-buckaroo-bpe-gateway'),
+                'In3'
             );
         }
 
-        parent::validate_fields();
+        return $errors;
     }
 
     /**  {@inheritDoc} */

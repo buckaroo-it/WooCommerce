@@ -6,11 +6,14 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
+use Buckaroo\Woocommerce\Traits\HasDateValidation;
 use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 
 class AfterpayOldProcessor extends AbstractPaymentProcessor
 {
+    use HasDateValidation;
+
     public function getAction(): string
     {
         if ($this->isAuthorization()) {
@@ -78,7 +81,9 @@ class AfterpayOldProcessor extends AbstractPaymentProcessor
 
     private function getPhone(string $phone): string
     {
-        return $this->request->input('buckaroo-afterpaynew-phone', $phone);
+        $own = $this->request->input('buckaroo-afterpay-phone');
+
+        return is_string($own) && trim($own) !== '' ? trim($own) : $phone;
     }
 
     protected function getBirthDate(string $country_code, string $type = 'billing'): array
@@ -96,18 +101,15 @@ class AfterpayOldProcessor extends AbstractPaymentProcessor
         return [];
     }
 
-    private function getFormatedDate()
+    /**
+     * Birthdate entered in the checkout, read and parsed the same way as in
+     * AfterpayOldGateway::getOrderValidationErrors().
+     */
+    private function getFormatedDate(): ?string
     {
-        $dateString = $this->request->input('buckaroo-afterpaynew-birthdate');
-        if (! is_scalar($dateString)) {
-            return null;
-        }
-        $date = strtotime((string) $dateString);
-        if ($date === false) {
-            return null;
-        }
+        $date = $this->parseBirthdate($this->request->input('buckaroo-afterpay-birthdate'));
 
-        return @date('d-m-Y', $date);
+        return $date !== null ? $date->format('d-m-Y') : null;
     }
 
     protected function getShippingData(): array

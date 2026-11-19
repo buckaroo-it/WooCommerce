@@ -5,10 +5,13 @@ namespace Buckaroo\Woocommerce\Gateways\Afterpay;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
+use Buckaroo\Woocommerce\Traits\HasDateValidation;
 use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 
 class AfterpayNewProcessor extends AbstractPaymentProcessor
 {
+    use HasDateValidation;
+
     /** {@inheritDoc} */
     public function getAction(): string
     {
@@ -169,16 +172,9 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
      */
     private function getFormatedDate(): ?string
     {
-        $dateString = $this->request->input('buckaroo-afterpaynew-birthdate');
-        if (! is_scalar($dateString)) {
-            return null;
-        }
-        $date = strtotime((string) $dateString);
-        if ($date === false) {
-            return null;
-        }
+        $date = $this->parseBirthdate($this->request->input('buckaroo-afterpaynew-birthdate'));
 
-        return @date('Y-m-d', $date);
+        return $date !== null ? $date->format('Y-m-d') : null;
     }
 
     protected function getShippingData(): array
