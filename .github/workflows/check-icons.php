@@ -20,22 +20,59 @@ const ALLOWED_ELEMENTS = [
 // Links may only point inside the file or embed a raster image.
 const ALLOWED_HREF = '/^(#|data:image\/(png|jpeg|gif|webp);base64,)/i';
 
-// CSS url() may only point inside the file.
-const EXTERNAL_URL = 'url\(\s*(?![\'"]?\s*#)';
+// url() may only point inside the file.
+const EXTERNAL_URL = '/url\(\s*(?!#)/i';
+
+// CSS in <style> and style="" may only call these functions.
+const ALLOWED_CSS_FUNCTIONS = ['url', 'rgb', 'rgba'];
+
+const ALLOWED_NODE_TYPES = [XML_ELEMENT_NODE, XML_TEXT_NODE, XML_CDATA_SECTION_NODE, XML_COMMENT_NODE];
+
+function cssProblem(string $css): ?string
+{
+    // Escapes, at-rules and strings are how CSS hides or loads a URL
+    // without url(), e.g. image-set("…") or u\72l(…).
+    if (preg_match('/[\\\\@"\']|\/\//', $css)) {
+        return 'CSS escapes, at-rules, strings and // are not allowed';
+    }
+    preg_match_all('/([a-z-]+)\s*\(/i', $css, $calls);
+    foreach ($calls[1] as $function) {
+        if (! in_array(strtolower($function), ALLOWED_CSS_FUNCTIONS, true)) {
+            return "CSS function $function() is not allowed";
+        }
+    }
+    if (preg_match(EXTERNAL_URL, $css)) {
+        return 'url() may only point inside the file';
+    }
+
+    return null;
+}
 
 function svgProblems(string $xml): array
 {
+    // UTF-8 only, so the checks below see the same text the browser parses.
+    if (strpos($xml, "\0") !== false || ! preg_match('//u', $xml)) {
+        return ['only UTF-8 is allowed'];
+    }
     if (preg_match('/<!DOCTYPE|<!ENTITY/i', $xml)) {
         return ['DOCTYPE and entities are not allowed'];
     }
 
     $document = new DOMDocument();
-    if (! @$document->loadXML($xml, LIBXML_NONET)) {
-        return ['not well-formed XML'];
+    if (! @$document->loadXML($xml, LIBXML_NONET) || $document->doctype !== null) {
+        return ['not well-formed XML without DOCTYPE'];
     }
 
     $problems = [];
-    foreach ((new DOMXPath($document))->query('//*') as $element) {
+    $xpath = new DOMXPath($document);
+
+    foreach ($xpath->query('//node()') as $node) {
+        if (! in_array($node->nodeType, ALLOWED_NODE_TYPES, true)) {
+            $problems[] = "{$node->nodeName} nodes are not allowed";
+        }
+    }
+
+    foreach ($xpath->query('//*') as $element) {
         if ($element->namespaceURI !== SVG_NAMESPACE || ! in_array($element->localName, ALLOWED_ELEMENTS, true)) {
             $problems[] = "element <{$element->nodeName}> is not allowed";
         }
@@ -46,18 +83,25 @@ function svgProblems(string $xml): array
 
             if (strpos($name, 'on') === 0) {
                 $problems[] = "event attribute {$attribute->nodeName} is not allowed";
-            }
-            if ($name === 'href' && ! preg_match(ALLOWED_HREF, $value)) {
-                $problems[] = "link {$attribute->nodeName}=\"{$attribute->value}\" is not allowed";
-            }
-            if (stripos($value, 'javascript:') !== false || preg_match('/' . EXTERNAL_URL . '/i', $value)) {
+            } elseif ($name === 'href') {
+                if (! preg_match(ALLOWED_HREF, $value)) {
+                    $problems[] = "link {$attribute->nodeName}=\"{$attribute->value}\" is not allowed";
+                }
+            } elseif ($name === 'style') {
+                $problem = cssProblem($attribute->value);
+                if ($problem !== null) {
+                    $problems[] = "style attribute: $problem";
+                }
+            } elseif (preg_match('/[\\\\]|javascript:/i', $value) || preg_match(EXTERNAL_URL, $value)) {
                 $problems[] = "value of {$attribute->nodeName} is not allowed";
             }
         }
 
-        if ($element->localName === 'style'
-            && preg_match('/@import|javascript:|' . EXTERNAL_URL . '/i', $element->textContent)) {
-            $problems[] = '<style> loads external content';
+        if ($element->localName === 'style') {
+            $problem = cssProblem($element->textContent);
+            if ($problem !== null) {
+                $problems[] = "<style>: $problem";
+            }
         }
     }
 
