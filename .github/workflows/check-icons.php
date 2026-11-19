@@ -23,8 +23,9 @@ const ALLOWED_HREF = '/^(#|data:image\/(png|jpeg|gif|webp);base64,)/i';
 // url() may only point inside the file.
 const EXTERNAL_URL = '/url\(\s*(?!#)/i';
 
-// CSS in <style> and style="" may only call these functions.
-const ALLOWED_CSS_FUNCTIONS = ['url', 'rgb', 'rgba'];
+// CSS and attribute values (presentation attributes are parsed as CSS) may
+// only call these functions.
+const ALLOWED_FUNCTIONS = ['url', 'rgb', 'rgba', 'matrix', 'translate', 'scale', 'rotate', 'skewx', 'skewy'];
 
 const ALLOWED_NODE_TYPES = [XML_ELEMENT_NODE, XML_TEXT_NODE, XML_CDATA_SECTION_NODE, XML_COMMENT_NODE];
 
@@ -37,12 +38,12 @@ function cssProblem(string $css): ?string
     }
     preg_match_all('/([a-z-]+)\s*\(/i', $css, $calls);
     foreach ($calls[1] as $function) {
-        if (! in_array(strtolower($function), ALLOWED_CSS_FUNCTIONS, true)) {
+        if (! in_array(strtolower($function), ALLOWED_FUNCTIONS, true)) {
             return "CSS function $function() is not allowed";
         }
     }
-    if (preg_match(EXTERNAL_URL, $css)) {
-        return 'url() may only point inside the file';
+    if (preg_match(EXTERNAL_URL, $css) || stripos($css, 'javascript:') !== false) {
+        return 'external url() and javascript: are not allowed';
     }
 
     return null;
@@ -87,13 +88,11 @@ function svgProblems(string $xml): array
                 if (! preg_match(ALLOWED_HREF, $value)) {
                     $problems[] = "link {$attribute->nodeName}=\"{$attribute->value}\" is not allowed";
                 }
-            } elseif ($name === 'style') {
+            } else {
                 $problem = cssProblem($attribute->value);
                 if ($problem !== null) {
-                    $problems[] = "style attribute: $problem";
+                    $problems[] = "attribute {$attribute->nodeName}: $problem";
                 }
-            } elseif (preg_match('/[\\\\]|javascript:/i', $value) || preg_match(EXTERNAL_URL, $value)) {
-                $problems[] = "value of {$attribute->nodeName} is not allowed";
             }
         }
 
