@@ -4,13 +4,17 @@
 	<!-- Set a description for this ruleset. -->
 	<description>A WordPress Ruleset to check application safety.</description>
 
+	<file>src</file>
+	<file>templates</file>
+	<file>index.php</file>
+
+	<arg name="extensions" value="php"/>
+
 	<exclude-pattern>assets/*</exclude-pattern>
 	<exclude-pattern>node_modules/*</exclude-pattern>
-	<exclude-pattern>test/*</exclude-pattern>
+	<exclude-pattern>tests/*</exclude-pattern>
 	<exclude-pattern>vendor/*</exclude-pattern>
-	<exclude-pattern>*.min.js</exclude-pattern>
-	<exclude-pattern>js/*.js</exclude-pattern>
-	<exclude-pattern>css/*.css</exclude-pattern>
+	<exclude-pattern>vendor_buckaroo/*</exclude-pattern>
 
 	<rule ref="Generic.PHP.Syntax"/>
 
@@ -24,13 +28,21 @@
 		<!-- omit non security sniffs -->
 		<exclude name="WordPress.PHP.DontExtract"/>
 		<exclude name="WordPress.PHP.YodaConditions"/>
+		<exclude name="WordPress.PHP.POSIXFunctions"/>
 	</rule>
+	<rule ref="WordPress.Security"/>
 	<rule ref="WordPress.Security.EscapeOutput">
 		<properties>
-			<property name="customAutoEscapedFunctions" type="array" value="wc_price,wc_clean,plugin_dir_url,home_url,wc_help_tip"/>
+			<property name="customAutoEscapedFunctions" type="array">
+				<element value="wc_price"/>
+				<element value="wc_clean"/>
+				<element value="plugin_dir_url"/>
+				<element value="home_url"/>
+				<element value="wc_help_tip"/>
+			</property>
 		</properties>
 	</rule>
-	
+
 	<rule ref="WordPress.Utils">
 	</rule>
 	<rule ref="WordPress.WP">
