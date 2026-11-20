@@ -259,6 +259,11 @@ class Test_CaptureLocking extends TestCase
      */
     public function test_shop_managers_and_administrators_may_edit_an_order(bool $hpos): void
     {
+        // The test install does not run the WooCommerce setup, so add its roles here
+        // and reload them, as a new request would.
+        WC_Install::create_roles();
+        wp_roles()->for_site();
+
         $this->useStorage($hpos);
         $order = $this->createCapturableOrder('buckaroo_creditcard');
 
