@@ -9,12 +9,17 @@ use Buckaroo\Woocommerce\Order\CaptureRecorder;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Logger;
+use Buckaroo\Woocommerce\Services\NamedLock;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 use Throwable;
 use WC_Order;
 
 class CaptureAction
 {
+    public const SEND_LOCK_PURPOSE = 'capture_send';
+
+    public const SEND_LOCK_KEY = 'order';
+
     protected AbstractProcessor $paymentProcessor;
 
     protected BuckarooClient $buckarooClient;
@@ -60,24 +65,35 @@ class CaptureAction
         }
 
         MigrateOrderMetaToHpos::ensureOrderMigrated($this->order);
-        $this->order->read_meta_data(true);
 
-        $available = CaptureAllocation::remainingForOrder($this->order);
-        if (! $this->allocation->isWithin($available)) {
-            return CaptureResult::failed(__('The selected amount is no longer available to capture.', 'wc-buckaroo-bpe-gateway'));
+        // One capture per order at a time, across requests. Gateways with their
+        // own capture action use the same lock name.
+        if (! NamedLock::acquire(self::SEND_LOCK_PURPOSE, $this->order, self::SEND_LOCK_KEY)) {
+            return CaptureResult::failed(__('This capture amount is already being processed.', 'wc-buckaroo-bpe-gateway'));
         }
 
-        $response = null;
         try {
-            $response = $this->buckarooClient->process($this->paymentProcessor, $this->payload);
+            $this->order->read_meta_data(true);
 
-            return $this->finalize($response);
-        } catch (Throwable $exception) {
-            $transactionKey = $response instanceof TransactionResponse
-                ? $response->getTransactionKey()
-                : null;
+            $available = CaptureAllocation::remainingForOrder($this->order);
+            if (! $this->allocation->isWithin($available)) {
+                return CaptureResult::failed(__('The selected amount is no longer available to capture.', 'wc-buckaroo-bpe-gateway'));
+            }
 
-            return CaptureResult::unknown($exception->getMessage(), $transactionKey);
+            $response = null;
+            try {
+                $response = $this->buckarooClient->process($this->paymentProcessor, $this->payload);
+
+                return $this->finalize($response);
+            } catch (Throwable $exception) {
+                $transactionKey = $response instanceof TransactionResponse
+                    ? $response->getTransactionKey()
+                    : null;
+
+                return CaptureResult::unknown($exception->getMessage(), $transactionKey);
+            }
+        } finally {
+            NamedLock::release(self::SEND_LOCK_PURPOSE, $this->order, self::SEND_LOCK_KEY);
         }
     }
 

@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways;
 
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Order\OrderMeta;
+use Buckaroo\Woocommerce\Order\RefundLedger;
 use WC_Order;
 
 class AbstractRefundProcessor extends AbstractProcessor
@@ -30,6 +31,11 @@ class AbstractRefundProcessor extends AbstractProcessor
         $this->line_items = $line_items;
     }
 
+    public function getAmount(): float
+    {
+        return $this->amount;
+    }
+
     /**
      * Get request action
      */
@@ -47,9 +53,17 @@ class AbstractRefundProcessor extends AbstractProcessor
 
         $captures = OrderMeta::get($this->getOrder(), '_wc_order_captures', false);
         if ($captures && !empty($captures)) {
-            $lastCapture = end($captures);
-            if (isset($lastCapture['transaction_id'])) {
-                $originalTransactionKey = $lastCapture['transaction_id'];
+            // RefundAction sends the capture chosen under the settlement lock;
+            // this default picks the same capture.
+            $cents = RefundLedger::toCents($this->amount);
+            $captureKey = $cents !== null ? RefundLedger::selectParent($this->getOrder(), $cents) : null;
+            if ($captureKey !== null) {
+                $originalTransactionKey = $captureKey;
+            } else {
+                $lastCapture = end($captures);
+                if (isset($lastCapture['transaction_id'])) {
+                    $originalTransactionKey = $lastCapture['transaction_id'];
+                }
             }
         }
 
