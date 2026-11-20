@@ -19,7 +19,6 @@ defined('ABSPATH') || exit;
 
 $customerFirstName = $this->getScalarCheckoutField('billing_first_name');
 $customerLastName = $this->getScalarCheckoutField('billing_last_name');
-$customerEmail = $this->getScalarCheckoutField('billing_email');
 
 ?>
 <fieldset>
@@ -49,18 +48,6 @@ woocommerce_form_field(
         'class' => ['form-row-wide'],
     ],
     $customerLastName
-);
-
-woocommerce_form_field(
-    'buckaroo-payperemail-email',
-    [
-        'type' => 'email',
-        'label' => __('Email:', 'wc-buckaroo-bpe-gateway'),
-        'required' => true,
-        'autocomplete' => 'off',
-        'class' => ['form-row-wide'],
-    ],
-    $customerEmail
 );
 ?>
 </fieldset>
