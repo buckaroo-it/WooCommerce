@@ -22,8 +22,13 @@ class PaymentSetupScripts
      * and the cross-device (QR-code) handoff so Apple Pay works in every browser
      * (Chrome, Edge, Firefox, Safari). The Buckaroo SDK is still used for the
      * ApplePaySession orchestration and merchant validation.
+     *
+     * Pinned to a version, with the hash Apple publishes for it in the Apple
+     * Pay JS change log, so the browser refuses a changed file.
      */
-    private const APPLE_PAY_SDK_URL = 'https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js';
+    private const APPLE_PAY_SDK_URL = 'https://applepay.cdn-apple.com/jsapi/v1.3.8/apple-pay-sdk.js';
+
+    private const APPLE_PAY_SDK_INTEGRITY = 'sha384-u/9mOkmShCO0v+dqCAZFhiutJuORfzvuyM5i+676iy7mLSWS6rlllHrIt15f/mqH';
 
     public function __construct()
     {
@@ -33,6 +38,28 @@ class PaymentSetupScripts
         add_action('admin_enqueue_scripts', [$this, 'handleAdminAssets']);
         add_action('wp_enqueue_scripts', [$this, 'initFrontendScripts']);
         add_action('enqueue_block_assets', [$this, 'handleBlockAssets']);
+        add_filter('script_loader_tag', [$this, 'addAppleSdkIntegrity'], 10, 2);
+    }
+
+    /**
+     * Adds the Subresource Integrity hash to the Apple Pay SDK script tag.
+     *
+     * @param string $tag
+     * @param string $handle
+     * @return string
+     */
+    public function addAppleSdkIntegrity($tag, $handle)
+    {
+        if ($handle !== 'apple_pay_sdk' || ! is_string($tag) || strpos($tag, ' integrity=') !== false) {
+            return $tag;
+        }
+
+        return (string) preg_replace(
+            '/ src=/',
+            ' integrity="' . esc_attr(self::APPLE_PAY_SDK_INTEGRITY) . '" crossorigin="anonymous" src=',
+            $tag,
+            1
+        );
     }
 
     public function loadTranslations(): void

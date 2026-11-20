@@ -4,19 +4,25 @@ on:
         branches: [ develop ]
 
 permissions:
-    contents: write
+    contents: read
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
 
 jobs:
+    # Runs npm and webpack from the PR, so it gets a read-only token.
     build:
         runs-on: ubuntu-latest
         steps:
-            -   uses: actions/checkout@v4
+            -   uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
                 with:
                     repository: ${{ github.event.pull_request.head.repo.full_name }}
-                    ref: ${{ github.head_ref }}
+                    ref: ${{ github.event.pull_request.head.sha }}
+                    persist-credentials: false
 
             -   name: Set up Node
-                uses: actions/setup-node@v4
+                uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
                 with:
                     node-version-file: .nvmrc
                     cache: 'npm'
@@ -28,8 +34,9 @@ jobs:
                     npm ci
                     npm run build
 
-            -   name: Fail if dist is stale (fork PRs cannot be pushed to)
-                if: github.event.pull_request.head.repo.full_name != github.repository
+            # Fork and Dependabot PRs cannot be pushed to by this workflow.
+            -   name: Fail if dist is stale
+                if: github.event.pull_request.head.repo.full_name != github.repository || github.event.pull_request.user.login == 'dependabot[bot]'
                 run: |
                     if [ -n "$(git status --porcelain assets/js/dist)" ]; then
                         git --no-pager diff --stat assets/js/dist
@@ -37,9 +44,74 @@ jobs:
                         exit 1
                     fi
 
+            -   name: Upload dist
+                if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login != 'dependabot[bot]'
+                uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+                with:
+                    name: js-dist
+                    path: assets/js/dist
+                    if-no-files-found: error
+
+    # Commits the build output. It runs no code from the PR.
+    commit:
+        needs: build
+        if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login != 'dependabot[bot]'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            -   uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+                with:
+                    ref: ${{ github.head_ref }}
+
+            -   name: Stop if the branch moved since the build
+                id: head
+                env:
+                    BUILT_SHA: ${{ github.event.pull_request.head.sha }}
+                run: |
+                    if [ "$(git rev-parse HEAD)" != "$BUILT_SHA" ]; then
+                        echo "::notice::The branch moved after this build; the run for the newer commit rebuilds dist."
+                        echo "moved=true" >> "$GITHUB_OUTPUT"
+                    fi
+
+            -   name: Download dist
+                if: steps.head.outputs.moved != 'true'
+                uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+                with:
+                    name: js-dist
+                    path: ${{ runner.temp }}/js-dist
+
+            # The *.asset.php files ship and are included by PHP, so only the
+            # exact shape the dependency-extraction plugin generates is accepted.
+            -   name: Check build output
+                if: steps.head.outputs.moved != 'true'
+                working-directory: ${{ runner.temp }}/js-dist
+                run: |
+                    failed=0
+                    unexpected=$(find . ! -type d ! \( -type f \( -name '*.js' -o -name '*.js.LICENSE.txt' -o -name '*.asset.php' \) \))
+                    if [ -n "$unexpected" ]; then
+                        echo "::error::Unexpected files in the build output: $unexpected"
+                        failed=1
+                    fi
+                    pattern="^<\?php return array\('dependencies' => array\(('[a-z0-9@/._-]+'(, '[a-z0-9@/._-]+')*)?\), 'version' => '[a-f0-9]+'\);$"
+                    while IFS= read -r f; do
+                        if [ "$(grep -cxE "$pattern" "$f")" != 1 ] || [ "$(grep -cvxE "$pattern" "$f")" != 0 ]; then
+                            echo "::error::$f is not a generated asset file"
+                            failed=1
+                        fi
+                    done < <(find . -type f -name '*.asset.php')
+                    exit "$failed"
+
+            -   name: Replace dist
+                if: steps.head.outputs.moved != 'true'
+                run: |
+                    rm -rf assets/js/dist
+                    mkdir -p assets/js/dist
+                    cp -R "$RUNNER_TEMP/js-dist/." assets/js/dist/
+
             -   name: Commit rebuilt dist
-                if: github.event.pull_request.head.repo.full_name == github.repository
-                uses: stefanzweifel/git-auto-commit-action@v7
+                if: steps.head.outputs.moved != 'true'
+                uses: stefanzweifel/git-auto-commit-action@d0b01107b5db882071f96de5dd4b54961ea93f4c # v7.2.1
                 with:
                     file_pattern: assets/js/dist
                     commit_message: 'chore: rebuild JS dist'

@@ -5,5 +5,4 @@ api/log/
 vendor/
 vendor_buckaroo
 .idea/
-composer.lock
 .eslintrc.json

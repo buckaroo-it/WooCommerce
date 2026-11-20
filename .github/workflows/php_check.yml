@@ -2,6 +2,10 @@ name: PHP Compatibility Check
 
 on:
     pull_request:
+
+permissions:
+    contents: read
+
 jobs:
     test:
         runs-on: ubuntu-latest
@@ -10,10 +14,12 @@ jobs:
                 php-version: [ '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ]
 
         steps:
-            -   uses: actions/checkout@v4
+            -   uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+                with:
+                    persist-credentials: false
 
             -   name: Setup PHP 8.2 for Mozart
-                uses: shivammathur/setup-php@v2
+                uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
                 with:
                     php-version: '8.2'
                     tools: composer:v2
@@ -26,7 +32,7 @@ jobs:
                     composer dump-autoload -o
 
             -   name: Setup PHP
-                uses: shivammathur/setup-php@v2
+                uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
                 with:
                     php-version: ${{ matrix.php-version }}
                     tools: composer:v2

@@ -1,0 +1,32 @@
+# Files kept out of the release package (wordpress.org SVN and the GitHub
+# release zip). rsync filter rules: "- " excludes, "+ " keeps, first match wins,
+# a leading "/" anchors to the plugin root.
+
+# Repository and tooling
+- /.git
+- /.github
+- /.wordpress-org
+- /.distignore
+- /.gitignore
+- /.eslintignore
+- /.eslintrc.json
+- /.nvmrc
+- /bin
+- /tests
+- /tools
+
+# Dev configuration and docs
+- /composer.json
+- /composer.lock
+- /phpcs.xml
+- /phpcs-security.ruleset.xml
+- /phpunit.xml.dist
+- /sonar-project.properties
+- /CONTRIBUTING.md
+- /README.md
+- /SECURITY.md
+
+# JS sources: only the compiled bundles ship. The source is public on GitHub,
+# linked from readme.txt.
++ /assets/js/dist/
+- /assets/js/*
