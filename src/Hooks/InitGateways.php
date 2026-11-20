@@ -15,6 +15,7 @@ use Buckaroo\Woocommerce\Gateways\BuckarooExpressBlocks;
 use Buckaroo\Woocommerce\Gateways\CreditCard\HostedFieldsController;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use Buckaroo\Woocommerce\PaymentProcessors\PushProcessor;
+use Buckaroo\Woocommerce\Services\CheckoutError;
 use Buckaroo\Woocommerce\Services\Helper;
 
 class InitGateways
@@ -97,7 +98,8 @@ class InitGateways
 
     public function displayBuckarooErrors(): void
     {
-        if (empty($_GET['bck_err'])) {
+        $message = CheckoutError::messageFromRequest();
+        if ($message === '') {
             return;
         }
 
@@ -109,8 +111,8 @@ class InitGateways
             return;
         }
 
-        if ($error = base64_decode($_GET['bck_err'])) {
-            wc_add_notice(esc_html__(sanitize_text_field($error), 'wc-buckaroo-bpe-gateway'), 'error');
+        if (! wc_has_notice($message, 'error')) {
+            wc_add_notice(esc_html($message), 'error');
         }
     }
 
@@ -217,6 +219,7 @@ class InitGateways
             }
         }
         wp_localize_script('buckaroo-blocks', 'buckarooGateways', $payment_methods);
+        wp_localize_script('buckaroo-blocks', 'buckarooCheckoutError', ['message' => CheckoutError::messageFromRequest()]);
 
         return $payment_methods;
     }

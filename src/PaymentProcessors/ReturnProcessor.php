@@ -8,6 +8,7 @@ use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
+use Buckaroo\Woocommerce\Services\CheckoutError;
 use Buckaroo\Woocommerce\Services\Helper;
 use Buckaroo\Woocommerce\Services\Logger;
 use Buckaroo\Woocommerce\Services\LoggerStorage;
@@ -46,7 +47,7 @@ class ReturnProcessor
         if (! $order) {
             Logger::log(__METHOD__ . '|10|');
 
-            return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Order not found.');
+            return $this->handleFailureRedirect($paymentGateway, $order);
         }
 
         // Validate signature if needed
@@ -57,13 +58,13 @@ class ReturnProcessor
                 Logger::log('Response not valid for order. Signature failed. Order id: ' . ($orderId ?: 'order not created'));
                 Logger::log('Response not valid!', $responseParser);
 
-                return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Response not valid!');
+                return $this->handleFailureRedirect($paymentGateway, $order);
             }
 
             if (! $responseParser->hasValidTransactionKeys()) {
                 Logger::log('Return ignored: a transaction key has an invalid format. Order id: ' . $orderId);
 
-                return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Response not valid!');
+                return $this->handleFailureRedirect($paymentGateway, $order);
             }
         }
 
@@ -75,7 +76,7 @@ class ReturnProcessor
             if (PushProcessor::replyMismatch($order, $responseParser) !== null) {
                 Logger::log('Return ignored: currency or mode does not match the order. Order id: ' . $orderId);
 
-                return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Response not valid!');
+                return $this->handleFailureRedirect($paymentGateway, $order);
             }
 
             $staleReply = PushProcessor::isStaleReply($order, $responseParser);
@@ -141,7 +142,11 @@ class ReturnProcessor
         $this->maybeAddNlSpecificError($responseParser, $order, $errorDescription);
 
         // Redirect
-        return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, $errorDescription);
+        return $this->handleFailureRedirect(
+            $paymentGateway,
+            $order,
+            $responseParser->isCanceled() ? CheckoutError::PAYMENT_CANCELLED : CheckoutError::PAYMENT_FAILED
+        );
     }
 
     /**
@@ -162,7 +167,7 @@ class ReturnProcessor
                 ];
         }
 
-        return $this->handleFailureRedirect($paymentGateway, $order, $responseParser, 'Payment failed.');
+        return $this->handleFailureRedirect($paymentGateway, $order);
     }
 
     /**
@@ -207,18 +212,20 @@ class ReturnProcessor
     /**
      * Handles final redirect in case of failure.
      */
-    protected function handleFailureRedirect($paymentGateway, $order, $responseParser, $defaultMessage)
+    protected function handleFailureRedirect($paymentGateway, $order, string $errorCode = CheckoutError::PAYMENT_FAILED)
     {
-        $encodedMsg = base64_encode($this->parseErrorMessage($responseParser, $order, $defaultMessage));
-
-        return ['result' => 'failure', 'redirect' => $this->getRedirectUrl($paymentGateway, $order, 'error', $encodedMsg)];
+        return ['result' => 'failure', 'redirect' => $this->getRedirectUrl($paymentGateway, $order, 'error', $errorCode)];
     }
 
-    protected function getRedirectUrl($paymentGateway, $order, $type = 'success', $errorMessage = '')
+    protected function getRedirectUrl($paymentGateway, $order, $type = 'success', string $errorCode = '')
     {
-        return $type === 'success'
-            ? $paymentGateway->get_return_url($order)
-            : ($paymentGateway->get_failed_url() . ($errorMessage ? '?bck_err=' . $errorMessage : ''));
+        if ($type === 'success') {
+            return $paymentGateway->get_return_url($order);
+        }
+
+        $failedUrl = $paymentGateway->get_failed_url();
+
+        return $errorCode !== '' ? CheckoutError::addToUrl($failedUrl, $errorCode) : $failedUrl;
     }
 
     protected function getOrderId(ResponseParser $responseParser)
@@ -257,19 +264,6 @@ class ReturnProcessor
             $defaultMessage = str_replace(':', '', substr($subCodeMessage, strrpos($subCodeMessage, ': ')));
             wc_add_notice(__($defaultMessage, 'wc-buckaroo-bpe-gateway'), 'error');
         }
-    }
-
-    protected function parseErrorMessage(ResponseParser $responseParser, $order, $defaultMessage)
-    {
-        if (! $this->isNlOrder($order)) {
-            return $defaultMessage;
-        }
-        $subCodeMessage = $responseParser->getSubCodeMessage();
-        if ($subCodeMessage && strrpos($subCodeMessage, ': ') !== false) {
-            return str_replace(':', '', substr($subCodeMessage, strrpos($subCodeMessage, ': ')));
-        }
-
-        return $defaultMessage;
     }
 
     protected function isNlOrder($order)

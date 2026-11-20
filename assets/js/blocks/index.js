@@ -258,17 +258,18 @@ const createOptions = (wc, gateway) => ({
 });
 
 const handleBuckarooErrorDisplay = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const bckErr = urlParams.get('bck_err');
+    // The message is resolved and translated server-side from the error code in the URL.
+    const checkoutError = window.buckarooCheckoutError;
+    const message = checkoutError && typeof checkoutError.message === 'string' ? checkoutError.message : '';
 
-    if (!bckErr || !document.querySelector('.wc-block-checkout')) {
+    if (!message || !document.querySelector('.wc-block-checkout')) {
         return;
     }
 
     if (window.wp && window.wp.data && window.wp.data.dispatch) {
         const noticesDispatch = window.wp.data.dispatch('core/notices');
         if (noticesDispatch && noticesDispatch.createNotice) {
-            noticesDispatch.createNotice('error', atob(bckErr), {
+            noticesDispatch.createNotice('error', message, {
                 context: 'wc/checkout',
                 isDismissible: true,
             });

@@ -6,6 +6,7 @@ use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
+use Buckaroo\Woocommerce\Services\CheckoutError;
 use Buckaroo\Woocommerce\Traits\HasDateValidation;
 use BuckarooDeps\Buckaroo\Resources\Constants\ResponseStatus;
 use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
@@ -165,7 +166,7 @@ class AfterpayOldProcessor extends AbstractPaymentProcessor
             wc_add_notice(__($errorMessage, 'wc-buckaroo-bpe-gateway'), 'error');
 
             return [
-                'redirect' => $redirectUrl . '?bck_err=' . $errorMessage,
+                'redirect' => CheckoutError::addToUrl($redirectUrl),
                 'result' => 'failure',
             ];
         }
