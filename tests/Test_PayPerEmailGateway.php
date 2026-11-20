@@ -440,11 +440,11 @@ class Test_PayPerEmailGateway extends TestCase
     /**
      * @dataProvider provide_order_actions
      */
-    public function test_order_action_for_cancelled_or_refunded_order_is_refused(string $action)
+    public function test_order_action_for_cancelled_refunded_or_failed_order_is_refused(string $action)
     {
         $gateway = $this->registerFakeGateway();
 
-        foreach (['cancelled', 'refunded'] as $status) {
+        foreach (['cancelled', 'refunded', 'failed'] as $status) {
             do_action($action, $this->stubOrder($status));
         }
 
@@ -483,15 +483,6 @@ class Test_PayPerEmailGateway extends TestCase
 
         $this->assertSame([], $gateway->processedOrderIds);
         $this->assertSame('error', $this->adminNotice()['type'] ?? null);
-    }
-
-    public function test_paylink_can_still_be_created_for_failed_order()
-    {
-        $gateway = $this->registerFakeGateway();
-
-        do_action('woocommerce_order_action_buckaroo_create_paylink', $this->stubOrder('failed'));
-
-        $this->assertSame([self::STUB_ORDER_ID], $gateway->processedOrderIds);
     }
 
     public function test_order_actions_dropdown_hides_actions_for_paid_order()

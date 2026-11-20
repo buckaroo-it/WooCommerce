@@ -203,7 +203,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway
     protected function canShowPaylink($status)
     {
         return $this->isEnabled()
-            && in_array($status, ['pending', 'on-hold', 'failed'])
+            && in_array($status, ['pending', 'on-hold'])
             && $this->get_option('show_PayLink') === 'TRUE';
     }
 
