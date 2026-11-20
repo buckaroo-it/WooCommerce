@@ -8,7 +8,6 @@ function PayPerEmailForm({ onStateChange, methodName, gateway: { genders }, bill
     const initialState = {
         [`${methodName}-firstname`]: billing?.first_name || '',
         [`${methodName}-lastname`]: billing?.last_name || '',
-        [`${methodName}-email`]: billing?.email || '',
         [`${methodName}-gender`]: '',
     };
 
@@ -31,15 +30,6 @@ function PayPerEmailForm({ onStateChange, methodName, gateway: { genders }, bill
                 label={__('Last Name:', 'wc-buckaroo-bpe-gateway')}
                 autoComplete="off"
                 value={formState[`${methodName}-lastname`] || ''}
-                onChange={handleChange}
-            />
-
-            <TextField
-                id="buckaroo-payperemail-email"
-                label={__('Email:', 'wc-buckaroo-bpe-gateway')}
-                type="email"
-                autoComplete="off"
-                value={formState[`${methodName}-email`] || ''}
                 onChange={handleChange}
             />
         </div>
