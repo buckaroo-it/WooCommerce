@@ -4,6 +4,7 @@ namespace Buckaroo\Woocommerce\Gateways\GiftCard;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
+use Buckaroo\Woocommerce\Services\CheckoutError;
 
 class GiftCardProcessor extends AbstractPaymentProcessor
 {
@@ -37,7 +38,7 @@ class GiftCardProcessor extends AbstractPaymentProcessor
             wc_add_notice($errorMessage, 'error');
 
             return [
-                'redirect' => $redirectUrl . '?bck_err=' . $errorMessage,
+                'redirect' => CheckoutError::addToUrl($redirectUrl),
                 'result' => 'failure',
             ];
         }
