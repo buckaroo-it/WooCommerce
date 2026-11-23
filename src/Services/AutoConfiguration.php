@@ -166,7 +166,7 @@ class AutoConfiguration
         $buckarooGateways = array();
 
         foreach ($allGateways as $gateway) {
-            if (str_starts_with($gateway->id, 'buckaroo_')) {
+            if (strpos($gateway->id, 'buckaroo_') === 0) {
                 $buckarooGateways[] = $gateway;
             }
         }
