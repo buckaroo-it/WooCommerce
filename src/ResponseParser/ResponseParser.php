@@ -40,7 +40,7 @@ abstract class ResponseParser implements IResponseParser
         $filtered = array_filter(
             $items,
             function ($item, $key) {
-                return str_starts_with(strtolower($key), 'brq_');
+                return strpos(strtolower($key), 'brq_') === 0;
             },
             ARRAY_FILTER_USE_BOTH
         );
