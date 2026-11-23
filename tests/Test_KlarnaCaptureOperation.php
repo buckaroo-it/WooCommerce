@@ -263,21 +263,22 @@ class Test_KlarnaCaptureOperation extends TestCase
 
     public function test_a_klarna_kp_capture_of_the_rest_sends_only_the_remaining_quantity(): void
     {
-        $order = $this->createReservedKpOrder(16.00, 2);
+        $order = $this->createReservedKpOrder(16.00, 3);
         $item = current($order->get_items('line_item'));
         $this->postCaptureForm('16.00', [$item->get_id() => 1], [$item->get_id() => 16.00]);
         (new TestableKlarnaKpGateway(new InMemoryBuckarooClient($this->successfulResponse('KP-FIRST'))))
             ->process_capture($order->get_id());
 
         $client = new InMemoryBuckarooClient($this->successfulResponse('KP-REST'));
-        $this->postCaptureForm('16.00', [$item->get_id() => 1], [$item->get_id() => 16.00]);
+        $this->postCaptureForm('32.00', [$item->get_id() => 2], [$item->get_id() => 32.00]);
         $response = (new TestableKlarnaKpGateway($client))->process_capture($order->get_id());
 
         $this->assertTrue($response['success']);
-        $this->assertSame('16.00', $client->payload['amountDebit']);
+        $this->assertSame('32.00', $client->payload['amountDebit']);
         $this->assertCount(1, $client->payload['articles']);
-        $this->assertSame(1, $client->payload['articles'][0]['quantity']);
-        $this->assertArticlesSumTo(16.00, $client->payload['articles']);
+        $this->assertSame(2, $client->payload['articles'][0]['quantity']);
+        $this->assertSame(16.00, $client->payload['articles'][0]['price']);
+        $this->assertArticlesSumTo(32.00, $client->payload['articles']);
         $captures = OrderMeta::get(wc_get_order($order->get_id()), '_wc_order_captures', false);
         $this->assertSame(['KP-FIRST', 'KP-REST'], array_column($captures, 'transaction_id'));
     }
