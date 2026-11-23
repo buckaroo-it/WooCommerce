@@ -140,7 +140,13 @@ class MigrationHandler
      */
     protected function copy_language_files()
     {
-        foreach (glob(dirname(BK_PLUGIN_FILE) . '/languages/*.{po,mo}', GLOB_BRACE) as $file) {
+        $source = dirname(BK_PLUGIN_FILE) . '/languages/';
+        $files  = array_merge(
+            glob($source . '*.po') ?: [],
+            glob($source . '*.mo') ?: []
+        );
+
+        foreach ($files as $file) {
             if (! is_dir($file) && is_readable($file)) {
                 $dest = WP_CONTENT_DIR . '/languages/plugins/';
 
