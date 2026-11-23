@@ -103,7 +103,7 @@ class RefundAction
     {
         if (! NamedLock::acquire(PushProcessor::SETTLEMENT_LOCK_PURPOSE, $order, PushProcessor::SETTLEMENT_LOCK_KEY, PushProcessor::SETTLEMENT_LOCK_WAIT_SECONDS)) {
             throw new RuntimeException(
-                __('Buckaroo push could not be processed because the order is locked.', 'wc-buckaroo-bpe-gateway')
+                esc_html__('Buckaroo push could not be processed because the order is locked.', 'wc-buckaroo-bpe-gateway')
             );
         }
 
@@ -286,7 +286,7 @@ class RefundAction
         }
 
         throw new RuntimeException(
-            __('The WooCommerce refund for this Buckaroo push could not be created.', 'wc-buckaroo-bpe-gateway')
+            esc_html__('The WooCommerce refund for this Buckaroo push could not be created.', 'wc-buckaroo-bpe-gateway')
         );
     }
 

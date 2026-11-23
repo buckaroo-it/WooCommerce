@@ -131,7 +131,7 @@ class BuckarooClient
     public function __call(string $name, array $arguments)
     {
         if (! method_exists($this->buckarooClient, $name)) {
-            throw new BadMethodCallException("Method {$name} does not exist on " . get_class($this->buckarooClient) . '.');
+            throw new BadMethodCallException('Method ' . esc_html($name) . ' does not exist on ' . esc_html(get_class($this->buckarooClient)) . '.');
         }
 
         return $this->buckarooClient->{$name}(...$arguments);

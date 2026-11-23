@@ -130,7 +130,7 @@ foreach (array_slice($argv, 1) as $directory) {
 }
 
 foreach ($errors as $error) {
-    echo "::error::$error\n";
+    echo "::error::$error\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CI script output, WordPress is not loaded.
 }
 
 exit($errors ? 1 : 0);

@@ -44,7 +44,7 @@ class PushProcessor
     {
         if (! NamedLock::acquire(self::SETTLEMENT_LOCK_PURPOSE, $order, self::SETTLEMENT_LOCK_KEY, self::SETTLEMENT_LOCK_WAIT_SECONDS)) {
             throw new RuntimeException(
-                __('Buckaroo push could not be processed because the order is locked.', 'wc-buckaroo-bpe-gateway')
+                esc_html__('Buckaroo push could not be processed because the order is locked.', 'wc-buckaroo-bpe-gateway')
             );
         }
 
@@ -219,7 +219,7 @@ class PushProcessor
     {
         if (! NamedLock::acquire(self::SETTLEMENT_LOCK_PURPOSE, $order, self::SETTLEMENT_LOCK_KEY, self::SETTLEMENT_LOCK_WAIT_SECONDS)) {
             throw new RuntimeException(
-                __('Buckaroo push could not be processed because the order is locked.', 'wc-buckaroo-bpe-gateway')
+                esc_html__('Buckaroo push could not be processed because the order is locked.', 'wc-buckaroo-bpe-gateway')
             );
         }
 

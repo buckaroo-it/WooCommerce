@@ -31,7 +31,7 @@ class GooglepayProcessor extends AbstractPaymentProcessor
                 number_format((float) $amount, 2, '.', '') !== $orderAmount
             ) {
                 throw new \InvalidArgumentException(
-                    __('Google Pay amount has changed. Please refresh the page and approve the updated total.', 'wc-buckaroo-bpe-gateway')
+                    esc_html__('Google Pay amount has changed. Please refresh the page and approve the updated total.', 'wc-buckaroo-bpe-gateway')
                 );
             }
         }

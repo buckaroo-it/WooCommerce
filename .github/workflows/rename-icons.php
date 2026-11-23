@@ -9,6 +9,6 @@ $di = new RecursiveIteratorIterator(
 
 foreach ($di as $name => $fio) {
     $newname = $fio->getPath() . DIRECTORY_SEPARATOR . strtolower(str_replace(' ', '', str_replace('&', '-', $fio->getFilename())));
-    echo $newname, "\r\n";
+    echo $newname, "\r\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CI script output, WordPress is not loaded.
     rename($name, $newname);
 }
