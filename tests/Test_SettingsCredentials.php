@@ -92,4 +92,23 @@ class Test_SettingsCredentials extends TestCase
         $this->assertStringNotContainsString('required="required"', $html);
         $this->assertSame('stored-secret-fixture', $gateway->get_option('secretkey'));
     }
+
+    public function test_settings_buttons_escape_their_custom_attributes(): void
+    {
+        $gateway = new class () extends PaymentMethodSettings {
+            public function init_form_fields()
+            {
+                parent::init_form_fields();
+                $this->form_fields['test_credentials']['custom_attributes'] = ['data-x"><b' => 'a"><script>'];
+            }
+        };
+
+        ob_start();
+        (new GeneralSettings($gateway))->render_api_credentials_card_inner();
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString('title="Auto-configure"', $html);
+        $this->assertStringContainsString('data-x&quot;&gt;&lt;b="a&quot;&gt;&lt;script&gt;"', $html);
+        $this->assertStringNotContainsString('<script>', $html);
+    }
 }

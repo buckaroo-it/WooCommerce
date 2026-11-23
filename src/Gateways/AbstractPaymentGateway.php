@@ -23,6 +23,7 @@ use WC_Admin_Settings;
 use WC_Order;
 use WC_Order_Refund;
 use WC_Payment_Gateway;
+use WC_Settings_API;
 use WC_Tax;
 use WP_Error;
 
@@ -352,47 +353,28 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     /**
      * {@inheritDoc}
      *
-     * WooCommerce aims its back arrow at WooCommerce > Payments and echoes the method
-     * description above the form, which the summary card already shows.
+     * WooCommerce aims its back arrow at WooCommerce > Payments, with no filter for the
+     * URL, and echoes the method description above the form, which the summary card
+     * already shows. So WC_Payment_Gateway::admin_options() is skipped: the header here
+     * returns to the Buckaroo menu these pages open from, and the form comes from
+     * WC_Settings_API. WooCommerce versions without wc_back_header() keep their own header.
      */
     public function admin_options()
     {
-        add_filter('woocommerce_gateway_method_description', '__return_empty_string');
-        ob_start();
-        parent::admin_options();
-        $html = ob_get_clean();
-        remove_filter('woocommerce_gateway_method_description', '__return_empty_string');
-
-        echo $this->replaceBackHeader($html);
-    }
-
-    /**
-     * Swaps the back arrow for one returning to the Buckaroo menu these pages open from.
-     * Core's output is returned untouched when the header is absent, so an upstream markup
-     * change costs the redirect and nothing else.
-     */
-    private function replaceBackHeader(string $html): string
-    {
         if (! function_exists('wc_back_header')) {
-            return $html;
+            add_filter('woocommerce_gateway_method_description', '__return_empty_string');
+            parent::admin_options();
+            remove_filter('woocommerce_gateway_method_description', '__return_empty_string');
+
+            return;
         }
 
-        ob_start();
         wc_back_header(
             $this->get_method_title(),
             __('Back to Buckaroo settings', 'wc-buckaroo-bpe-gateway'),
             admin_url('admin.php?page=wc-settings&tab=buckaroo_settings')
         );
-        $header = ob_get_clean();
-
-        return preg_replace_callback(
-            '#<h2 class="wc-admin-header">.*?</h2>#s',
-            static function () use ($header) {
-                return $header;
-            },
-            $html,
-            1
-        ) ?? $html;
+        WC_Settings_API::admin_options();
     }
 
     /** Keep configured credentials when their fields are left blank. */
@@ -744,8 +726,11 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         echo '</div>';
 
         if (! $this->checkCurrencySupported()) {
-            $message = esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway') . '(' . esc_html(get_woocommerce_currency()) . ')';
-            printf('<div class="error notice"><p>%s</p></div>', $message);
+            printf(
+                '<div class="error notice"><p>%s(%s)</p></div>',
+                esc_html__('This payment method is not supported for the selected currency ', 'wc-buckaroo-bpe-gateway'),
+                esc_html(get_woocommerce_currency())
+            );
         }
     }
 
@@ -860,7 +845,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         if (! is_scalar($value) || (trim((string) $value) !== '' && PaymentFee::parse($value) === null)) {
             $message = __('Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals.', 'wc-buckaroo-bpe-gateway');
             WC_Admin_Settings::add_error($message);
-            throw new Exception($message);
+            throw new Exception(esc_html($message));
         }
 
         return parent::validate_text_field($key, $value);

@@ -298,20 +298,20 @@ if (isset($items_to_capture['line_item'])) {
                 </div>
                 <div class="cost bk-auto m-h-15">
                     <?php
-                    echo wc_price($item->get_unit_price(), ['currency' => $this->get_order_details()->get_currency()])
+                    echo wp_kses_post(wc_price($item->get_unit_price(), ['currency' => $this->get_order_details()->get_currency()]))
                     ?>
                 </div>
                 <div class="qty-max bk-auto m-h-15">
-                    × <?php echo $item->get_quantity(); ?>
+                    × <?php echo esc_html($item->get_quantity()); ?>
                 </div>
                 <div class="qty bk-auto m-h-15">
-                    <input data-item-id="<?php echo $item->get_line_item_id(); ?>"
-                            data-unit-price="<?php echo $item->get_unit_price(); ?>" type="number" step="1" min="0"
-                            max="<?php echo $item->get_quantity(); ?>" value="<?php echo $item->get_quantity(); ?>">
+                    <input data-item-id="<?php echo esc_attr($item->get_line_item_id()); ?>"
+                            data-unit-price="<?php echo esc_attr($item->get_unit_price()); ?>" type="number" step="1" min="0"
+                            max="<?php echo esc_attr($item->get_quantity()); ?>" value="<?php echo esc_attr($item->get_quantity()); ?>">
                 </div>
                 <div class="amount bk-auto m-h-15" style="margin-right:0">
                     <?php
-                    echo wc_price($item->get_total_amount(), ['currency' => $this->get_order_details()->get_currency()])
+                    echo wp_kses_post(wc_price($item->get_total_amount(), ['currency' => $this->get_order_details()->get_currency()]))
                     ?>
                 </div>
             </li>
@@ -338,12 +338,12 @@ if (isset($items_to_capture['shipping'])) {
                     <?php echo esc_html($item->get_title()); ?>
                 </div>
                 <div class="qty bk-auto m-h-15">
-                    <input data-item-id="<?php echo $item->get_line_item_id(); ?>"
-                            data-unit-price="<?php echo $item->get_unit_price(); ?>" type="checkbox" checked="checked">
+                    <input data-item-id="<?php echo esc_attr($item->get_line_item_id()); ?>"
+                            data-unit-price="<?php echo esc_attr($item->get_unit_price()); ?>" type="checkbox" checked="checked">
                 </div>
                 <div class="amount bk-auto m-h-15" style="margin-right:0">
                     <?php
-                    echo wc_price($item->get_unit_price(), ['currency' => $this->get_order_details()->get_currency()])
+                    echo wp_kses_post(wc_price($item->get_unit_price(), ['currency' => $this->get_order_details()->get_currency()]))
                     ?>
                 </div>
             </li>
@@ -370,12 +370,12 @@ if (isset($items_to_capture['fee'])) {
                     <?php echo esc_html($item->get_title()); ?>
                 </div>
                 <div class="qty bk-auto m-h-15">
-                    <input data-item-id="<?php echo $item->get_line_item_id(); ?>"
-                            data-unit-price="<?php echo $item->get_unit_price(); ?>" type="checkbox" checked="checked">
+                    <input data-item-id="<?php echo esc_attr($item->get_line_item_id()); ?>"
+                            data-unit-price="<?php echo esc_attr($item->get_unit_price()); ?>" type="checkbox" checked="checked">
                 </div>
                 <div class="amount bk-auto m-h-15" style="margin-right:0">
                     <?php
-                    echo wc_price($item->get_unit_price(), ['currency' => $this->get_order_details()->get_currency()])
+                    echo wp_kses_post(wc_price($item->get_unit_price(), ['currency' => $this->get_order_details()->get_currency()]))
                     ?>
                 </div>
             </li>
@@ -399,14 +399,14 @@ if (count($previous_captures)) {
                     <?php
                     printf(
                         esc_html__('Capture - #%s', 'woocommerce'),
-                        esc_attr($capture->get_id())
+                        esc_html($capture->get_id())
                     );
                     ?>
                 </div>
                 <div class="bk-refund-amount-wrap">
                     <div class="amount">
                         <?php
-                        echo wc_price(str_replace(',', '.', $capture->get_total_amount()), ['currency' => $capture->get_currency()])
+                        echo wp_kses_post(wc_price(str_replace(',', '.', $capture->get_total_amount()), ['currency' => $capture->get_currency()]))
                         ?>
                     </div>
                     <?php
@@ -414,7 +414,7 @@ if (count($previous_captures)) {
                         ?>
                         <div class="bk-auto bk-refund-btn-wrap">
                             <button type="button" class="bk-btn-refund-form button">
-                                <?php echo __('Refund', 'woocommerce'); ?>
+                                <?php esc_html_e('Refund', 'woocommerce'); ?>
                             </button>
                         </div>
                         <?php
@@ -428,20 +428,20 @@ if (count($previous_captures)) {
                 ?>
                 <li class="bk-refund-form" style="display:none;">
                     <div class="bk-refund-left">
-                        <label class="bk-refund-restock" for="bk-refund-restock<?php echo $capture->get_id(); ?>">
+                        <label class="bk-refund-restock" for="bk-refund-restock<?php echo esc_attr($capture->get_id()); ?>">
                             <?php esc_html_e('Restock refunded items', 'woocommerce'); ?>:
-                            <input type="checkbox" id="bk-refund-restock<?php echo $capture->get_id(); ?>"
+                            <input type="checkbox" id="bk-refund-restock<?php echo esc_attr($capture->get_id()); ?>"
                                     checked="checked">
                         </label>
-                        <label class="bk-refund-reason" for="bk-refund-reason<?php echo $capture->get_id(); ?>">
+                        <label class="bk-refund-reason" for="bk-refund-reason<?php echo esc_attr($capture->get_id()); ?>">
                             <?php esc_html_e('Reason for refund (optional):', 'woocommerce'); ?>
-                            <input type="text" id="bk-refund-reason<?php echo $capture->get_id(); ?>"
+                            <input type="text" id="bk-refund-reason<?php echo esc_attr($capture->get_id()); ?>"
                                     style="margin-left:5px;">
                         </label>
                         <div class="bk-auto bk-refund-button-wrap">
                             <button type="button" class="bk-btn-refund button button-primary"
-                                    data-capture-id="<?php echo $capture->get_id(); ?>">
-                                <?php echo __('Refund', 'woocommerce'); ?>
+                                    data-capture-id="<?php echo esc_attr($capture->get_id()); ?>">
+                                <?php esc_html_e('Refund', 'woocommerce'); ?>
                             </button>
                         </div>
                     </div>
