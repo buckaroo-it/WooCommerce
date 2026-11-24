@@ -251,9 +251,9 @@ class MigrationHandler
             }
         } catch (Throwable $th) {
             throw new MigrationException(
-                'Cannot run migration for version: ' . $migration->version,
+                'Cannot run migration for version: ' . esc_html($migration->version),
                 1,
-                $th
+                $th // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- the previous exception, not a message.
             );
         }
     }

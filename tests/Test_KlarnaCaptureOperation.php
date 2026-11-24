@@ -223,11 +223,8 @@ class Test_KlarnaCaptureOperation extends TestCase
 
     public function test_pending_capture_for_an_unrelated_gateway_is_not_reported_as_successful(): void
     {
-        $order = $this->createReservedOrder(15.00, 1);
+        $order = $this->createReservedKpOrder(15.00, 1);
         $item = current($order->get_items('line_item'));
-        $order->set_payment_method('buckaroo_klarnakp');
-        $order->update_meta_data('_buckaroo_klarnakp_reservation_number', 'KP-RESERVATION');
-        $order->save();
         $gateway = new TestableKlarnaKpGateway(
             new InMemoryBuckarooClient($this->pendingResponse('KP-PENDING'))
         );
@@ -243,6 +240,122 @@ class Test_KlarnaCaptureOperation extends TestCase
         $this->assertArrayNotHasKey('success', $response);
         $this->assertArrayHasKey('errors', $response);
         $this->assertSame([], OrderMeta::get($order, '_wc_order_captures', false));
+    }
+
+    public function test_a_klarna_kp_partial_capture_sends_only_the_captured_quantity(): void
+    {
+        $order = $this->createReservedKpOrder(16.00, 2);
+        $item = current($order->get_items('line_item'));
+        $client = new InMemoryBuckarooClient($this->successfulResponse('KP-PARTIAL'));
+        $this->postCaptureForm('16.00', [$item->get_id() => 1], [$item->get_id() => 16.00]);
+
+        $response = (new TestableKlarnaKpGateway($client))->process_capture($order->get_id());
+
+        $this->assertTrue($response['success']);
+        $this->assertSame('pay', $client->action);
+        $this->assertSame('KP-RESERVATION', $client->payload['reservationNumber']);
+        $this->assertSame('16.00', $client->payload['amountDebit']);
+        $this->assertCount(1, $client->payload['articles']);
+        $this->assertSame(1, $client->payload['articles'][0]['quantity']);
+        $this->assertSame(16.00, $client->payload['articles'][0]['price']);
+        $this->assertArticlesSumTo(16.00, $client->payload['articles']);
+    }
+
+    public function test_a_klarna_kp_capture_of_the_rest_sends_only_the_remaining_quantity(): void
+    {
+        $order = $this->createReservedKpOrder(16.00, 3);
+        $item = current($order->get_items('line_item'));
+        $this->postCaptureForm('16.00', [$item->get_id() => 1], [$item->get_id() => 16.00]);
+        (new TestableKlarnaKpGateway(new InMemoryBuckarooClient($this->successfulResponse('KP-FIRST'))))
+            ->process_capture($order->get_id());
+
+        $client = new InMemoryBuckarooClient($this->successfulResponse('KP-REST'));
+        $this->postCaptureForm('32.00', [$item->get_id() => 2], [$item->get_id() => 32.00]);
+        $response = (new TestableKlarnaKpGateway($client))->process_capture($order->get_id());
+
+        $this->assertTrue($response['success']);
+        $this->assertSame('32.00', $client->payload['amountDebit']);
+        $this->assertCount(1, $client->payload['articles']);
+        $this->assertSame(2, $client->payload['articles'][0]['quantity']);
+        $this->assertSame(16.00, $client->payload['articles'][0]['price']);
+        $this->assertArticlesSumTo(32.00, $client->payload['articles']);
+        $captures = OrderMeta::get(wc_get_order($order->get_id()), '_wc_order_captures', false);
+        $this->assertSame(['KP-FIRST', 'KP-REST'], array_column($captures, 'transaction_id'));
+    }
+
+    public function test_a_klarna_kp_full_capture_sends_every_order_line(): void
+    {
+        $order = $this->createReservedKpOrder(16.00, 2, 5.00);
+        $item = current($order->get_items('line_item'));
+        $shipping = current($order->get_items('shipping'));
+        $client = new InMemoryBuckarooClient($this->successfulResponse('KP-FULL'));
+        $this->postCaptureForm(
+            '37.00',
+            [$item->get_id() => 2],
+            [$item->get_id() => 32.00, $shipping->get_id() => 5.00]
+        );
+
+        $response = (new TestableKlarnaKpGateway($client))->process_capture($order->get_id());
+
+        $this->assertTrue($response['success']);
+        $this->assertSame('37.00', $client->payload['amountDebit']);
+        $this->assertSame(
+            [
+                [
+                    'identifier' => $item->get_product_id(),
+                    'description' => 'Capture product',
+                    'price' => 16.00,
+                    'quantity' => 2,
+                    'vatPercentage' => 0,
+                ],
+                [
+                    'identifier' => 'flat_rate',
+                    'description' => 'Flat rate',
+                    'price' => 5.00,
+                    'quantity' => 1,
+                    'vatPercentage' => 0,
+                ],
+            ],
+            $client->payload['articles']
+        );
+    }
+
+    public function test_a_klarna_kp_capture_of_products_only_leaves_out_the_shipping_line(): void
+    {
+        $order = $this->createReservedKpOrder(16.00, 2, 5.00);
+        $item = current($order->get_items('line_item'));
+        $client = new InMemoryBuckarooClient($this->successfulResponse('KP-PRODUCTS'));
+        $this->postCaptureForm('32.00', [$item->get_id() => 2], [$item->get_id() => 32.00]);
+
+        $response = (new TestableKlarnaKpGateway($client))->process_capture($order->get_id());
+
+        $this->assertTrue($response['success']);
+        $this->assertSame('32.00', $client->payload['amountDebit']);
+        $this->assertSame(
+            [$item->get_product_id()],
+            array_column($client->payload['articles'], 'identifier')
+        );
+        $this->assertArticlesSumTo(32.00, $client->payload['articles']);
+    }
+
+    public function test_a_klarna_kp_capture_of_the_shipping_after_the_products_sends_only_the_shipping_line(): void
+    {
+        $order = $this->createReservedKpOrder(16.00, 2, 5.00);
+        $item = current($order->get_items('line_item'));
+        $shipping = current($order->get_items('shipping'));
+        $this->postCaptureForm('32.00', [$item->get_id() => 2], [$item->get_id() => 32.00]);
+        (new TestableKlarnaKpGateway(new InMemoryBuckarooClient($this->successfulResponse('KP-PRODUCTS'))))
+            ->process_capture($order->get_id());
+
+        $client = new InMemoryBuckarooClient($this->successfulResponse('KP-SHIPPING'));
+        $this->postCaptureForm('5.00', [], [$shipping->get_id() => 5.00]);
+        $response = (new TestableKlarnaKpGateway($client))->process_capture($order->get_id());
+
+        $this->assertTrue($response['success']);
+        $this->assertSame('5.00', $client->payload['amountDebit']);
+        $this->assertSame(['flat_rate'], array_column($client->payload['articles'], 'identifier'));
+        $this->assertSame(1, $client->payload['articles'][0]['quantity']);
+        $this->assertArticlesSumTo(5.00, $client->payload['articles']);
     }
 
     public function test_successful_capture_for_an_unrelated_gateway_preserves_its_payload_and_ledger(): void
@@ -628,6 +741,48 @@ class Test_KlarnaCaptureOperation extends TestCase
         $order->save();
 
         return wc_get_order($order->get_id());
+    }
+
+    private function createReservedKpOrder(float $unitPrice, int $quantity, ?float $shippingTotal = null): WC_Order
+    {
+        $order = $this->createReservedOrder($unitPrice, $quantity);
+        if ($shippingTotal !== null) {
+            $shipping = new WC_Order_Item_Shipping();
+            $shipping->set_method_title('Flat rate');
+            $shipping->set_method_id('flat_rate');
+            $shipping->set_total((string) $shippingTotal);
+            $order->add_item($shipping);
+            $order->calculate_totals();
+        }
+        $order->set_payment_method('buckaroo_klarnakp');
+        $order->update_meta_data('_buckaroo_klarnakp_reservation_number', 'KP-RESERVATION');
+        $order->save();
+
+        return wc_get_order($order->get_id());
+    }
+
+    /**
+     * Posts the capture form the way templates/capture-form.php does:
+     * quantities for products only, totals for every selected line.
+     */
+    private function postCaptureForm(string $amount, array $quantities, array $totals): void
+    {
+        $_POST = [
+            'capture_amount' => $amount,
+            'line_item_qtys' => wp_json_encode($quantities),
+            'line_item_totals' => wp_json_encode($totals),
+            'line_item_tax_totals' => wp_json_encode([]),
+        ];
+    }
+
+    private function assertArticlesSumTo(float $amount, array $articles): void
+    {
+        $sum = 0.0;
+        foreach ($articles as $article) {
+            $sum += $article['price'] * $article['quantity'];
+        }
+
+        $this->assertEqualsWithDelta($amount, $sum, 0.001);
     }
 
     private function successfulResponse(string $transactionKey): TransactionResponse

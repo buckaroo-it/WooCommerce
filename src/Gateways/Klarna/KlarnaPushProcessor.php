@@ -273,7 +273,7 @@ class KlarnaPushProcessor
         );
         if ($preparedAttempt === null) {
             throw new RuntimeException(
-                __('Klarna capture success could not be prepared for local reconciliation.', 'wc-buckaroo-bpe-gateway')
+                esc_html__('Klarna capture success could not be prepared for local reconciliation.', 'wc-buckaroo-bpe-gateway')
             );
         }
         $attempt = $preparedAttempt;
@@ -311,7 +311,7 @@ class KlarnaPushProcessor
             );
             if ($recordingAttempt === null) {
                 throw new RuntimeException(
-                    __('Klarna capture recording failure could not be persisted for retry.', 'wc-buckaroo-bpe-gateway')
+                    esc_html__('Klarna capture recording failure could not be persisted for retry.', 'wc-buckaroo-bpe-gateway')
                 );
             }
             KlarnaCaptureAttempt::recordAttention($order, $recordingAttempt);
@@ -335,7 +335,7 @@ class KlarnaPushProcessor
         );
         if ($updatedAttempt === null) {
             throw new RuntimeException(
-                __('Klarna capture success could not be finalized in the attempt ledger.', 'wc-buckaroo-bpe-gateway')
+                esc_html__('Klarna capture success could not be finalized in the attempt ledger.', 'wc-buckaroo-bpe-gateway')
             );
         }
         $order->save();
@@ -404,7 +404,7 @@ class KlarnaPushProcessor
         );
         if (! $captureResult->isSuccess()) {
             throw new RuntimeException(
-                __('Klarna capture made in Buckaroo Plaza could not be recorded locally.', 'wc-buckaroo-bpe-gateway')
+                esc_html__('Klarna capture made in Buckaroo Plaza could not be recorded locally.', 'wc-buckaroo-bpe-gateway')
             );
         }
 
@@ -477,7 +477,7 @@ class KlarnaPushProcessor
         $lockKey = 'order';
         if (! NamedLock::acquire('settlement', $order, $lockKey, self::SETTLEMENT_LOCK_WAIT_SECONDS)) {
             throw new RuntimeException(
-                __('Klarna capture settlement could not be recorded locally.', 'wc-buckaroo-bpe-gateway')
+                esc_html__('Klarna capture settlement could not be recorded locally.', 'wc-buckaroo-bpe-gateway')
             );
         }
 

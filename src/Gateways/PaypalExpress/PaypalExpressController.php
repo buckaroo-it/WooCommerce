@@ -337,7 +337,7 @@ class PaypalExpressController
                     );
                     $error = $this->get_error_notices();
                     if ($error !== null) {
-                        throw new PaypalExpressException($error);
+                        throw new PaypalExpressException(wp_kses_post($error));
                     }
                     if (! is_array($response) || empty($response['redirect'])) {
                         throw new PaypalExpressException('Cannot create PayPal payment');
@@ -391,7 +391,7 @@ class PaypalExpressController
 
         if (! isset($_POST['shipping_data']['shipping_address'])) {
             throw new PaypalExpressException(
-                __('A shipping address is required to pay with PayPal.', 'wc-buckaroo-bpe-gateway')
+                esc_html__('A shipping address is required to pay with PayPal.', 'wc-buckaroo-bpe-gateway')
             );
         }
 
@@ -404,7 +404,7 @@ class PaypalExpressController
             return ExpressProductCart::selectedShippingRate($cart, $charged_rate_id);
         } catch (UnexpectedValueException $th) {
             throw new PaypalExpressException(
-                __('No shipping method is available for this address.', 'wc-buckaroo-bpe-gateway')
+                esc_html__('No shipping method is available for this address.', 'wc-buckaroo-bpe-gateway')
             );
         }
     }

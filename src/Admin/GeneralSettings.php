@@ -274,23 +274,11 @@ class GeneralSettings extends WC_Settings_Page
         </a>
         <?php endif; ?>
         <a href="<?php echo esc_url($manage_url); ?>" class="buckaroo-payment-card-settings" title="<?php echo esc_attr__('Settings', 'wc-buckaroo-bpe-gateway'); ?>">
-            <?php echo $this->settings_icon(); ?>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/></svg>
         </a>
     </div>
 </div>
         <?php
-    }
-
-    private function settings_icon(): string
-    {
-        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
-            . '<line x1="4" y1="6" x2="20" y2="6"/>'
-            . '<line x1="4" y1="12" x2="20" y2="12"/>'
-            . '<line x1="4" y1="18" x2="20" y2="18"/>'
-            . '<circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/>'
-            . '<circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/>'
-            . '<circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/>'
-            . '</svg>';
     }
 
     protected function render_gateway_list()
@@ -513,14 +501,11 @@ class GeneralSettings extends WC_Settings_Page
     }
 
     /** Renders a field's declared custom_attributes, such as `required`. */
-    private function custom_attributes(array $field): string
+    private function render_custom_attributes(array $field): void
     {
-        $attributes = '';
         foreach ((array) ($field['custom_attributes'] ?? []) as $attribute => $value) {
-            $attributes .= esc_attr($attribute) . '="' . esc_attr($value) . '" ';
+            echo esc_attr($attribute) . '="' . esc_attr($value) . '" ';
         }
-
-        return $attributes;
     }
 
 
@@ -536,9 +521,14 @@ class GeneralSettings extends WC_Settings_Page
 
     <table class="form-table bk-creds-table"><tbody>
 
-        <?php foreach (['merchantkey', 'secretkey'] as $key) : ?>
-            <?php echo $this->gateway->generate_password_html($key, $this->gateway->form_fields[$key]); ?>
-        <?php endforeach; ?>
+        <?php
+        $this->gateway->generate_settings_html(
+            [
+                'merchantkey' => $this->gateway->form_fields['merchantkey'],
+                'secretkey' => $this->gateway->form_fields['secretkey'],
+            ]
+        );
+        ?>
 
     </tbody></table>
 
@@ -550,7 +540,7 @@ class GeneralSettings extends WC_Settings_Page
         <button type="button"
             id="<?php echo esc_attr($this->gateway->get_field_key('test_credentials')); ?>"
             class="button button-primary"
-            <?php echo $this->custom_attributes($test_btn_field); ?>
+            <?php $this->render_custom_attributes($test_btn_field); ?>
         ><?php echo esc_html($test_btn_field['title']); ?></button>
     </p>
         <?php endif; ?>
@@ -566,7 +556,7 @@ class GeneralSettings extends WC_Settings_Page
         <button type="button"
             id="<?php echo esc_attr($this->gateway->get_field_key('auto_configure')); ?>"
             class="button button-primary"
-            <?php echo $this->custom_attributes($auto_btn_field); ?>
+            <?php $this->render_custom_attributes($auto_btn_field); ?>
         ><?php echo esc_html($auto_btn_field['title']); ?></button>
     </p>
         <?php endif; ?>
@@ -718,13 +708,7 @@ value="<?php echo esc_attr($value['value']); ?>"
 class="<?php echo esc_attr($value['class']); ?> input-text regular-input "
 placeholder="<?php echo esc_attr($value['placeholder']); ?>"
 
-        <?php
-        if (! empty($value['custom_attributes']) && is_array($value['custom_attributes'])) {
-            foreach ($value['custom_attributes'] as $attribute => $attribute_value) {
-                echo esc_attr($attribute) . '="' . esc_attr($attribute_value) . '"';
-            }
-        }
-        ?>
+        <?php $this->render_custom_attributes($value); ?>
 />
         <?php
         echo esc_html($value['suffix']);

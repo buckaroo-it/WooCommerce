@@ -175,7 +175,7 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
             $order,
             $amount,
             $allocation,
-            $this->getCapturePayload($order, $amount),
+            $this->getCapturePayload($order, $amount, $allocation),
             $buckarooClient ?? new ZakelijkOpRekeningClient($this->getMode())
         ))->process();
     }

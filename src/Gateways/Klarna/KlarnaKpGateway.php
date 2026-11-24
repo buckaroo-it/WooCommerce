@@ -2,6 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
+use Buckaroo\Woocommerce\Order\CaptureAllocation;
+use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\Services\BuckarooClient;
 use Buckaroo\Woocommerce\Services\Helper;
@@ -129,10 +131,16 @@ class KlarnaKpGateway extends KlarnaGateway
         return parent::process_capture($order_id);
     }
 
-    protected function getCapturePayload(WC_Order $order, $amount): array
+    /**
+     * The processor body lists every order line, so the captured lines replace
+     * them: Buckaroo rejects a capture whose articles do not add up to the amount.
+     */
+    protected function getCapturePayload(WC_Order $order, $amount, CaptureAllocation $allocation): array
     {
         return [
             'amountDebit' => number_format((float) $amount, 2, '.', ''),
+            'articles' => (new KlarnaOrderArticles(new OrderDetails($order), $this))
+                ->get_products_for_capture($allocation, (float) $amount),
         ];
     }
 

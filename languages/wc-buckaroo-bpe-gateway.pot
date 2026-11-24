@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-23T13:26:24+00:00\n"
+"POT-Creation-Date: 2026-11-24T09:09:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wc-buckaroo-bpe-gateway\n"
@@ -44,7 +44,7 @@ msgid "General Settings"
 msgstr ""
 
 #: src/Admin/GeneralSettings.php:55
-#: src/Admin/GeneralSettings.php:299
+#: src/Admin/GeneralSettings.php:287
 #: src/Hooks/AdminHooks.php:69
 #: src/Hooks/AdminHooks.php:70
 msgid "Payment Methods"
@@ -83,17 +83,17 @@ msgid "Configure advanced debugging and development settings."
 msgstr ""
 
 #: src/Admin/GeneralSettings.php:235
-#: src/Gateways/AbstractPaymentGateway.php:714
+#: src/Gateways/AbstractPaymentGateway.php:696
 msgid "Inactive"
 msgstr ""
 
 #: src/Admin/GeneralSettings.php:240
-#: src/Gateways/AbstractPaymentGateway.php:707
+#: src/Gateways/AbstractPaymentGateway.php:689
 msgid "Active"
 msgstr ""
 
 #: src/Admin/GeneralSettings.php:243
-#: src/Gateways/AbstractPaymentGateway.php:710
+#: src/Gateways/AbstractPaymentGateway.php:692
 msgid "Test"
 msgstr ""
 
@@ -128,66 +128,66 @@ msgid "No"
 msgstr ""
 
 #: src/Admin/GeneralSettings.php:276
-#: src/Admin/GeneralSettings.php:306
+#: src/Admin/GeneralSettings.php:294
 #: src/Hooks/AdminHooks.php:29
 #: src/Hooks/AdminHooks.php:62
 #: src/Hooks/AdminHooks.php:63
 msgid "Settings"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:300
+#: src/Admin/GeneralSettings.php:288
 msgid "Buckaroo payment methods are listed below and can be accessed, enabled or disabled."
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:303
+#: src/Admin/GeneralSettings.php:291
 msgid "Method"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:304
+#: src/Admin/GeneralSettings.php:292
 msgid "Status"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:305
+#: src/Admin/GeneralSettings.php:293
 msgid "Enabled"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:397
+#: src/Admin/GeneralSettings.php:385
 #: src/Admin/PaymentMethodSettings.php:48
 msgid "Store key"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:398
+#: src/Admin/GeneralSettings.php:386
 #: src/Admin/PaymentMethodSettings.php:58
 msgid "Secret key"
 msgstr ""
 
 #. Translators: %s Payment credential name.
-#: src/Admin/GeneralSettings.php:405
+#: src/Admin/GeneralSettings.php:393
 #, php-format
 msgid "%s is required. Payments will fail until it is filled in."
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:479
+#: src/Admin/GeneralSettings.php:467
 msgid "Give every payment the attention it deserves, with 40+ methods in one plugin."
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:484
+#: src/Admin/GeneralSettings.php:472
 msgid "Documentation"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:488
+#: src/Admin/GeneralSettings.php:476
 msgid "Contact"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:504
+#: src/Admin/GeneralSettings.php:492
 msgid "iDIN"
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:505
+#: src/Admin/GeneralSettings.php:493
 msgid "Configure age verification and identity checking settings using iDIN."
 msgstr ""
 
-#: src/Admin/GeneralSettings.php:535
+#: src/Admin/GeneralSettings.php:520
 msgid "API credentials"
 msgstr ""
 
@@ -341,7 +341,7 @@ msgid "Date"
 msgstr ""
 
 #: src/Admin/ReportPage.php:138
-#: src/Gateways/AbstractPaymentGateway.php:166
+#: src/Gateways/AbstractPaymentGateway.php:167
 msgid "Description"
 msgstr ""
 
@@ -357,45 +357,45 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:129
+#: src/Gateways/AbstractPaymentGateway.php:130
 msgid "Warning"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:129
+#: src/Gateways/AbstractPaymentGateway.php:130
 msgid "default_charset is not set.<br>This might cause a problems on receiving push message.<br>Please set default_charset=\"UTF-8\" in your php.ini and add AddDefaultCharset UTF-8 to .htaccess file."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:139
+#: src/Gateways/AbstractPaymentGateway.php:140
 msgid "Enable/Disable"
 msgstr ""
 
 #. translators: %s: Payment method title.
-#: src/Gateways/AbstractPaymentGateway.php:141
+#: src/Gateways/AbstractPaymentGateway.php:142
 #, php-format
 msgid "Enable %s Payment Method"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:147
+#: src/Gateways/AbstractPaymentGateway.php:148
 msgid "Transaction mode"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:149
+#: src/Gateways/AbstractPaymentGateway.php:150
 msgid "Transaction mode used for processing orders"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:157
+#: src/Gateways/AbstractPaymentGateway.php:158
 msgid "Title"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:159
+#: src/Gateways/AbstractPaymentGateway.php:160
 msgid "Determines how the payment method is named in the checkout."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:168
+#: src/Gateways/AbstractPaymentGateway.php:169
 msgid "This controls the description which the user sees during checkout."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:175
+#: src/Gateways/AbstractPaymentGateway.php:176
 #: src/Gateways/AbstractPaymentProcessor.php:124
 #: src/Gateways/Googlepay/GooglepayGateway.php:301
 #: src/Hooks/OrderActions.php:258
@@ -404,124 +404,124 @@ msgstr ""
 msgid "Payment fee"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:177
+#: src/Gateways/AbstractPaymentGateway.php:178
 msgid "Specify a fixed amount (e.g. 1.50), percentage (e.g. 1%), or both (e.g. 0.25 + 1.5% or 1.5% + 0.25). Combined fees are applied from left to right, starting with the product total after discounts, excluding shipping. Fee amounts and the percentage base follow the WooCommerce \"Prices entered with tax\" setting. Use a dot (.) for decimals."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:181
+#: src/Gateways/AbstractPaymentGateway.php:182
 msgid "Minimum order amount allowed"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:184
+#: src/Gateways/AbstractPaymentGateway.php:185
 msgid "Specify minimum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:188
+#: src/Gateways/AbstractPaymentGateway.php:189
 msgid "Maximum order amount allowed"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:191
+#: src/Gateways/AbstractPaymentGateway.php:192
 msgid "Specify maximum order amount allowed to show the current method. Zero or empty value means no rule will be applied."
 msgstr ""
 
 #. translators: %s: Payment method title.
-#: src/Gateways/AbstractPaymentGateway.php:207
-#: src/Gateways/AbstractPaymentGateway.php:312
+#: src/Gateways/AbstractPaymentGateway.php:208
+#: src/Gateways/AbstractPaymentGateway.php:313
 #, php-format
 msgid "Pay with %s"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:241
+#: src/Gateways/AbstractPaymentGateway.php:242
 msgid "After submission, you will be redirected to securely complete your payment."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:266
+#: src/Gateways/AbstractPaymentGateway.php:267
 msgid "Test mode"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:386
+#: src/Gateways/AbstractPaymentGateway.php:377
 msgid "Back to Buckaroo settings"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:422
+#: src/Gateways/AbstractPaymentGateway.php:404
 msgid "Saved. Enter a new value only to replace it."
 msgstr ""
 
 #. translators: %s: Name of the required setting.
-#: src/Gateways/AbstractPaymentGateway.php:442
+#: src/Gateways/AbstractPaymentGateway.php:424
 #, php-format
 msgid "%s is required to enable this payment method in the selected transaction mode."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:703
+#: src/Gateways/AbstractPaymentGateway.php:685
 msgid "Not configured"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:751
+#: src/Gateways/AbstractPaymentGateway.php:735
 msgid "This payment method is not supported for the selected currency "
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:850
+#: src/Gateways/AbstractPaymentGateway.php:835
 msgid "Please provide valid payment fee"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:865
+#: src/Gateways/AbstractPaymentGateway.php:850
 msgid "Invalid payment fee. Use a fixed amount (0.25), percentage (1.5%), or both (0.25 + 1.5%) with dot decimals."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:953
+#: src/Gateways/AbstractPaymentGateway.php:938
 #: src/Gateways/Afterpay/AfterpayNewGateway.php:78
 #: src/Gateways/Express/ExpressAvailability.php:47
 #: src/Gateways/PayPerEmail/PayPerEmailGateway.php:253
 msgid "This payment method is not available for this order. Please choose another payment method."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:1018
+#: src/Gateways/AbstractPaymentGateway.php:1003
 #: src/Gateways/Klarna/KlarnaCaptureAction.php:54
 #: src/PaymentProcessors/Actions/CaptureAction.php:56
 msgid "This order cannot be captured"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:1022
-#: src/Gateways/AbstractPaymentGateway.php:1032
+#: src/Gateways/AbstractPaymentGateway.php:1007
+#: src/Gateways/AbstractPaymentGateway.php:1017
 #: src/Hooks/OrderActions.php:87
 #: src/Hooks/OrderActions.php:101
 msgid "A valid order number is required"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:1027
+#: src/Gateways/AbstractPaymentGateway.php:1012
 #: src/Gateways/Klarna/KlarnaCaptureAction.php:58
 #: src/PaymentProcessors/Actions/CaptureAction.php:60
 msgid "A valid capture amount is required"
 msgstr ""
 
 #. translators: 1: Buckaroo transaction ID, 2: Error message.
-#: src/Gateways/AbstractPaymentGateway.php:1046
+#: src/Gateways/AbstractPaymentGateway.php:1031
 #, php-format
 msgid "Capture failed for transaction ID: %1$s %2$s"
 msgstr ""
 
 #. translators: 1: Captured amount with currency, 2: Order number.
-#: src/Gateways/AbstractPaymentGateway.php:1068
+#: src/Gateways/AbstractPaymentGateway.php:1053
 #, php-format
 msgid "Captured %1$s for order #%2$s."
 msgstr ""
 
 #. translators: 1: Capture amount with currency, 2: Order number.
-#: src/Gateways/AbstractPaymentGateway.php:1076
+#: src/Gateways/AbstractPaymentGateway.php:1061
 #, php-format
 msgid "Capture of %1$s for order #%2$s was requested and is awaiting confirmation from Buckaroo."
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:1385
+#: src/Gateways/AbstractPaymentGateway.php:1374
 msgid "Global"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:1389
+#: src/Gateways/AbstractPaymentGateway.php:1378
 msgid "Europe"
 msgstr ""
 
-#: src/Gateways/AbstractPaymentGateway.php:1399
+#: src/Gateways/AbstractPaymentGateway.php:1388
 msgid "Multi-currency"
 msgstr ""
 
@@ -1033,65 +1033,6 @@ msgstr ""
 msgid "Cannot cancel klarna reservation for order #%s"
 msgstr ""
 
-#: src/Gateways/Klarna/capture-form.php:267
-#: templates/capture-form.php:267
-msgid "Item"
-msgstr ""
-
-#: src/Gateways/Klarna/capture-form.php:270
-#: templates/capture-form.php:270
-msgid "Cost"
-msgstr ""
-
-#: src/Gateways/Klarna/capture-form.php:273
-#: templates/capture-form.php:273
-msgid "Qty"
-msgstr ""
-
-#: src/Gateways/Klarna/capture-form.php:276
-#: templates/capture-form.php:276
-msgid "Capture"
-msgstr ""
-
-#: src/Gateways/Klarna/capture-form.php:279
-#: templates/capture-form.php:279
-msgid "Total"
-msgstr ""
-
-#: src/Gateways/Klarna/capture-form.php:391
-#: templates/capture-form.php:391
-msgid "Previous capture(s)"
-msgstr ""
-
-#. translators: %s: Capture ID.
-#: src/Gateways/Klarna/capture-form.php:402
-#: templates/capture-form.php:402
-#, php-format
-msgid "Capture - #%s"
-msgstr ""
-
-#: src/Gateways/Klarna/capture-form.php:418
-#: src/Gateways/Klarna/capture-form.php:445
-#: templates/capture-form.php:418
-#: templates/capture-form.php:445
-msgid "Refund"
-msgstr ""
-
-#: src/Gateways/Klarna/capture-form.php:433
-#: templates/capture-form.php:433
-msgid "Restock refunded items"
-msgstr ""
-
-#: src/Gateways/Klarna/capture-form.php:438
-#: templates/capture-form.php:438
-msgid "Reason for refund (optional):"
-msgstr ""
-
-#: src/Gateways/Klarna/capture-form.php:463
-#: templates/capture-form.php:463
-msgid "Total available to capture"
-msgstr ""
-
 #: src/Gateways/Klarna/ExtendReservationAction.php:13
 msgid "Klarna reservation was successfully extended"
 msgstr ""
@@ -1322,12 +1263,12 @@ msgstr ""
 msgid "Review order"
 msgstr ""
 
-#: src/Gateways/Klarna/KlarnaKpGateway.php:24
+#: src/Gateways/Klarna/KlarnaKpGateway.php:26
 msgid "Klarna pay-after-delivery, authorized at checkout and captured on shipment."
 msgstr ""
 
-#: src/Gateways/Klarna/KlarnaKpGateway.php:47
-#: src/Gateways/Klarna/KlarnaKpGateway.php:126
+#: src/Gateways/Klarna/KlarnaKpGateway.php:49
+#: src/Gateways/Klarna/KlarnaKpGateway.php:128
 msgid "Cannot perform capture, reservation_number not found"
 msgstr ""
 
@@ -2034,6 +1975,53 @@ msgstr ""
 #: assets/js/blocks/partials/buckaroo_gender.js:11
 #: assets/js/dist/blocks.js:2
 msgid "I prefer not to say"
+msgstr ""
+
+#: templates/capture-form.php:267
+msgid "Item"
+msgstr ""
+
+#: templates/capture-form.php:270
+msgid "Cost"
+msgstr ""
+
+#: templates/capture-form.php:273
+msgid "Qty"
+msgstr ""
+
+#: templates/capture-form.php:276
+msgid "Capture"
+msgstr ""
+
+#: templates/capture-form.php:279
+msgid "Total"
+msgstr ""
+
+#: templates/capture-form.php:391
+msgid "Previous capture(s)"
+msgstr ""
+
+#. translators: %s: Capture ID.
+#: templates/capture-form.php:402
+#, php-format
+msgid "Capture - #%s"
+msgstr ""
+
+#: templates/capture-form.php:418
+#: templates/capture-form.php:445
+msgid "Refund"
+msgstr ""
+
+#: templates/capture-form.php:433
+msgid "Restock refunded items"
+msgstr ""
+
+#: templates/capture-form.php:438
+msgid "Reason for refund (optional):"
+msgstr ""
+
+#: templates/capture-form.php:463
+msgid "Total available to capture"
 msgstr ""
 
 #: templates/gateways/afterpay.php:38

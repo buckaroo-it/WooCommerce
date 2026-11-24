@@ -32,6 +32,25 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
         return $this->gateway->get_option('afterpaynewpayauthorize', 'pay') === 'authorize';
     }
 
+    /**
+     * Riverty rejects a capture whose invoice number was already used for the
+     * order (BTI-2181). Payment, authorization and the first capture send the
+     * order number, which merchants reconcile on (BP-4404); each later capture
+     * adds its position: 444, 444-2, 444-3. CaptureAction reloads the recorded
+     * captures under the order's capture lock before the body is built.
+     */
+    protected function get_invoice_number(): string
+    {
+        $orderNumber = parent::get_invoice_number();
+        if ($this->getAction() !== 'capture') {
+            return $orderNumber;
+        }
+
+        $captureCount = count(OrderMeta::get($this->get_order(), '_wc_order_captures', false));
+
+        return $captureCount > 0 ? $orderNumber . '-' . ($captureCount + 1) : $orderNumber;
+    }
+
     /** {@inheritDoc} */
     protected function getMethodBody(): array
     {

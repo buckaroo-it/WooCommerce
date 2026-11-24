@@ -2016,42 +2016,35 @@ msgstr ""
 msgid "The order total does not match the amount approved in PayPal. The payment was not started."
 msgstr "Het ordertotaal komt niet overeen met het bedrag dat in PayPal is goedgekeurd. De betaling is niet gestart."
 
-#: src/Gateways/Klarna/capture-form.php:267
 #: templates/capture-form.php:267
 msgid "Item"
 msgstr "Artikel"
 
-#: src/Gateways/Klarna/capture-form.php:270
 #: templates/capture-form.php:270
 msgid "Cost"
 msgstr "Kosten"
 
-#: src/Gateways/Klarna/capture-form.php:273
 #: templates/capture-form.php:273
 msgid "Qty"
 msgstr "Aantal"
 
-#: src/Gateways/Klarna/capture-form.php:276
 #: templates/capture-form.php:276
 msgid "Capture"
 msgstr "Direct innen"
 
-#: src/Gateways/Klarna/capture-form.php:279
 #: templates/capture-form.php:279
 msgid "Total"
 msgstr "Totaal"
 
-#: src/Gateways/Klarna/capture-form.php:418
 #: templates/capture-form.php:418
+#: templates/capture-form.php:445
 msgid "Refund"
 msgstr "Terugbetalen"
 
-#: src/Gateways/Klarna/capture-form.php:433
 #: templates/capture-form.php:433
 msgid "Restock refunded items"
 msgstr "Neem de terugbetaalde artikelen weer op voorraad"
 
-#: src/Gateways/Klarna/capture-form.php:438
 #: templates/capture-form.php:438
 msgid "Reason for refund (optional):"
 msgstr "Reden voor terugbetaling (optioneel):"

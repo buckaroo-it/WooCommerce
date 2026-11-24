@@ -252,7 +252,7 @@ class PaypalExpressShipping
     protected function get_required_value($data, $key)
     {
         if (! isset($data[$key])) {
-            throw new PaypalExpressException('Field is required ' . $key);
+            throw new PaypalExpressException('Field is required ' . esc_html($key));
         }
 
         return $this->get_value($data, $key);
