@@ -752,6 +752,26 @@ $this->assertSame($expectedTotal, $order->get_total());
         $this->assertSame("'s-Hertogenbosch", (new PaypalExpressShipping())->get_customer_location()['city']);
     }
 
+    public function test_paypal_product_attributes_are_passed_on_as_sent(): void
+    {
+        $this->setPaypalRequest(
+            [
+                'attribute_style' => 'Size\\Large',
+                'attribute_fit' => "Men's",
+                'quantity' => '1',
+                'add-to-cart' => '1',
+            ],
+            'express-cart-totals',
+            'cart_total_nonce'
+        );
+        $_POST = wp_slash($_POST);
+
+        $this->assertSame(
+            ['attribute_fit' => wp_slash("Men's"), 'attribute_style' => wp_slash('Size\\Large')],
+            (new PaypalExpressShipping())->get_product_request()['attributes']
+        );
+    }
+
     public function test_paypal_order_without_an_order_id_is_not_sent(): void
     {
         $order = $this->createMock(PaypalExpressOrder::class);

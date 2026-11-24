@@ -31,7 +31,8 @@ class PaypalExpressShipping
         $attributes = [];
         foreach ($order_data as $key => $value) {
             if (strpos($key, 'attribute_') === 0) {
-                $attributes[$key] = $value;
+                // ExpressProductCart unslashes attribute values itself, as the wallets pass them as sent.
+                $attributes[$key] = wp_slash($value);
             }
         }
         ksort($attributes);
