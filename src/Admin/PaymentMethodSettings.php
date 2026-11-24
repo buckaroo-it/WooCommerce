@@ -141,9 +141,9 @@ class PaymentMethodSettings extends AbstractPaymentGateway
             'type' => 'select',
             'description' => __('Select where to store debug data', 'wc-buckaroo-bpe-gateway'),
             'options' => [
-                LoggerStorage::STORAGE_ALL => __('Both'),
-                LoggerStorage::STORAGE_FILE => __('File'),
-                LoggerStorage::STORAGE_DB => __('Database'),
+                LoggerStorage::STORAGE_ALL => __('Both', 'wc-buckaroo-bpe-gateway'),
+                LoggerStorage::STORAGE_FILE => __('File', 'wc-buckaroo-bpe-gateway'),
+                LoggerStorage::STORAGE_DB => __('Database', 'wc-buckaroo-bpe-gateway'),
             ],
             'default' => LoggerStorage::STORAGE_ALL,
         ];

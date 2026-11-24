@@ -46,7 +46,7 @@ class KlarnaKpGateway extends KlarnaGateway
         );
 
         if (! is_string($reservation_number) || strlen($reservation_number) === 0) {
-            return $this->create_capture_error(__('Cannot perform capture, reservation_number not found'));
+            return $this->create_capture_error(__('Cannot perform capture, reservation_number not found', 'wc-buckaroo-bpe-gateway'));
         }
 
         (new CancelReservationAction())->handle(
@@ -125,7 +125,7 @@ class KlarnaKpGateway extends KlarnaGateway
         );
 
         if (! is_string($reservation_number) || strlen($reservation_number) === 0) {
-            return $this->create_capture_error(__('Cannot perform capture, reservation_number not found'));
+            return $this->create_capture_error(__('Cannot perform capture, reservation_number not found', 'wc-buckaroo-bpe-gateway'));
         }
 
         return parent::process_capture($order_id);

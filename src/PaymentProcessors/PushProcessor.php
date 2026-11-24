@@ -110,6 +110,7 @@ class PushProcessor
                         if ($paidAmount > 0) {
                             $order->add_order_note(
                                 sprintf(
+                                    /* translators: 1: Paid amount, 2: Order status. */
                                     __('Received Buckaroo payment push notification of %1$s for an order with status %2$s. The order status was not changed.', 'wc-buckaroo-bpe-gateway'),
                                     wc_price($paidAmount),
                                     wc_get_order_status_name($order->get_status())
@@ -189,7 +190,7 @@ class PushProcessor
 
                     Logger::log('Update status 1. Order status: on-hold');
                     $order->set_transaction_id($responseParser->getTransactionKey());
-                    $order->update_status('on-hold', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
+                    $order->update_status('on-hold', $responseParser->getSubCodeMessage());
                     // Reduce stock levels
                     break;
             }
@@ -246,7 +247,7 @@ class PushProcessor
             }
 
             Logger::log('Update status 2. Order status: failed');
-            $current->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
+            $current->update_status('failed', $responseParser->getSubCodeMessage());
         } finally {
             NamedLock::release(self::SETTLEMENT_LOCK_PURPOSE, $order, self::SETTLEMENT_LOCK_KEY);
         }
@@ -449,12 +450,14 @@ class PushProcessor
                 $order->add_order_note(
                     $mismatch === 'currency'
                         ? sprintf(
+                            /* translators: 1: Buckaroo transaction ID, 2: Currency of the push, 3: Currency of the order. */
                             __('Ignored a Buckaroo push for transaction %1$s in %2$s, because the order is in %3$s.', 'wc-buckaroo-bpe-gateway'),
                             esc_html((string) $responseParser->getTransactionKey()),
                             esc_html((string) $responseParser->getCurrency()),
                             esc_html($order->get_currency())
                         )
                         : sprintf(
+                            /* translators: %s: Buckaroo transaction ID. */
                             __('Ignored a Buckaroo test-mode push for transaction %s, because the order was placed in live mode.', 'wc-buckaroo-bpe-gateway'),
                             esc_html((string) $responseParser->getTransactionKey())
                         )

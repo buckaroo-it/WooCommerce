@@ -149,6 +149,7 @@ class RefundAction
                 Logger::log(__METHOD__, 'Refund push ' . $refundKey . ' ignored: original transaction ' . $parentKey . ' is not part of the order.');
                 $order->add_order_note(
                     sprintf(
+                        /* translators: 1: Buckaroo refund transaction ID, 2: Buckaroo original transaction ID. */
                         __('Buckaroo refund %1$s was not recorded, because its original transaction %2$s is not a payment or capture of this order. Check the refund in Buckaroo Plaza.', 'wc-buckaroo-bpe-gateway'),
                         esc_html($refundKey),
                         esc_html($parentKey)
@@ -176,6 +177,7 @@ class RefundAction
                 Logger::log(__METHOD__, 'Refund push ' . $refundKey . ' ignored: amount exceeds the refundable amount.');
                 $order->add_order_note(
                     sprintf(
+                        /* translators: 1: Buckaroo refund transaction ID, 2: Refund amount. */
                         __('Buckaroo refund %1$s of %2$s was not recorded, because it is more than the amount that can still be refunded. Check the refund in Buckaroo Plaza.', 'wc-buckaroo-bpe-gateway'),
                         esc_html($refundKey),
                         wc_price(RefundLedger::formatCents($cents), ['currency' => $order->get_currency()])
@@ -204,6 +206,7 @@ class RefundAction
             RefundLedger::update($order, $entryId, ['state' => RefundLedger::STATE_FAILED]);
             $order->add_order_note(
                 sprintf(
+                    /* translators: %s: Buckaroo refund transaction ID. */
                     __('Buckaroo reported refund %s as not completed. The WooCommerce refund was kept; review it and the refund in Buckaroo Plaza.', 'wc-buckaroo-bpe-gateway'),
                     esc_html($refundKey)
                 )
@@ -333,6 +336,7 @@ class RefundAction
                 Logger::log(__METHOD__, $exception->getMessage());
                 $this->order->add_order_note(
                     sprintf(
+                        /* translators: %s: Refund amount. */
                         __('Refund of %s was sent to Buckaroo, but no result was received. It is recorded when Buckaroo reports it. Check Buckaroo Plaza before refunding this amount again.', 'wc-buckaroo-bpe-gateway'),
                         wc_price(RefundLedger::formatCents($cents), ['currency' => $this->order->get_currency()])
                     )
@@ -359,6 +363,7 @@ class RefundAction
         if ($transactionResponse->isSuccess()) {
             $this->order->add_order_note(
                 sprintf(
+                    /* translators: 1: Refunded amount, 2: Buckaroo refund transaction ID. */
                     __('Refunded %1$s - Refund transaction ID: %2$s', 'wc-buckaroo-bpe-gateway'),
                     wc_price($transactionResponse->get('AmountCredit')),
                     $transactionResponse->getTransactionKey()
@@ -372,6 +377,7 @@ class RefundAction
         if ($this->isPendingRefund($transactionResponse)) {
             $this->order->add_order_note(
                 sprintf(
+                    /* translators: 1: Refund amount, 2: Buckaroo transaction ID. */
                     __('Refund of %1$s is pending processing - Transaction ID: %2$s', 'wc-buckaroo-bpe-gateway'),
                     wc_price($transactionResponse->get('AmountCredit')),
                     $transactionResponse->getTransactionKey()
@@ -388,15 +394,13 @@ class RefundAction
 
         $this->order->add_order_note(
             sprintf(
-                __(
-                    'Refund failed for transaction ID: %s ' . "\n" . $transactionResponse->getSomeError(),
-                    'wc-buckaroo-bpe-gateway'
-                ),
+                /* translators: %s: Buckaroo transaction ID. */
+                __('Refund failed for transaction ID: %s', 'wc-buckaroo-bpe-gateway'),
                 $this->order->get_transaction_id()
-            )
+            ) . " \n" . $transactionResponse->getSomeError()
         );
 
-        return new WP_Error('error_refund', __('Refund failed: ') . $transactionResponse->getSomeError());
+        return new WP_Error('error_refund', __('Refund failed: ', 'wc-buckaroo-bpe-gateway') . $transactionResponse->getSomeError());
     }
 
     private function recordAcceptedRefund(TransactionResponse $transactionResponse, ?string $reservationId, string $state): void

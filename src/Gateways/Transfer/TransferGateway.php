@@ -66,6 +66,7 @@ class TransferGateway extends AbstractPaymentGateway
         $account_holder = $order->get_meta('buckaroo_accountHolderName') ?: 'Buckaroo Stichting Derdengelden';
         $GLOBALS['test'] = true;
         $intro = sprintf(
+            /* translators: %1$s: Order total amount. */
             __('Thank you for your order. You have chosen to pay by transfer. To complete your order, please transfer the outstanding amount, %1$s, using the details below.', 'wc-buckaroo-bpe-gateway'),
             $amount
         );
@@ -78,6 +79,7 @@ class TransferGateway extends AbstractPaymentGateway
         $note_prefix = __('NB:', 'wc-buckaroo-bpe-gateway');
 
         $note = sprintf(
+            /* translators: %1$s: Payment reference. */
             __('To ensure that your payment can be processed smoothly, you must quote the payment reference %1$s in the description of your transfer. This will enable faster processing of the payment.', 'wc-buckaroo-bpe-gateway'),
             $payment_reference
         );

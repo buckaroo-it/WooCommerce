@@ -138,6 +138,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             ],
             'enabled' => [
                 'title' => __('Enable/Disable', 'wc-buckaroo-bpe-gateway'),
+                /* translators: %s: Payment method title. */
                 'label' => sprintf(__('Enable %s Payment Method', 'wc-buckaroo-bpe-gateway'), (isset($this->method_title) ? $this->method_title : '')),
                 'type' => 'checkbox',
                 'description' => $addDescription,
@@ -160,7 +161,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
                     'Determines how the payment method is named in the checkout.',
                     'wc-buckaroo-bpe-gateway'
                 ),
-                'default' => __($this->title, 'wc-buckaroo-bpe-gateway'),
+                'default' => $this->title,
             ],
             'description' => [
                 'title' => __('Description', 'wc-buckaroo-bpe-gateway'),
@@ -203,6 +204,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     {
         $desc = $this->get_option('description', '');
         if (strlen($desc) === 0) {
+            /* translators: %s: Payment method title. */
             $desc = sprintf(__('Pay with %s', 'wc-buckaroo-bpe-gateway'), $this->title);
         }
 
@@ -307,6 +309,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             (string) $this->get_option('title', ''),
         ], 'strlen'));
 
+        /* translators: %s: Payment method title. */
         $templates = array_unique([__('Pay with %s', 'wc-buckaroo-bpe-gateway'), 'Pay with %s']);
 
         foreach ($templates as $template) {
@@ -417,6 +420,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         if ($this->get_option('enabled') === 'yes') {
             foreach (static::getMissingRequiredCredentials($this->settings) as $key) {
                 $error = sprintf(
+                    /* translators: %s: Name of the required setting. */
                     __('%s is required to enable this payment method in the selected transaction mode.', 'wc-buckaroo-bpe-gateway'),
                     $this->form_fields[$key]['title']
                 );
@@ -828,7 +832,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             if (isset($_POST[$field])) {
                 $text = wp_kses_post(trim(stripslashes($_POST[$field])));
                 if (! is_float($text) && ! is_numeric($text)) {
-                    $this->errors[] = __('Please provide valid payment fee');
+                    $this->errors[] = __('Please provide valid payment fee', 'wc-buckaroo-bpe-gateway');
 
                     return false;
                 }
@@ -996,21 +1000,21 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function process_capture($order_id)
     {
         if (! $this->capturable || ! $this->canShowCaptureForm($order_id)) {
-            return $this->create_capture_error(__('This order cannot be captured'));
+            return $this->create_capture_error(__('This order cannot be captured', 'wc-buckaroo-bpe-gateway'));
         }
 
         if ($order_id === null || ! is_numeric($order_id)) {
-            return $this->create_capture_error(__('A valid order number is required'));
+            return $this->create_capture_error(__('A valid order number is required', 'wc-buckaroo-bpe-gateway'));
         }
 
         $capture_amount = $this->request->input('capture_amount');
         if ($capture_amount === null || ! is_scalar($capture_amount)) {
-            return $this->create_capture_error(__('A valid capture amount is required'));
+            return $this->create_capture_error(__('A valid capture amount is required', 'wc-buckaroo-bpe-gateway'));
         }
 
         $order = Helper::findOrder($order_id);
         if (! $order instanceof WC_Order) {
-            return $this->create_capture_error(__('A valid order number is required'));
+            return $this->create_capture_error(__('A valid order number is required', 'wc-buckaroo-bpe-gateway'));
         }
 
         $allocation = CaptureAllocation::fromJson(
@@ -1023,6 +1027,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         if (in_array($result->getStatus(), [CaptureResult::FAILED, CaptureResult::UNKNOWN], true)) {
             $order->add_order_note(
                 sprintf(
+                    /* translators: 1: Buckaroo transaction ID, 2: Error message. */
                     __('Capture failed for transaction ID: %1$s %2$s', 'wc-buckaroo-bpe-gateway'),
                     $order->get_transaction_id(),
                     $result->getMessage()
@@ -1044,6 +1049,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
         if ($result->isSuccess()) {
             $message = sprintf(
+                /* translators: 1: Captured amount with currency, 2: Order number. */
                 __('Captured %1$s for order #%2$s.', 'wc-buckaroo-bpe-gateway'),
                 $formattedAmount,
                 $order->get_order_number()
@@ -1051,6 +1057,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             $type = 'success';
         } elseif ($result->getStatus() === CaptureResult::PENDING) {
             $message = sprintf(
+                /* translators: 1: Capture amount with currency, 2: Order number. */
                 __('Capture of %1$s for order #%2$s was requested and is awaiting confirmation from Buckaroo.', 'wc-buckaroo-bpe-gateway'),
                 $formattedAmount,
                 $order->get_order_number()

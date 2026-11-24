@@ -35,7 +35,7 @@ $selectedIssuer = \Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor::g
                                                     ?>
 selected 
                                                 <?php } ?> id="bankMethod<?php echo esc_attr($key); ?>">
-                        <?php esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?>
+                        <?php echo esc_html($issuer['name']); ?>
                     </option>
                 </div>
                 <?php } ?>
@@ -56,7 +56,7 @@ selected
                                                 ?>
 selected 
                                             <?php } ?> id="bankMethod<?php echo esc_attr($key); ?>">
-                    <?php esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?>
+                    <?php echo esc_html($issuer['name']); ?>
                 </option>
             </div>
             <?php } ?>
@@ -74,8 +74,8 @@ selected
 checked 
                     <?php } ?> id="radio-bankMethod<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($key); ?>" class="custom-control-input bank-method-input bk-paybybank-radio">
                     <label class="custom-control-label bank-method-label" for="radio-bankMethod<?php echo esc_attr($key); ?>">
-                        <img src="<?php echo esc_url(plugin_dir_url(__DIR__) . '../library/buckaroo_images/ideal/' . $issuer['logo']); ?>" wdith="45" class="bank-method-image" alt="<?php esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?>" title="<?php esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?>">
-                        <strong><?php esc_html_e($issuer['name'], 'wc-buckaroo-bpe-gateway'); ?></strong>
+                        <img src="<?php echo esc_url(plugin_dir_url(__DIR__) . '../library/buckaroo_images/ideal/' . $issuer['logo']); ?>" wdith="45" class="bank-method-image" alt="<?php echo esc_attr($issuer['name']); ?>" title="<?php echo esc_attr($issuer['name']); ?>">
+                        <strong><?php echo esc_html($issuer['name']); ?></strong>
                     </label>
                 </div>
             <?php } ?>

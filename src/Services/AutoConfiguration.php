@@ -141,7 +141,8 @@ class AutoConfiguration
                 $result['message'] = __('No payment methods were configured. Please check your active subscriptions.', 'wc-buckaroo-bpe-gateway');
             } else {
                 $result['message'] = sprintf(
-                    __('Successfully configured %d payment method(s): %s', 'wc-buckaroo-bpe-gateway'),
+                    /* translators: 1: Number of payment methods, 2: Comma-separated list of payment methods. */
+                    __('Successfully configured %1$d payment method(s): %2$s', 'wc-buckaroo-bpe-gateway'),
                     count($result['configured_methods']),
                     implode(', ', $result['configured_methods'])
                 );
@@ -205,7 +206,8 @@ class AutoConfiguration
             ));
         } catch (Exception $e) {
             $result['errors'][] = sprintf(
-                __('Failed to configure %s: %s', 'wc-buckaroo-bpe-gateway'),
+                /* translators: 1: Payment method ID, 2: Error message. */
+                __('Failed to configure %1$s: %2$s', 'wc-buckaroo-bpe-gateway'),
                 $gateway->id,
                 $e->getMessage()
             );

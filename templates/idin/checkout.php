@@ -37,7 +37,7 @@ if (\Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor::checkCurrentUserIsVerifie
                         <?php foreach (\Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor::getIssuerList() as $issuer) { ?>
                             <div>
                                 <option value='<?php echo esc_attr($issuer['servicename']); ?>'>
-                                    <?php esc_html_e($issuer['displayname'], 'wc-buckaroo-bpe-gateway'); ?>
+                                    <?php echo esc_html($issuer['displayname']); ?>
                                 </option>
                             </div>
                         <?php } ?>

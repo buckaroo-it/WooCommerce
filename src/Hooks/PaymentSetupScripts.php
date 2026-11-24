@@ -256,8 +256,8 @@ class PaymentSetupScripts
                 'ajax_url' => home_url('/'),
                 'admin_ajax_url' => admin_url('admin-ajax.php'),
                 'idin_i18n' => [
-                    'general_error' => esc_html__('Something went wrong while processing your identification.'),
-                    'bank_required' => esc_html__('You need to select your bank!'),
+                    'general_error' => esc_html__('Something went wrong while processing your identification.', 'wc-buckaroo-bpe-gateway'),
+                    'bank_required' => esc_html__('You need to select your bank!', 'wc-buckaroo-bpe-gateway'),
                 ],
                 'idin_nonce' => wp_create_nonce(IdinProcessor::NONCE_ACTION),
                 'payByBankLogos' => PayByBankProcessor::getIssuerLogoUrls(),

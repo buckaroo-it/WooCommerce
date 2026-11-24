@@ -28,11 +28,12 @@ class GiftCardProcessor extends AbstractPaymentProcessor
         if ($responseParser->isFailed()) {
             if ($responseParser->getSubCodeMessage() === 'Failed') {
                 $errorMessage = sprintf(
+                    /* translators: %s: Gift card payment method. */
                     __('Card number or pin is incorrect for %s', 'wc-buckaroo-bpe-gateway'),
                     $responseParser->getPaymentMethod()
                 );
             } else {
-                $errorMessage = __($responseParser->getStatusMessage(), 'wc-buckaroo-bpe-gateway');
+                $errorMessage = $responseParser->getStatusMessage();
             }
 
             wc_add_notice($errorMessage, 'error');

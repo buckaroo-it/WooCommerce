@@ -463,6 +463,7 @@ class KlarnaCaptureAttempt
             if ($attention['state'] === 'failed') {
                 $order->add_order_note(
                     sprintf(
+                        /* translators: 1: Capture amount, 2: Currency code, 3: Capture attempt number, 4: Error message. */
                         __('Automatic Klarna capture of %1$s %2$s failed (attempt %3$d): %4$s', 'wc-buckaroo-bpe-gateway'),
                         $attention['amount'],
                         $attention['currency'],
@@ -473,6 +474,7 @@ class KlarnaCaptureAttempt
             } else {
                 $order->add_order_note(
                     sprintf(
+                        /* translators: 1: Capture amount, 2: Currency code, 3: Capture attempt number, 4: Status message. */
                         __('Automatic Klarna capture outcome is unknown for %1$s %2$s (attempt %3$d): %4$s', 'wc-buckaroo-bpe-gateway'),
                         $attention['amount'],
                         $attention['currency'],

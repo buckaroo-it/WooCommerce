@@ -113,6 +113,7 @@ class ZakelijkOpRekeningGateway extends AbstractPaymentGateway
 
         if ($this->getFieldOrFallback('buckaroo-zakelijkoprekening-phone', $order->get_billing_phone()) === '') {
             $errors[] = sprintf(
+                /* translators: %s: Payment method title. */
                 __('Please fill in a phone number for %s. This is required in order to use this payment method.', 'wc-buckaroo-bpe-gateway'),
                 $this->title
             );

@@ -64,6 +64,7 @@ class KlarnaCaptureStatusCheck
         } catch (Throwable $exception) {
             $order->add_order_note(
                 sprintf(
+                    /* translators: 1: Capture attempt number, 2: Error message. */
                     __('Klarna capture status check for attempt %1$d could not be completed: %2$s', 'wc-buckaroo-bpe-gateway'),
                     $attemptNumber,
                     sanitize_text_field($exception->getMessage())
@@ -77,6 +78,7 @@ class KlarnaCaptureStatusCheck
         if (! $handled) {
             $order->add_order_note(
                 sprintf(
+                    /* translators: 1: Buckaroo transaction ID, 2: Capture attempt number. */
                     __('Klarna capture status check: Buckaroo transaction %1$s could not be matched to capture attempt %2$d.', 'wc-buckaroo-bpe-gateway'),
                     $transactionKey,
                     $attemptNumber
@@ -88,6 +90,7 @@ class KlarnaCaptureStatusCheck
 
         $order->add_order_note(
             sprintf(
+                /* translators: 1: Capture attempt number, 2: Capture attempt state, 3: Buckaroo transaction ID. */
                 __('Klarna capture status check: attempt %1$d is now %2$s (Buckaroo transaction %3$s).', 'wc-buckaroo-bpe-gateway'),
                 $attemptNumber,
                 $updated['state'],
@@ -141,6 +144,7 @@ class KlarnaCaptureStatusCheck
         if (time() < $graceEndsAt) {
             $order->add_order_note(
                 sprintf(
+                    /* translators: 1: Capture attempt number, 2: Date and time. */
                     __('Klarna capture status check: attempt %1$d has no Buckaroo transaction key. Waiting for the Buckaroo push until %2$s before it can be marked as failed.', 'wc-buckaroo-bpe-gateway'),
                     $attemptNumber,
                     wp_date(wc_date_format() . ' ' . wc_time_format(), $graceEndsAt)
@@ -155,6 +159,7 @@ class KlarnaCaptureStatusCheck
         if ($failed === null) {
             $order->add_order_note(
                 sprintf(
+                    /* translators: %1$d: Capture attempt number. */
                     __('Klarna capture status check: attempt %1$d changed in the meantime and was not marked as failed. Check again later.', 'wc-buckaroo-bpe-gateway'),
                     $attemptNumber
                 )
@@ -168,6 +173,7 @@ class KlarnaCaptureStatusCheck
         } else {
             $order->add_order_note(
                 sprintf(
+                    /* translators: 1: Capture attempt number, 2: Error message. */
                     __('Klarna capture attempt %1$d was marked as failed: %2$s', 'wc-buckaroo-bpe-gateway'),
                     $attemptNumber,
                     $error

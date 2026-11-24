@@ -19,6 +19,7 @@ class CancelReservationAction
                 [
                     'type' => 'success',
                     'message' => sprintf(
+                        /* translators: %s: Order number. */
                         __('Klarna reservation for order #%s was successfully canceled', 'wc-buckaroo-bpe-gateway'),
                         $order->get_order_number()
                     ),
@@ -30,6 +31,7 @@ class CancelReservationAction
                 [
                     'type' => 'warning',
                     'message' => sprintf(
+                        /* translators: %s: Order number. */
                         __('Cannot cancel klarna reservation for order #%s', 'wc-buckaroo-bpe-gateway'),
                         $order->get_order_number()
                     ),
