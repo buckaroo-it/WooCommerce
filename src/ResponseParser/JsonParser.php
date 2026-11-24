@@ -155,7 +155,13 @@ class JsonParser extends ResponseParser
     {
         $service = $service ?? $this->getPaymentMethod();
 
-        return $this->firstWhere($this->getServiceParameters($service), 'name', ucfirst($name))['value'] ?? null;
+        foreach ($this->getServiceParameters($service) ?? [] as $parameter) {
+            if (isset($parameter['name']) && is_string($parameter['name']) && strcasecmp($parameter['name'], $name) === 0) {
+                return $parameter['value'] ?? null;
+            }
+        }
+
+        return null;
     }
 
     public function getServiceParameters($name)

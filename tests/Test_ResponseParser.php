@@ -343,4 +343,84 @@ class Test_ResponseParser extends TestCase
 
         $this->assertEquals('MixedCaseValue', $result);
     }
+
+    /**
+     * Test getServiceParameter matches a JSON push parameter name in any case
+     *
+     * @dataProvider paypalPushParameters
+     */
+    public function test_get_service_parameter_matches_the_name_in_any_case(string $name, ?string $expected)
+    {
+        $parser = ResponseParser::make(json_decode(
+            file_get_contents(__DIR__ . '/fixtures/paypal-express-json-push.json'),
+            true
+        ));
+
+        $this->assertInstanceOf(JsonParser::class, $parser);
+        $this->assertSame($expected, $parser->getServiceParameter($name));
+    }
+
+    public function paypalPushParameters(): array
+    {
+        return [
+            'camelCase' => ['payerFirstname', 'Jan'],
+            'snake_case' => ['address_line_1', 'Teststraat 1'],
+            'PascalCase' => ['CustomerName', 'Jan Jansen'],
+            'camelCase asked in PascalCase' => ['PayerLastname', 'Jansen'],
+            'snake_case asked in upper case' => ['POSTAL_CODE', '1234 AB'],
+            'PascalCase asked in camelCase' => ['customerName', 'Jan Jansen'],
+            'missing parameter' => ['admin_area_1', null],
+        ];
+    }
+
+    /**
+     * Test getServiceParameter reads the parameter from the named service
+     */
+    public function test_get_service_parameter_reads_the_named_service()
+    {
+        $parser = ResponseParser::make([
+            'Transaction' => [
+                'ServiceCode' => 'afterpay',
+                'Services' => [
+                    [
+                        'Name' => 'afterpay',
+                        'Parameters' => [['Name' => 'ErrorResponseMessage', 'Value' => 'Address not valid']],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertSame('Address not valid', $parser->getServiceParameter('ErrorResponseMessage', 'afterpay'));
+        $this->assertNull($parser->getServiceParameter('ErrorResponseMessage', 'klarnakp'));
+    }
+
+    /**
+     * Test getServiceParameter reads the payment method's service by default
+     */
+    public function test_get_service_parameter_reads_the_payment_method_service()
+    {
+        $parser = ResponseParser::make([
+            'Transaction' => [
+                'ServiceCode' => 'klarnakp',
+                'Services' => [
+                    [
+                        'Name' => 'klarnakp',
+                        'Parameters' => [['Name' => 'ReservationNumber', 'Value' => 'a1b2c3d4-e5f6']],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertSame('a1b2c3d4-e5f6', $parser->getServiceParameter('reservationNumber'));
+    }
+
+    /**
+     * Test getServiceParameter returns null when the push has no services
+     */
+    public function test_get_service_parameter_is_null_without_services()
+    {
+        $parser = ResponseParser::make(['Transaction' => ['ServiceCode' => 'paypal', 'Services' => null]]);
+
+        $this->assertNull($parser->getServiceParameter('payerFirstname'));
+    }
 }

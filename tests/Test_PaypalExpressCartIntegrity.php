@@ -7,6 +7,7 @@ use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressException;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressOrder;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressShipping;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressUpdateOrderAddresses;
+use Buckaroo\Woocommerce\ResponseParser\JsonParser;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 
 class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
@@ -23,6 +24,24 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
         'state' => 'CA',
         'postal_code' => '94105',
         'city' => 'San Francisco',
+    ];
+
+    private const ORDER_ADDRESS = [
+        'billing_first_name' => 'Anna',
+        'billing_last_name' => 'Visser',
+        'billing_address_1' => '350 Fifth Avenue',
+        'billing_city' => 'New York',
+        'billing_postcode' => '10118',
+        'billing_country' => 'US',
+        'billing_state' => 'NY',
+        'billing_email' => 'anna@example.com',
+        'shipping_first_name' => 'Ben',
+        'shipping_last_name' => 'Bakker',
+        'shipping_address_1' => '233 S Wacker Drive',
+        'shipping_city' => 'Chicago',
+        'shipping_postcode' => '60606',
+        'shipping_country' => 'US',
+        'shipping_state' => 'IL',
     ];
 
     /** @var int[] */
@@ -987,6 +1006,117 @@ $this->assertSame($expectedTotal, $order->get_total());
         $this->assertSame('8441ER', $order->get_shipping_postcode());
     }
 
+    public function test_paypal_express_json_push_without_an_address_keeps_the_order_address(): void
+    {
+        $order = $this->createOrderWithAddress();
+        $push = ResponseParser::make([
+            'Transaction' => [
+                'Key' => 'A1B2C3D4E5F60718293A4B5C6D7E8F90',
+                'ServiceCode' => 'paypal',
+                'Status' => ['Code' => ['Code' => 190, 'Description' => 'Success']],
+                'Services' => [
+                    ['Name' => 'paypal', 'Action' => 'Pay', 'Parameters' => []],
+                ],
+                'AdditionalParameters' => [
+                    'List' => [
+                        ['Name' => 'is_paypal_express', 'Value' => 'true'],
+                        ['Name' => 'real_order_id', 'Value' => (string) $order->get_id()],
+                    ],
+                ],
+            ],
+        ]);
+        $this->assertInstanceOf(JsonParser::class, $push);
+
+        (new PaypalExpressUpdateOrderAddresses($order, $push))->update();
+
+        $this->assertSame(self::ORDER_ADDRESS, $this->savedAddress($order->get_id()));
+    }
+
+    public function test_paypal_express_json_push_fills_the_order_address_from_the_paypal_parameters(): void
+    {
+        $order = $this->createOrderWithAddress();
+        $push = ResponseParser::make(json_decode(
+            file_get_contents(__DIR__ . '/fixtures/paypal-express-json-push.json'),
+            true
+        ));
+        $this->assertInstanceOf(JsonParser::class, $push);
+
+        (new PaypalExpressUpdateOrderAddresses($order, $push))->update();
+
+        $this->assertSame([
+            'billing_first_name' => 'Jan',
+            'billing_last_name' => 'Jansen',
+            'billing_address_1' => 'Teststraat 1',
+            'billing_city' => 'Amsterdam',
+            'billing_postcode' => '1234 AB',
+            'billing_country' => 'NL',
+            'billing_state' => 'NY',
+            'billing_email' => 'jan.jansen@example.com',
+            'shipping_first_name' => 'Jan',
+            'shipping_last_name' => 'Jansen',
+            'shipping_address_1' => 'Teststraat 1',
+            'shipping_city' => 'Amsterdam',
+            'shipping_postcode' => '1234 AB',
+            'shipping_country' => 'US',
+            'shipping_state' => 'IL',
+        ], $this->savedAddress($order->get_id()));
+    }
+
+    public function test_paypal_express_form_push_without_an_address_keeps_the_order_address(): void
+    {
+        $order = $this->createOrderWithAddress();
+
+        (new PaypalExpressUpdateOrderAddresses($order, ResponseParser::make([
+            'brq_payment_method' => 'paypal',
+            'brq_statuscode' => '190',
+            'ADD_is_paypal_express' => '1',
+        ])))->update();
+
+        $this->assertSame(self::ORDER_ADDRESS, $this->savedAddress($order->get_id()));
+    }
+
+    public function test_paypal_express_form_push_with_an_address_fills_the_order_address(): void
+    {
+        $order = $this->createOrderWithAddress();
+
+        (new PaypalExpressUpdateOrderAddresses($order, $this->paypalPush([
+            'brq_SERVICE_paypal_payerCountry' => 'NL',
+            'brq_SERVICE_paypal_address_line_1' => '1 Market St',
+            'brq_SERVICE_paypal_admin_area_1' => 'CA',
+            'brq_SERVICE_paypal_admin_area_2' => 'San Francisco',
+            'brq_SERVICE_paypal_postal_code' => '94105',
+        ])))->update();
+
+        $this->assertSame([
+            'billing_first_name' => 'Jane',
+            'billing_last_name' => 'Doe',
+            'billing_address_1' => '1 Market St',
+            'billing_city' => 'San Francisco',
+            'billing_postcode' => '94105',
+            'billing_country' => 'NL',
+            'billing_state' => 'CA',
+            'billing_email' => 'jane@example.com',
+            'shipping_first_name' => 'Jane',
+            'shipping_last_name' => 'Doe',
+            'shipping_address_1' => '1 Market St',
+            'shipping_city' => 'San Francisco',
+            'shipping_postcode' => '94105',
+            'shipping_country' => 'US',
+            'shipping_state' => 'CA',
+        ], $this->savedAddress($order->get_id()));
+    }
+
+    public function test_paypal_express_push_with_an_invalid_email_keeps_the_order_email(): void
+    {
+        $order = $this->createOrderWithAddress();
+
+        (new PaypalExpressUpdateOrderAddresses($order, $this->paypalPush([
+            'brq_SERVICE_paypal_payerEmail' => 'not-an-email',
+        ])))->update();
+
+        $this->assertSame('anna@example.com', wc_get_order($order->get_id())->get_billing_email());
+    }
+
     public function paypalPages(): array
     {
         return [
@@ -1141,6 +1271,27 @@ $this->assertSame($expectedTotal, $order->get_total());
         $this->shipping_zone_ids[] = $zone->get_id();
 
         return $zone;
+    }
+
+    private function createOrderWithAddress(): WC_Order
+    {
+        $order = wc_create_order();
+        $order->set_props(self::ORDER_ADDRESS);
+        $order->save();
+        $this->order_ids[] = $order->get_id();
+
+        return $order;
+    }
+
+    private function savedAddress(int $order_id): array
+    {
+        $order = wc_get_order($order_id);
+        $address = [];
+        foreach (array_keys(self::ORDER_ADDRESS) as $prop) {
+            $address[$prop] = $order->{"get_$prop"}();
+        }
+
+        return $address;
     }
 
     private function paypalPush(array $service_fields): ResponseParser

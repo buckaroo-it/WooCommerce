@@ -21,6 +21,18 @@ use WC_Order;
  */
 class PaypalExpressUpdateOrderAddresses
 {
+    /**
+     * Order address fields and the push parameters that carry them.
+     */
+    private const ADDRESS_FIELDS = [
+        'first_name' => 'payerFirstname',
+        'last_name' => 'payerLastname',
+        'address_1' => 'address_line_1',
+        'city' => 'admin_area_2',
+        'postcode' => 'postal_code',
+        'state' => 'admin_area_1',
+    ];
+
     private WC_Order $order;
 
     private ResponseParser $response;
@@ -42,16 +54,7 @@ class PaypalExpressUpdateOrderAddresses
 
     private function update_billing_address()
     {
-        $this->order->set_billing_first_name($this->get('payerFirstname'));
-        $this->order->set_billing_last_name($this->get('payerLastname'));
-        $this->order->set_billing_address_1($this->get('address_line_1'));
-        $this->order->set_billing_city($this->get('admin_area_2'));
-        $this->order->set_billing_postcode($this->get('postal_code'));
-        $this->order->set_billing_country($this->get('payerCountry'));
-        $state = $this->get('admin_area_1');
-        if ($state !== '') {
-            $this->order->set_billing_state($state);
-        }
+        $this->set_address('billing', self::ADDRESS_FIELDS + ['country' => 'payerCountry']);
         $email = $this->get('payerEmail');
         if (is_email($email)) {
             $this->order->set_billing_email($email);
@@ -60,20 +63,26 @@ class PaypalExpressUpdateOrderAddresses
 
     private function update_shipping_address()
     {
-        $this->order->set_shipping_first_name($this->get('payerFirstname'));
-        $this->order->set_shipping_last_name($this->get('payerLastname'));
-        $this->order->set_shipping_address_1($this->get('address_line_1'));
-        $this->order->set_shipping_city($this->get('admin_area_2'));
-        $this->order->set_shipping_postcode($this->get('postal_code'));
-        $state = $this->get('admin_area_1');
-        if ($state !== '') {
-            $this->order->set_shipping_state($state);
-        }
         // payerCountry is the PayPal account's country; the shipping country stays the PayPal ship-to country set on the order.
+        $this->set_address('shipping', self::ADDRESS_FIELDS);
+    }
+
+    /**
+     * Write only the fields the push carries. The order already holds the address approved in PayPal,
+     * so a push without a field keeps the order's value.
+     */
+    private function set_address(string $type, array $fields): void
+    {
+        foreach ($fields as $field => $parameter) {
+            $value = $this->get($parameter);
+            if ($value !== '') {
+                $this->order->set_props(["{$type}_{$field}" => $value]);
+            }
+        }
     }
 
     private function get(string $key): string
     {
-        return $this->response->getService($key) ?? '';
+        return $this->response->getServiceParameter($key) ?? '';
     }
 }

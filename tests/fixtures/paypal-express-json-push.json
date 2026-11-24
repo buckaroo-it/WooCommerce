@@ -1,0 +1,57 @@
+{
+  "Transaction": {
+    "Key": "AE2AF840C26A418792A04AAB8969373F",
+    "Invoice": "11621",
+    "ServiceCode": "paypal",
+    "Status": {
+      "Code": {"Code": 190, "Description": "Success"},
+      "SubCode": {"Code": "S990", "Description": "The request was successful."},
+      "DateTime": "2026-11-20T10:15:00"
+    },
+    "IsTest": true,
+    "Order": "11621",
+    "Currency": "EUR",
+    "AmountDebit": 15.53,
+    "TransactionType": "V010",
+    "Services": [
+      {
+        "Name": "paypal",
+        "Action": null,
+        "Parameters": [
+          {"Name": "orderId", "Value": "1AB23456CD7890123"},
+          {"Name": "payerEmail", "Value": "jan.jansen@example.com"},
+          {"Name": "payerCountry", "Value": "NL"},
+          {"Name": "payerFirstname", "Value": "Jan"},
+          {"Name": "payerLastname", "Value": "Jansen"},
+          {"Name": "paypalTransactionID", "Value": "9XY87654ZW3210987"},
+          {"Name": "address_line_1", "Value": "Teststraat 1"},
+          {"Name": "admin_area_2", "Value": "Amsterdam"},
+          {"Name": "postal_code", "Value": "1234 AB"},
+          {"Name": "CustomerName", "Value": "Jan Jansen"},
+          {"Name": "VersionAsProperty", "Value": "2"},
+          {"Name": "ProtectionEligibility", "Value": "Eligible"},
+          {"Name": "ProtectionEligibilityType", "Value": "ItemNotReceivedEligible,UnauthorizedPaymentEligible"},
+          {"Name": "paypalCaptureId", "Value": "8QR76543ST2109876"}
+        ],
+        "VersionAsProperty": 1
+      }
+    ],
+    "CustomParameters": null,
+    "AdditionalParameters": {
+      "List": [
+        {"Name": "is_paypal_express", "Value": "true"},
+        {"Name": "real_order_id", "Value": "11621"}
+      ]
+    },
+    "MutationType": 1,
+    "RelatedTransactions": null,
+    "IsCancelable": false,
+    "IssuingCountry": null,
+    "StartRecurrent": false,
+    "Recurring": false,
+    "CustomerName": "Jan Jansen",
+    "PayerHash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "PaymentKey": "0123456789ABCDEF0123456789ABCDEF",
+    "Description": "Order 11621"
+  }
+}
