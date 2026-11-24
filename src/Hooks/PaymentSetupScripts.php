@@ -3,11 +3,9 @@
 namespace Buckaroo\Woocommerce\Hooks;
 
 use Buckaroo\Woocommerce\Core\Plugin;
-use Buckaroo\Woocommerce\Gateways\Applepay\ApplepayGateway;
 use Buckaroo\Woocommerce\Gateways\CreditCard\CreditCardGateway;
 use Buckaroo\Woocommerce\Gateways\CreditCard\HostedFieldsController;
 use Buckaroo\Woocommerce\Gateways\Express\ExpressPlacements;
-use Buckaroo\Woocommerce\Gateways\Googlepay\GooglepayGateway;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Gateways\PayByBank\PayByBankProcessor;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
@@ -262,8 +260,6 @@ class PaymentSetupScripts
                     'bank_required' => esc_html__('You need to select your bank!', 'wc-buckaroo-bpe-gateway'),
                 ],
                 'idin_nonce' => wp_create_nonce(IdinProcessor::NONCE_ACTION),
-                'applepay_nonce' => wp_create_nonce(ApplepayGateway::CREATE_TRANSACTION_NONCE),
-                'googlepay_nonce' => wp_create_nonce(GooglepayGateway::CREATE_TRANSACTION_NONCE),
                 'payByBankLogos' => PayByBankProcessor::getIssuerLogoUrls(),
                 'creditCardIssuers' => (new CreditCardGateway())->getCardsList(),
                 'hostedFieldsTokenUrl' => $isCheckout ? HostedFieldsController::tokenUrl() : '',

@@ -6,12 +6,15 @@ export default class Buckaroo {
     }
 
     createTransaction(payment_data, total_price, selected_shipping_method, items) {
+        // Fetched now rather than printed in the page, so a cached page still gets a valid nonce.
+        const storeInformation = this.woocommerce.getStoreInformation();
+
         jQuery
             .ajax({
                 url: '/?wc-api=WC_Gateway_Buckaroo_googlepay-create-transaction',
                 method: 'post',
                 data: {
-                    security: buckaroo_global.googlepay_nonce,
+                    security: storeInformation.create_transaction_nonce || '',
                     selected_shipping_method,
                     paymentData: payment_data,
                     amount: total_price,

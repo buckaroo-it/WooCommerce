@@ -14,8 +14,12 @@ class ApplepayController
         $settings = get_option('woocommerce_buckaroo_applepay_settings', []);
         $settings = is_array($settings) ? $settings : [];
 
+        // Carries a nonce for the current visitor, so it must never be served from a cache.
+        nocache_headers();
+
         wp_send_json(
             [
+                'create_transaction_nonce' => wp_create_nonce(ApplepayGateway::CREATE_TRANSACTION_NONCE),
                 'store_name' => get_option('blogname'),
                 'country_code' => $country_code,
                 'currency_code' => get_option('woocommerce_currency'),
