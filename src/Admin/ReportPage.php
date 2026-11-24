@@ -207,9 +207,8 @@ class ReportPage extends WP_List_Table
         global $wpdb;
         $wpdb->hide_errors();
 
-        $table = $wpdb->prefix . LoggerStorage::STORAGE_DB_TABLE;
         $result = $wpdb->get_results(
-            'SELECT count(`id`) as `count` FROM `' . $table . '`',
+            "SELECT count(`id`) as `count` FROM `{$wpdb->prefix}buckaroo_log`",
             ARRAY_A
         );
 
@@ -308,10 +307,9 @@ class ReportPage extends WP_List_Table
         global $wpdb;
         $wpdb->hide_errors();
 
-        $table = $wpdb->prefix . LoggerStorage::STORAGE_DB_TABLE;
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT `date`, `message` as `description` FROM {$table} ORDER BY `date` DESC LIMIT %d,%d",
+                "SELECT `date`, `message` as `description` FROM {$wpdb->prefix}buckaroo_log ORDER BY `date` DESC LIMIT %d,%d",
                 ($this->per_page * ($current_page - 1)),
                 $this->per_page
             ),

@@ -138,10 +138,9 @@ class CronEvents
         global $wpdb;
         $wpdb->hide_errors();
 
-        $table = $wpdb->prefix . LoggerStorage::STORAGE_DB_TABLE;
         $staleDate = $this->get_stale_date()->format('Y-m-d H:i:s');
         $wpdb->query(
-            $wpdb->prepare("DELETE FROM {$table} WHERE `date` < %s", $staleDate)
+            $wpdb->prepare("DELETE FROM {$wpdb->prefix}buckaroo_log WHERE `date` < %s", $staleDate)
         );
     }
 }

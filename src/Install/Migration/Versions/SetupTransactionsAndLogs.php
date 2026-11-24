@@ -33,6 +33,8 @@ class SetupTransactionsAndLogs implements Migration
 
         $collate = $this->getCollate();
 
+        // Table definition: the collation clause is built from $wpdb->charset and $wpdb->collate.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $wpdb->query(
             "
             CREATE TABLE IF NOT EXISTS {$wpdb->prefix}woocommerce_buckaroo_transactions (
@@ -42,6 +44,7 @@ class SetupTransactionsAndLogs implements Migration
             )
             $collate;"
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
         $this->create_log_table();
         $this->update_extrachargeamount_with_percentage();
@@ -60,6 +63,9 @@ class SetupTransactionsAndLogs implements Migration
         $table = $wpdb->prefix . LoggerStorage::STORAGE_DB_TABLE;
         $collate = $this->getCollate();
 
+        // Table definition: the table name is built from $wpdb->prefix and a fixed suffix, the
+        // collation clause from $wpdb->charset and $wpdb->collate.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $wpdb->query(
             "CREATE TABLE IF NOT EXISTS $table (
                 `id` BIGINT NOT NULL AUTO_INCREMENT ,
@@ -70,6 +76,7 @@ class SetupTransactionsAndLogs implements Migration
                 PRIMARY KEY (`id`)
             )  $collate;"
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
     }
 
     protected function update_extrachargeamount_with_percentage()
