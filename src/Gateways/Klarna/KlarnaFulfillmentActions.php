@@ -87,6 +87,7 @@ class KlarnaFulfillmentActions
         if (! $awaitingPayment && ! $closed) {
             $order->add_order_note(
                 sprintf(
+                    /* translators: %s: Buckaroo transaction ID. */
                     __('Klarna capture confirmed (transaction: %s).', 'wc-buckaroo-bpe-gateway'),
                     $transactionKey
                 )
@@ -415,6 +416,7 @@ class KlarnaFulfillmentActions
 
         $order->add_order_note(
             sprintf(
+                /* translators: %d: Capture attempt number. */
                 __('Automatic Klarna capture status check for attempt %d could not be scheduled. Use the "Klarna: Check capture status" order action.', 'wc-buckaroo-bpe-gateway'),
                 (int) $attempt['attempt_number']
             )
@@ -693,6 +695,7 @@ class KlarnaFulfillmentActions
 
         $order->add_order_note(
             sprintf(
+                /* translators: 1: Capture attempt number, 2: Capture amount, 3: Currency code. */
                 __('Klarna capture retry queued (attempt %1$d) for %2$s %3$s.', 'wc-buckaroo-bpe-gateway'),
                 $attempt['attempt_number'],
                 $attempt['amount'],

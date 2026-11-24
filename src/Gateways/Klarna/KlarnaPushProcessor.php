@@ -48,6 +48,7 @@ class KlarnaPushProcessor
         } else {
             $order->add_order_note(
                 sprintf(
+                    /* translators: %s: Status message from Buckaroo. */
                     __('Klarna reservation cancellation push reported a failure: %s', 'wc-buckaroo-bpe-gateway'),
                     $responseParser->getSubCodeMessage() ?: ''
                 )

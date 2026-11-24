@@ -23,11 +23,11 @@ $tosLinks = [
     'BE' => [
         [
             'link' => 'https://documents.myafterpay.com/consumer-terms-conditions/nl_be/',
-            'label' => 'Riverty conditions (Dutch)',
+            'label' => __('Riverty conditions (Dutch)', 'wc-buckaroo-bpe-gateway'),
         ],
         [
             'link' => 'https://documents.myafterpay.com/consumer-terms-conditions/fr_be/',
-            'label' => 'Riverty conditions (French)',
+            'label' => __('Riverty conditions (French)', 'wc-buckaroo-bpe-gateway'),
         ],
     ],
     'DE' => 'https://documents.myafterpay.com/consumer-terms-conditions/de_at/',
@@ -56,7 +56,7 @@ if (! is_array($tos)) {
         $tosLinksHtml[] = sprintf(
             '<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
             esc_url($tosElement['link']),
-            esc_html__($tosElement['label'], 'wc-buckaroo-bpe-gateway')
+            esc_html($tosElement['label'])
         );
     }
     $tosLabel = esc_html__('Accept Riverty conditions:', 'wc-buckaroo-bpe-gateway') . ' ' . implode(' / ', $tosLinksHtml);

@@ -18,6 +18,7 @@ class ExtendReservationAction
                 [
                     'type' => 'success',
                     'message' => sprintf(
+                        /* translators: %s: Order number. */
                         __('Klarna reservation for order #%s was successfully extended', 'wc-buckaroo-bpe-gateway'),
                         $order->get_order_number()
                     ),
@@ -29,6 +30,7 @@ class ExtendReservationAction
                 [
                     'type' => 'warning',
                     'message' => sprintf(
+                        /* translators: %s: Order number. */
                         __('Cannot extend klarna reservation for order #%s', 'wc-buckaroo-bpe-gateway'),
                         $order->get_order_number()
                     ),

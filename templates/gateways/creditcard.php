@@ -39,7 +39,7 @@ if (! $show_required) {
         // An empty value marks the placeholder, so WooCommerce's required check flags it.
         $cardOptions = ['' => __('Select your credit card:', 'wc-buckaroo-bpe-gateway')];
         foreach ($this->getCheckoutCardsList() as $issuer) {
-            $cardOptions[$issuer['servicename']] = __($issuer['displayname'], 'wc-buckaroo-bpe-gateway');
+            $cardOptions[$issuer['servicename']] = $issuer['displayname'];
         }
 
         woocommerce_form_field(

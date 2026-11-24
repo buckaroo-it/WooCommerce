@@ -605,12 +605,8 @@ msgstr "Description de remboursement"
 
 #: src/PaymentProcessors/Actions/RefundAction.php:124
 #, php-format
-msgid ""
-"Refund failed for transaction ID: %s \n"
-""
-msgstr ""
-"Le remboursement a échoué pour l'ID de transaction : %s \n"
-""
+msgid "Refund failed for transaction ID: %s"
+msgstr "Le remboursement a échoué pour l'ID de transaction : %s"
 
 #: src/PaymentProcessors/Actions/RefundAction.php:61
 msgid "Refunded"
@@ -989,13 +985,13 @@ msgstr "Aucune méthode de paiement n'a été configurée. Veuillez vérifier vo
 
 #: src/Services/AutoConfiguration.php:144
 #, php-format
-msgid "Successfully configured %d payment method(s): %s"
-msgstr "Configuration réussie de %d méthode(s) de paiement: %s"
+msgid "Successfully configured %1$d payment method(s): %2$s"
+msgstr "Configuration réussie de %1$d méthode(s) de paiement: %2$s"
 
 #: src/Services/AutoConfiguration.php:208
 #, php-format
-msgid "Failed to configure %s: %s"
-msgstr "Échec de configuration de %s: %s"
+msgid "Failed to configure %1$s: %2$s"
+msgstr "Échec de configuration de %1$s: %2$s"
 
 #: src/Admin/GeneralSettings.php:54
 msgid "General Settings"
@@ -2019,3 +2015,55 @@ msgstr ""
 #: src/Gateways/PaypalExpress/PaypalExpressOrder.php:75
 msgid "The order total does not match the amount approved in PayPal. The payment was not started."
 msgstr "Le total de la commande ne correspond pas au montant approuvé dans PayPal. Le paiement n'a pas été lancé."
+
+#: src/Gateways/Klarna/capture-form.php:267
+#: templates/capture-form.php:267
+msgid "Item"
+msgstr "Article"
+
+#: src/Gateways/Klarna/capture-form.php:270
+#: templates/capture-form.php:270
+msgid "Cost"
+msgstr "Coût"
+
+#: src/Gateways/Klarna/capture-form.php:273
+#: templates/capture-form.php:273
+msgid "Qty"
+msgstr "Qté"
+
+#: src/Gateways/Klarna/capture-form.php:276
+#: templates/capture-form.php:276
+msgid "Capture"
+msgstr "Capturer"
+
+#: src/Gateways/Klarna/capture-form.php:279
+#: templates/capture-form.php:279
+msgid "Total"
+msgstr "Total"
+
+#: src/Gateways/Klarna/capture-form.php:418
+#: templates/capture-form.php:418
+msgid "Refund"
+msgstr "Remboursement"
+
+#: src/Gateways/Klarna/capture-form.php:433
+#: templates/capture-form.php:433
+msgid "Restock refunded items"
+msgstr "Restocker les articles remboursés"
+
+#: src/Gateways/Klarna/capture-form.php:438
+#: templates/capture-form.php:438
+msgid "Reason for refund (optional):"
+msgstr "Motif du remboursement (facultatif) :"
+
+#: src/Admin/PaymentMethodSettings.php:145
+msgid "File"
+msgstr "Fichier"
+
+#: src/Admin/PaymentMethodSettings.php:146
+msgid "Database"
+msgstr "Base de données"
+
+#: src/Admin/ReportPage.php:225
+msgid "Back"
+msgstr "Retour"

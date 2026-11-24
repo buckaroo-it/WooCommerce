@@ -186,7 +186,7 @@ class ReturnProcessor
         }
 
         Logger::log('Update status: failed');
-        $order->update_status('failed', __($responseParser->getSubCodeMessage(), 'wc-buckaroo-bpe-gateway'));
+        $order->update_status('failed', $responseParser->getSubCodeMessage());
 
         if ($responseParser->isCanceled()) {
             Logger::log('Payment cancelled by customer - keeping status as failed to allow retry');
@@ -262,7 +262,7 @@ class ReturnProcessor
         $subCodeMessage = $responseParser->getSubCodeMessage();
         if ($subCodeMessage && strrpos($subCodeMessage, ': ') !== false) {
             $defaultMessage = str_replace(':', '', substr($subCodeMessage, strrpos($subCodeMessage, ': ')));
-            wc_add_notice(__($defaultMessage, 'wc-buckaroo-bpe-gateway'), 'error');
+            wc_add_notice($defaultMessage, 'error');
         }
     }
 

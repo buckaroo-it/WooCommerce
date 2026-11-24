@@ -50,8 +50,8 @@ class PayByBankGateway extends AbstractPaymentGateway
             'title' => __('Bank selection display', 'wc-buckaroo-bpe-gateway'),
             'type' => 'select',
             'options' => [
-                'radio' => __('Radio button'),
-                'dropdown' => __('Dropdown'),
+                'radio' => __('Radio button', 'wc-buckaroo-bpe-gateway'),
+                'dropdown' => __('Dropdown', 'wc-buckaroo-bpe-gateway'),
             ],
             'default' => 'radio',
         ];

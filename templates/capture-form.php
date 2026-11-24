@@ -264,19 +264,19 @@ if (count($items_to_capture)) {
     ?>
     <div class="bk-to-capture bk-to-capture-head">
         <div class="name">
-            <?php esc_html_e('Item', 'woocommerce'); ?>
+            <?php esc_html_e('Item', 'wc-buckaroo-bpe-gateway'); ?>
         </div>
         <div class="cost bk-auto m-h-15">
-            <?php esc_html_e('Cost', 'woocommerce'); ?>
+            <?php esc_html_e('Cost', 'wc-buckaroo-bpe-gateway'); ?>
         </div>
         <div class="qty-max bk-auto m-h-15">
-            <?php esc_html_e('Qty', 'woocommerce'); ?>
+            <?php esc_html_e('Qty', 'wc-buckaroo-bpe-gateway'); ?>
         </div>
         <div class="qty bk-auto m-h-15">
-            <?php esc_html_e('Capture', 'woocommerce'); ?>
+            <?php esc_html_e('Capture', 'wc-buckaroo-bpe-gateway'); ?>
         </div>
         <div class="amount bk-auto m-h-15" style="margin-right:0">
-            <?php esc_html_e('Total', 'woocommerce'); ?>
+            <?php esc_html_e('Total', 'wc-buckaroo-bpe-gateway'); ?>
         </div>
     </div>
 
@@ -388,7 +388,7 @@ if (isset($items_to_capture['fee'])) {
 }
 
 if (count($previous_captures)) {
-    echo esc_html__('Previous capture(s)', 'woocommerce');
+    echo esc_html__('Previous capture(s)', 'wc-buckaroo-bpe-gateway');
     ?>
     <ul>
         <?php
@@ -398,7 +398,8 @@ if (count($previous_captures)) {
                 <div class="name">
                     <?php
                     printf(
-                        esc_html__('Capture - #%s', 'woocommerce'),
+                        /* translators: %s: Capture ID. */
+                        esc_html__('Capture - #%s', 'wc-buckaroo-bpe-gateway'),
                         esc_attr($capture->get_id())
                     );
                     ?>
@@ -414,7 +415,7 @@ if (count($previous_captures)) {
                         ?>
                         <div class="bk-auto bk-refund-btn-wrap">
                             <button type="button" class="bk-btn-refund-form button">
-                                <?php echo __('Refund', 'woocommerce'); ?>
+                                <?php echo __('Refund', 'wc-buckaroo-bpe-gateway'); ?>
                             </button>
                         </div>
                         <?php
@@ -429,19 +430,19 @@ if (count($previous_captures)) {
                 <li class="bk-refund-form" style="display:none;">
                     <div class="bk-refund-left">
                         <label class="bk-refund-restock" for="bk-refund-restock<?php echo $capture->get_id(); ?>">
-                            <?php esc_html_e('Restock refunded items', 'woocommerce'); ?>:
+                            <?php esc_html_e('Restock refunded items', 'wc-buckaroo-bpe-gateway'); ?>:
                             <input type="checkbox" id="bk-refund-restock<?php echo $capture->get_id(); ?>"
                                     checked="checked">
                         </label>
                         <label class="bk-refund-reason" for="bk-refund-reason<?php echo $capture->get_id(); ?>">
-                            <?php esc_html_e('Reason for refund (optional):', 'woocommerce'); ?>
+                            <?php esc_html_e('Reason for refund (optional):', 'wc-buckaroo-bpe-gateway'); ?>
                             <input type="text" id="bk-refund-reason<?php echo $capture->get_id(); ?>"
                                     style="margin-left:5px;">
                         </label>
                         <div class="bk-auto bk-refund-button-wrap">
                             <button type="button" class="bk-btn-refund button button-primary"
                                     data-capture-id="<?php echo $capture->get_id(); ?>">
-                                <?php echo __('Refund', 'woocommerce'); ?>
+                                <?php echo __('Refund', 'wc-buckaroo-bpe-gateway'); ?>
                             </button>
                         </div>
                     </div>
@@ -459,7 +460,7 @@ if (count($items_to_capture)) {
     ?>
 
     <div class="bk-capture-action">
-        <?php esc_html_e('Total available to capture', 'woocommerce'); ?>:
+        <?php esc_html_e('Total available to capture', 'wc-buckaroo-bpe-gateway'); ?>:
         <input type="text" name="total" disabled id="bk-capture-total" style="text-align:right;">
         <p class="add-items">
             <button type="button" class="button button-primary capture-bk-items">Capture</button>

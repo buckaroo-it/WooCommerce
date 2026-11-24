@@ -93,6 +93,7 @@ class CaptureRecorder
 
                 $noteId = $order->add_order_note(
                     sprintf(
+                        /* translators: 1: Captured amount with currency, 2: Buckaroo capture transaction ID. */
                         __('Captured %1$s - Capture transaction ID: %2$s', 'wc-buckaroo-bpe-gateway'),
                         $captureAmount . ' ' . $currency,
                         $transactionKey
