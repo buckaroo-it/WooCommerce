@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Buckaroo\Woocommerce\Gateways\AbstractProcessor;
 use Buckaroo\Woocommerce\ResponseParser\ResponseRegistry;
+use Buckaroo\Woocommerce\Services\LoggerStorage;
 use Buckaroo\Woocommerce\Services\Request;
 
 class Test_RequestInputHandling extends WP_UnitTestCase
@@ -103,6 +104,13 @@ class Test_RequestInputHandling extends WP_UnitTestCase
         $_SERVER['REQUEST_METHOD'] = 'POST<script>';
 
         $this->assertSame('POST', Request::make()->method());
+    }
+
+    public function test_request_context_keeps_percent_encoded_path(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/product/caf%C3%A9/?x=1';
+
+        $this->assertSame('/product/caf%C3%A9/', LoggerStorage::request_context()['REQUEST_PATH']);
     }
 
     private function clientIp(): string

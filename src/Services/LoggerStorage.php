@@ -453,7 +453,7 @@ class LoggerStorage
         $context = [];
 
         if (isset($_SERVER['REQUEST_URI']) && is_string($_SERVER['REQUEST_URI'])) {
-            $context['REQUEST_PATH'] = strtok(sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])), '?');
+            $context['REQUEST_PATH'] = strtok(wp_strip_all_tags(wp_unslash($_SERVER['REQUEST_URI'])), '?');
         }
 
         foreach ($fields as $field) {
