@@ -1074,12 +1074,16 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             $order,
             $amount,
             $allocation,
-            $this->getCapturePayload($order, $amount),
+            $this->getCapturePayload($order, $amount, $allocation),
             $buckarooClient
         ))->process();
     }
 
-    protected function getCapturePayload(WC_Order $order, $amount): array
+    /**
+     * Capture request fields, merged over the processor body. The allocation
+     * holds the order lines, quantities and totals being captured.
+     */
+    protected function getCapturePayload(WC_Order $order, $amount, CaptureAllocation $allocation): array
     {
         return [
             'amountDebit' => number_format((float) $amount, 2, '.', ''),
