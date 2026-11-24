@@ -197,6 +197,9 @@ class MigrateOrderMetaToHpos implements Migration
         $values[] = $afterOrderId;
         $values[] = self::BATCH_SIZE;
 
+        // The conditions only hold placeholders built from the fixed key lists above; every
+        // value, including the cursor and limit, is passed to prepare() in $values.
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter
         return array_map(
             'intval',
             $wpdb->get_col(
@@ -210,6 +213,7 @@ class MigrateOrderMetaToHpos implements Migration
                 )
             )
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter
     }
 
     private static function copyOrder(int $orderId): void
@@ -299,6 +303,9 @@ class MigrateOrderMetaToHpos implements Migration
 
         array_unshift($values, $orderId);
 
+        // The conditions only hold placeholders built from the fixed key lists above; every
+        // value, including the order id, is passed to prepare() in $values.
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $rows = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT meta_key, meta_value FROM {$wpdb->postmeta}
@@ -308,6 +315,7 @@ class MigrateOrderMetaToHpos implements Migration
                 $values
             )
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
         $grouped = [];
 
