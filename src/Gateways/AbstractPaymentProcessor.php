@@ -223,7 +223,7 @@ class AbstractPaymentProcessor extends AbstractProcessor
         return $this->order_details->get_order();
     }
 
-    private function get_invoice_number(): string
+    protected function get_invoice_number(): string
     {
         return $this->get_order()->get_order_number();
     }
