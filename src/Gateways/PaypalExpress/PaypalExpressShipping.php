@@ -72,11 +72,14 @@ class PaypalExpressShipping
      */
     public function get_approved_contact(): array
     {
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Called from the PayPal Express AJAX handlers, which verify the nonce.
         if (! isset($_POST['paypal_contact']) || ! is_array($_POST['paypal_contact'])) {
             return [];
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized with wc_clean().
         $contact = wc_clean(wp_unslash($_POST['paypal_contact']));
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
         $field = static function (string $key) use ($contact): string {
             return isset($contact[$key]) && is_string($contact[$key]) ? trim($contact[$key]) : '';
         };
@@ -122,6 +125,7 @@ class PaypalExpressShipping
      */
     private function get_quoted_location(callable $field): ?array
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Called from the PayPal Express AJAX handlers, which verify the nonce.
         if (! isset($_POST['shipping_data']['shipping_address'])) {
             return null;
         }
@@ -165,6 +169,7 @@ class PaypalExpressShipping
      */
     public function with_cart_for_order(bool $product_page, callable $callback)
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Called from the PayPal Express AJAX handlers, which verify the nonce.
         $customer_location = isset($_POST['shipping_data']['shipping_address'])
             ? $this->get_customer_context()
             : [];
@@ -278,11 +283,16 @@ class PaypalExpressShipping
      */
     protected function get_address_data()
     {
-        if (! isset($_POST['shipping_data']) || ! isset($_POST['shipping_data']['shipping_address'])) {
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Called from the PayPal Express AJAX handlers, which verify the nonce.
+        if (! isset($_POST['shipping_data']['shipping_address']) || ! is_array($_POST['shipping_data']['shipping_address'])) {
             throw new PaypalExpressException('Shipping address is required');
         }
 
-        return wc_clean($_POST['shipping_data']['shipping_address']);
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized with wc_clean().
+        $address = wc_clean(wp_unslash($_POST['shipping_data']['shipping_address']));
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
+
+        return $address;
     }
 
     /**
@@ -292,11 +302,16 @@ class PaypalExpressShipping
      */
     protected function get_order_data()
     {
-        if (! isset($_POST['order_data']) || count($_POST['order_data']) === 0) {
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Called from the PayPal Express AJAX handlers, which verify the nonce.
+        if (! isset($_POST['order_data']) || ! is_array($_POST['order_data']) || count($_POST['order_data']) === 0) {
             throw new PaypalExpressException('Empty cart, cannot create order');
         }
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized with wc_clean().
+        $order_data = wc_clean(wp_unslash($_POST['order_data']));
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
+
         $request = [];
-        foreach (wc_clean($_POST['order_data']) as $data) {
+        foreach ($order_data as $data) {
             if (! isset($data['name']) || ! isset($data['value'])) {
                 throw new PaypalExpressException('Invalid data format');
             }

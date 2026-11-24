@@ -669,7 +669,8 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
 
     public function generate_buckaroo_notice_html($key, $data)
     {
-        if (! isset($_GET['section']) || $this->id !== sanitize_text_field($_GET['section']) || ! is_admin()) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only compares the settings section being viewed.
+        if (! isset($_GET['section']) || ! is_string($_GET['section']) || $this->id !== sanitize_text_field(wp_unslash($_GET['section'])) || ! is_admin()) {
             return;
         }
 
@@ -744,6 +745,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     public function response_handler()
     {
         $GLOBALS['plugin_id'] = $this->plugin_id . $this->id . '_settings';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- Buckaroo return, verified by its signature in ReturnProcessor.
         $result = (new ReturnProcessor(stripslashes_deep($_POST ?? $_GET)))->handle($this);
 
         if (! is_null($result)) {
@@ -829,14 +831,16 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
             // [9Yrds][2017-05-03][JW] WooCommerce 2.2 & 2.3 compatability
             $field = $this->plugin_id . $this->id . '_' . $key;
 
+            // phpcs:disable WordPress.Security.NonceVerification.Missing -- Saved through the WooCommerce settings form, which verifies its nonce.
             if (isset($_POST[$field])) {
-                $text = wp_kses_post(trim(stripslashes($_POST[$field])));
-                if (! is_float($text) && ! is_numeric($text)) {
+                $text = is_string($_POST[$field]) ? sanitize_text_field(wp_unslash($_POST[$field])) : '';
+                if (! is_numeric($text)) {
                     $this->errors[] = __('Please provide valid payment fee', 'wc-buckaroo-bpe-gateway');
 
                     return false;
                 }
             }
+            // phpcs:enable WordPress.Security.NonceVerification.Missing
         }
 
         return parent::validate_text_field($key, $text);
@@ -1216,12 +1220,15 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
     {
         $value = '';
         $post_data = [];
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Read during the WooCommerce checkout refresh, which verifies its own nonce.
         if (! empty($_POST['post_data']) && is_string($_POST['post_data'])) {
             parse_str(
-                $_POST['post_data'],
+                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Query string; the field read from it is sanitized below.
+                wp_unslash($_POST['post_data']),
                 $post_data
             );
         }
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
 
         if (isset($post_data[$key]) && is_scalar($post_data[$key])) {
             $value = $post_data[$key];

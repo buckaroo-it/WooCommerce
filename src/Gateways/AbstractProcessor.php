@@ -15,22 +15,22 @@ abstract class AbstractProcessor extends WC_Payment_Gateway
      */
     protected function getIp(): string
     {
-        if (! empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } elseif (! empty($_SERVER['HTTP_X_FORWARDED'])) {
-            $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
-        } elseif (! empty($_SERVER['HTTP_FORWARDED_FOR'])) {
-            $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
-        } elseif (! empty($_SERVER['HTTP_FORWARDED'])) {
-            $ipaddress = $_SERVER['HTTP_FORWARDED'];
-        } elseif (! empty($_SERVER['REMOTE_ADDR'])) {
-            $ipaddress = $_SERVER['REMOTE_ADDR'];
-        } else {
-            $ipaddress = 'UNKNOWN';
+        $ipaddress = 'UNKNOWN';
+        $headers = [
+            'HTTP_CLIENT_IP',
+            'HTTP_X_FORWARDED_FOR',
+            'HTTP_X_FORWARDED',
+            'HTTP_FORWARDED_FOR',
+            'HTTP_FORWARDED',
+            'REMOTE_ADDR',
+        ];
+        foreach ($headers as $header) {
+            if (! empty($_SERVER[$header]) && is_string($_SERVER[$header])) {
+                $ipaddress = sanitize_text_field(wp_unslash($_SERVER[$header]));
+                break;
+            }
         }
-        $ex = explode(',', sanitize_text_field($ipaddress));
+        $ex = explode(',', $ipaddress);
         if (filter_var($ex[0], FILTER_VALIDATE_IP)) {
             return trim($ex[0]);
         }

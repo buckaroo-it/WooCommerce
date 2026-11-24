@@ -91,7 +91,7 @@ class OrderActions
             );
         }
 
-        $orderId = (int) sanitize_text_field($_POST['order_id']);
+        $orderId = is_scalar($_POST['order_id']) ? (int) $_POST['order_id'] : 0;
         $order = $orderId > 0 ? wc_get_order($orderId) : false;
         if (! $order instanceof WC_Order) {
             wp_send_json(
@@ -189,12 +189,14 @@ class OrderActions
      */
     public function calculate_order_fees()
     {
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Only selects a registered payment method for the shopper's own session.
         if (isset($_POST['method']) && is_string($_POST['method'])) {
             $method = sanitize_text_field(wp_unslash($_POST['method']));
             if (array_key_exists($method, WC()->payment_gateways()->payment_gateways())) {
                 WC()->session->set('chosen_payment_method', $method);
             }
         }
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
 
         $cart = WC()->cart;
         $chosen_payment_method = WC()->session->chosen_payment_method;

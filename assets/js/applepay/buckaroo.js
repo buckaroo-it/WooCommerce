@@ -11,6 +11,7 @@ export default class Buckaroo {
                 url: '/?wc-api=WC_Gateway_Buckaroo_applepay-create-transaction',
                 method: 'post',
                 data: {
+                    security: buckaroo_global.applepay_nonce,
                     selected_shipping_method,
                     paymentData: payment_data,
                     amount: total_price,

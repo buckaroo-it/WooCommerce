@@ -11,6 +11,7 @@ class Request
 
     public function all(): array
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing -- Shared accessor; callers run behind the checkout nonce or verify their own.
         return array_merge($_GET, $_POST);
     }
 
@@ -27,20 +28,26 @@ class Request
 
     public function query($key = null, $default = null)
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Shared accessor; callers verify their own nonce.
+        $query = map_deep(wp_unslash($_GET), 'sanitize_text_field');
+
         if ($key === null) {
-            return $_GET;
+            return $query;
         }
 
-        return $_GET[$key] ?? $default;
+        return $query[$key] ?? $default;
     }
 
     public function post($key = null, $default = null)
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Shared accessor; callers verify their own nonce.
+        $post = map_deep(wp_unslash($_POST), 'sanitize_text_field');
+
         if ($key === null) {
-            return $_POST;
+            return $post;
         }
 
-        return $_POST[$key] ?? $default;
+        return $post[$key] ?? $default;
     }
 
     public function only($keys)
@@ -91,7 +98,11 @@ class Request
 
     public function method()
     {
-        return $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        if (! isset($_SERVER['REQUEST_METHOD']) || ! is_string($_SERVER['REQUEST_METHOD'])) {
+            return 'GET';
+        }
+
+        return sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD']));
     }
 
     public function getContent()

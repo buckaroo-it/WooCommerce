@@ -601,6 +601,8 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
         $_POST = ['amount' => '14.00', 'selected_shipping_method' => '',
             'paymentData' => ['billingContact' => $address, 'shippingContact' => $address],
             'items' => [['type' => 'product', 'id' => $productId, 'quantity' => 1]]];
+        $requestBefore = $_REQUEST;
+        $_REQUEST['security'] = wp_create_nonce(GooglepayGateway::CREATE_TRANSACTION_NONCE);
         try {
             try {
                 $gateway->createTransaction();
@@ -613,6 +615,7 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
             $this->assertSame(0, (new WC_Coupon($coupon->get_id()))->get_usage_count());
         } finally {
             $_POST = $before;
+            $_REQUEST = $requestBefore;
             $coupon->delete(true);
         }
     }

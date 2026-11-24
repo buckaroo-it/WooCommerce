@@ -25,15 +25,17 @@ class TestCredentials
 
         check_ajax_referer('buckaroo_admin_ajax', 'security');
 
-        $storeKey = $_POST['website_key'] ?? '';
-        $secretKey = $_POST['secret_key'] ?? '';
-        if (! is_string($storeKey) || ! is_string($secretKey)) {
+        if (! is_string($_POST['website_key'] ?? '') || ! is_string($_POST['secret_key'] ?? '')) {
             wp_die(esc_html__('Credentials are incorrect', 'wc-buckaroo-bpe-gateway'));
         }
 
+        // Keys are sent to Buckaroo exactly as entered; only surrounding whitespace is removed.
+        // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $storeKey = isset($_POST['website_key']) ? trim(wp_unslash($_POST['website_key'])) : '';
+        $secretKey = isset($_POST['secret_key']) ? trim(wp_unslash($_POST['secret_key'])) : '';
+        // phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
         $settings = get_option('woocommerce_buckaroo_mastersettings_settings', []);
-        $storeKey = trim(wp_unslash($storeKey));
-        $secretKey = trim(wp_unslash($secretKey));
         $storeKey = $storeKey === '' ? ($settings['merchantkey'] ?? '') : $storeKey;
         $secretKey = $secretKey === '' ? ($settings['secretkey'] ?? '') : $secretKey;
         if ($storeKey === '' || $secretKey === '') {

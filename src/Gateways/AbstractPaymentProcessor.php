@@ -71,6 +71,7 @@ class AbstractPaymentProcessor extends AbstractProcessor
             $this->getMethodBody(),
         );
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Logs field names only; runs after the checkout request was verified.
         Logger::log(__METHOD__ . '|1|', ['request_fields' => array_keys($_POST), 'body' => $body]);
 
         return $body;
