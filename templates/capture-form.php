@@ -1,4 +1,7 @@
 <?php
+
+defined('ABSPATH') || exit;
+
 $previous_captures = $this->get_previous_captures();
 $items_to_capture = $this->get_available_to_capture_by_type($this);
 $refunded_capture_ids = $this->get_refunded_captures($order->get_id());

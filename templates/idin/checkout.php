@@ -1,5 +1,7 @@
 <?php
 
+defined('ABSPATH') || exit;
+
 if (\Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor::checkCurrentUserIsVerified()) {
     ?>
     <div id="buckaroo_idin" class="buckaroo-idin buckaroo-idin-passed form-row">

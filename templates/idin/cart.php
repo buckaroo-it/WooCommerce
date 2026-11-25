@@ -1,3 +1,7 @@
+<?php
+
+defined('ABSPATH') || exit;
+?>
 <div id="buckaroo_idin_cart" class="buckaroo-idin-cart form-row">
     <fieldset>
         <div>

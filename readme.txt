@@ -143,7 +143,7 @@ Technical questions about the plugin: [support@buckaroo.nl](mailto:support@bucka
 == Upgrade Notice ==
 
 = 4.11.0 =
-Payment fees can now combine a fixed amount and a percentage, Klarna (MoR) authorized orders move to "Processing" instead of "On hold" and support currencies other than EUR, and the express payment settings have been standardised. Includes security fixes for payment replies, pushes and the plugin log, and support for WooCommerce 11.2.0.
+Payment fees can combine a fixed amount and a percentage, Klarna (MoR) authorized orders move to Processing and support currencies other than EUR, and the express payment settings are standardised. Includes fixes for payment replies, pushes and the plugin log, and WooCommerce 11.2.0 support.
 
 = 4.10.2 =
 Update to use PHP SDK v1.24.5 for the plugin (latest)
