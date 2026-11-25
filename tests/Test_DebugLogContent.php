@@ -119,7 +119,26 @@ class Test_DebugLogContent extends WP_UnitTestCase
 
         $log = $this->assertLogClean();
         $this->assertStringContainsString('TRX-REFERENCE', $log);
-        $this->assertStringContainsString("'190'", $log);
+        $this->assertStringContainsString('"brq_statuscode": "190"', $log);
+    }
+
+    public function test_text_in_another_encoding_is_kept_in_the_log(): void
+    {
+        Logger::log('test|encoding|', ['description' => "Caf\xE9 mug", 'country' => 'NL']);
+
+        $log = $this->assertLogClean();
+        $this->assertStringContainsString('"description": "Caf', $log);
+        $this->assertStringContainsString('mug"', $log);
+        $this->assertStringNotContainsString('"description": null', $log);
+        $this->assertStringContainsString('"country": "NL"', $log);
+    }
+
+    public function test_values_json_cannot_hold_do_not_drop_the_log_entry(): void
+    {
+        Logger::log('test|float|', ['amount' => INF, 'invoice' => 'INV-KEPT']);
+
+        $log = $this->assertLogClean();
+        $this->assertStringContainsString('"invoice": "INV-KEPT"', $log);
     }
 
     public function test_wallet_payment_data_is_not_logged(): void
@@ -145,9 +164,9 @@ class Test_DebugLogContent extends WP_UnitTestCase
 
         $this->assertSame(base64_encode('WALLET-TOKEN-FIXTURE'), $body['paymentData'], 'The request itself is unchanged');
         $log = $this->assertLogClean();
-        $this->assertStringContainsString("'request_fields'", $log);
-        $this->assertStringContainsString("'paymentData'", $log);
-        $this->assertStringContainsString("'amountDebit' => '15.00'", $log);
+        $this->assertStringContainsString('"request_fields"', $log);
+        $this->assertStringContainsString('"paymentData"', $log);
+        $this->assertStringContainsString('"amountDebit": "15.00"', $log);
     }
 
     public function test_hosted_fields_session_is_sent_but_not_logged_or_stored(): void
@@ -239,7 +258,7 @@ class Test_DebugLogContent extends WP_UnitTestCase
         Logger::log('Payment started for jane.fixture@example.test');
 
         $log = $this->assertLogClean();
-        foreach (['INV-KEPT', '12.34', 'SKU-KEPT', '9.99', "'countryCode' => 'NL'"] as $kept) {
+        foreach (['INV-KEPT', '12.34', 'SKU-KEPT', '9.99', '"countryCode": "NL"'] as $kept) {
             $this->assertStringContainsString($kept, $log);
         }
     }
@@ -308,7 +327,7 @@ class Test_DebugLogContent extends WP_UnitTestCase
 
         $this->assertTrue(IdinProcessor::checkCurrentUserIsVerified());
         $log = $this->assertLogClean();
-        $this->assertStringContainsString("'is_eighteen_or_older' => 1", $log);
+        $this->assertStringContainsString('"is_eighteen_or_older": 1', $log);
         $this->assertStringContainsString('brq_service_idin_consumerbin', $log);
     }
 
@@ -365,7 +384,7 @@ class Test_DebugLogContent extends WP_UnitTestCase
         Logger::log('test|context|', LoggerStorage::request_context());
 
         $log = $this->assertLogClean();
-        $this->assertStringContainsString("'REQUEST_METHOD' => 'POST'", $log);
+        $this->assertStringContainsString('"REQUEST_METHOD": "POST"', $log);
     }
 
     private function processorArgs($gateway): array

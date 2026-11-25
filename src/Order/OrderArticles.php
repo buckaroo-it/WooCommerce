@@ -23,6 +23,12 @@ use DOMXPath;
  */
 class OrderArticles
 {
+    /** Bytes read from a remote product image to get its type and size */
+    private const IMAGE_HEADER_BYTES = 65536;
+
+    /** Bytes read at most when a JPEG's size comes after its first bytes */
+    private const IMAGE_MAX_BYTES = 5242880;
+
     /**
      * @var OrderDetails
      */
@@ -249,10 +255,11 @@ class OrderArticles
     }
 
     /**
-     * Wrap getimagesize() so a slow/unreachable remote image cannot block the
-     * checkout request. PHP's default_socket_timeout (often 60s) would otherwise
-     * be applied per call, multiplied by the number of items in the cart, which
-     * is what used to make Riverty/Afterpay checkout hang indefinitely.
+     * Read the size of a product image without letting a slow or unreachable
+     * remote image block the checkout request: remote images are fetched with
+     * a short timeout, as the check runs once per item in the cart. Only their
+     * first bytes are read, which usually hold the image type and size; a
+     * JPEG is read further when its metadata pushes the size past those bytes.
      *
      * @param  string  $src
      * @return array|false
@@ -265,32 +272,37 @@ class OrderArticles
             return @getimagesize($src);
         }
 
-        $previousSocketTimeout = ini_set('default_socket_timeout', '3');
-        $previousDefaultOptions = stream_context_get_options(stream_context_get_default());
+        $body = $this->fetch_remote_image($src, self::IMAGE_HEADER_BYTES);
+        $size = $body === '' ? false : @getimagesizefromstring($body);
 
-        stream_context_set_default([
-            'http' => [
-                'timeout' => 3,
-                'follow_location' => 1,
-                'ignore_errors' => true,
-            ],
-            'https' => [
-                'timeout' => 3,
-                'follow_location' => 1,
-                'ignore_errors' => true,
-            ],
+        if ($size === false && strlen($body) >= self::IMAGE_HEADER_BYTES && strpos($body, "\xFF\xD8\xFF") === 0) {
+            $body = $this->fetch_remote_image($src, self::IMAGE_MAX_BYTES);
+            $size = $body === '' ? false : @getimagesizefromstring($body);
+        }
+
+        return $size;
+    }
+
+    /**
+     * Body of a remote image, or an empty string when it cannot be fetched
+     * or the server does not answer with a successful response
+     *
+     * @param  int  $maxBytes  Bytes to read at most
+     */
+    private function fetch_remote_image(string $src, int $maxBytes): string
+    {
+        $response = wp_remote_get($src, [
+            'timeout' => 3,
+            'limit_response_size' => $maxBytes,
         ]);
 
-        try {
-            return @getimagesize($src);
-        } catch (\Throwable $e) {
-            return false;
-        } finally {
-            if ($previousSocketTimeout !== false) {
-                ini_set('default_socket_timeout', $previousSocketTimeout);
-            }
-            stream_context_set_default(is_array($previousDefaultOptions) ? $previousDefaultOptions : []);
+        if (is_wp_error($response)) {
+            return '';
         }
+
+        $code = (int) wp_remote_retrieve_response_code($response);
+
+        return $code >= 200 && $code < 300 ? (string) wp_remote_retrieve_body($response) : '';
     }
 
     /**

@@ -74,6 +74,20 @@ class Test_BillinkProcessor extends TestCase
         $this->assertSame(['birthDate' => '21-04-1990'], $this->birthDate($processor));
     }
 
+    public function test_birth_date_keeps_its_day_when_the_php_timezone_is_changed()
+    {
+        $processor = $this->processorForMeta(['billing_birthdate' => '1990-05-10']);
+        $timezone = date_default_timezone_get();
+        // phpcs:ignore WordPress.DateTime.RestrictedFunctions.timezone_change_date_default_timezone_set -- simulates another plugin changing it
+        date_default_timezone_set('Europe/Amsterdam');
+
+        try {
+            $this->assertSame(['birthDate' => '10-05-1990'], $this->birthDate($processor));
+        } finally {
+            date_default_timezone_set($timezone);
+        }
+    }
+
     public function test_birth_date_is_omitted_when_not_available()
     {
         $processor = $this->processorForMeta([]);

@@ -505,7 +505,7 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         }
 
         $feeText = $parts ? ' (+ ' . implode(' + ', $parts) . ')' : '';
-        $this->title = strip_tags($this->get_option('title', $this->title ?? '') . $feeText);
+        $this->title = wp_strip_all_tags($this->get_option('title', $this->title ?? '') . $feeText);
     }
 
     /**

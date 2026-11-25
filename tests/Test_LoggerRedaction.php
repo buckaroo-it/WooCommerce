@@ -119,8 +119,8 @@ class Test_LoggerRedaction extends WP_UnitTestCase
         }
 
         $log = $this->get_logged_text();
-        $this->assertStringContainsString("'REQUEST_PATH' => '/checkout/'", $log);
-        $this->assertStringContainsString("'REQUEST_METHOD' => 'GET'", $log);
+        $this->assertStringContainsString('"REQUEST_PATH": "/checkout/"', $log);
+        $this->assertStringContainsString('"REQUEST_METHOD": "GET"', $log);
         foreach (['IBAN-FIXTURE', 'wc_order_fixture', 'header-fixture', 'cookie-fixture', 'db-pass-fixture', 'db-url-fixture'] as $fixture) {
             $this->assertStringNotContainsString($fixture, $log);
         }

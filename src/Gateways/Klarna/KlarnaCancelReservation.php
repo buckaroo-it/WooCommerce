@@ -66,7 +66,7 @@ class KlarnaCancelReservation
         if (isset($gateway)) {
             $gateway->cancel_reservation($order);
         }
-        wp_redirect(
+        wp_safe_redirect(
             admin_url("post.php?post={$order->get_id()}&action=edit")
         );
     }

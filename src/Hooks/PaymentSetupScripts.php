@@ -67,12 +67,6 @@ class PaymentSetupScripts
         $domain = 'wc-buckaroo-bpe-gateway';
         $locale = determine_locale();
 
-        load_plugin_textdomain(
-            'wc-buckaroo-bpe-gateway',
-            false,
-            dirname(plugin_basename(BK_PLUGIN_FILE)) . '/languages/'
-        );
-
         // Load installed translations first; bundled translations fill missing entries.
         get_translations_for_domain($domain);
         load_textdomain($domain, dirname(BK_PLUGIN_FILE) . '/languages/' . $domain . '-' . basename($locale) . '.mo', $locale);
@@ -202,7 +196,8 @@ class PaymentSetupScripts
             'buckaroo_sdk',
             $this->getBuckarooSdkUrl(),
             ['jquery'],
-            Plugin::VERSION
+            Plugin::VERSION,
+            false
         );
 
         if ($applePayEnabled) {
@@ -220,7 +215,7 @@ class PaymentSetupScripts
                 'apple_pay_sdk',
                 self::APPLE_PAY_SDK_URL,
                 [],
-                null,
+                null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- the version is part of the CDN path and the file is pinned by its integrity hash
                 false
             );
 

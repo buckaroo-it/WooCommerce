@@ -150,8 +150,8 @@ class MigrationHandler
             if (! is_dir($file) && is_readable($file)) {
                 $dest = WP_CONTENT_DIR . '/languages/plugins/';
 
-                if (! file_exists($dest) && ! is_dir($dest)) {
-                    mkdir($dest, 0755, true);
+                if (! is_dir($dest)) {
+                    wp_mkdir_p($dest);
                 }
                 copy($file, $dest . basename($file));
             }

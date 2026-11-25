@@ -51,7 +51,7 @@ class PayPerEmailProcessor extends AbstractPaymentProcessor
             return '';
         }
 
-        return date('Y-m-d', time() + (int) $payperemailExpireDays * 86400);
+        return gmdate('Y-m-d', time() + (int) $payperemailExpireDays * 86400);
     }
 
     private function getAllowedMethods(): string
