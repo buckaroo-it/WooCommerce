@@ -180,7 +180,8 @@ class BillinkProcessor extends AbstractPaymentProcessor
             return [];
         }
 
-        return ['birthDate' => date('d-m-Y', $timestamp)];
+        // Formatted in the timezone strtotime() read the date in, so the day stays the same.
+        return ['birthDate' => wp_date('d-m-Y', $timestamp, new \DateTimeZone(date_default_timezone_get()))];
     }
 
     /**

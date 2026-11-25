@@ -391,8 +391,9 @@ class PushProcessor
 
         $original_precision = ini_get('serialize_precision');
 
+        // The SDK re-encodes the push data; floats must keep their exact value.
         if ($original_precision != -1) {
-            ini_set('serialize_precision', -1);
+            ini_set('serialize_precision', -1); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- no WordPress API for this setting
         }
 
         $responseParser = ResponseRegistry::getResponseFromRequest();
@@ -425,7 +426,7 @@ class PushProcessor
             )
         ) {
             if ($original_precision != -1) {
-                ini_set('serialize_precision', $original_precision);
+                ini_set('serialize_precision', $original_precision); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- restores the setting changed above
             }
 
             if (! $responseParser->hasValidTransactionKeys()) {

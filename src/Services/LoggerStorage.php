@@ -189,7 +189,8 @@ class LoggerStorage
         header('Content-Disposition: attachment; filename="' . basename($file) . '"');
         header('X-Content-Type-Options: nosniff');
 
-        readfile($file);
+        // Streamed, so large log files are not loaded into memory at once.
+        readfile($file); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- streams a plain-text file download
     }
 
     /**
@@ -210,7 +211,7 @@ class LoggerStorage
         $storage = static::getStorage();
         $method = $this->get_method_name($storage);
 
-        $date = date('Y-m-d H:i:s');
+        $date = gmdate('Y-m-d H:i:s');
 
         if (method_exists($this, $method)) {
             $this->{$method}(
@@ -487,7 +488,15 @@ class LoggerStorage
     protected function format_message($message)
     {
         if (is_object($message) || is_array($message)) {
-            return var_export($message, true);
+            $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+            $encoded = wp_json_encode($message, $flags);
+
+            if (! is_string($encoded)) {
+                // Values JSON cannot hold (such as INF) are left out instead of the whole entry.
+                $encoded = wp_json_encode($message, $flags | JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
+            }
+
+            return is_string($encoded) ? $encoded : '';
         }
 
         return $message;
@@ -578,9 +587,9 @@ class LoggerStorage
             return;
         }
 
-        $file = $directory . date(self::LOG_FILE_DATE_FORMAT) . '.log';
+        $file = $directory . gmdate(self::LOG_FILE_DATE_FORMAT) . '.log';
 
-        if (file_exists($file) && ! is_writable($file)) {
+        if (file_exists($file) && ! wp_is_writable($file)) {
             self::report_file_write_failure();
 
             return;
@@ -640,7 +649,7 @@ class LoggerStorage
             return false;
         }
 
-        if (! is_writable($directory)) {
+        if (! wp_is_writable($directory)) {
             return false;
         }
 

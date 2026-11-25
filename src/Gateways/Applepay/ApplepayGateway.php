@@ -519,19 +519,28 @@ class ApplepayGateway extends AbstractPaymentGateway
          * Creates the necessary directories and copies the association file if it doesn't exist.
          */
         if (! file_exists($destinationFile)) {
-            if (! is_dir($destinationDir)) {
-                if (! mkdir($destinationDir, 0775, true) && ! is_dir($destinationDir)) {
-                    // Handle the error appropriately, e.g., log it or throw an exception
-                    error_log("Failed to create directory: {$destinationDir}");
+            if (! wp_mkdir_p($destinationDir)) {
+                $this->reportDomainFileFailure("Failed to create directory: {$destinationDir}");
 
-                    return;
-                }
+                return;
             }
 
             if (! copy($sourceFile, $destinationFile)) {
-                // Handle the error appropriately, e.g., log it or throw an exception
-                error_log("Failed to copy {$sourceFile} to {$destinationFile}");
+                $this->reportDomainFileFailure("Failed to copy {$sourceFile} to {$destinationFile}");
             }
+        }
+    }
+
+    /**
+     * Report that the Apple Pay domain association file could not be set up,
+     * in the WooCommerce log as well as the Buckaroo debug log
+     */
+    private function reportDomainFileFailure(string $message): void
+    {
+        Logger::log(__METHOD__, $message);
+
+        if (function_exists('wc_get_logger')) {
+            wc_get_logger()->error($message, ['source' => 'buckaroo']);
         }
     }
 }

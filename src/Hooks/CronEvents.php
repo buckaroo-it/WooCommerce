@@ -95,7 +95,7 @@ class CronEvents
 
         foreach (LoggerStorage::get_log_files() as $fileName => $date) {
             if ($date < $staleDate) {
-                unlink($directory . $fileName);
+                wp_delete_file($directory . $fileName);
             }
         }
     }
