@@ -162,6 +162,18 @@ Adds support for High-Performance Order Storage. Existing orders are updated aut
 
 For release notes of earlier versions, see the [releases on GitHub](https://github.com/buckaroo-it/WooCommerce/releases).
 
+= 4.11.1 =
+
+Improvements & new features
+
+BTI-2155 Support for WooCommerce 11.3.1
+
+Bug fixes
+
+BTI-2155 Payment methods enabled from WooCommerce > Settings > Payments showed "Limited compatibility" until the page was reloaded
+BTI-2155 Paying by card in the block checkout logged a PHP warning
+BTI-2155 Activating the plugin logged a notice that WooCommerce translations were loaded too early
+
 = 4.11.0 =
 
 Improvements & new features
