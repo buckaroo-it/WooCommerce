@@ -12,6 +12,7 @@ class IdinController
 {
     public function returnHandler()
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Buckaroo return; logs field names only.
         Logger::log(__METHOD__ . '|1|', ['request_fields' => array_keys($_POST)]);
 
         $responseParser = ResponseRegistry::getResponseFromRequest();
@@ -38,9 +39,15 @@ class IdinController
             }
         }
 
-        if (! empty($_REQUEST['bk_redirect']) && is_string($_REQUEST['bk_redirect'])) {
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Buckaroo return; the target is limited to allowed hosts by wp_safe_redirect().
+        $hasRedirect = ! empty($_REQUEST['bk_redirect']) && is_string($_REQUEST['bk_redirect']);
+        $redirect = $hasRedirect ? esc_url_raw(wp_unslash($_REQUEST['bk_redirect'])) : '';
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+        if ($hasRedirect) {
             Logger::log(__METHOD__ . '|15|');
-            wp_safe_redirect($_REQUEST['bk_redirect']);
+            // An address esc_url_raw() rejects goes to the same fallback wp_safe_redirect() uses.
+            wp_safe_redirect($redirect !== '' ? $redirect : admin_url());
             exit;
         }
     }
@@ -62,10 +69,12 @@ class IdinController
             $this->sendError(esc_html__('iDIN is disabled', 'wc-buckaroo-bpe-gateway'));
         }
 
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Nonce verified above by hasValidNonce().
         if (! is_string($_GET['issuer'] ?? null)) {
             $this->sendError(esc_html__('Please select a issuer from the list', 'wc-buckaroo-bpe-gateway'));
         }
-        $issuer = sanitize_text_field($_GET['issuer']);
+        $issuer = sanitize_text_field(wp_unslash($_GET['issuer']));
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
         if (! IdinProcessor::checkIfValidIssuer($issuer)) {
             $this->sendError(esc_html__('Please select a issuer from the list', 'wc-buckaroo-bpe-gateway'));
@@ -97,9 +106,11 @@ class IdinController
 
     private function hasValidNonce(): bool
     {
-        $nonce = $_REQUEST['_wpnonce'] ?? null;
+        if (! isset($_REQUEST['_wpnonce']) || ! is_string($_REQUEST['_wpnonce'])) {
+            return false;
+        }
 
-        return is_string($nonce) && wp_verify_nonce(sanitize_text_field(wp_unslash($nonce)), IdinProcessor::NONCE_ACTION);
+        return (bool) wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), IdinProcessor::NONCE_ACTION);
     }
 
     public function reset()

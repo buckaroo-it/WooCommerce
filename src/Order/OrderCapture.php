@@ -163,11 +163,14 @@ class OrderCapture
      */
     private function sanitize_json($key)
     {
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Read in the capture request, verified in OrderActions::handleOrderCapture(), and on the order screen.
         if (! isset($_POST[$key]) || ! is_string($_POST[$key])) {
             return [];
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON; the decoded values are sanitized below.
         $result = json_decode(wp_unslash($_POST[$key]), true);
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
         if (! is_array($result)) {
             return [];
         }

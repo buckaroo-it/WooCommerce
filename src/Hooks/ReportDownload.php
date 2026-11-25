@@ -71,6 +71,7 @@ class ReportDownload
             return new WP_Error('invalid_nonce', __('The link has expired. Please reload the page and try again.', 'wc-buckaroo-bpe-gateway'), 403);
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Must match the log file pattern below.
         $fileName = isset($_GET[self::FILE_PARAMETER]) && is_string($_GET[self::FILE_PARAMETER]) ? wp_unslash($_GET[self::FILE_PARAMETER]) : '';
 
         if (LoggerStorage::get_log_file_date($fileName) === null) {

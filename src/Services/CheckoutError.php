@@ -50,16 +50,16 @@ class CheckoutError
      */
     public static function messageFromRequest(): string
     {
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Only selects one of the fixed messages to display.
         if (! isset($_GET[self::QUERY_ARG])) {
             return '';
         }
 
-        $value = $_GET[self::QUERY_ARG];
-        if (is_string($value)) {
-            $value = wp_unslash($value);
-            if ($value === '') {
-                return '';
-            }
+        // Anything other than a known code string shows the generic message.
+        $value = is_string($_GET[self::QUERY_ARG]) ? sanitize_text_field(wp_unslash($_GET[self::QUERY_ARG])) : null;
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
+        if ($value === '') {
+            return '';
         }
 
         return self::messageFor($value);

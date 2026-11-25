@@ -20,6 +20,8 @@ class ApplepayGateway extends AbstractPaymentGateway
     use ExpressAvailability;
     use ExpressSettings;
 
+    public const CREATE_TRANSACTION_NONCE = 'buckaroo_applepay_create_transaction';
+
     public const PAYMENT_CLASS = ApplepayProcessor::class;
 
     protected const REQUIRED_CREDENTIALS = ['merchant_guid' => 'always'];
@@ -71,6 +73,10 @@ class ApplepayGateway extends AbstractPaymentGateway
 
     public function createTransaction()
     {
+        if (! check_ajax_referer(self::CREATE_TRANSACTION_NONCE, 'security', false)) {
+            $this->error_response(__('Your session has expired. Please reload the page and try again.', 'wc-buckaroo-bpe-gateway'));
+        }
+
         Logger::log(__METHOD__ . '|1|', ['request_fields' => array_keys($_POST)]);
 
         $this->paymentData = $this->request->input('paymentData');

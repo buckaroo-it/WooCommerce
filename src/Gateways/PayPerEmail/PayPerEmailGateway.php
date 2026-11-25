@@ -415,6 +415,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway
         add_action(
             'wp_ajax_buckaroo_send_admin_payperemail',
             function () {
+                // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The nonce and capability are verified on the next line.
                 $orderId = absint($_GET['order_id'] ?? 0);
                 $this->verifyAdminOrderActionRequest($orderId);
                 $order = wc_get_order($orderId);
@@ -435,6 +436,7 @@ class PayPerEmailGateway extends AbstractPaymentGateway
         add_action(
             'wp_ajax_buckaroo_create_paylink',
             function () {
+                // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- The nonce and capability are verified on the next line.
                 $orderId = absint($_GET['order_id'] ?? 0);
                 $this->verifyAdminOrderActionRequest($orderId);
                 $order = wc_get_order($orderId);

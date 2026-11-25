@@ -19,6 +19,8 @@ class GooglepayGateway extends AbstractPaymentGateway
     use ExpressAvailability;
     use ExpressSettings;
 
+    public const CREATE_TRANSACTION_NONCE = 'buckaroo_googlepay_create_transaction';
+
     public const PAYMENT_CLASS = GooglepayProcessor::class;
 
     protected const REQUIRED_CREDENTIALS = ['merchant_guid' => 'always', 'google_merchant_id' => 'live'];
@@ -68,6 +70,10 @@ class GooglepayGateway extends AbstractPaymentGateway
 
     public function createTransaction()
     {
+        if (! check_ajax_referer(self::CREATE_TRANSACTION_NONCE, 'security', false)) {
+            $this->error_response(__('Your session has expired. Please reload the page and try again.', 'wc-buckaroo-bpe-gateway'));
+        }
+
         Logger::log(__METHOD__ . '|1|', ['request_fields' => array_keys($_POST)]);
 
         $this->paymentData = $this->request->input('paymentData');

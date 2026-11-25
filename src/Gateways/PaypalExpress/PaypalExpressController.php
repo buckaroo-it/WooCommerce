@@ -308,7 +308,10 @@ class PaypalExpressController
     public function send_order()
     {
         check_ajax_referer('express-send_order', 'send_order_nonce');
-        if (! isset($_POST['orderId'])) {
+        $paypal_order_id = isset($_POST['orderId']) && is_string($_POST['orderId'])
+            ? sanitize_text_field(wp_unslash($_POST['orderId']))
+            : '';
+        if ($paypal_order_id === '') {
             wp_send_json(
                 [
                     'error' => true,
@@ -323,14 +326,14 @@ class PaypalExpressController
             $this->consume_quote();
             $result = $this->shipping->with_cart_for_order(
                 $this->on_product_page(),
-                function ($cart) use ($quote) {
+                function ($cart) use ($quote, $paypal_order_id) {
                     $order_total = number_format((float) $cart->get_total(false), 2, '.', '');
                     if (! hash_equals($quote['total'], $order_total)) {
                         throw new PaypalExpressException('PayPal quote total has changed');
                     }
                     $shipping_rate = $this->selected_shipping_rate($cart);
                     $response = $this->order->create_and_send(
-                        sanitize_text_field(wp_unslash($_POST['orderId'])),
+                        $paypal_order_id,
                         $shipping_rate,
                         $quote['total'],
                         $this->shipping->get_approved_contact()
@@ -389,6 +392,7 @@ class PaypalExpressController
             return null;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Called from send_order(), which verifies the nonce.
         if (! isset($_POST['shipping_data']['shipping_address'])) {
             throw new PaypalExpressException(
                 esc_html__('A shipping address is required to pay with PayPal.', 'wc-buckaroo-bpe-gateway')
@@ -447,10 +451,7 @@ class PaypalExpressController
      */
     private function validated_quote(): array
     {
-        if (! isset($_POST['quote_token']) || ! is_string($_POST['quote_token'])) {
-            throw new PaypalExpressException('PayPal quote is required');
-        }
-        $token = sanitize_text_field(wp_unslash($_POST['quote_token']));
+        $token = $this->get_quote_token();
         $parts = explode('.', $token, 2);
         if (
             count($parts) !== 2
@@ -470,6 +471,7 @@ class PaypalExpressController
         }
 
         $product_request = $this->on_product_page() ? $this->shipping->get_product_request() : null;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Called from send_order(), which verifies the nonce.
         $customer_location = isset($_POST['shipping_data']['shipping_address'])
             ? $this->shipping->get_customer_context()
             : [];
@@ -497,7 +499,7 @@ class PaypalExpressController
      */
     private function consume_quote(): void
     {
-        $token = sanitize_text_field(wp_unslash($_POST['quote_token']));
+        $token = $this->get_quote_token();
         $quote_hash = hash('sha256', $token);
         $transient = 'buckaroo_paypal_express_quote_' . $quote_hash;
         $value_option = '_transient_' . $transient;
@@ -515,13 +517,31 @@ class PaypalExpressController
     }
 
     /**
+     * The signed quote token sent with the order request.
+     *
+     * @return string
+     *
+     * @throws PaypalExpressException When no quote token was sent.
+     */
+    private function get_quote_token(): string
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Called from send_order(), which verifies the nonce.
+        $token = isset($_POST['quote_token']) && is_string($_POST['quote_token']) ? sanitize_text_field(wp_unslash($_POST['quote_token'])) : '';
+        if ($token === '') {
+            throw new PaypalExpressException('PayPal quote is required');
+        }
+
+        return $token;
+    }
+
+    /**
      * Get a supported non-product PayPal button location.
      *
      * @return string
      */
     private function get_request_page(): string
     {
-        $page = isset($_POST['page']) ? sanitize_text_field(wp_unslash($_POST['page'])) : '';
+        $page = $this->get_posted_page();
 
         return in_array($page, [self::LOCATION_CART, self::LOCATION_CHECKOUT], true)
             ? $page
@@ -565,8 +585,18 @@ class PaypalExpressController
      */
     protected function on_product_page()
     {
-        return isset($_POST['page'])
-            && sanitize_text_field(wp_unslash($_POST['page'])) === self::LOCATION_PRODUCT;
+        return $this->get_posted_page() === self::LOCATION_PRODUCT;
+    }
+
+    /**
+     * The button location sent with the express request.
+     *
+     * @return string
+     */
+    private function get_posted_page(): string
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Called from the express AJAX handlers, which verify the nonce.
+        return isset($_POST['page']) && is_string($_POST['page']) ? sanitize_text_field(wp_unslash($_POST['page'])) : '';
     }
 
     /**
