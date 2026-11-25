@@ -22,7 +22,20 @@ class CronEvents
             'buckaroo_clean_logger_storage',
             [$this, 'clean_logger_storage']
         );
+        add_action('init', [$this, 'schedule']);
+    }
 
+    /**
+     * Schedule the daily log cleanup.
+     *
+     * Runs on init: scheduling reads the cron schedules, which WooCommerce
+     * labels with translated strings, and WordPress reports translations
+     * loaded before init as loaded too early.
+     *
+     * @return void
+     */
+    public function schedule()
+    {
         if (! wp_next_scheduled('buckaroo_clean_logger_storage')) {
             wp_schedule_event(
                 time(),

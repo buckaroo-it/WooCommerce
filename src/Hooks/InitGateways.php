@@ -131,12 +131,12 @@ class InitGateways
         $payment_methods = [];
 
         foreach ($gateways as $gateway_id => $gateway) {
-            // Register every enabled Buckaroo gateway so it is declared block-
-            // compatible in the Site Editor. Runtime availability (e.g. store
-            // currency vs the gateway's supported currencies) is carried by the
-            // "available" flag and enforced client-side via canMakePayment in
-            // blocks.js, so currency-restricted methods (Swish/Twint/Blik) are
-            // recognised as compatible but never offered at an incompatible
+            // The checkout data covers every enabled Buckaroo gateway; block
+            // compatibility is declared per gateway in registerBuckarooExpressBlocks().
+            // Runtime availability (e.g. store currency vs the gateway's supported
+            // currencies) is carried by the "available" flag and enforced
+            // client-side via canMakePayment in blocks.js, so currency-restricted
+            // methods (Swish/Twint/Blik) are never offered at an incompatible
             // checkout.
             if ($this->isBuckarooPayment($gateway_id) && $gateway->enabled === 'yes') {
                 $payment_method = [
@@ -257,10 +257,15 @@ class InitGateways
      *
      * Two things are registered here:
      *
-     *  1. One integration per enabled Buckaroo gateway, whose get_name() matches
-     *     the gateway id. WooCommerce matches these names against the list of
-     *     enabled gateways to decide block compatibility, so this is what removes
-     *     the "Incompatible with block-based checkout" warning in the Site Editor.
+     *  1. One integration per Buckaroo gateway, whose get_name() matches the
+     *     gateway id. WooCommerce matches these names against its gateways to
+     *     decide block compatibility, so this is what removes the "Incompatible
+     *     with block-based checkout" warning in the Site Editor and the "Limited
+     *     compatibility" badge on the Payments settings page. Disabled gateways
+     *     are registered too: the Payments page reads the registered list once
+     *     when it loads, and a method enabled there without a reload must not
+     *     show the badge. BuckarooBlocks::is_active() keeps disabled gateways
+     *     inactive, so the checkout only loads the enabled ones.
      *
      *  2. The umbrella BuckarooExpressBlocks integration, which continues to
      *     expose the aggregated gateway list consumed by the shared frontend
@@ -276,8 +281,8 @@ class InitGateways
 
         $paymentMethods = $this->initGatewaysOnCheckout();
 
-        // Declare per-gateway block compatibility for every enabled Buckaroo gateway.
-        foreach ($this->getEnabledBuckarooGatewayIds() as $gatewayId) {
+        // Declare per-gateway block compatibility for every Buckaroo gateway.
+        foreach ($this->getBuckarooGatewayIds() as $gatewayId) {
             if ($payment_method_registry->is_registered($gatewayId)) {
                 continue;
             }
@@ -294,32 +299,19 @@ class InitGateways
     }
 
     /**
-     * Return the ids of every enabled Buckaroo payment gateway.
-     *
-     * Uses the full enabled-gateway list (not only the checkout-visible ones)
-     * because the Site Editor evaluates block compatibility against every
-     * enabled gateway.
+     * Return the ids of every Buckaroo payment gateway, enabled or not.
      *
      * @return string[]
      */
-    private function getEnabledBuckarooGatewayIds(): array
+    private function getBuckarooGatewayIds(): array
     {
         if (! class_exists('WC_Payment_Gateways')) {
             return [];
         }
 
-        $ids = [];
-
-        foreach (WC()->payment_gateways()->payment_gateways() as $gatewayId => $gateway) {
-            if (! $this->isBuckarooPayment($gatewayId)) {
-                continue;
-            }
-
-            if (filter_var($gateway->enabled, FILTER_VALIDATE_BOOLEAN)) {
-                $ids[] = $gatewayId;
-            }
-        }
-
-        return $ids;
+        return array_values(array_filter(
+            array_keys(WC()->payment_gateways()->payment_gateways()),
+            fn ($gatewayId) => $this->isBuckarooPayment($gatewayId)
+        ));
     }
 }

@@ -8,16 +8,19 @@ use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodTyp
  * Per-gateway WooCommerce Blocks payment method integration.
  *
  * WooCommerce determines whether a payment gateway supports the Cart & Checkout
- * blocks by matching every enabled gateway id against the names of the payment
- * method integrations registered through the
- * `woocommerce_blocks_payment_method_type_registration` hook (see
- * PaymentMethodRegistry::get_all_registered_script_data() and
- * Checkout block "globalPaymentMethods").
+ * blocks by matching gateway ids against the names of the payment method
+ * integrations registered through the
+ * `woocommerce_blocks_payment_method_type_registration` hook. The Site Editor
+ * matches the enabled gateways against the active integrations (see
+ * PaymentMethodRegistry::get_all_registered_script_data() and Checkout block
+ * "globalPaymentMethods"); the Payments settings page matches every gateway
+ * against all registered integrations.
  *
  * Registering a single umbrella integration is therefore not enough: each
  * Buckaroo gateway needs its own integration whose get_name() returns the exact
  * gateway id, otherwise the Site Editor reports the gateway as
- * "Incompatible with block-based checkout".
+ * "Incompatible with block-based checkout" and the Payments settings page
+ * shows it as "Limited compatibility".
  *
  * This class provides one such integration. All Buckaroo gateways share the same
  * `buckaroo-blocks` frontend script (which performs the actual client-side
@@ -48,14 +51,16 @@ class BuckarooBlocks extends AbstractPaymentMethodType
     }
 
     /**
-     * The gateway visibility/availability is still fully controlled by the
-     * WooCommerce gateway (is_available) and by the client-side canMakePayment;
-     * declaring the integration active only tells WooCommerce that this gateway
-     * *supports* the block, which is what removes the incompatibility warning.
+     * Active while the gateway is enabled. Registering the integration is what
+     * declares block support; WooCommerce only loads the script and data of
+     * active integrations at checkout. Visibility at checkout is decided by the
+     * gateway (is_available) and the client-side canMakePayment.
      */
     public function is_active()
     {
-        return true;
+        $gateways = WC()->payment_gateways()->payment_gateways();
+
+        return isset($gateways[$this->name]) && $gateways[$this->name]->enabled === 'yes';
     }
 
     /**

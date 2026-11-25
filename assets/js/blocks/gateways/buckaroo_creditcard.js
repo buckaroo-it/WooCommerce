@@ -40,8 +40,8 @@ function CreditCard({
 
     const { formState, handleChange, updateFormState } = useFormData(
         {
-            [`${paymentMethodId}-encrypted-data`]: undefined,
-            [`${paymentMethodId}-creditcard-issuer`]: undefined,
+            [`${paymentMethodId}-encrypted-data`]: '',
+            [`${paymentMethodId}-creditcard-issuer`]: '',
         },
         onStateChange
     );
