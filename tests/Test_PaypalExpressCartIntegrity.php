@@ -729,6 +729,63 @@ $this->assertSame($expectedTotal, $order->get_total());
         $this->assertSame($persistent_before, get_user_meta($user_id, $persistent_key, true));
     }
 
+    public function test_paypal_product_data_that_is_not_a_list_is_rejected(): void
+    {
+        $_POST['order_data'] = 'add-to-cart=1&quantity=1';
+
+        $this->expectException(PaypalExpressException::class);
+        (new PaypalExpressShipping())->get_product_request();
+    }
+
+    public function test_paypal_shipping_address_that_is_not_a_list_is_rejected(): void
+    {
+        $_POST['shipping_data'] = ['shipping_address' => 'Heerenveen'];
+
+        $this->expectException(PaypalExpressException::class);
+        (new PaypalExpressShipping())->get_customer_location();
+    }
+
+    public function test_paypal_shipping_address_is_read_without_request_slashes(): void
+    {
+        $_POST['shipping_data'] = wp_slash(['shipping_address' => array_merge(self::NL_ADDRESS, ['city' => "'s-Hertogenbosch"])]);
+
+        $this->assertSame("'s-Hertogenbosch", (new PaypalExpressShipping())->get_customer_location()['city']);
+    }
+
+    public function test_paypal_product_attributes_are_passed_on_as_sent(): void
+    {
+        $this->setPaypalRequest(
+            [
+                'attribute_style' => 'Size\\Large',
+                'attribute_fit' => "Men's",
+                'quantity' => '1',
+                'add-to-cart' => '1',
+            ],
+            'express-cart-totals',
+            'cart_total_nonce'
+        );
+        $_POST = wp_slash($_POST);
+
+        $this->assertSame(
+            ['attribute_fit' => wp_slash("Men's"), 'attribute_style' => wp_slash('Size\\Large')],
+            (new PaypalExpressShipping())->get_product_request()['attributes']
+        );
+    }
+
+    public function test_paypal_order_without_an_order_id_is_not_sent(): void
+    {
+        $order = $this->createMock(PaypalExpressOrder::class);
+        $order->expects($this->never())->method('create_and_send');
+        $controller = new PaypalExpressController(new PaypalExpressShipping(), $order);
+        $_POST = ['orderId' => ['not-a-string']];
+        $_REQUEST = $_POST;
+        $_REQUEST['send_order_nonce'] = wp_create_nonce('express-send_order');
+
+        $response = $this->captureJsonResponse([$controller, 'send_order']);
+
+        $this->assertTrue($response['error']);
+    }
+
     public function test_physical_paypal_order_without_a_shipping_address_is_rejected(): void
     {
         $this->addFlatRate();

@@ -601,6 +601,8 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
         $_POST = ['amount' => '14.00', 'selected_shipping_method' => '',
             'paymentData' => ['billingContact' => $address, 'shippingContact' => $address],
             'items' => [['type' => 'product', 'id' => $productId, 'quantity' => 1]]];
+        $requestBefore = $_REQUEST;
+        $_REQUEST['security'] = wp_create_nonce(GooglepayGateway::CREATE_TRANSACTION_NONCE);
         try {
             try {
                 $gateway->createTransaction();
@@ -613,8 +615,22 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
             $this->assertSame(0, (new WC_Coupon($coupon->get_id()))->get_usage_count());
         } finally {
             $_POST = $before;
+            $_REQUEST = $requestBefore;
             $coupon->delete(true);
         }
+    }
+
+    /** @dataProvider walletControllers */
+    public function test_shop_information_provides_a_valid_create_transaction_nonce(string $controller, string $wallet): void
+    {
+        $gateway = $controller === ApplepayController::class ? ApplepayGateway::class : GooglepayGateway::class;
+        $otherGateway = $gateway === ApplepayGateway::class ? GooglepayGateway::class : ApplepayGateway::class;
+
+        $information = $this->captureJsonResponse([$controller, 'getShopInformation']);
+
+        $this->assertArrayHasKey('create_transaction_nonce', $information, $wallet);
+        $this->assertNotFalse(wp_verify_nonce($information['create_transaction_nonce'], $gateway::CREATE_TRANSACTION_NONCE), $wallet);
+        $this->assertFalse(wp_verify_nonce($information['create_transaction_nonce'], $otherGateway::CREATE_TRANSACTION_NONCE), $wallet);
     }
 
     /** @dataProvider walletControllers */

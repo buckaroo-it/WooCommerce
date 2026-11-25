@@ -90,11 +90,13 @@ class GeneralSettings extends WC_Settings_Page
                 $hide_save_button = true;
                 break;
             case 'report':
-                if (isset($_GET['log_file'])) {
-                    (new ReportPage())->display_log_file(sanitize_text_field($_GET['log_file']));
+                // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only view on the WooCommerce settings screen; the file name must match the log file pattern.
+                if (isset($_GET['log_file']) && is_string($_GET['log_file'])) {
+                    (new ReportPage())->display_log_file(sanitize_text_field(wp_unslash($_GET['log_file'])));
                 } else {
                     (new ReportPage())->output_report();
                 }
+                // phpcs:enable WordPress.Security.NonceVerification.Recommended
                 $hide_save_button = true;
                 break;
         }

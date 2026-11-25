@@ -14,8 +14,12 @@ class ApplepayController
         $settings = get_option('woocommerce_buckaroo_applepay_settings', []);
         $settings = is_array($settings) ? $settings : [];
 
+        // Carries a nonce for the current visitor, so it must never be served from a cache.
+        nocache_headers();
+
         wp_send_json(
             [
+                'create_transaction_nonce' => wp_create_nonce(ApplepayGateway::CREATE_TRANSACTION_NONCE),
                 'store_name' => get_option('blogname'),
                 'country_code' => $country_code,
                 'currency_code' => get_option('woocommerce_currency'),
@@ -31,6 +35,7 @@ class ApplepayController
     {
         try {
             $items = ExpressProductCart::calculate(
+                // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only price quote; ExpressProductCart validates each field.
                 $_GET,
                 'buckaroo_applepay',
                 function ($cart) {
@@ -150,6 +155,7 @@ class ApplepayController
         $wc_methods_callback = [ExpressProductCart::class, 'walletShippingRates'];
 
         try {
+            // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only shipping quote; ExpressProductCart validates each field.
             if (isset($_GET['product_id']) && is_numeric($_GET['product_id'])) {
                 $wc_methods = ExpressProductCart::calculate(
                     $_GET,
@@ -157,12 +163,16 @@ class ApplepayController
                     $wc_methods_callback
                 );
             } else {
+                $country = isset($_GET['country_code']) && is_string($_GET['country_code'])
+                    ? sanitize_text_field(wp_unslash($_GET['country_code']))
+                    : '';
                 $wc_methods = ExpressProductCart::calculateCurrent(
                     'buckaroo_applepay',
                     $wc_methods_callback,
-                    ['country' => $_GET['country_code'] ?? '']
+                    ['country' => $country]
                 );
             }
+            // phpcs:enable WordPress.Security.NonceVerification.Recommended
         } catch (Throwable $exception) {
             self::sendCalculationFailure();
         }

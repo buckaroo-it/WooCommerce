@@ -13,8 +13,12 @@ class GooglepayController
         $country_code = preg_replace('/\:\*/', '', get_option('woocommerce_default_country'));
         $settings = get_option('woocommerce_buckaroo_googlepay_settings', []);
 
+        // Carries a nonce for the current visitor, so it must never be served from a cache.
+        nocache_headers();
+
         wp_send_json(
             [
+                'create_transaction_nonce' => wp_create_nonce(GooglepayGateway::CREATE_TRANSACTION_NONCE),
                 'store_name' => get_option('blogname'),
                 'country_code' => $country_code,
                 'currency_code' => get_option('woocommerce_currency'),
@@ -33,6 +37,7 @@ class GooglepayController
     {
         try {
             $items = ExpressProductCart::calculate(
+                // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only price quote; ExpressProductCart validates each field.
                 $_GET,
                 'buckaroo_googlepay',
                 function ($cart) {
@@ -142,6 +147,7 @@ class GooglepayController
         $wcGooglepayMethods = [ExpressProductCart::class, 'walletShippingRates'];
 
         try {
+            // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only shipping quote; ExpressProductCart validates each field.
             if (isset($_GET['product_id']) && is_numeric($_GET['product_id'])) {
                 $wc_methods = ExpressProductCart::calculate(
                     $_GET,
@@ -149,12 +155,16 @@ class GooglepayController
                     $wcGooglepayMethods
                 );
             } else {
+                $country = isset($_GET['country_code']) && is_string($_GET['country_code'])
+                    ? sanitize_text_field(wp_unslash($_GET['country_code']))
+                    : '';
                 $wc_methods = ExpressProductCart::calculateCurrent(
                     'buckaroo_googlepay',
                     $wcGooglepayMethods,
-                    ['country' => $_GET['country_code'] ?? '']
+                    ['country' => $country]
                 );
             }
+            // phpcs:enable WordPress.Security.NonceVerification.Recommended
         } catch (Throwable $exception) {
             self::sendCalculationFailure();
         }

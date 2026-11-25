@@ -149,6 +149,7 @@ export default class Woocommerce {
                 data: {
                     'wc-api': `${this.api_namespace}-get-shop-information`,
                 },
+                cache: false,
                 async: false,
                 dataType: 'json',
             })

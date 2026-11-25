@@ -248,7 +248,9 @@ class IdinProcessor extends AbstractPaymentProcessor
 
     public function get_return_url($order_id = null): string
     {
-        $referer = sanitize_text_field($_SERVER['HTTP_REFERER'] ?? '');
+        $referer = isset($_SERVER['HTTP_REFERER']) && is_string($_SERVER['HTTP_REFERER'])
+            ? sanitize_text_field(wp_unslash($_SERVER['HTTP_REFERER']))
+            : '';
 
         return add_query_arg(
             [

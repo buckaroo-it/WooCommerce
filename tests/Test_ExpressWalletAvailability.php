@@ -14,6 +14,8 @@ class Test_ExpressWalletAvailability extends WP_UnitTestCase
 {
     public const PAID = 'process_payment reached';
 
+    private const EXPIRED = 'Your session has expired. Please reload the page and try again.';
+
     private const UNAVAILABLE = 'This payment method is not available for this order. Please choose another payment method.';
 
     /** @var int[] */
@@ -21,6 +23,9 @@ class Test_ExpressWalletAvailability extends WP_UnitTestCase
 
     /** @var array<string, mixed> */
     private $post_before = [];
+
+    /** @var array<string, mixed> */
+    private $request_before = [];
 
     protected function setUp(): void
     {
@@ -43,11 +48,13 @@ class Test_ExpressWalletAvailability extends WP_UnitTestCase
         update_option('woocommerce_buckaroo_mastersettings_settings', ['culture' => 'en-US']);
         $this->resetIdinCategories();
         $this->post_before = $_POST;
+        $this->request_before = $_REQUEST;
     }
 
     protected function tearDown(): void
     {
         $_POST = $this->post_before;
+        $_REQUEST = $this->request_before;
         WC()->cart->empty_cart(false);
         wc_clear_notices();
         $this->resetIdinCategories();
@@ -153,18 +160,64 @@ class Test_ExpressWalletAvailability extends WP_UnitTestCase
         $this->assertSame(15.0, (float) $order->get_total());
     }
 
-    private function assertRejectedWithoutOrder($gateway, string $message): void
+    /**
+     * @dataProvider walletGateways
+     */
+    public function test_request_without_nonce_is_rejected_without_creating_an_order(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+
+        $this->assertRejectedWithoutOrder(new $class(), self::EXPIRED, null);
+    }
+
+    /**
+     * @dataProvider walletGateways
+     */
+    public function test_request_with_invalid_nonce_is_rejected_without_creating_an_order(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+
+        $this->assertRejectedWithoutOrder(new $class(), self::EXPIRED, 'invalid');
+    }
+
+    /**
+     * @dataProvider walletGateways
+     */
+    public function test_nonce_of_the_other_wallet_is_rejected(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+        $otherAction = $class === Express_Availability_Applepay::class
+            ? GooglepayGateway::CREATE_TRANSACTION_NONCE
+            : ApplepayGateway::CREATE_TRANSACTION_NONCE;
+
+        $this->assertRejectedWithoutOrder(new $class(), self::EXPIRED, wp_create_nonce($otherAction));
+    }
+
+    /**
+     * @param  string|null|false  $nonce  False sends a valid nonce, null sends none.
+     */
+    private function assertRejectedWithoutOrder($gateway, string $message, $nonce = false): void
     {
         $this->postTransaction($this->createSimpleProduct('Rule product', '15.00'));
         $ordersBefore = $this->orderIds();
 
-        $this->assertSame($message, $this->runTransaction($gateway));
+        $this->assertSame($message, $this->runTransaction($gateway, $nonce));
         $this->assertNull($gateway->paidOrderId, 'The payment must not be started.');
         $this->assertSame($ordersBefore, $this->orderIds(), 'No order may be left behind.');
     }
 
-    private function runTransaction($gateway): string
+    /**
+     * @param  string|null|false  $nonce  False sends a valid nonce, null sends none.
+     */
+    private function runTransaction($gateway, $nonce = false): string
     {
+        unset($_REQUEST['security']);
+        if ($nonce === false) {
+            $_REQUEST['security'] = wp_create_nonce($gateway::CREATE_TRANSACTION_NONCE);
+        } elseif ($nonce !== null) {
+            $_REQUEST['security'] = $nonce;
+        }
+
         try {
             $gateway->createTransaction();
         } catch (RuntimeException $result) {
