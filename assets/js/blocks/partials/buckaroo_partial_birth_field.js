@@ -3,6 +3,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { __ } from '@wordpress/i18n';
 import { TextFieldWrapper } from '../components/CheckoutFields';
+import { matchesDayFirstDate } from '../utils/utils';
 
 function BirthDayField({ paymentMethod, handleBirthDayChange, locale = { siteLocale: 'en-GB' } }) {
     const [birthdate, setBirthdate] = useState(null);
@@ -16,7 +17,20 @@ function BirthDayField({ paymentMethod, handleBirthDayChange, locale = { siteLoc
         default: 'DD-MM-YYYY',
     };
 
-    const handleDateChange = date => {
+    const handleDateChange = (date, event) => {
+        // When none of the formats match the typed text, react-datepicker falls back
+        // to `new Date(value)`, which reads 12/25/1999 month-first. Only accept a typed
+        // date that matches the text day-first; otherwise keep the current selection.
+        const input = event?.target;
+        if (
+            date &&
+            event?.type === 'change' &&
+            input instanceof HTMLInputElement &&
+            !matchesDayFirstDate(input.value, date)
+        ) {
+            return;
+        }
+
         const formattedDate = date
             ?.toLocaleDateString('en-GB', {
                 day: '2-digit',
@@ -49,9 +63,8 @@ function BirthDayField({ paymentMethod, handleBirthDayChange, locale = { siteLoc
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onCalendarClose={() => setIsFocused(false)}
-                // The first format is used for display. A single string format makes
-                // react-datepicker fall back to `new Date(value)` when parsing fails,
-                // which reads 10/04/1999 as month-first (4 October); a list has no fallback.
+                // The first format is used for display; the others are accepted when typed.
+                // Keep in line with matchesDayFirstDate() in utils/utils.js.
                 dateFormat={['dd-MM-yyyy', 'd-M-yyyy', 'd/M/yyyy', 'd.M.yyyy']}
                 autoComplete="off"
                 ariaRequired="true"
