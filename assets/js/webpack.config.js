@@ -42,6 +42,12 @@ module.exports = {
     },
     resolve: {
         extensions: ['.js', '.jsx'], // Resolve both .js and .jsx
+        alias: {
+            // Bundled packages (e.g. @floating-ui/react, used by react-datepicker) import
+            // react/jsx-runtime. WordPress only provides it from 6.6, so map it to a
+            // small runtime built on the externalized React instead of bundling a copy.
+            'react/jsx-runtime$': path.resolve(__dirname, 'shared/jsx-runtime.js'),
+        },
     },
     plugins: [new WooCommerceDependencyExtractionWebpackPlugin()],
 };
