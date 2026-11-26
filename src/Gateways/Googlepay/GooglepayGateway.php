@@ -76,7 +76,7 @@ class GooglepayGateway extends AbstractPaymentGateway
 
         Logger::log(__METHOD__ . '|1|', ['request_fields' => array_keys($_POST)]);
 
-        $this->paymentData = $this->request->input('paymentData');
+        $this->paymentData = $this->request->inputArray('paymentData');
 
         if (! is_array($this->paymentData)) {
             $this->error_response('Google Pay data is invalid.');
@@ -91,7 +91,7 @@ class GooglepayGateway extends AbstractPaymentGateway
             $this->error_response('Google Pay data is invalid.');
         }
 
-        $items = $this->request->input('items');
+        $items = $this->request->inputArray('items');
         if ($items === null || ! is_array($items)) {
             $this->error_response('Google Pay data is invalid.');
         }

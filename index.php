@@ -32,6 +32,24 @@ add_action(
 );
 
 /*
+ * Registered here, while the plugin file is loaded on the activation request:
+ * hooks added from plugins_loaded are too late for it. Without WooCommerce the
+ * install runs on a later request instead (Install::installUntrackedInstalation()).
+ */
+register_activation_hook(
+    __FILE__,
+    function () {
+        if (! class_exists('WooCommerce')) {
+            return;
+        }
+
+        require_once __DIR__ . '/vendor/autoload.php';
+
+        Buckaroo\Woocommerce\Install\Install::install();
+    }
+);
+
+/*
  * Declare compatibility with the WooCommerce Cart & Checkout Blocks feature.
  *
  * Without this declaration WooCommerce lists the plugin under the "incompatible"

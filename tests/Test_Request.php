@@ -54,32 +54,29 @@ class Test_Request extends TestCase
     }
 
     /**
-     * Test all method merges GET and POST
+     * Test all method returns only POST data
      */
-    public function test_all_merges_get_and_post()
+    public function test_all_returns_only_post_data()
     {
         $_GET = ['key1' => 'value1'];
         $_POST = ['key2' => 'value2'];
 
         $result = $this->request->all();
 
-        $this->assertArrayHasKey('key1', $result);
-        $this->assertArrayHasKey('key2', $result);
-        $this->assertEquals('value1', $result['key1']);
+        $this->assertArrayNotHasKey('key1', $result);
         $this->assertEquals('value2', $result['key2']);
     }
 
     /**
-     * Test all method POST overrides GET
+     * Test inputArray returns a posted list and ignores single values
      */
-    public function test_all_post_overrides_get()
+    public function test_input_array_returns_only_lists()
     {
-        $_GET = ['key' => 'get_value'];
-        $_POST = ['key' => 'post_value'];
+        $_POST = wp_slash(['list' => ['name' => "O'Brien <b>x</b>"], 'single' => 'value']);
 
-        $result = $this->request->all();
-
-        $this->assertEquals('post_value', $result['key']);
+        $this->assertSame(['name' => "O'Brien x"], $this->request->inputArray('list'));
+        $this->assertNull($this->request->inputArray('single'));
+        $this->assertSame([], $this->request->inputArray('missing', []));
     }
 
     /**

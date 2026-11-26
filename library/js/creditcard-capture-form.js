@@ -197,27 +197,3 @@ jQuery(document).ready(function () {
         return false;
     };
 });
-
-function doCall(id) {
-    jQuery
-        .ajax({
-            type: 'POST',
-            url: ajaxurl,
-
-            data: {
-                id: id,
-                action: 'capture_lightbox',
-            },
-            success: function (data, textStatus, XMLHttpRequest) {
-                jQuery('.form-capture-' + data).show();
-            },
-            dataType: 'json',
-        })
-        .done(function (data) {
-            if (console && console.log) {
-                console.log(data);
-            }
-        });
-
-    return false;
-}
