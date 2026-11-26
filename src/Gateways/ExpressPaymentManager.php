@@ -2,6 +2,8 @@
 
 namespace Buckaroo\Woocommerce\Gateways;
 
+use Buckaroo\Woocommerce\Gateways\Express\ExpressCheckoutRules;
+
 class ExpressPaymentManager
 {
     private static $instance = null;
@@ -96,6 +98,11 @@ class ExpressPaymentManager
         }
 
         if (!isset($this->expressPayments[$location]) || empty($this->expressPayments[$location])) {
+            return;
+        }
+
+        // Express payments refuse a shopper who must log in first (BTI-1874).
+        if (ExpressCheckoutRules::loginRequired()) {
             return;
         }
 

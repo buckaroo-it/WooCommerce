@@ -158,11 +158,11 @@ export default class Woocommerce {
 
     displayErrorMessage(message) {
         jQuery('.buckaroo-googlepay-error').remove();
-        const content = `
-      <div class="woocommerce-error buckaroo-googlepay-error" role="alert">
-        ${message}
-      </div>
-    `;
+        // Text only: the message can echo server or shopper input (BTI-1874).
+        const content = jQuery('<div>', {
+            class: 'woocommerce-error buckaroo-googlepay-error',
+            role: 'alert',
+        }).text(String(message));
 
         jQuery('.woocommerce-notices-wrapper').first().prepend(content);
         jQuery('html, body').scrollTop(0);

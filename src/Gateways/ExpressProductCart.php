@@ -2,16 +2,28 @@
 
 namespace Buckaroo\Woocommerce\Gateways;
 
+use Buckaroo\Woocommerce\Gateways\Express\ExpressCheckoutException;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressCheckoutRules;
 use Exception;
 use UnexpectedValueException;
 use WC_Product_Attribute;
 use WC_Cart;
+use WC_Coupon;
 use WC_Order;
 use WC_Order_Item_Shipping;
 use WC_Shipping_Rate;
 
 final class ExpressProductCart
 {
+    /** Classes whose callbacks act on the shopper's live cart. */
+    public const LIVE_CART_CLASSES = [WC_Cart::class, \WC_Cart_Session::class];
+
+    /**
+     * Actions the express cart fires when it changes, on which the live cart
+     * recalculates or saves itself.
+     */
+    private const CART_CHANGE_HOOKS = ['woocommerce_add_to_cart', 'woocommerce_removed_coupon', 'woocommerce_cart_item_removed'];
+
     /** Wallets require a selection even when the cart needs no delivery. */
     public static function walletShippingRates(WC_Cart $cart): array
     {
@@ -98,29 +110,42 @@ final class ExpressProductCart
         $order->add_item($shippingItem);
     }
 
-    public static function calculate(array $request, string $payment_method, callable $callback)
-    {
+    /**
+     * @param  bool  $validate_add_to_cart  Apply the add-to-cart validation, for a cart an order is created from.
+     */
+    public static function calculate(
+        array $request,
+        string $payment_method,
+        callable $callback,
+        bool $validate_add_to_cart = false
+    ) {
         return self::withProducts(
             [self::validatedProduct($request)],
             $payment_method,
             $callback,
             false,
-            self::customerLocation($request)
+            self::customerLocation($request),
+            $validate_add_to_cart
         );
     }
 
+    /**
+     * @param  bool  $validate_add_to_cart  Apply the add-to-cart validation, for a cart an order is created from.
+     */
     public static function calculateItems(
         array $items,
         string $payment_method,
         callable $callback,
-        array $customer_location = []
+        array $customer_location = [],
+        bool $validate_add_to_cart = false
     ) {
         return self::withProducts(
             self::validatedItems($items),
             $payment_method,
             $callback,
             true,
-            self::customerLocation($customer_location)
+            self::customerLocation($customer_location),
+            $validate_add_to_cart
         );
     }
 
@@ -149,7 +174,8 @@ final class ExpressProductCart
         string $payment_method,
         callable $callback,
         bool $preserve_matching_cart,
-        array $customer_location
+        array $customer_location,
+        bool $validate_add_to_cart = false
     ) {
         global $woocommerce;
 
@@ -230,14 +256,16 @@ final class ExpressProductCart
             add_action('woocommerce_cart_calculate_fees', $calculate_wallet_fee, PHP_INT_MAX);
             $fee_hook_added = true;
 
-            return self::withoutLiveCartAddActions(
-                $live_cart,
+            return self::withoutCallbacksOf(
+                self::CART_CHANGE_HOOKS,
+                self::LIVE_CART_CLASSES,
                 static function () use (
                     $temporary_cart,
                     $products,
                     $use_matching_cart,
                     $preserve_matching_cart,
-                    $callback
+                    $callback,
+                    $validate_add_to_cart
                 ) {
                     if (! $use_matching_cart) {
                         foreach ($products as $product) {
@@ -247,6 +275,10 @@ final class ExpressProductCart
                             );
                             if ($quantity <= 0) {
                                 continue;
+                            }
+
+                            if ($validate_add_to_cart) {
+                                self::validateAddToCart($product, $quantity);
                             }
 
                             $cart_item_key = $temporary_cart->add_to_cart(
@@ -265,6 +297,9 @@ final class ExpressProductCart
                     }
 
                     $temporary_cart->calculate_totals();
+                    if (! $use_matching_cart) {
+                        self::removeCouponsThatDoNotApply($temporary_cart);
+                    }
 
                     if (
                         $preserve_matching_cart
@@ -549,35 +584,109 @@ final class ExpressProductCart
         return $validated;
     }
 
-    private static function withoutLiveCartAddActions($live_cart, callable $callback)
+    /**
+     * The product-page express cart takes the live cart's coupons. One that
+     * does not apply to these products gives no discount in the quote either,
+     * so it is left out rather than refusing the payment (BTI-1874).
+     */
+    private static function removeCouponsThatDoNotApply(WC_Cart $cart): void
+    {
+        $applied = $cart->get_applied_coupons();
+        $kept = array_values(
+            array_filter(
+                $applied,
+                static function (string $code): bool {
+                    return (new WC_Coupon($code))->is_valid();
+                }
+            )
+        );
+
+        // Not remove_coupon(): the shopper removed nothing, so no removal hooks fire.
+        if ($kept !== $applied) {
+            $cart->set_applied_coupons($kept);
+            $cart->calculate_totals();
+        }
+    }
+
+    /**
+     * The add-to-cart validation the add-to-cart form applies, which
+     * WC_Cart::add_to_cart() does not (BTI-1874). Products already in the live
+     * cart passed it when they were added.
+     *
+     * @throws ExpressCheckoutException When a validator refuses the product.
+     */
+    private static function validateAddToCart(array $product, int $quantity): void
+    {
+        wc_clear_notices();
+        $passed = $product['variation_id']
+            ? apply_filters(
+                'woocommerce_add_to_cart_validation',
+                true,
+                $product['product_id'],
+                $quantity,
+                $product['variation_id'],
+                $product['attributes']
+            )
+            : apply_filters('woocommerce_add_to_cart_validation', true, $product['product_id'], $quantity);
+
+        if (! $passed) {
+            $message = ExpressCheckoutRules::takeErrorNotices();
+            throw new ExpressCheckoutException(
+                $message !== ''
+                    ? wp_kses_post($message)
+                    : esc_html__('This product cannot be bought with express checkout.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
+    }
+
+    /**
+     * Run the callback without the hooks' callbacks that belong to an object
+     * of one of the classes. With LIVE_CART_CLASSES, an action fired for the
+     * express cart cannot change or check the shopper's live cart: the
+     * express cart is a clone, which has no callbacks of its own.
+     *
+     * @param  array<string>  $hook_names
+     * @param  array<class-string>  $classes
+     * @return mixed The callback's return value.
+     */
+    public static function withoutCallbacksOf(array $hook_names, array $classes, callable $callback)
     {
         global $wp_filter;
 
-        if (! isset($wp_filter['woocommerce_add_to_cart'])) {
-            return call_user_func($callback);
-        }
+        $original_hooks = [];
+        foreach ($hook_names as $hook_name) {
+            if (! isset($wp_filter[$hook_name])) {
+                continue;
+            }
 
-        $hook = $wp_filter['woocommerce_add_to_cart'];
-        $filtered_hook = clone $hook;
-        foreach ($filtered_hook->callbacks as &$callbacks) {
-            foreach ($callbacks as $id => $registered_callback) {
-                $function = $registered_callback['function'];
-                if (
-                    is_array($function)
-                    && isset($function[0])
-                    && ($function[0] === $live_cart || $function[0] instanceof \WC_Cart_Session)
-                ) {
-                    unset($callbacks[$id]);
+            $original_hooks[$hook_name] = $wp_filter[$hook_name];
+            $filtered_hook = clone $wp_filter[$hook_name];
+            foreach ($filtered_hook->callbacks as &$callbacks) {
+                foreach ($callbacks as $id => $registered_callback) {
+                    $function = $registered_callback['function'];
+                    if (is_array($function) && isset($function[0]) && is_object($function[0])) {
+                        foreach ($classes as $class) {
+                            if ($function[0] instanceof $class) {
+                                unset($callbacks[$id]);
+                                break;
+                            }
+                        }
+                    }
                 }
             }
-        }
-        unset($callbacks);
+            unset($callbacks);
 
-        $wp_filter['woocommerce_add_to_cart'] = $filtered_hook;
+            // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Swapped for the callback only, restored below.
+            $wp_filter[$hook_name] = $filtered_hook;
+        }
+
         try {
             return call_user_func($callback);
         } finally {
-            $wp_filter['woocommerce_add_to_cart'] = $hook;
+            foreach ($original_hooks as $hook_name => $hook) {
+                // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restores the hook swapped above.
+                $wp_filter[$hook_name] = $hook;
+            }
         }
     }
 }

@@ -3,77 +3,16 @@
 declare(strict_types=1);
 
 use Buckaroo\Woocommerce\Gateways\Applepay\ApplepayGateway;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressRateLimit;
 use Buckaroo\Woocommerce\Gateways\Googlepay\GooglepayGateway;
-use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 
 /**
  * The Apple Pay and Google Pay express routes create the order themselves, so
- * they must apply the checkout rules of the available-gateways filter.
+ * they must apply the checkout rules of the available-gateways filter, and
+ * accept only real express requests.
  */
-class Test_ExpressWalletAvailability extends WP_UnitTestCase
+class Test_ExpressWalletAvailability extends ExpressWalletTestCase
 {
-    public const PAID = 'process_payment reached';
-
-    private const EXPIRED = 'Your session has expired. Please reload the page and try again.';
-
-    private const UNAVAILABLE = 'This payment method is not available for this order. Please choose another payment method.';
-
-    /** @var int[] */
-    private $product_ids = [];
-
-    /** @var array<string, mixed> */
-    private $post_before = [];
-
-    /** @var array<string, mixed> */
-    private $request_before = [];
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        if (! WC()->session) {
-            WC()->initialize_session();
-        }
-        if (! WC()->customer) {
-            WC()->customer = new WC_Customer(0, true);
-        }
-        if (! WC()->cart) {
-            WC()->initialize_cart();
-        }
-
-        WC()->cart->empty_cart(false);
-        WC()->session->set('buckaroo_idin', null);
-        WC()->session->set('buckaroo_idin_verified_at', null);
-        update_option('woocommerce_currency', 'EUR');
-        update_option('woocommerce_buckaroo_mastersettings_settings', ['culture' => 'en-US']);
-        $this->resetIdinCategories();
-        $this->post_before = $_POST;
-        $this->request_before = $_REQUEST;
-    }
-
-    protected function tearDown(): void
-    {
-        $_POST = $this->post_before;
-        $_REQUEST = $this->request_before;
-        WC()->cart->empty_cart(false);
-        wc_clear_notices();
-        $this->resetIdinCategories();
-
-        foreach ($this->product_ids as $product_id) {
-            wp_delete_post($product_id, true);
-        }
-
-        parent::tearDown();
-    }
-
-    public function walletGateways(): array
-    {
-        return [
-            'Apple Pay' => [Express_Availability_Applepay::class, 'buckaroo_applepay'],
-            'Google Pay' => [Express_Availability_Googlepay::class, 'buckaroo_googlepay'],
-        ];
-    }
-
     /**
      * @dataProvider walletGateways
      */
@@ -112,7 +51,7 @@ class Test_ExpressWalletAvailability extends WP_UnitTestCase
     {
         $this->configureWallet($id, ['maxvalue' => '10']);
 
-        $this->assertRejectedWithoutOrder(new $class(), 'Error while creation of WooCommerce order');
+        $this->assertRejectedWithoutOrder(new $class(), self::UNAVAILABLE);
     }
 
     /**
@@ -194,122 +133,110 @@ class Test_ExpressWalletAvailability extends WP_UnitTestCase
     }
 
     /**
-     * @param  string|null|false  $nonce  False sends a valid nonce, null sends none.
+     * @dataProvider walletGateways
      */
-    private function assertRejectedWithoutOrder($gateway, string $message, $nonce = false): void
+    public function test_get_request_with_a_valid_nonce_is_rejected_without_creating_an_order(string $class, string $id): void
     {
-        $this->postTransaction($this->createSimpleProduct('Rule product', '15.00'));
-        $ordersBefore = $this->orderIds();
+        $this->configureWallet($id);
 
-        $this->assertSame($message, $this->runTransaction($gateway, $nonce));
-        $this->assertNull($gateway->paidOrderId, 'The payment must not be started.');
-        $this->assertSame($ordersBefore, $this->orderIds(), 'No order may be left behind.');
+        $this->assertRejectedWithoutOrder(new $class(), self::EXPIRED, false, 'GET');
     }
 
     /**
-     * @param  string|null|false  $nonce  False sends a valid nonce, null sends none.
+     * @dataProvider walletGateways
      */
-    private function runTransaction($gateway, $nonce = false): string
+    public function test_wallet_without_an_express_placement_is_rejected_without_creating_an_order(string $class, string $id): void
     {
-        unset($_REQUEST['security']);
-        if ($nonce === false) {
-            $_REQUEST['security'] = wp_create_nonce($gateway::CREATE_TRANSACTION_NONCE);
-        } elseif ($nonce !== null) {
-            $_REQUEST['security'] = $nonce;
+        // An emptied placement list is stored as '' by WooCommerce.
+        $this->configureWallet($id, ['express_show_on' => '']);
+
+        $this->assertRejectedWithoutOrder(new $class(), self::UNAVAILABLE);
+    }
+
+    /**
+     * @dataProvider walletGateways
+     */
+    public function test_payment_data_without_a_wallet_token_is_rejected_without_creating_an_order(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+        $gateway = new $class();
+        $this->postTransaction($this->createSimpleProduct('No token', '15.00'));
+        unset($_POST['paymentData']['token']);
+        $ordersBefore = $this->orderIds();
+
+        $this->assertSame($this->invalidDataMessage($id), $this->runTransaction($gateway));
+        $this->assertNull($gateway->paidOrderId);
+        $this->assertSame($ordersBefore, $this->orderIds());
+    }
+
+    /**
+     * @dataProvider walletGateways
+     */
+    public function test_session_over_the_rate_limit_is_rejected_without_creating_an_order(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+        $gateway = new $class();
+        $this->postTransaction($this->createSimpleProduct('Limited', '15.00'));
+        $valid = $_POST;
+        unset($_POST['paymentData']['token']);
+        for ($i = 0; $i < ExpressRateLimit::SESSION_LIMIT; $i++) {
+            $this->assertSame($this->invalidDataMessage($id), $this->runTransaction($gateway));
+        }
+        $_POST = $valid;
+        $ordersBefore = $this->orderIds();
+
+        $this->assertSame(self::TOO_MANY, $this->runTransaction($gateway));
+        $this->assertNull($gateway->paidOrderId);
+        $this->assertSame($ordersBefore, $this->orderIds());
+    }
+
+    /**
+     * @dataProvider walletGateways
+     */
+    public function test_client_address_over_the_rate_limit_is_rejected_across_sessions(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+        $gateway = new $class();
+        $this->postTransaction($this->createSimpleProduct('Limited address', '15.00'));
+        $valid = $_POST;
+        unset($_POST['paymentData']['token']);
+        for ($i = 0; $i < ExpressRateLimit::CLIENT_LIMIT; $i++) {
+            // A new visitor session from the same address.
+            WC()->session->set(ExpressRateLimit::SESSION_KEY, null);
+            $this->assertSame($this->invalidDataMessage($id), $this->runTransaction($gateway));
+        }
+        WC()->session->set(ExpressRateLimit::SESSION_KEY, null);
+        $_POST = $valid;
+
+        $this->assertSame(self::TOO_MANY, $this->runTransaction($gateway));
+        $this->assertNull($gateway->paidOrderId);
+    }
+
+    /**
+     * @dataProvider walletGateways
+     */
+    public function test_requests_rejected_before_the_nonce_check_are_not_counted(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+        $gateway = new $class();
+        $this->postTransaction($this->createSimpleProduct('Uncounted', '15.00'));
+        for ($i = 0; $i <= ExpressRateLimit::SESSION_LIMIT; $i++) {
+            $this->assertSame(self::EXPIRED, $this->runTransaction($gateway, 'invalid'));
         }
 
-        try {
-            $gateway->createTransaction();
-        } catch (RuntimeException $result) {
-            return $result->getMessage();
-        }
-
-        $this->fail('createTransaction() must respond.');
+        $this->assertSame(self::PAID, $this->runTransaction($gateway));
     }
 
-    private function configureWallet(string $id, array $settings = []): void
+    /**
+     * @dataProvider walletGateways
+     */
+    public function test_unexpected_payment_error_text_is_not_sent_to_the_shopper(string $class, string $id): void
     {
-        update_option(
-            "woocommerce_{$id}_settings",
-            array_merge(['enabled' => 'yes', 'mode' => 'test', 'merchant_guid' => 'test-guid'], $settings)
-        );
+        $this->configureWallet($id);
+        $gateway = new $class();
+        $gateway->paymentError = new RuntimeException('Store Key is required.');
+        $this->postTransaction($this->createSimpleProduct('Failing', '15.00'));
+
+        $this->assertSame(self::FAILED, $this->runTransaction($gateway));
     }
-
-    private function postTransaction(int $productId): void
-    {
-        $address = [
-            'givenName' => 'Test',
-            'familyName' => 'Buyer',
-            'emailAddress' => 'test@example.com',
-            'addressLines' => ['Test 1'],
-            'locality' => 'Amsterdam',
-            'postalCode' => '1017GB',
-            'countryCode' => 'NL',
-        ];
-        $_POST = [
-            'amount' => '15.00',
-            'selected_shipping_method' => '',
-            'paymentData' => ['billingContact' => $address, 'shippingContact' => $address],
-            'items' => [['type' => 'product', 'id' => $productId, 'quantity' => 1]],
-        ];
-    }
-
-    private function orderIds(): array
-    {
-        return wc_get_orders(['limit' => -1, 'return' => 'ids', 'status' => array_keys(wc_get_order_statuses())]);
-    }
-
-    private function createSimpleProduct(string $name, string $price): int
-    {
-        $product = new WC_Product_Simple();
-        $product->set_name($name);
-        $product->set_status('publish');
-        $product->set_regular_price($price);
-        $product->set_price($price);
-        $product_id = $product->save();
-        $this->product_ids[] = $product_id;
-
-        return $product_id;
-    }
-
-    private function resetIdinCategories(): void
-    {
-        $categories = new ReflectionProperty(IdinProcessor::class, 'idinCategories');
-        if (PHP_VERSION_ID < 80100) {
-            $categories->setAccessible(true);
-        }
-        $categories->setValue(null, null);
-    }
-}
-
-/**
- * Records the order instead of calling Buckaroo, and turns the JSON responses
- * of createTransaction() into exceptions the test can read.
- */
-trait Express_Availability_Gateway
-{
-    /** @var int|null */
-    public $paidOrderId;
-
-    public function process_payment($order_id)
-    {
-        $this->paidOrderId = $order_id;
-
-        throw new RuntimeException(Test_ExpressWalletAvailability::PAID);
-    }
-
-    public function error_response($errorMessage)
-    {
-        throw new RuntimeException($errorMessage);
-    }
-}
-
-class Express_Availability_Applepay extends ApplepayGateway
-{
-    use Express_Availability_Gateway;
-}
-
-class Express_Availability_Googlepay extends GooglepayGateway
-{
-    use Express_Availability_Gateway;
 }

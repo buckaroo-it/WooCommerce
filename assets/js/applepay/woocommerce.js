@@ -165,11 +165,8 @@ export default class Woocommerce {
     }
 
     displayErrorMessage(message) {
-        const content = `      
-      <div class="woocommerce-message" role="alert">
-        ${message}
-      </div>
-    `;
+        // Text only: the message can echo server or shopper input (BTI-1874).
+        const content = jQuery('<div>', { class: 'woocommerce-message', role: 'alert' }).text(String(message));
 
         jQuery('.woocommerce-notices-wrapper').first().prepend(content);
         jQuery('html, body').scrollTop(0);

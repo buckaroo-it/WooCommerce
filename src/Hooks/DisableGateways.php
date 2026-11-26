@@ -9,9 +9,32 @@ use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
  */
 class DisableGateways
 {
+    /** @var string|null Wallet being paid with its express button. */
+    private static $expressWallet = null;
+
     public function __construct()
     {
         add_filter('woocommerce_available_payment_gateways', [$this, 'handle']);
+    }
+
+    /**
+     * Run the callback while the wallet is paid with its express button, so the
+     * wallet is not removed for being off as a checkout payment method. The
+     * amount rules are checked on the built express order instead: the cart
+     * total here does not include the shipping chosen in the wallet sheet.
+     * Every other rule still applies (BTI-1874).
+     *
+     * @return mixed The callback's return value.
+     */
+    public static function forExpressWallet(string $walletId, callable $callback)
+    {
+        $previous = self::$expressWallet;
+        self::$expressWallet = $walletId;
+        try {
+            return call_user_func($callback);
+        } finally {
+            self::$expressWallet = $previous;
+        }
     }
 
     public function handle($available_gateways)
@@ -34,7 +57,11 @@ class DisableGateways
                     continue;
                 }
 
-                if (method_exists($gateway, 'isAllowedFor') && ! $gateway->isAllowedFor($amount, $currency)) {
+                if (
+                    $key !== self::$expressWallet
+                    && method_exists($gateway, 'isAllowedFor')
+                    && ! $gateway->isAllowedFor($amount, $currency)
+                ) {
                     unset($available_gateways[$key]);
                 }
             }
@@ -45,7 +72,7 @@ class DisableGateways
         // should additionally remain a selectable gateway in the checkout;
         // otherwise it is removed here (its only frontend is the express button).
         foreach (['buckaroo_applepay', 'buckaroo_googlepay'] as $walletId) {
-            if (! isset($available_gateways[$walletId])) {
+            if (! isset($available_gateways[$walletId]) || $walletId === self::$expressWallet) {
                 continue;
             }
 

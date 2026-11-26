@@ -5,6 +5,8 @@ namespace Buckaroo\Woocommerce\Gateways\Googlepay;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
 use Buckaroo\Woocommerce\Gateways\Express\ExpressAvailability;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressCheckoutException;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressCheckoutRules;
 use Buckaroo\Woocommerce\Gateways\Express\ExpressSettings;
 use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
 use Buckaroo\Woocommerce\Services\Helper;
@@ -70,15 +72,18 @@ class GooglepayGateway extends AbstractPaymentGateway
 
     public function createTransaction()
     {
-        if (! check_ajax_referer(self::CREATE_TRANSACTION_NONCE, 'security', false)) {
-            $this->error_response(__('Your session has expired. Please reload the page and try again.', 'wc-buckaroo-bpe-gateway'));
+        $requestError = $this->expressRequestError();
+        if ($requestError !== null) {
+            $this->error_response($requestError);
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- expressRequestError() verified the nonce.
         Logger::log(__METHOD__ . '|1|', ['request_fields' => array_keys($_POST)]);
 
         $this->paymentData = $this->request->input('paymentData');
 
-        if (! is_array($this->paymentData)) {
+        // No order is created for a payload without a wallet token (BTI-1874).
+        if (! is_array($this->paymentData) || empty(GooglepayProcessor::walletToken($this->paymentData))) {
             $this->error_response('Google Pay data is invalid.');
         }
 
@@ -125,7 +130,8 @@ class GooglepayGateway extends AbstractPaymentGateway
             $this->error_response('Invalid billing address format.');
         }
 
-        if (! $this->isExpressCheckoutAllowed($items)) {
+        $walletLocation = self::walletLocation($this->paymentData['billingContact'], $this->paymentData['shippingContact']);
+        if (! $this->isExpressCheckoutAllowed($items, $walletLocation)) {
             $this->error_response($this->expressUnavailableMessage());
         }
 
@@ -134,6 +140,7 @@ class GooglepayGateway extends AbstractPaymentGateway
             $this->paymentData['shippingContact']
         );
 
+        $result = null;
         try {
             $orderResult = $this->createOrder(
                 $this->paymentData['billingContact'],
@@ -144,24 +151,31 @@ class GooglepayGateway extends AbstractPaymentGateway
 
             if ($orderResult) {
                 $result = $this->process_payment($orderResult['data']['id']);
-                Logger::log(__METHOD__ . '|1|', $result);
-
-                echo json_encode($result);
-                exit;
-            } else {
-                $this->error_response('Error while creation of WooCommerce order');
             }
-        } catch (\InvalidArgumentException $th) {
-            if (! empty($orderResult['data']['id'])) {
-                $order = wc_get_order($orderResult['data']['id']);
-                if ($order) {
-                    $order->update_status('failed', $th->getMessage());
-                }
-            }
+        } catch (ExpressCheckoutException $th) {
+            $this->failExpressOrder($orderResult ?? null, $th->getMessage());
             $this->error_response($th->getMessage());
         } catch (Throwable $th) {
-            $this->error_response($th->getMessage());
+            // The exception text can hold internal details (BTI-1874).
+            Logger::log(__METHOD__ . '|fail|', $th->getMessage());
+            $this->failExpressOrder(
+                $orderResult ?? null,
+                __('The express payment could not be started.', 'wc-buckaroo-bpe-gateway')
+            );
+            $this->error_response($this->expressFailureMessage());
         }
+
+        if ($result === null) {
+            $this->error_response($this->expressFailureMessage());
+        }
+
+        Logger::log(__METHOD__ . '|1|', $result);
+        $this->success_response($result);
+    }
+
+    public function success_response($result)
+    {
+        wp_send_json($result);
     }
 
     public function error_response($errorMessage)
@@ -169,7 +183,7 @@ class GooglepayGateway extends AbstractPaymentGateway
         wp_send_json(
             [
                 'status' => 'fail',
-                'message' => $errorMessage,
+                'message' => ExpressCheckoutException::plainText((string) $errorMessage),
             ]
         );
     }
@@ -193,57 +207,41 @@ class GooglepayGateway extends AbstractPaymentGateway
     {
         Logger::log(__METHOD__ . '|1|');
 
-        $order = wc_create_order();
+        $billingEmail = self::walletEmail($billing_addresses, $shipping_addresses);
+        $billingPhone = self::walletPhone($billing_addresses, $shipping_addresses);
+        $checkoutData = ExpressCheckoutRules::checkoutData(
+            array_merge(self::orderAddresses($billing_addresses), ['email' => $billingEmail, 'phone' => $billingPhone]),
+            self::orderAddresses($shipping_addresses),
+            $this->id
+        );
+        $order = null;
 
         try {
             $shipping_rate = ExpressProductCart::calculateItems(
                 $items,
                 'buckaroo_googlepay',
-                function ($cart) use ($order, $selected_method_id) {
+                function ($cart) use (&$order, $selected_method_id, $billingEmail, $checkoutData) {
+                    ExpressCheckoutRules::check($cart, $checkoutData);
                     $shipping_rate = ExpressProductCart::selectedShippingRate($cart, $selected_method_id);
+
+                    // Created once the rules pass, so a rejected attempt fires no order hooks (BTI-1874).
+                    $order = $this->newExpressOrder();
                     self::createOrderFromCart($order, $cart);
+                    ExpressCheckoutRules::holdCoupons($order, $billingEmail);
 
                     return $shipping_rate;
                 },
-                [
-                    'billing' => [
-                        'country' => $billing_addresses['countryCode'] ?? '',
-                        'state' => $billing_addresses['administrativeArea'] ?? '',
-                        'postcode' => $billing_addresses['postalCode'] ?? '',
-                        'city' => $billing_addresses['locality'] ?? '',
-                    ],
-                    'shipping' => [
-                        'country' => $shipping_addresses['countryCode'] ?? '',
-                        'state' => $shipping_addresses['administrativeArea'] ?? '',
-                        'postcode' => $shipping_addresses['postalCode'] ?? '',
-                        'city' => $shipping_addresses['locality'] ?? '',
-                    ],
-                ]
+                self::walletLocation($billing_addresses, $shipping_addresses),
+                true
             );
 
             $order->set_address(self::orderAddresses($billing_addresses), 'billing');
             $order->set_address(self::orderAddresses($shipping_addresses), 'shipping');
 
-            // set email
-            $billingEmail = '';
-            if (! empty($shipping_addresses['emailAddress'])) {
-                $billingEmail = $shipping_addresses['emailAddress'];
-            }
-            if (! empty($billing_addresses['emailAddress'])) {
-                $billingEmail = $billing_addresses['emailAddress'];
-            }
             if ($billingEmail) {
                 $order->set_billing_email($billingEmail);
             }
 
-            // set phone
-            $billingPhone = '';
-            if (! empty($shipping_addresses['phoneNumber'])) {
-                $billingPhone = $shipping_addresses['phoneNumber'];
-            }
-            if (! empty($billing_addresses['phoneNumber'])) {
-                $billingPhone = $billing_addresses['phoneNumber'];
-            }
             if ($billingPhone) {
                 $order->set_billing_phone($billingPhone);
             }
@@ -258,14 +256,20 @@ class GooglepayGateway extends AbstractPaymentGateway
             $order->calculate_totals();
 
             if (! $this->isAllowedForOrder($order)) {
-                throw new \UnexpectedValueException('Google Pay is not available for this order.');
+                throw new ExpressCheckoutException(esc_html($this->expressUnavailableMessage()));
             }
 
             $order->update_status('pending payment', 'Order created using Google Pay', true);
             wc_update_coupon_usage_counts($order->get_id());
         } catch (Throwable $e) {
             Logger::log(__METHOD__ . '|fail|', $e->getMessage());
-            $order->delete(true);
+            if ($order instanceof WC_Order) {
+                $this->discardExpressOrder($order);
+            }
+
+            if ($e instanceof ExpressCheckoutException) {
+                throw $e;
+            }
 
             return false;
         }

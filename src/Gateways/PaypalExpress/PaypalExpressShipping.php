@@ -179,7 +179,8 @@ class PaypalExpressShipping
             return ExpressProductCart::calculate(
                 array_merge($this->get_product_request(), $customer_location),
                 'buckaroo_paypal',
-                $callback
+                $callback,
+                true
             );
         }
 

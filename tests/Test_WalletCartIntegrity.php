@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Buckaroo\Woocommerce\Gateways\Applepay\ApplepayController;
 use Buckaroo\Woocommerce\Gateways\Applepay\ApplepayGateway;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressRateLimit;
 use Buckaroo\Woocommerce\Gateways\Googlepay\GooglepayController;
 use Buckaroo\Woocommerce\Gateways\Googlepay\GooglepayGateway;
 
@@ -599,10 +600,14 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
             'addressLines' => ['Test 1'], 'locality' => 'Amsterdam', 'postalCode' => '1017GB', 'countryCode' => 'NL'];
         $before = $_POST;
         $_POST = ['amount' => '14.00', 'selected_shipping_method' => '',
-            'paymentData' => ['billingContact' => $address, 'shippingContact' => $address],
+            'paymentData' => ['token' => '{"signature":"test"}', 'billingContact' => $address, 'shippingContact' => $address],
             'items' => [['type' => 'product', 'id' => $productId, 'quantity' => 1]]];
         $requestBefore = $_REQUEST;
+        $serverBefore = $_SERVER;
         $_REQUEST['security'] = wp_create_nonce(GooglepayGateway::CREATE_TRANSACTION_NONCE);
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REMOTE_ADDR'] = '2001:db8:1::1';
+        WC()->session->set(ExpressRateLimit::SESSION_KEY, null);
         try {
             try {
                 $gateway->createTransaction();
@@ -616,6 +621,7 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
         } finally {
             $_POST = $before;
             $_REQUEST = $requestBefore;
+            $_SERVER = $serverBefore;
             $coupon->delete(true);
         }
     }

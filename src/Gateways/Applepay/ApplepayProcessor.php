@@ -23,20 +23,30 @@ class ApplepayProcessor extends AbstractPaymentProcessor
     }
 
     /**
-     * Apple Pay sends the token as a structured object. Older Apple Pay JS
-     * versions send the payment payload without wrapping it in a token, in
-     * which case the whole payload is forwarded.
+     * The token sent to Buckaroo, or null when the payload has none. Apple Pay
+     * sends the token as a structured object. Older Apple Pay JS versions send
+     * the payment payload without wrapping it in a token, in which case the
+     * whole payload is forwarded.
+     *
+     * @return mixed
      */
-    private function get_payment_data(array $data): string
+    public static function walletToken(array $data)
     {
         if (! empty($data['token'])) {
-            return $this->encodeWalletToken($data['token']);
+            return $data['token'];
         }
 
         if (! empty($data['paymentData'])) {
-            return $this->encodeWalletToken($data);
+            return $data;
         }
 
-        return '';
+        return null;
+    }
+
+    private function get_payment_data(array $data): string
+    {
+        $token = self::walletToken($data);
+
+        return $token === null ? '' : $this->encodeWalletToken($token);
     }
 }

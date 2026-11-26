@@ -544,11 +544,11 @@ class BuckarooPaypalExpress {
             console.log(message);
             message = buckaroo_paypal_express.i18n.cannot_create_payment;
         }
-        const content = `      
-        <div class="woocommerce-error buckaroo-paypal-express-error" role="alert">
-          ${message}
-        </div>
-      `;
+        // Text only: the message can echo server or shopper input (BTI-1874).
+        const content = jQuery('<div>', {
+            class: 'woocommerce-error buckaroo-paypal-express-error',
+            role: 'alert',
+        }).text(String(message));
         jQuery('.woocommerce-notices-wrapper').first().prepend(content);
         setTimeout(function () {
             jQuery('.buckaroo-paypal-express-error').fadeOut(1000);
