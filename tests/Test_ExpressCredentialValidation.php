@@ -224,49 +224,68 @@ class Test_ExpressCredentialValidation extends WP_UnitTestCase
         $this->assertFalse((new GooglepayGateway())->is_available());
     }
 
-    public function test_paypal_requires_a_merchant_id_when_switching_to_live(): void
+    public function test_paypal_express_requires_a_merchant_id_when_switching_to_live(): void
     {
-        update_option('woocommerce_buckaroo_paypal_settings', ['enabled' => 'yes', 'mode' => 'test']);
+        update_option('woocommerce_buckaroo_paypal_settings', ['enabled' => 'yes', 'mode' => 'test', 'express' => ['cart']]);
         $gateway = new PaypalGateway();
-        $this->assertTrue($gateway->is_available());
         $gateway->set_post_data([
             $gateway->get_field_key('enabled') => '1',
             $gateway->get_field_key('mode') => 'live',
             $gateway->get_field_key('express_merchant_id') => '',
             $gateway->get_field_key('express_sandbox_merchant_id') => 'sandbox-id',
+            $gateway->get_field_key('button_pages') => ['cart'],
         ]);
         $gateway->process_admin_options();
 
         $this->assertCount(1, $gateway->get_errors());
         $this->assertStringContainsString('Merchant ID', $gateway->get_errors()[0]);
-        $this->assertFalse((new PaypalGateway())->is_available());
+        $this->assertStringContainsString('PayPal Express', $gateway->get_errors()[0]);
+        ob_start();
+        WC_Admin_Settings::show_messages();
+        $this->assertStringContainsString('PayPal Express', (string) ob_get_clean());
+        $this->assertTrue((new PaypalGateway())->is_available());
     }
 
-    /** @dataProvider paypalCredentials */
-    public function test_paypal_checkout_and_express_buttons_follow_required_live_credentials(array $settings, bool $configured): void
+    public function test_paypal_without_express_placements_saves_in_live_without_a_merchant_id(): void
+    {
+        $gateway = new PaypalGateway();
+        $gateway->set_post_data([
+            $gateway->get_field_key('enabled') => '1',
+            $gateway->get_field_key('mode') => 'live',
+            $gateway->get_field_key('express_merchant_id') => '',
+        ]);
+        $gateway->process_admin_options();
+
+        $this->assertSame([], $gateway->get_errors());
+        $this->assertSame(['none'], get_option('woocommerce_buckaroo_paypal_settings')['express']);
+        $this->assertTrue((new PaypalGateway())->is_available());
+    }
+
+    /** @dataProvider paypalExpressCredentials */
+    public function test_paypal_stays_listed_while_express_buttons_follow_live_credentials(array $settings, bool $expressConfigured): void
     {
         update_option('woocommerce_buckaroo_paypal_settings', $settings + [
             'enabled' => 'yes', 'express' => ['product', 'cart', 'checkout'],
         ]);
         $gateway = new PaypalGateway();
-        $this->assertSame($configured, $gateway->is_available());
-        $this->assertSame($configured, $gateway->isVisibleInCheckout());
-        $this->assertSame(! $configured, strpos($this->header($gateway), 'Not configured') !== false);
+        $this->assertTrue($gateway->is_available());
+        $this->assertTrue($gateway->isVisibleInCheckout());
+        $this->assertStringNotContainsString('Not configured', $this->header($gateway));
         $data = $this->blocksData($gateway);
-        $this->assertSame($configured, $data['available']);
-        $this->assertSame($configured, $data['showInCheckout']);
+        $this->assertTrue($data['available']);
+        $this->assertSame($expressConfigured, $data['showInCheckout']);
 
         $manager = ExpressPaymentManager::getInstance();
         new PaypalExpressController(new PaypalExpressShipping(), new PaypalExpressOrder());
         foreach (['product', 'cart', 'checkout'] as $location) {
             ob_start();
             $manager->renderExpressPaymentsContainer($location);
-            $this->assertSame($configured, strpos((string) ob_get_clean(), 'buckaroo-paypal-express') !== false);
+            $this->assertSame($expressConfigured, strpos((string) ob_get_clean(), 'buckaroo-paypal-express') !== false);
         }
         $manager->clearPayments();
     }
 
-    public function paypalCredentials(): array
+    public function paypalExpressCredentials(): array
     {
         return [
             'missing Test' => [['mode' => 'test'], true],
@@ -280,24 +299,30 @@ class Test_ExpressCredentialValidation extends WP_UnitTestCase
         ];
     }
 
-    /** @dataProvider paypalCredentials */
-    public function test_paypal_saves_accept_empty_merchant_ids_only_in_test(array $settings, bool $configured): void
+    /** @dataProvider paypalExpressCredentials */
+    public function test_paypal_saves_warn_only_when_express_buttons_lack_credentials(array $settings, bool $expressConfigured): void
     {
         $gateway = new PaypalGateway();
-        $post = [$gateway->get_field_key('enabled') => '1'];
+        $post = [
+            $gateway->get_field_key('enabled') => '1',
+            $gateway->get_field_key('button_pages') => ['cart'],
+        ];
         foreach ($settings as $key => $value) {
             $post[$gateway->get_field_key($key)] = $value;
         }
         $gateway->set_post_data($post);
         $gateway->process_admin_options();
-        $this->assertSame(! $configured, count($gateway->get_errors()) > 0);
-        $this->assertSame($configured, (new PaypalGateway())->is_available());
+        $this->assertCount($expressConfigured ? 0 : 1, $gateway->get_errors());
+        $this->assertTrue((new PaypalGateway())->is_available());
     }
 
     public function test_disabled_paypal_can_save_without_live_credentials(): void
     {
         $gateway = new PaypalGateway();
-        $gateway->set_post_data([$gateway->get_field_key('mode') => 'live']);
+        $gateway->set_post_data([
+            $gateway->get_field_key('mode') => 'live',
+            $gateway->get_field_key('button_pages') => ['cart'],
+        ]);
         $gateway->process_admin_options();
         $this->assertSame([], $gateway->get_errors());
         $this->assertFalse((new PaypalGateway())->is_available());

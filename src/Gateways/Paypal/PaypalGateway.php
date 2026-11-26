@@ -23,7 +23,7 @@ class PaypalGateway extends AbstractPaymentGateway
 
     public const PAYMENT_CLASS = PaypalProcessor::class;
 
-    protected const REQUIRED_CREDENTIALS = ['express_merchant_id' => 'live'];
+    protected const EXPRESS_REQUIRED_CREDENTIALS = ['express_merchant_id' => 'live'];
 
     public $sellerprotection;
 
@@ -119,7 +119,7 @@ class PaypalGateway extends AbstractPaymentGateway
                 'express_merchant_id' => [
                     'title' => __('Merchant ID', 'wc-buckaroo-bpe-gateway'),
                     'type' => 'text',
-                    'description' => __('Found in PayPal → <a href="https://www.paypal.com/businessmanage/account/aboutBusiness" target="_blank" rel="noopener">Business information</a>. Required for live payments.', 'wc-buckaroo-bpe-gateway'),
+                    'description' => __('Found in PayPal → <a href="https://www.paypal.com/businessmanage/account/aboutBusiness" target="_blank" rel="noopener">Business information</a>. Required for PayPal Express in live mode.', 'wc-buckaroo-bpe-gateway'),
                 ],
             ],
             'secondary_credentials' => [
@@ -283,5 +283,32 @@ class PaypalGateway extends AbstractPaymentGateway
             new PaypalExpressShipping(),
             new PaypalExpressOrder()
         );
+    }
+
+    /**
+     * Check the PayPal Express credentials for the selected transaction mode.
+     * Only the Express buttons use the merchant ID; the regular PayPal payment
+     * does not, so it has no required credentials.
+     */
+    public static function hasExpressCredentials(array $settings): bool
+    {
+        return static::getMissingRequiredCredentials($settings, self::EXPRESS_REQUIRED_CREDENTIALS) === [];
+    }
+
+    /**
+     * Placements are read from storage: WooCommerce saves the filtered
+     * settings but leaves $this->settings unfiltered.
+     */
+    public function process_admin_options()
+    {
+        parent::process_admin_options();
+
+        if ($this->get_option('enabled') === 'yes' && $this->expressPlacements() !== []) {
+            $this->addMissingCredentialErrors(
+                self::EXPRESS_REQUIRED_CREDENTIALS,
+                /* translators: %s: Name of the required setting. */
+                __('%s is required to show the PayPal Express buttons in the selected transaction mode.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
     }
 }

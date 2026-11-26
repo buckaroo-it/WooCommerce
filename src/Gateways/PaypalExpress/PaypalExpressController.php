@@ -135,7 +135,7 @@ class PaypalExpressController
     protected function is_active()
     {
         return $this->settings['enabled'] == 'yes' &&
-            PaypalGateway::hasRequiredCredentials($this->settings) &&
+            PaypalGateway::hasExpressCredentials($this->settings) &&
             ! (count($this->settings['express']) === 1 && in_array(self::LOCATION_NONE, $this->settings['express']));
     }
 

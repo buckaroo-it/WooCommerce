@@ -211,7 +211,7 @@ class InitGateways
                         $payment_method,
                         [
                             'showInCheckout' => is_array($expressPages) && in_array(PaypalExpressController::LOCATION_CHECKOUT, $expressPages)
-                                && $gateway::hasRequiredCredentials($gateway->settings),
+                                && $gateway::hasExpressCredentials($gateway->settings),
                         ]
                     );
                 }

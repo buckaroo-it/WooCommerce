@@ -1415,8 +1415,8 @@ msgid "Merchant ID"
 msgstr "Merchant ID"
 
 #: src/Gateways/Paypal/PaypalGateway.php:122
-msgid "Found in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>. Required for live payments."
-msgstr "Te vinden in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Bedrijfsgegevens</a>. Vereist voor live betalingen."
+msgid "Found in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>. Required for PayPal Express in live mode."
+msgstr "Te vinden in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Bedrijfsgegevens</a>. Vereist voor PayPal Express in de livemodus."
 
 #: src/Gateways/Paypal/PaypalGateway.php:127
 msgid "Sandbox credentials"
@@ -1466,6 +1466,11 @@ msgstr "Toon een melding wanneer klanten worden doorgestuurd om de betaling af t
 #, php-format
 msgid "%s is required to enable this payment method in the selected transaction mode."
 msgstr "%s is vereist om deze betaalmethode in de geselecteerde transactiemodus in te schakelen."
+
+#: src/Gateways/Paypal/PaypalGateway.php:310
+#, php-format
+msgid "%s is required to show the PayPal Express buttons in the selected transaction mode."
+msgstr "%s is vereist om de PayPal Express-knoppen in de geselecteerde transactiemodus te tonen."
 
 #: src/Gateways/AbstractPaymentGateway.php:699
 msgid "Not configured"

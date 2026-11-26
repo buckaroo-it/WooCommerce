@@ -418,17 +418,11 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         parent::process_admin_options();
 
         if ($this->get_option('enabled') === 'yes') {
-            foreach (static::getMissingRequiredCredentials($this->settings) as $key) {
-                $error = sprintf(
-                    /* translators: %s: Name of the required setting. */
-                    __('%s is required to enable this payment method in the selected transaction mode.', 'wc-buckaroo-bpe-gateway'),
-                    $this->form_fields[$key]['title']
-                );
-                $this->add_error($error);
-                if (class_exists('WC_Admin_Settings')) {
-                    \WC_Admin_Settings::add_error($error);
-                }
-            }
+            $this->addMissingCredentialErrors(
+                static::REQUIRED_CREDENTIALS,
+                /* translators: %s: Name of the required setting. */
+                __('%s is required to enable this payment method in the selected transaction mode.', 'wc-buckaroo-bpe-gateway')
+            );
         }
 
         $optionKey = $this->plugin_id . $this->id . '_settings';
@@ -438,17 +432,37 @@ class AbstractPaymentGateway extends WC_Payment_Gateway
         ]);
     }
 
+    /**
+     * Add a settings error, built from $format and the field title, for each
+     * credential in $required that is empty. WooCommerce shows payment gateway
+     * setting errors only through WC_Admin_Settings.
+     */
+    protected function addMissingCredentialErrors(array $required, string $format): void
+    {
+        foreach (static::getMissingRequiredCredentials($this->settings, $required) as $key) {
+            $error = sprintf($format, $this->form_fields[$key]['title']);
+            $this->add_error($error);
+            if (class_exists('WC_Admin_Settings')) {
+                \WC_Admin_Settings::add_error($error);
+            }
+        }
+    }
+
     /** Check method-specific credentials for the selected transaction mode. */
     public static function hasRequiredCredentials(array $settings): bool
     {
         return static::getMissingRequiredCredentials($settings) === [];
     }
 
-    protected static function getMissingRequiredCredentials(array $settings): array
+    /**
+     * Keys from $required (REQUIRED_CREDENTIALS by default) that are empty in
+     * the selected transaction mode.
+     */
+    protected static function getMissingRequiredCredentials(array $settings, ?array $required = null): array
     {
         $missing = [];
         $mode = strtolower((string) ($settings['mode'] ?? 'test'));
-        foreach (static::REQUIRED_CREDENTIALS as $key => $requiredIn) {
+        foreach ($required ?? static::REQUIRED_CREDENTIALS as $key => $requiredIn) {
             if ($requiredIn === 'live' && $mode === 'test') {
                 continue;
             }

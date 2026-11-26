@@ -1431,8 +1431,8 @@ msgid "Your Google Merchant ID, found in the <a href=\"https://pay.google.com/bu
 msgstr "Ihre Google Merchant ID, zu finden in der <a href=\"https://pay.google.com/business/console\" target=\"_blank\" rel=\"noopener\">Google Pay & Wallet Console</a> (z. B. BCR2DN4T...). Erforderlich für Live-Zahlungen."
 
 #: src/Gateways/Paypal/PaypalGateway.php:122
-msgid "Found in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>. Required for live payments."
-msgstr "Zu finden in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Unternehmensinformationen</a>. Erforderlich für Live-Zahlungen."
+msgid "Found in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>. Required for PayPal Express in live mode."
+msgstr "Zu finden in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Unternehmensinformationen</a>. Erforderlich für PayPal Express im Live-Modus."
 
 #: src/Gateways/ExpressProductCart.php:29
 msgid "No shipping required"
@@ -1454,6 +1454,11 @@ msgstr "Zeige einen Hinweis, wenn Kunden zum Abschluss der Zahlung weitergeleite
 #, php-format
 msgid "%s is required to enable this payment method in the selected transaction mode."
 msgstr "%s ist erforderlich, um diese Zahlungsart im ausgewählten Transaktionsmodus zu aktivieren."
+
+#: src/Gateways/Paypal/PaypalGateway.php:310
+#, php-format
+msgid "%s is required to show the PayPal Express buttons in the selected transaction mode."
+msgstr "%s ist erforderlich, um die PayPal Express-Buttons im ausgewählten Transaktionsmodus anzuzeigen."
 
 #: src/Gateways/AbstractPaymentGateway.php:699
 msgid "Not configured"
