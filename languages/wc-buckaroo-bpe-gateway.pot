@@ -453,6 +453,12 @@ msgstr ""
 msgid "%s is required to enable this payment method in the selected transaction mode."
 msgstr ""
 
+#. translators: %s: Name of the required setting.
+#: src/Gateways/Paypal/PaypalGateway.php:310
+#, php-format
+msgid "%s is required to show the PayPal Express buttons in the selected transaction mode."
+msgstr ""
+
 #: src/Gateways/AbstractPaymentGateway.php:685
 msgid "Not configured"
 msgstr ""
@@ -1371,7 +1377,7 @@ msgid "Merchant ID"
 msgstr ""
 
 #: src/Gateways/Paypal/PaypalGateway.php:122
-msgid "Found in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>. Required for live payments."
+msgid "Found in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>. Required for PayPal Express in live mode."
 msgstr ""
 
 #: src/Gateways/Paypal/PaypalGateway.php:127

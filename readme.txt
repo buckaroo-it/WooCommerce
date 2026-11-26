@@ -173,6 +173,7 @@ Bug fixes
 BTI-2155 Payment methods enabled from WooCommerce > Settings > Payments showed "Limited compatibility" until the page was reloaded
 BTI-2155 Paying by card in the block checkout logged a PHP warning
 BTI-2155 Activating the plugin logged a notice that WooCommerce translations were loaded too early
+BTI-2220 PayPal was not shown in the checkout when the PayPal Merchant ID was empty; the Merchant ID is now only required for PayPal Express in live mode
 
 = 4.11.0 =
 

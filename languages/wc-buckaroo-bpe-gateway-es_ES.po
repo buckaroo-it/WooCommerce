@@ -1308,8 +1308,8 @@ msgid "Your Google Merchant ID, found in the <a href=\"https://pay.google.com/bu
 msgstr "Su Google Merchant ID, disponible en la <a href=\"https://pay.google.com/business/console\" target=\"_blank\" rel=\"noopener\">Google Pay & Wallet Console</a> (p. ej. BCR2DN4T...). Obligatorio para pagos reales."
 
 #: src/Gateways/Paypal/PaypalGateway.php:122
-msgid "Found in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>. Required for live payments."
-msgstr "Disponible en PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Información de la empresa</a>. Obligatorio para pagos reales."
+msgid "Found in PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Business information</a>. Required for PayPal Express in live mode."
+msgstr "Disponible en PayPal → <a href=\"https://www.paypal.com/businessmanage/account/aboutBusiness\" target=\"_blank\" rel=\"noopener\">Información de la empresa</a>. Obligatorio para PayPal Express en modo real."
 
 #: src/Gateways/Paypal/PaypalGateway.php:61
 msgid "Global digital wallet with card and balance payments, plus Buyer Protection."
@@ -1327,6 +1327,11 @@ msgstr "El importe de Google Pay ha cambiado. Actualice la página y apruebe el 
 #, php-format
 msgid "%s is required to enable this payment method in the selected transaction mode."
 msgstr "Se requiere %s para activar este método de pago en el modo de transacción seleccionado."
+
+#: src/Gateways/Paypal/PaypalGateway.php:310
+#, php-format
+msgid "%s is required to show the PayPal Express buttons in the selected transaction mode."
+msgstr "Se requiere %s para mostrar los botones de PayPal Express en el modo de transacción seleccionado."
 
 #: src/Gateways/AbstractPaymentGateway.php:699
 msgid "Not configured"
