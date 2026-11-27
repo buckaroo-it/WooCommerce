@@ -32,7 +32,7 @@ class CaptureRecorder
         try {
             $order->read_meta_data(true);
             if (OrderMeta::get($order, '_capturebuckaroo' . $transactionKey)) {
-                return CaptureResult::succeeded($responseData, $transactionKey);
+                return CaptureResult::alreadyRecorded($responseData, $transactionKey);
             }
 
             global $wpdb;
