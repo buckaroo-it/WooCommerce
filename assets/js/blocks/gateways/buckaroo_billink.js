@@ -7,7 +7,7 @@ import { TextField } from '../components/CheckoutFields';
 function Billink({ onStateChange, methodName, billing }) {
     const initialState = {
         [`${methodName}-company-coc-registration`]: '',
-        [`${methodName}-VatNumber`]: '',
+        [`${methodName}-vatnumber`]: '',
         [`${methodName}-b2b`]: '',
     };
 
@@ -28,7 +28,7 @@ function Billink({ onStateChange, methodName, billing }) {
         <div id="buckaroo_billink_b2b">
             <CoCField methodName={methodName} handleChange={handleChange} />
             <TextField
-                id={`${methodName}-VatNumber`}
+                id={`${methodName}-vatnumber`}
                 label={__('VAT-number:', 'wc-buckaroo-bpe-gateway')}
                 maxLength="250"
                 autoComplete="off"

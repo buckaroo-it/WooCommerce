@@ -3,9 +3,7 @@
 namespace Buckaroo\Woocommerce\Gateways\SepaDirectDebit;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
-use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
-use BuckarooDeps\Buckaroo\Transaction\Response\TransactionResponse;
 
 class SepaDirectDebitProcessor extends AbstractPaymentProcessor
 {
@@ -27,36 +25,23 @@ class SepaDirectDebitProcessor extends AbstractPaymentProcessor
         return [];
     }
 
-    public function afterProcessPayment(OrderDetails $orderDetails, TransactionResponse $transactionResponse): array
-    {
-        if ($transactionResponse->isSuccess() || $transactionResponse->isAwaitingConsumer() || $transactionResponse->isPendingProcessing()) {
-            $params = $transactionResponse->getServiceParameters();
-            $order = $orderDetails->get_order();
-
-            $order->add_order_note('MandateReference: ' . $params['mandatereference'] ?? '', true);
-            $order->add_order_note('MandateDate: ' . $params['mandatedate'] ?? '', true);
-        }
-
-        return [];
-    }
-
+    /**
+     * Show the mandate to the customer in one order note. Buckaroo usually
+     * answers a direct debit with 791 (pending processing), so this runs for
+     * any status that carries the mandate (BTI-1880).
+     */
     public function beforeReturnHandler(ResponseParser $responseParser, string $redirectUrl)
     {
-        if ($responseParser->isSuccess()) {
-            $params = $responseParser->get('Services.Service.ResponseParameter');
-            $order = $this->get_order();
+        $lines = [];
+        foreach (['MandateReference', 'MandateDate'] as $name) {
+            $value = $responseParser->getServiceParameter($name);
+            if (is_scalar($value) && (string) $value !== '') {
+                $lines[] = $name . ': ' . $value;
+            }
+        }
 
-            if (! is_array($params)) {
-                return;
-            }
-            foreach ($params as $param) {
-                if ($param->Name === 'MandateReference') {
-                    $order->add_order_note('MandateReference: ' . $param->_, 1);
-                }
-                if ($param->Name === 'MandateDate') {
-                    $order->add_order_note('MandateDate: ' . $param->_, 1);
-                }
-            }
+        if ($lines !== []) {
+            $this->get_order()->add_order_note(implode("\n", $lines), 1);
         }
     }
 }

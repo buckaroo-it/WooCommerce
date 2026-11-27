@@ -82,6 +82,10 @@ class AfterpayNewGateway extends AbstractPaymentGateway
             $errors[] = __('You must be at least 18 years old to use this payment method. Please enter your correct date of birth. Or choose another payment method to complete your order.', 'wc-buckaroo-bpe-gateway');
         }
 
+        if ($country === 'FI' && $this->isBlank($this->request->input('buckaroo-afterpaynew-identification-number'))) {
+            $errors[] = __('Please enter your identification number', 'wc-buckaroo-bpe-gateway');
+        }
+
         if ($this->isBlank($this->request->input('buckaroo-afterpaynew-accept'))) {
             $errors[] = __('Please accept licence agreements', 'wc-buckaroo-bpe-gateway');
         }

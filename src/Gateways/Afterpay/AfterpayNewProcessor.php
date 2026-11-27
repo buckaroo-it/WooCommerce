@@ -94,8 +94,31 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
         return array_merge_recursive(
             $data,
             $this->getCompany(),
-            $this->getBirthDate($country_code)
+            $this->getBirthDate($country_code),
+            $this->getIdentificationNumber($country_code)
         );
+    }
+
+    /**
+     * Riverty needs the personal identification number of a Finnish shopper.
+     * Left out when blank, as the capture reuses this body (BTI-1880).
+     *
+     * @return array<mixed>
+     */
+    protected function getIdentificationNumber(string $country_code): array
+    {
+        $identificationNumber = $this->request->input('buckaroo-afterpaynew-identification-number');
+        if ($country_code !== 'FI' || ! is_string($identificationNumber) || trim($identificationNumber) === '') {
+            return [];
+        }
+
+        return [
+            'billing' => [
+                'recipient' => [
+                    'identificationNumber' => trim($identificationNumber),
+                ],
+            ],
+        ];
     }
 
     /**
@@ -128,13 +151,13 @@ class AfterpayNewProcessor extends AbstractPaymentProcessor
     }
 
     /**
-     * Get  careOf
+     * The company for a request sent as a company, otherwise the person's
+     * name, so careOf always matches the category (BTI-1880).
      */
     private function getCareOf(string $address_type = 'billing'): string
     {
-        $company = $this->getAddress($address_type, 'company');
-        if (! $this->isCompanyEmpty()) {
-            return $company;
+        if ($this->getCategory($address_type) === 'Company') {
+            return $this->getAddress($address_type, 'company');
         }
 
         return $this->order_details->get_full_name($address_type);

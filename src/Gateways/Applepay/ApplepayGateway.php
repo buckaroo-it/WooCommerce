@@ -83,7 +83,9 @@ class ApplepayGateway extends AbstractPaymentGateway
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- expressRequestError() verified the nonce.
         Logger::log(__METHOD__ . '|1|', ['request_fields' => array_keys($_POST)]);
 
-        $this->paymentData = $this->request->input('paymentData');
+        // The express button posts the payload as form fields, which WordPress
+        // slash-escapes; the contacts become the order's addresses (BTI-1880).
+        $this->paymentData = wp_unslash($this->request->input('paymentData'));
 
         // No order is created for a payload without a wallet token (BTI-1874).
         if (! is_array($this->paymentData) || empty(ApplepayProcessor::walletToken($this->paymentData))) {
@@ -269,7 +271,8 @@ class ApplepayGateway extends AbstractPaymentGateway
 
             $this->reserveExpressStock($order);
 
-            $order->update_status('pending payment', 'Order created using Apple Pay', true);
+            // The express order is created pending, so the note is added directly (BTI-1880).
+            $order->add_order_note('Order created using Apple Pay');
         } catch (Throwable $e) {
             Logger::log(__METHOD__ . '|fail|', $e->getMessage());
             if ($order instanceof WC_Order) {

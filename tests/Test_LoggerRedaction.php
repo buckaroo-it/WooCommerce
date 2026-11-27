@@ -229,6 +229,8 @@ class Test_LoggerRedaction extends WP_UnitTestCase
             ['dateOfBirth'],
             ['chamberOfCommerce'],
             ['buckaroo-afterpaynew-company-coc-registration'],
+            ['identificationNumber'],
+            ['buckaroo-afterpaynew-identification-number'],
             ['brq_service_idin_consumerbin'],
             ['clientIP'],
             ['customer_ip_address'],

@@ -47,8 +47,13 @@ abstract class AbstractProcessor extends WC_Payment_Gateway
     {
         $config = get_option('woocommerce_buckaroo_mastersettings_settings', []);
 
+        // Without a stored culture, use the setting's default (BTI-1880).
+        $culture = is_array($config) && is_string($config['culture'] ?? null) && $config['culture'] !== ''
+            ? $config['culture']
+            : 'dynamic';
+
         // Check if the dynamic language option is selected.
-        if ($config['culture'] == 'dynamic') {
+        if ($culture === 'dynamic') {
             $locale = function_exists('determine_locale') ? determine_locale() : get_locale();
             $language = substr((string) $locale, 0, 2);
 
@@ -62,6 +67,6 @@ abstract class AbstractProcessor extends WC_Payment_Gateway
             return $supportedLanguages[$language] ?? 'en-US';
         }
 
-        return $config['culture'];
+        return $culture;
     }
 }

@@ -37,7 +37,7 @@ defined('ABSPATH') || exit;
     );
 
     woocommerce_form_field(
-        'buckaroo-billink-VatNumber',
+        'buckaroo-billink-vatnumber',
         [
             'type' => 'text',
             'label' => __('VAT number:', 'wc-buckaroo-bpe-gateway'),
