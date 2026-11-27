@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Buckaroo\Woocommerce\Gateways\Applepay\ApplepayController;
-use Buckaroo\Woocommerce\Gateways\Express\ExpressCheckoutRules;
 use Buckaroo\Woocommerce\Gateways\Express\ExpressRateLimit;
 use Buckaroo\Woocommerce\Gateways\ExpressPaymentManager;
 use Buckaroo\Woocommerce\Gateways\Googlepay\GooglepayController;
@@ -341,7 +340,7 @@ class Test_ExpressCheckoutRules extends ExpressWalletTestCase
     /**
      * @dataProvider walletGateways
      */
-    public function test_unpaid_express_order_reserves_the_last_unit_from_other_shoppers(string $class, string $id): void
+    public function test_payment_in_progress_keeps_the_last_unit_held(string $class, string $id): void
     {
         $this->configureWallet($id);
         $productId = $this->createStockedProduct('Last unit', 1);
@@ -351,8 +350,7 @@ class Test_ExpressCheckoutRules extends ExpressWalletTestCase
         $this->assertSame(self::PAID, $this->runTransaction($first));
         $this->assertSame(1, (int) wc_get_held_stock_quantity(wc_get_product($productId)));
 
-        // Another shopper's session, while the first order waits for its payment.
-        $this->startOtherSession();
+        // While the first order waits for its payment push, nobody can buy the unit again.
         $second = new $class();
         $message = $this->runTransaction($second);
 
@@ -363,19 +361,18 @@ class Test_ExpressCheckoutRules extends ExpressWalletTestCase
     /**
      * @dataProvider walletGateways
      */
-    public function test_shopper_can_retry_while_their_own_express_order_is_unpaid(string $class, string $id): void
+    public function test_shopper_can_retry_after_a_payment_that_was_not_started(string $class, string $id): void
     {
         $this->configureWallet($id);
         $productId = $this->createStockedProduct('Retried unit', 1);
-        $first = new $class();
+        $refused = new $class();
+        $refused->paymentResult = ['result' => 'failure'];
         $this->postTransaction($productId);
-        $this->assertSame(self::PAID, $this->runTransaction($first));
+        $this->assertSame(self::PAID, $this->runTransaction($refused));
 
-        $retry = new $class();
-
-        $this->assertSame(self::PAID, $this->runTransaction($retry));
-        $this->assertSame(1, (int) wc_get_held_stock_quantity(wc_get_product($productId)));
-        $this->assertSame(0, (int) wc_get_held_stock_quantity(wc_get_product($productId), $retry->paidOrderId));
+        $this->assertSame('failed', wc_get_order($refused->paidOrderId)->get_status());
+        $this->assertSame(0, (int) wc_get_held_stock_quantity(wc_get_product($productId)));
+        $this->assertSame(self::PAID, $this->runTransaction(new $class()));
     }
 
     /**
@@ -409,6 +406,24 @@ class Test_ExpressCheckoutRules extends ExpressWalletTestCase
     /**
      * @dataProvider walletGateways
      */
+    public function test_order_the_payment_already_cancelled_is_not_marked_failed(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+        $gateway = new $class();
+        $gateway->beforePayment = static function (int $orderId): void {
+            wc_get_order($orderId)->update_status('cancelled');
+        };
+        $gateway->paymentResult = ['result' => 'failure'];
+        $this->postTransaction($this->createSimpleProduct('Cancelled payment', '15.00'));
+
+        $this->assertSame(self::PAID, $this->runTransaction($gateway));
+
+        $this->assertSame('cancelled', wc_get_order($gateway->paidOrderId)->get_status());
+    }
+
+    /**
+     * @dataProvider walletGateways
+     */
     public function test_payment_that_could_not_start_releases_its_stock_reservation(string $class, string $id): void
     {
         $this->configureWallet($id);
@@ -425,7 +440,6 @@ class Test_ExpressCheckoutRules extends ExpressWalletTestCase
 
         $this->assertSame(1, $heldAtPayment, 'The order held the unit while its payment started.');
         $this->assertSame(0, (int) wc_get_held_stock_quantity(wc_get_product($productId)));
-        $this->startOtherSession();
         $this->assertSame(self::PAID, $this->runTransaction(new $class()));
     }
 
@@ -451,6 +465,28 @@ class Test_ExpressCheckoutRules extends ExpressWalletTestCase
         $this->assertSame(self::TOO_MANY, $message);
         $this->assertNull($gateway->paidOrderId);
         $this->assertSame($ordersBefore, $this->orderIds());
+    }
+
+    /**
+     * @dataProvider walletGateways
+     */
+    public function test_wallet_order_keeps_the_state_second_address_line_and_phone(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+        $gateway = new $class();
+        $this->postTransaction($this->createSimpleProduct('Full address', '15.00'));
+        foreach (['billingContact', 'shippingContact'] as $contact) {
+            $_POST['paymentData'][$contact]['administrativeArea'] = 'NH';
+            $_POST['paymentData'][$contact]['addressLines'] = ['Kerkstraat 42', 'Apartment 3'];
+        }
+        // Apple Pay returns the phone number with the shipping contact only.
+        $_POST['paymentData']['shippingContact']['phoneNumber'] = '+31201234567';
+
+        $this->assertSame(self::PAID, $this->runTransaction($gateway));
+
+        $order = wc_get_order($gateway->paidOrderId);
+        $this->assertSame(['NH', 'Apartment 3', '+31201234567'], [$order->get_billing_state(), $order->get_billing_address_2(), $order->get_billing_phone()]);
+        $this->assertSame(['NH', 'Apartment 3', '+31201234567'], [$order->get_shipping_state(), $order->get_shipping_address_2(), $order->get_shipping_phone()]);
     }
 
     /**
@@ -583,13 +619,14 @@ class Test_ExpressCheckoutRules extends ExpressWalletTestCase
         $seen = [];
         $validate = static function () use (&$seen): void {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Test validator.
-            $seen = wp_unslash(array_intersect_key($_POST, array_flip(['billing_email', 'billing_last_name', 'billing_phone', 'shipping_city', 'payment_method'])));
+            $seen = wp_unslash(array_intersect_key($_POST, array_flip(['billing_email', 'billing_last_name', 'billing_phone', 'billing_state', 'shipping_city', 'payment_method'])));
         };
         add_action('woocommerce_checkout_process', $validate);
         $gateway = new $class();
         $this->postTransaction($this->createSimpleProduct('Posted form', '15.00'), '15.00', 'o\'brien@example.com');
         // Apple Pay returns the phone number with the shipping contact only.
         $_POST['paymentData']['shippingContact']['phoneNumber'] = '+31201234567';
+        $_POST['paymentData']['billingContact']['administrativeArea'] = 'NH';
 
         try {
             $this->assertSame(self::PAID, $this->runTransaction($gateway));
@@ -603,6 +640,7 @@ class Test_ExpressCheckoutRules extends ExpressWalletTestCase
                 'billing_email' => 'o\'brien@example.com',
                 'billing_last_name' => 'Buyer',
                 'billing_phone' => '+31201234567',
+                'billing_state' => 'NH',
                 'payment_method' => $id,
                 'shipping_city' => 'Amsterdam',
             ],
@@ -657,13 +695,6 @@ class Test_ExpressCheckoutRules extends ExpressWalletTestCase
         $product->save();
 
         return $productId;
-    }
-
-    /** Continue as another shopper: a session without this shopper's express order or attempts. */
-    private function startOtherSession(): void
-    {
-        WC()->session->set(ExpressCheckoutRules::LAST_ORDER_SESSION_KEY, null);
-        WC()->session->set(ExpressRateLimit::SESSION_KEY, null);
     }
 
     /** Arguments for a second database connection, as a concurrent request has. */

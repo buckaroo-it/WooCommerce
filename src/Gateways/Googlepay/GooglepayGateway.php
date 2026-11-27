@@ -169,6 +169,14 @@ class GooglepayGateway extends AbstractPaymentGateway
             $this->error_response($this->expressFailureMessage());
         }
 
+        if (! is_array($result) || ($result['result'] ?? '') !== 'success') {
+            // Refused or never started: the order gives its stock and coupons back (BTI-1874).
+            $this->failExpressOrder(
+                $orderResult,
+                __('The express payment could not be started.', 'wc-buckaroo-bpe-gateway')
+            );
+        }
+
         Logger::log(__METHOD__ . '|1|', $result);
         $this->success_response($result);
     }
@@ -210,12 +218,11 @@ class GooglepayGateway extends AbstractPaymentGateway
         $billingEmail = self::walletEmail($billing_addresses, $shipping_addresses);
         $billingPhone = self::walletPhone($billing_addresses, $shipping_addresses);
         $checkoutData = ExpressCheckoutRules::checkoutData(
-            array_merge(self::orderAddresses($billing_addresses), ['email' => $billingEmail, 'phone' => $billingPhone]),
-            self::orderAddresses($shipping_addresses),
+            array_merge(self::walletAddress($billing_addresses), ['email' => $billingEmail, 'phone' => $billingPhone]),
+            self::walletAddress($shipping_addresses),
             $this->id
         );
         $order = null;
-        ExpressCheckoutRules::releaseLastOrderStock();
 
         try {
             $shipping_rate = ExpressProductCart::calculateItems(
@@ -236,8 +243,8 @@ class GooglepayGateway extends AbstractPaymentGateway
                 true
             );
 
-            $order->set_address(self::orderAddresses($billing_addresses), 'billing');
-            $order->set_address(self::orderAddresses($shipping_addresses), 'shipping');
+            $order->set_address(self::walletAddress($billing_addresses), 'billing');
+            $order->set_address(self::walletAddress($shipping_addresses), 'shipping');
 
             if ($billingEmail) {
                 $order->set_billing_email($billingEmail);
@@ -276,8 +283,6 @@ class GooglepayGateway extends AbstractPaymentGateway
 
             return false;
         }
-
-        ExpressCheckoutRules::rememberOrder($order);
 
         return [
             'success' => true,
@@ -340,31 +345,6 @@ class GooglepayGateway extends AbstractPaymentGateway
             do_action('woocommerce_checkout_create_order_line_item', $item, $cart_item_key, $cart_item, $order);
             $order->add_item($item);
         }
-    }
-
-    /**
-     * Map a Google Pay contact onto the WooCommerce address keys.
-     *
-     * set_address() skips keys without a matching setter, so 'email' is a no-op
-     * on the shipping address and 'phone' only applies where WooCommerce
-     * supports it.
-     */
-    private static function orderAddresses($address)
-    {
-        $lines = array_values(array_filter((array) ($address['addressLines'] ?? [])));
-
-        return [
-            'first_name' => $address['givenName'],
-            'last_name' => $address['familyName'],
-            'email' => $address['emailAddress'] ?? '',
-            'phone' => $address['phoneNumber'] ?? '',
-            'address_1' => $lines[0] ?? '',
-            'address_2' => implode(', ', array_slice($lines, 1)),
-            'city' => $address['locality'],
-            'state' => $address['administrativeArea'] ?? '',
-            'postcode' => $address['postalCode'],
-            'country' => $address['countryCode'],
-        ];
     }
 
     private function setOrderContribution(WC_Order $order)

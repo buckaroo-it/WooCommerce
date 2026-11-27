@@ -90,6 +90,31 @@ trait ExpressAvailability
         $order->delete(true);
     }
 
+    /**
+     * Map a wallet contact onto the WooCommerce address keys.
+     *
+     * set_address() skips keys without a matching setter, so 'email' is a no-op
+     * on the shipping address and 'phone' only applies where WooCommerce
+     * supports it.
+     */
+    protected static function walletAddress(array $contact): array
+    {
+        $lines = array_values(array_filter((array) ($contact['addressLines'] ?? [])));
+
+        return [
+            'first_name' => $contact['givenName'],
+            'last_name' => $contact['familyName'],
+            'email' => $contact['emailAddress'] ?? '',
+            'phone' => $contact['phoneNumber'] ?? '',
+            'address_1' => $lines[0] ?? '',
+            'address_2' => implode(', ', array_slice($lines, 1)),
+            'city' => $contact['locality'],
+            'state' => $contact['administrativeArea'] ?? '',
+            'postcode' => $contact['postalCode'],
+            'country' => $contact['countryCode'],
+        ];
+    }
+
     /** The order phone number from the wallet contacts: billing, otherwise shipping. */
     protected static function walletPhone(array $billingContact, array $shippingContact): string
     {
@@ -171,16 +196,17 @@ trait ExpressAvailability
     }
 
     /**
-     * Mark the order of a payment that could not be started as failed. That
-     * returns its coupon holds and recorded coupon usage, so the shopper's
-     * next attempt can use the coupon again (BTI-1874).
+     * Mark the order of a payment that was refused or could not be started as
+     * failed, while it is still unpaid. WooCommerce then gives back the stock
+     * and coupons it holds, so the shopper's next attempt can use them
+     * (BTI-1874). An order the payment already moved on is left as it is.
      *
      * @param  mixed  $orderResult  The result of createOrder().
      */
     protected function failExpressOrder($orderResult, string $note): void
     {
         $order = ! empty($orderResult['data']['id']) ? wc_get_order($orderResult['data']['id']) : null;
-        if ($order instanceof WC_Order) {
+        if ($order instanceof WC_Order && $order->has_status('pending')) {
             $order->update_status('failed', $note);
         }
     }

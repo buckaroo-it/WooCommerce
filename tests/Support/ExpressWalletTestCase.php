@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Buckaroo\Woocommerce\Gateways\Applepay\ApplepayGateway;
-use Buckaroo\Woocommerce\Gateways\Express\ExpressCheckoutRules;
 use Buckaroo\Woocommerce\Gateways\Express\ExpressRateLimit;
 use Buckaroo\Woocommerce\Gateways\Googlepay\GooglepayGateway;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
@@ -64,7 +63,6 @@ abstract class ExpressWalletTestCase extends WP_UnitTestCase
         $this->server_before = $_SERVER;
         // Each test is a new visitor: a fresh rate-limit session and address.
         WC()->session->set(ExpressRateLimit::SESSION_KEY, null);
-        WC()->session->set(ExpressCheckoutRules::LAST_ORDER_SESSION_KEY, null);
         $_SERVER['REMOTE_ADDR'] = '2001:db8::' . dechex(++self::$visitor);
     }
 
@@ -212,6 +210,9 @@ trait Express_Availability_Gateway
     /** @var callable|null Runs when the payment step starts. */
     public $beforePayment;
 
+    /** @var array|null Returned by the payment step instead of a started payment. */
+    public $paymentResult;
+
     public function process_payment($order_id)
     {
         if ($this->beforePayment) {
@@ -223,7 +224,7 @@ trait Express_Availability_Gateway
 
         $this->paidOrderId = $order_id;
 
-        return ['result' => 'success', 'redirect' => 'https://example.org/pay'];
+        return $this->paymentResult ?? ['result' => 'success', 'redirect' => 'https://example.org/pay'];
     }
 
     public function success_response($result)
