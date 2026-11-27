@@ -51,8 +51,15 @@ class PaypalExpressOrder
         $order = null;
         $failure_note = __('PayPal Express payment processing failed.', 'wc-buckaroo-bpe-gateway');
 
+        $order_data = ['payment_method' => $payment_method_id];
+        $billing_email = self::billing_email($approved_contact);
+        if ($billing_email !== '') {
+            // WooCommerce holds the applied coupons only when it gets the billing e-mail (BTI-1874).
+            $order_data['billing_email'] = $billing_email;
+        }
+
         try {
-            $order_id = WC()->checkout()->create_order(['payment_method' => $payment_method_id]);
+            $order_id = WC()->checkout()->create_order($order_data);
             if (is_wp_error($order_id)) {
                 throw new PaypalExpressException($order_id->get_error_message());
             }
@@ -106,5 +113,21 @@ class PaypalExpressOrder
 
             throw $th;
         }
+    }
+
+    /**
+     * The e-mail the order is placed with: the one approved in PayPal,
+     * otherwise the customer's billing e-mail.
+     *
+     * @param array $approved_contact Billing and shipping fields from the approved PayPal order.
+     */
+    public static function billing_email(array $approved_contact): string
+    {
+        $email = $approved_contact['billing']['email'] ?? '';
+        if ((! is_string($email) || $email === '') && WC()->customer) {
+            $email = WC()->customer->get_billing_email();
+        }
+
+        return is_string($email) ? $email : '';
     }
 }

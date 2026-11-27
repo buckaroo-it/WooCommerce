@@ -11,15 +11,15 @@ use PHPUnit\Framework\TestCase;
 class Test_GooglepayGateway extends TestCase
 {
     /**
-     * Map a Google Pay contact through the gateway's private mapper.
+     * Map a Google Pay contact through the wallets' shared address mapper.
      */
-    private function orderAddresses(array $contact): array
+    private function walletAddress(array $contact): array
     {
         if (! class_exists('WC_Payment_Gateway')) {
             $this->markTestSkipped('WooCommerce not available');
         }
 
-        $method = new ReflectionMethod(GooglepayGateway::class, 'orderAddresses');
+        $method = new ReflectionMethod(GooglepayGateway::class, 'walletAddress');
         $method->setAccessible(true);
 
         return $method->invoke(null, $contact);
@@ -28,9 +28,9 @@ class Test_GooglepayGateway extends TestCase
     /**
      * A FULL format Google Pay contact fills every WooCommerce address field.
      */
-    public function test_order_addresses_maps_a_complete_contact()
+    public function test_wallet_address_maps_a_complete_contact()
     {
-        $address = $this->orderAddresses(
+        $address = $this->walletAddress(
             [
                 'givenName' => 'Jane',
                 'familyName' => 'Doe',
@@ -64,9 +64,9 @@ class Test_GooglepayGateway extends TestCase
     /**
      * A single address line leaves the second street field empty.
      */
-    public function test_order_addresses_leaves_address_2_empty_for_a_single_line()
+    public function test_wallet_address_leaves_address_2_empty_for_a_single_line()
     {
-        $address = $this->orderAddresses(
+        $address = $this->walletAddress(
             [
                 'givenName' => 'Jane',
                 'familyName' => 'Doe',
@@ -90,9 +90,9 @@ class Test_GooglepayGateway extends TestCase
      * An empty contact maps to empty fields instead of raising a notice. This is
      * the shape Google Pay returned before the billing address was requested.
      */
-    public function test_order_addresses_handles_an_empty_contact()
+    public function test_wallet_address_handles_an_empty_contact()
     {
-        $address = $this->orderAddresses(
+        $address = $this->walletAddress(
             [
                 'givenName' => '',
                 'familyName' => '',

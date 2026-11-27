@@ -34,6 +34,7 @@ tests_add_filter('muplugins_loaded', '_manually_load_plugin');
 require $_tests_dir.'/includes/bootstrap.php';
 
 // Shared test helpers, loaded after WooCommerce so they can reference its classes.
+require_once __DIR__.'/Support/ExpressWalletTestCase.php';
 require_once __DIR__.'/Support/HposStorage.php';
 require_once __DIR__.'/Support/InMemoryBuckarooClient.php';
 require_once __DIR__.'/Support/OtherConnectionLock.php';

@@ -3,6 +3,8 @@
 namespace Buckaroo\Woocommerce\Gateways\PaypalExpress;
 
 use Buckaroo\Woocommerce\Core\Plugin;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressCheckoutException;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressCheckoutRules;
 use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
 use Buckaroo\Woocommerce\Gateways\Paypal\PaypalGateway;
 use Buckaroo\Woocommerce\Services\Logger;
@@ -238,7 +240,7 @@ class PaypalExpressController
             wp_send_json(
                 [
                     'error' => true,
-                    'message' => $th->getMessage(),
+                    'message' => ExpressCheckoutException::plainText($th->getMessage()),
                 ]
             );
         } catch (Throwable $th) {
@@ -246,7 +248,7 @@ class PaypalExpressController
             wp_send_json(
                 [
                     'error' => true,
-                    'message' => 'Internal buckaroo error',
+                    'message' => self::failure_message(),
                 ]
             );
         }
@@ -294,7 +296,7 @@ class PaypalExpressController
             wp_send_json(
                 [
                     'error' => true,
-                    'message' => 'Cannot calculate cart total',
+                    'message' => self::failure_message(),
                 ]
             );
         }
@@ -331,12 +333,14 @@ class PaypalExpressController
                     if (! hash_equals($quote['total'], $order_total)) {
                         throw new PaypalExpressException('PayPal quote total has changed');
                     }
+                    $approved_contact = $this->shipping->get_approved_contact();
+                    ExpressCheckoutRules::check($cart, $this->checkout_data($approved_contact));
                     $shipping_rate = $this->selected_shipping_rate($cart);
                     $response = $this->order->create_and_send(
                         $paypal_order_id,
                         $shipping_rate,
                         $quote['total'],
-                        $this->shipping->get_approved_contact()
+                        $approved_contact
                     );
                     $error = $this->get_error_notices();
                     if ($error !== null) {
@@ -356,11 +360,11 @@ class PaypalExpressController
                     'data' => $result,
                 ]
             );
-        } catch (PaypalExpressException $th) {
+        } catch (PaypalExpressException | ExpressCheckoutException $th) {
             wp_send_json(
                 [
                     'error' => true,
-                    'message' => $th->getMessage(),
+                    'message' => ExpressCheckoutException::plainText($th->getMessage()),
                 ]
             );
         } catch (Throwable $th) {
@@ -368,10 +372,28 @@ class PaypalExpressController
             wp_send_json(
                 [
                     'error' => true,
-                    'message' => 'Cannot process buckaroo payment',
+                    'message' => self::failure_message(),
                 ]
             );
         }
+    }
+
+    /**
+     * The details the order is created with: the customer's address, which
+     * the express cart sets to the PayPal location, completed with the
+     * details approved in PayPal.
+     *
+     * @param array $approved_contact Billing and shipping fields from the approved PayPal order.
+     * @return array<string, string>
+     */
+    private function checkout_data(array $approved_contact): array
+    {
+        $customer = WC()->customer;
+        $billing = array_merge($customer ? $customer->get_billing() : [], $approved_contact['billing'] ?? []);
+        $shipping = array_merge($customer ? $customer->get_shipping() : [], $approved_contact['shipping'] ?? []);
+        $billing['email'] = PaypalExpressOrder::billing_email($approved_contact);
+
+        return ExpressCheckoutRules::checkoutData($billing, $shipping, 'buckaroo_paypal');
     }
 
     /**
@@ -548,6 +570,12 @@ class PaypalExpressController
             : self::LOCATION_CART;
     }
 
+    /** Shown when the request fails for a reason the shopper cannot act on. */
+    private static function failure_message(): string
+    {
+        return __('Something went wrong while processing your payment. Please try again.', 'wc-buckaroo-bpe-gateway');
+    }
+
     /**
      * Collect error notices raised while creating the isolated order.
      *
@@ -555,27 +583,9 @@ class PaypalExpressController
      */
     protected function get_error_notices()
     {
-        $notices = wc_get_notices('error');
-        wc_clear_notices();
+        $notices = ExpressCheckoutRules::takeErrorNotices();
 
-        $messages = [];
-        if (is_array($notices)) {
-            foreach ($notices as $notice) {
-                if (is_string($notice)) {
-                    $messages[] = $notice;
-                }
-
-                if (
-                    is_array($notice) &&
-                    array_key_exists('notice', $notice) &&
-                    is_string($notice['notice'])
-                ) {
-                    $messages[] = $notice['notice'];
-                }
-            }
-        }
-
-        return count($messages) ? implode('</br>', $messages) : null;
+        return $notices !== '' ? $notices : null;
     }
 
     /**

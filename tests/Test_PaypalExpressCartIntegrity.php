@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Buckaroo\Woocommerce\Gateways\Express\ExpressCheckoutException;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressController;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressException;
 use Buckaroo\Woocommerce\Gateways\PaypalExpress\PaypalExpressOrder;
@@ -11,6 +12,8 @@ use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 
 class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
 {
+    private const FAILED = 'Something went wrong while processing your payment. Please try again.';
+
     private const NL_ADDRESS = [
         'country_code' => 'NL',
         'state' => '',
@@ -137,7 +140,24 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
         $response = $this->captureJsonResponse([$this->controller(), 'get_cart_total']);
 
         $this->assertTrue($response['error']);
+        $this->assertSame(self::FAILED, $response['message']);
         $this->assertSame($state_before, $this->captureLiveState());
+    }
+
+    public function test_failed_paypal_shipping_quote_sends_the_generic_message(): void
+    {
+        $this->setPaypalRequest(
+            ['product_id' => '999999', 'add-to-cart' => '999999', 'quantity' => '1'],
+            'express-set-shipping',
+            'set_shipping_nonce'
+        );
+        $_POST['shipping_data'] = ['shipping_address' => ['country_code' => 'NL', 'state' => '', 'postal_code' => '8441ER', 'city' => 'Heerenveen']];
+        $_REQUEST = $_POST;
+
+        $response = $this->captureJsonResponse([$this->controller(), 'add_shipping']);
+
+        $this->assertTrue($response['error']);
+        $this->assertSame(self::FAILED, $response['message']);
     }
 
     public function test_valid_paypal_wildcard_probe_returns_total_without_changing_the_live_cart(): void
@@ -340,6 +360,7 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
         $response = $this->captureJsonResponse([$controller, 'send_order']);
 
         $this->assertTrue($response['error']);
+        $this->assertSame(self::FAILED, $response['message']);
         $this->assertSame($state_before, $this->captureLiveState());
     }
 
@@ -937,7 +958,7 @@ $this->assertSame($expectedTotal, $order->get_total());
 
         [$response, $order] = $this->placePaypalOrder('cart', $product_id, self::NL_ADDRESS, ['email' => 'not-an-email']);
 
-        $this->assertFalse($response['error']);
+        $this->assertFalse($response['error'], (string) ($response['message'] ?? ''));
         $this->assertInstanceOf(WC_Order::class, $order);
         $this->assertSame('', $order->get_billing_first_name());
         $this->assertSame('', $order->get_billing_email());
@@ -1076,6 +1097,178 @@ $this->assertSame($expectedTotal, $order->get_total());
 
         $this->assertFalse($response['error']);
         $this->assertSame(1, $calls);
+    }
+
+    public function test_paypal_guest_cannot_reuse_a_one_per_email_coupon(): void
+    {
+        $product_id = $this->createSimpleProduct('Coupon product', '15.00', true);
+        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+        $coupon = $this->createCoupon('paypal-once-per-email', ['usage_limit_per_user' => 1]);
+        // An earlier order paid with the same PayPal e-mail.
+        $coupon->increase_usage_count('payer@example.com');
+        $this->assertTrue(WC()->cart->apply_coupon($coupon->get_code()));
+
+        [$response, $calls] = $this->sendPaypalCartOrder(null, null, ['email' => 'payer@example.com']);
+
+        $this->assertTrue($response['error']);
+        $this->assertStringContainsStringIgnoringCase('usage limit', $response['message']);
+        $this->assertSame(0, $calls);
+        $this->assertSame([$coupon->get_code()], WC()->cart->get_applied_coupons());
+    }
+
+    public function test_paypal_guest_is_rejected_when_the_shop_requires_an_account(): void
+    {
+        update_option('woocommerce_enable_guest_checkout', 'no');
+        $product_id = $this->createSimpleProduct('Account product', '15.00', true);
+        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+
+        [$response, $calls] = $this->sendPaypalCartOrder(null);
+
+        $this->assertTrue($response['error']);
+        $this->assertSame('You must be logged in to checkout.', $response['message']);
+        $this->assertSame(0, $calls);
+    }
+
+    public function test_paypal_order_with_an_error_from_a_third_party_cart_check_is_not_sent(): void
+    {
+        $product_id = $this->createSimpleProduct('Minimum quantity', '15.00', true);
+        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+        $check = static function (): void {
+            wc_add_notice('Order at least two items.', 'error');
+        };
+
+        try {
+            [$response, $calls] = $this->sendPaypalCartOrder(null, null, [], $check);
+        } finally {
+            remove_action('woocommerce_check_cart_items', $check);
+        }
+
+        $this->assertTrue($response['error']);
+        $this->assertSame('Order at least two items.', $response['message']);
+        $this->assertSame(0, $calls);
+    }
+
+    public function test_paypal_order_with_an_error_from_a_checkout_validator_is_not_sent(): void
+    {
+        $product_id = $this->createSimpleProduct('Validated product', '15.00', true);
+        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+        $validate = static function (array $data, WP_Error $errors): void {
+            $errors->add('payer', 'No orders from ' . $data['billing_email'] . '.');
+        };
+        add_action('woocommerce_after_checkout_validation', $validate, 10, 2);
+
+        try {
+            [$response, $calls] = $this->sendPaypalCartOrder(null, null, ['email' => 'payer@example.com']);
+        } finally {
+            remove_action('woocommerce_after_checkout_validation', $validate, 10);
+        }
+
+        $this->assertTrue($response['error']);
+        $this->assertSame('No orders from payer@example.com.', $response['message']);
+        $this->assertSame(0, $calls);
+    }
+
+    public function test_paypal_order_with_an_error_from_a_checkout_process_validator_is_not_sent(): void
+    {
+        $product_id = $this->createSimpleProduct('Validated product', '15.00', true);
+        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+        $validate = static function (): void {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Test validator.
+            if (($_POST['billing_email'] ?? '') === 'payer@example.com') {
+                wc_add_notice('Please confirm you are over 18.', 'error');
+            }
+        };
+        add_action('woocommerce_checkout_process', $validate);
+
+        try {
+            [$response, $calls] = $this->sendPaypalCartOrder(null, null, ['email' => 'payer@example.com']);
+        } finally {
+            remove_action('woocommerce_checkout_process', $validate);
+        }
+
+        $this->assertTrue($response['error']);
+        $this->assertSame('Please confirm you are over 18.', $response['message']);
+        $this->assertSame(0, $calls);
+    }
+
+    public function test_paypal_product_order_applies_the_add_to_cart_validation_but_its_quote_does_not(): void
+    {
+        $product_id = $this->createSimpleProduct('Booking', '15.00', true);
+        $refuse = static function (): bool {
+            wc_add_notice('This product needs a booking date.', 'error');
+
+            return false;
+        };
+        add_filter('woocommerce_add_to_cart_validation', $refuse);
+
+        try {
+            $this->setPaypalRequest(
+                ['product_id' => (string) $product_id, 'add-to-cart' => (string) $product_id, 'quantity' => '1'],
+                'express-cart-totals',
+                'cart_total_nonce'
+            );
+            $quote = $this->captureJsonResponse([$this->controller(), 'get_cart_total']);
+            $this->assertFalse($quote['error']);
+
+            try {
+                (new PaypalExpressShipping())->with_cart_for_order(true, static function (): array {
+                    return [];
+                });
+                $this->fail('The order must apply the add-to-cart validation.');
+            } catch (ExpressCheckoutException $e) {
+                $this->assertSame('This product needs a booking date.', $e->getMessage());
+            }
+        } finally {
+            remove_filter('woocommerce_add_to_cart_validation', $refuse);
+        }
+    }
+
+    public function test_paypal_order_holds_the_applied_coupons(): void
+    {
+        $product_id = $this->createSimpleProduct('Coupon product', '15.00', true);
+        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+        $coupon = $this->createCoupon('paypal-single-use', ['usage_limit' => 1]);
+        $this->assertTrue(WC()->cart->apply_coupon($coupon->get_code()));
+        $gateways_before = WC()->payment_gateways->payment_gateways;
+        WC()->payment_gateways->payment_gateways[] = $this->fakePaypalGateway();
+
+        try {
+            $first = (new PaypalExpressOrder())->create_and_send(
+                'PAYPAL-FIRST',
+                null,
+                null,
+                ['billing' => ['email' => 'first@example.com']]
+            );
+            $this->assertSame('success', $first['result']);
+
+            try {
+                (new PaypalExpressOrder())->create_and_send(
+                    'PAYPAL-SECOND',
+                    null,
+                    null,
+                    ['billing' => ['email' => 'second@example.com']]
+                );
+                $this->fail('The coupon is held by the first, unpaid order.');
+            } catch (PaypalExpressException $e) {
+                $this->assertStringContainsString('paypal-single-use', $e->getMessage());
+            }
+        } finally {
+            WC()->payment_gateways->payment_gateways = $gateways_before;
+        }
+    }
+
+    public function test_paypal_error_notices_are_sent_as_plain_text(): void
+    {
+        $product_id = $this->createSimpleProduct('Notice product', '15.00', true);
+        $this->assertIsString(WC()->cart->add_to_cart($product_id, 1));
+
+        [$response] = $this->sendPaypalCartOrder(null, static function (): void {
+            wc_add_notice('Coupon <strong>&quot;A&amp;B&quot;</strong> was removed.', 'error');
+            wc_add_notice('<a href="https://example.org">Try again</a>.', 'error');
+        });
+
+        $this->assertTrue($response['error']);
+        $this->assertSame('Coupon "A&B" was removed. Try again.', $response['message']);
     }
 
     /**
@@ -1220,9 +1413,17 @@ $this->assertSame($expectedTotal, $order->get_total());
      * Quote the live cart (with a PayPal address when a country is given) and
      * send the approved order. Returns the response, how often an order was
      * created and the shipping total of the cart it was created from.
+     *
+     * @param  callable|null  $whileCreating  Runs where the order would be created.
+     * @param  array<string, string>  $contact  Payer details approved in PayPal.
+     * @param  callable|null  $cartCheck  Added to the cart item checks after the quote.
      */
-    private function sendPaypalCartOrder(?string $country): array
-    {
+    private function sendPaypalCartOrder(
+        ?string $country,
+        ?callable $whileCreating = null,
+        array $contact = [],
+        ?callable $cartCheck = null
+    ): array {
         $shipping_data = [
             'shipping_address' => [
                 'country_code' => $country,
@@ -1252,25 +1453,37 @@ $this->assertSame($expectedTotal, $order->get_total());
         if ($country !== null) {
             $_POST['shipping_data'] = $shipping_data;
         }
+        if ($contact !== []) {
+            $_POST['paypal_contact'] = $contact;
+        }
         $_REQUEST = $_POST;
+        if ($cartCheck) {
+            add_action('woocommerce_check_cart_items', $cartCheck);
+        }
 
         $calls = 0;
         $shipping_total = null;
-        $order = new class($calls, $shipping_total) {
+        $order = new class($calls, $shipping_total, $whileCreating) {
             private $calls;
 
             private $shipping_total;
 
-            public function __construct(int &$calls, &$shipping_total)
+            private $whileCreating;
+
+            public function __construct(int &$calls, &$shipping_total, ?callable $whileCreating)
             {
                 $this->calls = &$calls;
                 $this->shipping_total = &$shipping_total;
+                $this->whileCreating = $whileCreating;
             }
 
             public function create_and_send($order_id): array
             {
                 $this->calls++;
                 $this->shipping_total = (float) WC()->cart->get_shipping_total();
+                if ($this->whileCreating) {
+                    call_user_func($this->whileCreating);
+                }
 
                 return ['redirect' => '/order-received'];
             }
@@ -1342,6 +1555,23 @@ $this->assertSame($expectedTotal, $order->get_total());
         $this->product_ids[] = $product_id;
 
         return [$product_id, $variation_id];
+    }
+
+    /**
+     * A 1.00 fixed cart coupon with the given limits.
+     *
+     * @param  array<string, mixed>  $props
+     */
+    private function createCoupon(string $code, array $props): WC_Coupon
+    {
+        $coupon = new WC_Coupon();
+        $coupon->set_code($code);
+        $coupon->set_discount_type('fixed_cart');
+        $coupon->set_amount(1);
+        $coupon->set_props($props);
+        $coupon->save();
+
+        return $coupon;
     }
 
     private function createSimpleProduct(string $name, string $price, bool $virtual = false): int

@@ -6,6 +6,7 @@ use Buckaroo\Woocommerce\Services\PaymentFee;
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentGateway;
 use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayOldGateway;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressCheckoutRules;
 use Buckaroo\Woocommerce\Gateways\Express\ExpressPlacements;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinController;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
@@ -129,6 +130,8 @@ class InitGateways
 
         $gateways = WC()->payment_gateways()->payment_gateways();
         $payment_methods = [];
+        // Express payments refuse a shopper who must log in first (BTI-1874).
+        $expressAllowed = ! ExpressCheckoutRules::loginRequired();
 
         foreach ($gateways as $gateway_id => $gateway) {
             // The checkout data covers every enabled Buckaroo gateway; block
@@ -177,7 +180,8 @@ class InitGateways
                     $payment_method = array_merge(
                         $payment_method,
                         [
-                            'showInCheckout' => ExpressPlacements::enabledFor($gateway_id, 'checkout')
+                            'showInCheckout' => $expressAllowed
+                                && ExpressPlacements::enabledFor($gateway_id, 'checkout')
                                 && $gateway::hasRequiredCredentials($gateway->settings),
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
                             'buttonStyle' => $gateway->get_option('button_style', 'black'),
@@ -193,7 +197,8 @@ class InitGateways
                     $payment_method = array_merge(
                         $payment_method,
                         [
-                            'showInCheckout' => ExpressPlacements::enabledFor($gateway_id, 'checkout')
+                            'showInCheckout' => $expressAllowed
+                                && ExpressPlacements::enabledFor($gateway_id, 'checkout')
                                 && $gateway::hasRequiredCredentials($gateway->settings),
                             'merchantIdentifier' => $gateway->get_option('merchant_guid'),
                             'buttonStyle' => $gateway->get_option('button_style', 'black'),
@@ -210,7 +215,8 @@ class InitGateways
                     $payment_method = array_merge(
                         $payment_method,
                         [
-                            'showInCheckout' => is_array($expressPages) && in_array(PaypalExpressController::LOCATION_CHECKOUT, $expressPages)
+                            'showInCheckout' => $expressAllowed
+                                && is_array($expressPages) && in_array(PaypalExpressController::LOCATION_CHECKOUT, $expressPages)
                                 && $gateway::hasExpressCredentials($gateway->settings),
                         ]
                     );
