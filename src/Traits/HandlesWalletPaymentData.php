@@ -9,7 +9,7 @@ namespace Buckaroo\Woocommerce\Traits;
  * its own quirk:
  *
  *  - Express Checkout button — posted as form-encoded fields, so it arrives as
- *    an array of WordPress slash-escaped strings.
+ *    an array; Request removes the slashes WordPress adds.
  *  - Classic checkout method — one JSON string in a hidden field, slash-escaped
  *    by WordPress like any other $_POST value. The classic checkout posts the
  *    fields of every payment method, so each wallet has its own field name.
@@ -33,7 +33,7 @@ trait HandlesWalletPaymentData
     protected function getWalletPaymentData(string $checkoutField = ''): array
     {
         foreach (array_filter([$checkoutField, 'paymentData', 'paymentdata']) as $key) {
-            $raw = $this->request->input($key);
+            $raw = $this->request->input($key) ?? $this->request->inputArray($key);
 
             if ($raw !== null && $raw !== '') {
                 return $this->normalizeWalletPaymentData($raw);
@@ -49,7 +49,7 @@ trait HandlesWalletPaymentData
     protected function normalizeWalletPaymentData($data): array
     {
         if (is_array($data)) {
-            return wp_unslash($data);
+            return $data;
         }
 
         if (! is_string($data)) {

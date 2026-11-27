@@ -39,12 +39,53 @@ class Test_RequestInputHandling extends WP_UnitTestCase
         parent::tearDown();
     }
 
-    public function test_client_ip_uses_the_first_address_of_the_forwarded_list(): void
+    public function test_client_ip_is_the_remote_address_of_a_public_client(): void
     {
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = '203.0.113.7, 10.0.0.1';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '203.0.113.7';
+        $_SERVER['HTTP_CLIENT_IP'] = '203.0.113.8';
+        $_SERVER['REMOTE_ADDR'] = '198.51.100.4';
+
+        $this->assertSame('198.51.100.4', $this->clientIp());
+    }
+
+    public function test_client_ip_of_an_ipv4_mapped_public_client_is_the_remote_address(): void
+    {
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '203.0.113.99';
+        $_SERVER['REMOTE_ADDR'] = '::ffff:198.51.100.4';
+
+        $this->assertSame('198.51.100.4', $this->clientIp());
+    }
+
+    public function test_client_ip_behind_a_private_proxy_uses_the_nearest_forwarded_address(): void
+    {
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '192.0.2.1, 203.0.113.7, 10.0.0.2';
         $_SERVER['REMOTE_ADDR'] = '10.0.0.1';
 
         $this->assertSame('203.0.113.7', $this->clientIp());
+    }
+
+    public function test_client_ip_behind_a_filtered_proxy_uses_the_forwarded_address(): void
+    {
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '203.0.113.7';
+        $_SERVER['REMOTE_ADDR'] = '198.51.100.9';
+        $trust = static function () {
+            return ['198.51.100.9'];
+        };
+        add_filter('buckaroo_trusted_proxies', $trust);
+
+        try {
+            $this->assertSame('203.0.113.7', $this->clientIp());
+        } finally {
+            remove_filter('buckaroo_trusted_proxies', $trust);
+        }
+    }
+
+    public function test_client_ip_behind_a_proxy_stops_at_an_invalid_forwarded_entry(): void
+    {
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '203.0.113.7, unknown';
+        $_SERVER['REMOTE_ADDR'] = '10.0.0.1';
+
+        $this->assertSame('10.0.0.1', $this->clientIp());
     }
 
     public function test_client_ip_falls_back_to_the_remote_address(): void
@@ -54,9 +95,9 @@ class Test_RequestInputHandling extends WP_UnitTestCase
         $this->assertSame('198.51.100.4', $this->clientIp());
     }
 
-    public function test_client_ip_is_empty_when_the_header_is_not_an_ip_address(): void
+    public function test_client_ip_is_empty_when_the_remote_address_is_not_an_ip_address(): void
     {
-        $_SERVER['HTTP_CLIENT_IP'] = '<b>not-an-ip</b>';
+        $_SERVER['REMOTE_ADDR'] = '<b>not-an-ip</b>';
 
         $this->assertSame('', $this->clientIp());
     }
@@ -97,6 +138,52 @@ class Test_RequestInputHandling extends WP_UnitTestCase
 
         $this->assertSame("O'Brien x", Request::make()->query('name'));
         $this->assertSame("D'Arcy", Request::make()->post('name'));
+    }
+
+    public function test_request_input_reads_unslashed_posted_values(): void
+    {
+        $_GET = ['name' => 'from-query'];
+        $_POST = wp_slash(['name' => "O'Brien <b>x</b>"]);
+
+        $this->assertSame("O'Brien x", Request::make()->input('name'));
+    }
+
+    public function test_request_input_keeps_store_api_values_as_sent(): void
+    {
+        $_POST = ['paymentdata' => '{"signedMessage":"{\\"a\\":1}"}', 'name' => "O\\'Brien"];
+        $request = new class extends Request {
+            protected function isRestRequest(): bool
+            {
+                return true;
+            }
+        };
+
+        $this->assertSame('{"signedMessage":"{\\"a\\":1}"}', $request->input('paymentdata'));
+        $this->assertSame("O\\'Brien", $request->input('name'));
+    }
+
+    public function test_request_input_ignores_query_values(): void
+    {
+        $_GET = ['name' => 'from-query'];
+        $_POST = [];
+
+        $this->assertNull(Request::make()->input('name'));
+        $this->assertSame('fallback', Request::make()->input('name', 'fallback'));
+    }
+
+    public function test_request_input_returns_the_default_for_a_list_value(): void
+    {
+        $_POST = ['iban' => ['NL91ABNA0417164300']];
+
+        $this->assertSame('', Request::make()->input('iban', ''));
+    }
+
+    public function test_request_input_casts_single_values_to_text(): void
+    {
+        $_POST = ['amount' => 10, 'accept' => true];
+
+        $this->assertSame('10', Request::make()->input('amount'));
+        $this->assertSame('1', Request::make()->input('accept'));
     }
 
     public function test_request_method_ignores_markup(): void
