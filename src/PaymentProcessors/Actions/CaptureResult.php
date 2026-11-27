@@ -33,6 +33,8 @@ class CaptureResult
 
     private ?string $transactionKey;
 
+    private bool $alreadyRecorded = false;
+
     private function __construct(string $status, string $message = '', array $responseData = [], ?string $transactionKey = null)
     {
         $this->status = $status;
@@ -44,6 +46,18 @@ class CaptureResult
     public static function succeeded(array $responseData, string $transactionKey): self
     {
         return new self(self::SUCCEEDED, '', $responseData, $transactionKey);
+    }
+
+    /**
+     * A successful capture whose transaction key was recorded earlier, e.g. by the
+     * push while the capture request was still running.
+     */
+    public static function alreadyRecorded(array $responseData, string $transactionKey): self
+    {
+        $result = self::succeeded($responseData, $transactionKey);
+        $result->alreadyRecorded = true;
+
+        return $result;
     }
 
     public static function pending(array $responseData, ?string $transactionKey): self
@@ -74,6 +88,11 @@ class CaptureResult
     public function isSuccess(): bool
     {
         return $this->status === self::SUCCEEDED;
+    }
+
+    public function wasAlreadyRecorded(): bool
+    {
+        return $this->alreadyRecorded;
     }
 
     public function getStatus(): string

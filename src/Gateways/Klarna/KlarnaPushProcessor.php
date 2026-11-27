@@ -288,8 +288,6 @@ class KlarnaPushProcessor
         $products = (new KlarnaOrderArticles(new OrderDetails($order), $gateway))
             ->get_products_for_capture($allocation, $amount);
 
-        // The order was already updated when this capture key was first recorded.
-        $alreadyRecorded = (bool) OrderMeta::get($order, '_capturebuckaroo' . $transactionKey);
         $captureResult = CaptureRecorder::record(
             $order,
             $amount,
@@ -320,7 +318,8 @@ class KlarnaPushProcessor
             return true;
         }
 
-        if (! $alreadyRecorded) {
+        // The capture response may have recorded this key first; the order was updated then (BTI-2133).
+        if (! $captureResult->wasAlreadyRecorded()) {
             KlarnaFulfillmentActions::updateOrderAfterCapture($order, $transactionKey);
         }
 
@@ -408,7 +407,9 @@ class KlarnaPushProcessor
             );
         }
 
-        KlarnaFulfillmentActions::updateOrderAfterCapture($order, $transactionKey);
+        if (! $captureResult->wasAlreadyRecorded()) {
+            KlarnaFulfillmentActions::updateOrderAfterCapture($order, $transactionKey);
+        }
         $order->save();
         self::updateSettlementMeta($order, $responseParser, $amount);
         OrderMeta::add($order, '_payment_method_transaction', 'klarna', true);

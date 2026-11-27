@@ -723,6 +723,63 @@ class Test_KlarnaCapturePushReconciliation extends TestCase
         );
     }
 
+    public function test_a_push_handled_during_the_capture_request_confirms_the_capture_once(): void
+    {
+        $order = $this->createReservedOrder();
+        $client = new InterleavingBuckarooClient(
+            function () use ($order): void {
+                $this->assertTrue(apply_filters(
+                    'buckaroo_push_handled',
+                    false,
+                    wc_get_order($order->get_id()),
+                    $this->payPush($order, 'PAY-CONCURRENT', 25.00)
+                ));
+            },
+            $this->transactionResponse(190, 'PAY-CONCURRENT', '')
+        );
+        $actions = new KlarnaFulfillmentActions($client);
+        $order->set_status('completed');
+        $order->save();
+        $actions->handle_completed_order($order->get_id());
+
+        $actions->handle_automatic_capture($order->get_id(), 1);
+
+        $storedOrder = wc_get_order($order->get_id());
+        $this->assertSame('succeeded', KlarnaCaptureAttempt::find($storedOrder, 1)['state']);
+        $this->assertSame('completed', $storedOrder->get_status());
+        $this->assertCount(1, OrderMeta::get($storedOrder, '_wc_order_captures', false));
+        $this->assertSame(1, $this->countConfirmationNotes($order, 'PAY-CONCURRENT'));
+    }
+
+    public function test_a_push_for_an_order_loaded_before_the_capture_response_confirms_the_capture_once(): void
+    {
+        $order = $this->createReservedOrder();
+        $pushOrder = null;
+        $client = new InterleavingBuckarooClient(
+            function () use ($order, &$pushOrder): void {
+                $pushOrder = wc_get_order($order->get_id());
+                $pushOrder->read_meta_data(true);
+            },
+            $this->transactionResponse(190, 'PAY-RESPONSE-FIRST', '')
+        );
+        $actions = new KlarnaFulfillmentActions($client);
+        $order->set_status('completed');
+        $order->save();
+        $actions->handle_completed_order($order->get_id());
+        $actions->handle_automatic_capture($order->get_id(), 1);
+
+        $this->assertTrue(KlarnaPushProcessor::reconcileCapture(
+            $pushOrder,
+            $this->payPush($order, 'PAY-RESPONSE-FIRST', 25.00)
+        ));
+
+        $storedOrder = wc_get_order($order->get_id());
+        $this->assertSame('succeeded', KlarnaCaptureAttempt::find($storedOrder, 1)['state']);
+        $this->assertSame('completed', $storedOrder->get_status());
+        $this->assertCount(1, OrderMeta::get($storedOrder, '_wc_order_captures', false));
+        $this->assertSame(1, $this->countConfirmationNotes($order, 'PAY-RESPONSE-FIRST'));
+    }
+
     public function test_real_c339_push_matches_the_active_retry_over_an_older_failed_attempt(): void
     {
         $order = $this->createReservedOrder();
