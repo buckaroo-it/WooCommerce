@@ -9,21 +9,61 @@ class Request
         return new static();
     }
 
+    /**
+     * Posted fields, without the slashes WordPress adds.
+     *
+     * The Store API checkout puts the unslashed payment data in $_POST, so
+     * REST requests are taken as they are.
+     */
     public function all(): array
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing -- Shared accessor; callers run behind the checkout nonce or verify their own.
-        return array_merge($_GET, $_POST);
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Shared accessor; callers run behind the checkout nonce or verify their own.
+        $post = is_array($_POST) ? $_POST : [];
+
+        if ($this->isRestRequest()) {
+            return $post;
+        }
+
+        return wp_unslash($post);
     }
 
+    protected function isRestRequest(): bool
+    {
+        return defined('REST_REQUEST') && REST_REQUEST;
+    }
+
+    /**
+     * A posted field as sanitized text; $default when it is missing or not a
+     * single value.
+     */
     public function input($key = null, $default = null)
     {
         $input = $this->all();
 
         if ($key === null) {
-            return $input;
+            return map_deep($input, 'sanitize_text_field');
         }
 
-        return map_deep($input[$key] ?? $default, 'sanitize_text_field');
+        if (! isset($input[$key]) || ! is_scalar($input[$key])) {
+            return $default;
+        }
+
+        return sanitize_text_field((string) $input[$key]);
+    }
+
+    /**
+     * A posted list of fields, sanitized; $default when it is missing or a
+     * single value.
+     */
+    public function inputArray($key, $default = null)
+    {
+        $input = $this->all();
+
+        if (! isset($input[$key]) || ! is_array($input[$key])) {
+            return $default;
+        }
+
+        return map_deep($input[$key], 'sanitize_text_field');
     }
 
     public function query($key = null, $default = null)

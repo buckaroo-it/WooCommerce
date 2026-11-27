@@ -145,7 +145,7 @@ class InitGateways
                 $payment_method = [
                     'paymentMethodId' => $gateway_id,
                     'title' => $gateway->get_title(),
-                    'description' => $gateway->shouldShowPaymentDescription() ? $gateway->description : '',
+                    'description' => $gateway->shouldShowPaymentDescription() ? wp_kses_post($gateway->description) : '',
                     // Translated here, so the Blocks bundle needs no JS catalogue for it.
                     'redirectNotice' => $gateway->getRedirectNoticeHtml(),
                     'image_path' => $gateway->getIcon(),

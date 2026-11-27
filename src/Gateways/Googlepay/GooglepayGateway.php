@@ -80,7 +80,7 @@ class GooglepayGateway extends AbstractPaymentGateway
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- expressRequestError() verified the nonce.
         Logger::log(__METHOD__ . '|1|', ['request_fields' => array_keys($_POST)]);
 
-        $this->paymentData = $this->request->input('paymentData');
+        $this->paymentData = $this->request->inputArray('paymentData');
 
         // No order is created for a payload without a wallet token (BTI-1874).
         if (! is_array($this->paymentData) || empty(GooglepayProcessor::walletToken($this->paymentData))) {
@@ -96,7 +96,7 @@ class GooglepayGateway extends AbstractPaymentGateway
             $this->error_response('Google Pay data is invalid.');
         }
 
-        $items = $this->request->input('items');
+        $items = $this->request->inputArray('items');
         if ($items === null || ! is_array($items)) {
             $this->error_response('Google Pay data is invalid.');
         }

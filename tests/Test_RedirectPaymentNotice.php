@@ -185,6 +185,25 @@ class Test_RedirectPaymentNotice extends TestCase
         }
     }
 
+    public function test_block_checkout_description_keeps_only_allowed_markup(): void
+    {
+        $gateway = new IdealGateway();
+        $gateway->enabled = 'yes';
+        $gateway->description = 'Pay <strong>now</strong><script>alert(1)</script>';
+        $gateway->settings['description'] = $gateway->description;
+
+        $paymentGateways = WC()->payment_gateways();
+        $previousGateways = $paymentGateways->payment_gateways;
+        $paymentGateways->payment_gateways = [$gateway->id => $gateway];
+        try {
+            $blocksData = (new InitGateways())->initGatewaysOnCheckout();
+        } finally {
+            $paymentGateways->payment_gateways = $previousGateways;
+        }
+
+        $this->assertSame('Pay <strong>now</strong>alert(1)', $blocksData[0]['description']);
+    }
+
     public function test_developer_can_replace_redirect_notice_text_safely(): void
     {
         $filter = static function () {
