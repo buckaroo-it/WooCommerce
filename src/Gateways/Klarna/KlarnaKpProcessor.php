@@ -3,7 +3,6 @@
 namespace Buckaroo\Woocommerce\Gateways\Klarna;
 
 use Buckaroo\Woocommerce\Gateways\AbstractPaymentProcessor;
-use Buckaroo\Woocommerce\Gateways\Afterpay\AfterpayNewGateway;
 use Buckaroo\Woocommerce\Order\OrderDetails;
 use Buckaroo\Woocommerce\Order\OrderMeta;
 use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
@@ -44,7 +43,8 @@ class KlarnaKpProcessor extends AbstractPaymentProcessor
     {
         $streetParts = $this->order_details->get_billing_address_components();
         $country_code = $this->getAddress('billing', 'country');
-        $data = [
+
+        return [
             'operatingCountry' => $country_code,
             'billing' => [
                 'recipient' => [
@@ -54,26 +54,19 @@ class KlarnaKpProcessor extends AbstractPaymentProcessor
                 'address' => [
                     'street' => $streetParts->get_street(),
                     'houseNumber' => $streetParts->get_house_number(),
-                    'zipcode' => '2521VA',
+                    'zipcode' => $this->getAddress('billing', 'postcode'),
                     'city' => $this->getAddress('billing', 'city'),
                     'country' => $country_code,
                 ],
+                // Klarna KP has no checkout fields of its own, and the classic
+                // checkout posts the fields of every method, so only order data
+                // is used (BTI-1880).
                 'phone' => [
-                    'mobile' => $this->getPhone($this->order_details->get_billing_phone()),
+                    'mobile' => $this->order_details->get_billing_phone(),
                 ],
                 'email' => $this->getAddress('billing', 'email'),
             ],
         ];
-
-        return array_merge_recursive(
-            $data,
-            $this->getCompany(),
-        );
-    }
-
-    private function getPhone(string $phone): string
-    {
-        return $this->request->input('buckaroo-afterpaynew-phone', $phone);
     }
 
     protected function getShippingData(): array
@@ -81,7 +74,7 @@ class KlarnaKpProcessor extends AbstractPaymentProcessor
         $streetParts = $this->order_details->get_shipping_address_components();
         $country_code = $this->getAddress('shipping', 'country');
 
-        $data = [
+        return [
             'shipping' => [
                 'recipient' => [
                     'firstName' => $this->getAddress('shipping', 'first_name'),
@@ -90,55 +83,13 @@ class KlarnaKpProcessor extends AbstractPaymentProcessor
                 'address' => [
                     'street' => $streetParts->get_street(),
                     'houseNumber' => $streetParts->get_house_number(),
-                    'zipcode' => '2521VA',
+                    'zipcode' => $this->getAddress('shipping', 'postcode'),
                     'city' => $this->getAddress('shipping', 'city'),
                     'country' => $country_code,
                 ],
                 'email' => $this->getAddress('billing', 'email'),
             ],
         ];
-
-        return array_merge_recursive(
-            $data,
-            $this->getCompany('shipping'),
-        );
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    protected function getCompany(string $address_type = 'billing'): array
-    {
-        $company = $this->getAddress($address_type, 'company');
-        if (
-            $this->isB2b() &&
-            $this->getAddress($address_type, 'country') === 'NL' &&
-            ! $this->isCompanyEmpty($company)
-        ) {
-            return [
-                $address_type => [
-                    'recipient' => [
-                        'companyName' => $company,
-                        'chamberOfCommerce' => $this->request->input('buckaroo-afterpaynew-company-coc-registration'),
-                    ],
-                ],
-            ];
-        }
-
-        return [];
-    }
-
-    public function isB2b(): bool
-    {
-        return $this->gateway->get_option('customer_type') !== AfterpayNewGateway::CUSTOMER_TYPE_B2C;
-    }
-
-    /**
-     * Check if company is empty
-     */
-    public function isCompanyEmpty(?string $company = null): bool
-    {
-        return $company === null || strlen(trim($company)) === 0;
     }
 
     public function beforeReturnHandler(ResponseParser $responseParser, string $redirectUrl)

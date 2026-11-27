@@ -93,8 +93,14 @@ class PaypalGateway extends AbstractPaymentGateway
         // Ensure the prefix ends with _, and set the prefix.
         $prefix = "_{$prefix}_";
 
-        $order->add_meta_data($prefix . 'source_type', 'typein');
-        $order->add_meta_data($prefix . 'utm_source', '(direct)');
+        // Only orders without attribution, such as PayPal Express orders,
+        // are marked as direct. The checkout's own attribution is kept (BTI-1880).
+        if ($order->get_meta($prefix . 'source_type') !== '') {
+            return;
+        }
+
+        $order->update_meta_data($prefix . 'source_type', 'typein');
+        $order->update_meta_data($prefix . 'utm_source', '(direct)');
         $order->save();
     }
 

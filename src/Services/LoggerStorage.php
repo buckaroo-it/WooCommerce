@@ -52,9 +52,10 @@ class LoggerStorage
 
     /**
      * Matches a normalized key that holds customer details: names, contact details,
-     * addresses, dates of birth, company registration numbers and IP addresses
+     * addresses, dates of birth, identification and company registration numbers
+     * and IP addresses
      */
-    private const PERSONAL_DATA_KEY_PATTERN = '/firstname|lastname|givenname|familyname|fullname|middlename|initials|(consumer|customer|account|holder|payer|recipient|contact|card)name|careof|email|phone|mobile|street|housenumber|housenr|address|postcode|postalcode|zipcode|^zip$|city$|locality|birth|dob$|chamberofcommerce|coc|kvk|consumerbin|^bin$|^ip$|clientip|remoteaddr|forwardedfor/';
+    private const PERSONAL_DATA_KEY_PATTERN = '/firstname|lastname|givenname|familyname|fullname|middlename|initials|(consumer|customer|account|holder|payer|recipient|contact|card)name|careof|email|phone|mobile|street|housenumber|housenr|address|postcode|postalcode|zipcode|^zip$|city$|locality|birth|dob$|identificationnumber|chamberofcommerce|coc|kvk|consumerbin|^bin$|^ip$|clientip|remoteaddr|forwardedfor/';
 
     /** Matches a normalized key whose "name" entry is the name of a person */
     private const PERSON_CONTAINER_PATTERN = '/customer|recipient|consumer|contact|payer|holder|person|billing|shipping/';

@@ -269,7 +269,8 @@ class GooglepayGateway extends AbstractPaymentGateway
 
             $this->reserveExpressStock($order);
 
-            $order->update_status('pending payment', 'Order created using Google Pay', true);
+            // The express order is created pending, so the note is added directly (BTI-1880).
+            $order->add_order_note('Order created using Google Pay');
             wc_update_coupon_usage_counts($order->get_id());
         } catch (Throwable $e) {
             Logger::log(__METHOD__ . '|fail|', $e->getMessage());

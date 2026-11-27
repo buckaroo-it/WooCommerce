@@ -31,7 +31,8 @@ class BillinkProcessor extends AbstractPaymentProcessor
      */
     protected function getVatnumber(): array
     {
-        $vatNumber = $this->request->input('buckaroo-billink-VatNumber');
+        // Lower case: the block checkout lower-cases payment data keys (BTI-1880).
+        $vatNumber = $this->request->input('buckaroo-billink-vatnumber');
         if (
             is_string($vatNumber) &&
             ! empty(trim($vatNumber))
@@ -126,7 +127,7 @@ class BillinkProcessor extends AbstractPaymentProcessor
     private function getCareOf(string $address_type = 'billing'): string
     {
         $company = $this->getAddress($address_type, 'company');
-        if (! $this->isCompanyEmpty()) {
+        if (! $this->isCompanyEmpty($company)) {
             return $company;
         }
 
