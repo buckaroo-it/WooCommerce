@@ -20,6 +20,36 @@ use WP_Error;
  */
 final class ExpressCheckoutRules
 {
+    /** Live-session key of the shopper's last express order. */
+    public const LAST_ORDER_SESSION_KEY = 'buckaroo_express_order';
+
+    /**
+     * Remember the shopper's new express order in the live session, so the
+     * next express attempt can take over the stock it holds.
+     */
+    public static function rememberOrder(WC_Order $order): void
+    {
+        if (WC()->session) {
+            WC()->session->set(self::LAST_ORDER_SESSION_KEY, $order->get_id());
+        }
+    }
+
+    /**
+     * Release the stock the shopper's last express order still holds while it
+     * is unpaid. The checkout leaves the shopper's own order awaiting payment
+     * out of its stock check in the same way; without this a retry of a
+     * low-stock product is refused until the hold expires (BTI-1874). Call
+     * with the live session, before the express cart is checked.
+     */
+    public static function releaseLastOrderStock(): void
+    {
+        $orderId = WC()->session ? absint(WC()->session->get(self::LAST_ORDER_SESSION_KEY)) : 0;
+        $order = $orderId ? wc_get_order($orderId) : null;
+        if ($order instanceof WC_Order && $order->has_status('pending')) {
+            wc_release_stock_for_order($order);
+        }
+    }
+
     /**
      * The wallet details as the fields the checkout form posts, such as
      * billing_email and shipping_postcode.

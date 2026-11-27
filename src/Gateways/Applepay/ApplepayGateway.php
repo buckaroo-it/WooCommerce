@@ -208,6 +208,7 @@ class ApplepayGateway extends AbstractPaymentGateway
             $this->id
         );
         $order = null;
+        ExpressCheckoutRules::releaseLastOrderStock();
 
         try {
             ExpressProductCart::calculateItems(
@@ -259,6 +260,8 @@ class ApplepayGateway extends AbstractPaymentGateway
                 throw new ExpressCheckoutException(esc_html($this->expressUnavailableMessage()));
             }
 
+            $this->reserveExpressStock($order);
+
             $order->update_status('pending payment', 'Order created using Apple Pay', true);
         } catch (Throwable $e) {
             Logger::log(__METHOD__ . '|fail|', $e->getMessage());
@@ -272,6 +275,8 @@ class ApplepayGateway extends AbstractPaymentGateway
 
             return false;
         }
+
+        ExpressCheckoutRules::rememberOrder($order);
 
         return [
             'success' => true,

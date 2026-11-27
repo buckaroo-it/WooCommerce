@@ -19,9 +19,14 @@ final class ExpressRateLimit
 
     public const SESSION_KEY = 'buckaroo_express_transactions';
 
+    /** Seconds a request waits for another one to finish counting. */
+    private const LOCK_WAIT = 2;
+
     /**
      * Count one transaction for the session and the client address; false
-     * once either is over its limit.
+     * once either is over its limit. The session count only holds a visitor
+     * that keeps the session cookie; the address count is the limit a
+     * caller cannot shed.
      */
     public static function allow(): bool
     {
@@ -35,11 +40,46 @@ final class ExpressRateLimit
             $withinSessionLimit = $sessionCount['count'] <= self::SESSION_LIMIT;
         }
 
-        $clientKey = 'bk_express_tx_' . md5(self::clientAddress());
-        $clientCount = self::count(get_transient($clientKey), $now);
-        set_transient($clientKey, $clientCount, max(1, $clientCount['start'] + self::WINDOW - $now));
+        return self::countClient($now) && $withinSessionLimit;
+    }
 
-        return $withinSessionLimit && $clientCount['count'] <= self::CLIENT_LIMIT;
+    /**
+     * The database lock the address count is updated under, for the current
+     * client address and site.
+     */
+    public static function lockName(): string
+    {
+        global $wpdb;
+
+        return 'buckaroo_express_rate_' . md5($wpdb->prefix . self::clientAddress());
+    }
+
+    /**
+     * Count one transaction for the client address; false once it is over its
+     * limit. The count is read and written under a lock, so parallel requests
+     * cannot overwrite each other's count. A request that cannot take the
+     * lock in time is refused.
+     */
+    private static function countClient(int $now): bool
+    {
+        global $wpdb;
+
+        $lock = self::lockName();
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A lock has to be taken in the database.
+        if ((int) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, %d)', $lock, self::LOCK_WAIT)) !== 1) {
+            return false;
+        }
+
+        try {
+            $clientKey = 'bk_express_tx_' . md5(self::clientAddress());
+            $clientCount = self::count(get_transient($clientKey), $now);
+            set_transient($clientKey, $clientCount, max(1, $clientCount['start'] + self::WINDOW - $now));
+
+            return $clientCount['count'] <= self::CLIENT_LIMIT;
+        } finally {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Releases the lock taken above.
+            $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lock));
+        }
     }
 
     /**

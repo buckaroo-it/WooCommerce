@@ -12,6 +12,8 @@ use Buckaroo\Woocommerce\ResponseParser\ResponseParser;
 
 class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
 {
+    private const FAILED = 'Something went wrong while processing your payment. Please try again.';
+
     private const NL_ADDRESS = [
         'country_code' => 'NL',
         'state' => '',
@@ -138,7 +140,24 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
         $response = $this->captureJsonResponse([$this->controller(), 'get_cart_total']);
 
         $this->assertTrue($response['error']);
+        $this->assertSame(self::FAILED, $response['message']);
         $this->assertSame($state_before, $this->captureLiveState());
+    }
+
+    public function test_failed_paypal_shipping_quote_sends_the_generic_message(): void
+    {
+        $this->setPaypalRequest(
+            ['product_id' => '999999', 'add-to-cart' => '999999', 'quantity' => '1'],
+            'express-set-shipping',
+            'set_shipping_nonce'
+        );
+        $_POST['shipping_data'] = ['shipping_address' => ['country_code' => 'NL', 'state' => '', 'postal_code' => '8441ER', 'city' => 'Heerenveen']];
+        $_REQUEST = $_POST;
+
+        $response = $this->captureJsonResponse([$this->controller(), 'add_shipping']);
+
+        $this->assertTrue($response['error']);
+        $this->assertSame(self::FAILED, $response['message']);
     }
 
     public function test_valid_paypal_wildcard_probe_returns_total_without_changing_the_live_cart(): void
@@ -341,6 +360,7 @@ class Test_PaypalExpressCartIntegrity extends WP_UnitTestCase
         $response = $this->captureJsonResponse([$controller, 'send_order']);
 
         $this->assertTrue($response['error']);
+        $this->assertSame(self::FAILED, $response['message']);
         $this->assertSame($state_before, $this->captureLiveState());
     }
 
@@ -938,7 +958,7 @@ $this->assertSame($expectedTotal, $order->get_total());
 
         [$response, $order] = $this->placePaypalOrder('cart', $product_id, self::NL_ADDRESS, ['email' => 'not-an-email']);
 
-        $this->assertFalse($response['error']);
+        $this->assertFalse($response['error'], (string) ($response['message'] ?? ''));
         $this->assertInstanceOf(WC_Order::class, $order);
         $this->assertSame('', $order->get_billing_first_name());
         $this->assertSame('', $order->get_billing_email());

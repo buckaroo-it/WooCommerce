@@ -585,9 +585,10 @@ final class ExpressProductCart
     }
 
     /**
-     * The product-page express cart takes the live cart's coupons. One that
-     * does not apply to these products gives no discount in the quote either,
-     * so it is left out rather than refusing the payment (BTI-1874).
+     * The product-page express cart takes the live cart's coupons. One that is
+     * not valid for this cart (product restrictions, minimum spend, usage
+     * limits, expiry) gives no discount in the quote either, so it is left
+     * out rather than refusing the payment (BTI-1874).
      */
     private static function removeCouponsThatDoNotApply(WC_Cart $cart): void
     {

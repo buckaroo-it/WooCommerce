@@ -215,6 +215,7 @@ class GooglepayGateway extends AbstractPaymentGateway
             $this->id
         );
         $order = null;
+        ExpressCheckoutRules::releaseLastOrderStock();
 
         try {
             $shipping_rate = ExpressProductCart::calculateItems(
@@ -259,6 +260,8 @@ class GooglepayGateway extends AbstractPaymentGateway
                 throw new ExpressCheckoutException(esc_html($this->expressUnavailableMessage()));
             }
 
+            $this->reserveExpressStock($order);
+
             $order->update_status('pending payment', 'Order created using Google Pay', true);
             wc_update_coupon_usage_counts($order->get_id());
         } catch (Throwable $e) {
@@ -273,6 +276,8 @@ class GooglepayGateway extends AbstractPaymentGateway
 
             return false;
         }
+
+        ExpressCheckoutRules::rememberOrder($order);
 
         return [
             'success' => true,

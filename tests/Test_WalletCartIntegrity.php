@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Buckaroo\Woocommerce\Gateways\Applepay\ApplepayController;
 use Buckaroo\Woocommerce\Gateways\Applepay\ApplepayGateway;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressCheckoutRules;
 use Buckaroo\Woocommerce\Gateways\Express\ExpressRateLimit;
 use Buckaroo\Woocommerce\Gateways\Googlepay\GooglepayController;
 use Buckaroo\Woocommerce\Gateways\Googlepay\GooglepayGateway;
@@ -1207,6 +1208,11 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
             $session_dirty->setAccessible(true);
         }
 
+        $live_session_data = $session_data->getValue(WC()->session);
+        // The express order is remembered in the live session on purpose: the
+        // shopper's next express attempt takes over the stock it holds.
+        unset($live_session_data[ExpressCheckoutRules::LAST_ORDER_SESSION_KEY]);
+
         return [
             'cart_object' => WC()->cart,
             'cart_contents' => serialize(WC()->cart->get_cart_contents()),
@@ -1220,7 +1226,7 @@ class Test_WalletCartIntegrity extends WP_UnitTestCase
             'customer_object' => WC()->customer,
             'customer' => WC()->customer->get_data(),
             'session_object' => WC()->session,
-            'session_data' => $session_data->getValue(WC()->session),
+            'session_data' => $live_session_data,
             'session_dirty' => $session_dirty->getValue(WC()->session),
             'stored_session_data' => method_exists(WC()->session, 'get_session_data')
                 ? WC()->session->get_session_data()

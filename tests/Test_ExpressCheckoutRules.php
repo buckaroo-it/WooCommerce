@@ -3,8 +3,11 @@
 declare(strict_types=1);
 
 use Buckaroo\Woocommerce\Gateways\Applepay\ApplepayController;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressCheckoutRules;
+use Buckaroo\Woocommerce\Gateways\Express\ExpressRateLimit;
 use Buckaroo\Woocommerce\Gateways\ExpressPaymentManager;
 use Buckaroo\Woocommerce\Gateways\Googlepay\GooglepayController;
+use Buckaroo\Woocommerce\Gateways\Paypal\PaypalGateway;
 use Buckaroo\Woocommerce\Hooks\InitGateways;
 
 /**
@@ -338,6 +341,121 @@ class Test_ExpressCheckoutRules extends ExpressWalletTestCase
     /**
      * @dataProvider walletGateways
      */
+    public function test_unpaid_express_order_reserves_the_last_unit_from_other_shoppers(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+        $productId = $this->createStockedProduct('Last unit', 1);
+
+        $first = new $class();
+        $this->postTransaction($productId);
+        $this->assertSame(self::PAID, $this->runTransaction($first));
+        $this->assertSame(1, (int) wc_get_held_stock_quantity(wc_get_product($productId)));
+
+        // Another shopper's session, while the first order waits for its payment.
+        $this->startOtherSession();
+        $second = new $class();
+        $message = $this->runTransaction($second);
+
+        $this->assertStringContainsStringIgnoringCase('stock', $message);
+        $this->assertNull($second->paidOrderId);
+    }
+
+    /**
+     * @dataProvider walletGateways
+     */
+    public function test_shopper_can_retry_while_their_own_express_order_is_unpaid(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+        $productId = $this->createStockedProduct('Retried unit', 1);
+        $first = new $class();
+        $this->postTransaction($productId);
+        $this->assertSame(self::PAID, $this->runTransaction($first));
+
+        $retry = new $class();
+
+        $this->assertSame(self::PAID, $this->runTransaction($retry));
+        $this->assertSame(1, (int) wc_get_held_stock_quantity(wc_get_product($productId)));
+        $this->assertSame(0, (int) wc_get_held_stock_quantity(wc_get_product($productId), $retry->paidOrderId));
+    }
+
+    /**
+     * @dataProvider walletGateways
+     */
+    public function test_unit_held_by_the_shoppers_checkout_order_is_refused_with_the_stock_message(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+        $productId = $this->createStockedProduct('Held at checkout', 1);
+        // The shopper's own checkout order holds the unit; the cart check leaves it out, the reservation does not.
+        $checkoutOrder = wc_create_order();
+        $checkoutOrder->add_product(wc_get_product($productId), 1);
+        $checkoutOrder->save();
+        wc_reserve_stock_for_order($checkoutOrder);
+        WC()->session->set('order_awaiting_payment', $checkoutOrder->get_id());
+        $gateway = new $class();
+        $this->postTransaction($productId);
+        $ordersBefore = $this->orderIds();
+
+        try {
+            $message = $this->runTransaction($gateway);
+        } finally {
+            WC()->session->set('order_awaiting_payment', null);
+        }
+
+        $this->assertStringContainsString('Not enough units of Held at checkout', $message);
+        $this->assertNull($gateway->paidOrderId);
+        $this->assertSame($ordersBefore, $this->orderIds());
+    }
+
+    /**
+     * @dataProvider walletGateways
+     */
+    public function test_payment_that_could_not_start_releases_its_stock_reservation(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+        $productId = $this->createStockedProduct('Released unit', 1);
+        $this->postTransaction($productId);
+        $failing = new $class();
+        $heldAtPayment = null;
+        $failing->beforePayment = static function () use (&$heldAtPayment, $productId): void {
+            $heldAtPayment = (int) wc_get_held_stock_quantity(wc_get_product($productId));
+        };
+        $failing->paymentError = new RuntimeException('Buckaroo is unreachable.');
+
+        $this->assertSame(self::FAILED, $this->runTransaction($failing));
+
+        $this->assertSame(1, $heldAtPayment, 'The order held the unit while its payment started.');
+        $this->assertSame(0, (int) wc_get_held_stock_quantity(wc_get_product($productId)));
+        $this->startOtherSession();
+        $this->assertSame(self::PAID, $this->runTransaction(new $class()));
+    }
+
+    /**
+     * @dataProvider walletGateways
+     */
+    public function test_rate_limit_counted_elsewhere_at_the_same_time_refuses_the_request(string $class, string $id): void
+    {
+        $this->configureWallet($id);
+        $gateway = new $class();
+        $this->postTransaction($this->createSimpleProduct('Concurrent', '15.00'));
+        $ordersBefore = $this->orderIds();
+        $other = new mysqli(...$this->databaseArguments());
+        $lock = $other->query("SELECT GET_LOCK('" . $other->real_escape_string(ExpressRateLimit::lockName()) . "', 0)")->fetch_row()[0];
+        $this->assertSame('1', (string) $lock);
+
+        try {
+            $message = $this->runTransaction($gateway);
+        } finally {
+            $other->close();
+        }
+
+        $this->assertSame(self::TOO_MANY, $message);
+        $this->assertNull($gateway->paidOrderId);
+        $this->assertSame($ordersBefore, $this->orderIds());
+    }
+
+    /**
+     * @dataProvider walletGateways
+     */
     public function test_product_refused_by_add_to_cart_validation_is_rejected(string $class, string $id): void
     {
         $this->configureWallet($id);
@@ -516,6 +634,48 @@ class Test_ExpressCheckoutRules extends ExpressWalletTestCase
 
         $this->loginCustomer('account@example.com');
         $this->assertTrue($this->blocksData($gateway)['showInCheckout']);
+    }
+
+    public function test_blocks_paypal_express_button_is_hidden_for_a_guest_who_must_log_in(): void
+    {
+        update_option('woocommerce_buckaroo_paypal_settings', ['enabled' => 'yes', 'mode' => 'test', 'express' => ['checkout']]);
+        update_option('woocommerce_enable_guest_checkout', 'no');
+        $gateway = new PaypalGateway();
+
+        $this->assertFalse($this->blocksData($gateway)['showInCheckout']);
+
+        $this->loginCustomer('account@example.com');
+        $this->assertTrue($this->blocksData($gateway)['showInCheckout']);
+    }
+
+    private function createStockedProduct(string $name, int $stock): int
+    {
+        $productId = $this->createSimpleProduct($name, '15.00');
+        $product = wc_get_product($productId);
+        $product->set_manage_stock(true);
+        $product->set_stock_quantity($stock);
+        $product->save();
+
+        return $productId;
+    }
+
+    /** Continue as another shopper: a session without this shopper's express order or attempts. */
+    private function startOtherSession(): void
+    {
+        WC()->session->set(ExpressCheckoutRules::LAST_ORDER_SESSION_KEY, null);
+        WC()->session->set(ExpressRateLimit::SESSION_KEY, null);
+    }
+
+    /** Arguments for a second database connection, as a concurrent request has. */
+    private function databaseArguments(): array
+    {
+        $host = DB_HOST;
+        $port = null;
+        if (strpos($host, ':') !== false) {
+            [$host, $port] = explode(':', $host, 2);
+        }
+
+        return [$host, DB_USER, DB_PASSWORD, DB_NAME, $port !== null ? (int) $port : null];
     }
 
     public function walletControllers(): array

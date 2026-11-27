@@ -248,7 +248,7 @@ class PaypalExpressController
             wp_send_json(
                 [
                     'error' => true,
-                    'message' => 'Internal buckaroo error',
+                    'message' => self::failure_message(),
                 ]
             );
         }
@@ -296,7 +296,7 @@ class PaypalExpressController
             wp_send_json(
                 [
                     'error' => true,
-                    'message' => 'Cannot calculate cart total',
+                    'message' => self::failure_message(),
                 ]
             );
         }
@@ -372,7 +372,7 @@ class PaypalExpressController
             wp_send_json(
                 [
                     'error' => true,
-                    'message' => 'Cannot process buckaroo payment',
+                    'message' => self::failure_message(),
                 ]
             );
         }
@@ -568,6 +568,12 @@ class PaypalExpressController
         return in_array($page, [self::LOCATION_CART, self::LOCATION_CHECKOUT], true)
             ? $page
             : self::LOCATION_CART;
+    }
+
+    /** Shown when the request fails for a reason the shopper cannot act on. */
+    private static function failure_message(): string
+    {
+        return __('Something went wrong while processing your payment. Please try again.', 'wc-buckaroo-bpe-gateway');
     }
 
     /**

@@ -6,6 +6,7 @@ use Buckaroo\Woocommerce\Gateways\ExpressProductCart;
 use Buckaroo\Woocommerce\Gateways\Idin\IdinProcessor;
 use Buckaroo\Woocommerce\Hooks\DisableGateways;
 use Buckaroo\Woocommerce\Services\Logger;
+use Exception;
 use RuntimeException;
 use Throwable;
 use WC_Order;
@@ -62,12 +63,30 @@ trait ExpressAvailability
     }
 
     /**
-     * Delete an order rejected while it was being built, with the coupons it
-     * held, so they are free for the shopper's next attempt.
+     * Reserve the order's stock until it is paid, as the checkout does, so a
+     * second order cannot buy the same last units while this one waits for
+     * its payment push. WooCommerce releases it when the order is paid,
+     * fails or is cancelled (BTI-1874). Call once the order is complete.
+     *
+     * @throws ExpressCheckoutException When there is not enough stock left.
+     */
+    protected function reserveExpressStock(WC_Order $order): void
+    {
+        try {
+            wc_reserve_stock_for_order($order);
+        } catch (Exception $e) {
+            throw new ExpressCheckoutException(wp_kses_post($e->getMessage()));
+        }
+    }
+
+    /**
+     * Delete an order rejected while it was being built, with the coupons and
+     * stock it held, so they are free for the shopper's next attempt.
      */
     protected function discardExpressOrder(WC_Order $order): void
     {
         $order->get_data_store()->release_held_coupons($order);
+        wc_release_stock_for_order($order);
         $order->delete(true);
     }
 
